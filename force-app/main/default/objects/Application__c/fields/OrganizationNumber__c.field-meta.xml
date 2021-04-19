@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>OrganizationNumber__c</fullName>
+    <description>The organization number for the account that submitted the application.</description>
     <externalId>false</externalId>
     <label>Organization Number</label>
     <length>15</length>

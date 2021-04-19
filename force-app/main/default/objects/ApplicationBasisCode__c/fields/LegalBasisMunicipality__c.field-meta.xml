@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Status__c</fullName>
-    <description>The status of the application.</description>
+    <fullName>LegalBasisMunicipality__c</fullName>
+    <description>The legal basis available for organizations that fall under the &quot;Municipality&quot; category.</description>
     <externalId>false</externalId>
-    <label>Status</label>
+    <label>Legal Basis Municipality</label>
     <required>false</required>
-    <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
@@ -13,24 +12,19 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>In Process</fullName>
+                <fullName>Aa-registerforskriften § 9 bokstav f</fullName>
                 <default>false</default>
-                <label>In Process</label>
+                <label>Aa-registerforskriften § 9 bokstav f</label>
             </value>
             <value>
-                <fullName>Additional Information Required</fullName>
+                <fullName>Aa-registerforskriften § 10 bokstav e</fullName>
                 <default>false</default>
-                <label>Additional Information Required</label>
+                <label>Aa-registerforskriften § 10 bokstav e</label>
             </value>
             <value>
-                <fullName>Approved</fullName>
+                <fullName>Annet - oppgi i tekstfelt under</fullName>
                 <default>false</default>
-                <label>Approved</label>
-            </value>
-            <value>
-                <fullName>Declined</fullName>
-                <default>false</default>
-                <label>Declined</label>
+                <label>Annet - oppgi i tekstfelt under</label>
             </value>
         </valueSetDefinition>
     </valueSet>

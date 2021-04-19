@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>OrganizationType__c</fullName>
+    <description>Used to categorize an organization.</description>
+    <externalId>false</externalId>
+    <label>Organization Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Municipality</fullName>
+                <default>false</default>
+                <label>Municipality</label>
+            </value>
+            <value>
+                <fullName>County</fullName>
+                <default>false</default>
+                <label>County</label>
+            </value>
+            <value>
+                <fullName>State - Business</fullName>
+                <default>false</default>
+                <label>State - Business</label>
+            </value>
+            <value>
+                <fullName>State - Health and Social</fullName>
+                <default>false</default>
+                <label>State - Health and Social</label>
+            </value>
+            <value>
+                <fullName>State - Research</fullName>
+                <default>false</default>
+                <label>State - Research</label>
+            </value>
+            <value>
+                <fullName>State - Military</fullName>
+                <default>false</default>
+                <label>State - Military</label>
+            </value>
+            <value>
+                <fullName>State - Legal</fullName>
+                <default>false</default>
+                <label>State - Legal</label>
+            </value>
+            <value>
+                <fullName>State - General</fullName>
+                <default>false</default>
+                <label>State - General</label>
+            </value>
+            <value>
+                <fullName>Electricity Supervision</fullName>
+                <default>false</default>
+                <label>Electricity Supervision</label>
+            </value>
+            <value>
+                <fullName>Pension</fullName>
+                <default>false</default>
+                <label>Pension</label>
+            </value>
+            <value>
+                <fullName>Other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

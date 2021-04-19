@@ -129,7 +129,7 @@
     <actionOverrides>
         <actionName>View</actionName>
         <comment>Action override created by Lightning App Builder during activation.</comment>
-        <content>RelatedContactRecordPage</content>
+        <content>ApplicationBasisCodeRecordPage</content>
         <formFactor>Large</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>Flexipage</type>
@@ -146,23 +146,25 @@
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <description>Contacts related to Applications and Agreements for Aa-registret.</description>
-    <enableActivities>true</enableActivities>
+    <description
+  >Used in connection with the Aa-registret application process to provide relevant values to choose when entering an application basis.</description>
+    <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>
     <enableHistory>false</enableHistory>
     <enableLicensing>false</enableLicensing>
     <enableReports>true</enableReports>
-    <enableSearch>true</enableSearch>
+    <enableSearch>false</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
-    <label>Related Contact</label>
+    <label>Application Basis Code</label>
     <nameField>
-        <label>Related Contacts Name</label>
-        <type>Text</type>
+        <displayFormat>C-{00000}</displayFormat>
+        <label>Code Number</label>
+        <type>AutoNumber</type>
     </nameField>
-    <pluralLabel>Related Contacts</pluralLabel>
+    <pluralLabel>Application Basis Codes</pluralLabel>
     <searchLayouts />
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>

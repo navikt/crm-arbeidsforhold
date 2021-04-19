@@ -2,6 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>SecurityNotifications__c</fullName>
     <defaultValue>false</defaultValue>
+    <description>Would like to receive notifications related to security.</description>
     <externalId>false</externalId>
     <label>Security Notifications</label>
     <trackTrending>false</trackTrending>

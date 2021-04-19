@@ -2,6 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Account__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
+    <description>The account that has sent the application.</description>
     <externalId>false</externalId>
     <label>Account</label>
     <referenceTo>Account</referenceTo>
