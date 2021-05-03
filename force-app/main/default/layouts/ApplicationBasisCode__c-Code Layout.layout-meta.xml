@@ -23,6 +23,14 @@
                 <behavior>Edit</behavior>
                 <field>Application__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>LegalBasisState__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>PurposeState__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns />
         <style>TwoColumnsTopToBottom</style>

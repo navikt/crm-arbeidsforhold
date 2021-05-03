@@ -1,0 +1,1260 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PurposeState__c</fullName>
+    <description>Application purpose state organizations.</description>
+    <externalId>false</externalId>
+    <label>Purpose State</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>LegalBasisState__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Ajourholde av verneplikts- og tjenesteregisteret</fullName>
+                <default>false</default>
+                <label>Ajourholde av verneplikts- og tjenesteregisteret</label>
+            </value>
+            <value>
+                <fullName>Areal- og transportplanlegging</fullName>
+                <default>false</default>
+                <label>Areal- og transportplanlegging</label>
+            </value>
+            <value>
+                <fullName>Avklare nærstående-forhold gjennom arbeidsforhold i stiftelsen</fullName>
+                <default>false</default>
+                <label>Avklare nærstående-forhold gjennom arbeidsforhold i stiftelsen</label>
+            </value>
+            <value>
+                <fullName>Behandling av klager på vedtak fattet av Det lokalte eltilsyn (DLE)</fullName>
+                <default>false</default>
+                <label>Behandling av klager på vedtak fattet av Det lokalte eltilsyn (DLE)</label>
+            </value>
+            <value>
+                <fullName>Behandling av søknader om familiegjenforening</fullName>
+                <default>false</default>
+                <label>Behandling av søknader om familiegjenforening</label>
+            </value>
+            <value>
+                <fullName
+        >BeredtC19 (midlertidig register for å gi løpende oversikt og kunnskap om utbredelse, årsakssammenhenger og konsekvenser av covid-19)</fullName>
+                <default>false</default>
+                <label
+        >BeredtC19 (midlertidig register for å gi løpende oversikt og kunnskap om utbredelse, årsakssammenhenger og konsekvenser av covid-19)</label>
+            </value>
+            <value>
+                <fullName
+        >Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. </fullName>
+                <default>false</default>
+                <label
+        >Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. </label>
+            </value>
+            <value>
+                <fullName>Bruk i Riksrevisjonens kontrollarbeid</fullName>
+                <default>false</default>
+                <label>Bruk i Riksrevisjonens kontrollarbeid</label>
+            </value>
+            <value>
+                <fullName>Etterforskning av straffbare forhold i militær tjeneste</fullName>
+                <default>false</default>
+                <label>Etterforskning av straffbare forhold i militær tjeneste</label>
+            </value>
+            <value>
+                <fullName>Fastsette og inndrive toll og avgifter</fullName>
+                <default>false</default>
+                <label>Fastsette og inndrive toll og avgifter</label>
+            </value>
+            <value>
+                <fullName>Finne arbeidssted til personer som er tiltalt eller er stevnet som vitne</fullName>
+                <default>false</default>
+                <label>Finne arbeidssted til personer som er tiltalt eller er stevnet som vitne</label>
+            </value>
+            <value>
+                <fullName>Forkynning av klager for den innklagede på arbeidsstedet</fullName>
+                <default>false</default>
+                <label>Forkynning av klager for den innklagede på arbeidsstedet</label>
+            </value>
+            <value>
+                <fullName>Forvaltning av bostøtteordningen</fullName>
+                <default>false</default>
+                <label>Forvaltning av bostøtteordningen</label>
+            </value>
+            <value>
+                <fullName
+        >Forvaltningsmessige oppgaver knyttet til utlendingsloven,våpenloven,brukthandelloven,vaktvirksomhetsloven, veitrafikkloven, hundeloven og politiloven § 2</fullName>
+                <default>false</default>
+                <label
+        >Forvaltningsmessige oppgaver knyttet til utlendingsloven,våpenloven,brukthandelloven,vaktvirksomhetsloven, veitrafikkloven, hundeloven og politiloven § 2</label>
+            </value>
+            <value>
+                <fullName
+        >Følge opp forpliktelsene etter forskrift om bruk av lærlinger i offentlige kontrakter</fullName>
+                <default>false</default>
+                <label>Følge opp forpliktelsene etter forskrift om bruk av lærlinger i offentlige kontrakter</label>
+            </value>
+            <value>
+                <fullName
+        >Følge opp forpliktelsene etter forskrift om lønns- og arbeidsvilkår i offentlige kontrakter</fullName>
+                <default>false</default>
+                <label
+        >Følge opp forpliktelsene etter forskrift om lønns- og arbeidsvilkår i offentlige kontrakter</label>
+            </value>
+            <value>
+                <fullName>Føre tilsyn med advokaters virksomhet i henhold til domstolloven</fullName>
+                <default>false</default>
+                <label>Føre tilsyn med advokaters virksomhet i henhold til domstolloven</label>
+            </value>
+            <value>
+                <fullName>Inngå og følge opp sikkerhetsavtaler</fullName>
+                <default>false</default>
+                <label>Inngå og følge opp sikkerhetsavtaler</label>
+            </value>
+            <value>
+                <fullName>Innkalling av personell til Sivilforsvaret</fullName>
+                <default>false</default>
+                <label>Innkalling av personell til Sivilforsvaret</label>
+            </value>
+            <value>
+                <fullName>Innkalling av tjenestepliktig personell</fullName>
+                <default>false</default>
+                <label>Innkalling av tjenestepliktig personell</label>
+            </value>
+            <value>
+                <fullName>Innkalling til straffegjennomføring av domfelte</fullName>
+                <default>false</default>
+                <label>Innkalling til straffegjennomføring av domfelte</label>
+            </value>
+            <value>
+                <fullName>Innkreving av våpen og ammunisjon</fullName>
+                <default>false</default>
+                <label>Innkreving av våpen og ammunisjon</label>
+            </value>
+            <value>
+                <fullName>Klarering for norske statsborgere i samferdselssektoren</fullName>
+                <default>false</default>
+                <label>Klarering for norske statsborgere i samferdselssektoren</label>
+            </value>
+            <value>
+                <fullName
+        >Kontroll av ansettelsesforhold gjeldende el-tilsynsloven § 5 og forskrift om elektroforetak mv. §§ 3 og 5</fullName>
+                <default>false</default>
+                <label
+        >Kontroll av ansettelsesforhold gjeldende el-tilsynsloven § 5 og forskrift om elektroforetak mv. §§ 3 og 5</label>
+            </value>
+            <value>
+                <fullName>Kontroll av antall ansatte knyttet til kompensasjonsløsning for medieforetak</fullName>
+                <default>false</default>
+                <label>Kontroll av antall ansatte knyttet til kompensasjonsløsning for medieforetak</label>
+            </value>
+            <value>
+                <fullName
+        >Kontroll av at trafikklærere og deres faglige ledere er ansatt ved den virksomheten som de utøver sin prøveperiode ved.</fullName>
+                <default>false</default>
+                <label
+        >Kontroll av at trafikklærere og deres faglige ledere er ansatt ved den virksomheten som de utøver sin prøveperiode ved.</label>
+            </value>
+            <value>
+                <fullName>Kontroll av førerkort</fullName>
+                <default>false</default>
+                <label>Kontroll av førerkort</label>
+            </value>
+            <value>
+                <fullName
+        >Kontroll av helsepersonells arbeidsforhold som ledd i tilsyn for gode og sikre helsetjenester</fullName>
+                <default>false</default>
+                <label
+        >Kontroll av helsepersonells arbeidsforhold som ledd i tilsyn for gode og sikre helsetjenester</label>
+            </value>
+            <value>
+                <fullName>Kontroll av løyve for gods- og turvogntransport</fullName>
+                <default>false</default>
+                <label>Kontroll av løyve for gods- og turvogntransport</label>
+            </value>
+            <value>
+                <fullName
+        >Kontroll av planlagt nasjonalt register om individuell arbeidstid tilrettelagt for forskning.</fullName>
+                <default>false</default>
+                <label
+        >Kontroll av planlagt nasjonalt register om individuell arbeidstid tilrettelagt for forskning.</label>
+            </value>
+            <value>
+                <fullName>Kontroll av seriøsitetskrav etter byggesaksforskriften § 13-1a</fullName>
+                <default>false</default>
+                <label>Kontroll av seriøsitetskrav etter byggesaksforskriften § 13-1a</label>
+            </value>
+            <value>
+                <fullName>Kontroll av teknisk leder i kjøretøyverksteder</fullName>
+                <default>false</default>
+                <label>Kontroll av teknisk leder i kjøretøyverksteder</label>
+            </value>
+            <value>
+                <fullName>Kontroll av teknisk leder i virksomhet (periodisk kontroll av kjøretøy)</fullName>
+                <default>false</default>
+                <label>Kontroll av teknisk leder i virksomhet (periodisk kontroll av kjøretøy)</label>
+            </value>
+            <value>
+                <fullName
+        >Kontroll av tilskuddsordningen - kontrollere at virksomheter som sysselsetter helsepersonell har meldt inn korrekte opplysninger til Norsk pasientskadeerstatning</fullName>
+                <default>false</default>
+                <label
+        >Kontroll av tilskuddsordningen - kontrollere at virksomheter som sysselsetter helsepersonell har meldt inn korrekte opplysninger til Norsk pasientskadeerstatning</label>
+            </value>
+            <value>
+                <fullName>Kontroll av vareførselen til og fra tollområdet</fullName>
+                <default>false</default>
+                <label>Kontroll av vareførselen til og fra tollområdet</label>
+            </value>
+            <value>
+                <fullName>Kontroll av virksomheter som benytter eksplosiver.</fullName>
+                <default>false</default>
+                <label>Kontroll av virksomheter som benytter eksplosiver.</label>
+            </value>
+            <value>
+                <fullName>Kontroll med foretakssammenslutninger mv.</fullName>
+                <default>false</default>
+                <label>Kontroll med foretakssammenslutninger mv.</label>
+            </value>
+            <value>
+                <fullName>Kontroll med kjøre- og hviletid</fullName>
+                <default>false</default>
+                <label>Kontroll med kjøre- og hviletid</label>
+            </value>
+            <value>
+                <fullName
+        >Kvalitetssikre at håndverkmestere som knytter sin mestertittel opp mot et firma er ansatt i firmaet.</fullName>
+                <default>false</default>
+                <label
+        >Kvalitetssikre at håndverkmestere som knytter sin mestertittel opp mot et firma er ansatt i firmaet.</label>
+            </value>
+            <value>
+                <fullName
+        >Kvalitetssikring av opplysninger ved behandling av søknader om autorisasjon eller lisens av helsepersonell</fullName>
+                <default>false</default>
+                <label
+        >Kvalitetssikring av opplysninger ved behandling av søknader om autorisasjon eller lisens av helsepersonell</label>
+            </value>
+            <value>
+                <fullName>MSIS (permanent register for overvåking av smittsomme sykdommer)</fullName>
+                <default>false</default>
+                <label>MSIS (permanent register for overvåking av smittsomme sykdommer)</label>
+            </value>
+            <value>
+                <fullName
+        >Opplysninger om arbeidsforhold ved søknader om arbeids- og oppholdstillatelse og evt. tilbakekallelse</fullName>
+                <default>false</default>
+                <label
+        >Opplysninger om arbeidsforhold ved søknader om arbeids- og oppholdstillatelse og evt. tilbakekallelse</label>
+            </value>
+            <value>
+                <fullName>Personkontroll ved sikkerhetsklarering</fullName>
+                <default>false</default>
+                <label>Personkontroll ved sikkerhetsklarering</label>
+            </value>
+            <value>
+                <fullName>Politioperative gjøremål, etterforskning og etterretningsoppgaver</fullName>
+                <default>false</default>
+                <label>Politioperative gjøremål, etterforskning og etterretningsoppgaver</label>
+            </value>
+            <value>
+                <fullName>Regresjonsanalyse gitt i oppdrag av Det sentrale samarbeidsforum</fullName>
+                <default>false</default>
+                <label>Regresjonsanalyse gitt i oppdrag av Det sentrale samarbeidsforum</label>
+            </value>
+            <value>
+                <fullName>Sikkerhetsklareringer av personell</fullName>
+                <default>false</default>
+                <label>Sikkerhetsklareringer av personell</label>
+            </value>
+            <value>
+                <fullName
+        >Tilgangskontroll og -styring i Altinn.  Kontrollen gjelder autorisasjon, herunder tilgangsstyring og tilgangskontroll, i kommunikasjonen med det offentlige</fullName>
+                <default>false</default>
+                <label
+        >Tilgangskontroll og -styring i Altinn.  Kontrollen gjelder autorisasjon, herunder tilgangsstyring og tilgangskontroll, i kommunikasjonen med det offentlige</label>
+            </value>
+            <value>
+                <fullName>Tilsyn med friskoler knyttet til krav om bruk av statstilskudd</fullName>
+                <default>false</default>
+                <label>Tilsyn med friskoler knyttet til krav om bruk av statstilskudd</label>
+            </value>
+            <value>
+                <fullName>Tilsyn med helsepersonell, vurdering av suspensjon</fullName>
+                <default>false</default>
+                <label>Tilsyn med helsepersonell, vurdering av suspensjon</label>
+            </value>
+            <value>
+                <fullName>Tilsyn med helsepersonell og virksomheter som yter helse- og omsorgstjenester</fullName>
+                <default>false</default>
+                <label>Tilsyn med helsepersonell og virksomheter som yter helse- og omsorgstjenester</label>
+            </value>
+            <value>
+                <fullName>Tilsyn med helsepersonells yrkesutøvelse</fullName>
+                <default>false</default>
+                <label>Tilsyn med helsepersonells yrkesutøvelse</label>
+            </value>
+            <value>
+                <fullName>Tilsyn med lønns- og arbeidsvilkår i offentlige kontrakter</fullName>
+                <default>false</default>
+                <label>Tilsyn med lønns- og arbeidsvilkår i offentlige kontrakter</label>
+            </value>
+            <value>
+                <fullName>Tilsyn og kontroll av finansinstitusjoner</fullName>
+                <default>false</default>
+                <label>Tilsyn og kontroll av finansinstitusjoner</label>
+            </value>
+            <value>
+                <fullName>Utstedelse av HMS-kort i bygge- og anleggsplasser</fullName>
+                <default>false</default>
+                <label>Utstedelse av HMS-kort i bygge- og anleggsplasser</label>
+            </value>
+            <value>
+                <fullName>Utstedelse av HMS-kort i renholdsbransjen</fullName>
+                <default>false</default>
+                <label>Utstedelse av HMS-kort i renholdsbransjen</label>
+            </value>
+            <value>
+                <fullName>Utstede offesielle bekreftelser på yrkeserfaring for leger og tannleger i Norge</fullName>
+                <default>false</default>
+                <label>Utstede offesielle bekreftelser på yrkeserfaring for leger og tannleger i Norge</label>
+            </value>
+            <value>
+                <fullName>Verifisere domfeltes arbeidsforhold i tilknytning til straffegjennomføring</fullName>
+                <default>false</default>
+                <label>Verifisere domfeltes arbeidsforhold i tilknytning til straffegjennomføring</label>
+            </value>
+            <value>
+                <fullName>Vurdere en søkers eller lånetakers rett til utdanningsstøtte</fullName>
+                <default>false</default>
+                <label>Vurdere en søkers eller lånetakers rett til utdanningsstøtte</label>
+            </value>
+            <value>
+                <fullName
+        >Vurdere erstatning for tapt arbeidsfortjeneste etter personskade som følge av en straffbar handling</fullName>
+                <default>false</default>
+                <label
+        >Vurdere erstatning for tapt arbeidsfortjeneste etter personskade som følge av en straffbar handling</label>
+            </value>
+            <value>
+                <fullName>Vurdere medlemskap og rettighetsspørsmål ved krav om stønad ved helsetjenester</fullName>
+                <default>false</default>
+                <label>Vurdere medlemskap og rettighetsspørsmål ved krav om stønad ved helsetjenester</label>
+            </value>
+            <value>
+                <fullName
+        >Vurdering av helserettigheter og rett til refusjon etter EØS-forordningen og folketrygdloven kap. 5 (Helfo).</fullName>
+                <default>false</default>
+                <label
+        >Vurdering av helserettigheter og rett til refusjon etter EØS-forordningen og folketrygdloven kap. 5 (Helfo).</label>
+            </value>
+            <value>
+                <fullName>Vurdering av statlige tilvirkningsbevillinger etter alkoholloven</fullName>
+                <default>false</default>
+                <label>Vurdering av statlige tilvirkningsbevillinger etter alkoholloven</label>
+            </value>
+            <value>
+                <fullName>Annet - oppgi i tekstfelt under</fullName>
+                <default>false</default>
+                <label>Annet - oppgi i tekstfelt under</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Ajourholde av verneplikts- og tjenesteregisteret</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Areal- og transportplanlegging</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Avklare nærstående-forhold gjennom arbeidsforhold i stiftelsen</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Behandling av klager på vedtak fattet av Det lokalte eltilsyn (DLE)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Behandling av søknader om familiegjenforening</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >BeredtC19 (midlertidig register for å gi løpende oversikt og kunnskap om utbredelse, årsakssammenhenger og konsekvenser av covid-19)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. </valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Bruk i Riksrevisjonens kontrollarbeid</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Etterforskning av straffbare forhold i militær tjeneste</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Fastsette og inndrive toll og avgifter</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Finne arbeidssted til personer som er tiltalt eller er stevnet som vitne</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Forkynning av klager for den innklagede på arbeidsstedet</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Forvaltning av bostøtteordningen</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Forvaltningsmessige oppgaver knyttet til utlendingsloven,våpenloven,brukthandelloven,vaktvirksomhetsloven, veitrafikkloven, hundeloven og politiloven § 2</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Følge opp forpliktelsene etter forskrift om bruk av lærlinger i offentlige kontrakter</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Følge opp forpliktelsene etter forskrift om lønns- og arbeidsvilkår i offentlige kontrakter</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Føre tilsyn med advokaters virksomhet i henhold til domstolloven</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Inngå og følge opp sikkerhetsavtaler</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Innkalling av personell til Sivilforsvaret</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Innkalling av tjenestepliktig personell</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Innkalling til straffegjennomføring av domfelte</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Innkreving av våpen og ammunisjon</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Klarering for norske statsborgere i samferdselssektoren</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Kontroll av ansettelsesforhold gjeldende el-tilsynsloven § 5 og forskrift om elektroforetak mv. §§ 3 og 5</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Kontroll av antall ansatte knyttet til kompensasjonsløsning for medieforetak</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Kontroll av at trafikklærere og deres faglige ledere er ansatt ved den virksomheten som de utøver sin prøveperiode ved.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Kontroll av førerkort</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Kontroll av helsepersonells arbeidsforhold som ledd i tilsyn for gode og sikre helsetjenester</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Kontroll av løyve for gods- og turvogntransport</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Kontroll av planlagt nasjonalt register om individuell arbeidstid tilrettelagt for forskning.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Kontroll av seriøsitetskrav etter byggesaksforskriften § 13-1a</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Kontroll av teknisk leder i kjøretøyverksteder</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Kontroll av teknisk leder i virksomhet (periodisk kontroll av kjøretøy)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Kontroll av tilskuddsordningen - kontrollere at virksomheter som sysselsetter helsepersonell har meldt inn korrekte opplysninger til Norsk pasientskadeerstatning</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Kontroll av vareførselen til og fra tollområdet</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Kontroll av virksomheter som benytter eksplosiver.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Kontroll med foretakssammenslutninger mv.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Kontroll med kjøre- og hviletid</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Kvalitetssikre at håndverkmestere som knytter sin mestertittel opp mot et firma er ansatt i firmaet.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Kvalitetssikring av opplysninger ved behandling av søknader om autorisasjon eller lisens av helsepersonell</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>MSIS (permanent register for overvåking av smittsomme sykdommer)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Opplysninger om arbeidsforhold ved søknader om arbeids- og oppholdstillatelse og evt. tilbakekallelse</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Personkontroll ved sikkerhetsklarering</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Politioperative gjøremål, etterforskning og etterretningsoppgaver</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Regresjonsanalyse gitt i oppdrag av Det sentrale samarbeidsforum</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Sikkerhetsklareringer av personell</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Tilgangskontroll og -styring i Altinn.  Kontrollen gjelder autorisasjon, herunder tilgangsstyring og tilgangskontroll, i kommunikasjonen med det offentlige</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Tilsyn med friskoler knyttet til krav om bruk av statstilskudd</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Tilsyn med helsepersonell, vurdering av suspensjon</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Tilsyn med helsepersonell og virksomheter som yter helse- og omsorgstjenester</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Tilsyn med helsepersonells yrkesutøvelse</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Tilsyn med lønns- og arbeidsvilkår i offentlige kontrakter</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Tilsyn og kontroll av finansinstitusjoner</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Utstedelse av HMS-kort i bygge- og anleggsplasser</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Utstedelse av HMS-kort i renholdsbransjen</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Utstede offesielle bekreftelser på yrkeserfaring for leger og tannleger i Norge</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Verifisere domfeltes arbeidsforhold i tilknytning til straffegjennomføring</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Vurdere en søkers eller lånetakers rett til utdanningsstøtte</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Vurdere erstatning for tapt arbeidsfortjeneste etter personskade som følge av en straffbar handling</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Vurdere medlemskap og rettighetsspørsmål ved krav om stønad ved helsetjenester</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName
+      >Vurdering av helserettigheter og rett til refusjon etter EØS-forordningen og folketrygdloven kap. 5 (Helfo).</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Vurdering av statlige tilvirkningsbevillinger etter alkoholloven</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue
+      >FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <controllingFieldValue
+      >LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Annet - oppgi i tekstfelt under</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>
