@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PurposeStateHealthAndSocial__c</fullName>
+    <description
+  >The application purpose available for organizations that fall under the &quot;State-Health and Social&quot; category.</description>
+    <externalId>false</externalId>
+    <label>Purpose State - Health and Social</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>LegalBasisStateHealthAndSocial__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Tilsyn vedrørende krav ved bruk av statstilskudd</fullName>
+                <default>false</default>
+                <label>Tilsyn vedrørende krav ved bruk av statstilskudd</label>
+            </value>
+            <value>
+                <fullName
+        >Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. </fullName>
+                <default>false</default>
+                <label
+        >Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. </label>
+            </value>
+            <value>
+                <fullName>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</fullName>
+                <default>false</default>
+                <label>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</label>
+            </value>
+            <value>
+                <fullName>Kvalitetssikring i forbindelse med søknad om autorisasjon eller lisens.</fullName>
+                <default>false</default>
+                <label>Kvalitetssikring i forbindelse med søknad om autorisasjon eller lisens.</label>
+            </value>
+            <value>
+                <fullName
+        >Saksbehandle/avgjøre helserettigheter og rett til refusjon etter EØS-forordningen og folketrygdloven kap. 5 (Helfo).</fullName>
+                <default>false</default>
+                <label
+        >Saksbehandle/avgjøre helserettigheter og rett til refusjon etter EØS-forordningen og folketrygdloven kap. 5 (Helfo).</label>
+            </value>
+            <value>
+                <fullName>Utstede offesielle bekreftelser på yrkeserfaring for leger og tannleger i Norge.</fullName>
+                <default>false</default>
+                <label>Utstede offesielle bekreftelser på yrkeserfaring for leger og tannleger i Norge.</label>
+            </value>
+            <value>
+                <fullName>Vurdering av statlige tilvirkningsbevillinger etter alkoholloven</fullName>
+                <default>false</default>
+                <label>Vurdering av statlige tilvirkningsbevillinger etter alkoholloven</label>
+            </value>
+            <value>
+                <fullName
+        >Kontroll av tilskuddsordningen - Kontrollere at virksomheter som sysselsetter helsepersonell har meldt inn korrekte opplysninger til NPE</fullName>
+                <default>false</default>
+                <label
+        >Kontroll av tilskuddsordningen - Kontrollere at virksomheter som sysselsetter helsepersonell har meldt inn korrekte opplysninger til NPE</label>
+            </value>
+            <value>
+                <fullName>Annet - oppgi i tekstfelt under</fullName>
+                <default>false</default>
+                <label>Annet - oppgi i tekstfelt under</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Tilsyn vedrørende krav ved bruk av statstilskudd</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName
+      >Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. </valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Kvalitetssikring i forbindelse med søknad om autorisasjon eller lisens.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName
+      >Saksbehandle/avgjøre helserettigheter og rett til refusjon etter EØS-forordningen og folketrygdloven kap. 5 (Helfo).</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Utstede offesielle bekreftelser på yrkeserfaring for leger og tannleger i Norge.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Vurdering av statlige tilvirkningsbevillinger etter alkoholloven</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName
+      >Kontroll av tilskuddsordningen - Kontrollere at virksomheter som sysselsetter helsepersonell har meldt inn korrekte opplysninger til NPE</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <valueName>Annet - oppgi i tekstfelt under</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

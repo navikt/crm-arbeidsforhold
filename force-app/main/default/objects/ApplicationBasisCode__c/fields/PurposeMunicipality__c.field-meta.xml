@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PurposeMunicipality__c</fullName>
+    <description>The application purpose available for organizations that fall under the &quot;Municipality&quot; category.</description>
+    <externalId>false</externalId>
+    <label>Purpose Municipality</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>LegalBasisMunicipality__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Særnamsfunksjonen</fullName>
+                <default>false</default>
+                <label>Særnamsfunksjonen</label>
+            </value>
+            <value>
+                <fullName>Behandling av startlån/boligtilskudd</fullName>
+                <default>false</default>
+                <label>Behandling av startlån/boligtilskudd</label>
+            </value>
+            <value>
+                <fullName>Skjenkebevilling</fullName>
+                <default>false</default>
+                <label>Skjenkebevilling</label>
+            </value>
+            <value>
+                <fullName
+        >Kontroll/verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage/sfo</fullName>
+                <default>false</default>
+                <label>Kontroll/verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage/sfo</label>
+            </value>
+            <value>
+                <fullName>Planleggingsarbeid - infrastruktur</fullName>
+                <default>false</default>
+                <label>Planleggingsarbeid - infrastruktur</label>
+            </value>
+            <value>
+                <fullName>Behandlinger av søknader om kommunal bolig</fullName>
+                <default>false</default>
+                <label>Behandlinger av søknader om kommunal bolig</label>
+            </value>
+            <value>
+                <fullName>Behandlinger av søknader om gravferdstønad</fullName>
+                <default>false</default>
+                <label>Behandlinger av søknader om gravferdstønad</label>
+            </value>
+            <value>
+                <fullName>Innkalling til bystyremøter (Oslo)</fullName>
+                <default>false</default>
+                <label>Innkalling til bystyremøter (Oslo)</label>
+            </value>
+            <value>
+                <fullName>Kontroll av private barnehager (krav til bemanning og økonomi)</fullName>
+                <default>false</default>
+                <label>Kontroll av private barnehager (krav til bemanning og økonomi)</label>
+            </value>
+            <value>
+                <fullName>Kontroll av folkevalgtes refusjonskrav</fullName>
+                <default>false</default>
+                <label>Kontroll av folkevalgtes refusjonskrav</label>
+            </value>
+            <value>
+                <fullName>Smittesporing</fullName>
+                <default>false</default>
+                <label>Smittesporing</label>
+            </value>
+            <value>
+                <fullName>Oppfølging av låneportefølje, sosiale lån</fullName>
+                <default>false</default>
+                <label>Oppfølging av låneportefølje, sosiale lån</label>
+            </value>
+            <value>
+                <fullName>Annet - oppgi i tekstfelt under</fullName>
+                <default>false</default>
+                <label>Annet - oppgi i tekstfelt under</label>
+            </value>
+            <value>
+                <fullName>Kontroll av drosjeløyve</fullName>
+                <default>false</default>
+                <label>Kontroll av drosjeløyve</label>
+            </value>
+            <value>
+                <fullName>Kontroll av helsepersonell - tilsynssaker</fullName>
+                <default>false</default>
+                <label>Kontroll av helsepersonell - tilsynssaker</label>
+            </value>
+            <value>
+                <fullName>Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser</fullName>
+                <default>false</default>
+                <label>Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser</label>
+            </value>
+            <value>
+                <fullName>Klarering for norske statsborgere i samferdselssektoren</fullName>
+                <default>false</default>
+                <label>Klarering for norske statsborgere i samferdselssektoren</label>
+            </value>
+            <value>
+                <fullName>Kontroll av seriøsitetskrav (kun behov for antall ansatte)</fullName>
+                <default>false</default>
+                <label>Kontroll av seriøsitetskrav (kun behov for antall ansatte)</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 9 bokstav f</controllingFieldValue>
+            <valueName>Særnamsfunksjonen</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Behandling av startlån/boligtilskudd</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Skjenkebevilling</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName
+      >Kontroll/verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage/sfo</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Planleggingsarbeid - infrastruktur</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Behandlinger av søknader om kommunal bolig</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Behandlinger av søknader om gravferdstønad</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Innkalling til bystyremøter (Oslo)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Kontroll av private barnehager (krav til bemanning og økonomi)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Kontroll av folkevalgtes refusjonskrav</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Smittesporing</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>Oppfølging av låneportefølje, sosiale lån</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <valueName>Annet - oppgi i tekstfelt under</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

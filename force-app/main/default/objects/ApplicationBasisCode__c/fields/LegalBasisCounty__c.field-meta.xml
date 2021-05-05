@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>LegalBasisCounty__c</fullName>
+    <description>The legal basis available for organizations that fall under the &quot;County&quot; category.</description>
+    <externalId>false</externalId>
+    <label>Legal Basis County</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Aa-registerforskriften § 10 bokstav e</fullName>
+                <default>false</default>
+                <label>Aa-registerforskriften § 10 bokstav e</label>
+            </value>
+            <value>
+                <fullName>Annet - oppgi i tekstfelt under</fullName>
+                <default>false</default>
+                <label>Annet - oppgi i tekstfelt under</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

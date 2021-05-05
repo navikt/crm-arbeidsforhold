@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>LegalBasisState__c</fullName>
+    <description>Application legal basis for state.</description>
+    <externalId>false</externalId>
+    <label>Legal Basis State</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</fullName>
+                <default>false</default>
+                <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</label>
+            </value>
+            <value>
+                <fullName>FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</fullName>
+                <default>false</default>
+                <label>FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</label>
+            </value>
+            <value>
+                <fullName>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</fullName>
+                <default>false</default>
+                <label>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</label>
+            </value>
+            <value>
+                <fullName>LOV-2005-06-03-37 om utdanningsstøttel § 23</fullName>
+                <default>false</default>
+                <label>LOV-2005-06-03-37 om utdanningsstøttel § 23</label>
+            </value>
+            <value>
+                <fullName>LOV-2009-05-29-30 om Husbanken § 10</fullName>
+                <default>false</default>
+                <label>LOV-2009-05-29-30 om Husbanken § 10</label>
+            </value>
+            <value>
+                <fullName>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</fullName>
+                <default>false</default>
+                <label>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</label>
+            </value>
+            <value>
+                <fullName>LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</fullName>
+                <default>false</default>
+                <label>LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</label>
+            </value>
+            <value>
+                <fullName>Annet - oppgi i tekstfelt under</fullName>
+                <default>false</default>
+                <label>Annet - oppgi i tekstfelt under</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

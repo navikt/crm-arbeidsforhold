@@ -1,0 +1,80 @@
+<template>
+  <div class="app-section">
+    <div class="row">
+      <div class="column">
+        <span class="form-control">
+          <label for="name">Navn</label>
+          <input type="text" name="kontakt navn" id="name" data-id="name" onchange={handleChange} required />
+          <small>Error Message</small>
+        </span>
+      </div>
+      <div class="column">
+        <span class="form-control">
+          <label for="email">E-post</label>
+          <input type="email" name="kontakt e-post" id="email" data-id="email" onchange={handleChange} required />
+          <small>Error Message</small>
+        </span>
+      </div>
+      <div class="column">
+        <span class="form-control">
+          <label for="phone">Telefonnummer</label>
+          <input type="tel" name="kontakt telefon" id="phone" data-id="phone" onchange={handleChange} required />
+          <small>Error Message</small>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-section">
+    <div class="row">
+      <div class="column">
+        <span class="form-control">
+          <label for="agreement-notification">Avtale</label>
+          <input
+            type="checkbox"
+            name="varsle avtale"
+            id="agreement-notification"
+            data-id="agreement"
+            onclick={handleChange}
+          />
+        </span>
+      </div>
+      <div class="column">
+        <span class="form-control">
+          <label for="change-notification">Endringer</label>
+          <input
+            type="checkbox"
+            name="varsle endring"
+            id="change-notification"
+            data-id="change"
+            onchange={handleChange}
+          />
+        </span>
+      </div>
+      <div class="column">
+        <span class="form-control">
+          <label for="error-notification">Feilmelding</label>
+          <input
+            type="checkbox"
+            name="varsle feilmelding"
+            id="error-notification"
+            data-id="error"
+            onchange={handleChange}
+          />
+        </span>
+      </div>
+      <div class="column">
+        <span class="form-control">
+          <label for="security-notification">Sikkerhet</label>
+          <input
+            type="checkbox"
+            name="varsle sikkerhet"
+            id="security-notification"
+            data-id="security"
+            onchange={handleChange}
+          />
+        </span>
+      </div>
+    </div>
+  </div>
+</template>
