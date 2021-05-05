@@ -1,0 +1,94 @@
+<template>
+  <div class="app-section">
+    <div class="row">
+      <div class="column">
+        <span class="form-control">
+          <label for="hjemmel">Hjemmel</label>
+          <select
+            name="hjemmel"
+            aria-invalid="false"
+            id="hjemmel"
+            data-id="legal-basis"
+            onchange={handleLegalBasisChange}
+            required
+          >
+            <option value="">Velg</option>
+            <template for:each={legalBasisOptions} for:item="option">
+              <option key={option.key} value={option.key}>{option.value}</option>
+            </template>
+          </select>
+          <small>Error Message</small>
+        </span>
+      </div>
+      <div class="column">
+        <span class="form-control">
+          <label for="Formal">Formål</label>
+          <select
+            name="Formål"
+            aria-invalid="false"
+            id="Formal"
+            data-id="purpose"
+            onchange={handlePurposeChange}
+            required
+          >
+            <option value="">Velg</option>
+            <template for:each={purposeOptions} for:item="option">
+              <option key={option.key} value={option.key}>{option.value}</option>
+            </template>
+          </select>
+          <small>Error Message</small>
+        </span>
+      </div>
+    </div>
+    <div class="row">
+      <div class="column">
+        <span class="form-control">
+          <label for="behandlingsgrunnlag">Behandlingsgrunnlag</label>
+          <textarea
+            name="Behandlingsgrunnlag"
+            id="behandlingsgrunnlag"
+            data-id="processing-basis"
+            class="form-input-text-area"
+            onchange={handleInputChange}
+            required
+          ></textarea>
+          <small>Error Message</small>
+        </span>
+      </div>
+    </div>
+    <template if:true={showOtherInput}>
+      <div class="row">
+        <div class="column">
+          <span class="form-control">
+            <label for="annet-hjemmel">Annet Hjemmel</label>
+            <textarea
+              name="annet hjemmel"
+              id="annet-hjemmel"
+              data-id="other-legal-basis"
+              class="form-input-text-area"
+              required
+              onchange={handleInputChange}
+            ></textarea>
+            <small>Error Message</small>
+          </span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="column">
+          <span class="form-control">
+            <label for="annet-formal">Annet Formål</label>
+            <textarea
+              name="annet formål"
+              id="annet-formal"
+              data-id="other-purpose"
+              class="form-input-text-area"
+              required
+              onchange={handleInputChange}
+            ></textarea>
+            <small>Error Message</small>
+          </span>
+        </div>
+      </div>
+    </template>
+  </div>
+</template>
