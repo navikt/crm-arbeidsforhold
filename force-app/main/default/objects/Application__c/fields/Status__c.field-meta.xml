@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Status__c</fullName>
     <description>The status of the application.</description>
@@ -13,14 +13,24 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>In Process</fullName>
+                <fullName>New</fullName>
+                <default>true</default>
+                <label>New</label>
+            </value>
+            <value>
+                <fullName>In Progress</fullName>
                 <default>false</default>
-                <label>In Process</label>
+                <label>In Progress</label>
             </value>
             <value>
                 <fullName>Additional Information Required</fullName>
                 <default>false</default>
                 <label>Additional Information Required</label>
+            </value>
+            <value>
+                <fullName>Approved Partially</fullName>
+                <default>false</default>
+                <label>Approved Partially</label>
             </value>
             <value>
                 <fullName>Approved</fullName>
@@ -31,6 +41,12 @@
                 <fullName>Declined</fullName>
                 <default>false</default>
                 <label>Declined</label>
+            </value>
+            <value>
+                <fullName>In Process</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>In Process</label>
             </value>
         </valueSetDefinition>
     </valueSet>

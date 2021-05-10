@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
     <flexiPageRegions>
         <componentInstances>
@@ -31,42 +31,8 @@
         <type>Region</type>
     </flexiPageRegions>
     <flexiPageRegions>
-        <name>Facet-9cd64922-0588-4362-83df-dcc056417ae4</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <name>Facet-349bb1cf-7d7e-4260-9608-3cb65bef299c</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
         <componentInstances>
-            <componentInstanceProperties>
-                <name>body</name>
-                <value>Facet-9cd64922-0588-4362-83df-dcc056417ae4</value>
-            </componentInstanceProperties>
-            <componentName>flexipage:column</componentName>
-        </componentInstances>
-        <componentInstances>
-            <componentInstanceProperties>
-                <name>body</name>
-                <value>Facet-349bb1cf-7d7e-4260-9608-3cb65bef299c</value>
-            </componentInstanceProperties>
-            <componentName>flexipage:column</componentName>
-        </componentInstances>
-        <name>Facet-38febe41-f90d-4b10-844d-20399fdb0513</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <componentInstances>
-            <componentInstanceProperties>
-                <name>columns</name>
-                <value>Facet-38febe41-f90d-4b10-844d-20399fdb0513</value>
-            </componentInstanceProperties>
-            <componentInstanceProperties>
-                <name>label</name>
-                <value>Details</value>
-            </componentInstanceProperties>
-            <componentName>flexipage:fieldSection</componentName>
+            <componentName>force:detailPanel</componentName>
         </componentInstances>
         <name>Facet-f3325337-f3c0-4fb9-9693-55d055ce8d7e</name>
         <type>Facet</type>

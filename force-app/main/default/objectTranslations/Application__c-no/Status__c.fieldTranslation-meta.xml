@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Søkers status</label>
+    <name>Status__c</name>
+    <picklistValues>
+        <masterLabel>Additional Information Required</masterLabel>
+        <translation>Venter på svar</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved</masterLabel>
+        <translation>Innvilget</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Approved Partially</masterLabel>
+        <translation>Delvis Innvilget</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Declined</masterLabel>
+        <translation>Avslag</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>In Progress</masterLabel>
+        <translation>Under Behandling</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>New</masterLabel>
+        <translation>Ny</translation>
+    </picklistValues>
+</CustomFieldTranslation>
