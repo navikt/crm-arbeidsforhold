@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Aa_ApplicationDeclined</fullName>
+    <columns>NAME</columns>
+    <columns>Account__c</columns>
+    <columns>ApplicationSubmittedDate__c</columns>
+    <columns>AA_CasehandlerDeadlineFlag__c</columns>
+    <columns>APIAccess__c</columns>
+    <columns>OnlineAccess__c</columns>
+    <columns>CasehandlerOwner__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>RECORDTYPE</field>
+        <operation>equals</operation>
+        <value>Application__c.Aa_RegisterAccess</value>
+    </filters>
+    <filters>
+        <field>Casehandler_Status__c</field>
+        <operation>equals</operation>
+        <value>Declined</value>
+    </filters>
+    <label>Aa-reg Søknader Avslag</label>
+</ListView>

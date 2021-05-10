@@ -3,29 +3,53 @@ import Id from '@salesforce/user/Id';
 import processApplication from '@salesforce/apex/AAREG_ApplicationController.processApplication';
 import getLastUsedOrganizationInformation from '@salesforce/apex/AAREG_ApplicationController.getLastUsedOrganizationInformation';
 import getAccountNameByOrgNumber from '@salesforce/apex/AAREG_ApplicationController.getAccountNameByOrgNumber';
+import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
 
 export default class Aareg_application extends LightningElement {
   @track contactRows;
   @track applicationBasisRows;
   @track application;
   @track organization;
-  error;
   @api hasErrors;
-  organizationType;
+  hasAccess = false;
   applicationSubmitted = false;
   currentUser = Id;
+  organizationType;
+  error;
 
   @wire(getLastUsedOrganizationInformation, { userId: '$currentUser' })
   wiredOrganizationInformation({ error, data }) {
     if (data) {
+      console.log(data);
       this.organization = data;
       this.organizationType = data.AAREG_OrganizationCategory__c;
       this.error = undefined;
+      this.checkAccessToApplication();
       this.initializeNewApplication();
     } else if (error) {
       this.error = error;
       this.organizations = undefined;
+      console.log(error);
     }
+  }
+
+  checkAccessToApplication() {
+    getUserRights({ userId: this.userId, organizationNumber: this.lastUsedOrganization })
+      .then((result) => {
+        let parsedResult = JSON.parse(result);
+        let privileges = parsedResult.rights;
+
+        privileges.forEach((privilege) => {
+          console.log(privilege.ServiceCode);
+          if (privilege.ServiceCode === '5719') {
+            this.hasAccess = true;
+            return;
+          }
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   initializeNewApplication() {
@@ -218,7 +242,7 @@ export default class Aareg_application extends LightningElement {
       }
     });
     if (agreementNotification < 1 || changeNofiication < 1 || errorNotification < 1 || securityNotification < 1) {
-      this.setErrorFor(this.contacts, 'Varslinger er obligatorisk.');
+      this.setErrorFor(this.contacts, 'Det må oppgis minimum en kontaktperson per type varsling.');
     }
   }
 
