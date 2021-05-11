@@ -155,7 +155,7 @@
             <componentName>flexipage:fieldSection</componentName>
         </componentInstances>
         <componentInstances>
-            <componentName>AaRegisterCodeBaseList</componentName>
+            <componentName>AAREG_CodeBaseList</componentName>
         </componentInstances>
         <componentInstances>
             <componentInstanceProperties>
@@ -202,7 +202,7 @@
             </componentInstanceProperties>
             <componentInstanceProperties>
                 <name>showActionBar</name>
-                <value>false</value>
+                <value>true</value>
             </componentInstanceProperties>
             <componentName>force:relatedListSingleContainer</componentName>
         </componentInstances>
@@ -279,6 +279,33 @@
     <flexiPageRegions>
         <componentInstances>
             <componentInstanceProperties>
+                <name>parentFieldApiName</name>
+                <value>Application__c.Id</value>
+            </componentInstanceProperties>
+            <componentInstanceProperties>
+                <name>relatedListApiName</name>
+                <value>Codes__r</value>
+            </componentInstanceProperties>
+            <componentInstanceProperties>
+                <name>relatedListComponentOverride</name>
+                <value>NONE</value>
+            </componentInstanceProperties>
+            <componentInstanceProperties>
+                <name>rowsToDisplay</name>
+                <value>10</value>
+            </componentInstanceProperties>
+            <componentInstanceProperties>
+                <name>showActionBar</name>
+                <value>true</value>
+            </componentInstanceProperties>
+            <componentName>force:relatedListSingleContainer</componentName>
+        </componentInstances>
+        <name>Facet-839d7fca-6bdd-4834-adb9-fa60564482c8</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <componentInstances>
+            <componentInstanceProperties>
                 <name>active</name>
                 <value>true</value>
             </componentInstanceProperties>
@@ -311,6 +338,17 @@
             <componentInstanceProperties>
                 <name>title</name>
                 <value>NAV vedtak</value>
+            </componentInstanceProperties>
+            <componentName>flexipage:tab</componentName>
+        </componentInstances>
+        <componentInstances>
+            <componentInstanceProperties>
+                <name>body</name>
+                <value>Facet-839d7fca-6bdd-4834-adb9-fa60564482c8</value>
+            </componentInstanceProperties>
+            <componentInstanceProperties>
+                <name>title</name>
+                <value>Kodeverk</value>
             </componentInstanceProperties>
             <componentName>flexipage:tab</componentName>
         </componentInstances>
