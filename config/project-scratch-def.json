@@ -31,6 +31,9 @@
         },
         "nameSettings": {
             "enableMiddleName": true
+        },
+        "liveAgentSettings": {
+            "enableLiveAgent": true
         }
     }
 }
