@@ -4,6 +4,54 @@
       <div class="column">
         <span class="form-control">
           <label for="hjemmel">Hjemmel</label>
+          <div class="hjelpetekst">
+            <button
+              type="button"
+              class="hjelpetekst__apneknapp"
+              title="Hjelp"
+              aria-expanded="false"
+              aria-controls="51247348-9478-8420-3461-20094500120546"
+              aria-haspopup="dialog"
+              onclick={toggleLegalBasisHelpText}
+            >
+              <svg
+                kind="help-circle"
+                class="hjelpetekst__ikon"
+                focusable="false"
+                height="32"
+                width="32"
+                viewBox="0 0 18.2 18.2"
+              >
+                <path
+                  d="M9.1 0C4.1 0 0 4.1 0 9.1s4.1 9.1 9.1 9.1 9.1-4.1 9.1-9.1S14.1 0 9.1 0zm0 17.2C4.6 17.2 1 13.6 1 9.1S4.6 1 9.1 1s8.1 3.6 8.1 8.1-3.6 8.1-8.1 8.1z"
+                ></path>
+                <circle cx="9.1" cy="13.8" r=".9"></circle>
+                <path
+                  d="M9.1 11.5c-.3 0-.5-.2-.5-.5V8.6c0-.3.2-.5.5-.5 1 0 1.9-.8 1.9-1.9s-.8-1.9-1.9-1.9c-1 0-1.9.8-1.9 1.9 0 .3-.2.5-.5.5s-.5-.2-.5-.4c0-1.6 1.3-2.9 2.9-2.9S12 4.7 12 6.3c0 1.4-1 2.6-2.4 2.8V11c0 .3-.2.5-.5.5z"
+                ></path>
+              </svg>
+              <span class="sr-only">Hjelp</span>
+            </button>
+            <div
+              class={legalBasisHelpTextClass}
+              style="transform: translate3d(0px, 0px, 0)"
+              tabindex="0"
+              id="51247348-9478-8420-3461-20094500120546"
+              role="tooltip"
+            >
+              <div class="popover__content-inner">
+                <div class="hjelpetekst__innhold">
+                  <p>Oppgi hjemmelen for utlevering.</p>
+                  <p>
+                    Personopplysningene i Aa-registeret er underlagt taushetsplikt etter arbeids- og
+                    velferdsforvaltningsloven § 7. Opplysningene kan kun utleveres dersom dere har hjemmel i lov eller
+                    forskrift til å innhente opplysningene.
+                  </p>
+                </div>
+              </div>
+              <span class="popover__pil"> </span>
+            </div>
+          </div>
           <select
             name="hjemmel"
             aria-invalid="false"
@@ -23,6 +71,48 @@
       <div class="column">
         <span class="form-control">
           <label for="Formal">Formål</label>
+          <div class="hjelpetekst">
+            <button
+              type="button"
+              class="hjelpetekst__apneknapp"
+              title="Hjelp"
+              aria-expanded="false"
+              aria-controls="51247348-9478-8420-3461-20094500120546"
+              aria-haspopup="dialog"
+              onclick={togglePurposeHelpText}
+            >
+              <svg
+                kind="help-circle"
+                class="hjelpetekst__ikon"
+                focusable="false"
+                height="32"
+                width="32"
+                viewBox="0 0 18.2 18.2"
+              >
+                <path
+                  d="M9.1 0C4.1 0 0 4.1 0 9.1s4.1 9.1 9.1 9.1 9.1-4.1 9.1-9.1S14.1 0 9.1 0zm0 17.2C4.6 17.2 1 13.6 1 9.1S4.6 1 9.1 1s8.1 3.6 8.1 8.1-3.6 8.1-8.1 8.1z"
+                ></path>
+                <circle cx="9.1" cy="13.8" r=".9"></circle>
+                <path
+                  d="M9.1 11.5c-.3 0-.5-.2-.5-.5V8.6c0-.3.2-.5.5-.5 1 0 1.9-.8 1.9-1.9s-.8-1.9-1.9-1.9c-1 0-1.9.8-1.9 1.9 0 .3-.2.5-.5.5s-.5-.2-.5-.4c0-1.6 1.3-2.9 2.9-2.9S12 4.7 12 6.3c0 1.4-1 2.6-2.4 2.8V11c0 .3-.2.5-.5.5z"
+                ></path>
+              </svg>
+              <span class="sr-only">Hjelp</span>
+            </button>
+            <div class={purposeHelpTextClass} style="transform: translate3d(0px, 0px, 0)" tabindex="0" role="tooltip">
+              <div class="popover__content-inner">
+                <div class="hjelpetekst__innhold">
+                  <p>Redegjør til hvilket formål dere trenger å bruke opplysningene i Aa-registeret.</p>
+
+                  <p>
+                    Personopplysninger skal kun samles inn for spesifikke uttrykkelig angitte og berettigede formål,
+                    GDPR art. 5 nr. 1 bokstav b.
+                  </p>
+                </div>
+              </div>
+              <span class="popover__pil"> </span>
+            </div>
+          </div>
           <select
             name="Formål"
             aria-invalid="false"
@@ -44,6 +134,61 @@
       <div class="column">
         <span class="form-control">
           <label for="behandlingsgrunnlag">Behandlingsgrunnlag</label>
+          <div class="hjelpetekst">
+            <button
+              type="button"
+              class="hjelpetekst__apneknapp"
+              title="Hjelp"
+              aria-expanded="false"
+              aria-controls="51247348-9478-8420-3461-20094500120546"
+              aria-haspopup="dialog"
+              onclick={toggleProcessingBasisHelpText}
+            >
+              <svg
+                kind="help-circle"
+                class="hjelpetekst__ikon"
+                focusable="false"
+                height="32"
+                width="32"
+                viewBox="0 0 18.2 18.2"
+              >
+                <path
+                  d="M9.1 0C4.1 0 0 4.1 0 9.1s4.1 9.1 9.1 9.1 9.1-4.1 9.1-9.1S14.1 0 9.1 0zm0 17.2C4.6 17.2 1 13.6 1 9.1S4.6 1 9.1 1s8.1 3.6 8.1 8.1-3.6 8.1-8.1 8.1z"
+                ></path>
+                <circle cx="9.1" cy="13.8" r=".9"></circle>
+                <path
+                  d="M9.1 11.5c-.3 0-.5-.2-.5-.5V8.6c0-.3.2-.5.5-.5 1 0 1.9-.8 1.9-1.9s-.8-1.9-1.9-1.9c-1 0-1.9.8-1.9 1.9 0 .3-.2.5-.5.5s-.5-.2-.5-.4c0-1.6 1.3-2.9 2.9-2.9S12 4.7 12 6.3c0 1.4-1 2.6-2.4 2.8V11c0 .3-.2.5-.5.5z"
+                ></path>
+              </svg>
+              <span class="sr-only">Hjelp</span>
+            </button>
+            <div
+              class={processingBasisHelpTextClass}
+              style="transform: translate3d(0px, 0px, 0)"
+              tabindex="0"
+              role="tooltip"
+            >
+              <div class="popover__content-inner">
+                <div class="hjelpetekst__innhold">
+                  <p>
+                    Her skal du opplyse om hvilket rettslig grunnlag som ligger til grunn for behandlingen, jf. oppgitt
+                    formål.
+                  </p>
+                  <p>
+                    All behandling av personopplysninger må ha et rettslig grunnlag (behandlingsgrunnlag) for at det
+                    skal være tillatt å behandle/bruke personopplysninger, se GDPR art. 6, 9 og 10. Eksempler på
+                    rettslig grunnlag (behandlingsgrunnlag) kan være:
+                  </p>
+                  <ul>
+                    <li>-hjemmel i lov</li>
+                    <li>-samtykke fra den registrerte</li>
+                    <li>-nødvendighetsgrunn</li>
+                  </ul>
+                </div>
+              </div>
+              <span class="popover__pil"> </span>
+            </div>
+          </div>
           <textarea
             name="Behandlingsgrunnlag"
             id="behandlingsgrunnlag"
