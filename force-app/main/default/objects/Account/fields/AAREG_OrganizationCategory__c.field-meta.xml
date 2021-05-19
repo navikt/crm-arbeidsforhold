@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AAREG_OrganizationCategory__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF( 
+  AND(
+    INT_IndustryCode__c == &apos;84.110&apos;,
+    OR(
+      INT_OrganizationalStructure__c == &apos;KOMM&apos;,
+      INT_OrganizationalStructure__c == &apos;ORGL&apos;
+    )
+  ), &apos;Municipality&apos;,
+
+IF(
+  AND(
+    INT_IndustryCode__c == &apos;84.110&apos;,
+    INT_OrganizationalStructure__c == &apos;FYLK&apos;
+  ), &apos;County&apos;, 
+
+IF(
+  AND(
+    OR(
+      INT_IndustryCode__c == &apos;84.130&apos;,
+      INT_IndustryCode__c == &apos;84.120&apos;,
+      INT_IndustryCode__c == &apos;72.190&apos;,
+      INT_IndustryCode__c == &apos;84.220&apos;,
+      INT_IndustryCode__c == &apos;69.100&apos;,
+      INT_IndustryCode__c == &apos;84.110&apos;
+),
+
+    OR(
+      INT_OrganizationalStructure__c == &apos;STAT&apos;,
+      INT_OrganizationalStructure__c == &apos;ORGL&apos;
+    )
+
+), &apos;State&apos;, 
+ 
+IF(
+  AND(
+    OR(
+      INT_IndustryCode__c == &apos;35.130&apos;,
+      INT_IndustryCode__c == &apos;35.111&apos;,
+      INT_IndustryCode__c == &apos;35.140&apos;
+    ),
+   INT_OrganizationalStructure__c == &apos;AS&apos;
+  ), &apos;Electricity Supervision&apos;,  
+
+IF(
+  AND(
+    OR(
+      INT_IndustryCode__c == &apos;65.120&apos;,
+      INT_IndustryCode__c == &apos;65.110&apos;
+    ),
+   INT_OrganizationalStructure__c == &apos;AS&apos;
+  ), &apos;Pension&apos;, &apos;&apos;
+) 
+) 
+) 
+)
+)</formula>
+    <label>Organization Category</label>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

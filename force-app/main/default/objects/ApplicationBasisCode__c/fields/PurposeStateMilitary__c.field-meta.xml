@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PurposeStateMilitary__c</fullName>
+    <description>The application purpose available for organizations that fall under the &quot;State-Military&quot; category.</description>
+    <externalId>false</externalId>
+    <label>Purpose State - Military</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>LegalBasisStateMilitary__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>For Sivilforsvaret - innkalling av personell og få opplysninger om ansettelsesforhold.</fullName>
+                <default>false</default>
+                <label>For Sivilforsvaret - innkalling av personell og få opplysninger om ansettelsesforhold.</label>
+            </value>
+            <value>
+                <fullName>Kontroll av virksomheter som benytter eksplosiver.</fullName>
+                <default>false</default>
+                <label>Kontroll av virksomheter som benytter eksplosiver.</label>
+            </value>
+            <value>
+                <fullName>Annet - oppgi i tekstfelt under</fullName>
+                <default>false</default>
+                <label>Annet - oppgi i tekstfelt under</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
+            <valueName>For Sivilforsvaret - innkalling av personell og få opplysninger om ansettelsesforhold.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
+            <valueName>Kontroll av virksomheter som benytter eksplosiver.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <valueName>Annet - oppgi i tekstfelt under</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>
