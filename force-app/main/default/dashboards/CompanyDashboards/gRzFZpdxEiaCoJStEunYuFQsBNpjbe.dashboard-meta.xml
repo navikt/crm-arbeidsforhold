@@ -56,7 +56,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Antall nye søknader</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -129,7 +129,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Antall nye søknader</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -155,7 +155,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Antall nye søknader</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -174,7 +174,7 @@
     </dashboardGridLayout>
     <dashboardType>SpecifiedUser</dashboardType>
     <isGridLayout>true</isGridLayout>
-    <runningUser>test-2dcpffehgonh@example.com</runningUser>
+    <runningUser>jordan.mathews@nav.no.aareg</runningUser>
     <textColor>#000000</textColor>
     <title>Aa-registeret dashboard</title>
     <titleColor>#000000</titleColor>
