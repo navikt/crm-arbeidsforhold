@@ -28,7 +28,7 @@
     ],
     "namespace": "",
     "sfdcLoginUrl": "https://login.salesforce.com",
-    "sourceApiVersion": "47.0",
+    "sourceApiVersion": "51.0",
     "packageAliases": {
         "crm-arbeidsforhold": "0Ho2o000000fxX1CAI",
         "crm-platform-base": "0Ho2o0000008ORmCAM",

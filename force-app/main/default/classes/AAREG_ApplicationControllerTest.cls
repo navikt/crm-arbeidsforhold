@@ -34,14 +34,28 @@ public class AAREG_ApplicationControllerTest {
     basisCodes.add(new ApplicationBasisCode__c());
     basisCodes.add(new ApplicationBasisCode__c());
 
-    AAREG_ApplicationController.processApplication(application, basisCodes, contacts);
-    List<Application__c> processedApplications = [SELECT Id FROM Application__c];
+    ContentVersion content = new ContentVersion();
+    content.VersionData = Blob.valueOf('string');
+    content.Title = 'test';
+    content.ContentLocation = 's';
+    content.PathOnClient = 'test.xlsx';
+    insert content;
+
+    AAREG_ApplicationController.processApplication(application, basisCodes, contacts, content.Id);
+    List<Application__c> processedApplications = [SELECT Id, Casehandler_Status__c FROM Application__c];
     List<RelatedContact__c> processedContacts = [SELECT Id, Name, Application__c FROM RelatedContact__c];
     List<ApplicationBasisCode__c> processedBasisCodes = [SELECT Id, Application__c FROM ApplicationBasisCode__c];
+    List<ContentDocumentLink> documentLink = [
+      SELECT Id
+      FROM ContentDocumentLink
+      WHERE LinkedEntityId = :processedApplications[0].Id
+    ];
 
     System.assertEquals(1, processedApplications.size(), 'Check only one application was inserted');
     System.assertEquals(2, processedContacts.size(), 'Check that both contacts were inserted');
     System.assertEquals(2, processedBasisCodes.size(), 'Check that both Application Basis Codes were inserted');
+    System.assertEquals('New', processedApplications[0].Casehandler_Status__c, 'Assert correct application status');
+    System.assertEquals(1, documentLink.size(), 'Assert successful documentLink');
   }
 
   @isTest
