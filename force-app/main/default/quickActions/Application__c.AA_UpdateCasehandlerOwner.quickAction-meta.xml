@@ -13,7 +13,7 @@
         <field>Status__c</field>
         <literalValue>In Progress</literalValue>
     </fieldOverrides>
-    <label>Sett sakseier og status</label>
+    <label>Update Application Owner</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
         <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
