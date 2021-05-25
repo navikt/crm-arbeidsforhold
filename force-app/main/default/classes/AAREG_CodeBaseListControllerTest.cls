@@ -10,7 +10,7 @@ public class AAREG_CodeBaseListControllerTest {
         Application__c app = new Application__c();
         app.Account__c = acc.Id;
         app.RecordTypeId = devRecordTypeId;
-        app.ApplicationSubmittedDate__c = system.now();
+        app.ApplicationSubmittedDate__c = system.today();
         insert app;
         
         ApplicationBasisCode__c abc = new ApplicationBasisCode__c();
