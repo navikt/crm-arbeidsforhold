@@ -15,4 +15,7 @@
         <value>Application__c.Aa_RegisterAccess</value>
     </filters>
     <label>Aa-reg Søknader Alle</label>
+    <sharedTo>
+        <group>AAREG_Casehandling</group>
+    </sharedTo>
 </ListView>
