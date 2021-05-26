@@ -280,6 +280,20 @@
               </div>
             </section>
 
+            <section class="app-section">
+              <span class="form-control">
+                <span data-id="data-element"></span>
+                <h2>Ønsket data elementer</h2>
+                <small>Error Message</small>
+              </span>
+              <lightning-file-upload
+                name="fileUploader"
+                accept={acceptedFileFormats}
+                onuploadfinished={handleUploadFinished}
+              >
+              </lightning-file-upload>
+            </section>
+
             <div style="display: flex; justify-content: center">
               <button
                 type="button"

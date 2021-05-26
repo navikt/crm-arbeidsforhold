@@ -14,6 +14,7 @@ export default class Aareg_application extends LightningElement {
   hasAccess = false;
   applicationSubmitted = false;
   currentUser = Id;
+  contentVersionId;
   organizationType;
   error;
 
@@ -73,6 +74,10 @@ export default class Aareg_application extends LightningElement {
     this.applicationBasisRows = [{ uuid: this.createUUID() }];
   }
 
+  get acceptedFileFormats() {
+    return ['.xlsx'];
+  }
+
   /*************** Dynamic Element handlers ***************/
 
   createUUID() {
@@ -119,7 +124,8 @@ export default class Aareg_application extends LightningElement {
     processApplication({
       application: this.application,
       basisCode: this.applicationBasisRows,
-      relatedContacts: this.contactRows
+      relatedContacts: this.contactRows,
+      contentVersionId: this.contentVersionId
     })
       .then((response) => {
         this.applicationSubmitted = true;
@@ -195,6 +201,11 @@ export default class Aareg_application extends LightningElement {
     }
   }
 
+  handleUploadFinished(event) {
+    const uploadedFiles = event.detail.files;
+    this.contentVersionId = uploadedFiles[0].contentVersionId;
+  }
+
   /*************** Validation ***************/
 
   processError(event) {
@@ -253,9 +264,14 @@ export default class Aareg_application extends LightningElement {
     this.onlineAccess = this.template.querySelector('[data-id="online-access"]');
     this.extractionAccess = this.template.querySelector('[data-id="extraction-access"]');
     this.accessTypes = this.template.querySelector('[data-id="access-types"]');
+    this.dataElements = this.template.querySelector('[data-id="data-element"]');
   }
 
   checkApplicationInputs() {
+    if (this.contentVersionId === undefined) {
+      this.setErrorFor(this.dataElements, 'Obligatorisk');
+    }
+
     if (this.application.Email__c === null || '') {
       this.setErrorFor(this.email, 'E-post er obligatorisk.');
     }
