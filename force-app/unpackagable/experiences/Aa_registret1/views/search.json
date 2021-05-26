@@ -1,58 +1,58 @@
 {
-    "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
-    "componentName": "siteforce:sldsOneColLayout",
-    "id": "45b37a45-deb2-40fd-a1e1-502e09d9777e",
-    "label": "Search",
-    "regions": [
+  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+  "componentName": "siteforce:sldsOneColLayout",
+  "id": "45b37a45-deb2-40fd-a1e1-502e09d9777e",
+  "label": "Search",
+  "regions": [
+    {
+      "id": "46433ab0-8b58-46d2-b0ae-152bd307c0f8",
+      "regionName": "header",
+      "type": "region"
+    },
+    {
+      "components": [
         {
-            "id": "46433ab0-8b58-46d2-b0ae-152bd307c0f8",
-            "regionName": "header",
-            "type": "region"
-        },
-        {
-            "components": [
-                {
-                    "componentAttributes": {
-                        "scopes": [
-                            {
-                                "isPublic": true,
-                                "name": "FeedPost"
-                            },
-                            {
-                                "isPublic": true,
-                                "name": "KnowledgeArticleVersion"
-                            },
-                            {
-                                "isPublic": false,
-                                "name": "Case"
-                            },
-                            {
-                                "isPublic": true,
-                                "name": "CollaborationGroup"
-                            }
-                        ],
-                        "searchResultFiltering": true,
-                        "searchTerm": "{!term}",
-                        "showTopResults": true
-                    },
-                    "componentName": "forceCommunity:search",
-                    "id": "2d417dce-db81-4164-8e56-22391e1501d5",
-                    "renderPriority": "NEUTRAL",
-                    "renditionMap": {},
-                    "type": "component"
-                }
+          "componentAttributes": {
+            "scopes": [
+              {
+                "isPublic": true,
+                "name": "FeedPost"
+              },
+              {
+                "isPublic": true,
+                "name": "KnowledgeArticleVersion"
+              },
+              {
+                "isPublic": false,
+                "name": "Case"
+              },
+              {
+                "isPublic": true,
+                "name": "CollaborationGroup"
+              }
             ],
-            "id": "4ad1c989-9f38-4528-b7e1-7bc573ca30e4",
-            "regionName": "content",
-            "type": "region"
-        },
-        {
-            "id": "8a36522b-ec17-4cd8-be55-5b9a9b1791b3",
-            "regionName": "footer",
-            "type": "region"
+            "searchResultFiltering": true,
+            "searchTerm": "{!term}",
+            "showTopResults": true
+          },
+          "componentName": "forceCommunity:search",
+          "id": "2d417dce-db81-4164-8e56-22391e1501d5",
+          "renderPriority": "NEUTRAL",
+          "renditionMap": {},
+          "type": "component"
         }
-    ],
-    "themeLayoutType": "Inner",
-    "type": "view",
-    "viewType": "global-search"
+      ],
+      "id": "4ad1c989-9f38-4528-b7e1-7bc573ca30e4",
+      "regionName": "content",
+      "type": "region"
+    },
+    {
+      "id": "8a36522b-ec17-4cd8-be55-5b9a9b1791b3",
+      "regionName": "footer",
+      "type": "region"
+    }
+  ],
+  "themeLayoutType": "Inner",
+  "type": "view",
+  "viewType": "global-search"
 }
