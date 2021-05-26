@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Purpose Electricity Supervision --></label>
+    <name>PurposeElectricitySupervision__c</name>
+    <picklistValues>
+        <masterLabel>Annet - oppgi i tekstfelt under</masterLabel>
+        <translation><!-- Annet - oppgi i tekstfelt under --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Tilsyn med elektiske anlegg og elektrisk utstyr</masterLabel>
+        <translation><!-- Tilsyn med elektiske anlegg og elektrisk utstyr --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

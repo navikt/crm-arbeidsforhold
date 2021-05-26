@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Purpose State - Legal --></label>
+    <name>PurposeStateLegal__c</name>
+    <picklistValues>
+        <masterLabel>Annet - oppgi i tekstfelt under</masterLabel>
+        <translation><!-- Annet - oppgi i tekstfelt under --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Føre tilsyn med advokaters virksomhet i henhold til domstolloven</masterLabel>
+        <translation><!-- Føre tilsyn med advokaters virksomhet i henhold til domstolloven --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

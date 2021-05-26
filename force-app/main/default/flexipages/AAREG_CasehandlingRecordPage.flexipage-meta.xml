@@ -297,6 +297,11 @@
         </itemInstances>
         <itemInstances>
             <fieldInstance>
+                <fieldItem>Record.ApplicationDeadline__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
                 <fieldItem>Record.AA_CasehandlerDeadlineFlag__c</fieldItem>
             </fieldInstance>
         </itemInstances>

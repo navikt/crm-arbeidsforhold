@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Purpose State - Health and Social --></label>
+    <name>PurposeStateHealthAndSocial__c</name>
+    <picklistValues>
+        <masterLabel>Annet - oppgi i tekstfelt under</masterLabel>
+        <translation><!-- Annet - oppgi i tekstfelt under --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. </masterLabel>
+        <translation><!-- Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer.  --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av tilskuddsordningen - Kontrollere at virksomheter som sysselsetter helsepersonell har meldt inn korrekte opplysninger til NPE</masterLabel>
+        <translation><!-- Kontroll av tilskuddsordningen - Kontrollere at virksomheter som sysselsetter helsepersonell har meldt inn korrekte opplysninger til NPE --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</masterLabel>
+        <translation><!-- Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene. --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kvalitetssikring i forbindelse med søknad om autorisasjon eller lisens.</masterLabel>
+        <translation><!-- Kvalitetssikring i forbindelse med søknad om autorisasjon eller lisens. --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Saksbehandle/avgjøre helserettigheter og rett til refusjon etter EØS-forordningen og folketrygdloven kap. 5 (Helfo).</masterLabel>
+        <translation><!-- Saksbehandle/avgjøre helserettigheter og rett til refusjon etter EØS-forordningen og folketrygdloven kap. 5 (Helfo). --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Tilsyn vedrørende krav ved bruk av statstilskudd</masterLabel>
+        <translation><!-- Tilsyn vedrørende krav ved bruk av statstilskudd --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Utstede offesielle bekreftelser på yrkeserfaring for leger og tannleger i Norge.</masterLabel>
+        <translation><!-- Utstede offesielle bekreftelser på yrkeserfaring for leger og tannleger i Norge. --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Vurdering av statlige tilvirkningsbevillinger etter alkoholloven</masterLabel>
+        <translation><!-- Vurdering av statlige tilvirkningsbevillinger etter alkoholloven --></translation>
+    </picklistValues>
+</CustomFieldTranslation>
