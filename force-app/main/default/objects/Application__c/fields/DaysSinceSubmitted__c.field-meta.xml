@@ -3,7 +3,7 @@
     <fullName>DaysSinceSubmitted__c</fullName>
     <description>Number of days since application was submitted</description>
     <externalId>false</externalId>
-    <formula>TODAY()-DATEVALUE(ApplicationSubmittedDate__c)</formula>
+    <formula>TODAY()-ApplicationSubmittedDate__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Days Since Submitted</label>
     <precision>18</precision>

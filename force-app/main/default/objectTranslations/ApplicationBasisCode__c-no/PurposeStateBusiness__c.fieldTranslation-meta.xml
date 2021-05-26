@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Purpose State - Business --></label>
+    <name>PurposeStateBusiness__c</name>
+    <picklistValues>
+        <masterLabel>Annet - oppgi i tekstfelt under</masterLabel>
+        <translation><!-- Annet - oppgi i tekstfelt under --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Klarering for norske statsborgere i samferdselssektoren</masterLabel>
+        <translation><!-- Klarering for norske statsborgere i samferdselssektoren --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av seriøsitetskrav (kun behov for antall ansatte)</masterLabel>
+        <translation><!-- Kontroll av seriøsitetskrav (kun behov for antall ansatte) --></translation>
+    </picklistValues>
+</CustomFieldTranslation>
