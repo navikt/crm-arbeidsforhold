@@ -1,8 +1,10 @@
 {
-    "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
-    "id": "775a9d8f-b738-4fd3-8464-2e13535b6186",
-    "label": "Record Detail",
-    "routeType": "detail",
-    "type": "route",
-    "urlPrefix": "detail"
+  "activeViewId": "e31a02f7-3121-473c-8ff3-d77f435acab7",
+  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+  "configurationTags": [],
+  "id": "775a9d8f-b738-4fd3-8464-2e13535b6186",
+  "label": "Record Detail",
+  "routeType": "detail",
+  "type": "route",
+  "urlPrefix": "detail"
 }

@@ -37,12 +37,13 @@ public without sharing class AAREG_ApplicationController {
     Application__c application,
     ApplicationBasisCode__c[] basisCode,
     RelatedContact__c[] relatedContacts,
-    Id contentVersionId
+    String base64,
+    String fileName //Id contentVersionId
   ) {
     application.Casehandler_Status__c = 'New';
     try {
       insert application;
-      generateContentDocumentLink(application.Id, contentVersionId);
+      insertDocumentWithLink(application.Id, base64, fileName);
       insertRelatedContacts(application.Id, relatedContacts);
       insertBasisCodes(application.Id, basisCode);
     } catch (Exception e) {
@@ -62,6 +63,20 @@ public without sharing class AAREG_ApplicationController {
       code.Application__c = applicationId;
     }
     insert basisCodes;
+  }
+
+  private static void insertDocumentWithLink(Id applicationId, String base64, String fileName) {
+    ContentVersion cv = generateContentVersion(base64, filename);
+    generateContentDocumentLink(applicationId, cv.Id);
+  }
+
+  private static ContentVersion generateContentVersion(String base64, String filename) {
+    ContentVersion cv = new ContentVersion();
+    cv.VersionData = EncodingUtil.base64Decode(base64);
+    cv.Title = filename;
+    cv.PathOnClient = filename;
+    insert cv;
+    return cv;
   }
 
   private static void generateContentDocumentLink(Id applicationId, Id contentVersionId) {

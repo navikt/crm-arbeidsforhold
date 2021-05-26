@@ -16,7 +16,7 @@ public class AAREG_ApplicationControllerTest {
   static void testGetAccountNameByOrgNumber() {
     String accountName = AAREG_ApplicationController.getAccountNameByOrgNumber('123456789');
 
-    System.assertEquals('Test', accountName);
+    System.assertEquals('Test', accountName, 'Assert that correct account name is returned');
   }
 
   @isTest
@@ -34,14 +34,10 @@ public class AAREG_ApplicationControllerTest {
     basisCodes.add(new ApplicationBasisCode__c());
     basisCodes.add(new ApplicationBasisCode__c());
 
-    ContentVersion content = new ContentVersion();
-    content.VersionData = Blob.valueOf('string');
-    content.Title = 'test';
-    content.ContentLocation = 's';
-    content.PathOnClient = 'test.xlsx';
-    insert content;
+    String base64 = 'sdkldsfjlcm';
+    String fileName = 'Test file name';
 
-    AAREG_ApplicationController.processApplication(application, basisCodes, contacts, content.Id);
+    AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
     List<Application__c> processedApplications = [SELECT Id, Casehandler_Status__c FROM Application__c];
     List<RelatedContact__c> processedContacts = [SELECT Id, Name, Application__c FROM RelatedContact__c];
     List<ApplicationBasisCode__c> processedBasisCodes = [SELECT Id, Application__c FROM ApplicationBasisCode__c];
@@ -80,6 +76,6 @@ public class AAREG_ApplicationControllerTest {
 
     Account lastUsedOrganization = AAREG_ApplicationController.getLastUsedOrganizationInformation(user.id);
 
-    System.assertEquals(lastUsedOrganization.name, 'Test');
+    System.assertEquals(lastUsedOrganization.name, 'Test', 'Assert that the correct account name is returned.');
   }
 }

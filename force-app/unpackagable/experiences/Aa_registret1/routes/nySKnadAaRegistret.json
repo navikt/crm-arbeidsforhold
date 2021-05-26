@@ -1,9 +1,0 @@
-{
-    "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
-    "id": "8bd1fc0a-5c35-4734-a91d-aebf6d754bb9",
-    "label": "Ny Søknad Aa-registret",
-    "pageAccess": "UseParent",
-    "routeType": "custom-ny-soknad-aa-registret",
-    "type": "route",
-    "urlPrefix": "ny-soknad-aa-registret"
-}
