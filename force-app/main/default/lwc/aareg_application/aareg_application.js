@@ -14,8 +14,8 @@ export default class Aareg_application extends LightningElement {
   hasAccess = false;
   applicationSubmitted = false;
   currentUser = Id;
-  contentVersionId;
   organizationType;
+  fileData;
   error;
 
   @wire(getLastUsedOrganizationInformation, { userId: '$currentUser' })
@@ -121,11 +121,13 @@ export default class Aareg_application extends LightningElement {
       console.log('Has Errors did not submit!!');
       return;
     }
+    const { base64, filename } = this.fileData;
     processApplication({
       application: this.application,
       basisCode: this.applicationBasisRows,
       relatedContacts: this.contactRows,
-      contentVersionId: this.contentVersionId
+      base64: base64,
+      fileName: filename
     })
       .then((response) => {
         this.applicationSubmitted = true;
@@ -206,6 +208,20 @@ export default class Aareg_application extends LightningElement {
     this.contentVersionId = uploadedFiles[0].contentVersionId;
   }
 
+  onFileUpload(event) {
+    const file = event.target.files[0];
+    let reader = new FileReader();
+    reader.onload = () => {
+      let base64 = reader.result.split(',')[1];
+      this.fileData = {
+        filename: file.name,
+        base64: base64
+      };
+      console.log('file data: ', this.fileData);
+    };
+    reader.readAsDataURL(file);
+  }
+
   /*************** Validation ***************/
 
   processError(event) {
@@ -268,7 +284,7 @@ export default class Aareg_application extends LightningElement {
   }
 
   checkApplicationInputs() {
-    if (this.contentVersionId === undefined) {
+    if (this.fileData === undefined) {
       this.setErrorFor(this.dataElements, 'Obligatorisk');
     }
 
