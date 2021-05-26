@@ -20,10 +20,6 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Closed</fullName>
-            <default>false</default>
-        </values>
-        <values>
             <fullName>Declined</fullName>
             <default>false</default>
         </values>
