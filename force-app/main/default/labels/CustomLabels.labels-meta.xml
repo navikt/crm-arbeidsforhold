@@ -1,6 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
     <labels>
+        <fullName>AccessType</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AccessType</shortDescription>
+        <value>Type of access</value>
+    </labels>
+    <labels>
+        <fullName>Agreements</fullName>
+        <categories>Lightning App Page Label</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Agreements</shortDescription>
+        <value>Agreements</value>
+    </labels>
+    <labels>
+        <fullName>Applicant</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Applicant</shortDescription>
+        <value>Applicant</value>
+    </labels>
+    <labels>
+        <fullName>ApplicationBasisCode</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Application Basis Code</shortDescription>
+        <value>Codes</value>
+    </labels>
+    <labels>
         <fullName>Codes</fullName>
         <categories>Arbeidsforhold Lightning App Page Label</categories>
         <language>no</language>
@@ -9,11 +41,67 @@
         <value>Codes</value>
     </labels>
     <labels>
+        <fullName>Contacts</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Contacts</shortDescription>
+        <value>Contacts</value>
+    </labels>
+    <labels>
+        <fullName>DataProcessor</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>DataProcessor</shortDescription>
+        <value>Data processor</value>
+    </labels>
+    <labels>
+        <fullName>Decision</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Decision</shortDescription>
+        <value>Decision</value>
+    </labels>
+    <labels>
+        <fullName>Detail</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Detail</shortDescription>
+        <value>Details</value>
+    </labels>
+    <labels>
+        <fullName>Files</fullName>
+        <categories>Lightning App Page Label</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Files</shortDescription>
+        <value>Files</value>
+    </labels>
+    <labels>
         <fullName>Related</fullName>
         <categories>Arbeidsforhold Lightning App Page Label</categories>
         <language>no</language>
         <protected>false</protected>
         <shortDescription>Related</shortDescription>
         <value>Related contacts</value>
+    </labels>
+    <labels>
+        <fullName>TermsOfUse</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>TermsOfUse</shortDescription>
+        <value>Terms of use</value>
+    </labels>
+    <labels>
+        <fullName>applicantBusiness</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>applicantBusiness</shortDescription>
+        <value>Applicant&apos;s business</value>
     </labels>
 </CustomLabels>
