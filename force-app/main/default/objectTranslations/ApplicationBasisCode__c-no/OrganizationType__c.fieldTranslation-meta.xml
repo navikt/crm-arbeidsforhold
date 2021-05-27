@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Organization Type --></label>
+    <name>OrganizationType__c</name>
+    <picklistValues>
+        <masterLabel>County</masterLabel>
+        <translation><!-- County --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Electricity Supervision</masterLabel>
+        <translation><!-- Electricity Supervision --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Municipality</masterLabel>
+        <translation><!-- Municipality --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Other</masterLabel>
+        <translation><!-- Other --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Pension</masterLabel>
+        <translation><!-- Pension --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>State</masterLabel>
+        <translation><!-- State --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

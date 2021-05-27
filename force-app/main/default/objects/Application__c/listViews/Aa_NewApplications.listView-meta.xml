@@ -20,4 +20,7 @@
         <value>New</value>
     </filters>
     <label>Aa-reg Søknader Nye</label>
+    <sharedTo>
+        <group>AAREG_Casehandling</group>
+    </sharedTo>
 </ListView>

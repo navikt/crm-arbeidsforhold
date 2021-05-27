@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
     <caseValues>
-        <article>None</article>
+        <article>Definite</article>
         <plural>false</plural>
-        <value><!-- Application --></value>
+        <value>Søknad</value>
     </caseValues>
     <caseValues>
         <article>Indefinite</article>
         <plural>false</plural>
-        <value><!-- Application --></value>
-    </caseValues>
-    <caseValues>
-        <article>Definite</article>
-        <plural>false</plural>
-        <value><!-- Application --></value>
+        <value>Søknad</value>
     </caseValues>
     <caseValues>
         <article>None</article>
+        <plural>false</plural>
+        <value>Søknad</value>
+    </caseValues>
+    <caseValues>
+        <article>Definite</article>
         <plural>true</plural>
-        <value><!-- Application --></value>
+        <value>Søknadene</value>
     </caseValues>
     <caseValues>
         <article>Indefinite</article>
         <plural>true</plural>
-        <value><!-- Application --></value>
+        <value>Søknader</value>
     </caseValues>
     <caseValues>
-        <article>Definite</article>
+        <article>None</article>
         <plural>true</plural>
-        <value><!-- Application --></value>
+        <value>Søknader</value>
     </caseValues>
-    <gender><!-- Neuter --></gender>
+    <gender>Neuter</gender>
     <layouts>
         <layout>Aa-register Casehandler Layout</layout>
         <sections>
@@ -53,9 +53,9 @@
             <section>Decision Information</section>
         </sections>
     </layouts>
-    <nameFieldLabel><!-- Application Number --></nameFieldLabel>
+    <nameFieldLabel>Søknads nummer</nameFieldLabel>
     <quickActions>
-        <label><!-- Sett sakseier og status --></label>
+        <label><!-- Update Application Owner --></label>
         <name>AA_UpdateCasehandlerOwner</name>
     </quickActions>
     <recordTypes>

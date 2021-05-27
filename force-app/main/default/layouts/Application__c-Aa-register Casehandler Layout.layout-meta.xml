@@ -39,6 +39,10 @@
                 <behavior>Edit</behavior>
                 <field>DataProcessorName__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>ApplicationDeadline__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

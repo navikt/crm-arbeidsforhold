@@ -3,7 +3,7 @@
     <actionOverrides>
         <actionName>View</actionName>
         <comment>Action override created by Lightning App Builder during activation.</comment>
-        <content>AA_ApplicationRecordPage</content>
+        <content>AAREG_CasehandlingRecordPage</content>
         <formFactor>Small</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>Flexipage</type>
@@ -12,37 +12,29 @@
     <actionOverrides>
         <actionName>View</actionName>
         <comment>Action override created by Lightning App Builder during activation.</comment>
-        <content>AA_ApplicationRecordPage</content>
+        <content>AAREG_CasehandlingRecordPage</content>
         <formFactor>Large</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>Flexipage</type>
         <pageOrSobjectType>Application__c</pageOrSobjectType>
     </actionOverrides>
     <actionOverrides>
-        <actionName>Tab</actionName>
-        <content>Aa_HomePage</content>
-        <formFactor>Large</formFactor>
-        <skipRecordTypeSelect>false</skipRecordTypeSelect>
-        <type>Flexipage</type>
-        <pageOrSobjectType>standard-home</pageOrSobjectType>
-    </actionOverrides>
-    <actionOverrides>
         <actionName>View</actionName>
         <comment>Action override created by Lightning App Builder during activation.</comment>
-        <content>ApplicationBasisCodeRecordPage</content>
+        <content>AAREG_AgreementRecordPage</content>
         <formFactor>Small</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>Flexipage</type>
-        <pageOrSobjectType>ApplicationBasisCode__c</pageOrSobjectType>
+        <pageOrSobjectType>Agreement__c</pageOrSobjectType>
     </actionOverrides>
     <actionOverrides>
         <actionName>View</actionName>
         <comment>Action override created by Lightning App Builder during activation.</comment>
-        <content>ApplicationBasisCodeRecordPage</content>
+        <content>AAREG_AgreementRecordPage</content>
         <formFactor>Large</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>Flexipage</type>
-        <pageOrSobjectType>ApplicationBasisCode__c</pageOrSobjectType>
+        <pageOrSobjectType>Agreement__c</pageOrSobjectType>
     </actionOverrides>
     <brand>
         <headerColor>#0070D2</headerColor>
@@ -63,5 +55,4 @@
     <tabs>standard-report</tabs>
     <tabs>standard-Dashboard</tabs>
     <uiType>Lightning</uiType>
-    <utilityBar>Arbeidsforhold_UtilityBar</utilityBar>
 </CustomApplication>
