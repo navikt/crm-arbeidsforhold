@@ -55,7 +55,8 @@
     </layouts>
     <nameFieldLabel>Søknads nummer</nameFieldLabel>
     <quickActions>
-        <label><!-- Update Application Owner --></label>
+        <aspect>Master</aspect>
+        <label>Sett sakseier og status</label>
         <name>AA_UpdateCasehandlerOwner</name>
     </quickActions>
     <recordTypes>

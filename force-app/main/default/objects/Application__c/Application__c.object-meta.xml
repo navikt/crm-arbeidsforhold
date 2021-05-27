@@ -126,9 +126,13 @@
         <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
-
     <actionOverrides>
         <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <formFactor>Large</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -158,7 +162,13 @@
         <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Applications</pluralLabel>
-    <searchLayouts />
+    <recordTypeTrackHistory>false</recordTypeTrackHistory>
+    <searchLayouts>
+        <searchResultsAdditionalFields>Account__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>ApplicationSubmittedDate__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>AA_CasehandlerDeadlineFlag__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>CasehandlerOwner__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>
