@@ -33,6 +33,14 @@
         <value>Codes</value>
     </labels>
     <labels>
+        <fullName>Codes</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>no</language>
+        <protected>false</protected>
+        <shortDescription>Codes</shortDescription>
+        <value>Codes</value>
+    </labels>
+    <labels>
         <fullName>Contacts</fullName>
         <categories>Arbeidsforhold Lightning App Page Label</categories>
         <language>en_US</language>
@@ -71,6 +79,14 @@
         <protected>false</protected>
         <shortDescription>Files</shortDescription>
         <value>Files</value>
+    </labels>
+    <labels>
+        <fullName>Related</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>no</language>
+        <protected>false</protected>
+        <shortDescription>Related</shortDescription>
+        <value>Related contacts</value>
     </labels>
     <labels>
         <fullName>TermsOfUse</fullName>

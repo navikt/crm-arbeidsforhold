@@ -43,10 +43,42 @@
         <type>Region</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Account__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Email__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-eba5422e-5c89-4ee7-9865-2cb8290866e8</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.OrganizationStructure__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.Status__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fb8618ea-25ec-4f2f-a739-52fcf11bfe2d</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -73,6 +105,33 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.APIAccess__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.ExtractionAccess__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.OnlineAccess__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-60549850-f889-4d20-be61-5c1602b6d292</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -90,10 +149,28 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.OrganizationNumber__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-dbf95a1a-4562-485f-8bf2-c200b29b0529</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.DataProcessorName__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-2c1ebad4-402d-4882-8287-4a5570652cef</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -120,6 +197,15 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.TermsOfUse__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-c3b83baf-0468-4988-8f25-e2967d6d4d12</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -158,7 +244,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Søker</value>
+                    <value>{!$Label.Applicant}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
             </componentInstance>
@@ -171,7 +257,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Tilgangstype</value>
+                    <value>{!$Label.AccessType}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
             </componentInstance>
@@ -189,7 +275,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Databehandler</value>
+                    <value>{!$Label.DataProcessor}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
             </componentInstance>
@@ -202,7 +288,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Bruksvilkår</value>
+                    <value>{!$Label.TermsOfUse}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
             </componentInstance>
@@ -231,7 +317,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>showActionBar</name>
-                    <value>true</value>
+                    <value>false</value>
                 </componentInstanceProperties>
                 <componentName>force:relatedListSingleContainer</componentName>
             </componentInstance>
@@ -240,10 +326,39 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.ApplicationSubmittedDate__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.ApplicationDeadline__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.AA_CasehandlerDeadlineFlag__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-82a45e8f-ed7d-439e-bf46-d2ee7d7a2e2d</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.CasehandlerOwner__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.Casehandler_Status__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-bee5d9d9-2f2a-479d-953c-30c85e9acf60</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -270,6 +385,21 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.DecisionDate__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.DecisionDescription__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.AA_CasehandlerDecisionTemplate__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-61f895ab-d789-49c8-9dab-b8dc93f81a6b</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -358,7 +488,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Søknad</value>
+                    <value>{!$Label.Applicant}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
             </componentInstance>
@@ -371,7 +501,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Relaterte kontaktpersoner</value>
+                    <value>{!$Label.Related}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
             </componentInstance>
@@ -384,7 +514,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>NAV vedtak</value>
+                    <value>{!$Label.Decision}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
             </componentInstance>
@@ -397,7 +527,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Kodeverk</value>
+                    <value>{!$Label.Codes}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
             </componentInstance>

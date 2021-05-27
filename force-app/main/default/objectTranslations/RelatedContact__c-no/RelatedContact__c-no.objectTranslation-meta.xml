@@ -42,5 +42,5 @@
             <section>Notification Subscriptions</section>
         </sections>
     </layouts>
-    <nameFieldLabel>Tilknyttet ID</nameFieldLabel>
+    <nameFieldLabel>Tilknyttet navn</nameFieldLabel>
 </CustomObjectTranslation>
