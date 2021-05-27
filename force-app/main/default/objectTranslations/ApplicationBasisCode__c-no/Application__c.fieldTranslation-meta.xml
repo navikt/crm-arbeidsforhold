@@ -2,5 +2,5 @@
 <CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
     <label><!-- Application --></label>
     <name>Application__c</name>
-    <relationshipLabel><!-- Kodeverk --></relationshipLabel>
+    <relationshipLabel>Kodeverk</relationshipLabel>
 </CustomFieldTranslation>
