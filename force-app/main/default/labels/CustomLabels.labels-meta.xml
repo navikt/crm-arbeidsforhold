@@ -25,6 +25,14 @@
         <value>Applicant</value>
     </labels>
     <labels>
+        <fullName>Application</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>no</language>
+        <protected>false</protected>
+        <shortDescription>Application</shortDescription>
+        <value>Application</value>
+    </labels>
+    <labels>
         <fullName>ApplicationBasisCode</fullName>
         <categories>Arbeidsforhold Lightning App Page Label</categories>
         <language>en_US</language>
