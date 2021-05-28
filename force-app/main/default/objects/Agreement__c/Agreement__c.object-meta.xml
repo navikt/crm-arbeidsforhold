@@ -141,7 +141,7 @@
         <type>Default</type>
     </actionOverrides>
     <allowInChatterGroups>false</allowInChatterGroups>
-    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <compactLayoutAssignment>AA_RegisterAccess</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
     <description>Used to track agreements that have resulted from application approval.</description>
     <enableActivities>true</enableActivities>
