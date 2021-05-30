@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Translations xmlns="http://soap.sforce.com/2006/04/metadata">
     <customApplications>
-        <label />
+        <label>
+            <!-- Arbeidsforhold -->
+        </label>
         <name>Arbeidsforhold</name>
     </customApplications>
     <customApplications>
-        <label>
-            <!-- Email Scheduling -->
-        </label>
+        <label />
         <name>Email_Scheduling</name>
     </customApplications>
     <customLabels>
@@ -23,6 +23,10 @@
         <name>Applicant</name>
     </customLabels>
     <customLabels>
+        <label>Søknad</label>
+        <name>Application</name>
+    </customLabels>
+    <customLabels>
         <label>Kodeverk</label>
         <name>ApplicationBasisCode</name>
     </customLabels>
@@ -31,12 +35,18 @@
         <name>Codes</name>
     </customLabels>
     <customLabels>
-        <label>Tilknyttet kontaktperson</label>
+        <label>
+            <!-- Contacts -->
+        </label>
         <name>Contacts</name>
     </customLabels>
     <customLabels>
         <label>Databehandler</label>
         <name>DataProcessor</name>
+    </customLabels>
+    <customLabels>
+        <label>Dataelementer</label>
+        <name>Dataelement</name>
     </customLabels>
     <customLabels>
         <label>Vedtak</label>
@@ -47,15 +57,21 @@
         <name>Detail</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- Errors_CannotFindTriggerHandlerClass -->
+        </label>
         <name>Errors_CannotFindTriggerHandlerClass</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- Errors_DuplicateTriggerHandlerClass -->
+        </label>
         <name>Errors_DuplicateTriggerHandlerClass</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- Errors_InvalidSettingConfiguration -->
+        </label>
         <name>Errors_InvalidSettingConfiguration</name>
     </customLabels>
     <customLabels>
@@ -75,65 +91,81 @@
         <name>applicantBusiness</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- Error when selecting a cross-object fieldsset is not allowed and attempted. -->
+        </label>
         <name>fflib_QueryFactory_crossobject_fieldsets_not_allowed_error</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- Error when selecting a field set for a different sobject type. -->
+        </label>
         <name>fflib_QueryFactory_fieldset_wrong_sobject_error</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- Presented when attempting to nest subqueries. -->
+        </label>
         <name>fflib_QueryFactory_recursive_subquery_error</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- Presented when attempting to create a subquery from an invalid relationship. -->
+        </label>
         <name>fflib_QueryFactory_subquery_invalid_relationship</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- fflib_security_error_field_not_insertable -->
+        </label>
         <name>fflib_security_error_field_not_insertable</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- fflib_security_error_field_not_readable -->
+        </label>
         <name>fflib_security_error_field_not_readable</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- fflib_security_error_field_not_updateable -->
+        </label>
         <name>fflib_security_error_field_not_updateable</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- fflib_security_error_object_not_deletable -->
+        </label>
         <name>fflib_security_error_object_not_deletable</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- fflib_security_error_object_not_insertable -->
+        </label>
         <name>fflib_security_error_object_not_insertable</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- fflib_security_error_object_not_readable -->
+        </label>
         <name>fflib_security_error_object_not_readable</name>
     </customLabels>
     <customLabels>
-        <label />
+        <label>
+            <!-- fflib_security_error_object_not_updateable -->
+        </label>
         <name>fflib_security_error_object_not_updateable</name>
     </customLabels>
     <customTabs>
-        <label>
-            <!-- Errors -->
-        </label>
+        <label />
         <name>EmailQueueErrors</name>
     </customTabs>
     <customTabs>
-        <label>
-            <!-- Queued -->
-        </label>
+        <label />
         <name>EmailQueueQueued</name>
     </customTabs>
     <customTabs>
-        <label>
-            <!-- Sent -->
-        </label>
+        <label />
         <name>EmailQueueSent</name>
     </customTabs>
     <flowDefinitions>
@@ -201,91 +233,122 @@
     </flowDefinitions>
 
     <quickActions>
-        <aspect>Master</aspect>
-        <label />
+        <label>
+            <!-- LogACall -->
+        </label>
         <name>LogACall</name>
     </quickActions>
     <quickActions>
-        <aspect>Master</aspect>
-        <label />
+        <label>
+            <!-- NewAccount -->
+        </label>
         <name>NewAccount</name>
     </quickActions>
     <quickActions>
-        <aspect>Master</aspect>
-        <label />
+        <label>
+            <!-- NewCase -->
+        </label>
         <name>NewCase</name>
     </quickActions>
     <quickActions>
-        <aspect>Master</aspect>
-        <label />
+        <label>
+            <!-- NewContact -->
+        </label>
         <name>NewContact</name>
     </quickActions>
     <quickActions>
-        <aspect>Master</aspect>
-        <label />
+        <label>
+            <!-- NewEvent -->
+        </label>
         <name>NewEvent</name>
     </quickActions>
     <quickActions>
-        <aspect>Master</aspect>
-        <label />
+        <label>
+            <!-- NewGroup -->
+        </label>
         <name>NewGroup</name>
     </quickActions>
     <quickActions>
-        <aspect>Master</aspect>
-        <label />
+        <label>
+            <!-- NewLead -->
+        </label>
         <name>NewLead</name>
     </quickActions>
     <quickActions>
-        <aspect>Master</aspect>
-        <label />
+        <label>
+            <!-- NewNote -->
+        </label>
         <name>NewNote</name>
     </quickActions>
     <quickActions>
-        <aspect>Master</aspect>
-        <label />
+        <label>
+            <!-- NewOpportunity -->
+        </label>
         <name>NewOpportunity</name>
     </quickActions>
     <quickActions>
-        <aspect>Master</aspect>
-        <label />
+        <label>
+            <!-- NewTask -->
+        </label>
         <name>NewTask</name>
     </quickActions>
     <quickActions>
-        <aspect>Master</aspect>
-        <label />
+        <label>
+            <!-- SendEmail -->
+        </label>
         <name>SendEmail</name>
     </quickActions>
     <reportTypes>
-        <description />
-        <label />
+        <description>
+            <!-- Aa_reg agreement with related contacts -->
+        </description>
+        <label>
+            <!-- Aa_reg agreement with related contacts -->
+        </label>
         <name>Aa_regAgreementWithRelatedContacts</name>
         <sections>
-            <label />
+            <label>
+                <!-- Accounts -->
+            </label>
             <name>Accounts</name>
         </sections>
         <sections>
-            <label />
+            <label>
+                <!-- Agreements -->
+            </label>
             <name>Agreements</name>
         </sections>
         <sections>
-            <label />
+            <label>
+                <!-- Applications -->
+            </label>
             <name>Applications</name>
         </sections>
         <sections>
-            <label />
+            <label>
+                <!-- Related Contacts -->
+            </label>
             <name>Related Contacts</name>
         </sections>
     </reportTypes>
     <reportTypes>
-        <description />
-        <label />
+        <description>
+            <!-- Screen Flows -->
+        </description>
+        <label>
+            <!-- Screen Flows -->
+        </label>
         <name>screen_flows_prebuilt_crt</name>
         <sections>
-            <label />
+            <label>
+                <!-- Flow Interview Log Entries -->
+            </label>
             <name>Flow Interview Log Entries</name>
         </sections>
         <sections>
-            <label />
+            <label>
+                <!-- Flow Interview Logs -->
+            </label>
             <name>Flow Interview Logs</name>
         </sections>
     </reportTypes>

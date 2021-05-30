@@ -42,17 +42,6 @@
             <section>Decision Information</section>
         </sections>
     </layouts>
-    <layouts>
-        <layout>Application Layout</layout>
-        <sections>
-            <label><!-- Custom Links --></label>
-            <section>Custom Links</section>
-        </sections>
-        <sections>
-            <label><!-- Decision Information --></label>
-            <section>Decision Information</section>
-        </sections>
-    </layouts>
     <nameFieldLabel>Søknads nummer</nameFieldLabel>
     <quickActions>
         <aspect>Master</aspect>

@@ -34,11 +34,15 @@
     <layouts>
         <layout>Agreement Layout</layout>
         <sections>
+            <label>Tilgangstype</label>
+            <section>Access Type</section>
+        </sections>
+        <sections>
             <label><!-- Custom Links --></label>
             <section>Custom Links</section>
         </sections>
         <sections>
-            <label><!-- Decision --></label>
+            <label>Vedtak</label>
             <section>Decision</section>
         </sections>
     </layouts>
