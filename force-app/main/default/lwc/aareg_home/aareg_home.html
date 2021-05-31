@@ -8,7 +8,9 @@
             <select class="organization-select" aria-invalid="false" onchange={handleOrganizationChange}>
               <template for:each={organizations} for:item="organization">
                 <option key={organization.OrganizationNumber} value={organization.OrganizationNumber}>
-                  <div>{organization.Name}</div>
+                  <div>
+                    <p>{organization.Name}- ({organization.OrganizationNumber})</p>
+                  </div>
                 </option>
               </template>
             </select>
