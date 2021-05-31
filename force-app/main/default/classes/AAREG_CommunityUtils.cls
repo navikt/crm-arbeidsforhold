@@ -1,7 +1,8 @@
 public without sharing class AAREG_CommunityUtils {
   @AuraEnabled
-  public static String getUserRights(String userId, String organiationNumber) {
+  public static AltinnCalloutService.AltinnRightsResponse getUserRights(String userId, String organiationNumber) {
     AltinnCalloutService altinn = new AltinnCalloutService();
-    return JSON.serialize(altinn.getRights(userId, organiationNumber));
+    AltinnCalloutService.AltinnRightsResponse response = altinn.getRights(userId, organiationNumber);
+    return response;
   }
 }

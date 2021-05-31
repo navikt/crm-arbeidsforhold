@@ -37,11 +37,9 @@ export default class Aareg_application extends LightningElement {
   checkAccessToApplication() {
     getUserRights({ userId: this.userId, organizationNumber: this.lastUsedOrganization })
       .then((result) => {
-        let parsedResult = JSON.parse(result);
-        let privileges = parsedResult.rights;
+        let privileges = JSON.parse(JSON.stringify(result.rights));
 
         privileges.forEach((privilege) => {
-          console.log(privilege.ServiceCode);
           if (privilege.ServiceCode === '5719') {
             this.hasAccess = true;
             return;
@@ -168,6 +166,8 @@ export default class Aareg_application extends LightningElement {
         .catch((error) => {
           this.application.DataProcessorName__c = null;
           this.application.DataProcessorOrganizationNumber__c = null;
+          this.setErrorFor(this.dataProcess, 'Ugyldig organisasjonsnummer');
+          console.log('set error');
         });
     } else if (this.application.DataProcessor__c != null) {
       this.application.DataProcessor__c = null;
@@ -277,6 +277,7 @@ export default class Aareg_application extends LightningElement {
     this.accessTypes = this.template.querySelector('[data-id="access-types"]');
     this.dataElements = this.template.querySelector('[data-id="data-element"]');
     this.termsOfUse = this.template.querySelector('[data-id="terms-of-use"]');
+    this.dataProcess = this.template.querySelector('[data-id="data-processor"]');
   }
 
   checkApplicationInputs() {

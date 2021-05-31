@@ -11,97 +11,99 @@
           <div class="form">
             <section class="app-section">
               <h2>Søker</h2>
-              <div class="row">
-                <div class="column">
-                  <span class="form-control">
-                    <label for="virksomhetsnavn">Navn</label>
-                    <input
-                      type="text"
-                      name="virksomhetsnavn"
-                      id="virksomhetsnavn"
-                      value={application.organizationName}
-                      disabled="disabled"
-                    />
-                  </span>
+              <div>
+                <div class="row">
+                  <div class="column">
+                    <span class="form-control">
+                      <label for="virksomhetsnavn">Navn</label>
+                      <input
+                        type="text"
+                        name="virksomhetsnavn"
+                        id="virksomhetsnavn"
+                        value={application.organizationName}
+                        disabled="disabled"
+                      />
+                    </span>
+                  </div>
+                  <div class="column">
+                    <span class="form-control">
+                      <label for="organisasjonsnummer">Organisasjonsnummer</label>
+                      <input
+                        type="text"
+                        name="organisasjonsnummer"
+                        id="organisasjonsnummer"
+                        value={application.OrganizationNumber__c}
+                        disabled="disabled"
+                      />
+                    </span>
+                  </div>
+                  <div class="column">
+                    <span class="form-control">
+                      <label for="organisasjonsform">Organisasjonsform</label>
+                      <input
+                        type="text"
+                        name="organisasjonsform"
+                        id="organisasjonsform"
+                        value={application.OrganizationStructure__c}
+                        disabled="disabled"
+                      />
+                    </span>
+                  </div>
                 </div>
-                <div class="column">
-                  <span class="form-control">
-                    <label for="organisasjonsnummer">Organisasjonsnummer</label>
-                    <input
-                      type="text"
-                      name="organisasjonsnummer"
-                      id="organisasjonsnummer"
-                      value={application.OrganizationNumber__c}
-                      disabled="disabled"
-                    />
-                  </span>
-                </div>
-                <div class="column">
-                  <span class="form-control">
-                    <label for="organisasjonsform">Organisasjonsform</label>
-                    <input
-                      type="text"
-                      name="organisasjonsform"
-                      id="organisasjonsform"
-                      value={application.OrganizationStructure__c}
-                      disabled="disabled"
-                    />
-                  </span>
-                </div>
-              </div>
 
-              <div class="row">
-                <div class="column">
-                  <span class="form-control">
-                    <label for="postadresse">Forretningsadresse</label>
-                    <input
-                      type="text"
-                      name="postadresse"
-                      id="postadresse"
-                      value={application.MailingAddress__c}
-                      disabled="disabled"
-                    />
-                  </span>
+                <div class="row">
+                  <div class="column">
+                    <span class="form-control">
+                      <label for="postadresse">Forretningsadresse</label>
+                      <input
+                        type="text"
+                        name="postadresse"
+                        id="postadresse"
+                        value={application.MailingAddress__c}
+                        disabled="disabled"
+                      />
+                    </span>
+                  </div>
+                  <div class="column">
+                    <span class="form-control">
+                      <label for="postkode">Postnummer</label>
+                      <input
+                        type="text"
+                        name="postkode"
+                        id="postkode"
+                        value={application.MailingPostalCode__c}
+                        disabled="disabled"
+                      />
+                    </span>
+                  </div>
+                  <div class="column">
+                    <span class="form-control">
+                      <label for="poststed">Poststed</label>
+                      <input
+                        type="text"
+                        name="poststed"
+                        id="poststed"
+                        value={application.MailingCity__c}
+                        disabled="disabled"
+                      />
+                    </span>
+                  </div>
                 </div>
-                <div class="column">
-                  <span class="form-control">
-                    <label for="postkode">Postnummer</label>
-                    <input
-                      type="text"
-                      name="postkode"
-                      id="postkode"
-                      value={application.MailingPostalCode__c}
-                      disabled="disabled"
-                    />
-                  </span>
-                </div>
-                <div class="column">
-                  <span class="form-control">
-                    <label for="poststed">Poststed</label>
-                    <input
-                      type="text"
-                      name="poststed"
-                      id="poststed"
-                      value={application.MailingCity__c}
-                      disabled="disabled"
-                    />
-                  </span>
-                </div>
-              </div>
-              <div class="row">
-                <div class="column">
-                  <span class="form-control">
-                    <label for="epost">E-post</label>
-                    <input
-                      type="email"
-                      name="e-post"
-                      id="epost"
-                      data-id="email"
-                      onchange={handleApplicationInputChange}
-                      required
-                    />
-                    <small>Error Message</small>
-                  </span>
+                <div class="row">
+                  <div class="column">
+                    <span class="form-control">
+                      <label for="epost">E-post</label>
+                      <input
+                        type="email"
+                        name="e-post"
+                        id="epost"
+                        data-id="email"
+                        onchange={handleApplicationInputChange}
+                        required
+                      />
+                      <small>Error Message</small>
+                    </span>
+                  </div>
                 </div>
               </div>
             </section>
@@ -138,6 +140,7 @@
                 type="button"
                 name="legg til grunnlag og hjemmel"
                 class="button button-main"
+                style="margin: 10px"
                 onclick={addApplicationBasisRow}
               >
                 Legg til
@@ -162,8 +165,10 @@
                       type="text"
                       name="Databehandler organisasjonsnummer"
                       id="databehandler-organisasjonsnummer"
+                      data-id="data-processor"
                       onchange={handleDataProcessorChange}
                     />
+                    <small>Error</small>
                   </span>
                 </div>
                 <div class="column">
@@ -257,7 +262,13 @@
                   </button>
                 </div>
               </template>
-              <button type="button" name="legg til kontaktperson" class="button button-main" onclick={addContactRow}>
+              <button
+                type="button"
+                name="legg til kontaktperson"
+                class="button button-main"
+                style="margin: 10px"
+                onclick={addContactRow}
+              >
                 Legg til
                 <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -303,7 +314,7 @@
                 name="Send inn"
                 class="button button-main"
                 onclick={handleSubmit}
-                style="margin: 0.5rem"
+                style="margin: 10px"
               >
                 Send inn
               </button>

@@ -6,96 +6,94 @@ import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.up
 import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
 
 export default class Aareg_home extends LightningElement {
-    @track organizations;
-    @track error;
-    hasAccess = false;
-    lastUsedOrganization;
-    currentUser = Id;
+  @track organizations;
+  @track error;
+  hasAccess = false;
+  lastUsedOrganization;
+  currentUser = Id;
 
-    connectedCallback() {
-        this.getLastUsedOrganization();
+  connectedCallback() {
+    this.getLastUsedOrganization();
+  }
+
+  getLastUsedOrganization() {
+    getLastUsersLastUsedOrganiation({ userId: this.currentUser })
+      .then((result) => {
+        this.lastUsedOrganization = result;
+      })
+      .catch((error) => {
+        console.log('Error!!!', error);
+      });
+  }
+
+  @wire(getOrganizationsWithRoles, { userId: '$currentUser' })
+  wiredOrganizations({ error, data }) {
+    if (data) {
+      this.organizations = JSON.parse(JSON.stringify(data.organizations));
+      this.error = undefined;
+      this.sortOrganizations();
+      this.checkAccessToApplication();
+    } else if (error) {
+      this.error = error;
+      this.organizations = undefined;
+      console.log(error);
+    }
+  }
+
+  handleOrganizationChange(event) {
+    let recentOrganization = event.target.value;
+    this.lastUsedOrganization = recentOrganization;
+    updateLastUsedOrganization({ organizationNumber: recentOrganization, userId: this.currentUser })
+      .then((result) => {
+        this.checkAccessToApplication();
+      })
+      .catch((error) => {
+        this.error = error;
+        console.log(error);
+      });
+  }
+
+  sortOrganizations() {
+    if (this.organizations === undefined || this.lastUsedOrganization === null) {
+      return;
     }
 
-    getLastUsedOrganization() {
-        getLastUsersLastUsedOrganiation({ userId: this.currentUser })
-            .then((result) => {
-                this.lastUsedOrganization = result;
-            })
-            .catch((error) => {
-                console.log('Error!!!', error);
-            });
-    }
+    let foundIndex;
+    this.organizations.forEach((org, i) => {
+      if (org.OrganizationNumber === this.lastUsedOrganization) {
+        foundIndex = i;
+      }
+    });
 
-    @wire(getOrganizationsWithRoles, { userId: '$currentUser' })
-    wiredOrganizations({ error, data }) {
-        if (data) {
-            this.organizations = JSON.parse(JSON.stringify(data.organizations));
-            this.error = undefined;
-            this.sortOrganizations();
-            this.checkAccessToApplication();
-        } else if (error) {
-            this.error = error;
-            this.organizations = undefined;
-            console.log(error);
-        }
+    if (typeof foundIndex !== 'undefined') {
+      if (foundIndex != 0) {
+        let placeholder = this.organizations[0];
+        this.organizations[0] = this.organizations[foundIndex];
+        this.organizations[foundIndex] = placeholder;
+      }
     }
+  }
 
-    handleOrganizationChange(event) {
-        let recentOrganization = event.target.value;
-        this.lastUsedOrganization = recentOrganization;
-        updateLastUsedOrganization({ organizationNumber: recentOrganization, userId: this.currentUser })
-            .then((result) => {
-                this.checkAccessToApplication();
-            })
-            .catch((error) => {
-                this.error = error;
-                console.log(error);
-            });
+  checkAccessToApplication() {
+    if (this.organizations === undefined) {
+      this.hasAccess = false;
     }
+    if (this.lastUsedOrganization === null || '') {
+      this.hasAccess = false;
+    }
+    getUserRights({ userId: this.userId, organizationNumber: this.lastUsedOrganization })
+      .then((result) => {
+        let privileges = JSON.parse(JSON.stringify(result.rights));
 
-    sortOrganizations() {
-        if (this.organizations === undefined || this.lastUsedOrganization === null) {
+        privileges.forEach((privilege) => {
+          if (privilege.ServiceCode === '5719') {
+            this.hasAccess = true;
             return;
-        }
-
-        let foundIndex;
-        this.organizations.forEach((org, i) => {
-            console.log(org.OrganizationNumber, i, this.lastUsedOrganization);
-            if (org.OrganizationNumber === this.lastUsedOrganization) {
-                foundIndex = i;
-            }
+          }
         });
-
-        if (typeof foundIndex !== 'undefined') {
-            if (foundIndex != 0) {
-                let placeholder = this.organizations[0];
-                this.organizations[0] = this.organizations[foundIndex];
-                this.organizations[foundIndex] = placeholder;
-            }
-        }
-    }
-
-    checkAccessToApplication() {
-        if (this.organizations === undefined) {
-            this.hasAccess = false;
-        }
-        if (this.lastUsedOrganization === null || '') {
-            this.hasAccess = false;
-        }
-        getUserRights({ userId: this.userId, organizationNumber: this.lastUsedOrganization })
-            .then((result) => {
-                let parsedResult = JSON.parse(result);
-                let privileges = parsedResult.rights;
-
-                privileges.forEach((privilege) => {
-                    if (privilege.ServiceCode === '5719') {
-                        this.hasAccess = true;
-                        return;
-                    }
-                });
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 }
