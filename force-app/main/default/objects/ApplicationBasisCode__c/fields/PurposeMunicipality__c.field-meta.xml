@@ -88,6 +88,11 @@
                 <label>Annet - oppgi i tekstfelt under</label>
             </value>
             <value>
+                <fullName>Kontroll/verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage/sfo</fullName>
+                <default>false</default>
+                <label>Kontroll/verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage/sfo</label>
+            </value>
+            <value>
                 <fullName>Klarering for norske statsborgere i samferdselssektoren</fullName>
                 <default>false</default>
                 <isActive>false</isActive>
@@ -110,12 +115,6 @@
                 <default>false</default>
                 <isActive>false</isActive>
                 <label>Kontroll av seriøsitetskrav (kun behov for antall ansatte)</label>
-            </value>
-            <value>
-                <fullName>Kontroll/verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage/sfo</fullName>
-                <default>false</default>
-                <isActive>false</isActive>
-                <label>Kontroll og verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage/sfo</label>
             </value>
             <value>
                 <fullName>Planleggingsarbeid - infrastruktur</fullName>
