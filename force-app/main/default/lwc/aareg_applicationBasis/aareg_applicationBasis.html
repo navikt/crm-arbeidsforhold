@@ -3,7 +3,7 @@
     <div class="row">
       <div class="column">
         <span class="form-control">
-          <label for="hjemmel">Hjemmel</label>
+          <label for="hjemmel">Hjemmel for utlevering</label>
           <div class="hjelpetekst">
             <button
               type="button"
@@ -130,6 +130,38 @@
         </span>
       </div>
     </div>
+    <template if:true={showOtherInput}>
+      <div class="row">
+        <div class="column">
+          <span class="form-control">
+            <label for="annet-hjemmel">Oppgi hjemmel for utlevering</label>
+            <textarea
+              name="annet hjemmel"
+              id="annet-hjemmel"
+              data-id="other-legal-basis"
+              class="form-input-text-area"
+              required
+              onchange={handleInputChange}
+            ></textarea>
+            <small>Error Message</small>
+          </span>
+        </div>
+        <div class="column">
+          <span class="form-control">
+            <label for="annet-formal">Oppgi formål</label>
+            <textarea
+              name="annet formål"
+              id="annet-formal"
+              data-id="other-purpose"
+              class="form-input-text-area"
+              required
+              onchange={handleInputChange}
+            ></textarea>
+            <small>Error Message</small>
+          </span>
+        </div>
+      </div>
+    </template>
     <div class="row">
       <div class="column">
         <span class="form-control">
@@ -177,7 +209,7 @@
                   <p>
                     All behandling av personopplysninger må ha et rettslig grunnlag (behandlingsgrunnlag) for at det
                     skal være tillatt å behandle/bruke personopplysninger, se GDPR art. 6, 9 og 10. Eksempler på
-                    rettslig grunnlag (behandlingsgrunnlag) kan være:
+                    rettslig grunnlag kan være:
                   </p>
                   <ul>
                     <li>-hjemmel i lov</li>
@@ -201,39 +233,5 @@
         </span>
       </div>
     </div>
-    <template if:true={showOtherInput}>
-      <div class="row">
-        <div class="column">
-          <span class="form-control">
-            <label for="annet-hjemmel">Annet Hjemmel</label>
-            <textarea
-              name="annet hjemmel"
-              id="annet-hjemmel"
-              data-id="other-legal-basis"
-              class="form-input-text-area"
-              required
-              onchange={handleInputChange}
-            ></textarea>
-            <small>Error Message</small>
-          </span>
-        </div>
-      </div>
-      <div class="row">
-        <div class="column">
-          <span class="form-control">
-            <label for="annet-formal">Annet Formål</label>
-            <textarea
-              name="annet formål"
-              id="annet-formal"
-              data-id="other-purpose"
-              class="form-input-text-area"
-              required
-              onchange={handleInputChange}
-            ></textarea>
-            <small>Error Message</small>
-          </span>
-        </div>
-      </div>
-    </template>
   </div>
 </template>

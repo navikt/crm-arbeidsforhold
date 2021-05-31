@@ -1,4 +1,4 @@
-import { LightningElement, track, wire, api } from 'lwc';
+import { LightningElement, track, api } from 'lwc';
 import Id from '@salesforce/user/Id';
 import processApplication from '@salesforce/apex/AAREG_ApplicationController.processApplication';
 import getLastUsedOrganizationInformation from '@salesforce/apex/AAREG_ApplicationController.getLastUsedOrganizationInformation';
@@ -18,30 +18,28 @@ export default class Aareg_application extends LightningElement {
   fileData;
   error;
 
-  @wire(getLastUsedOrganizationInformation, { userId: '$currentUser' })
-  wiredOrganizationInformation({ error, data }) {
-    if (data) {
-      console.log(data);
-      this.organization = data;
-      this.organizationType = data.AAREG_OrganizationCategory__c;
-      this.error = undefined;
-      this.checkAccessToApplication();
-      this.initializeNewApplication();
-    } else if (error) {
-      this.error = error;
-      this.organizations = undefined;
-      console.log(error);
-    }
+  connectedCallback() {
+    getLastUsedOrganizationInformation({ userId: this.currentUser })
+      .then((result) => {
+        this.organization = result;
+        this.organizationType = result.AAREG_OrganizationCategory__c;
+        this.error = undefined;
+        this.checkAccessToApplication();
+        this.initializeNewApplication();
+      })
+      .catch((error) => {
+        this.error = error;
+        this.organizations = undefined;
+        console.log(error);
+      });
   }
 
   checkAccessToApplication() {
     getUserRights({ userId: this.userId, organizationNumber: this.lastUsedOrganization })
       .then((result) => {
-        let parsedResult = JSON.parse(result);
-        let privileges = parsedResult.rights;
+        let privileges = JSON.parse(JSON.stringify(result.rights));
 
         privileges.forEach((privilege) => {
-          console.log(privilege.ServiceCode);
           if (privilege.ServiceCode === '5719') {
             this.hasAccess = true;
             return;
@@ -62,11 +60,12 @@ export default class Aareg_application extends LightningElement {
       MailingCity__c: this.organization.ShippingCity,
       MailingPostalCode__c: this.organization.ShippingPostalCode,
       Email__c: null,
-      DataProcessor__c: null,
+      DataProcessorName__c: null,
       APIAccess__c: false,
       ExtractionAccess__c: false,
       OnlineAccess__c: false,
       DataProcessorOrganizationNumber__c: null,
+      TermsOfUse__c: false,
       organizationName: this.organization.Name
     };
 
@@ -161,14 +160,14 @@ export default class Aareg_application extends LightningElement {
     if (dataProcessor.length === 9) {
       getAccountNameByOrgNumber({ orgNumber: dataProcessor })
         .then((result) => {
-          this.application.DataProcessor__c = result;
+          this.application.DataProcessorName__c = result;
           this.application.DataProcessorOrganizationNumber__c = dataProcessor;
         })
         .catch((error) => {
-          this.application.DataProcessor__c = null;
+          this.application.DataProcessorName__c = null;
           this.application.DataProcessorOrganizationNumber__c = null;
-          this.error = error;
-          console.log(error);
+          this.setErrorFor(this.dataProcess, 'Ugyldig organisasjonsnummer');
+          console.log('set error');
         });
     } else if (this.application.DataProcessor__c != null) {
       this.application.DataProcessor__c = null;
@@ -198,14 +197,12 @@ export default class Aareg_application extends LightningElement {
       case 'extraction-access':
         this.application.ExtractionAccess__c = isChecked(this.application.ExtractionAccess__c);
         break;
+      case 'terms-of-use':
+        this.application.TermsOfUse__c = isChecked(this.application.TermsOfUse__c);
+        break;
       default:
         return;
     }
-  }
-
-  handleUploadFinished(event) {
-    const uploadedFiles = event.detail.files;
-    this.contentVersionId = uploadedFiles[0].contentVersionId;
   }
 
   onFileUpload(event) {
@@ -217,7 +214,6 @@ export default class Aareg_application extends LightningElement {
         filename: file.name,
         base64: base64
       };
-      console.log('file data: ', this.fileData);
     };
     reader.readAsDataURL(file);
   }
@@ -225,7 +221,6 @@ export default class Aareg_application extends LightningElement {
   /*************** Validation ***************/
 
   processError(event) {
-    console.log('Error Received');
     if (event.detail) {
       this.hasErrors = true;
     }
@@ -281,6 +276,8 @@ export default class Aareg_application extends LightningElement {
     this.extractionAccess = this.template.querySelector('[data-id="extraction-access"]');
     this.accessTypes = this.template.querySelector('[data-id="access-types"]');
     this.dataElements = this.template.querySelector('[data-id="data-element"]');
+    this.termsOfUse = this.template.querySelector('[data-id="terms-of-use"]');
+    this.dataProcess = this.template.querySelector('[data-id="data-processor"]');
   }
 
   checkApplicationInputs() {
@@ -288,9 +285,15 @@ export default class Aareg_application extends LightningElement {
       this.setErrorFor(this.dataElements, 'Obligatorisk');
     }
 
-    if (this.application.Email__c === null || '') {
-      this.setErrorFor(this.email, 'E-post er obligatorisk.');
+    if (this.application.TermsOfUse__c === false) {
+      console.log('missing terms');
+      this.setErrorFor(this.termsOfUse, 'Obligatorisk');
     }
+
+    if (this.application.Email__c === null || '') {
+      this.setErrorFor(this.email, 'Obligatorisk.');
+    }
+
     if (
       this.application.APIAccess__c === false &&
       this.application.ExtractionAccess__c === false &&
