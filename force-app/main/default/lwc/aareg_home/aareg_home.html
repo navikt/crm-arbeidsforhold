@@ -3,7 +3,7 @@
     <div class="bedriftsmeny" role="banner">
       <div class="bedriftsmeny__inner">
         <div style="display: flex; justify-content: space-between">
-          <h1 class="typo-innholdstittel bedriftsmeny__tittel">Min side – tilgang til Aa registeret</h1>
+          <h1 class="typo-innholdstittel bedriftsmeny__tittel">Min side – tilgang til Aa-registeret</h1>
           <template if:true={organizations}>
             <select class="organization-select" aria-invalid="false" onchange={handleOrganizationChange}>
               <template for:each={organizations} for:item="organization">
@@ -20,7 +20,7 @@
       <div class="slds-grid slds-wrap" style="margin-top: 50px; margin-bottom: 50px">
         <div class="slds-col slds-size_6-of-12">
           <c-link-panel
-            title="Ny Søknad"
+            title="Ny søknad"
             sub-title="Her kan du opprette en ny søknad."
             relative-path="/ny-soknad-aa-registret"
             style="display: flex; width: 100%"
@@ -29,8 +29,8 @@
 
         <div class="slds-col slds-size_6-of-12">
           <c-link-panel
-            title="Mine Søknad"
-            sub-title="Her finner du en oversikt av dine søknad"
+            title="Mine søknader"
+            sub-title="Her finner du en oversikt av dine søknader"
             relative-path="/ny-soknad-aa-registret"
             style="display: flex; width: 100%"
           ></c-link-panel>

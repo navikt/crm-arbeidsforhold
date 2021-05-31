@@ -103,7 +103,7 @@ input:invalid:required {
 }
 
 .form-control input[type='checkbox'] {
-  display: block;
+  display: inline;
   text-align: center;
   background-color: #fff;
   background-position: center center;
