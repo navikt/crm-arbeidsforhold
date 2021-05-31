@@ -16,8 +16,8 @@ public class AAREG_CodeBaseListControllerTest {
         ApplicationBasisCode__c abc = new ApplicationBasisCode__c();
         abc.Application__c = app.Id;
         abc.OrganizationType__c='County';
-        abc.LegalBasisCounty__c='Aa-registerforskriften § 10 bokstav e';
-        abc.PurposeCounty__c='Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser';
+        abc.LegalBasisCounty__c='FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e';
+        abc.PurposeCounty__c='Tildeling og kontroll av drosjeløyve';
         abc.DecisionBasis__c = 'ja,da...';
         insert abc;   
     }
