@@ -80,14 +80,23 @@ export default class aareg_applicationContact extends LightningElement {
   /*************** Validation ***************/
   @api
   validate() {
-    if (this.contact.Name === null || '') {
+    this.resetErrors();
+    if (this.checkNulls(this.contact.Name)) {
       this.setErrorFor(this.name, 'Navn er obligatorisk');
     }
-    if (this.contact.Phone__c === null || '') {
+    if (this.checkNulls(this.contact.Phone__c)) {
       this.setErrorFor(this.phone, 'Telefonnummer er obligatorisk');
     }
-    if (this.contact.Email__c === null || '') {
+    if (this.checkNulls(this.contact.Email__c)) {
       this.setErrorFor(this.email, 'E-post er obligatorisk');
+    }
+  }
+
+  checkNulls(field) {
+    if (field === null || field === '') {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -97,5 +106,12 @@ export default class aareg_applicationContact extends LightningElement {
     let small = formControl.querySelector('small');
     small.innerText = message;
     formControl.className = 'form-control error';
+  }
+
+  resetErrors() {
+    let formControl = this.template.querySelectorAll('.form-control');
+    formControl.forEach((element) => {
+      element.classList.remove('error');
+    });
   }
 }

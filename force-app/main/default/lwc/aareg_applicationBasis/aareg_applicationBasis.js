@@ -181,30 +181,45 @@ export default class Aareg_applicationBasis extends LightningElement {
 
   @api
   validate() {
-    console.log('validating basis');
-    if (this.applicationBasis[`${this.purposeFieldName}`] === null || '') {
+    this.resetErrors();
+    if (this.checkNulls(this.applicationBasis[`${this.purposeFieldName}`])) {
       this.setErrorFor(this.purpose, 'Obligatorisk');
     }
-    if (this.applicationBasis[`${this.legalBasisFieldName}`] === null || '') {
+    if (
+      this.checkNulls(this.applicationBasis[`${this.legalBasisFieldName}`]) ||
+      this.checkNulls(this.applicationBasis[`${this.legalBasisFieldName}`])
+    ) {
       this.setErrorFor(this.legalBasis, 'Obligatorisk');
     }
 
-    if (this.applicationBasis.ProcessingBasis__c === null || '') {
+    if (
+      this.checkNulls(this.applicationBasis.ProcessingBasis__c) ||
+      this.checkNulls(this.applicationBasis.ProcessingBasis__c)
+    ) {
       this.setErrorFor(this.processingBasis, 'Obligatorisk');
     }
 
     if (
       this.applicationBasis[`${this.purposeFieldName}`] === 'Annet - oppgi i tekstfelt under' &&
-      this.applicationBasis.OtherPurpose__c === null
+      (this.checkNulls(this.applicationBasis.OtherPurpose__c) || this.checkNulls(this.applicationBasis.OtherPurpose__c))
     ) {
       this.setErrorFor(this.otherPurpose, 'Obligatorisk');
     }
 
     if (
       this.applicationBasis[`${this.legalBasisFieldName}`] === 'Annet - oppgi i tekstfelt under' &&
-      this.applicationBasis.OtherLegalBasis__c === null
+      (this.checkNulls(this.applicationBasis.OtherLegalBasis__c) ||
+        this.checkNulls(this.applicationBasis.OtherLegalBasis__c))
     ) {
       this.setErrorFor(this.otherLegalBasis, 'Obligatorisk');
+    }
+  }
+
+  checkNulls(field) {
+    if (field === null || field === '') {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -214,5 +229,12 @@ export default class Aareg_applicationBasis extends LightningElement {
     let small = formControl.querySelector('small');
     small.innerText = message;
     formControl.className = 'form-control error';
+  }
+
+  resetErrors() {
+    let formControl = this.template.querySelectorAll('.form-control');
+    formControl.forEach((element) => {
+      element.classList.remove('error');
+    });
   }
 }

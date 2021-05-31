@@ -187,14 +187,14 @@
             </section>
 
             <section class="app-section">
-              <span class="form-control">
-                <span data-id="access-types"></span>
-                <h2>Behov for type tilgang</h2>
-                <small>Error Message</small>
-              </span>
               <div style="display: block">
+                <span class="form-control">
+                  <span data-id="access-types"></span>
+                  <h2>Behov for type tilgang</h2>
+                  <small>Error Message</small>
+                </span>
+
                 <span class="form-control" style="display: block; text-align: center">
-                  <label for="tilgang-api">Integrert oppslag (API)</label>
                   <input
                     type="checkbox"
                     name="type tilgang api"
@@ -202,10 +202,10 @@
                     data-id="api-access"
                     onchange={handleApplicationInputChange}
                   />
+                  <label for="tilgang-api">Integrert oppslag (API)</label>
                 </span>
 
                 <span class="form-control" style="display: block; text-align: center">
-                  <label for="tilgang-online">Web-oppslag</label>
                   <input
                     type="checkbox"
                     name="type tilgang online"
@@ -213,10 +213,10 @@
                     data-id="online-access"
                     onchange={handleApplicationInputChange}
                   />
+                  <label for="tilgang-online">Web-oppslag</label>
                 </span>
 
                 <span class="form-control" style="display: block; text-align: center">
-                  <label for="tilgang-uttrekk">Uttrekk</label>
                   <input
                     type="checkbox"
                     name="type tilgang uttrekk"
@@ -224,6 +224,7 @@
                     data-id="extraction-access"
                     onchange={handleApplicationInputChange}
                   />
+                  <label for="tilgang-uttrekk">Uttrekk</label>
                 </span>
               </div>
             </section>
@@ -287,6 +288,15 @@
                 <h2>Dataelementer</h2>
                 <small>Error Message</small>
               </span>
+              <p>
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://navikt.github.io/aareg/om_tjenestene/soke_om_tilgang.html"
+                  >Lenke til skjema med dataelementer i Aa-registeret.&nbsp;
+                </a>
+                Skjema må fylles ut og lastes opp som vedlegge til søknaden her:
+              </p>
               <lightning-input type="file" onchange={onFileUpload} name="uploadFile" accept={acceptedFileFormats}>
               </lightning-input>
 
@@ -294,17 +304,28 @@
             </section>
             <section class="app-section">
               <span class="form-control">
-                <label for="terms-of-use">Bruksvilkår</label>
+                <span data-id="terms-of-use"></span>
+                <h2>Bruksvilkår</h2>
+                <small>Error Message</small>
+              </span>
+              <span class="form-control">
+                <label for="terms-of-use" style="display: block; text-align: center"
+                  >Jeg har lest og godtar&nbsp;
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href="www.nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/Bruksvilkår_for_tilgang_til_Aa-registeret.pdf"
+                    >bruksvilkårene.
+                  </a></label
+                >
                 <input
                   type="checkbox"
                   name="bruksvilkar"
                   id="terms-of-use"
-                  data-id="terms-of-use"
                   onchange={handleApplicationInputChange}
                   required
                 />
                 <br />
-                <small>Error Message</small>
               </span>
             </section>
 

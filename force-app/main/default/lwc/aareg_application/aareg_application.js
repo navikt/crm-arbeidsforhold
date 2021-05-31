@@ -112,7 +112,7 @@ export default class Aareg_application extends LightningElement {
   /****************************************************************************************/
 
   handleSubmit() {
-    this.hasErrors = false;
+    this.resetErrors();
     this.validateApplicationBasis();
     this.validateContactsBeforeSubmission();
     this.checkApplicationInputs();
@@ -290,7 +290,7 @@ export default class Aareg_application extends LightningElement {
       this.setErrorFor(this.termsOfUse, 'Obligatorisk');
     }
 
-    if (this.application.Email__c === null || '') {
+    if (this.application.Email__c === null || this.application.Email__c === '') {
       this.setErrorFor(this.email, 'Obligatorisk.');
     }
 
@@ -309,5 +309,13 @@ export default class Aareg_application extends LightningElement {
     let small = formControl.querySelector('small');
     small.innerText = message;
     formControl.className = 'form-control error';
+  }
+
+  resetErrors() {
+    this.hasErrors = false;
+    let formControl = this.template.querySelectorAll('.form-control');
+    formControl.forEach((element) => {
+      element.classList.remove('error');
+    });
   }
 }
