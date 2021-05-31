@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>PurposeElectricitySupervision__c</fullName>
-    <description
-  >The application purpose available for organizations that fall under the &quot;Electricity Supervision&quot; category.</description>
+    <description>The application purpose available for organizations that fall under the &quot;Electricity Supervision&quot; category.</description>
     <externalId>false</externalId>
     <label>Purpose Electricity Supervision</label>
     <required>false</required>
@@ -14,23 +13,29 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Tilsyn med elektiske anlegg og elektrisk utstyr</fullName>
+                <fullName>Tilsyn med elektriske anlegg og elektrisk utstyr</fullName>
                 <default>false</default>
-                <label>Tilsyn med elektiske anlegg og elektrisk utstyr</label>
+                <label>Tilsyn med elektriske anlegg og elektrisk utstyr</label>
             </value>
             <value>
                 <fullName>Annet - oppgi i tekstfelt under</fullName>
                 <default>false</default>
                 <label>Annet - oppgi i tekstfelt under</label>
             </value>
+            <value>
+                <fullName>Tilsyn med elektiske anlegg og elektrisk utstyr</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Tilsyn med elektiske anlegg og elektrisk utstyr</label>
+            </value>
         </valueSetDefinition>
-        <valueSettings>
-            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
-            <valueName>Tilsyn med elektiske anlegg og elektrisk utstyr</valueName>
-        </valueSettings>
         <valueSettings>
             <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
             <valueName>Annet - oppgi i tekstfelt under</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <valueName>Tilsyn med elektriske anlegg og elektrisk utstyr</valueName>
         </valueSettings>
     </valueSet>
 </CustomField>

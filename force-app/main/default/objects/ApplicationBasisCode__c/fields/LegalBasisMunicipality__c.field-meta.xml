@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>LegalBasisMunicipality__c</fullName>
     <description>The legal basis available for organizations that fall under the &quot;Municipality&quot; category.</description>
@@ -12,19 +12,31 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Aa-registerforskriften § 9 bokstav f</fullName>
+                <fullName>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 9 bokstav f</fullName>
                 <default>false</default>
-                <label>Aa-registerforskriften § 9 bokstav f</label>
+                <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 9 bokstav f</label>
             </value>
             <value>
-                <fullName>Aa-registerforskriften § 10 bokstav e</fullName>
+                <fullName>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</fullName>
                 <default>false</default>
-                <label>Aa-registerforskriften § 10 bokstav e</label>
+                <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</label>
             </value>
             <value>
                 <fullName>Annet - oppgi i tekstfelt under</fullName>
                 <default>false</default>
                 <label>Annet - oppgi i tekstfelt under</label>
+            </value>
+            <value>
+                <fullName>Aa-registerforskriften § 10 bokstav e</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Aa-registerforskriften § 10 bokstav e</label>
+            </value>
+            <value>
+                <fullName>Aa-registerforskriften § 9 bokstav f</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Aa-registerforskriften § 9 bokstav f</label>
             </value>
         </valueSetDefinition>
     </valueSet>
