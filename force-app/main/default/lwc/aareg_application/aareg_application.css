@@ -1,7 +1,7 @@
 .app-section {
   padding: 10px;
   border-bottom: 0.25rem solid #f1f1f1;
-  text-align: center;
+  /*text-align: center;*/
 }
 
 .app-section h2 {
@@ -159,4 +159,22 @@ input:invalid:required {
 }
 .checkboxes label span {
   vertical-align: middle;
+}
+
+.application-section-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
+.contact-inner-container {
+  display: flex;
+  justify-content: center;
+}
+
+.inner-container {
+  margin: 0 auto;
+  padding: 15px;
 }
