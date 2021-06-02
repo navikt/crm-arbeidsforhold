@@ -36,7 +36,7 @@ export default class Aareg_home extends LightningElement {
     } else if (error) {
       this.error = error;
       this.organizations = undefined;
-      console.log(error);
+      console.log('Get Org With roles Error:  ', error);
     }
   }
 
@@ -49,7 +49,7 @@ export default class Aareg_home extends LightningElement {
       })
       .catch((error) => {
         this.error = error;
-        console.log(error);
+        console.log('Handle Organization Change Error: ', error);
       });
   }
 
@@ -75,11 +75,15 @@ export default class Aareg_home extends LightningElement {
   }
 
   checkAccessToApplication() {
+    console.log('UserId: ', this.userId);
+    console.log('Last Used Organization: ', this.lastUsedOrganization);
     if (this.organizations === undefined) {
       this.hasAccess = false;
+      return;
     }
     if (this.lastUsedOrganization === null || '') {
       this.hasAccess = false;
+      return;
     }
     getUserRights({ userId: this.userId, organizationNumber: this.lastUsedOrganization })
       .then((result) => {
@@ -93,7 +97,8 @@ export default class Aareg_home extends LightningElement {
         });
       })
       .catch((error) => {
-        console.log(error);
+        this.hasAccess = false;
+        console.log('Get rights error: ', error);
       });
   }
 }
