@@ -36,7 +36,7 @@ export default class Aareg_home extends LightningElement {
     } else if (error) {
       this.error = error;
       this.organizations = undefined;
-      console.log('Get Org With roles Error:  ', error);
+      console.log('Roles error:  ', error);
     }
   }
 
@@ -49,7 +49,7 @@ export default class Aareg_home extends LightningElement {
       })
       .catch((error) => {
         this.error = error;
-        console.log('Handle Organization Change Error: ', error);
+        console.log('Org Change Error: ', error);
       });
   }
 
@@ -75,8 +75,6 @@ export default class Aareg_home extends LightningElement {
   }
 
   checkAccessToApplication() {
-    console.log('UserId: ', this.userId);
-    console.log('Last Used Organization: ', this.lastUsedOrganization);
     if (this.organizations === undefined) {
       this.hasAccess = false;
       return;
@@ -85,11 +83,12 @@ export default class Aareg_home extends LightningElement {
       this.hasAccess = false;
       return;
     }
-    getUserRights({ userId: this.userId, organizationNumber: this.lastUsedOrganization })
+    getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization })
       .then((result) => {
         let privileges = JSON.parse(JSON.stringify(result.rights));
 
         privileges.forEach((privilege) => {
+          console.log(privilege.ServiceCode);
           if (privilege.ServiceCode === '5719') {
             this.hasAccess = true;
             return;
@@ -98,7 +97,8 @@ export default class Aareg_home extends LightningElement {
       })
       .catch((error) => {
         this.hasAccess = false;
-        console.log('Get rights error: ', error);
+        this.error = true;
+        console.log('Rights error: ', error);
       });
   }
 }

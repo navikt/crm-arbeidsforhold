@@ -18,7 +18,9 @@ input:invalid:required {
 
 .app-section h2 {
   text-align: center;
-  font-size: 25px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: inherit;
   flex-basis: 100%;
 }
 
