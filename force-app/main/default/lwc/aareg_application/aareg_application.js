@@ -35,7 +35,7 @@ export default class Aareg_application extends LightningElement {
   }
 
   checkAccessToApplication() {
-    getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization })
+    getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization, serviceCode: '5719' })
       .then((result) => {
         let privileges = JSON.parse(JSON.stringify(result.rights));
 

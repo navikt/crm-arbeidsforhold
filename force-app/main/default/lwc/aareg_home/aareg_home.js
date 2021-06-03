@@ -85,9 +85,8 @@ export default class Aareg_home extends LightningElement {
     }
     console.log(this.currentUser);
     console.log(this.lastUsedOrganization);
-    getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization })
+    getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization, serviceCode: '5719' })
       .then((result) => {
-        console.log(result);
         if (result.success) {
           let privileges = JSON.parse(JSON.stringify(result.rights));
 
@@ -98,6 +97,8 @@ export default class Aareg_home extends LightningElement {
               return;
             }
           });
+        } else {
+          console.log(result.errorMessage);
         }
       })
       .catch((error) => {
