@@ -14,6 +14,7 @@ export default class Aareg_application extends LightningElement {
   hasAccess = false;
   applicationSubmitted = false;
   currentUser = Id;
+  lastUsedOrganization;
   organizationType;
   fileData;
   error;
@@ -23,32 +24,37 @@ export default class Aareg_application extends LightningElement {
       .then((result) => {
         this.organization = result;
         this.organizationType = result.AAREG_OrganizationCategory__c;
+        this.lastUsedOrganization = result.INT_OrganizationNumber__c;
         this.error = undefined;
+        console.log(this.lastUsedOrganization);
+        console.log(this.currentUser);
         this.checkAccessToApplication();
         this.initializeNewApplication();
       })
       .catch((error) => {
         this.error = error;
         this.organizations = undefined;
-        console.log(error);
+        console.log('LUO', error);
       });
   }
 
   checkAccessToApplication() {
     getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization, serviceCode: '5719' })
       .then((result) => {
-        let privileges = JSON.parse(JSON.stringify(result.rights));
+        if (result.success) {
+          let privileges = JSON.parse(JSON.stringify(result.rights));
 
-        privileges.forEach((privilege) => {
-          console.log(privilege.ServiceCode);
-          if (privilege.ServiceCode === '5719') {
-            this.hasAccess = true;
-            return;
-          }
-        });
+          privileges.forEach((privilege) => {
+            console.log(privilege.ServiceCode);
+            if (privilege.ServiceCode === '5719') {
+              this.hasAccess = true;
+              return;
+            }
+          });
+        }
       })
       .catch((error) => {
-        console.log(error);
+        console.log('RE', error);
       });
   }
 
@@ -287,7 +293,6 @@ export default class Aareg_application extends LightningElement {
     }
 
     if (this.application.TermsOfUse__c === false) {
-      console.log('missing terms');
       this.setErrorFor(this.termsOfUse, 'Obligatorisk');
     }
 
