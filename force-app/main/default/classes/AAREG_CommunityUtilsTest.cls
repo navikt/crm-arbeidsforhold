@@ -27,7 +27,11 @@ public class AAREG_CommunityUtilsTest {
     ApiMock.setTestMock('GET_ALTINN_RIGHTS', 200, 'OK');
 
     Test.startTest();
-    AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(user.Id, '123456789');
+    AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(
+      user.Id,
+      '123456789',
+      '5719'
+    );
     Test.stopTest();
 
     System.assertEquals(true, response.success, 'Expect success');
