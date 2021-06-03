@@ -60,7 +60,8 @@ export default class Aareg_application extends LightningElement {
 
   initializeNewApplication() {
     this.application = {
-      Account__c: this.organization.Id,
+      AccountId__c: this.organization.Id,
+      AccountName__c: this.organization.Name,
       OrganizationNumber__c: this.organization.INT_OrganizationNumber__c,
       OrganizationStructure__c: this.organization.INT_OrganizationalStructure__c,
       MailingAddress__c: this.organization.ShippingStreet,
