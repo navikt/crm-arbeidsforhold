@@ -107,6 +107,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>ApplicationBasisCode__c.ProcessingBasis__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>ApplicationBasisCode__c.PurposeCounty__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -126,7 +131,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>ApplicationBasisCode__c.PurposeState__c</field>
         <readable>true</readable>
     </fieldPermissions>
