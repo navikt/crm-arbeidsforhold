@@ -82,7 +82,7 @@ export default class Aareg_application extends LightningElement {
   }
 
   get acceptedFileFormats() {
-    return ['.xlsx'];
+    return ['.xlsx', '.pdf', '.docx'];
   }
 
   /*************** Dynamic Element handlers ***************/

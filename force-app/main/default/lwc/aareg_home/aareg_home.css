@@ -9,5 +9,14 @@
   box-sizing: border-box;
   max-height: 35px;
   line-height: 1.375rem;
-  margin: 0.5rem;
+}
+
+.home-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.home-container h1 {
+  margin-bottom: 0.5rem;
 }

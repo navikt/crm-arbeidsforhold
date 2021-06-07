@@ -1,46 +1,45 @@
 <template>
-  <div>
-    <div class="bedriftsmeny" role="banner">
-      <div class="bedriftsmeny__inner">
-        <div style="display: flex; justify-content: space-between">
-          <h1 class="typo-innholdstittel bedriftsmeny__tittel">Min side – tilgang til Aa-registeret</h1>
-          <template if:true={organizations}>
-            <select class="organization-select" aria-invalid="false" onchange={handleOrganizationChange}>
-              <template for:each={organizations} for:item="organization">
-                <option key={organization.OrganizationNumber} value={organization.OrganizationNumber}>
-                  <div>
-                    <p>{organization.Name}- ({organization.OrganizationNumber})</p>
-                  </div>
-                </option>
-              </template>
-            </select>
+  <div class="home-container bedriftsmeny">
+    <div>
+      <h1 class="typo-innholdstittel bedriftsmeny__tittel">Min side – tilgang til Aa-registeret</h1>
+    </div>
+    <div>
+      <template if:true={organizations}>
+        <select class="organization-select" aria-invalid="false" onchange={handleOrganizationChange}>
+          <template for:each={organizations} for:item="organization">
+            <option key={organization.OrganizationNumber} value={organization.OrganizationNumber}>
+              <div>
+                <p>{organization.Name}- ({organization.OrganizationNumber})</p>
+              </div>
+            </option>
           </template>
-        </div>
+        </select>
+      </template>
+    </div>
+  </div>
+
+  <template if:true={hasAccess}>
+    <div class="slds-grid slds-wrap" style="margin-top: 50px; margin-bottom: 50px">
+      <div class="slds-col slds-size_6-of-12">
+        <c-link-panel
+          title="Ny søknad"
+          sub-title="Her kan du opprette en ny søknad."
+          relative-path="/ny-soknad-aa-registret"
+          style="display: flex; width: 100%"
+        ></c-link-panel>
+      </div>
+
+      <div class="slds-col slds-size_6-of-12">
+        <c-link-panel
+          title="Mine søknader"
+          sub-title="Her finner du en oversikt av dine søknader"
+          relative-path="/"
+          style="display: flex; width: 100%"
+        ></c-link-panel>
       </div>
     </div>
-    <template if:true={hasAccess}>
-      <div class="slds-grid slds-wrap" style="margin-top: 50px; margin-bottom: 50px">
-        <div class="slds-col slds-size_6-of-12">
-          <c-link-panel
-            title="Ny søknad"
-            sub-title="Her kan du opprette en ny søknad."
-            relative-path="/ny-soknad-aa-registret"
-            style="display: flex; width: 100%"
-          ></c-link-panel>
-        </div>
-
-        <div class="slds-col slds-size_6-of-12">
-          <c-link-panel
-            title="Mine søknader"
-            sub-title="Her finner du en oversikt av dine søknader"
-            relative-path="/"
-            style="display: flex; width: 100%"
-          ></c-link-panel>
-        </div>
-      </div>
-    </template>
-    <template if:false={hasAccess}>
-      <c-aareg_missing-access></c-aareg_missing-access>
-    </template>
-  </div>
+  </template>
+  <template if:false={hasAccess}>
+    <c-aareg_missing-access></c-aareg_missing-access>
+  </template>
 </template>
