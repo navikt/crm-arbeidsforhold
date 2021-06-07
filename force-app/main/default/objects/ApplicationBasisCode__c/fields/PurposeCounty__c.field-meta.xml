@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>PurposeCounty__c</fullName>
     <description>The application purpose available for organizations that fall under the &quot;County&quot; category.</description>
@@ -13,14 +13,14 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Kontroll av drosjeløyve</fullName>
-                <default>false</default>
-                <label>Kontroll av drosjeløyve</label>
-            </value>
-            <value>
                 <fullName>Kontroll av helsepersonell - tilsynssaker</fullName>
                 <default>false</default>
                 <label>Kontroll av helsepersonell - tilsynssaker</label>
+            </value>
+            <value>
+                <fullName>Tildeling og kontroll av drosjeløyve</fullName>
+                <default>false</default>
+                <label>Tildeling og kontroll av drosjeløyve</label>
             </value>
             <value>
                 <fullName>Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser</fullName>
@@ -32,22 +32,28 @@
                 <default>false</default>
                 <label>Annet - oppgi i tekstfelt under</label>
             </value>
+            <value>
+                <fullName>Kontroll av drosjeløyve</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Kontroll av drosjeløyve</label>
+            </value>
         </valueSetDefinition>
-        <valueSettings>
-            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av drosjeløyve</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av helsepersonell - tilsynssaker</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>Aa-registerforskriften § 10 bokstav e</controllingFieldValue>
-            <valueName>Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser</valueName>
-        </valueSettings>
         <valueSettings>
             <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
             <valueName>Annet - oppgi i tekstfelt under</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <valueName>Kontroll av helsepersonell - tilsynssaker</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <valueName>Tildeling og kontroll av drosjeløyve</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <valueName>Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser</valueName>
         </valueSettings>
     </valueSet>
 </CustomField>
