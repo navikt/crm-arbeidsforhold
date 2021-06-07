@@ -14,6 +14,7 @@ export default class Aareg_applicationBasis extends LightningElement {
   purposeFieldName;
   legalBasisFieldName;
   applicationBasis;
+  isOtherOrganizationType = false;
 
   connectedCallback() {
     this.initApplicationBasis();
@@ -91,6 +92,7 @@ export default class Aareg_applicationBasis extends LightningElement {
   })
   applicationBasisPicklists({ data, error }) {
     if (data) {
+      console.log('Org Type: ', this.organizationType);
       switch (this.organizationType) {
         case 'Municipality':
           this.purposeFieldName = 'PurposeMunicipality__c';
@@ -121,6 +123,10 @@ export default class Aareg_applicationBasis extends LightningElement {
           this.legalBasisFieldName = 'LegalBasisPension__c';
           this.legalBasisOptions = data.picklistFieldValues.LegalBasisPension__c.values;
           this.purposeData = data.picklistFieldValues.PurposePension__c;
+          break;
+        case 'Other':
+          this.showOtherInput = true;
+          this.isOtherOrganizationType = true;
           break;
         default:
           break;
@@ -182,34 +188,29 @@ export default class Aareg_applicationBasis extends LightningElement {
   @api
   validate() {
     this.resetErrors();
-    if (this.checkNulls(this.applicationBasis[`${this.purposeFieldName}`])) {
+    if (!this.isOtherOrganizationType && this.checkNulls(this.applicationBasis[`${this.purposeFieldName}`])) {
       this.setErrorFor(this.purpose, 'Obligatorisk');
     }
-    if (
-      this.checkNulls(this.applicationBasis[`${this.legalBasisFieldName}`]) ||
-      this.checkNulls(this.applicationBasis[`${this.legalBasisFieldName}`])
-    ) {
+    if (!this.isOtherOrganizationType && this.checkNulls(this.applicationBasis[`${this.legalBasisFieldName}`])) {
       this.setErrorFor(this.legalBasis, 'Obligatorisk');
     }
 
-    if (
-      this.checkNulls(this.applicationBasis.ProcessingBasis__c) ||
-      this.checkNulls(this.applicationBasis.ProcessingBasis__c)
-    ) {
+    if (this.checkNulls(this.applicationBasis.ProcessingBasis__c)) {
       this.setErrorFor(this.processingBasis, 'Obligatorisk');
     }
 
     if (
-      this.applicationBasis[`${this.purposeFieldName}`] === 'Annet - oppgi i tekstfelt under' &&
-      (this.checkNulls(this.applicationBasis.OtherPurpose__c) || this.checkNulls(this.applicationBasis.OtherPurpose__c))
+      (this.isOtherOrganizationType ||
+        this.applicationBasis[`${this.purposeFieldName}`] === 'Annet - oppgi i tekstfelt under') &&
+      this.checkNulls(this.applicationBasis.OtherPurpose__c)
     ) {
       this.setErrorFor(this.otherPurpose, 'Obligatorisk');
     }
 
     if (
-      this.applicationBasis[`${this.legalBasisFieldName}`] === 'Annet - oppgi i tekstfelt under' &&
-      (this.checkNulls(this.applicationBasis.OtherLegalBasis__c) ||
-        this.checkNulls(this.applicationBasis.OtherLegalBasis__c))
+      (this.isOtherOrganizationType ||
+        this.applicationBasis[`${this.legalBasisFieldName}`] === 'Annet - oppgi i tekstfelt under') &&
+      this.checkNulls(this.applicationBasis.OtherLegalBasis__c)
     ) {
       this.setErrorFor(this.otherLegalBasis, 'Obligatorisk');
     }

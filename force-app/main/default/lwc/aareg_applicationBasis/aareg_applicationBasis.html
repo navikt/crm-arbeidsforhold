@@ -1,6 +1,6 @@
 <template>
   <div class="app-section">
-    <div class="row">
+    <div if:false={isOtherOrganizationType} class="row">
       <div class="column">
         <span class="form-control">
           <label for="hjemmel">Hjemmel for utlevering</label>
@@ -12,7 +12,10 @@
               aria-expanded="false"
               aria-controls="51247348-9478-8420-3461-20094500120546"
               aria-haspopup="dialog"
-              onclick={toggleLegalBasisHelpText}
+              onmouseover={toggleLegalBasisHelpText}
+              onmouseout={toggleLegalBasisHelpText}
+              onfocusin={toggleLegalBasisHelpText}
+              onfocusout={toggleLegalBasisHelpText}
             >
               <svg
                 kind="help-circle"
@@ -79,7 +82,10 @@
               aria-expanded="false"
               aria-controls="51247348-9478-8420-3461-20094500120546"
               aria-haspopup="dialog"
-              onclick={togglePurposeHelpText}
+              onmouseover={togglePurposeHelpText}
+              onmouseout={togglePurposeHelpText}
+              onfocusin={togglePurposeHelpText}
+              onfocusout={togglePurposeHelpText}
             >
               <svg
                 kind="help-circle"
@@ -130,6 +136,7 @@
         </span>
       </div>
     </div>
+
     <template if:true={showOtherInput}>
       <div class="row">
         <div class="column">
@@ -174,7 +181,10 @@
               aria-expanded="false"
               aria-controls="51247348-9478-8420-3461-20094500120546"
               aria-haspopup="dialog"
-              onclick={toggleProcessingBasisHelpText}
+              onmouseover={toggleProcessingBasisHelpText}
+              onmouseout={toggleProcessingBasisHelpText}
+              onfocusin={toggleProcessingBasisHelpText}
+              onfocusout={toggleProcessingBasisHelpText}
             >
               <svg
                 kind="help-circle"

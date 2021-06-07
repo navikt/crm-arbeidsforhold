@@ -9,42 +9,45 @@ export default class Aareg_home extends LightningElement {
   @track organizations;
   @track error;
   hasAccess = false;
+  isLoaded = false;
   lastUsedOrganization;
   currentUser = Id;
 
   connectedCallback() {
-    this.getLastUsedOrganization();
+    this.init();
   }
 
-  getLastUsedOrganization() {
-    getLastUsersLastUsedOrganiation({ userId: this.currentUser })
-      .then((result) => {
-        this.lastUsedOrganization = result;
-      })
-      .catch((error) => {
-        console.log('Error!!!', error);
+  async init() {
+    try {
+      await getOrganizationsWithRoles({ userId: this.currentUser }).then((result) => {
+        if (result.success) {
+          this.organizations = JSON.parse(JSON.stringify(result.organizations));
+        } else {
+          throw `Unable to get Organizaions ${result.errorMessage}`;
+        }
       });
-  }
 
-  @wire(getOrganizationsWithRoles, { userId: '$currentUser' })
-  wiredOrganizations({ error, data }) {
-    if (data) {
-      this.organizations = JSON.parse(JSON.stringify(data.organizations));
-      this.error = undefined;
+      await getLastUsersLastUsedOrganiation({ userId: this.currentUser }).then((result) => {
+        this.lastUsedOrganization = result;
+      });
+
       this.sortOrganizations();
-      this.checkAccessToApplication();
-    } else if (error) {
+      await this.checkAccessToApplication();
+    } catch (error) {
+      console.log('Error! ', error);
       this.error = error;
-      this.organizations = undefined;
-      console.log('Roles error:  ', error);
+    } finally {
+      this.isLoaded = true;
     }
   }
 
   handleOrganizationChange(event) {
-    let recentOrganization = event.target.value;
-    this.lastUsedOrganization = recentOrganization;
-    updateLastUsedOrganization({ organizationNumber: recentOrganization, userId: this.currentUser })
+    this.isLoaded = false;
+    this.hasAccess = false;
+    this.lastUsedOrganization = event.target.value;
+    updateLastUsedOrganization({ organizationNumber: this.lastUsedOrganization, userId: this.currentUser })
       .then((result) => {
+        this.sortOrganizations();
         this.checkAccessToApplication();
       })
       .catch((error) => {
@@ -60,6 +63,9 @@ export default class Aareg_home extends LightningElement {
 
     let foundIndex;
     this.organizations.forEach((org, i) => {
+      if (org.Type === 'Person') {
+        this.organizations.splice(i, 1);
+      }
       if (org.OrganizationNumber === this.lastUsedOrganization) {
         foundIndex = i;
       }
@@ -74,7 +80,7 @@ export default class Aareg_home extends LightningElement {
     }
   }
 
-  checkAccessToApplication() {
+  async checkAccessToApplication() {
     if (this.organizations === undefined) {
       this.hasAccess = false;
       return;
@@ -98,13 +104,16 @@ export default class Aareg_home extends LightningElement {
             }
           });
         } else {
-          console.log(result.errorMessage);
+          throw `Unable to get rights ${result.errorMessage}`;
         }
       })
       .catch((error) => {
         this.hasAccess = false;
         this.error = true;
-        console.log('Rights error: ', error);
+        console.log('Error: ', error);
+      })
+      .finally(() => {
+        this.isLoaded = true;
       });
   }
 }
