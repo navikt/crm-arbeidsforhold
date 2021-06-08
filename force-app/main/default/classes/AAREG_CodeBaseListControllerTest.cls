@@ -34,7 +34,7 @@ public class AAREG_CodeBaseListControllerTest {
         for(ApplicationBasisCode__c abc : baseList){
             System.assertNotEquals(abc.LegalBasisCounty__c, null,'Legal should not be null');
             System.assertNotEquals(abc.PurposeCounty__c, null,'purpose should not be null');
-            System.assertNotEquals(abc.DecisionBasis__c, null,'decision should not be null');
+            System.assertNotEquals(abc.ProcessingBasis__c, null,'decision should not be null');
         }
     }
 }
