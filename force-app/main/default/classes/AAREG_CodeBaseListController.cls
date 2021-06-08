@@ -6,7 +6,7 @@ public with sharing class AAREG_CodeBaseListController {
         Id,
         Name,
         Application__c,
-        DecisionBasis__c,
+        ProcessingBasis__c,
         LegalBasisCounty__c,
         LegalBasisElectricitySupervision__c,
         LegalBasisMunicipality__c,
@@ -23,6 +23,6 @@ public with sharing class AAREG_CodeBaseListController {
       FROM ApplicationBasisCode__c
       WHERE Application__c = :recordId
     ];
-    return codes;
+    return codes;    
   }
 }
