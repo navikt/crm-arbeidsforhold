@@ -233,7 +233,7 @@
                 <stringValue>[Application__c].CreatedBy.LastName </stringValue>
             </value>
         </processMetadataValues>
-        <name>formula_2_myRule_1_A1_0160977223</name>
+        <name>formula_2_myRule_1_A1_3743522793</name>
         <dataType>String</dataType>
         <expression>{!myVariable_current.CreatedBy.LastName}</expression>
     </formulas>
@@ -244,11 +244,11 @@
                 <stringValue>[Application__c].CreatedBy.FirstName </stringValue>
             </value>
         </processMetadataValues>
-        <name>formula_3_myRule_1_A1_0362314456</name>
+        <name>formula_3_myRule_1_A1_2247148219</name>
         <dataType>String</dataType>
         <expression>{!myVariable_current.CreatedBy.FirstName}</expression>
     </formulas>
-    <interviewLabel>Application_Processor-8_InterviewLabel</interviewLabel>
+    <interviewLabel>Application_Processor-10_InterviewLabel</interviewLabel>
     <label>Application Processor</label>
     <processMetadataValues>
         <name>ObjectType</name>
@@ -394,7 +394,7 @@
             </processMetadataValues>
             <field>FirstName</field>
             <value>
-                <elementReference>formula_3_myRule_1_A1_0362314456</elementReference>
+                <elementReference>formula_3_myRule_1_A1_2247148219</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -424,43 +424,7 @@
             </processMetadataValues>
             <field>LastName</field>
             <value>
-                <elementReference>formula_2_myRule_1_A1_0160977223</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <processMetadataValues>
-                <name>dataType</name>
-                <value>
-                    <stringValue>MultiPicklist</stringValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>isRequired</name>
-                <value>
-                    <booleanValue>false</booleanValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>leftHandSideLabel</name>
-                <value>
-                    <stringValue>Source</stringValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>leftHandSideReferenceTo</name>
-                <value>
-                    <stringValue/>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>rightHandSideType</name>
-                <value>
-                    <stringValue>MultiPicklist</stringValue>
-                </value>
-            </processMetadataValues>
-            <field>Source__c</field>
-            <value>
-                <stringValue>Aa registeret søknad</stringValue>
+                <elementReference>formula_2_myRule_1_A1_3743522793</elementReference>
             </value>
         </inputAssignments>
         <object>Contact</object>
