@@ -569,6 +569,27 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>createQuickActionName</name>
+                    <value>NewContact</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>lookupFieldName</name>
+                    <value>Application__c.Contact__c</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>titleFieldName</name>
+                    <value>Søker</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>updateQuickActionName</name>
+                    <value>Contact._LightningRelatedContact</value>
+                </componentInstanceProperties>
+                <componentName>console:relatedRecord</componentName>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
                     <name>parentFieldApiName</name>
                     <value>Application__c.Id</value>
                 </componentInstanceProperties>

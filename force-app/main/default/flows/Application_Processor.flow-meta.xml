@@ -1,5 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <processMetadataValues>
+            <name>ActionCallType</name>
+            <value>
+                <stringValue>flow</stringValue>
+            </value>
+        </processMetadataValues>
+        <processMetadataValues>
+            <name>flowSelection</name>
+            <value>
+                <stringValue>AAREG_getContactAndUpdateApplication</stringValue>
+            </value>
+        </processMetadataValues>
+        <name>myRule_1_A2</name>
+        <label>getContactUpdateApplication</label>
+        <locationX>100</locationX>
+        <locationY>300</locationY>
+        <actionName>AAREG_getContactAndUpdateApplication</actionName>
+        <actionType>flow</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <processMetadataValues>
+                <name>dataType</name>
+                <value>
+                    <stringValue>String</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>isRequired</name>
+                <value>
+                    <booleanValue>false</booleanValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>leftHandSideLabel</name>
+                <value>
+                    <stringValue>varContactEmail</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>maxOccurs</name>
+                <value>
+                    <numberValue>1.0</numberValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>objectType</name>
+                <value>
+                    <stringValue/>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>rightHandSideType</name>
+                <value>
+                    <stringValue>Reference</stringValue>
+                </value>
+            </processMetadataValues>
+            <name>varContactEmail</name>
+            <value>
+                <elementReference>myVariable_current.Email__c</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <processMetadataValues>
+                <name>dataType</name>
+                <value>
+                    <stringValue>String</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>isRequired</name>
+                <value>
+                    <booleanValue>false</booleanValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>leftHandSideLabel</name>
+                <value>
+                    <stringValue>varApplicationID</stringValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>maxOccurs</name>
+                <value>
+                    <numberValue>1.0</numberValue>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>objectType</name>
+                <value>
+                    <stringValue/>
+                </value>
+            </processMetadataValues>
+            <processMetadataValues>
+                <name>rightHandSideType</name>
+                <value>
+                    <stringValue>Reference</stringValue>
+                </value>
+            </processMetadataValues>
+            <name>varApplicationID</name>
+            <value>
+                <elementReference>myVariable_current.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
     <apiVersion>51.0</apiVersion>
     <decisions>
         <processMetadataValues>
@@ -86,37 +191,6 @@
                     </value>
                 </processMetadataValues>
                 <processMetadataValues>
-                    <name>leftHandSideType</name>
-                    <value>
-                        <stringValue>Boolean</stringValue>
-                    </value>
-                </processMetadataValues>
-                <processMetadataValues>
-                    <name>operatorDataType</name>
-                    <value>
-                        <stringValue>Boolean</stringValue>
-                    </value>
-                </processMetadataValues>
-                <processMetadataValues>
-                    <name>rightHandSideType</name>
-                    <value>
-                        <stringValue>Boolean</stringValue>
-                    </value>
-                </processMetadataValues>
-                <leftValueReference>myVariable_current.IsConfirmationEmailSent__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <processMetadataValues>
-                    <name>inputDataType</name>
-                    <value>
-                        <stringValue>Boolean</stringValue>
-                    </value>
-                </processMetadataValues>
-                <processMetadataValues>
                     <name>leftHandSideReferenceTo</name>
                     <value>
                         <stringValue>Contact</stringValue>
@@ -140,19 +214,41 @@
                         <stringValue>Boolean</stringValue>
                     </value>
                 </processMetadataValues>
-                <leftValueReference>myVariable_current.CreatedBy.ContactId</leftValueReference>
+                <leftValueReference>myVariable_current.Contact__c</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
-                    <booleanValue>false</booleanValue>
+                    <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
                 <targetReference>myRule_1_A1</targetReference>
             </connector>
-            <label>IsApplicationSubmitted</label>
+            <label>CreateContactToApplication</label>
         </rules>
     </decisions>
-    <interviewLabel>Application_Processor-6_InterviewLabel</interviewLabel>
+    <formulas>
+        <processMetadataValues>
+            <name>originalFormula</name>
+            <value>
+                <stringValue>[Application__c].CreatedBy.LastName </stringValue>
+            </value>
+        </processMetadataValues>
+        <name>formula_2_myRule_1_A1_0160977223</name>
+        <dataType>String</dataType>
+        <expression>{!myVariable_current.CreatedBy.LastName}</expression>
+    </formulas>
+    <formulas>
+        <processMetadataValues>
+            <name>originalFormula</name>
+            <value>
+                <stringValue>[Application__c].CreatedBy.FirstName </stringValue>
+            </value>
+        </processMetadataValues>
+        <name>formula_3_myRule_1_A1_0362314456</name>
+        <dataType>String</dataType>
+        <expression>{!myVariable_current.CreatedBy.FirstName}</expression>
+    </formulas>
+    <interviewLabel>Application_Processor-8_InterviewLabel</interviewLabel>
     <label>Application Processor</label>
     <processMetadataValues>
         <name>ObjectType</name>
@@ -173,6 +269,12 @@
         </value>
     </processMetadataValues>
     <processMetadataValues>
+        <name>RecursiveCountVariable</name>
+        <value>
+            <elementReference>RecursiveCountVariable</elementReference>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
         <name>TriggerType</name>
         <value>
             <stringValue>onAllChanges</stringValue>
@@ -181,7 +283,7 @@
     <processType>Workflow</processType>
     <recordCreates>
         <name>myRule_1_A1</name>
-        <label>SendEmailConfirmation</label>
+        <label>CreateContactRelatedToApplication</label>
         <locationX>100</locationX>
         <locationY>200</locationY>
         <connector>
@@ -191,7 +293,7 @@
             <processMetadataValues>
                 <name>dataType</name>
                 <value>
-                    <stringValue>Picklist</stringValue>
+                    <stringValue>ID</stringValue>
                 </value>
             </processMetadataValues>
             <processMetadataValues>
@@ -203,31 +305,31 @@
             <processMetadataValues>
                 <name>leftHandSideLabel</name>
                 <value>
-                    <stringValue>Priority</stringValue>
+                    <stringValue>Account ID</stringValue>
                 </value>
             </processMetadataValues>
             <processMetadataValues>
                 <name>leftHandSideReferenceTo</name>
                 <value>
-                    <stringValue/>
+                    <stringValue>Account</stringValue>
                 </value>
             </processMetadataValues>
             <processMetadataValues>
                 <name>rightHandSideType</name>
                 <value>
-                    <stringValue>Picklist</stringValue>
+                    <stringValue>Reference</stringValue>
                 </value>
             </processMetadataValues>
-            <field>Priority__c</field>
+            <field>AccountId</field>
             <value>
-                <stringValue>2</stringValue>
+                <elementReference>myVariable_current.Account__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <processMetadataValues>
                 <name>dataType</name>
                 <value>
-                    <stringValue>Boolean</stringValue>
+                    <stringValue>String</stringValue>
                 </value>
             </processMetadataValues>
             <processMetadataValues>
@@ -239,7 +341,7 @@
             <processMetadataValues>
                 <name>leftHandSideLabel</name>
                 <value>
-                    <stringValue>Save As Activity</stringValue>
+                    <stringValue>Email</stringValue>
                 </value>
             </processMetadataValues>
             <processMetadataValues>
@@ -251,19 +353,19 @@
             <processMetadataValues>
                 <name>rightHandSideType</name>
                 <value>
-                    <stringValue>Boolean</stringValue>
+                    <stringValue>Reference</stringValue>
                 </value>
             </processMetadataValues>
-            <field>SaveAsActivity__c</field>
+            <field>Email</field>
             <value>
-                <booleanValue>true</booleanValue>
+                <elementReference>myVariable_current.Email__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <processMetadataValues>
                 <name>dataType</name>
                 <value>
-                    <stringValue>Picklist</stringValue>
+                    <stringValue>String</stringValue>
                 </value>
             </processMetadataValues>
             <processMetadataValues>
@@ -275,7 +377,7 @@
             <processMetadataValues>
                 <name>leftHandSideLabel</name>
                 <value>
-                    <stringValue>Status</stringValue>
+                    <stringValue>First Name</stringValue>
                 </value>
             </processMetadataValues>
             <processMetadataValues>
@@ -287,12 +389,12 @@
             <processMetadataValues>
                 <name>rightHandSideType</name>
                 <value>
-                    <stringValue>Picklist</stringValue>
+                    <stringValue>Formula</stringValue>
                 </value>
             </processMetadataValues>
-            <field>Status__c</field>
+            <field>FirstName</field>
             <value>
-                <stringValue>Queued</stringValue>
+                <elementReference>formula_3_myRule_1_A1_0362314456</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -311,55 +413,25 @@
             <processMetadataValues>
                 <name>leftHandSideLabel</name>
                 <value>
-                    <stringValue>Target Object ID</stringValue>
+                    <stringValue>Last Name</stringValue>
                 </value>
             </processMetadataValues>
             <processMetadataValues>
                 <name>rightHandSideType</name>
                 <value>
-                    <stringValue>Reference</stringValue>
+                    <stringValue>Formula</stringValue>
                 </value>
             </processMetadataValues>
-            <field>TargetObjectId__c</field>
+            <field>LastName</field>
             <value>
-                <elementReference>myVariable_current.CreatedBy.Contact.Id</elementReference>
+                <elementReference>formula_2_myRule_1_A1_0160977223</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <processMetadataValues>
                 <name>dataType</name>
                 <value>
-                    <stringValue>String</stringValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>isRequired</name>
-                <value>
-                    <booleanValue>true</booleanValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>leftHandSideLabel</name>
-                <value>
-                    <stringValue>Template ID</stringValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>rightHandSideType</name>
-                <value>
-                    <stringValue>String</stringValue>
-                </value>
-            </processMetadataValues>
-            <field>TemplateId__c</field>
-            <value>
-                <stringValue>00X1X0000030uRvUAI</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <processMetadataValues>
-                <name>dataType</name>
-                <value>
-                    <stringValue>String</stringValue>
+                    <stringValue>MultiPicklist</stringValue>
                 </value>
             </processMetadataValues>
             <processMetadataValues>
@@ -371,7 +443,7 @@
             <processMetadataValues>
                 <name>leftHandSideLabel</name>
                 <value>
-                    <stringValue>What ID</stringValue>
+                    <stringValue>Source</stringValue>
                 </value>
             </processMetadataValues>
             <processMetadataValues>
@@ -383,97 +455,16 @@
             <processMetadataValues>
                 <name>rightHandSideType</name>
                 <value>
-                    <stringValue>Reference</stringValue>
+                    <stringValue>MultiPicklist</stringValue>
                 </value>
             </processMetadataValues>
-            <field>WhatId__c</field>
+            <field>Source__c</field>
             <value>
-                <elementReference>myVariable_current.Id</elementReference>
+                <stringValue>Aa registeret søknad</stringValue>
             </value>
         </inputAssignments>
-        <object>EmailQueue__c</object>
+        <object>Contact</object>
     </recordCreates>
-    <recordUpdates>
-        <processMetadataValues>
-            <name>evaluationType</name>
-            <value>
-                <stringValue>always</stringValue>
-            </value>
-        </processMetadataValues>
-        <processMetadataValues>
-            <name>extraTypeInfo</name>
-        </processMetadataValues>
-        <processMetadataValues>
-            <name>isChildRelationship</name>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </processMetadataValues>
-        <processMetadataValues>
-            <name>reference</name>
-            <value>
-                <stringValue>[Application__c]</stringValue>
-            </value>
-        </processMetadataValues>
-        <processMetadataValues>
-            <name>referenceTargetField</name>
-        </processMetadataValues>
-        <name>myRule_1_A2</name>
-        <label>UpdateConfirmationCheckbox</label>
-        <locationX>100</locationX>
-        <locationY>300</locationY>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <processMetadataValues>
-                <name>implicit</name>
-                <value>
-                    <booleanValue>true</booleanValue>
-                </value>
-            </processMetadataValues>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>myVariable_current.Id</elementReference>
-            </value>
-        </filters>
-        <inputAssignments>
-            <processMetadataValues>
-                <name>dataType</name>
-                <value>
-                    <stringValue>Boolean</stringValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>isRequired</name>
-                <value>
-                    <booleanValue>false</booleanValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>leftHandSideLabel</name>
-                <value>
-                    <stringValue>IsConfirmationEmailSent</stringValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>leftHandSideReferenceTo</name>
-                <value>
-                    <stringValue/>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>rightHandSideType</name>
-                <value>
-                    <stringValue>Boolean</stringValue>
-                </value>
-            </processMetadataValues>
-            <field>IsConfirmationEmailSent__c</field>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </inputAssignments>
-        <object>Application__c</object>
-    </recordUpdates>
     <startElementReference>myDecision</startElementReference>
     <status>Active</status>
     <variables>
@@ -491,5 +482,13 @@
         <isInput>true</isInput>
         <isOutput>false</isOutput>
         <objectType>Application__c</objectType>
+    </variables>
+    <variables>
+        <name>RecursiveCountVariable</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <scale>2</scale>
     </variables>
 </Flow>
