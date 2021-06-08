@@ -18,7 +18,7 @@ public class AAREG_CodeBaseListControllerTest {
         abc.OrganizationType__c='County';
         abc.LegalBasisCounty__c='FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e';
         abc.PurposeCounty__c='Tildeling og kontroll av drosjeløyve';
-        abc.DecisionBasis__c = 'ja,da...';
+        abc.ProcessingBasis__c = 'ja,da...';
         insert abc;   
     }
 
@@ -34,7 +34,7 @@ public class AAREG_CodeBaseListControllerTest {
         for(ApplicationBasisCode__c abc : baseList){
             System.assertNotEquals(abc.LegalBasisCounty__c, null,'Legal should not be null');
             System.assertNotEquals(abc.PurposeCounty__c, null,'purpose should not be null');
-            System.assertNotEquals(abc.DecisionBasis__c, null,'decision should not be null');
+            System.assertNotEquals(abc.ProcessingBasis__c, null,'decision should not be null');
         }
     }
 }
