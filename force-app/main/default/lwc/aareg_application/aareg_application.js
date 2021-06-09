@@ -6,14 +6,16 @@ import getAccountNameByOrgNumber from '@salesforce/apex/AAREG_ApplicationControl
 import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
 
 export default class Aareg_application extends LightningElement {
+  @api hasErrors;
+  @api linkToDataElements;
+  @api linkToTermsOfUse;
   @track contactRows;
   @track applicationBasisRows;
   @track application;
   @track organization;
-  @api hasErrors;
+  currentUser = Id;
   hasAccess = false;
   applicationSubmitted = false;
-  currentUser = Id;
   lastUsedOrganization;
   organizationType;
   fileData;
@@ -83,6 +85,15 @@ export default class Aareg_application extends LightningElement {
 
   get acceptedFileFormats() {
     return ['.xlsx', '.pdf', '.docx'];
+  }
+
+  get dataElementURL() {
+    console.log(this.linkToDataElements);
+    return this.linkToDataElements;
+  }
+
+  get termsOfUseURL() {
+    return this.linkToTermsOfUse;
   }
 
   /*************** Dynamic Element handlers ***************/
