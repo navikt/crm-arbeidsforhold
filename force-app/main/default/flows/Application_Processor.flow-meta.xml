@@ -1,110 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <actionCalls>
-        <processMetadataValues>
-            <name>ActionCallType</name>
-            <value>
-                <stringValue>flow</stringValue>
-            </value>
-        </processMetadataValues>
-        <processMetadataValues>
-            <name>flowSelection</name>
-            <value>
-                <stringValue>AAREG_getContactAndUpdateApplication</stringValue>
-            </value>
-        </processMetadataValues>
-        <name>myRule_1_A2</name>
-        <label>getContactUpdateApplication</label>
-        <locationX>100</locationX>
-        <locationY>300</locationY>
-        <actionName>AAREG_getContactAndUpdateApplication</actionName>
-        <actionType>flow</actionType>
-        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <processMetadataValues>
-                <name>dataType</name>
-                <value>
-                    <stringValue>String</stringValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>isRequired</name>
-                <value>
-                    <booleanValue>false</booleanValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>leftHandSideLabel</name>
-                <value>
-                    <stringValue>varContactEmail</stringValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>maxOccurs</name>
-                <value>
-                    <numberValue>1.0</numberValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>objectType</name>
-                <value>
-                    <stringValue/>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>rightHandSideType</name>
-                <value>
-                    <stringValue>Reference</stringValue>
-                </value>
-            </processMetadataValues>
-            <name>varContactEmail</name>
-            <value>
-                <elementReference>myVariable_current.Email__c</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <processMetadataValues>
-                <name>dataType</name>
-                <value>
-                    <stringValue>String</stringValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>isRequired</name>
-                <value>
-                    <booleanValue>false</booleanValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>leftHandSideLabel</name>
-                <value>
-                    <stringValue>varApplicationID</stringValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>maxOccurs</name>
-                <value>
-                    <numberValue>1.0</numberValue>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>objectType</name>
-                <value>
-                    <stringValue/>
-                </value>
-            </processMetadataValues>
-            <processMetadataValues>
-                <name>rightHandSideType</name>
-                <value>
-                    <stringValue>Reference</stringValue>
-                </value>
-            </processMetadataValues>
-            <name>varApplicationID</name>
-            <value>
-                <elementReference>myVariable_current.Id</elementReference>
-            </value>
-        </inputParameters>
-    </actionCalls>
     <apiVersion>51.0</apiVersion>
     <decisions>
         <processMetadataValues>
@@ -233,7 +128,7 @@
                 <stringValue>[Application__c].CreatedBy.LastName </stringValue>
             </value>
         </processMetadataValues>
-        <name>formula_2_myRule_1_A1_3743522793</name>
+        <name>formula_2_myRule_1_A1_2329090654</name>
         <dataType>String</dataType>
         <expression>{!myVariable_current.CreatedBy.LastName}</expression>
     </formulas>
@@ -244,11 +139,11 @@
                 <stringValue>[Application__c].CreatedBy.FirstName </stringValue>
             </value>
         </processMetadataValues>
-        <name>formula_3_myRule_1_A1_2247148219</name>
+        <name>formula_3_myRule_1_A1_2877576710</name>
         <dataType>String</dataType>
         <expression>{!myVariable_current.CreatedBy.FirstName}</expression>
     </formulas>
-    <interviewLabel>Application_Processor-10_InterviewLabel</interviewLabel>
+    <interviewLabel>Application_Processor-3_InterviewLabel</interviewLabel>
     <label>Application Processor</label>
     <processMetadataValues>
         <name>ObjectType</name>
@@ -286,9 +181,6 @@
         <label>CreateContactRelatedToApplication</label>
         <locationX>100</locationX>
         <locationY>200</locationY>
-        <connector>
-            <targetReference>myRule_1_A2</targetReference>
-        </connector>
         <inputAssignments>
             <processMetadataValues>
                 <name>dataType</name>
@@ -394,7 +286,7 @@
             </processMetadataValues>
             <field>FirstName</field>
             <value>
-                <elementReference>formula_3_myRule_1_A1_2247148219</elementReference>
+                <elementReference>formula_3_myRule_1_A1_2877576710</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -424,13 +316,13 @@
             </processMetadataValues>
             <field>LastName</field>
             <value>
-                <elementReference>formula_2_myRule_1_A1_3743522793</elementReference>
+                <elementReference>formula_2_myRule_1_A1_2329090654</elementReference>
             </value>
         </inputAssignments>
         <object>Contact</object>
     </recordCreates>
     <startElementReference>myDecision</startElementReference>
-    <status>Active</status>
+    <status>Draft</status>
     <variables>
         <name>myVariable_current</name>
         <dataType>SObject</dataType>

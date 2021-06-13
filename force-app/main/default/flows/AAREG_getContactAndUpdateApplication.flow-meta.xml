@@ -59,7 +59,7 @@
         <inputAssignments>
             <field>TemplateId__c</field>
             <value>
-                <stringValue>00X1x000002vksdEAA</stringValue>
+                <elementReference>templateId</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -94,6 +94,30 @@
             <field>Id</field>
         </outputAssignments>
     </recordLookups>
+    <recordLookups>
+        <description>Fetch the template id from custom meta data</description>
+        <name>getTemplateId</name>
+        <label>getTemplateId</label>
+        <locationX>517</locationX>
+        <locationY>350</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>CreateEmailQueue</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>MasterLabel</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>aaReg Application Confirmation</stringValue>
+            </value>
+        </filters>
+        <object>AA_register_email_template__mdt</object>
+        <outputAssignments>
+            <assignToReference>templateId</assignToReference>
+            <field>Template_Id__c</field>
+        </outputAssignments>
+    </recordLookups>
     <recordUpdates>
         <description>Update application with contactID</description>
         <name>UpdateApplication</name>
@@ -101,7 +125,7 @@
         <locationX>177</locationX>
         <locationY>427</locationY>
         <connector>
-            <targetReference>CreateEmailQueue</targetReference>
+            <targetReference>getTemplateId</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -148,7 +172,14 @@
             <targetReference>getContactId</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
+    <variables>
+        <name>templateId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
     <variables>
         <name>varApplicationID</name>
         <dataType>String</dataType>
