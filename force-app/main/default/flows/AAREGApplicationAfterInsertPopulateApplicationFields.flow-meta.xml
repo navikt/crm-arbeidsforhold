@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>51.0</apiVersion>
+    <assignments>
+        <name>AssignApplicationFields</name>
+        <label>Assign Application Fields</label>
+        <locationX>177</locationX>
+        <locationY>384</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Account__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.AccountId__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>PopulateAccountLookup</targetReference>
+        </connector>
+    </assignments>
+    <description>Automation to populate fields on the Application object after insert.</description>
+    <interviewLabel>AAREG Application- After Insert- Populate Application Fields {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>AAREG Application- After Insert- Populate Application Fields</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>PopulateAccountLookup</name>
+        <label>Populate Account Lookup</label>
+        <locationX>310</locationX>
+        <locationY>384</locationY>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <connector>
+            <targetReference>AssignApplicationFields</targetReference>
+        </connector>
+        <object>Application__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

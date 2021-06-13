@@ -1,9 +1,9 @@
 <template>
   <div class="app-section">
-    <div class="row">
+    <div if:false={isOtherOrganizationType} class="row">
       <div class="column">
         <span class="form-control">
-          <label for="hjemmel">Hjemmel</label>
+          <label for="hjemmel">Hjemmel for utlevering</label>
           <div class="hjelpetekst">
             <button
               type="button"
@@ -12,7 +12,10 @@
               aria-expanded="false"
               aria-controls="51247348-9478-8420-3461-20094500120546"
               aria-haspopup="dialog"
-              onclick={toggleLegalBasisHelpText}
+              onmouseover={toggleLegalBasisHelpText}
+              onmouseout={toggleLegalBasisHelpText}
+              onfocusin={toggleLegalBasisHelpText}
+              onfocusout={toggleLegalBasisHelpText}
             >
               <svg
                 kind="help-circle"
@@ -79,7 +82,10 @@
               aria-expanded="false"
               aria-controls="51247348-9478-8420-3461-20094500120546"
               aria-haspopup="dialog"
-              onclick={togglePurposeHelpText}
+              onmouseover={togglePurposeHelpText}
+              onmouseout={togglePurposeHelpText}
+              onfocusin={togglePurposeHelpText}
+              onfocusout={togglePurposeHelpText}
             >
               <svg
                 kind="help-circle"
@@ -130,6 +136,39 @@
         </span>
       </div>
     </div>
+
+    <template if:true={showOtherInput}>
+      <div class="row">
+        <div class="column">
+          <span class="form-control">
+            <label for="annet-hjemmel">Oppgi hjemmel for utlevering</label>
+            <textarea
+              name="annet hjemmel"
+              id="annet-hjemmel"
+              data-id="other-legal-basis"
+              class="form-input-text-area"
+              required
+              onchange={handleInputChange}
+            ></textarea>
+            <small>Error Message</small>
+          </span>
+        </div>
+        <div class="column">
+          <span class="form-control">
+            <label for="annet-formal">Oppgi formål</label>
+            <textarea
+              name="annet formål"
+              id="annet-formal"
+              data-id="other-purpose"
+              class="form-input-text-area"
+              required
+              onchange={handleInputChange}
+            ></textarea>
+            <small>Error Message</small>
+          </span>
+        </div>
+      </div>
+    </template>
     <div class="row">
       <div class="column">
         <span class="form-control">
@@ -142,7 +181,10 @@
               aria-expanded="false"
               aria-controls="51247348-9478-8420-3461-20094500120546"
               aria-haspopup="dialog"
-              onclick={toggleProcessingBasisHelpText}
+              onmouseover={toggleProcessingBasisHelpText}
+              onmouseout={toggleProcessingBasisHelpText}
+              onfocusin={toggleProcessingBasisHelpText}
+              onfocusout={toggleProcessingBasisHelpText}
             >
               <svg
                 kind="help-circle"
@@ -177,7 +219,7 @@
                   <p>
                     All behandling av personopplysninger må ha et rettslig grunnlag (behandlingsgrunnlag) for at det
                     skal være tillatt å behandle/bruke personopplysninger, se GDPR art. 6, 9 og 10. Eksempler på
-                    rettslig grunnlag (behandlingsgrunnlag) kan være:
+                    rettslig grunnlag kan være:
                   </p>
                   <ul>
                     <li>-hjemmel i lov</li>
@@ -201,39 +243,5 @@
         </span>
       </div>
     </div>
-    <template if:true={showOtherInput}>
-      <div class="row">
-        <div class="column">
-          <span class="form-control">
-            <label for="annet-hjemmel">Annet Hjemmel</label>
-            <textarea
-              name="annet hjemmel"
-              id="annet-hjemmel"
-              data-id="other-legal-basis"
-              class="form-input-text-area"
-              required
-              onchange={handleInputChange}
-            ></textarea>
-            <small>Error Message</small>
-          </span>
-        </div>
-      </div>
-      <div class="row">
-        <div class="column">
-          <span class="form-control">
-            <label for="annet-formal">Annet Formål</label>
-            <textarea
-              name="annet formål"
-              id="annet-formal"
-              data-id="other-purpose"
-              class="form-input-text-area"
-              required
-              onchange={handleInputChange}
-            ></textarea>
-            <small>Error Message</small>
-          </span>
-        </div>
-      </div>
-    </template>
   </div>
 </template>
