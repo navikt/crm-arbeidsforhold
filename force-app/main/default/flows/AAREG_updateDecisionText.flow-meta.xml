@@ -187,6 +187,7 @@
         <connector>
             <targetReference>ApplicationDecisionStatus</targetReference>
         </connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>or</filterLogic>
         <filters>
             <field>Casehandler_Status__c</field>
