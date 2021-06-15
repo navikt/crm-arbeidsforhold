@@ -283,13 +283,6 @@
         <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>RecordTypeId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>0120E000001m0vmQAA</stringValue>
-            </value>
-        </filters>
-        <filters>
             <field>Casehandler_Status__c</field>
             <operator>EqualTo</operator>
             <value>
@@ -298,9 +291,9 @@
         </filters>
         <filters>
             <field>Contact__c</field>
-            <operator>IsNull</operator>
+            <operator>EqualTo</operator>
             <value>
-                <booleanValue>true</booleanValue>
+                <stringValue/>
             </value>
         </filters>
         <filters>
@@ -338,6 +331,13 @@
     </variables>
     <variables>
         <name>varContactID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varRecordTypeId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
