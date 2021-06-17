@@ -1,0 +1,19 @@
+.mainbanner {
+  padding: 1rem 1.5rem 1rem 1.5rem;
+  border-bottom-width: 4px;
+  border-bottom-style: solid;
+  text-align: center;
+  width: 100%;
+  z-index: 10;
+  background-color: #cce1f3;
+  border-bottom: 0.25rem solid #99bdcd;
+}
+
+.mainbanner-title {
+  margin: 0;
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 1.25rem;
+  line-height: 1.625rem;
+  font-weight: bold;
+  margin-top: 0px;
+}
