@@ -9,11 +9,13 @@ input:invalid:required {
 }
 
 .app-section {
+  /*
   margin: 10px;
   padding: 10px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  */
 }
 
 .app-section h2 {
@@ -22,6 +24,18 @@ input:invalid:required {
   font-weight: 600;
   font-family: inherit;
   flex-basis: 100%;
+}
+
+.inner-container {
+  margin: 0 auto;
+  padding-left: 15px;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.inner-container .form-control {
+  margin-right: 30px;
 }
 
 .form-control {
@@ -33,13 +47,11 @@ input:invalid:required {
 
 .form-control label {
   display: inline-block;
-  margin-bottom: 0.5rem;
   font-family: 'Source Sans Pro', Arial, sans-serif;
   font-size: 1rem;
   line-height: 1.375rem;
   font-weight: 600;
   line-height: 1.4;
-  margin-bottom: 0.5rem;
   margin-left: 0.5rem;
 }
 
@@ -63,7 +75,6 @@ input:invalid:required {
 }
 
 .form-control input[type='checkbox'] {
-  display: block;
   text-align: center;
   background-color: #fff;
   background-position: center center;

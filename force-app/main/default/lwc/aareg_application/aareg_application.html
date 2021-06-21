@@ -1,178 +1,152 @@
 <template>
   <template if:true={hasAccess}>
     <template if:true={organization}>
-      <div class="bedriftsmeny" role="banner">
-        <div class="bedriftsmeny__inner">
-          <h1 class="typo-innholdstittel bedriftsmeny__tittel">Søknad om tilgang til Aa-registret</h1>
-        </div>
-      </div>
       <template if:false={applicationSubmitted}>
-        <div class="container">
-          <div class="form">
+        <div class="container" if:true={isLoaded}>
+          <form>
             <section class="app-section">
               <h2>Søker</h2>
-              <div>
-                <div class="row">
-                  <div class="column">
-                    <span class="form-control">
-                      <label for="virksomhetsnavn">Navn</label>
-                      <input
-                        type="text"
-                        name="virksomhetsnavn"
-                        id="virksomhetsnavn"
-                        value={application.organizationName}
-                        disabled="disabled"
-                      />
-                    </span>
-                  </div>
-                  <div class="column">
-                    <span class="form-control">
-                      <label for="organisasjonsnummer">Organisasjonsnummer</label>
-                      <input
-                        type="text"
-                        name="organisasjonsnummer"
-                        id="organisasjonsnummer"
-                        value={application.OrganizationNumber__c}
-                        disabled="disabled"
-                      />
-                    </span>
-                  </div>
-                  <div class="column">
-                    <span class="form-control">
-                      <label for="organisasjonsform">Organisasjonsform</label>
-                      <input
-                        type="text"
-                        name="organisasjonsform"
-                        id="organisasjonsform"
-                        value={application.OrganizationStructure__c}
-                        disabled="disabled"
-                      />
-                    </span>
-                  </div>
-                </div>
 
-                <div class="row">
-                  <div class="column">
-                    <span class="form-control">
-                      <label for="postadresse">Forretningsadresse</label>
-                      <input
-                        type="text"
-                        name="postadresse"
-                        id="postadresse"
-                        value={application.MailingAddress__c}
-                        disabled="disabled"
-                      />
-                    </span>
-                  </div>
-                  <div class="column">
-                    <span class="form-control">
-                      <label for="postkode">Postnummer</label>
-                      <input
-                        type="text"
-                        name="postkode"
-                        id="postkode"
-                        value={application.MailingPostalCode__c}
-                        disabled="disabled"
-                      />
-                    </span>
-                  </div>
-                  <div class="column">
-                    <span class="form-control">
-                      <label for="poststed">Poststed</label>
-                      <input
-                        type="text"
-                        name="poststed"
-                        id="poststed"
-                        value={application.MailingCity__c}
-                        disabled="disabled"
-                      />
-                    </span>
-                  </div>
+              <div class="row">
+                <div class="column">
+                  <span class="form-control">
+                    <label for="virksomhetsnavn">Navn</label>
+                    <input
+                      type="text"
+                      name="virksomhetsnavn"
+                      id="virksomhetsnavn"
+                      value={application.organizationName}
+                      disabled="disabled"
+                    />
+                  </span>
                 </div>
-                <div class="row">
-                  <div class="column">
-                    <span class="form-control">
-                      <label for="epost">E-post</label>
-                      <input
-                        type="email"
-                        name="e-post"
-                        id="epost"
-                        data-id="email"
-                        onchange={handleApplicationInputChange}
-                        required
-                      />
-                      <small>Error Message</small>
-                    </span>
-                  </div>
+                <div class="column">
+                  <span class="form-control">
+                    <label for="organisasjonsnummer">Organisasjonsnummer</label>
+                    <input
+                      type="text"
+                      name="organisasjonsnummer"
+                      id="organisasjonsnummer"
+                      value={application.OrganizationNumber__c}
+                      disabled="disabled"
+                    />
+                  </span>
+                </div>
+                <div class="column">
+                  <span class="form-control">
+                    <label for="organisasjonsform">Organisasjonsform</label>
+                    <input
+                      type="text"
+                      name="organisasjonsform"
+                      id="organisasjonsform"
+                      value={application.OrganizationStructure__c}
+                      disabled="disabled"
+                    />
+                  </span>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="column">
+                  <span class="form-control">
+                    <label for="postadresse">Forretningsadresse</label>
+                    <input
+                      type="text"
+                      name="postadresse"
+                      id="postadresse"
+                      value={application.MailingAddress__c}
+                      disabled="disabled"
+                    />
+                  </span>
+                </div>
+                <div class="column">
+                  <span class="form-control">
+                    <label for="postkode">Postnummer</label>
+                    <input
+                      type="text"
+                      name="postkode"
+                      id="postkode"
+                      value={application.MailingPostalCode__c}
+                      disabled="disabled"
+                    />
+                  </span>
+                </div>
+                <div class="column">
+                  <span class="form-control">
+                    <label for="poststed">Poststed</label>
+                    <input
+                      type="text"
+                      name="poststed"
+                      id="poststed"
+                      value={application.MailingCity__c}
+                      disabled="disabled"
+                    />
+                  </span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="column">
+                  <span class="form-control" style="max-width: 65%">
+                    <label for="epost">
+                      <abbr class="slds-required" title="required">* </abbr>
+                      E-post
+                    </label>
+                    <input
+                      type="email"
+                      name="e-post"
+                      id="epost"
+                      data-id="email"
+                      onchange={handleApplicationInputChange}
+                      required
+                    />
+                    <small>Error Message</small>
+                  </span>
                 </div>
               </div>
             </section>
             <section class="app-section">
-              <div class="application-section-container">
-                <div>
-                  <h2>Begrunnelse</h2>
+              <h2>Begrunnelse</h2>
+
+              <template if:true={applicationBasisRows} for:each={applicationBasisRows} for:item="row" for:index="index">
+                <div key={row.uuid} class="app-section">
+                  <c-aareg_application-basis
+                    record={row}
+                    organization-type={organizationType}
+                    onapplicationbasischange={applicationBasisChange}
+                    onvalidationerror={processError}
+                  ></c-aareg_application-basis>
+                  <div class="button-container" if:true={showApplicationBasisRemove}>
+                    <button
+                      type="button"
+                      name="fjern grunnlag og hjemmel"
+                      class="button-remove"
+                      value={index}
+                      onclick={removeApplicationBasisRow}
+                    >
+                      Fjern
+                    </button>
+                  </div>
                 </div>
-                <div style="width: 100%">
-                  <template
-                    if:true={applicationBasisRows}
-                    for:each={applicationBasisRows}
-                    for:item="row"
-                    for:index="index"
-                  >
-                    <div key={row.uuid} class="app-section">
-                      <c-aareg_application-basis
-                        record={row}
-                        organization-type={organizationType}
-                        onapplicationbasischange={applicationBasisChange}
-                        onvalidationerror={processError}
-                      ></c-aareg_application-basis>
-                      <div class="contact-inner-container">
-                        <button
-                          type="button"
-                          name="fjern grunnlag og hjemmel"
-                          class="button button-delete"
-                          value={index}
-                          onclick={removeApplicationBasisRow}
-                        >
-                          Fjern
-                          <svg
-                            width="1em"
-                            height="1em"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              fill-rule="evenodd"
-                              clip-rule="evenodd"
-                              d="M12 0a5.002 5.002 0 014.9 4H23v2h-2v14a4 4 0 01-4 4H7a4 4 0 01-4-4V6H1V4h6.1A5.002 5.002 0 0112 0zM9.17 4H14.829l-.076-.193a3.002 3.002 0 00-2.374-1.783l-.203-.019L12 2a2.992 2.992 0 00-2.758 1.817L9.17 4zM5 6h14v14l-.006.15A2 2 0 0117 22H7l-.15-.006A2 2 0 015 20V6zm5 3v10H8V9h2zm6 0v10h-2V9h2z"
-                              fill="currentColor"
-                            ></path>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  </template>
-                </div>
-                <div>
-                  <button
-                    type="button"
-                    name="legg til grunnlag og hjemmel"
-                    class="button button-main"
-                    style="margin: 10px"
-                    onclick={addApplicationBasisRow}
-                  >
-                    Legg til
-                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M11 13v8h2v-8h8v-2h-8V3h-2v8H3v2h8z"
-                        fill="currentColor"
-                      ></path>
-                    </svg>
-                  </button>
-                </div>
+              </template>
+
+              <div class="button-container">
+                <button
+                  type="button"
+                  name="legg til grunnlag og hjemmel"
+                  class="button button-standard"
+                  style="margin: 10px"
+                  onclick={addApplicationBasisRow}
+                >
+                  <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M11 13v8h2v-8h8v-2h-8V3h-2v8H3v2h8z"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+                  Legg til
+                </button>
               </div>
             </section>
 
@@ -181,7 +155,7 @@
               <div class="row">
                 <div class="column">
                   <span class="form-control">
-                    <label class="form-label" for="databehandler-organisasjonsnummer">Organisasjonsnummer</label>
+                    <label for="databehandler-organisasjonsnummer">Organisasjonsnummer</label>
                     <input
                       type="text"
                       name="Databehandler organisasjonsnummer"
@@ -208,193 +182,198 @@
             </section>
 
             <section class="app-section">
-              <div class="application-section-container">
-                <div>
-                  <span class="form-control">
-                    <span data-id="access-types"></span>
-                    <h2>Behov for type tilgang</h2>
-                    <small>Error Message</small>
-                  </span>
-                </div>
-                <div class="inner-container">
-                  <div>
-                    <span class="form-control">
-                      <input
-                        type="checkbox"
-                        name="type tilgang api"
-                        id="tilgang-api"
-                        data-id="api-access"
-                        onchange={handleApplicationInputChange}
-                      />
-                      <label for="tilgang-api">Integrert oppslag (API)</label>
-                    </span>
-                  </div>
-                  <div>
-                    <span class="form-control">
-                      <input
-                        type="checkbox"
-                        name="type tilgang online"
-                        id="tilgang-online"
-                        data-id="online-access"
-                        onchange={handleApplicationInputChange}
-                      />
-                      <label for="tilgang-online">Web-oppslag</label>
-                    </span>
-                  </div>
-                  <div>
-                    <span class="form-control">
-                      <input
-                        type="checkbox"
-                        name="type tilgang uttrekk"
-                        id="tilgang-uttrekk"
-                        data-id="extraction-access"
-                        onchange={handleApplicationInputChange}
-                      />
-                      <label for="tilgang-uttrekk">Uttrekk</label>
-                    </span>
-                  </div>
-                </div>
+              <span class="form-control">
+                <span data-id="access-types"></span>
+                <h2>Behov for type tilgang</h2>
+                <small class="pl-16">Error Message</small>
+              </span>
+              <div class="inner-container">
+                <span class="form-control">
+                  <input
+                    type="checkbox"
+                    name="type tilgang api"
+                    id="tilgang-api"
+                    data-id="api-access"
+                    onchange={handleApplicationInputChange}
+                  />
+                  <label for="tilgang-api">Integrert oppslag (API)</label>
+                </span>
+
+                <span class="form-control">
+                  <input
+                    type="checkbox"
+                    name="type tilgang online"
+                    id="tilgang-online"
+                    data-id="online-access"
+                    onchange={handleApplicationInputChange}
+                  />
+                  <label for="tilgang-online">Web-oppslag</label>
+                </span>
+
+                <span class="form-control">
+                  <input
+                    type="checkbox"
+                    name="type tilgang uttrekk"
+                    id="tilgang-uttrekk"
+                    data-id="extraction-access"
+                    onchange={handleApplicationInputChange}
+                  />
+                  <label for="tilgang-uttrekk">Uttrekk</label>
+                </span>
               </div>
             </section>
-
             <section class="app-section">
-              <div class="application-section-container">
-                <span class="form-control">
-                  <span data-id="contacts"></span>
-                  <h2>Kontaktpersoner</h2>
-                  <small>Error Message</small>
-                </span>
-                <div style="width: 100%">
-                  <template if:true={contactRows} for:each={contactRows} for:item="row" for:index="index">
-                    <div key={row.uuid} class="app-section">
-                      <c-aareg_application-contact
-                        record={row}
-                        oncontactchange={contactChange}
-                        onvalidationerror={processError}
-                        data-id={row.uuid}
-                      ></c-aareg_application-contact>
-                      <div class="contact-inner-container">
-                        <button
-                          type="button"
-                          name="fjern kontaktperson"
-                          class="button button-delete"
-                          value={index}
-                          onclick={removeContactRow}
-                        >
-                          Fjern
-                          <svg
-                            width="1em"
-                            height="1em"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
+              <span class="form-control">
+                <span data-id="contacts"></span>
+                <h2>Kontaktpersoner</h2>
+                <p class="pl-16">Her må alle 4 bokser krysses ut av 1 eller flere kontaktpersoner</p>
+                <small class="pl-16">Error Message</small>
+              </span>
+
+              <template if:true={contactRows} for:each={contactRows} for:item="row" for:index="index">
+                <div key={row.uuid} class="app-section">
+                  <c-aareg_application-contact
+                    record={row}
+                    oncontactchange={contactChange}
+                    onvalidationerror={processError}
+                    data-id={row.uuid}
+                  ></c-aareg_application-contact>
+
+                  <div class="button-container" if:true={showContactRemove}>
+                    <button
+                      type="button"
+                      name="fjern kontaktperson"
+                      class="button-remove"
+                      value={index}
+                      onclick={removeContactRow}
+                    >
+                      Fjern
+                    </button>
+                  </div>
+                </div>
+              </template>
+
+              <div class="button-container">
+                <button
+                  type="button"
+                  name="legg til kontaktperson"
+                  class="button button-standard"
+                  style="margin: 10px"
+                  onclick={addContactRow}
+                >
+                  <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      fill-rule="evenodd"
+                      clip-rule="evenodd"
+                      d="M11 13v8h2v-8h8v-2h-8V3h-2v8H3v2h8z"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+                  Legg til
+                </button>
+              </div>
+            </section>
+            <section class="app-section">
+              <span class="form-control">
+                <span data-id="data-element"></span>
+                <h2>Dataelementer</h2>
+                <p class="pl-16">
+                  <a target="_blank" rel="noopener noreferrer" href={dataElementURL}
+                    >Lenke til skjema med dataelementer i Aa-registeret.&nbsp;
+                  </a>
+                  Skjema må fylles ut og lastes opp som vedlegge til søknaden her:
+                </p>
+                <small class="pl-16">Error Message</small>
+              </span>
+              <div class="data-element-container">
+                <div class="file-container">
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control">
+                      <div class="slds-file-selector slds-file-selector_files">
+                        <div>
+                          <input
+                            type="file"
+                            onchange={onFileUpload}
+                            name="uploadFile"
+                            accept={acceptedFileFormats}
+                            data-id="file-input"
+                            required
+                            hidden
+                            class="slds-file-selector__input slds-assistive-text"
+                            id="file-upload-input-01"
+                            aria-labelledby="file-selector-primary-label file-selector-secondary-label"
+                          />
+                          <label
+                            class="slds-file-selector__body"
+                            for="file-upload-input-01"
+                            id="file-selector-secondary-label"
                           >
-                            <path
-                              fill-rule="evenodd"
-                              clip-rule="evenodd"
-                              d="M12 0a5.002 5.002 0 014.9 4H23v2h-2v14a4 4 0 01-4 4H7a4 4 0 01-4-4V6H1V4h6.1A5.002 5.002 0 0112 0zM9.17 4H14.829l-.076-.193a3.002 3.002 0 00-2.374-1.783l-.203-.019L12 2a2.992 2.992 0 00-2.758 1.817L9.17 4zM5 6h14v14l-.006.15A2 2 0 0117 22H7l-.15-.006A2 2 0 015 20V6zm5 3v10H8V9h2zm6 0v10h-2V9h2z"
-                              fill="currentColor"
-                            ></path>
-                          </svg>
-                        </button>
+                            <span class="button button-standard">
+                              <svg
+                                width="1em"
+                                height="1em"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  clip-rule="evenodd"
+                                  d="M12 0l7 6.625h-5V16h-4V6.625H5L12 0zm9 18h2v2a4 4 0 01-4 4H5a4 4 0 01-4-4v-2h20z"
+                                  fill="currentColor"
+                                ></path>
+                              </svg>
+                              Laste opp fil</span
+                            >
+                            <span class="slds-file-selector__text slds-medium-show dropzone-label"
+                              >Eller slipp filen her</span
+                            >
+                          </label>
+                        </div>
                       </div>
                     </div>
-                  </template>
-                </div>
-
-                <div>
-                  <button
-                    type="button"
-                    name="legg til kontaktperson"
-                    class="button button-main"
-                    style="margin: 10px"
-                    onclick={addContactRow}
-                  >
-                    Legg til
-                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M11 13v8h2v-8h8v-2h-8V3h-2v8H3v2h8z"
-                        fill="currentColor"
-                      ></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            <section class="app-section">
-              <div class="application-section-container">
-                <div>
-                  <span class="form-control">
-                    <span data-id="data-element"></span>
-                    <h2>Dataelementer</h2>
-                    <small>Error Message</small>
-                  </span>
-                </div>
-                <div class="inner-container">
-                  <div>
-                    <p>
-                      <a target="_blank" rel="noopener noreferrer" href={dataElementURL}
-                        >Lenke til skjema med dataelementer i Aa-registeret.&nbsp;
-                      </a>
-                      Skjema må fylles ut og lastes opp som vedlegge til søknaden her:
-                    </p>
                   </div>
-                </div>
-                <div>
-                  <lightning-input type="file" onchange={onFileUpload} name="uploadFile" accept={acceptedFileFormats}>
-                  </lightning-input>
-
                   <p if:true={fileData}>{fileData.filename}</p>
                 </div>
               </div>
             </section>
 
             <section class="app-section">
-              <div class="application-section-container">
-                <div>
-                  <span class="form-control">
-                    <span data-id="terms-of-use"></span>
-                    <h2>Bruksvilkår</h2>
-                    <small>Error Message</small>
-                  </span>
-                </div>
-                <div class="inner-container">
-                  <div>
-                    <span class="form-control">
-                      <input
-                        type="checkbox"
-                        name="bruksvilkar"
-                        id="terms-of-use"
-                        data-id="terms-of-use"
-                        onchange={handleApplicationInputChange}
-                        required
-                      />
-                      <label for="terms-of-use"
-                        >Jeg har lest og godtar&nbsp;
-                        <a target="_blank" rel="noopener noreferrer" href={termsOfUseURL}>bruksvilkårene. </a></label
-                      >
-                    </span>
-                  </div>
-                </div>
+              <span class="form-control">
+                <span data-id="terms"></span>
+                <h2>Bruksvilkår</h2>
+                <small class="pl-16">Error Message</small>
+              </span>
+              <div class="inner-container">
+                <span class="form-control">
+                  <input
+                    type="checkbox"
+                    name="bruksvilkar"
+                    id="terms-of-use"
+                    data-id="terms-of-use"
+                    onchange={handleApplicationInputChange}
+                    required
+                  />
+                  <label for="terms-of-use">
+                    <abbr class="slds-required" title="required">* </abbr>
+                    Jeg har lest og godtar&nbsp;
+                    <a target="_blank" rel="noopener noreferrer" href={termsOfUseURL}>bruksvilkårene. </a></label
+                  >
+                </span>
               </div>
             </section>
-            <div class="application-section-container">
-              <div>
-                <button
-                  type="button"
-                  name="Send inn"
-                  class="button button-main"
-                  onclick={handleSubmit}
-                  style="margin: 10px"
-                >
-                  Send inn
-                </button>
-              </div>
+            <div class="button-container">
+              <button
+                type="submit"
+                name="Send inn"
+                class="button button-main"
+                onclick={handleSubmit}
+                style="margin: 10px"
+              >
+                Send inn
+              </button>
             </div>
-          </div>
+          </form>
         </div>
       </template>
       <template if:true={applicationSubmitted}>
@@ -409,5 +388,8 @@
   </template>
   <template if:true={error}>
     <c-aareg_missing-access></c-aareg_missing-access>
+  </template>
+  <template if:false={isLoaded}>
+    <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
   </template>
 </template>
