@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>51.0</apiVersion>
+    <apiVersion>52.0</apiVersion>
     <decisions>
         <name>IsContactNull</name>
         <label>IsContactNull</label>
@@ -275,20 +275,13 @@
         <object>Application__c</object>
     </recordUpdates>
     <start>
-        <locationX>49</locationX>
-        <locationY>53</locationY>
+        <locationX>51</locationX>
+        <locationY>50</locationY>
         <connector>
             <targetReference>getEmailTemplate</targetReference>
         </connector>
         <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
-        <filters>
-            <field>RecordTypeId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>0120E000001m0vmQAA</stringValue>
-            </value>
-        </filters>
         <filters>
             <field>Casehandler_Status__c</field>
             <operator>EqualTo</operator>
