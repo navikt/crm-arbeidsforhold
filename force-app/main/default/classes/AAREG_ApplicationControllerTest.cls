@@ -25,6 +25,7 @@ public class AAREG_ApplicationControllerTest {
 
     Application__c application = new Application__c();
     application.Account__c = account.Id;
+    application.IsConfirmationEmailSent__c = true;
 
     List<RelatedContact__c> contacts = new List<RelatedContact__c>();
     contacts.add(new RelatedContact__c(name = 'Test Contact 1'));

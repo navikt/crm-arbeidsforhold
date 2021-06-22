@@ -364,6 +364,79 @@
         </value>
     </constants>
     <decisions>
+        <name>applicationDecisionStatus</name>
+        <label>applicationDecisionStatus</label>
+        <locationX>143</locationX>
+        <locationY>388</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>IsApprovedParially</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Casehandler_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Approved Partially</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.AA_CasehandlerDecisionTemplate__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>updatePartiallyText</targetReference>
+            </connector>
+            <label>IsApprovedParially</label>
+        </rules>
+        <rules>
+            <name>IsApproved</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Casehandler_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Approved</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.AA_CasehandlerDecisionTemplate__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>updateApprovedText</targetReference>
+            </connector>
+            <label>IsApproved</label>
+        </rules>
+        <rules>
+            <name>isDeclined</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Casehandler_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Declined</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.AA_CasehandlerDecisionTemplate__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>updateDeclinedText</targetReference>
+            </connector>
+            <label>isDeclined</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>checkOrganizationType</name>
         <label>checkOrganizationType</label>
         <locationX>1178</locationX>
@@ -538,8 +611,8 @@
             <label>IsLegalBasisOther</label>
         </rules>
     </decisions>
-    <interviewLabel>AAREG_populateApplicationFieldAfterSubmitt {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_populateApplicationFieldAfterSubmit</label>
+    <interviewLabel>AAREG_populateDecisionText {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>AAREG_populateDecisionText</label>
     <loops>
         <name>loopThroughCollection</name>
         <label>loopThroughCollection</label>
@@ -551,7 +624,7 @@
             <targetReference>checkOrganizationType</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>updateApplicationField</targetReference>
+            <targetReference>applicationDecisionStatus</targetReference>
         </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
@@ -610,10 +683,10 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
-        <name>updateApplicationField</name>
-        <label>updateApplicationField</label>
-        <locationX>386</locationX>
-        <locationY>352</locationY>
+        <name>updateApprovedText</name>
+        <label>updateApprovedText</label>
+        <locationX>255</locationX>
+        <locationY>604</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -623,9 +696,51 @@
             </value>
         </filters>
         <inputAssignments>
-            <field>AA_register_application_text__c</field>
+            <field>AA_CasehandlerDecisionTemplate__c</field>
             <value>
-                <elementReference>containerApplication</elementReference>
+                <elementReference>approvedDecisionText</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Application__c</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>updateDeclinedText</name>
+        <label>updateDeclinedText</label>
+        <locationX>475</locationX>
+        <locationY>601</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>AA_CasehandlerDecisionTemplate__c</field>
+            <value>
+                <elementReference>declinedDecisionText</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Application__c</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>updatePartiallyText</name>
+        <label>updatePartiallyText</label>
+        <locationX>59</locationX>
+        <locationY>656</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>AA_CasehandlerDecisionTemplate__c</field>
+            <value>
+                <elementReference>partiallyApprovedDecisionText</elementReference>
             </value>
         </inputAssignments>
         <object>Application__c</object>
@@ -636,26 +751,26 @@
         <connector>
             <targetReference>getCodeBasisCollection</targetReference>
         </connector>
-        <filterLogic>and</filterLogic>
+        <filterLogic>or</filterLogic>
         <filters>
             <field>Casehandler_Status__c</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue>New</stringValue>
+                <stringValue>Approved Partially</stringValue>
             </value>
         </filters>
         <filters>
-            <field>IsConfirmationEmailSent__c</field>
+            <field>Casehandler_Status__c</field>
             <operator>EqualTo</operator>
             <value>
-                <booleanValue>true</booleanValue>
+                <stringValue>Approved</stringValue>
             </value>
         </filters>
         <filters>
-            <field>IsAppSentToWebsak__c</field>
+            <field>Casehandler_Status__c</field>
             <operator>EqualTo</operator>
             <value>
-                <booleanValue>false</booleanValue>
+                <stringValue>Declined</stringValue>
             </value>
         </filters>
         <object>Application__c</object>
@@ -664,14 +779,29 @@
     </start>
     <status>Active</status>
     <textTemplates>
+        <name>approvedDecisionText</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 16px;&quot;&gt;Vedtak om innvilget tilgang til Aa-registeret&lt;/b&gt;&lt;span style=&quot;font-family: serif; font-size: 16px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Vi viser til deres søknad om tilgang til Arbeidsgiver- og arbeidstakerregisteret&amp;nbsp;(Aa-registeret) mottatt {!$Record.ApplicationSubmittedDate__c}. Søknaden er innvilget.&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Søknad &lt;/b&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Av deres søknad fremkommer det at formålet med&amp;nbsp;tilgangen&amp;nbsp;er:&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); color: rgb(62, 62, 60); font-family: serif;&quot;&gt;{!purposeList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Behandlingsgrunnlaget:&amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif;&quot;&gt;{!processingBasisList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Hjemmel for utlevering:&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); color: rgb(62, 62, 60); font-family: serif;&quot;&gt;{!legalBasisList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Type tilgang:&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif;&quot;&gt;{!$Record.AA_AccessText__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(255, 0, 0); font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Vedtak&amp;nbsp;om tilgang&lt;/b&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;u style=&quot;color: rgb(209, 52, 56); font-family: serif; font-size: 12px;&quot;&gt;Vi har innvilget søknaden deres om tilgang til Aa-registeret for&amp;nbsp;[oppgi for hvilket formål]&lt;/u&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Dere innvilges tilgang av typen&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; background-color: rgb(255, 255, 255);&quot;&gt;{!$Record.AA_AccessText__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Spørsmål av teknisk art rettes til&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;font-family: serif; font-size: 12px; color: rgb(255, 0, 0);&quot;&gt;xxxxxx&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Ansvar og vilkår ved bruk av opplysningene &lt;/b&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Vi viser til de aksepterte bruksvilkårene, jf.&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;font-family: serif; font-size: 12px; color: rgb(255, 0, 0);&quot;&gt;xxxxxx&lt;/span&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;.&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Veiledning og klage &lt;/b&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Dersom dere har spørsmål om vedtaket, kan dere ta&amp;nbsp;kontakt med oss for nærmere opplysninger.&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Dette vedtaket kan påklages til NAV Klageinstans etter reglene i forvaltningsloven kapitel VI. Klagen skal grunngis og fremsettes oss innen 3 uker fra dere mottok vedtaket.&amp;nbsp;&lt;/span&gt;&lt;/p&gt;</text>
+    </textTemplates>
+    <textTemplates>
         <name>containerApplication</name>
         <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 16px;&quot;&gt;{!$Record.Account__r.Name}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 16px;&quot;&gt;{!$Record.Account__r.BillingStreet}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 16px;&quot;&gt;{!$Record.Account__r.BillingPostalCode} {!$Record.Account__r.BillingCity}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Organisasjonsnummer: {!$Record.Account__r.INT_OrganizationNumber__c}&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;                                                                      &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;                                                                                                                                                                          &lt;/span&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;Vår ref:&lt;/b&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{!$Record.Name}&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Søknads  dato:&lt;/b&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt; {!$Record.ApplicationSubmittedDate__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 16px;&quot;&gt;Søknad om tilgang til arbeidsgiver- og arbeidstaker registeret&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Om søker:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(62, 62, 60);&quot;&gt;Virksomhetsnavn: {!$Record.Account__r.Name}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(62, 62, 60);&quot;&gt;Organisasjonsnummer: {!$Record.Account__r.INT_OrganizationNumber__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(62, 62, 60);&quot;&gt;Sektor: {!$Record.Account__r.INT_SectorCode__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(62, 62, 60);&quot;&gt;Næringskode: {!$Record.Account__r.INT_Industry__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(62, 62, 60);&quot;&gt;Organisasjonsform: {!$Record.Account__r.INT_OrganizationalStructureDesc__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Kontaktperson som søker:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(62, 62, 60);&quot;&gt;Navn: {!$Record.Contact__r.FirstName} {!$Record.Contact__r.LastName}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(62, 62, 60);&quot;&gt;E-post: {!$Record.Contact__r.Email}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Type tilgang det søkes om:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; color: rgb(62, 62, 60);&quot;&gt;{!$Record.AA_AccessText__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Grunnlag det søkes på:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Hjemmel:&lt;/b&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt; {!legalBasisList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Formål:&lt;/b&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt; {!purposeList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Behandlingsgrunnlag:&lt;/b&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt; {!processingBasisList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Kontaktperson som er lagt til:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Databehandler:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; color: rgb(62, 62, 60);&quot;&gt;{!$Record.DataProcessorOrganizationNumber__c}&amp;nbsp;{!$Record__Prior.DataProcessorName__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Søker har godkjent bruksvilkårene. Dette er obligatorisk for å kunne sende inn søknaden.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Dette dokumentet er elektronisk generert for oversendelse til arkivet og skal ikke signeres.&lt;/span&gt;&lt;/p&gt;</text>
     </textTemplates>
     <textTemplates>
+        <name>declinedDecisionText</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;p&gt;&lt;b style=&quot;font-size: 16px; font-family: serif;&quot;&gt;Avslag på søknad om tilgang til Aa-registeret&lt;/b&gt;&lt;span style=&quot;font-size: 16px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Vi viser til deres søknad om tilgang til Arbeidsgiver- og arbeidstakerregisteret (Aa-registeret) mottatt {!$Record.ApplicationSubmittedDate__c}. Søknaden er avslått fordi vi ikke finner at vilkårene for tilgang til Aa-registeret er oppfylt i deres tilfelle.&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif; color: rgb(0, 0, 0);&quot;&gt;&lt;u&gt;Søknad&lt;/u&gt;&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(0, 0, 0);&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Av deres søknad fremkommer det at formålet med tilgangen er:&amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif;&quot;&gt;{!purposeList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Behandlingsgrunnlaget er:&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif;&quot;&gt;{!processingBasisList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Hjemmel for utlevering:&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif;&quot;&gt;{!legalBasisList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Type tilgang er:&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif;&quot;&gt;{!$Record.AA_AccessText__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Begrunnelse for&amp;nbsp;avslaget&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;u style=&quot;font-size: 12px; font-family: serif; color: rgb(209, 52, 56);&quot;&gt;Vi&amp;nbsp;har avslått søknaden deres om tilgang til Aa-registeret fordi [fritekstfelt] &lt;/u&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Veiledning og klage&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Dersom dere har spørsmål om vedtaket, kan dere ta kontakt med oss for nærmere opplysninger.&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Dette vedtaket kan påklages til NAV Klageinstans etter reglene i forvaltningsloven kapittel VI. En grunngitt klage må være skriftlig framsatt overfor NAV Registerforvaltning innen 3 uker fra dette vedtaket ble mottatt.&amp;nbsp;&lt;/span&gt;&lt;/p&gt;</text>
+    </textTemplates>
+    <textTemplates>
         <name>newLine</name>
         <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>&lt;p&gt;{!conGES}&lt;/p&gt;</text>
+    </textTemplates>
+    <textTemplates>
+        <name>partiallyApprovedDecisionText</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;p&gt;&lt;b style=&quot;font-size: 16px; font-family: serif;&quot;&gt;Vedtak om tilgang til Aa-registeret&amp;nbsp;-&amp;nbsp;delvis&amp;nbsp;innvilget&lt;/b&gt;&lt;span style=&quot;font-size: 16px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt; Vi viser til deres søknad om tilgang til Arbeidsgiver- og arbeidstakerregisteret (Aa-registeret) mott&lt;/span&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(0, 0, 0);&quot;&gt;att {!$Record.ApplicationSubmittedDate__c}.&amp;nbsp;Søkn&lt;/span&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;aden er delvis innvilget.&lt;/span&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(255, 0, 0);&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12pt; font-family: &amp;quot;Times New Roman&amp;quot;, &amp;quot;Times New Roman_EmbeddedFont&amp;quot;, &amp;quot;Times New Roman_MSFontService&amp;quot;, serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Søknad&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Av deres søknad fremkommer det at formålet med tilgangen er:&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif;&quot;&gt;{!purposeList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Behandlingsgrunnlaget:&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif;&quot;&gt;{!processingBasisList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Hjemmel for utlevering:&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif;&quot;&gt;{!legalBasisList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Type tilgang:&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif; font-size: 12px;&quot;&gt;{!$Record.AA_AccessText__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt; &lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Vedtak&amp;nbsp;om&amp;nbsp;tilgang &lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;u style=&quot;font-size: 12px; font-family: serif; color: rgb(209, 52, 56);&quot;&gt;Vi har innvilget søknaden deres&amp;nbsp;om&amp;nbsp;tilgang til Aa-registeret for&amp;nbsp;[oppgi&amp;nbsp;for&amp;nbsp;hvilket formål]&lt;/u&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;u style=&quot;font-size: 12px; font-family: serif; color: rgb(209, 52, 56);&quot;&gt;Vi har avslått søknaden deres om tilgang til Aa-registeret fordi [fritekstfelt] &lt;/u&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Dere&amp;nbsp;innvilges tilgang av typen &lt;/span&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(255, 0, 0);&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; background-color: rgb(255, 255, 255);&quot;&gt;{!$Record.AA_AccessText__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Spørsmål av teknisk art rettes&amp;nbsp;til &lt;/span&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(255, 0, 0);&quot;&gt;xxxxxx&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Ansvar og vilkår ved bruk av opplysningene &lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Vi viser til de aksepterte bruksvilkårene, jf. &lt;/span&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(255, 0, 0);&quot;&gt;xxxxxx&lt;/span&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;.&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Veiledning og klage &lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Dersom dere har spørsmål om vedtaket, kan dere ta kontakt med oss for nærmere&amp;nbsp;opplysninger.&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Dette vedtaket kan påklages til NAV Klageinstans etter reglene i forvaltningsloven kapittel VI. Klagen skal grunngis og fremsettes oss innen 3 uker fra dere mottok vedtaket.&amp;nbsp;&lt;/span&gt;&lt;/p&gt;</text>
     </textTemplates>
     <variables>
         <name>legalBasisList</name>
