@@ -5,6 +5,7 @@
     <formula>IF( 
   AND(
     INT_IndustryCode__c == &apos;84.110&apos;,
+    INT_SectorCode__c == &apos;6500&apos;,
     OR(
       INT_OrganizationalStructure__c == &apos;KOMM&apos;,
       INT_OrganizationalStructure__c == &apos;ORGL&apos;
@@ -13,12 +14,14 @@
 
 IF(
   AND(
+    INT_SectorCode__c == &apos;6500&apos;,
     INT_IndustryCode__c == &apos;84.110&apos;,
     INT_OrganizationalStructure__c == &apos;FYLK&apos;
   ), &apos;County&apos;, 
 
 IF(
   AND(
+    INT_SectorCode__c == &apos;6100&apos;,
     OR(
       INT_IndustryCode__c == &apos;84.130&apos;,
       INT_IndustryCode__c == &apos;84.120&apos;,
