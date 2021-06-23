@@ -12,9 +12,9 @@
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>varContactID</leftValueReference>
-                <operator>IsNull</operator>
+                <operator>EqualTo</operator>
                 <rightValue>
-                    <booleanValue>true</booleanValue>
+                    <stringValue/>
                 </rightValue>
             </conditions>
             <connector>
@@ -27,9 +27,9 @@
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>varContactID</leftValueReference>
-                <operator>IsNull</operator>
+                <operator>NotEqualTo</operator>
                 <rightValue>
-                    <booleanValue>false</booleanValue>
+                    <stringValue/>
                 </rightValue>
             </conditions>
             <connector>
@@ -125,7 +125,7 @@
         <inputAssignments>
             <field>TargetObjectId__c</field>
             <value>
-                <elementReference>$Record.Contact__c</elementReference>
+                <elementReference>varContactID</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -280,7 +280,6 @@
         <connector>
             <targetReference>getEmailTemplate</targetReference>
         </connector>
-        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Casehandler_Status__c</field>
@@ -291,9 +290,9 @@
         </filters>
         <filters>
             <field>Contact__c</field>
-            <operator>IsNull</operator>
+            <operator>EqualTo</operator>
             <value>
-                <booleanValue>true</booleanValue>
+                <stringValue/>
             </value>
         </filters>
         <filters>
@@ -307,7 +306,7 @@
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
     <variables>
         <name>templateId</name>
         <dataType>String</dataType>
