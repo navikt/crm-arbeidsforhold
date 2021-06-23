@@ -29,16 +29,16 @@
             </value>
         </valueSetDefinition>
         <valueSettings>
-            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
-            <valueName>Annet - oppgi i tekstfelt under</valueName>
-        </valueSettings>
-        <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 første ledd bokstav c</controllingFieldValue>
             <valueName>Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>LOV-2010-02-19-5 AFP-tilskottsloven § 29 annet ledd</controllingFieldValue>
             <valueName>Arbeid med avtalefestet pensjon i privat sektor</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <valueName>Annet - oppgi i tekstfelt under</valueName>
         </valueSettings>
     </valueSet>
 </CustomField>

@@ -40,10 +40,6 @@
             </value>
         </valueSetDefinition>
         <valueSettings>
-            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
-            <valueName>Annet - oppgi i tekstfelt under</valueName>
-        </valueSettings>
-        <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
             <valueName>Kontroll av helsepersonell - tilsynssaker</valueName>
         </valueSettings>
@@ -54,6 +50,10 @@
         <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
             <valueName>Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <valueName>Annet - oppgi i tekstfelt under</valueName>
         </valueSettings>
     </valueSet>
 </CustomField>
