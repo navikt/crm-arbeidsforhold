@@ -188,15 +188,20 @@ export default class Aareg_applicationBasis extends LightningElement {
   @api
   validate() {
     this.resetErrors();
-    if (!this.isOtherOrganizationType && this.checkNulls(this.applicationBasis[`${this.purposeFieldName}`])) {
-      this.setErrorFor(this.purpose, 'Obligatorisk');
-    }
+
     if (!this.isOtherOrganizationType && this.checkNulls(this.applicationBasis[`${this.legalBasisFieldName}`])) {
       this.setErrorFor(this.legalBasis, 'Obligatorisk');
+      this.legalBasis.setCustomValidity('Obligatorisk');
+    }
+
+    if (!this.isOtherOrganizationType && this.checkNulls(this.applicationBasis[`${this.purposeFieldName}`])) {
+      this.setErrorFor(this.purpose, 'Obligatorisk');
+      this.purpose.setCustomValidity('Obligatorisk');
     }
 
     if (this.checkNulls(this.applicationBasis.ProcessingBasis__c)) {
       this.setErrorFor(this.processingBasis, 'Obligatorisk');
+      this.processingBasis.setCustomValidity('Obligatorisk');
     }
 
     if (
@@ -205,6 +210,7 @@ export default class Aareg_applicationBasis extends LightningElement {
       this.checkNulls(this.applicationBasis.OtherPurpose__c)
     ) {
       this.setErrorFor(this.otherPurpose, 'Obligatorisk');
+      this.otherPurpose.setCustomValidity('Obligatorisk');
     }
 
     if (
@@ -213,7 +219,18 @@ export default class Aareg_applicationBasis extends LightningElement {
       this.checkNulls(this.applicationBasis.OtherLegalBasis__c)
     ) {
       this.setErrorFor(this.otherLegalBasis, 'Obligatorisk');
+      this.otherLegalBasis.setCustomValidity('Obligatorisk');
     }
+  }
+
+  @api focusInput() {
+    let invalidFields = this.template.querySelector(':invalid');
+
+    if (invalidFields) {
+      invalidFields.focus();
+      return true;
+    }
+    return false;
   }
 
   checkNulls(field) {

@@ -82,14 +82,24 @@ export default class aareg_applicationContact extends LightningElement {
   validate() {
     this.resetErrors();
     if (this.checkNulls(this.contact.Name)) {
-      this.setErrorFor(this.name, 'Navn er obligatorisk');
+      this.setErrorFor(this.name, 'Obligatorisk');
     }
     if (this.checkNulls(this.contact.Phone__c)) {
-      this.setErrorFor(this.phone, 'Telefonnummer er obligatorisk');
+      this.setErrorFor(this.phone, 'Obligatorisk');
     }
     if (this.checkNulls(this.contact.Email__c)) {
-      this.setErrorFor(this.email, 'E-post er obligatorisk');
+      this.setErrorFor(this.email, 'Obligatorisk');
     }
+  }
+
+  @api focusInput() {
+    let invalidFields = this.template.querySelector(':invalid');
+
+    if (invalidFields) {
+      invalidFields.focus();
+      return true;
+    }
+    return false;
   }
 
   checkNulls(field) {

@@ -15,9 +15,12 @@ export default class Aareg_application extends LightningElement {
   @track organization;
   currentUser = Id;
   hasAccess = false;
+  showContactRemove = false;
   applicationSubmitted = false;
+  showApplicationBasisRemove = false;
   lastUsedOrganization;
   organizationType;
+  isLoaded = false;
   fileData;
   error;
 
@@ -32,6 +35,7 @@ export default class Aareg_application extends LightningElement {
         console.log(this.currentUser);
         this.checkAccessToApplication();
         this.initializeNewApplication();
+        this.isLoaded = true;
       })
       .catch((error) => {
         this.error = error;
@@ -112,33 +116,45 @@ export default class Aareg_application extends LightningElement {
     if (this.contactRows.length > 1) {
       this.contactRows.splice(event.target.value, 1);
     }
+    if (this.contactRows.length == 1) {
+      this.showContactRemove = false;
+    }
   }
 
   addContactRow() {
     this.contactRows.push({ uuid: this.createUUID() });
+    this.showContactRemove = true;
   }
 
   removeApplicationBasisRow(event) {
     if (this.applicationBasisRows.length > 1) {
       this.applicationBasisRows.splice(event.target.value, 1);
     }
+    if (this.applicationBasisRows.length == 1) {
+      this.showApplicationBasisRemove = false;
+    }
   }
 
   addApplicationBasisRow() {
     this.applicationBasisRows.push({ uuid: this.createUUID() });
+    this.showApplicationBasisRemove = true;
   }
 
   /****************************************************************************************/
 
-  handleSubmit() {
+  handleSubmit(event) {
+    event.preventDefault();
     this.resetErrors();
     this.validateApplicationBasis();
     this.validateContactsBeforeSubmission();
     this.checkApplicationInputs();
+
     if (this.hasErrors) {
       console.log('Has Errors did not submit!!');
+      this.focusInput();
       return;
     }
+    this.isLoaded = false;
     const { base64, filename } = this.fileData;
     processApplication({
       application: this.application,
@@ -149,6 +165,7 @@ export default class Aareg_application extends LightningElement {
     })
       .then((response) => {
         this.applicationSubmitted = true;
+        this.isLoaded = true;
         console.log(response);
       })
       .catch((error) => {
@@ -247,6 +264,7 @@ export default class Aareg_application extends LightningElement {
 
   validateApplicationBasis() {
     let purposes = this.template.querySelectorAll('c-aareg_application-basis');
+
     purposes.forEach((purpose) => {
       purpose.validate();
     });
@@ -295,21 +313,16 @@ export default class Aareg_application extends LightningElement {
     this.extractionAccess = this.template.querySelector('[data-id="extraction-access"]');
     this.accessTypes = this.template.querySelector('[data-id="access-types"]');
     this.dataElements = this.template.querySelector('[data-id="data-element"]');
-    this.termsOfUse = this.template.querySelector('[data-id="terms-of-use"]');
+    this.fileInput = this.template.querySelector('[data-id="file-input"]');
+    this.termsOfUse = this.template.querySelector('[data-id="terms"]');
+    this.termsOfUseInput = this.template.querySelector('[data-id="terms-of-use"]');
     this.dataProcess = this.template.querySelector('[data-id="data-processor"]');
   }
 
   checkApplicationInputs() {
-    if (this.fileData === undefined) {
-      this.setErrorFor(this.dataElements, 'Obligatorisk');
-    }
-
-    if (this.application.TermsOfUse__c === false) {
-      this.setErrorFor(this.termsOfUse, 'Obligatorisk');
-    }
-
     if (this.application.Email__c === null || this.application.Email__c === '') {
       this.setErrorFor(this.email, 'Obligatorisk.');
+      this.email.className = 'invalid';
     }
 
     if (
@@ -318,6 +331,17 @@ export default class Aareg_application extends LightningElement {
       this.application.OnlineAccess__c === false
     ) {
       this.setErrorFor(this.accessTypes, 'Minst én type tilgang er obligatorisk');
+      this.apiAccess.className = 'invalid';
+    }
+
+    if (this.fileData === undefined) {
+      this.setErrorFor(this.dataElements, 'Obligatorisk');
+      //this.fileInput.className = 'invalid';
+    }
+
+    if (this.application.TermsOfUse__c === false) {
+      this.setErrorFor(this.termsOfUse, 'Obligatorisk');
+      this.termsOfUseInput.className = 'invalid';
     }
   }
 
@@ -335,5 +359,46 @@ export default class Aareg_application extends LightningElement {
     formControl.forEach((element) => {
       element.classList.remove('error');
     });
+  }
+
+  focusInput() {
+    if (this.email.className === 'invalid') {
+      this.email.focus();
+      return;
+    }
+
+    let purposes = this.template.querySelectorAll('c-aareg_application-basis');
+
+    for (let i = 0; i < purposes.length; i++) {
+      var isFocused = purposes[i].focusInput();
+
+      if (isFocused) {
+        return;
+      }
+    }
+
+    if (this.apiAccess.className === 'invalid') {
+      this.apiAccess.focus();
+      return;
+    }
+
+    let contacts = this.template.querySelectorAll('c-aareg_application-contact');
+
+    for (let i = 0; i < contacts.length; i++) {
+      var isFocused = contacts[i].focusInput();
+      if (isFocused) {
+        return;
+      }
+    }
+
+    if (this.fileInput.className === 'invalid') {
+      this.fileInput.focus();
+      return;
+    }
+
+    if (this.termsOfUseInput.className === 'invalid') {
+      this.termsOfUseInput.focus();
+      return;
+    }
   }
 }
