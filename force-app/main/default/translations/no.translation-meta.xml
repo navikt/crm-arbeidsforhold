@@ -168,20 +168,7 @@
         <label />
         <name>EmailQueueSent</name>
     </customTabs>
-    <flowDefinitions>
-        <flows>
-            <textTemplates>
-                <name>ApprovedDecisionText</name>
-            </textTemplates>
-            <textTemplates>
-                <name>DeclinedDecisionText</name>
-            </textTemplates>
-            <textTemplates>
-                <name>PartiallyApprovedDecisionText</name>
-            </textTemplates>
-        </flows>
-        <fullName>AAREG_updateDecisionText</fullName>
-    </flowDefinitions>
+
     <flowDefinitions>
         <flows />
         <fullName>Agreement_Initiator</fullName>

@@ -366,6 +366,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Application__c.IsAppSentToWebsak__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Application__c.IsCasehandlerOwner__c</field>
         <readable>true</readable>
