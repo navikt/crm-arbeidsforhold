@@ -12,9 +12,9 @@
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>varContactID</leftValueReference>
-                <operator>EqualTo</operator>
+                <operator>IsNull</operator>
                 <rightValue>
-                    <stringValue/>
+                    <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -27,9 +27,9 @@
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>varContactID</leftValueReference>
-                <operator>NotEqualTo</operator>
+                <operator>IsNull</operator>
                 <rightValue>
-                    <stringValue/>
+                    <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -306,7 +306,7 @@
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <variables>
         <name>templateId</name>
         <dataType>String</dataType>

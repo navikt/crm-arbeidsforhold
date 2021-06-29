@@ -354,6 +354,9 @@
                 <elementReference>newLine</elementReference>
             </value>
         </assignmentItems>
+        <connector>
+            <targetReference>loopThroughCollection</targetReference>
+        </connector>
     </assignments>
     <constants>
         <description>Used for adding newLine</description>
