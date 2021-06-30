@@ -8,9 +8,6 @@ export default class Aareg_applicationBasis extends LightningElement {
   @track purposeOptions;
   @track legalBasisOptions;
   @track showOtherInput = false;
-  isActivePurposeHelpText = false;
-  isActiveLegalBasisHelpText = false;
-  isActiveProcessingBasisHelpText = false;
   purposeFieldName;
   legalBasisFieldName;
   applicationBasis;
@@ -47,40 +44,6 @@ export default class Aareg_applicationBasis extends LightningElement {
       ProcessingBasis__c: null
     };
     this.publishChange();
-  }
-
-  toggleLegalBasisHelpText() {
-    this.isActiveLegalBasisHelpText
-      ? (this.isActiveLegalBasisHelpText = false)
-      : (this.isActiveLegalBasisHelpText = true);
-  }
-
-  togglePurposeHelpText() {
-    this.isActivePurposeHelpText ? (this.isActivePurposeHelpText = false) : (this.isActivePurposeHelpText = true);
-  }
-
-  toggleProcessingBasisHelpText() {
-    this.isActiveProcessingBasisHelpText
-      ? (this.isActiveProcessingBasisHelpText = false)
-      : (this.isActiveProcessingBasisHelpText = true);
-  }
-
-  get legalBasisHelpTextClass() {
-    return this.isActiveLegalBasisHelpText
-      ? 'popover popover--controlled popover--over'
-      : 'popover--hidden popover--controlled popover--over';
-  }
-
-  get purposeHelpTextClass() {
-    return this.isActivePurposeHelpText
-      ? 'popover popover--controlled popover--over'
-      : 'popover--hidden popover--controlled popover--over';
-  }
-
-  get processingBasisHelpTextClass() {
-    return this.isActiveProcessingBasisHelpText
-      ? 'popover popover--controlled popover--over'
-      : 'popover--hidden popover--controlled popover--over';
   }
 
   @wire(getObjectInfo, { objectApiName: APPLICATION_BASIS_CODE_OBJECT })

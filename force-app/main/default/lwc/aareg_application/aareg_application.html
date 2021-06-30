@@ -5,8 +5,8 @@
         <div class="container" if:true={isLoaded}>
           <form>
             <section class="app-section">
-              <h2>Søker</h2>
-
+              <h2 class="header-with-info-text">Søker</h2>
+              <p class="pl-16 pb-10">Denne informasjonen er hentet fra Enhetsregisteret</p>
               <div class="row">
                 <div class="column">
                   <span class="form-control">
@@ -91,6 +91,11 @@
                       <abbr class="slds-required" title="required">* </abbr>
                       E-post
                     </label>
+                    <lightning-helptext
+                      content=" Oppgi en e-postadresse til virksomheten du representerer og som ikke er personrelatert. NAV benytter e-postadressen for å orientere virksomheten når søknaden er ferdig behandlet. "
+                      class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
                     <input
                       type="email"
                       name="e-post"
@@ -151,7 +156,14 @@
             </section>
 
             <section class="app-section">
-              <h2>Databehandler</h2>
+              <span class="form-control">
+                <h2 class="header-with-info-text">Databehandler</h2>
+                <p class="pl-16 pb-10">
+                  Dersom dere benytter en databehandler som skal behandle personopplysninger på vegne av dere, må
+                  organisasjonsnummer til databehandleren oppgis. Navn på databehandleren hentes fra Enhetsregisteret.
+                  Ikke fyll ut organisasjonsnummer i feltet, dersom dere ikke benytter databehandler.
+                </p>
+              </span>
               <div class="row">
                 <div class="column">
                   <span class="form-control">
@@ -183,8 +195,12 @@
 
             <section class="app-section">
               <span class="form-control">
+                <h2 class="header-with-info-text">Behov for type tilgang</h2>
+                <p class="pl-16">
+                  Det må krysses av for hvilken type tilgang dere har behov for. Det er mulig å ha tilgang til flere
+                  løsninger.
+                </p>
                 <span data-id="access-types"></span>
-                <h2>Behov for type tilgang</h2>
                 <small class="pl-16">Error Message</small>
               </span>
               <div class="inner-container">
@@ -196,7 +212,14 @@
                     data-id="api-access"
                     onchange={handleApplicationInputChange}
                   />
-                  <label for="tilgang-api">Integrert oppslag (API)</label>
+                  <label for="tilgang-api"
+                    >Integrert oppslag (API)
+                    <lightning-helptext
+                      content="«Integrert oppslag (API)» gir tilgang til maskin-til-maskin-integrasjon. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
+                      class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
+                  </label>
                 </span>
 
                 <span class="form-control">
@@ -207,7 +230,14 @@
                     data-id="online-access"
                     onchange={handleApplicationInputChange}
                   />
-                  <label for="tilgang-online">Web-oppslag</label>
+                  <label for="tilgang-online"
+                    >Web-oppslag
+                    <lightning-helptext
+                      content="«Web-oppslag» gir tilgang til web-oppslag i innlogget løsning på nav.no. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
+                      class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
+                  </label>
                 </span>
 
                 <span class="form-control">
@@ -218,15 +248,25 @@
                     data-id="extraction-access"
                     onchange={handleApplicationInputChange}
                   />
-                  <label for="tilgang-uttrekk">Uttrekk</label>
+                  <label for="tilgang-uttrekk"
+                    >Uttrekk
+                    <lightning-helptext
+                      content="«Uttrekk» er utlevering som ikke er på standardformat. Det må oppgis en detaljert beskrivelse i «Vedlegg til søknad - Datainnhold» (standardformat) hva som skal inngå i uttrekket og utleveringsfrekvens. NAV kan ta seg betalt for å utvikle uttrekket."
+                      class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
+                  </label>
                 </span>
               </div>
             </section>
             <section class="app-section">
               <span class="form-control">
                 <span data-id="contacts"></span>
-                <h2>Kontaktpersoner</h2>
-                <p class="pl-16">Her må alle 4 bokser krysses ut av 1 eller flere kontaktpersoner</p>
+                <h2 class="header-with-info-text">Kontaktpersoner</h2>
+                <p class="pl-16">
+                  Oppgi hvem NAV skal kontakte ved spørsmål knyttet til Avtale, Endringer i løsninger, Feilhåndtering
+                  eller Sikkerhetsbrudd. Her må alle 4 bokser krysses ut av 1 eller flere kontaktpersoner
+                </p>
                 <small class="pl-16">Error Message</small>
               </span>
 
@@ -276,7 +316,7 @@
             <section class="app-section">
               <span class="form-control">
                 <span data-id="data-element"></span>
-                <h2>Dataelementer</h2>
+                <h2 class="header-with-info-text">Dataelementer</h2>
                 <p class="pl-16">
                   <a target="_blank" rel="noopener noreferrer" href={dataElementURL}
                     >Lenke til skjema med dataelementer i Aa-registeret.&nbsp;
@@ -362,6 +402,10 @@
                 </span>
               </div>
             </section>
+            <p class="pl-16">
+              Ved å trykke «SEND INN» signerer du søknaden digitalt på vegne av din virksomhet. Signaturen er juridisk
+              bindende.
+            </p>
             <div class="button-container">
               <button
                 type="submit"
