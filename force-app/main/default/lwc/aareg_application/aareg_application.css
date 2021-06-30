@@ -12,6 +12,7 @@ p {
   /*padding: 10px;*/
   /*border-bottom: 0.25rem solid #f1f1f1;*/
   /*text-align: center;*/
+  padding-bottom: 30px;
 }
 
 .app-section svg {
@@ -19,7 +20,6 @@ p {
 }
 
 .app-section h2 {
-  /*text-align: center;*/
   text-align: flex-start;
   flex-basis: 100%;
   font-size: 1.5rem;
@@ -27,6 +27,11 @@ p {
   font-family: inherit;
   margin: 0.5rem;
   padding: 0.5rem;
+}
+
+.header-with-info-text {
+  margin-bottom: unset !important;
+  padding-bottom: unset !important;
 }
 
 .submission-success {
@@ -213,7 +218,6 @@ input:invalid:required {
 .file-container {
   border: 2px dashed #bdbdbd, 100%;
   padding: 25px;
-  margin: 25px 0 75px 0;
 }
 
 .data-element-container {
@@ -225,61 +229,6 @@ input:invalid:required {
   margin-left: 0 !important;
 }
 
-/*
-
-
-.form {
-  padding: 30px 40px;
-  font-family: 'Source Sans Pro', Arial, sans-serif;
-  margin: 1rem;
+.pb-10 {
+  padding-bottom: 10px;
 }
-
-.form h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  font-family: inherit;
-  margin: 0.5rem;
-}
-
-
-.checkboxes label {
-  display: block;
-  padding-right: 10px;
-  padding-left: 22px;
-  text-indent: -22px;
-}
-.checkboxes input {
-  vertical-align: middle;
-}
-.checkboxes label span {
-  vertical-align: middle;
-}
-
-.application-section-container {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  flex-direction: column;
-  flex-wrap: wrap;
-}
-
-
-.contact-inner-container {
-  display: flex;
-  justify-content: center;
-}
-
-
-.inner-container {
-  margin: 0 auto;
-  padding: 15px;
-  display: flex;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-}
-
-.inner-container .form-control {
-  margin-right: 30px;
-}
-
-*/
