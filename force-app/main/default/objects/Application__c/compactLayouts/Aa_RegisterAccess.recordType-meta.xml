@@ -62,5 +62,9 @@
             <fullName>New</fullName>
             <default>true</default>
         </values>
+        <values>
+            <fullName>Suspension</fullName>
+            <default>false</default>
+        </values>
     </picklistValues>
 </RecordType>

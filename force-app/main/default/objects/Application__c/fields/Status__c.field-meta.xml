@@ -44,6 +44,11 @@
                 <label>Declined</label>
             </value>
             <value>
+                <fullName>Suspension</fullName>
+                <default>false</default>
+                <label>Suspension</label>
+            </value>
+            <value>
                 <fullName>In Process</fullName>
                 <default>false</default>
                 <isActive>false</isActive>
