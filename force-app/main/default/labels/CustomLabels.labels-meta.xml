@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
     <labels>
+        <fullName>Suspension</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Suspension</shortDescription>
+        <value>Description upon closure/suspension</value>
+    </labels>
+    <labels>
         <fullName>AccessType</fullName>
         <categories>Arbeidsforhold Lightning App Page Label</categories>
         <language>en_US</language>
