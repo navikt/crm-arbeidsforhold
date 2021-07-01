@@ -48,6 +48,11 @@
         <label>Sett sakseier og status</label>
         <name>AA_UpdateCasehandlerOwner</name>
     </quickActions>
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Henlegge søknad</label>
+        <name>aaRegSuspendApplication</name>
+    </quickActions>
     <recordTypes>
         <description><!-- Application for partners to access Aa-register --></description>
         <label><!-- Aa-register access --></label>
