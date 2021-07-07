@@ -206,6 +206,71 @@
         </connector>
     </assignments>
     <assignments>
+        <name>addRelatedContact</name>
+        <label>addRelatedContact</label>
+        <locationX>155</locationX>
+        <locationY>595</locationY>
+        <assignmentItems>
+            <assignToReference>relatedContactList</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>{!loopThroughContacts.Name},</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>relatedContactList</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>{!loopThroughContacts.Email__c},</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>relatedContactList</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>{!loopThroughContacts.Phone__c},</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>relatedContactList</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>{!loopThroughContacts.AgreementNotifications__c},</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>relatedContactList</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>{!loopThroughContacts.ChangeNotifications__c},</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>relatedContactList</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>{!loopThroughContacts.ErrorMessageNotifications__c},</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>relatedContactList</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>loopThroughContacts.SecurityNotifications__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>relatedContactList</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>newLine</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>loopThroughContacts</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>IsCodeBasisOther</name>
         <label>IsCodeBasisOther</label>
         <locationX>1336</locationX>
@@ -541,6 +606,11 @@
             <label>IsLegalBasisOther</label>
         </rules>
     </decisions>
+    <formulas>
+        <name>setApplicationDeadlineDate</name>
+        <dataType>Date</dataType>
+        <expression>{!$Record.ApplicationSubmittedDate__c}+ ( 365 / 12 )</expression>
+    </formulas>
     <interviewLabel>AAREG_populateApplicationFieldAfterSubmitt {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_populateApplicationFieldAfterSubmit</label>
     <loops>
@@ -552,6 +622,20 @@
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
             <targetReference>checkOrganizationType</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>getRelatedContacts</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <name>loopThroughContacts</name>
+        <label>loopThroughContacts</label>
+        <locationX>330</locationX>
+        <locationY>597</locationY>
+        <collectionReference>getRelatedContacts</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>addRelatedContact</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
             <targetReference>updateApplicationField</targetReference>
@@ -612,11 +696,40 @@
         <queriedFields>OtherPurpose__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordLookups>
+        <name>getRelatedContacts</name>
+        <label>getRelatedContacts</label>
+        <locationX>404</locationX>
+        <locationY>363</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>loopThroughContacts</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Application__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>RelatedContact__c</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>Email__c</queriedFields>
+        <queriedFields>Phone__c</queriedFields>
+        <queriedFields>AgreementNotifications__c</queriedFields>
+        <queriedFields>ChangeNotifications__c</queriedFields>
+        <queriedFields>ErrorMessageNotifications__c</queriedFields>
+        <queriedFields>SecurityNotifications__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordUpdates>
         <name>updateApplicationField</name>
         <label>updateApplicationField</label>
-        <locationX>385</locationX>
-        <locationY>352</locationY>
+        <locationX>162</locationX>
+        <locationY>367</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -629,6 +742,12 @@
             <field>AA_register_application_text__c</field>
             <value>
                 <elementReference>containerApplication</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ApplicationDeadlineForReply__c</field>
+            <value>
+                <elementReference>setApplicationDeadlineDate</elementReference>
             </value>
         </inputAssignments>
         <object>Application__c</object>
@@ -648,13 +767,6 @@
             </value>
         </filters>
         <filters>
-            <field>IsConfirmationEmailSent__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </filters>
-        <filters>
             <field>IsAppSentToWebsak__c</field>
             <operator>EqualTo</operator>
             <value>
@@ -665,11 +777,11 @@
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <textTemplates>
         <name>containerApplication</name>
         <isViewedAsPlainText>false</isViewedAsPlainText>
-        <text>&lt;p&gt;&lt;span style=&quot;font-size: 16px; font-family: serif; color: rgb(62, 62, 60);&quot;&gt;{!$Record.Account__r.Name}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px; font-family: serif;&quot;&gt;{!$Record.Account__r.BillingStreet}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px; font-family: serif; color: rgb(62, 62, 60);&quot;&gt;{!$Record.Account__r.BillingPostalCode} {!$Record.Account__r.BillingCity}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif; color: rgb(62, 62, 60);&quot;&gt;Organisasjonsnummer: {!$Record.Account__r.INT_OrganizationNumber__c}&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;                                                                      &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;                                                                                                                                                                          &lt;/span&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;Vår ref:&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{!$Record.Name}&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Søknads  dato:&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt; {!$Record.ApplicationSubmittedDate__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 16px; font-family: serif;&quot;&gt;Søknad om tilgang til arbeidsgiver- og arbeidstaker registeret&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Om søker:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Virksomhetsnavn: {!$Record.Account__r.Name}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Organisasjonsnummer: {!$Record.Account__r.INT_OrganizationNumber__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Sektor: {!$Record.Account__r.INT_SectorCode__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Næringskode: {!$Record.Account__r.INT_Industry__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Organisasjonsform: {!$Record.Account__r.INT_OrganizationalStructureDesc__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Kontaktperson som søker:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Navn: {!$Record.Contact__r.FirstName} {!$Record.Contact__r.LastName}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;E-post: {!$Record.Contact__r.Email}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Type tilgang det søkes om:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif;&quot;&gt;{!$Record.AA_AccessText__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Grunnlag det søkes på:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Hjemmel:&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt; &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;{!legalBasisList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Formål:&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt; &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;{!purposeList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Behandlingsgrunnlag:&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt; &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;{!processingBasisList}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Kontaktperson som er lagt til:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Databehandler:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif;&quot;&gt;{!$Record.DataProcessorOrganizationNumber__c}&amp;nbsp;{!$Record__Prior.DataProcessorName__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Søker har godkjent bruksvilkårene. Dette er obligatorisk for å kunne sende inn søknaden.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Dette dokumentet er elektronisk generert for oversendelse til arkivet og skal ikke signeres.&lt;/span&gt;&lt;/p&gt;</text>
+        <text>&lt;p&gt;&lt;span style=&quot;font-size: 16px; font-family: serif; color: rgb(62, 62, 60);&quot;&gt;{!$Record.Account__r.Name}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px; font-family: serif;&quot;&gt;{!$Record.Account__r.BillingStreet}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px; font-family: serif; color: rgb(62, 62, 60);&quot;&gt;{!$Record.Account__r.BillingPostalCode} {!$Record.Account__r.BillingCity}&lt;/span&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;                                                                                                                                                                        &lt;/span&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/b&gt;&lt;/p&gt;&lt;p class=&quot;ql-indent-7&quot;&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Vår ref:&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{!$Record.Name}&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Søknads  dato:&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt; {!$Record.ApplicationSubmittedDate__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 16px; font-family: serif;&quot;&gt;Søknad om tilgang til arbeidsgiver- og arbeidstaker registeret&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Om søker:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Virksomhetsnavn: {!$Record.Account__r.Name}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Organisasjonsnummer: {!$Record.Account__r.INT_OrganizationNumber__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Sektor: {!$Record.Account__r.INT_Sector__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Næringskode: {!$Record.Account__r.INT_Industry__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Organisasjonsform: {!$Record.Account__r.INT_OrganizationalStructureDesc__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-family: serif; font-size: 12px;&quot;&gt;Kontaktperson som søker:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;Navn: {!$Record.Contact__r.FirstName} {!$Record.Contact__r.LastName}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif; font-size: 12px;&quot;&gt;E-post: {!$Record.Contact__r.Email}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Type tilgang det søkes om:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif;&quot;&gt;{!$Record.AA_AccessText__c}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Grunnlag det søkes på:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Hjemmel:&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt; &lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;{!legalBasisList}&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Formål:&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt; &lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;{!purposeList}&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Behandlingsgrunnlag:&lt;/b&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt; &lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;{!processingBasisList}&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Kontaktperson og type varsler:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif;&quot;&gt;Kontaktperson navn, epost, telefon, avtale, endringer, feil, sikkerhet&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;{!relatedContactList}&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Databehandler:&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-family: serif;&quot;&gt;Ingen databehandler lagt til hvis tom linje.&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;color: rgb(62, 62, 60); font-family: serif;&quot;&gt;{!$Record.DataProcessorOrganizationNumber__c}&amp;nbsp;{!$Record__Prior.DataProcessorName__c}&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Søker har godkjent bruksvilkårene. Dette er obligatorisk for å kunne sende inn søknaden.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 12px; font-family: serif;&quot;&gt;Dette dokumentet er elektronisk generert for oversendelse til arkivet og skal ikke signeres.&lt;/span&gt;&lt;/p&gt;</text>
     </textTemplates>
     <textTemplates>
         <name>newLine</name>
@@ -692,6 +804,13 @@
     </variables>
     <variables>
         <name>purposeList</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>relatedContactList</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
