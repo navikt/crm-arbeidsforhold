@@ -3,9 +3,9 @@
     <fullName>AA_CasehandlerDeadlineFlag__c</fullName>
     <description>Used by AA-registeret to indicate deadlines for casehandler</description>
     <externalId>false</externalId>
-    <formula>IF(DaysSinceSubmitted__c &gt; 21,IMAGE(&quot;/resource/1620579073000/RedFlag&quot;,&apos;Frist Flag&apos;) 
+    <formula>IF(DaysSinceSubmitted__c &gt; 21,IMAGE(&quot;/resource/1620579090000/GreenFlag&quot;,&apos;Frist Flag&apos;) 
 ,IF(DaysSinceSubmitted__c &gt; 14,IMAGE(&quot;/resource/1620579050000/BlueFlag&quot;,&apos;Frist Flag&apos;) 
-,IMAGE(&quot;/resource/1620579090000/GreenFlag&quot;,&apos;Frist Flag&apos;)))</formula>
+,IMAGE(&quot;/resource/1620579073000/RedFlag&quot;,&apos;Frist Flag&apos;)))</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Casehandler Deadline Flag</label>
     <required>false</required>
