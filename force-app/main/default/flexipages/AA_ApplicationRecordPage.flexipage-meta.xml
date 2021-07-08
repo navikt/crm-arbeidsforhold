@@ -63,7 +63,7 @@
         </itemInstances>
         <itemInstances>
             <fieldInstance>
-                <fieldItem>Record.CreatedById</fieldItem>
+                <fieldItem>Record.createdByUser__c</fieldItem>
             </fieldInstance>
         </itemInstances>
         <name>Facet-eba5422e-5c89-4ee7-9865-2cb8290866e8</name>
@@ -156,10 +156,6 @@
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
                 <fieldItem>Record.DataProcessorOrganizationNumber__c</fieldItem>
             </fieldInstance>
         </itemInstances>

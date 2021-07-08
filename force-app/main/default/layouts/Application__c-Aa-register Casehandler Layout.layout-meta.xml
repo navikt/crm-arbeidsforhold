@@ -47,6 +47,10 @@
                 <behavior>Edit</behavior>
                 <field>ApplicationDeadlineForReply__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>createdByUser__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
