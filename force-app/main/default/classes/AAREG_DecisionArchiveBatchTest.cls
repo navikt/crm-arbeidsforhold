@@ -29,9 +29,16 @@ public class AAREG_DecisionArchiveBatchTest {
         AA_register_application_text__c,
         AA_ApplicationArchived__c,
         AA_ApplicationArchivedDate__c,
+        AA_DecisionArchived__c,
         AA_CaseHandlerNavIdent__c,
         AA_DecisionArchiveText__c,
-        AA_DecisionArchived__c
+        AccountName__c,
+        OrganizationNumber__c,
+        MailingAddress__c,
+        MailingCity__c,
+        MailingPostalCode__c,
+        ApplicationSubmittedDate__c,
+        DecisionDate__c
       FROM Application__c
     ];
 

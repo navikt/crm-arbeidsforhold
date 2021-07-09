@@ -28,7 +28,13 @@ public class AAREG_ApplicationArchiveBatchTest {
         AA_register_application_text__c,
         AA_ApplicationArchived__c,
         AA_ApplicationArchivedDate__c,
-        AA_CaseHandlerNavIdent__c
+        AA_CaseHandlerNavIdent__c,
+        AccountName__c,
+        OrganizationNumber__c,
+        MailingAddress__c,
+        MailingCity__c,
+        MailingPostalCode__c,
+        ApplicationSubmittedDate__c
       FROM Application__c
     ];
 
@@ -46,7 +52,13 @@ public class AAREG_ApplicationArchiveBatchTest {
         AA_register_application_text__c,
         AA_ApplicationArchived__c,
         AA_ApplicationArchivedDate__c,
-        AA_CaseHandlerNavIdent__c
+        AA_CaseHandlerNavIdent__c,
+        AccountName__c,
+        OrganizationNumber__c,
+        MailingAddress__c,
+        MailingCity__c,
+        MailingPostalCode__c,
+        ApplicationSubmittedDate__c
       FROM Application__c
     ];
 

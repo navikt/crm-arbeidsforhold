@@ -13,10 +13,16 @@ public class AAREG_WebsakXMLGeneratorTest {
       .journalPostType('I')
       .applicationId('1234AppID')
       .userNavIdent('1234UserNavIdent')
+      .organizationName('Test Organization')
+      .organizationNumber('123456789')
+      .mailingAddress('Test 123')
+      .mailingCity('Oslo')
+      .mailingPostalCode('0234')
+      .submissionDate(Date.today())
       .documentNameFormat(documents)
       .build();
 
-    String xmlString = generator.generateXml();
+    String xmlString = generator.generateXML();
     StaticResource resource = [SELECT Id, Body FROM StaticResource WHERE Name = 'WebsakXMLManifest' LIMIT 1];
     String expectedXml = resource.Body.toString().remove('\n');
 

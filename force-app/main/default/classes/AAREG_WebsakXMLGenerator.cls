@@ -5,6 +5,12 @@ public class AAREG_WebsakXMLGenerator {
   private String journalPostType; // I = inngående, U = utgående, X = Ingen
   private String applicationId;
   private String userNavIdent;
+  private String organizationName;
+  private String organizationNumber;
+  private String mailingAddress;
+  private String mailingCity;
+  private String mailingPostalCode;
+  private Date submissionDate;
   private Map<String, String> documentNameFormat;
 
   public AAREG_WebsakXMLGenerator businessUnitId(String businessUnitId) {
@@ -37,6 +43,36 @@ public class AAREG_WebsakXMLGenerator {
     return this;
   }
 
+  public AAREG_WebsakXMLGenerator organizationName(String organizationName) {
+    this.organizationName = organizationName;
+    return this;
+  }
+
+  public AAREG_WebsakXMLGenerator organizationNumber(String organizationNumber) {
+    this.organizationNumber = organizationNumber;
+    return this;
+  }
+
+  public AAREG_WebsakXMLGenerator mailingAddress(String mailingAddress) {
+    this.mailingAddress = mailingAddress;
+    return this;
+  }
+
+  public AAREG_WebsakXMLGenerator mailingCity(String mailingCity) {
+    this.mailingCity = mailingCity;
+    return this;
+  }
+
+  public AAREG_WebsakXMLGenerator mailingPostalCode(String mailingPostalCode) {
+    this.mailingPostalCode = mailingPostalCode;
+    return this;
+  }
+
+  public AAREG_WebsakXMLGenerator submissionDate(Date submissionDate) {
+    this.submissionDate = submissionDate;
+    return this;
+  }
+
   public AAREG_WebsakXMLGenerator documentNameFormat(Map<String, String> documentNameFormat) {
     this.documentNameFormat = documentNameFormat;
     return this;
@@ -44,91 +80,68 @@ public class AAREG_WebsakXMLGenerator {
 
   public AAREG_WebsakXMLGenerator build() {
     AAREG_WebsakXMLGenerator generator = new AAREG_WebsakXMLGenerator();
+
     generator.businessUnitId = this.businessUnitId;
     generator.businessUnitName = this.businessUnitName;
     generator.journalPostStatus = this.journalPostStatus;
     generator.journalPostType = this.journalPostType;
     generator.applicationId = this.applicationId;
     generator.userNavIdent = this.userNavIdent;
+    generator.organizationName = this.organizationName;
+    generator.organizationNumber = this.organizationNumber;
+    generator.mailingAddress = this.mailingAddress;
+    generator.mailingCity = this.mailingCity;
+    generator.mailingPostalCode = this.mailingPostalCode;
+    generator.submissionDate = this.submissionDate;
     generator.documentNameFormat = this.documentNameFormat;
-
     return generator;
   }
 
   public String generateXML() {
-    XmlStreamWriter writer = new XmlStreamWriter();
-
-    writer.writeStartDocument('UTF-8', '1.0');
-    writer.writeStartElement('', 'NOARK.H', '');
-    writer.writeStartElement(null, 'NOARKSAK', null);
-    writer.writeStartElement('', 'SA.SOKNADSID', '');
-    writer.writeCharacters(this.applicationId);
-    writer.writeEndElement();
-    writer.writeStartElement('', 'JOURNALPOST.TAB', '');
-    writer.writeStartElement('', 'JOURNALPOST', '');
-    writer.writeStartElement('', 'JP.INNHOLD', '');
-    writer.writeCharacters('Soknad AA-registeret'); // add content
-    writer.writeEndElement();
-    writer.writeStartElement('', 'JP.DOKDATO', '');
-    writer.writeCharacters('Formatted Date'); // Add date in correct format
-    writer.writeEndElement();
-    writer.writeStartElement('', 'JP.DOKTYPE', '');
-    writer.writeCharacters(this.journalPostType);
-    writer.writeEndElement();
-    writer.writeStartElement('', 'JP.STATUS', '');
-    writer.writeCharacters(this.journalPostStatus);
-    writer.writeEndElement();
-    writer.writeStartElement('', 'JP.SB', '');
-    writer.writeCharacters(this.userNavIdent);
-    writer.writeEndElement();
-    writer.writeStartElement('', 'JP.ENHET', '');
-    writer.writeCharacters(this.businessUnitId);
-    writer.writeEndElement();
-    writer.writeStartElement('', 'NAVN', '');
-    writer.writeCharacters(this.businessUnitName);
-    writer.writeEndElement();
-    writer.writeStartElement('', 'ADRESSAT.TAB', '');
-    writer.writeStartElement('', 'ADRESSAT', '');
-    writer.writeStartElement('', 'NAVN', '');
-    writer.writeCharacters('Account Name'); // add account name
-    writer.writeEndElement();
-    writer.writeStartElement('', 'ORGNR', '');
-    writer.writeCharacters('Org number'); // add orgnumber
-    writer.writeEndElement();
-    writer.writeStartElement('', 'EPOSTADR', '');
-    writer.writeEndElement();
-    writer.writeStartElement('', 'TLF', '');
-    writer.writeEndElement();
-    writer.writeStartElement('', 'ADRESSE', '');
-    writer.writeCharacters('Address'); // add account address
-    writer.writeEndElement();
-    writer.writeStartElement('', 'POSTADRESSE', '');
-    writer.writeCharacters('City and postal code'); // add postal code and city
-    writer.writeEndElement();
-    writer.writeEndElement();
-    writer.writeEndElement();
-    writer.writeStartElement('', 'DOKVERSJON.TAB', '');
+    Dom.Document doc = new Dom.Document();
+    dom.XmlNode rootNode = doc.createRootElement('NOARK.H', null, null);
+    dom.XmlNode noArkSak = rootNode.addChildElement('NOARKSAK', null, null);
+    dom.xmlNode application = noArkSak.addChildElement('SA.SOKNADSID', null, null).addTextNode(applicationId);
+    dom.xmlNode journalPostTab = noArkSak.addChildElement('JOURNALPOST.TAB', null, null);
+    dom.xmlNode post = journalPostTab.addChildElement('JOURNALPOST', null, null);
+    dom.xmlNode postContent = post.addChildElement('JP.INNHOLD', null, null).addTextNode(getFormattedContentString());
+    dom.xmlNode postDate = post.addChildElement('JP.DOKDATO', null, null).addTextNode(formatDateString(submissionDate));
+    dom.xmlNode journalPostType = post.addChildElement('JP.DOKTYPE', null, null).addTextNode(journalPostType);
+    dom.xmlNode journalPostStatus = post.addChildElement('JP.STATUS', null, null).addTextNode(journalPostStatus);
+    dom.xmlNode journalPostNavIdent = post.addChildElement('JP.SB', null, null).addTextNode(userNavIdent);
+    dom.xmlNode journalPostUnitId = post.addChildElement('JP.ENHET', null, null).addTextNode(businessUnitId);
+    dom.xmlNode journalPostUnitName = post.addChildElement('NAVN', null, null).addTextNode(businessUnitName);
+    dom.xmlNode addressTab = post.addChildElement('ADRESSAT.TAB', null, null);
+    dom.xmlNode address = addressTab.addChildElement('ADRESSAT', null, null);
+    dom.xmlNode orgName = address.addChildElement('NAVN', null, null).addTextNode(organizationName);
+    dom.xmlNode orgNumber = address.addChildElement('ORGNR', null, null).addTextNode(organizationNumber);
+    dom.xmlNode orgEmail = address.addChildElement('EPOSTADR', null, null);
+    dom.xmlNode orgPhone = address.addChildElement('TLF', null, null);
+    dom.xmlNode orgStreet = address.addChildElement('ADRESSE', null, null).addTextNode(mailingAddress);
+    dom.xmlNode orgAddress = address.addChildElement('POSTADRESSE', null, null);
+    orgAddress.addTextNode(formatCityPostalCode(mailingCity, mailingPostalCode));
+    dom.XmlNode documentTab = post.addChildElement('DOKVERSJON.TAB', null, null);
 
     for (String docName : documentNameFormat.keyset()) {
       String fileName = docName;
       String fileFormat = documentNameFormat.get(docName);
-      writer.writeStartElement('', 'DOKVERSJON', '');
-      writer.writeStartElement('', 'VE.DOKFORMAT', '');
-      writer.writeCharacters(fileFormat);
-      writer.writeEndElement();
-      writer.writeStartElement('', 'VE.FILREF', '');
-      writer.writeCharacters(fileName);
-      writer.writeEndElement();
-      writer.writeEndElement();
+      dom.XmlNode documentVersion = documentTab.addChildElement('DOKVERSJON', null, null);
+      dom.XmlNode documentFormat = documentVersion.addChildElement('VE.DOKFORMAT', null, null).addTextNode(fileFormat);
+      dom.XmlNode documentReference = documentVersion.addChildElement('VE.FILREF', null, null).addTextNode(fileName);
     }
+    return doc.toXmlString();
+  }
 
-    writer.writeEndElement();
-    writer.writeEndElement();
-    writer.writeEndElement();
-    writer.writeEndElement();
-    writer.writeEndElement();
-    writer.writeEndDocument();
+  private String formatDateString(Date input) {
+    Datetime dateToFormat = input;
+    return dateToFormat.formatGmt('YYYYMMdd');
+  }
 
-    return writer.getXmlString();
+  private String formatCityPostalCode(String city, String postalCode) {
+    return city + ' ' + postalCode;
+  }
+
+  private String getFormattedContentString() {
+    return 'Soknad AA-registeret-' + applicationId + '-' + organizationNumber;
   }
 }

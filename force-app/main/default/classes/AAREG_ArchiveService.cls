@@ -21,8 +21,11 @@ public with sharing class AAREG_ArchiveService {
       fileNameFormatMap.put(applicationFileName, DEFALUT_FILE_FORMAT);
 
       Map<String, Blob> filesToSend = new Map<String, Blob>();
-      filesToSend.put(application.Name + MANIFEST_NAME, getManifest(fileNameFormatMap, application, INCOMING_POST));
       filesToSend.put(applicationFileName, Blob.valueOf(application.AA_register_application_text__c));
+      filesToSend.put(
+        application.Name + MANIFEST_NAME,
+        getManifest(fileNameFormatMap, application, INCOMING_POST, application.ApplicationSubmittedDate__c)
+      );
 
       if (contentVersions.get(application.Id) != null) {
         fileNameFormatMap.putAll(getFileNameFormatMap(contentVersions.get(application.Id), application.Name));
@@ -51,8 +54,11 @@ public with sharing class AAREG_ArchiveService {
       fileNameFormat.put(reference + DECISION_NAME, DEFALUT_FILE_FORMAT);
 
       Map<String, Blob> filesToSend = new Map<String, Blob>();
-      filesToSend.put(reference + MANIFEST_NAME, getManifest(fileNameFormat, application, OUTGOING_POST));
       filesToSend.put(decisionFileName, Blob.valueOf(application.AA_DecisionArchiveText__c));
+      filesToSend.put(
+        reference + MANIFEST_NAME,
+        getManifest(fileNameFormat, application, OUTGOING_POST, application.DecisionDate__c)
+      );
 
       Boolean success = sendFiles(filesToSend);
 
@@ -77,7 +83,12 @@ public with sharing class AAREG_ArchiveService {
     return success;
   }
 
-  private Blob getManifest(Map<String, String> fileInfo, Application__c application, String postType) {
+  private Blob getManifest(
+    Map<String, String> fileInfo,
+    Application__c application,
+    String postType,
+    Date referenceDate
+  ) {
     AAREG_WebsakXMLGenerator generator = new AAREG_WebsakXMLGenerator()
       .businessUnitId(BUSINESS_UNIT_ID)
       .businessUnitName(BUSINESS_UNIT)
@@ -85,6 +96,12 @@ public with sharing class AAREG_ArchiveService {
       .journalPostType(postType)
       .applicationId(application.Id)
       .userNavIdent(application.AA_CaseHandlerNavIdent__c)
+      .organizationName(application.AccountName__c)
+      .organizationNumber(application.OrganizationNumber__c)
+      .mailingAddress(application.MailingAddress__c)
+      .mailingCity(application.MailingCity__c)
+      .mailingPostalCode(application.MailingPostalCode__c)
+      .submissionDate(referenceDate)
       .documentNameFormat(fileInfo)
       .build();
 

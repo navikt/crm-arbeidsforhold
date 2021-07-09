@@ -6,7 +6,14 @@ public with sharing class AAREG_TestDataFactory {
       Casehandler_Status__c = 'New',
       AA_register_application_text__c = 'Test',
       AA_DecisionArchiveText__c = 'Test',
-      IsConfirmationEmailSent__c = true
+      IsConfirmationEmailSent__c = true,
+      AccountName__c = 'Test Account',
+      OrganizationNumber__c = '123456789',
+      MailingAddress__c = 'Test 123',
+      MailingCity__c = 'Oslo',
+      MailingPostalCode__c = '0234',
+      ApplicationSubmittedDate__c = Date.today(),
+      DecisionDate__c = Date.today()
     );
     return application;
   }

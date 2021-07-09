@@ -27,7 +27,13 @@ public with sharing class AAREG_ArchiveServiceTest {
           AA_register_application_text__c,
           AA_ApplicationArchived__c,
           AA_ApplicationArchivedDate__c,
-          AA_CaseHandlerNavIdent__c
+          AA_CaseHandlerNavIdent__c,
+          AccountName__c,
+          OrganizationNumber__c,
+          MailingAddress__c,
+          MailingCity__c,
+          MailingPostalCode__c,
+          ApplicationSubmittedDate__c
         FROM Application__c
       ]
     );
@@ -62,7 +68,14 @@ public with sharing class AAREG_ArchiveServiceTest {
           AA_ApplicationArchivedDate__c,
           AA_DecisionArchived__c,
           AA_CaseHandlerNavIdent__c,
-          AA_DecisionArchiveText__c
+          AA_DecisionArchiveText__c,
+          AccountName__c,
+          OrganizationNumber__c,
+          MailingAddress__c,
+          MailingCity__c,
+          MailingPostalCode__c,
+          ApplicationSubmittedDate__c,
+          DecisionDate__c
         FROM Application__c
       ]
     );
@@ -102,7 +115,14 @@ public with sharing class AAREG_ArchiveServiceTest {
           AA_ApplicationArchived__c,
           AA_ApplicationArchivedDate__c,
           AA_CaseHandlerNavIdent__c,
-          AA_DecisionArchiveText__c
+          AA_DecisionArchiveText__c,
+          AccountName__c,
+          OrganizationNumber__c,
+          MailingAddress__c,
+          MailingCity__c,
+          MailingPostalCode__c,
+          ApplicationSubmittedDate__c,
+          DecisionDate__c
         FROM Application__c
       ]
     );
@@ -148,7 +168,13 @@ public with sharing class AAREG_ArchiveServiceTest {
         AA_register_application_text__c,
         AA_ApplicationArchived__c,
         AA_ApplicationArchivedDate__c,
-        AA_CaseHandlerNavIdent__c
+        AA_CaseHandlerNavIdent__c,
+        AccountName__c,
+        OrganizationNumber__c,
+        MailingAddress__c,
+        MailingCity__c,
+        MailingPostalCode__c,
+        ApplicationSubmittedDate__c
       FROM Application__c
       WHERE Id = :application.Id
     ];
