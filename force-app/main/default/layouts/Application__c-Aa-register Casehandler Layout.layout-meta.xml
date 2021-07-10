@@ -156,7 +156,7 @@
             <sortOrder>0</sortOrder>
         </platformActionListItems>
         <platformActionListItems>
-            <actionName>Application__c.updateDeadlineDate</actionName>
+            <actionName>Application__c.aaReg_UpdateDeadlineDate</actionName>
             <actionType>QuickAction</actionType>
             <sortOrder>1</sortOrder>
         </platformActionListItems>
