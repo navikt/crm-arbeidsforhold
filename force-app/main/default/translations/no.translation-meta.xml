@@ -81,12 +81,6 @@
         <name>Related</name>
     </customLabels>
     <customLabels>
-        <label>
-            <!-- Skriv til oss intro text -->
-        </label>
-        <name>Skriv_til_oss_intro_text</name>
-    </customLabels>
-    <customLabels>
         <label>Beskrivelse ved henleggelse</label>
         <name>Suspension</name>
     </customLabels>
