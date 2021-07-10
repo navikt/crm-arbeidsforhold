@@ -27,4 +27,8 @@
         <masterLabel>New</masterLabel>
         <translation>Ny</translation>
     </picklistValues>
+    <picklistValues>
+        <masterLabel>Suspension</masterLabel>
+        <translation>Henlagt</translation>
+    </picklistValues>
 </CustomFieldTranslation>

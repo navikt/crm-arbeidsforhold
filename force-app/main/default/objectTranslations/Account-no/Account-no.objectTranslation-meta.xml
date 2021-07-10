@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
     <quickActions>
-        <label><!-- Account Details --></label>
+        <aspect>Master</aspect>
+        <label>Virksomhets detaljer</label>
         <name>AA_AccountDetails</name>
     </quickActions>
     <quickActions>

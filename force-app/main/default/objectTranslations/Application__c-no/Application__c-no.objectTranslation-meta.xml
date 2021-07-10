@@ -53,6 +53,16 @@
         <label>Henlegge søknad</label>
         <name>aaRegSuspendApplication</name>
     </quickActions>
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Søknad ferdigbehandlet</label>
+        <name>aaReg_ApplicationDone</name>
+    </quickActions>
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Oppdater svarfrist</label>
+        <name>updateDeadlineDate</name>
+    </quickActions>
     <recordTypes>
         <description><!-- Application for partners to access Aa-register --></description>
         <label><!-- Aa-register access --></label>

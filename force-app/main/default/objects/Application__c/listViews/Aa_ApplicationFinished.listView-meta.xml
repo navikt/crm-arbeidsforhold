@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Aa_ApplicationDeclined</fullName>
+    <fullName>Aa_ApplicationFinished</fullName>
     <columns>NAME</columns>
     <columns>Account__c</columns>
     <columns>ApplicationSubmittedDate__c</columns>
@@ -18,9 +18,14 @@
     <filters>
         <field>Casehandler_Status__c</field>
         <operation>equals</operation>
-        <value>Declined</value>
+        <value>Closed</value>
     </filters>
-    <label>Aa-reg Søknader Avslag</label>
+    <filters>
+        <field>Status__c</field>
+        <operation>notEqual</operation>
+        <value>Suspension</value>
+    </filters>
+    <label>Aa-reg Søknader Ferdig behandlet</label>
     <sharedTo>
         <group>AAREG_Casehandling</group>
     </sharedTo>

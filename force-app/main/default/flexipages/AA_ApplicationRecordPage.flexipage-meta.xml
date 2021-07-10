@@ -21,7 +21,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>numVisibleActions</name>
-                    <value>3</value>
+                    <value>5</value>
                 </componentInstanceProperties>
                 <componentName>force:highlightsPanel</componentName>
             </componentInstance>
@@ -81,6 +81,10 @@
         </itemInstances>
         <itemInstances>
             <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.Status__c</fieldItem>
             </fieldInstance>
         </itemInstances>
@@ -156,6 +160,10 @@
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.DataProcessorOrganizationNumber__c</fieldItem>
             </fieldInstance>
         </itemInstances>
@@ -338,6 +346,10 @@
         </itemInstances>
         <itemInstances>
             <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.ApplicationDeadlineForReply__c</fieldItem>
             </fieldInstance>
         </itemInstances>
@@ -352,11 +364,19 @@
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.CasehandlerOwner__c</fieldItem>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
             <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.Casehandler_Status__c</fieldItem>
             </fieldInstance>
         </itemInstances>
@@ -388,6 +408,10 @@
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.DecisionDate__c</fieldItem>
             </fieldInstance>
         </itemInstances>
@@ -420,11 +444,19 @@
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.DecisionDate__c</fieldItem>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
             <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.reasonForSuspension__c</fieldItem>
             </fieldInstance>
         </itemInstances>
@@ -514,7 +546,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListComponentOverride</name>
-                    <value>NONE</value>
+                    <value>ADVGRID</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>rowsToDisplay</name>
@@ -522,7 +554,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>showActionBar</name>
-                    <value>true</value>
+                    <value>false</value>
                 </componentInstanceProperties>
                 <componentName>force:relatedListSingleContainer</componentName>
             </componentInstance>
@@ -624,10 +656,6 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>createQuickActionName</name>
-                    <value>NewContact</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
                     <name>lookupFieldName</name>
                     <value>Application__c.Contact__c</value>
                 </componentInstanceProperties>
@@ -637,7 +665,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>updateQuickActionName</name>
-                    <value>Contact._LightningRelatedContact</value>
+                    <value>Contact.aa_ContactDetails</value>
                 </componentInstanceProperties>
                 <componentName>console:relatedRecord</componentName>
             </componentInstance>
@@ -656,14 +684,6 @@
                     <name>relatedListComponentOverride</name>
                     <value>NONE</value>
                 </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>rowsToDisplay</name>
-                    <value>10</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>showActionBar</name>
-                    <value>true</value>
-                </componentInstanceProperties>
                 <componentName>force:relatedListSingleContainer</componentName>
             </componentInstance>
         </itemInstances>
@@ -679,7 +699,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListComponentOverride</name>
-                    <value>GRID</value>
+                    <value>NONE</value>
                 </componentInstanceProperties>
                 <componentName>force:relatedListSingleContainer</componentName>
             </componentInstance>

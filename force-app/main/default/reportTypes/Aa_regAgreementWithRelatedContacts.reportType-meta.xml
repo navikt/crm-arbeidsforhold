@@ -559,4 +559,17 @@
         </columns>
         <masterLabel>Related Contacts</masterLabel>
     </sections>
+    <sections>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>createdByUser__c</field>
+            <table>Account.Applications__r</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>reasonForAdjustDeadline__c</field>
+            <table>Account.Applications__r</table>
+        </columns>
+        <masterLabel>Søknader</masterLabel>
+    </sections>
 </ReportType>
