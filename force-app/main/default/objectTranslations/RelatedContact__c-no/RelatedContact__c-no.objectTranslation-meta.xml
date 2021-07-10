@@ -38,7 +38,7 @@
             <section>Custom Links</section>
         </sections>
         <sections>
-            <label><!-- Notification Subscriptions --></label>
+            <label>Varslingstyper</label>
             <section>Notification Subscriptions</section>
         </sections>
     </layouts>
