@@ -62,10 +62,11 @@
         <label>Søknad ferdigbehandlet</label>
         <name>aaReg_ApplicationDone</name>
     </quickActions>
+
     <quickActions>
         <aspect>Master</aspect>
         <label>Oppdater svarfrist</label>
-        <name>updateDeadlineDate</name>
+        <name>aaReg_UpdateDeadlineDate</name>
     </quickActions>
     <recordTypes>
         <description>
