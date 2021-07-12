@@ -1,6 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>52.0</apiVersion>
+    <decisions>
+        <name>checkStatusAndOwner</name>
+        <label>checkStatusAndOwner</label>
+        <locationX>182</locationX>
+        <locationY>278</locationY>
+        <defaultConnector>
+            <targetReference>ErrorMessage</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Standardutfall</defaultConnectorLabel>
+        <rules>
+            <name>IsOwnerAndStatus</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getOwnerAndStatus.Casehandler_Status__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>New</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getOwnerAndStatus.CasehandlerOwner__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>changeDeadlineDate</targetReference>
+            </connector>
+            <label>IsOwnerAndStatus</label>
+        </rules>
+    </decisions>
     <description>Updates deadline date, creates a task with the reason</description>
     <formulas>
         <name>concatReasonAndDate</name>
@@ -31,8 +63,8 @@
     <recordCreates>
         <name>createTaskOnReason</name>
         <label>createTaskOnReason</label>
-        <locationX>176</locationX>
-        <locationY>278</locationY>
+        <locationX>50</locationX>
+        <locationY>518</locationY>
         <connector>
             <targetReference>updataDeadlineDate</targetReference>
         </connector>
@@ -81,12 +113,36 @@
         <object>Task</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
+    <recordLookups>
+        <name>getOwnerAndStatus</name>
+        <label>getOwnerAndStatus</label>
+        <locationX>182</locationX>
+        <locationY>158</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>checkStatusAndOwner</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Application__c</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Casehandler_Status__c</queriedFields>
+        <queriedFields>CasehandlerOwner__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordUpdates>
         <description>updates deadline date</description>
         <name>updataDeadlineDate</name>
         <label>updataDeadlineDate</label>
-        <locationX>176</locationX>
-        <locationY>398</locationY>
+        <locationX>50</locationX>
+        <locationY>638</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -106,8 +162,8 @@
     <screens>
         <name>changeDeadlineDate</name>
         <label>Change deadline date</label>
-        <locationX>176</locationX>
-        <locationY>158</locationY>
+        <locationX>50</locationX>
+        <locationY>398</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -131,11 +187,27 @@
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
+    <screens>
+        <name>ErrorMessage</name>
+        <label>ErrorMessage</label>
+        <locationX>314</locationX>
+        <locationY>398</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>isNotOwnerAndStatusMessage</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); color: rgb(62, 62, 60);&quot;&gt;You have to set caseowner and status in progress before you suspend the application&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
     <start>
-        <locationX>50</locationX>
+        <locationX>56</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>changeDeadlineDate</targetReference>
+            <targetReference>getOwnerAndStatus</targetReference>
         </connector>
     </start>
     <status>Active</status>
