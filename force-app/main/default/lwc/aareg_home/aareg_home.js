@@ -1,4 +1,4 @@
-import { LightningElement, api, track, wire } from 'lwc';
+import { LightningElement, track } from 'lwc';
 import Id from '@salesforce/user/Id';
 import getLastUsersLastUsedOrganiation from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganiation';
 import getOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.getOrganizationsWithRoles';
@@ -13,6 +13,28 @@ export default class Aareg_home extends LightningElement {
   lastUsedOrganization;
   currentUser = Id;
 
+  noAccessOrgForms = [
+    'AAFY',
+    'ADOS',
+    'BEDR',
+    'OPMV',
+    'BRL',
+    'ENK',
+    'ESEK',
+    'IKJP',
+    'KTRF',
+    'PERS',
+    'REGN',
+    'REV',
+    'SAM',
+    'SÆR',
+    'TVAM',
+    'UDEF',
+    'UTBG',
+    'UTLA',
+    'VIFE'
+  ];
+
   connectedCallback() {
     this.init();
   }
@@ -21,9 +43,11 @@ export default class Aareg_home extends LightningElement {
     try {
       await getOrganizationsWithRoles({ userId: this.currentUser }).then((result) => {
         if (result.success) {
-          this.organizations = JSON.parse(JSON.stringify(result.organizations));
+          this.organizations = result.organizations.filter(
+            (el) => !this.noAccessOrgForms.includes(el.OrganizationForm)
+          );
         } else {
-          throw `Unable to get Organizaions ${result.errorMessage}`;
+          throw `Failed to get Organizaions ${result.errorMessage}`;
         }
       });
 
@@ -104,7 +128,7 @@ export default class Aareg_home extends LightningElement {
             }
           });
         } else {
-          throw `Unable to get rights ${result.errorMessage}`;
+          throw `Failed to get rights ${result.errorMessage}`;
         }
       })
       .catch((error) => {
