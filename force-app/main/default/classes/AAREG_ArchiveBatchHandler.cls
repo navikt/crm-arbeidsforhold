@@ -1,5 +1,5 @@
 public class AAREG_ArchiveBatchHandler {
-  private static final String NEW_APPLICATION = 'New';
+  private static final String IN_PROGRESS = 'In Progress';
   private static final String CLOSED_APPLICATION = 'Closed';
 
   public static void archive(Set<Id> recordIds) {
@@ -7,10 +7,10 @@ public class AAREG_ArchiveBatchHandler {
     List<Application__c> decisionsToArchive = new List<Application__c>();
 
     for (Application__c application : getApplications(recordIds)) {
-      if (application.Casehandler_Status__c == NEW_APPLICATION && !application.AA_ApplicationArchived__c) {
+      if (isApplicationArchivable(application)) {
         applicationsToArchive.add(application);
       }
-      if (application.Casehandler_Status__c == CLOSED_APPLICATION && !application.AA_DecisionArchived__c) {
+      if (isDecisionArchivable(application)) {
         decisionsToArchive.add(application);
       }
     }
@@ -21,6 +21,18 @@ public class AAREG_ArchiveBatchHandler {
     if (!decisionsToArchive.isEmpty()) {
       Database.executeBatch(new AAREG_DecisionArchiveBatch(decisionsToArchive), 40);
     }
+  }
+
+  private static Boolean isApplicationArchivable(Application__c application) {
+    return application.Casehandler_Status__c == IN_PROGRESS &&
+      !application.AA_ApplicationArchived__c &&
+      String.isNotBlank(application.AA_register_application_text__c);
+  }
+
+  private static Boolean isDecisionArchivable(Application__c application) {
+    return application.Casehandler_Status__c == CLOSED_APPLICATION &&
+      !application.AA_DecisionArchived__c &&
+      String.isNotBlank(application.AA_DecisionArchiveText__c);
   }
 
   private static List<Application__c> getApplications(Set<Id> recordIds) {

@@ -1,8 +1,8 @@
 public class AAREG_WebsakXMLGenerator {
   private String businessUnitId;
   private String businessUnitName;
-  private String journalPostStatus; // Bruk J på alle
-  private String journalPostType; // I = inngående, U = utgående, X = Ingen
+  private String journalPostStatus;
+  private String journalPostType;
   private String applicationId;
   private String userNavIdent;
   private String organizationName;

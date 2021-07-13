@@ -12,6 +12,7 @@ public class AAREG_ArchiveSchedulerTest {
 
     Application__c application = AAREG_TestDataFactory.getApplication(account.Id);
     application.CasehandlerOwner__c = user.Id;
+    application.Casehandler_Status__c = 'In Progress';
     insert application;
 
     ContentDocumentLink documentLink = AAREG_TestDataFactory.getContentDocumentLink(application.Id);
