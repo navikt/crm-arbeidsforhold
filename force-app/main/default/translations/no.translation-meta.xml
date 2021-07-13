@@ -74,8 +74,8 @@
         <label>Tilknyttet kontaktpunkt</label>
         <name>Related</name>
     </customLabels>
-    <customLabels>
 
+    <customLabels>
         <label>Beskrivelse ved henleggelse</label>
         <name>Suspension</name>
     </customLabels>
@@ -181,6 +181,13 @@
                     <name>ErrorMessage</name>
                 </fields>
                 <name>IsNotChecked</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Søknaden står ikke i en status som gjør at søknaden kan settes til ferdigbehandlet</fieldText>
+                    <name>changeStatus</name>
+                </fields>
+                <name>IsNotCorrectStatus</name>
             </screens>
             <screens>
                 <fields>
@@ -291,8 +298,9 @@
         </flows>
         <fullName>Create_Community_Plus_User</fullName>
     </flowDefinitions>
-    <flowDefinitions>
 
+    <flowDefinitions>
+        <flows />
         <fullName>NAVTask_Owner_Change</fullName>
     </flowDefinitions>
     <flowDefinitions>
@@ -393,6 +401,12 @@
         <sections>
             <label>Søknader</label>
             <name>Applications</name>
+        </sections>
+        <sections>
+            <label>
+                <!-- Avtaler -->
+            </label>
+            <name>Avtaler</name>
         </sections>
         <sections>
             <label>Tilknyttede kontaktpersoner</label>
