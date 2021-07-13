@@ -21,7 +21,7 @@
         <name>isApplicationDone</name>
         <label>isApplicationDone</label>
         <locationX>182</locationX>
-        <locationY>278</locationY>
+        <locationY>518</locationY>
         <defaultConnector>
             <targetReference>IsNotChecked</targetReference>
         </defaultConnector>
@@ -37,9 +37,48 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>getApplication</targetReference>
+                <targetReference>applyCurrentStatus</targetReference>
             </connector>
             <label>isDone</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>IsStatus</name>
+        <label>IsStatus</label>
+        <locationX>380</locationX>
+        <locationY>278</locationY>
+        <defaultConnector>
+            <targetReference>IsNotCorrectStatus</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Standardutfall</defaultConnectorLabel>
+        <rules>
+            <name>IsStatusCorrect</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>getApplication.Casehandler_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Approved Partially</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getApplication.Casehandler_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Approved</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getApplication.Casehandler_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Declined</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>applicationDone</targetReference>
+            </connector>
+            <label>IsStatusCorrect</label>
         </rules>
     </decisions>
     <formulas>
@@ -75,7 +114,7 @@
         <locationY>758</locationY>
         <assignRecordIdToReference>agreementId</assignRecordIdToReference>
         <connector>
-            <targetReference>createTask</targetReference>
+            <targetReference>updateRelatedContacts</targetReference>
         </connector>
         <inputAssignments>
             <field>APIAccess__c</field>
@@ -113,13 +152,19 @@
                 <stringValue>Active</stringValue>
             </value>
         </inputAssignments>
+        <inputAssignments>
+            <field>account__c</field>
+            <value>
+                <elementReference>getApplication.Account__c</elementReference>
+            </value>
+        </inputAssignments>
         <object>Agreement__c</object>
     </recordCreates>
     <recordCreates>
         <name>createTask</name>
         <label>createTask</label>
         <locationX>50</locationX>
-        <locationY>878</locationY>
+        <locationY>998</locationY>
         <connector>
             <targetReference>updateApplication</targetReference>
         </connector>
@@ -171,11 +216,11 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>50</locationX>
-        <locationY>398</locationY>
+        <locationX>380</locationX>
+        <locationY>158</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>getConVersion</targetReference>
+            <targetReference>IsStatus</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -188,7 +233,7 @@
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Application__c</object>
         <queriedFields>Id</queriedFields>
-        <queriedFields>AccountId__c</queriedFields>
+        <queriedFields>Account__c</queriedFields>
         <queriedFields>APIAccess__c</queriedFields>
         <queriedFields>ExtractionAccess__c</queriedFields>
         <queriedFields>OnlineAccess__c</queriedFields>
@@ -196,39 +241,11 @@
         <queriedFields>AA_CasehandlerDecisionTemplate__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
-    <recordLookups>
-        <name>getConVersion</name>
-        <label>getConVersion</label>
-        <locationX>50</locationX>
-        <locationY>518</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>applyCurrentStatus</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>FirstPublishLocationId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>recordId</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>ContentVersion</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Title</queriedFields>
-        <queriedFields>PathOnClient</queriedFields>
-        <queriedFields>VersionData</queriedFields>
-        <queriedFields>FirstPublishLocationId</queriedFields>
-        <queriedFields>FileExtension</queriedFields>
-        <queriedFields>FileType</queriedFields>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
     <recordUpdates>
         <name>updateApplication</name>
         <label>updateApplication</label>
         <locationX>50</locationX>
-        <locationY>998</locationY>
+        <locationY>1118</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -244,6 +261,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>DecisionDate__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Status__c</field>
             <value>
                 <elementReference>currCaseHandlerStatus</elementReference>
@@ -251,11 +274,35 @@
         </inputAssignments>
         <object>Application__c</object>
     </recordUpdates>
+    <recordUpdates>
+        <name>updateRelatedContacts</name>
+        <label>updateRelatedContacts</label>
+        <locationX>50</locationX>
+        <locationY>878</locationY>
+        <connector>
+            <targetReference>createTask</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Application__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Agreement__c</field>
+            <value>
+                <elementReference>agreementId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>RelatedContact__c</object>
+    </recordUpdates>
     <screens>
         <name>applicationDone</name>
         <label>Application Done</label>
         <locationX>182</locationX>
-        <locationY>158</locationY>
+        <locationY>398</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -276,8 +323,8 @@
         <name>IsNotChecked</name>
         <label>IsNotChecked</label>
         <locationX>314</locationX>
-        <locationY>398</locationY>
-        <allowBack>false</allowBack>
+        <locationY>638</locationY>
+        <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <fields>
@@ -288,11 +335,27 @@
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
+    <screens>
+        <name>IsNotCorrectStatus</name>
+        <label>IsNotCorrectStatus</label>
+        <locationX>578</locationX>
+        <locationY>398</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>changeStatus</name>
+            <fieldText>&lt;p&gt;To be able to close the application - it have to be in approved, partially approved or declined status&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
     <start>
-        <locationX>56</locationX>
+        <locationX>254</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>applicationDone</targetReference>
+            <targetReference>getApplication</targetReference>
         </connector>
     </start>
     <status>Active</status>
