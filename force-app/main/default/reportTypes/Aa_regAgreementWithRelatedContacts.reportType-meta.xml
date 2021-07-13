@@ -428,32 +428,7 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
-            <field>AA_ApplicationArchived__c</field>
-            <table>Account.Applications__r</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>AA_ApplicationArchivedDate__c</field>
-            <table>Account.Applications__r</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>AA_DecisionArchived__c</field>
-            <table>Account.Applications__r</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>AA_DecisionArchivedDate__c</field>
-            <table>Account.Applications__r</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>AA_DecisionArchiveText__c</field>
-            <table>Account.Applications__r</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>AA_CaseHandlerNavIdent__c</field>
+            <field>ApplicationDeadlineForReply__c</field>
             <table>Account.Applications__r</table>
         </columns>
         <masterLabel>Applications</masterLabel>
@@ -541,6 +516,11 @@
             <checkedByDefault>false</checkedByDefault>
             <field>LastModifiedBy</field>
             <table>Account.Applications__r.Agreements__r.RelatedAgreements__r</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>createdByUser__c</field>
+            <table>Account.Applications__r</table>
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>

@@ -306,8 +306,8 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>Application__c.ApplicationDeadline__c</field>
+        <editable>true</editable>
+        <field>Application__c.ApplicationDeadlineForReply__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -418,6 +418,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Application__c.TermsOfUse__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Application__c.createdByUser__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

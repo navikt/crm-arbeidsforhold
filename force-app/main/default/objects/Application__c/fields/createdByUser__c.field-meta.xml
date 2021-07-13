@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>DaysSinceSubmitted__c</fullName>
-    <description>Number of days since application was submitted</description>
+    <fullName>createdByUser__c</fullName>
     <externalId>false</externalId>
-    <formula>ApplicationDeadlineForReply__c - TODAY()</formula>
+    <formula>Owner:User.FirstName +&apos; &apos;+ Owner:User.LastName +&apos; &apos;+ TEXT( CreatedDate )</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>Days Since Submitted</label>
-    <precision>18</precision>
+    <label>Created By User</label>
     <required>false</required>
-    <scale>0</scale>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
-    <type>Number</type>
+    <type>Text</type>
     <unique>false</unique>
 </CustomField>

@@ -1,40 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Used in Aa-register application to set owner and In progress status</description>
-    <fieldOverrides>
-        <field>Casehandler_Status__c</field>
-        <literalValue>In Progress</literalValue>
-    </fieldOverrides>
-    <fieldOverrides>
-        <field>CasehandlerOwner__c</field>
-        <formula>$User.Id</formula>
-    </fieldOverrides>
-    <fieldOverrides>
-        <field>Status__c</field>
-        <literalValue>In Progress</literalValue>
-    </fieldOverrides>
-    <label>Update Application Owner</label>
+    <description>Used in aa-register pagelayout</description>
+    <label>Contact Details</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
         <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
         <quickActionLayoutColumns>
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
-                <field>CasehandlerOwner__c</field>
+                <field>AccountId</field>
                 <uiBehavior>Edit</uiBehavior>
             </quickActionLayoutItems>
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
-                <field>Casehandler_Status__c</field>
+                <field>Name</field>
+                <uiBehavior>Required</uiBehavior>
+            </quickActionLayoutItems>
+        </quickActionLayoutColumns>
+        <quickActionLayoutColumns>
+            <quickActionLayoutItems>
+                <emptySpace>true</emptySpace>
                 <uiBehavior>Edit</uiBehavior>
             </quickActionLayoutItems>
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
-                <field>Status__c</field>
+                <field>Email</field>
                 <uiBehavior>Edit</uiBehavior>
             </quickActionLayoutItems>
         </quickActionLayoutColumns>
-        <quickActionLayoutColumns/>
     </quickActionLayout>
     <type>Update</type>
 </QuickAction>

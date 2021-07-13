@@ -34,11 +34,15 @@
     <layouts>
         <layout>Aa-register Casehandler Layout</layout>
         <sections>
-            <label><!-- Custom Links --></label>
+            <label>
+                <!-- Custom Links -->
+            </label>
             <section>Custom Links</section>
         </sections>
         <sections>
-            <label><!-- Decision Information --></label>
+            <label>
+                <!-- Decision Information -->
+            </label>
             <section>Decision Information</section>
         </sections>
     </layouts>
@@ -53,9 +57,24 @@
         <label>Henlegge søknad</label>
         <name>aaRegSuspendApplication</name>
     </quickActions>
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Søknad ferdigbehandlet</label>
+        <name>aaReg_ApplicationDone</name>
+    </quickActions>
+
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Oppdater svarfrist</label>
+        <name>aaReg_UpdateDeadlineDate</name>
+    </quickActions>
     <recordTypes>
-        <description><!-- Application for partners to access Aa-register --></description>
-        <label><!-- Aa-register access --></label>
+        <description>
+            <!-- Application for partners to access Aa-register -->
+        </description>
+        <label>
+            <!-- Aa-register access -->
+        </label>
         <name>Aa_RegisterAccess</name>
     </recordTypes>
 </CustomObjectTranslation>
