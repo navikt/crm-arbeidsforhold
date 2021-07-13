@@ -182,7 +182,7 @@
         <allowPause>false</allowPause>
         <fields>
             <name>setOwnerAndStatus</name>
-            <fieldText>&lt;p&gt;You have to set caseowner and status in progress before you suspend the application&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;You have to set caseowner and status in progress before you suspend application&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <showFooter>true</showFooter>

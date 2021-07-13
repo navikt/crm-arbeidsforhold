@@ -19,7 +19,24 @@ public class AAREG_CodeBaseListControllerTest {
         abc.LegalBasisCounty__c='FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e';
         abc.PurposeCounty__c='Tildeling og kontroll av drosjeløyve';
         abc.ProcessingBasis__c = 'ja,da...';
-        insert abc;   
+        insert abc;
+        
+        ContentVersion file = new ContentVersion();
+        String data = 'Dette er innholdet i fila';
+        file.Title = 'Dataelementer tilhørende søknad';
+        file.PathOnClient = file.Title + '.xlsx';
+        file.VersionData = Blob.valueOf(data);
+        file.FirstPublishLocationId =app.id;
+        insert file;
+        
+        Agreement__c agr = new Agreement__c();
+        agr.APIAccess__c = true;
+        agr.Application__c = app.Id;
+        agr.Decision__c='Vedtak';
+        agr.ExtractionAccess__c = false;
+        agr.OnlineAccess__c = false;
+        agr.Status__c = 'active';
+        insert agr;
     }
 
 @isTest
@@ -37,4 +54,21 @@ public class AAREG_CodeBaseListControllerTest {
             System.assertNotEquals(abc.ProcessingBasis__c, null,'decision should not be null');
         }
     }
+    
+@isTest
+    /* test for apex class AAREG_createContentVersionForAgreement*/
+    static void testCreateContentVersionOnAgreement(){
+        Application__c appl =[SELECT id FROM Application__c LIMIT 1];
+        
+       AAREG_createContentVersionForAgreement.FlowInput params = new AAREG_createContentVersionForAgreement.FlowInput();
+       params.currRecId = appl.Id;
+        
+       Agreement__c agr =[SELECT id FROM Agreement__c LIMIT 1];
+        
+       List<ContentVersion> conL = new List<ContentVersion>();
+        for(ContentVersion con :[SELECT id,title FROM ContentVersion WHERE FirstPublishLocationId =:agr.id]){
+            System.assertEquals(con.title, 'Dataelementer tilhørende søknad');
+        }
+    }
+    
 }

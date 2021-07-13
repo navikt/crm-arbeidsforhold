@@ -564,4 +564,12 @@
         </columns>
         <masterLabel>Related Contacts</masterLabel>
     </sections>
+    <sections>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>account__c</field>
+            <table>Account.Applications__r.Agreements__r</table>
+        </columns>
+        <masterLabel>Avtaler</masterLabel>
+    </sections>
 </ReportType>
