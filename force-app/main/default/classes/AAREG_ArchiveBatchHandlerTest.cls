@@ -1,5 +1,5 @@
 @isTest
-public with sharing class AAREG_ArchiveBatchHandlerTest {
+public class AAREG_ArchiveBatchHandlerTest {
   @TestSetup
   static void makeData() {
     Account account = AAREG_TestDataFactory.getAccount();

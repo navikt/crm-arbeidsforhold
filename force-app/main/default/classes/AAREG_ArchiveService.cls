@@ -1,4 +1,4 @@
-public with sharing class AAREG_ArchiveService {
+public class AAREG_ArchiveService {
   private static final String JOURNAL_POST_STATUS = 'J';
   private static final String OUTGOING_POST = 'U';
   private static final String INCOMING_POST = 'I';
