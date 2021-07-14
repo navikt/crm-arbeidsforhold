@@ -190,11 +190,6 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>Agreement__c.account__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <editable>true</editable>
         <field>ApplicationBasisCode__c.Application__c</field>
         <readable>true</readable>
@@ -551,6 +546,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Task.CRM_Region__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Task.CRM_Unit__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -558,6 +558,11 @@
         <editable>true</editable>
         <field>Task.Description</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Task.IsVisibleInSelfService</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -650,6 +655,10 @@
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Application__c.Aa_RegisterAccess</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>Task.AAREG_Task</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <tabSettings>

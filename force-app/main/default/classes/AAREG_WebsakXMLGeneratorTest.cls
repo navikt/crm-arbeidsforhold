@@ -6,6 +6,7 @@ public class AAREG_WebsakXMLGeneratorTest {
       'Test Document 1' => '.docx',
       'Test Document 2' => '.xlsx'
     };
+     Date currDate= date.newInstance(2021, 07, 13);
     AAREG_WebsakXMLGenerator generator = new AAREG_WebsakXMLGenerator()
       .businessUnitId('1234Id')
       .businessUnitName('Test BU name')
@@ -18,13 +19,15 @@ public class AAREG_WebsakXMLGeneratorTest {
       .mailingAddress('Test 123')
       .mailingCity('Oslo')
       .mailingPostalCode('0234')
-      .submissionDate(Date.today())
+      .submissionDate(currDate)
       .documentNameFormat(documents)
       .build();
 
     String xmlString = generator.generateXML();
     StaticResource resource = [SELECT Id, Body FROM StaticResource WHERE Name = 'WebsakXMLManifest' LIMIT 1];
     String expectedXml = resource.Body.toString().remove('\n');
+    System.debug('Expected: '+expectedXml);
+    System.debug('String: '+xmlString);
 
     System.assertEquals(expectedXml, xmlString, 'XML generated correctly');
   }

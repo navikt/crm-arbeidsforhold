@@ -60,7 +60,7 @@
         <name>createTask</name>
         <label>createTask</label>
         <locationX>50</locationX>
-        <locationY>638</locationY>
+        <locationY>758</locationY>
         <inputAssignments>
             <field>ActivityDate</field>
             <value>
@@ -80,6 +80,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>RecordTypeId</field>
+            <value>
+                <elementReference>recordtTypeId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Status</field>
             <value>
                 <stringValue>Completed</stringValue>
@@ -88,7 +94,7 @@
         <inputAssignments>
             <field>Subject</field>
             <value>
-                <stringValue>Søknaden er henlagt</stringValue>
+                <stringValue>Søknaden er henlagt av saksbehandler</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -130,13 +136,36 @@
         <queriedFields>CasehandlerOwner__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordLookups>
+        <name>getRecordTypeId</name>
+        <label>getRecordTypeId</label>
+        <locationX>50</locationX>
+        <locationY>638</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>createTask</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>AAREG_Task</stringValue>
+            </value>
+        </filters>
+        <object>RecordType</object>
+        <outputAssignments>
+            <assignToReference>recordtTypeId</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
     <recordUpdates>
         <name>updateReason</name>
         <label>updateReason</label>
         <locationX>50</locationX>
         <locationY>518</locationY>
         <connector>
-            <targetReference>createTask</targetReference>
+            <targetReference>getRecordTypeId</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -231,5 +260,12 @@
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>recordtTypeId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
     </variables>
 </Flow>
