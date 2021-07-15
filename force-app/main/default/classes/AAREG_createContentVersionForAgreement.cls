@@ -4,12 +4,17 @@ public class AAREG_createContentVersionForAgreement  {
     public static void createFile(FlowInput[] inputs){
         String appId;
         String agrId;
+        String contId;
+        String condId;
         ContentVersion[] createfiles= new ContentVersion[]{};
         //fetch agreement Id from flow
         for(FlowInput input : inputs){
             agrId = input.currRecId;
-            appId = [SELECT id,application__c FROM agreement__c WHERE id=:input.currRecId].application__c;  
         }
+        
+        appId = [SELECT id,application__c FROM agreement__c WHERE id=:agrId LIMIT 1].application__c;
+        contId=[SELECT id,ContentDocumentId FROM contentdocumentlink WHERE LinkedEntityId =:appId LIMIT 1].ContentDocumentId;
+        condId=[SELECT id,LatestPublishedVersionId FROM contentdocument WHERE id =:contId LIMIT 1].LatestPublishedVersionId;
         
         //fetch contentversion data from application id
 		for(contentVersion conv :[SELECT 
@@ -22,7 +27,7 @@ public class AAREG_createContentVersionForAgreement  {
                               SharingOption, 
                               Title, 
                               VersionData
-                              FROM ContentVersion where FirstPublishLocationId=:appId]){
+                              FROM ContentVersion where Id=:condId]){
                                   
                                   //create a duplicate of file connected to agreement
                                   ContentVersion file = new ContentVersion();
