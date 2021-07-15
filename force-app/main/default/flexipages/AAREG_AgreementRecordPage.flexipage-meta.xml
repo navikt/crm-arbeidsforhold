@@ -135,12 +135,11 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>createQuickActionName</name>
-                    <value>NewAccount</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
                     <name>lookupFieldName</name>
                     <value>Agreement__c.account__c</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>titleFieldName</name>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>updateQuickActionName</name>
