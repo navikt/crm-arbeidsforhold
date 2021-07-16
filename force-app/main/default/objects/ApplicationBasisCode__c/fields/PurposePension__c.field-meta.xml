@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>PurposePension__c</fullName>
     <description>The application purpose available for organizations that fall under the &quot;Pension&quot; category.</description>
@@ -13,11 +13,29 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
+                <fullName>Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven</fullName>
+                <default>false</default>
+                <label>Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven</label>
+            </value>
+            <value>
+                <fullName>Arbeid med avtalefestet pensjon i privat sektor</fullName>
+                <default>false</default>
+                <label>Arbeid med avtalefestet pensjon i privat sektor</label>
+            </value>
+            <value>
                 <fullName>Annet - oppgi i tekstfelt under</fullName>
                 <default>false</default>
                 <label>Annet - oppgi i tekstfelt under</label>
             </value>
         </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 første ledd bokstav c</controllingFieldValue>
+            <valueName>Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>LOV-2010-02-19-5 AFP-tilskottsloven § 29 annet ledd</controllingFieldValue>
+            <valueName>Arbeid med avtalefestet pensjon i privat sektor</valueName>
+        </valueSettings>
         <valueSettings>
             <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
             <valueName>Annet - oppgi i tekstfelt under</valueName>

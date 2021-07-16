@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Purpose County --></label>
+    <name>PurposeCounty__c</name>
+    <picklistValues>
+        <masterLabel>Annet - oppgi i tekstfelt under</masterLabel>
+        <translation><!-- Annet - oppgi i tekstfelt under --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av drosjeløyve</masterLabel>
+        <translation><!-- Kontroll av drosjeløyve --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av helsepersonell - tilsynssaker</masterLabel>
+        <translation><!-- Kontroll av helsepersonell - tilsynssaker --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser</masterLabel>
+        <translation><!-- Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

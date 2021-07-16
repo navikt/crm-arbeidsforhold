@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Used in Aa-register application for casehandler</description>
+    <description>Used in Aa-register application to set owner and In progress status</description>
     <fieldOverrides>
         <field>Casehandler_Status__c</field>
         <literalValue>In Progress</literalValue>
@@ -13,7 +13,7 @@
         <field>Status__c</field>
         <literalValue>In Progress</literalValue>
     </fieldOverrides>
-    <label>Sett sakseier og status</label>
+    <label>Update Application Owner</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
         <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
@@ -36,6 +36,5 @@
         </quickActionLayoutColumns>
         <quickActionLayoutColumns/>
     </quickActionLayout>
-    <successMessage>Eier av søknad og status oppdatert</successMessage>
     <type>Update</type>
 </QuickAction>

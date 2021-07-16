@@ -1,4 +1,4 @@
-import { LightningElement, track, wire, api } from 'lwc';
+import { LightningElement, track, api } from 'lwc';
 import Id from '@salesforce/user/Id';
 import processApplication from '@salesforce/apex/AAREG_ApplicationController.processApplication';
 import getLastUsedOrganizationInformation from '@salesforce/apex/AAREG_ApplicationController.getLastUsedOrganizationInformation';
@@ -6,71 +6,98 @@ import getAccountNameByOrgNumber from '@salesforce/apex/AAREG_ApplicationControl
 import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
 
 export default class Aareg_application extends LightningElement {
+  @api hasErrors;
+  @api linkToDataElements;
+  @api linkToTermsOfUse;
   @track contactRows;
   @track applicationBasisRows;
   @track application;
   @track organization;
-  @api hasErrors;
-  hasAccess = false;
-  applicationSubmitted = false;
   currentUser = Id;
+  hasAccess = false;
+  showContactRemove = false;
+  applicationSubmitted = false;
+  showApplicationBasisRemove = false;
+  lastUsedOrganization;
   organizationType;
+  isLoaded = false;
+  fileData;
   error;
 
-  @wire(getLastUsedOrganizationInformation, { userId: '$currentUser' })
-  wiredOrganizationInformation({ error, data }) {
-    if (data) {
-      console.log(data);
-      this.organization = data;
-      this.organizationType = data.AAREG_OrganizationCategory__c;
-      this.error = undefined;
-      this.checkAccessToApplication();
-      this.initializeNewApplication();
-    } else if (error) {
-      this.error = error;
-      this.organizations = undefined;
-      console.log(error);
-    }
+  connectedCallback() {
+    getLastUsedOrganizationInformation({ userId: this.currentUser })
+      .then((result) => {
+        this.organization = result;
+        this.organizationType = result.AAREG_OrganizationCategory__c;
+        this.lastUsedOrganization = result.INT_OrganizationNumber__c;
+        this.error = undefined;
+        console.log(this.lastUsedOrganization);
+        console.log(this.currentUser);
+        this.checkAccessToApplication();
+        this.initializeNewApplication();
+        this.isLoaded = true;
+      })
+      .catch((error) => {
+        this.error = error;
+        this.organizations = undefined;
+        console.log('LUO', error);
+      });
   }
 
   checkAccessToApplication() {
-    getUserRights({ userId: this.userId, organizationNumber: this.lastUsedOrganization })
+    getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization, serviceCode: '5719' })
       .then((result) => {
-        let parsedResult = JSON.parse(result);
-        let privileges = parsedResult.rights;
+        if (result.success) {
+          let privileges = JSON.parse(JSON.stringify(result.rights));
 
-        privileges.forEach((privilege) => {
-          console.log(privilege.ServiceCode);
-          if (privilege.ServiceCode === '5719') {
-            this.hasAccess = true;
-            return;
-          }
-        });
+          privileges.forEach((privilege) => {
+            console.log(privilege.ServiceCode);
+            if (privilege.ServiceCode === '5719') {
+              this.hasAccess = true;
+              return;
+            }
+          });
+        }
       })
       .catch((error) => {
-        console.log(error);
+        console.log('RE', error);
       });
   }
 
   initializeNewApplication() {
     this.application = {
-      Account__c: this.organization.Id,
+      AccountId__c: this.organization.Id,
+      AccountName__c: this.organization.Name,
       OrganizationNumber__c: this.organization.INT_OrganizationNumber__c,
       OrganizationStructure__c: this.organization.INT_OrganizationalStructure__c,
       MailingAddress__c: this.organization.ShippingStreet,
       MailingCity__c: this.organization.ShippingCity,
       MailingPostalCode__c: this.organization.ShippingPostalCode,
       Email__c: null,
-      DataProcessor__c: null,
+      DataProcessorName__c: null,
       APIAccess__c: false,
       ExtractionAccess__c: false,
       OnlineAccess__c: false,
       DataProcessorOrganizationNumber__c: null,
+      TermsOfUse__c: false,
       organizationName: this.organization.Name
     };
 
     this.contactRows = [{ uuid: this.createUUID() }];
     this.applicationBasisRows = [{ uuid: this.createUUID() }];
+  }
+
+  get acceptedFileFormats() {
+    return ['.xlsx', '.pdf', '.docx'];
+  }
+
+  get dataElementURL() {
+    console.log(this.linkToDataElements);
+    return this.linkToDataElements;
+  }
+
+  get termsOfUseURL() {
+    return this.linkToTermsOfUse;
   }
 
   /*************** Dynamic Element handlers ***************/
@@ -89,40 +116,56 @@ export default class Aareg_application extends LightningElement {
     if (this.contactRows.length > 1) {
       this.contactRows.splice(event.target.value, 1);
     }
+    if (this.contactRows.length == 1) {
+      this.showContactRemove = false;
+    }
   }
 
   addContactRow() {
     this.contactRows.push({ uuid: this.createUUID() });
+    this.showContactRemove = true;
   }
 
   removeApplicationBasisRow(event) {
     if (this.applicationBasisRows.length > 1) {
       this.applicationBasisRows.splice(event.target.value, 1);
     }
+    if (this.applicationBasisRows.length == 1) {
+      this.showApplicationBasisRemove = false;
+    }
   }
 
   addApplicationBasisRow() {
     this.applicationBasisRows.push({ uuid: this.createUUID() });
+    this.showApplicationBasisRemove = true;
   }
 
   /****************************************************************************************/
 
-  handleSubmit() {
-    this.hasErrors = false;
+  handleSubmit(event) {
+    event.preventDefault();
+    this.resetErrors();
     this.validateApplicationBasis();
     this.validateContactsBeforeSubmission();
     this.checkApplicationInputs();
+
     if (this.hasErrors) {
       console.log('Has Errors did not submit!!');
+      this.focusInput();
       return;
     }
+    this.isLoaded = false;
+    const { base64, filename } = this.fileData;
     processApplication({
       application: this.application,
       basisCode: this.applicationBasisRows,
-      relatedContacts: this.contactRows
+      relatedContacts: this.contactRows,
+      base64: base64,
+      fileName: filename
     })
       .then((response) => {
         this.applicationSubmitted = true;
+        this.isLoaded = true;
         console.log(response);
       })
       .catch((error) => {
@@ -153,14 +196,14 @@ export default class Aareg_application extends LightningElement {
     if (dataProcessor.length === 9) {
       getAccountNameByOrgNumber({ orgNumber: dataProcessor })
         .then((result) => {
-          this.application.DataProcessor__c = result;
+          this.application.DataProcessorName__c = result;
           this.application.DataProcessorOrganizationNumber__c = dataProcessor;
         })
         .catch((error) => {
-          this.application.DataProcessor__c = null;
+          this.application.DataProcessorName__c = null;
           this.application.DataProcessorOrganizationNumber__c = null;
-          this.error = error;
-          console.log(error);
+          this.setErrorFor(this.dataProcess, 'Ugyldig organisasjonsnummer');
+          console.log('set error');
         });
     } else if (this.application.DataProcessor__c != null) {
       this.application.DataProcessor__c = null;
@@ -190,15 +233,30 @@ export default class Aareg_application extends LightningElement {
       case 'extraction-access':
         this.application.ExtractionAccess__c = isChecked(this.application.ExtractionAccess__c);
         break;
+      case 'terms-of-use':
+        this.application.TermsOfUse__c = isChecked(this.application.TermsOfUse__c);
+        break;
       default:
         return;
     }
   }
 
+  onFileUpload(event) {
+    const file = event.target.files[0];
+    let reader = new FileReader();
+    reader.onload = () => {
+      let base64 = reader.result.split(',')[1];
+      this.fileData = {
+        filename: file.name,
+        base64: base64
+      };
+    };
+    reader.readAsDataURL(file);
+  }
+
   /*************** Validation ***************/
 
   processError(event) {
-    console.log('Error Received');
     if (event.detail) {
       this.hasErrors = true;
     }
@@ -206,6 +264,7 @@ export default class Aareg_application extends LightningElement {
 
   validateApplicationBasis() {
     let purposes = this.template.querySelectorAll('c-aareg_application-basis');
+
     purposes.forEach((purpose) => {
       purpose.validate();
     });
@@ -253,18 +312,36 @@ export default class Aareg_application extends LightningElement {
     this.onlineAccess = this.template.querySelector('[data-id="online-access"]');
     this.extractionAccess = this.template.querySelector('[data-id="extraction-access"]');
     this.accessTypes = this.template.querySelector('[data-id="access-types"]');
+    this.dataElements = this.template.querySelector('[data-id="data-element"]');
+    this.fileInput = this.template.querySelector('[data-id="file-input"]');
+    this.termsOfUse = this.template.querySelector('[data-id="terms"]');
+    this.termsOfUseInput = this.template.querySelector('[data-id="terms-of-use"]');
+    this.dataProcess = this.template.querySelector('[data-id="data-processor"]');
   }
 
   checkApplicationInputs() {
-    if (this.application.Email__c === null || '') {
-      this.setErrorFor(this.email, 'E-post er obligatorisk.');
+    if (this.application.Email__c === null || this.application.Email__c === '') {
+      this.setErrorFor(this.email, 'Obligatorisk.');
+      this.email.className = 'invalid';
     }
+
     if (
       this.application.APIAccess__c === false &&
       this.application.ExtractionAccess__c === false &&
       this.application.OnlineAccess__c === false
     ) {
       this.setErrorFor(this.accessTypes, 'Minst én type tilgang er obligatorisk');
+      this.apiAccess.className = 'invalid';
+    }
+
+    if (this.fileData === undefined) {
+      this.setErrorFor(this.dataElements, 'Obligatorisk');
+      //this.fileInput.className = 'invalid';
+    }
+
+    if (this.application.TermsOfUse__c === false) {
+      this.setErrorFor(this.termsOfUse, 'Obligatorisk');
+      this.termsOfUseInput.className = 'invalid';
     }
   }
 
@@ -274,5 +351,54 @@ export default class Aareg_application extends LightningElement {
     let small = formControl.querySelector('small');
     small.innerText = message;
     formControl.className = 'form-control error';
+  }
+
+  resetErrors() {
+    this.hasErrors = false;
+    let formControl = this.template.querySelectorAll('.form-control');
+    formControl.forEach((element) => {
+      element.classList.remove('error');
+    });
+  }
+
+  focusInput() {
+    if (this.email.className === 'invalid') {
+      this.email.focus();
+      return;
+    }
+
+    let purposes = this.template.querySelectorAll('c-aareg_application-basis');
+
+    for (let i = 0; i < purposes.length; i++) {
+      var isFocused = purposes[i].focusInput();
+
+      if (isFocused) {
+        return;
+      }
+    }
+
+    if (this.apiAccess.className === 'invalid') {
+      this.apiAccess.focus();
+      return;
+    }
+
+    let contacts = this.template.querySelectorAll('c-aareg_application-contact');
+
+    for (let i = 0; i < contacts.length; i++) {
+      var isFocused = contacts[i].focusInput();
+      if (isFocused) {
+        return;
+      }
+    }
+
+    if (this.fileInput.className === 'invalid') {
+      this.fileInput.focus();
+      return;
+    }
+
+    if (this.termsOfUseInput.className === 'invalid') {
+      this.termsOfUseInput.focus();
+      return;
+    }
   }
 }

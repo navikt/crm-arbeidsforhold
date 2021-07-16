@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AA_DecisionArchived__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Used to track if the application has been successfully archived.</description>
+    <externalId>false</externalId>
+    <label>Decision Archived</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

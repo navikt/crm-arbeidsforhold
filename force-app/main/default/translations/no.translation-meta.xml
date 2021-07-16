@@ -1,119 +1,428 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Translations xmlns="http://soap.sforce.com/2006/04/metadata">
     <customApplications>
-        <label>
-            <!-- Arbeidsforhold -->
-        </label>
+        <label>Arbeidsforhold</label>
         <name>Arbeidsforhold</name>
     </customApplications>
-    <customLabels>
+    <customApplications>
         <label>
-            <!-- Agreements -->
+            <!-- Email Scheduling -->
         </label>
+        <name>Email_Scheduling</name>
+    </customApplications>
+    <customLabels>
+        <label>Tilgangstype</label>
+        <name>AccessType</name>
+    </customLabels>
+    <customLabels>
+        <label>Avtaler</label>
         <name>Agreements</name>
     </customLabels>
     <customLabels>
-        <label>
-            <!-- Application Basis Code -->
-        </label>
+        <label>Søker</label>
+        <name>Applicant</name>
+    </customLabels>
+    <customLabels>
+        <label>Søknad</label>
+        <name>Application</name>
+    </customLabels>
+    <customLabels>
+        <label>Kodeverk</label>
         <name>ApplicationBasisCode</name>
     </customLabels>
     <customLabels>
-        <label>
-            <!-- Contacts -->
-        </label>
+        <label>Kodeverk</label>
+        <name>Codes</name>
+    </customLabels>
+    <customLabels>
+        <label />
         <name>Contacts</name>
     </customLabels>
     <customLabels>
-        <label>
-            <!-- Files -->
-        </label>
+        <label>Databehandler</label>
+        <name>DataProcessor</name>
+    </customLabels>
+    <customLabels>
+        <label>Dataelementer</label>
+        <name>Dataelement</name>
+    </customLabels>
+    <customLabels>
+        <label>Vedtak</label>
+        <name>Decision</name>
+    </customLabels>
+    <customLabels>
+        <label>Detaljer</label>
+        <name>Detail</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>Errors_CannotFindTriggerHandlerClass</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>Errors_DuplicateTriggerHandlerClass</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>Errors_InvalidSettingConfiguration</name>
+    </customLabels>
+    <customLabels>
+        <label>Filer</label>
         <name>Files</name>
     </customLabels>
-    <quickActions>
+    <customLabels>
+        <label>Tilknyttet kontaktpunkt</label>
+        <name>Related</name>
+    </customLabels>
+
+    <customLabels>
+        <label>Beskrivelse ved henleggelse</label>
+        <name>Suspension</name>
+    </customLabels>
+    <customLabels>
+        <label>Bruksvilkår</label>
+        <name>TermsOfUse</name>
+    </customLabels>
+    <customLabels>
+        <label>Søkers virksomhet</label>
+        <name>applicantBusiness</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>fflib_QueryFactory_crossobject_fieldsets_not_allowed_error</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>fflib_QueryFactory_fieldset_wrong_sobject_error</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>fflib_QueryFactory_recursive_subquery_error</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>fflib_QueryFactory_subquery_invalid_relationship</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>fflib_security_error_field_not_insertable</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>fflib_security_error_field_not_readable</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>fflib_security_error_field_not_updateable</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>fflib_security_error_object_not_deletable</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>fflib_security_error_object_not_insertable</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>fflib_security_error_object_not_readable</name>
+    </customLabels>
+    <customLabels>
+        <label />
+        <name>fflib_security_error_object_not_updateable</name>
+    </customLabels>
+    <customTabs>
         <label>
-            <!-- LogACall -->
+            <!-- Errors -->
         </label>
+        <name>EmailQueueErrors</name>
+    </customTabs>
+    <customTabs>
+        <label>
+            <!-- Queued -->
+        </label>
+        <name>EmailQueueQueued</name>
+    </customTabs>
+    <customTabs>
+        <label>
+            <!-- Sent -->
+        </label>
+        <name>EmailQueueSent</name>
+    </customTabs>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREGApplicationAfterInsertPopulateApplicationFields</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <fieldText>Du kan ikke henlegge en søknad som står i status Ny og ikke har en sakseier</fieldText>
+                    <name>setOwnerAndStatus</name>
+                </fields>
+                <name>ErrorMessage</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Årsak til henleggelse</fieldText>
+                    <helpText>Skriv inn årsaken til henleggelse av søknad</helpText>
+                    <name>suspensionText</name>
+                </fields>
+                <name>reasonForSuspension</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_addReasonForSuspension</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <fieldText>Du har ikke bekreftet at søknaden er ferdigbehandlet.</fieldText>
+                    <name>ErrorMessage</name>
+                </fields>
+                <name>IsNotChecked</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Søknaden står ikke i en status som gjør at søknaden kan settes til ferdigbehandlet</fieldText>
+                    <name>changeStatus</name>
+                </fields>
+                <name>IsNotCorrectStatus</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Ja, saken er ferdigbehandlet</fieldText>
+                    <name>applicationDoneConfirmation</name>
+                </fields>
+                <name>applicationDone</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_applicationFinished</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_createContactSendConfirmation</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <textTemplates>
+                <name>newLine</name>
+            </textTemplates>
+            <textTemplates>
+                <name>containerApplication</name>
+            </textTemplates>
+        </flows>
+        <fullName>AAREG_populateApplicationFieldAfterSubmit</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <textTemplates>
+                <name>partiallyApprovedDecisionText</name>
+            </textTemplates>
+            <textTemplates>
+                <name>newLine</name>
+            </textTemplates>
+            <textTemplates>
+                <name>declinedDecisionText</name>
+            </textTemplates>
+            <textTemplates>
+                <name>containerApplication</name>
+            </textTemplates>
+            <textTemplates>
+                <name>approvedDecisionText</name>
+            </textTemplates>
+        </flows>
+        <fullName>AAREG_populateDecisionText</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <fieldText>Du kan ikke endre svarfrist dato på en søknad som står i status Ny og ikke har en sakseier</fieldText>
+                    <name>isNotOwnerAndStatusMessage</name>
+                </fields>
+                <name>ErrorMessage</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Svarfrist dato</fieldText>
+                    <name>deadlineDate</name>
+                </fields>
+                <fields>
+                    <fieldText>Begrunnelse for endret svarfrist</fieldText>
+                    <name>reasonForAdjustDeadline</name>
+                </fields>
+                <name>changeDeadlineDate</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_updateDeadlineDate</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <textTemplates>
+                <name>PartiallyApprovedDecisionText</name>
+            </textTemplates>
+            <textTemplates>
+                <name>DeclinedDecisionText</name>
+            </textTemplates>
+            <textTemplates>
+                <name>ApprovedDecisionText</name>
+            </textTemplates>
+        </flows>
+        <fullName>AAREG_updateDecisionText</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Agreement_Initiator</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>Already_added_as_user_text</name>
+                </fields>
+                <name>Already_added_as_user_screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Success_Message</name>
+                </fields>
+                <name>End_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>No_Access_Text</name>
+                </fields>
+                <name>No_Access_Screen</name>
+            </screens>
+        </flows>
+        <fullName>Create_Community_Plus_User</fullName>
+    </flowDefinitions>
+
+    <flowDefinitions>
+        <flows />
+        <fullName>NAVTask_Owner_Change</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>TAG_Update_NavUnit_in_NavTask</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <choices>
+                <name>HOT</name>
+            </choices>
+            <choices>
+                <name>NKS</name>
+            </choices>
+            <screens>
+                <fields>
+                    <name>Domain</name>
+                </fields>
+                <fields>
+                    <name>Melding</name>
+                </fields>
+                <fields>
+                    <name>Mottaker</name>
+                </fields>
+                <name>SMS</name>
+            </screens>
+        </flows>
+        <fullName>Test_SMS_Callout</fullName>
+    </flowDefinitions>
+
+    <quickActions>
+        <aspect>Master</aspect>
+        <label />
         <name>LogACall</name>
     </quickActions>
     <quickActions>
-        <label>
-            <!-- NewAccount -->
-        </label>
+        <aspect>Master</aspect>
+        <label />
         <name>NewAccount</name>
     </quickActions>
     <quickActions>
-        <label>
-            <!-- NewCase -->
-        </label>
+        <aspect>Master</aspect>
+        <label />
         <name>NewCase</name>
     </quickActions>
     <quickActions>
-        <label>
-            <!-- NewContact -->
-        </label>
+        <aspect>Master</aspect>
+        <label />
         <name>NewContact</name>
     </quickActions>
     <quickActions>
-        <label>
-            <!-- NewEvent -->
-        </label>
+        <aspect>Master</aspect>
+        <label />
         <name>NewEvent</name>
     </quickActions>
     <quickActions>
-        <label>
-            <!-- NewGroup -->
-        </label>
+        <aspect>Master</aspect>
+        <label />
         <name>NewGroup</name>
     </quickActions>
     <quickActions>
-        <label>
-            <!-- NewLead -->
-        </label>
+        <aspect>Master</aspect>
+        <label />
         <name>NewLead</name>
     </quickActions>
     <quickActions>
-        <label>
-            <!-- NewNote -->
-        </label>
+        <aspect>Master</aspect>
+        <label />
         <name>NewNote</name>
     </quickActions>
     <quickActions>
-        <label>
-            <!-- NewOpportunity -->
-        </label>
+        <aspect>Master</aspect>
+        <label />
         <name>NewOpportunity</name>
     </quickActions>
     <quickActions>
-        <label>
-            <!-- NewTask -->
-        </label>
+        <aspect>Master</aspect>
+        <label />
         <name>NewTask</name>
     </quickActions>
     <quickActions>
-        <label>
-            <!-- SendEmail -->
-        </label>
+        <aspect>Master</aspect>
+        <label />
         <name>SendEmail</name>
     </quickActions>
     <reportTypes>
-        <description>
-            <!-- Screen Flows -->
-        </description>
-        <label>
-            <!-- Screen Flows -->
-        </label>
-        <name>screen_flows_prebuilt_crt</name>
+        <description />
+        <label />
+        <name>Aa_regAgreementWithRelatedContacts</name>
         <sections>
-            <label>
-                <!-- Flow Interview Log Entries -->
-            </label>
-            <name>Flow Interview Log Entries</name>
+            <label>Virksomheter</label>
+            <name>Accounts</name>
+        </sections>
+        <sections>
+            <label>Avtaler</label>
+            <name>Agreements</name>
+        </sections>
+        <sections>
+            <label>Søknader</label>
+            <name>Applications</name>
         </sections>
         <sections>
             <label>
-                <!-- Flow Interview Logs -->
+                <!-- Avtaler -->
             </label>
+            <name>Avtaler</name>
+        </sections>
+        <sections>
+            <label>Tilknyttede kontaktpersoner</label>
+            <name>Related Contacts</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description />
+        <label />
+        <name>screen_flows_prebuilt_crt</name>
+        <sections>
+            <label />
+            <name>Flow Interview Log Entries</name>
+        </sections>
+        <sections>
+            <label />
             <name>Flow Interview Logs</name>
         </sections>
     </reportTypes>

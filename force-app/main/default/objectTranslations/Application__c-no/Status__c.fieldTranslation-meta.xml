@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help>Dette feltet angir status på søknad som vises ut til søker. Denne vil kunne avvike fra &quot;status på søknad&quot; som benyttes internt i saksbehandlingen.</help>
     <label>Søkers status</label>
     <name>Status__c</name>
     <picklistValues>
@@ -25,5 +26,9 @@
     <picklistValues>
         <masterLabel>New</masterLabel>
         <translation>Ny</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Suspension</masterLabel>
+        <translation>Henlagt</translation>
     </picklistValues>
 </CustomFieldTranslation>

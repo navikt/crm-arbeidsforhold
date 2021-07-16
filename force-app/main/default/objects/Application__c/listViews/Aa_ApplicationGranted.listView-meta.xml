@@ -7,6 +7,7 @@
     <columns>AA_CasehandlerDeadlineFlag__c</columns>
     <columns>APIAccess__c</columns>
     <columns>OnlineAccess__c</columns>
+    <columns>ExtractionAccess__c</columns>
     <columns>CasehandlerOwner__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
@@ -20,4 +21,7 @@
         <value>Approved</value>
     </filters>
     <label>Aa-reg Søknader Innvilget</label>
+    <sharedTo>
+        <group>AAREG_Casehandling</group>
+    </sharedTo>
 </ListView>

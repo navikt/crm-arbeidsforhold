@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Purpose Municipality --></label>
+    <name>PurposeMunicipality__c</name>
+    <picklistValues>
+        <masterLabel>Annet - oppgi i tekstfelt under</masterLabel>
+        <translation><!-- Annet - oppgi i tekstfelt under --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Behandling av startlån/boligtilskudd</masterLabel>
+        <translation><!-- Behandling av startlån/boligtilskudd --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Behandlinger av søknader om gravferdstønad</masterLabel>
+        <translation><!-- Behandlinger av søknader om gravferdstønad --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Behandlinger av søknader om kommunal bolig</masterLabel>
+        <translation><!-- Behandlinger av søknader om kommunal bolig --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Innkalling til bystyremøter (Oslo)</masterLabel>
+        <translation><!-- Innkalling til bystyremøter (Oslo) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Klarering for norske statsborgere i samferdselssektoren</masterLabel>
+        <translation><!-- Klarering for norske statsborgere i samferdselssektoren --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av drosjeløyve</masterLabel>
+        <translation><!-- Kontroll av drosjeløyve --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av folkevalgtes refusjonskrav</masterLabel>
+        <translation><!-- Kontroll av folkevalgtes refusjonskrav --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av helsepersonell - tilsynssaker</masterLabel>
+        <translation><!-- Kontroll av helsepersonell - tilsynssaker --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av private barnehager (krav til bemanning og økonomi)</masterLabel>
+        <translation><!-- Kontroll av private barnehager (krav til bemanning og økonomi) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av seriøsitetskrav (kun behov for antall ansatte)</masterLabel>
+        <translation><!-- Kontroll av seriøsitetskrav (kun behov for antall ansatte) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll/verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage/sfo</masterLabel>
+        <translation><!-- Kontroll/verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage/sfo --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Oppfølging av låneportefølje, sosiale lån</masterLabel>
+        <translation><!-- Oppfølging av låneportefølje, sosiale lån --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Planleggingsarbeid - infrastruktur</masterLabel>
+        <translation><!-- Planleggingsarbeid - infrastruktur --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser</masterLabel>
+        <translation><!-- Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Skjenkebevilling</masterLabel>
+        <translation><!-- Skjenkebevilling --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Smittesporing</masterLabel>
+        <translation><!-- Smittesporing --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Særnamsfunksjonen</masterLabel>
+        <translation><!-- Særnamsfunksjonen --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

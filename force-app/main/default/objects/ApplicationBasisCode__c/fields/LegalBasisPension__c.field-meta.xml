@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>LegalBasisPension__c</fullName>
     <description>The legal basis available for organizations that fall under the &quot;Pension&quot; category.</description>
@@ -12,19 +12,31 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Aa-registerforskriften §10, 1. ledd bokstav C</fullName>
+                <fullName>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 første ledd bokstav c</fullName>
                 <default>false</default>
-                <label>Aa-registerforskriften §10, 1. ledd bokstav C</label>
+                <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 første ledd bokstav c</label>
             </value>
             <value>
-                <fullName>AFP-tilskottsloven § 29 (2), Aa-registerforskriften § 10 bokstav b</fullName>
+                <fullName>LOV-2010-02-19-5 AFP-tilskottsloven § 29 annet ledd</fullName>
                 <default>false</default>
-                <label>AFP-tilskottsloven § 29 (2), Aa-registerforskriften § 10 bokstav b</label>
+                <label>LOV-2010-02-19-5 AFP-tilskottsloven § 29 annet ledd</label>
             </value>
             <value>
                 <fullName>Annet - oppgi i tekstfelt under</fullName>
                 <default>false</default>
                 <label>Annet - oppgi i tekstfelt under</label>
+            </value>
+            <value>
+                <fullName>AFP-tilskottsloven § 29 (2), Aa-registerforskriften § 10 bokstav b</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>AFP-tilskottsloven § 29 (2), Aa-registerforskriften § 10 bokstav b</label>
+            </value>
+            <value>
+                <fullName>Aa-registerforskriften §10, 1. ledd bokstav C</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Aa-registerforskriften §10, 1. ledd bokstav C</label>
             </value>
         </valueSetDefinition>
     </valueSet>

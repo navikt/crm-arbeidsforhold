@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <label>Saksbehandler status</label>
+    <label>Status på søknad</label>
     <name>Casehandler_Status__c</name>
     <picklistValues>
         <masterLabel>Additional Information Required</masterLabel>
@@ -13,6 +13,10 @@
     <picklistValues>
         <masterLabel>Approved Partially</masterLabel>
         <translation>Delvis Innvilget</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Closed</masterLabel>
+        <translation>Ferdig behandlet</translation>
     </picklistValues>
     <picklistValues>
         <masterLabel>Declined</masterLabel>

@@ -1,9 +1,17 @@
 <template>
   <div class="app-section">
-    <div class="row">
+    <div if:false={isOtherOrganizationType} class="row">
       <div class="column">
         <span class="form-control">
-          <label for="hjemmel">Hjemmel</label>
+          <label for="hjemmel">
+            <abbr class="slds-required" title="required">* </abbr>
+            Hjemmel for utlevering</label
+          >
+          <lightning-helptext
+            content="Personopplysningene i Aa-registeret er underlagt taushetsplikt etter arbeids- og velferdsforvaltningsloven § 7. Opplysningene kan kun utleveres dersom dere har hjemmel i lov eller forskrift til å innhente opplysningene. "
+            class="slds-m-left_xx-small"
+          >
+          </lightning-helptext>
           <select
             name="hjemmel"
             aria-invalid="false"
@@ -22,7 +30,15 @@
       </div>
       <div class="column">
         <span class="form-control">
-          <label for="Formal">Formål</label>
+          <label for="Formal">
+            <abbr class="slds-required" title="required">* </abbr>
+            Formål</label
+          >
+          <lightning-helptext
+            content="Redegjør for deres behov for opplysningene fra Aa-registeret, hva og hvordan opplysningene skal benyttes. Personopplysninger skal kun samles inn for spesifikke uttrykkelig angitte og berettigede formål, samt være begrenset til det som er nødvendig for formålene de behandles for (dataminimering) dette følger av personvernlovgivningen og Aa-registerforskriften § 11 b."
+            class="slds-m-left_xx-small"
+          >
+          </lightning-helptext>
           <select
             name="Formål"
             aria-invalid="false"
@@ -40,27 +56,15 @@
         </span>
       </div>
     </div>
-    <div class="row">
-      <div class="column">
-        <span class="form-control">
-          <label for="behandlingsgrunnlag">Behandlingsgrunnlag</label>
-          <textarea
-            name="Behandlingsgrunnlag"
-            id="behandlingsgrunnlag"
-            data-id="processing-basis"
-            class="form-input-text-area"
-            onchange={handleInputChange}
-            required
-          ></textarea>
-          <small>Error Message</small>
-        </span>
-      </div>
-    </div>
+
     <template if:true={showOtherInput}>
       <div class="row">
         <div class="column">
           <span class="form-control">
-            <label for="annet-hjemmel">Annet Hjemmel</label>
+            <label for="annet-hjemmel">
+              <abbr class="slds-required" title="required">* </abbr>
+              Oppgi hjemmel for utlevering</label
+            >
             <textarea
               name="annet hjemmel"
               id="annet-hjemmel"
@@ -72,11 +76,12 @@
             <small>Error Message</small>
           </span>
         </div>
-      </div>
-      <div class="row">
         <div class="column">
           <span class="form-control">
-            <label for="annet-formal">Annet Formål</label>
+            <label for="annet-formal">
+              <abbr class="slds-required" title="required">* </abbr>
+              Oppgi formål</label
+            >
             <textarea
               name="annet formål"
               id="annet-formal"
@@ -90,5 +95,30 @@
         </div>
       </div>
     </template>
+    <div class="row">
+      <div class="column">
+        <span class="form-control">
+          <label for="behandlingsgrunnlag">
+            <abbr class="slds-required" title="required">* </abbr>
+            Behandlingsgrunnlag</label
+          >
+          <lightning-helptext
+            content="Her skal du opplyse om hvilket rettslig grunnlag som ligger til grunn for behandlingen, jf. oppgitt formål. All behandling av personopplysninger må ha et rettslig grunnlag for at den skal være lovlig i henhold til personvernlovgivningen. 
+            Eksempler på rettslig grunnlag kan være: Hjemmel i lov/forskrift, Samtykke fra den registrerte, Nødvendighetsgrunn "
+            class="slds-m-left_xx-small"
+          >
+          </lightning-helptext>
+          <textarea
+            name="Behandlingsgrunnlag"
+            id="behandlingsgrunnlag"
+            data-id="processing-basis"
+            class="form-input-text-area"
+            onchange={handleInputChange}
+            required
+          ></textarea>
+          <small>Error Message</small>
+        </span>
+      </div>
+    </div>
   </div>
 </template>

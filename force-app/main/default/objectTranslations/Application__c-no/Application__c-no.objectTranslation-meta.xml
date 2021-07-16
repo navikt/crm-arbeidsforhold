@@ -1,66 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
     <caseValues>
-        <article>None</article>
+        <article>Definite</article>
         <plural>false</plural>
-        <value><!-- Application --></value>
+        <value>Søknad</value>
     </caseValues>
     <caseValues>
         <article>Indefinite</article>
         <plural>false</plural>
-        <value><!-- Application --></value>
-    </caseValues>
-    <caseValues>
-        <article>Definite</article>
-        <plural>false</plural>
-        <value><!-- Application --></value>
+        <value>Søknad</value>
     </caseValues>
     <caseValues>
         <article>None</article>
+        <plural>false</plural>
+        <value>Søknad</value>
+    </caseValues>
+    <caseValues>
+        <article>Definite</article>
         <plural>true</plural>
-        <value><!-- Application --></value>
+        <value>Søknadene</value>
     </caseValues>
     <caseValues>
         <article>Indefinite</article>
         <plural>true</plural>
-        <value><!-- Application --></value>
+        <value>Søknader</value>
     </caseValues>
     <caseValues>
-        <article>Definite</article>
+        <article>None</article>
         <plural>true</plural>
-        <value><!-- Application --></value>
+        <value>Søknader</value>
     </caseValues>
-    <gender><!-- Neuter --></gender>
+    <gender>Neuter</gender>
     <layouts>
         <layout>Aa-register Casehandler Layout</layout>
         <sections>
-            <label><!-- Custom Links --></label>
+            <label>
+                <!-- Custom Links -->
+            </label>
             <section>Custom Links</section>
         </sections>
         <sections>
-            <label><!-- Decision Information --></label>
+            <label>
+                <!-- Decision Information -->
+            </label>
             <section>Decision Information</section>
         </sections>
     </layouts>
-    <layouts>
-        <layout>Application Layout</layout>
-        <sections>
-            <label><!-- Custom Links --></label>
-            <section>Custom Links</section>
-        </sections>
-        <sections>
-            <label><!-- Decision Information --></label>
-            <section>Decision Information</section>
-        </sections>
-    </layouts>
-    <nameFieldLabel><!-- Application Number --></nameFieldLabel>
+    <nameFieldLabel>Søknads nummer</nameFieldLabel>
     <quickActions>
-        <label><!-- Sett sakseier og status --></label>
+        <aspect>Master</aspect>
+        <label>Sett sakseier og status</label>
         <name>AA_UpdateCasehandlerOwner</name>
     </quickActions>
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Henlegge søknad</label>
+        <name>aaRegSuspendApplication</name>
+    </quickActions>
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Søknad ferdigbehandlet</label>
+        <name>aaReg_ApplicationDone</name>
+    </quickActions>
+
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Oppdater svarfrist</label>
+        <name>aaReg_UpdateDeadlineDate</name>
+    </quickActions>
     <recordTypes>
-        <description><!-- Application for partners to access Aa-register --></description>
-        <label><!-- Aa-register access --></label>
+        <description>
+            <!-- Application for partners to access Aa-register -->
+        </description>
+        <label>
+            <!-- Aa-register access -->
+        </label>
         <name>Aa_RegisterAccess</name>
     </recordTypes>
 </CustomObjectTranslation>

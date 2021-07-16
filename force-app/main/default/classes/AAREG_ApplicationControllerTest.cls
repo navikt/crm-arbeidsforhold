@@ -16,7 +16,7 @@ public class AAREG_ApplicationControllerTest {
   static void testGetAccountNameByOrgNumber() {
     String accountName = AAREG_ApplicationController.getAccountNameByOrgNumber('123456789');
 
-    System.assertEquals('Test', accountName);
+    System.assertEquals('Test', accountName, 'Assert that correct account name is returned');
   }
 
   @isTest
@@ -25,6 +25,7 @@ public class AAREG_ApplicationControllerTest {
 
     Application__c application = new Application__c();
     application.Account__c = account.Id;
+    application.IsConfirmationEmailSent__c = true;
 
     List<RelatedContact__c> contacts = new List<RelatedContact__c>();
     contacts.add(new RelatedContact__c(name = 'Test Contact 1'));
@@ -34,14 +35,24 @@ public class AAREG_ApplicationControllerTest {
     basisCodes.add(new ApplicationBasisCode__c());
     basisCodes.add(new ApplicationBasisCode__c());
 
-    AAREG_ApplicationController.processApplication(application, basisCodes, contacts);
-    List<Application__c> processedApplications = [SELECT Id FROM Application__c];
+    String base64 = 'sdkldsfjlcm';
+    String fileName = 'Test file name';
+
+    AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
+    List<Application__c> processedApplications = [SELECT Id, Casehandler_Status__c FROM Application__c];
     List<RelatedContact__c> processedContacts = [SELECT Id, Name, Application__c FROM RelatedContact__c];
     List<ApplicationBasisCode__c> processedBasisCodes = [SELECT Id, Application__c FROM ApplicationBasisCode__c];
+    List<ContentDocumentLink> documentLink = [
+      SELECT Id
+      FROM ContentDocumentLink
+      WHERE LinkedEntityId = :processedApplications[0].Id
+    ];
 
     System.assertEquals(1, processedApplications.size(), 'Check only one application was inserted');
     System.assertEquals(2, processedContacts.size(), 'Check that both contacts were inserted');
     System.assertEquals(2, processedBasisCodes.size(), 'Check that both Application Basis Codes were inserted');
+    System.assertEquals('New', processedApplications[0].Casehandler_Status__c, 'Assert correct application status');
+    System.assertEquals(1, documentLink.size(), 'Assert successful documentLink');
   }
 
   @isTest
@@ -66,6 +77,6 @@ public class AAREG_ApplicationControllerTest {
 
     Account lastUsedOrganization = AAREG_ApplicationController.getLastUsedOrganizationInformation(user.id);
 
-    System.assertEquals(lastUsedOrganization.name, 'Test');
+    System.assertEquals(lastUsedOrganization.name, 'Test', 'Assert that the correct account name is returned.');
   }
 }

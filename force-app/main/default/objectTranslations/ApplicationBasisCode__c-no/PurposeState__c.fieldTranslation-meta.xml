@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Purpose State --></label>
+    <name>PurposeState__c</name>
+    <picklistValues>
+        <masterLabel>Ajourholde av verneplikts- og tjenesteregisteret</masterLabel>
+        <translation><!-- Ajourholde av verneplikts- og tjenesteregisteret --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Annet - oppgi i tekstfelt under</masterLabel>
+        <translation><!-- Annet - oppgi i tekstfelt under --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Areal- og transportplanlegging</masterLabel>
+        <translation><!-- Areal- og transportplanlegging --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Avklare nærstående-forhold gjennom arbeidsforhold i stiftelsen</masterLabel>
+        <translation><!-- Avklare nærstående-forhold gjennom arbeidsforhold i stiftelsen --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Behandling av klager på vedtak fattet av Det lokalte eltilsyn (DLE)</masterLabel>
+        <translation><!-- Behandling av klager på vedtak fattet av Det lokalte eltilsyn (DLE) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Behandling av søknader om familiegjenforening</masterLabel>
+        <translation><!-- Behandling av søknader om familiegjenforening --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>BeredtC19 (midlertidig register for å gi løpende oversikt og kunnskap om utbredelse, årsakssammenhenger og konsekvenser av covid-19)</masterLabel>
+        <translation><!-- BeredtC19 (midlertidig register for å gi løpende oversikt og kunnskap om utbredelse, årsakssammenhenger og konsekvenser av covid-19) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. </masterLabel>
+        <translation><!-- Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer.  --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Bruk i Riksrevisjonens kontrollarbeid</masterLabel>
+        <translation><!-- Bruk i Riksrevisjonens kontrollarbeid --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Etterforskning av straffbare forhold i militær tjeneste</masterLabel>
+        <translation><!-- Etterforskning av straffbare forhold i militær tjeneste --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Fastsette og inndrive toll og avgifter</masterLabel>
+        <translation><!-- Fastsette og inndrive toll og avgifter --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Finne arbeidssted til personer som er tiltalt eller er stevnet som vitne</masterLabel>
+        <translation><!-- Finne arbeidssted til personer som er tiltalt eller er stevnet som vitne --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Forkynning av klager for den innklagede på arbeidsstedet</masterLabel>
+        <translation><!-- Forkynning av klager for den innklagede på arbeidsstedet --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Forvaltning av bostøtteordningen</masterLabel>
+        <translation><!-- Forvaltning av bostøtteordningen --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Forvaltningsmessige oppgaver knyttet til utlendingsloven,våpenloven,brukthandelloven,vaktvirksomhetsloven, veitrafikkloven, hundeloven og politiloven § 2</masterLabel>
+        <translation><!-- Forvaltningsmessige oppgaver knyttet til utlendingsloven,våpenloven,brukthandelloven,vaktvirksomhetsloven, veitrafikkloven, hundeloven og politiloven § 2 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Følge opp forpliktelsene etter forskrift om bruk av lærlinger i offentlige kontrakter</masterLabel>
+        <translation><!-- Følge opp forpliktelsene etter forskrift om bruk av lærlinger i offentlige kontrakter --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Følge opp forpliktelsene etter forskrift om lønns- og arbeidsvilkår i offentlige kontrakter</masterLabel>
+        <translation><!-- Følge opp forpliktelsene etter forskrift om lønns- og arbeidsvilkår i offentlige kontrakter --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Føre tilsyn med advokaters virksomhet i henhold til domstolloven</masterLabel>
+        <translation><!-- Føre tilsyn med advokaters virksomhet i henhold til domstolloven --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Inngå og følge opp sikkerhetsavtaler</masterLabel>
+        <translation><!-- Inngå og følge opp sikkerhetsavtaler --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Innkalling av personell til Sivilforsvaret</masterLabel>
+        <translation><!-- Innkalling av personell til Sivilforsvaret --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Innkalling av tjenestepliktig personell</masterLabel>
+        <translation><!-- Innkalling av tjenestepliktig personell --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Innkalling til straffegjennomføring av domfelte</masterLabel>
+        <translation><!-- Innkalling til straffegjennomføring av domfelte --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Innkreving av våpen og ammunisjon</masterLabel>
+        <translation><!-- Innkreving av våpen og ammunisjon --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Klarering for norske statsborgere i samferdselssektoren</masterLabel>
+        <translation><!-- Klarering for norske statsborgere i samferdselssektoren --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av ansettelsesforhold gjeldende el-tilsynsloven § 5 og forskrift om elektroforetak mv. §§ 3 og 5</masterLabel>
+        <translation><!-- Kontroll av ansettelsesforhold gjeldende el-tilsynsloven § 5 og forskrift om elektroforetak mv. §§ 3 og 5 --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av antall ansatte knyttet til kompensasjonsløsning for medieforetak</masterLabel>
+        <translation><!-- Kontroll av antall ansatte knyttet til kompensasjonsløsning for medieforetak --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av at trafikklærere og deres faglige ledere er ansatt ved den virksomheten som de utøver sin prøveperiode ved.</masterLabel>
+        <translation><!-- Kontroll av at trafikklærere og deres faglige ledere er ansatt ved den virksomheten som de utøver sin prøveperiode ved. --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av førerkort</masterLabel>
+        <translation><!-- Kontroll av førerkort --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av helsepersonells arbeidsforhold som ledd i tilsyn for gode og sikre helsetjenester</masterLabel>
+        <translation><!-- Kontroll av helsepersonells arbeidsforhold som ledd i tilsyn for gode og sikre helsetjenester --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av løyve for gods- og turvogntransport</masterLabel>
+        <translation><!-- Kontroll av løyve for gods- og turvogntransport --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av planlagt nasjonalt register om individuell arbeidstid tilrettelagt for forskning.</masterLabel>
+        <translation><!-- Kontroll av planlagt nasjonalt register om individuell arbeidstid tilrettelagt for forskning. --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av seriøsitetskrav etter byggesaksforskriften § 13-1a</masterLabel>
+        <translation><!-- Kontroll av seriøsitetskrav etter byggesaksforskriften § 13-1a --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av teknisk leder i kjøretøyverksteder</masterLabel>
+        <translation><!-- Kontroll av teknisk leder i kjøretøyverksteder --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av teknisk leder i virksomhet (periodisk kontroll av kjøretøy)</masterLabel>
+        <translation><!-- Kontroll av teknisk leder i virksomhet (periodisk kontroll av kjøretøy) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av tilskuddsordningen - kontrollere at virksomheter som sysselsetter helsepersonell har meldt inn korrekte opplysninger til Norsk pasientskadeerstatning</masterLabel>
+        <translation><!-- Kontroll av tilskuddsordningen - kontrollere at virksomheter som sysselsetter helsepersonell har meldt inn korrekte opplysninger til Norsk pasientskadeerstatning --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av vareførselen til og fra tollområdet</masterLabel>
+        <translation><!-- Kontroll av vareførselen til og fra tollområdet --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll av virksomheter som benytter eksplosiver.</masterLabel>
+        <translation><!-- Kontroll av virksomheter som benytter eksplosiver. --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll med foretakssammenslutninger mv.</masterLabel>
+        <translation><!-- Kontroll med foretakssammenslutninger mv. --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll med kjøre- og hviletid</masterLabel>
+        <translation><!-- Kontroll med kjøre- og hviletid --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kvalitetssikre at håndverkmestere som knytter sin mestertittel opp mot et firma er ansatt i firmaet.</masterLabel>
+        <translation><!-- Kvalitetssikre at håndverkmestere som knytter sin mestertittel opp mot et firma er ansatt i firmaet. --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kvalitetssikring av opplysninger ved behandling av søknader om autorisasjon eller lisens av helsepersonell</masterLabel>
+        <translation><!-- Kvalitetssikring av opplysninger ved behandling av søknader om autorisasjon eller lisens av helsepersonell --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>MSIS (permanent register for overvåking av smittsomme sykdommer)</masterLabel>
+        <translation><!-- MSIS (permanent register for overvåking av smittsomme sykdommer) --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Opplysninger om arbeidsforhold ved søknader om arbeids- og oppholdstillatelse og evt. tilbakekallelse</masterLabel>
+        <translation><!-- Opplysninger om arbeidsforhold ved søknader om arbeids- og oppholdstillatelse og evt. tilbakekallelse --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Personkontroll ved sikkerhetsklarering</masterLabel>
+        <translation><!-- Personkontroll ved sikkerhetsklarering --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Politioperative gjøremål, etterforskning og etterretningsoppgaver</masterLabel>
+        <translation><!-- Politioperative gjøremål, etterforskning og etterretningsoppgaver --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Regresjonsanalyse gitt i oppdrag av Det sentrale samarbeidsforum</masterLabel>
+        <translation><!-- Regresjonsanalyse gitt i oppdrag av Det sentrale samarbeidsforum --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Sikkerhetsklareringer av personell</masterLabel>
+        <translation><!-- Sikkerhetsklareringer av personell --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Tilgangskontroll og -styring i Altinn.  Kontrollen gjelder autorisasjon, herunder tilgangsstyring og tilgangskontroll, i kommunikasjonen med det offentlige</masterLabel>
+        <translation><!-- Tilgangskontroll og -styring i Altinn.  Kontrollen gjelder autorisasjon, herunder tilgangsstyring og tilgangskontroll, i kommunikasjonen med det offentlige --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Tilsyn med friskoler knyttet til krav om bruk av statstilskudd</masterLabel>
+        <translation><!-- Tilsyn med friskoler knyttet til krav om bruk av statstilskudd --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Tilsyn med helsepersonell og virksomheter som yter helse- og omsorgstjenester</masterLabel>
+        <translation><!-- Tilsyn med helsepersonell og virksomheter som yter helse- og omsorgstjenester --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Tilsyn med helsepersonell, vurdering av suspensjon</masterLabel>
+        <translation><!-- Tilsyn med helsepersonell, vurdering av suspensjon --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Tilsyn med helsepersonells yrkesutøvelse</masterLabel>
+        <translation><!-- Tilsyn med helsepersonells yrkesutøvelse --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Tilsyn med lønns- og arbeidsvilkår i offentlige kontrakter</masterLabel>
+        <translation><!-- Tilsyn med lønns- og arbeidsvilkår i offentlige kontrakter --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Tilsyn og kontroll av finansinstitusjoner</masterLabel>
+        <translation><!-- Tilsyn og kontroll av finansinstitusjoner --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Utstede offesielle bekreftelser på yrkeserfaring for leger og tannleger i Norge</masterLabel>
+        <translation><!-- Utstede offesielle bekreftelser på yrkeserfaring for leger og tannleger i Norge --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Utstedelse av HMS-kort i bygge- og anleggsplasser</masterLabel>
+        <translation><!-- Utstedelse av HMS-kort i bygge- og anleggsplasser --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Utstedelse av HMS-kort i renholdsbransjen</masterLabel>
+        <translation><!-- Utstedelse av HMS-kort i renholdsbransjen --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Verifisere domfeltes arbeidsforhold i tilknytning til straffegjennomføring</masterLabel>
+        <translation><!-- Verifisere domfeltes arbeidsforhold i tilknytning til straffegjennomføring --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Vurdere en søkers eller lånetakers rett til utdanningsstøtte</masterLabel>
+        <translation><!-- Vurdere en søkers eller lånetakers rett til utdanningsstøtte --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Vurdere erstatning for tapt arbeidsfortjeneste etter personskade som følge av en straffbar handling</masterLabel>
+        <translation><!-- Vurdere erstatning for tapt arbeidsfortjeneste etter personskade som følge av en straffbar handling --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Vurdere medlemskap og rettighetsspørsmål ved krav om stønad ved helsetjenester</masterLabel>
+        <translation><!-- Vurdere medlemskap og rettighetsspørsmål ved krav om stønad ved helsetjenester --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Vurdering av helserettigheter og rett til refusjon etter EØS-forordningen og folketrygdloven kap. 5 (Helfo).</masterLabel>
+        <translation><!-- Vurdering av helserettigheter og rett til refusjon etter EØS-forordningen og folketrygdloven kap. 5 (Helfo). --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Vurdering av statlige tilvirkningsbevillinger etter alkoholloven</masterLabel>
+        <translation><!-- Vurdering av statlige tilvirkningsbevillinger etter alkoholloven --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

@@ -11,6 +11,7 @@ export default class Aareg_applicationBasis extends LightningElement {
   purposeFieldName;
   legalBasisFieldName;
   applicationBasis;
+  isOtherOrganizationType = false;
 
   connectedCallback() {
     this.initApplicationBasis();
@@ -27,7 +28,7 @@ export default class Aareg_applicationBasis extends LightningElement {
   initApplicationBasis() {
     this.applicationBasis = {
       uuid: this.record.uuid,
-      OrganizationType__c: 'Municipality',
+      OrganizationType__c: this.organizationType,
       LegalBasisMunicipality__c: null,
       PurposeMunicipality__c: null,
       LegalBasisCounty__c: null,
@@ -54,6 +55,7 @@ export default class Aareg_applicationBasis extends LightningElement {
   })
   applicationBasisPicklists({ data, error }) {
     if (data) {
+      console.log('Org Type: ', this.organizationType);
       switch (this.organizationType) {
         case 'Municipality':
           this.purposeFieldName = 'PurposeMunicipality__c';
@@ -84,6 +86,10 @@ export default class Aareg_applicationBasis extends LightningElement {
           this.legalBasisFieldName = 'LegalBasisPension__c';
           this.legalBasisOptions = data.picklistFieldValues.LegalBasisPension__c.values;
           this.purposeData = data.picklistFieldValues.PurposePension__c;
+          break;
+        case 'Other':
+          this.showOtherInput = true;
+          this.isOtherOrganizationType = true;
           break;
         default:
           break;
@@ -144,34 +150,57 @@ export default class Aareg_applicationBasis extends LightningElement {
 
   @api
   validate() {
-    console.log('validating basis');
-    if (this.applicationBasis[`${this.purposeFieldName}`] === null || '') {
-      this.setErrorFor(this.purpose, 'Obligatorisk');
-    }
-    if (this.applicationBasis[`${this.legalBasisFieldName}`] === null || '') {
-      console.log('Missing legal basis');
+    this.resetErrors();
+
+    if (!this.isOtherOrganizationType && this.checkNulls(this.applicationBasis[`${this.legalBasisFieldName}`])) {
       this.setErrorFor(this.legalBasis, 'Obligatorisk');
+      this.legalBasis.setCustomValidity('Obligatorisk');
     }
 
-    if (this.applicationBasis.ProcessingBasis__c === null || '') {
-      console.log('Missing Processeing basis');
+    if (!this.isOtherOrganizationType && this.checkNulls(this.applicationBasis[`${this.purposeFieldName}`])) {
+      this.setErrorFor(this.purpose, 'Obligatorisk');
+      this.purpose.setCustomValidity('Obligatorisk');
+    }
+
+    if (this.checkNulls(this.applicationBasis.ProcessingBasis__c)) {
       this.setErrorFor(this.processingBasis, 'Obligatorisk');
+      this.processingBasis.setCustomValidity('Obligatorisk');
     }
 
     if (
-      this.applicationBasis[`${this.purposeFieldName}`] === 'Annet - oppgi i tekstfelt under' &&
-      this.applicationBasis.OtherPurpose__c === null
+      (this.isOtherOrganizationType ||
+        this.applicationBasis[`${this.purposeFieldName}`] === 'Annet - oppgi i tekstfelt under') &&
+      this.checkNulls(this.applicationBasis.OtherPurpose__c)
     ) {
-      console.log('Missing other purpose');
       this.setErrorFor(this.otherPurpose, 'Obligatorisk');
+      this.otherPurpose.setCustomValidity('Obligatorisk');
     }
 
     if (
-      this.applicationBasis[`${this.legalBasisFieldName}`] === 'Annet - oppgi i tekstfelt under' &&
-      this.applicationBasis.OtherLegalBasis__c === null
+      (this.isOtherOrganizationType ||
+        this.applicationBasis[`${this.legalBasisFieldName}`] === 'Annet - oppgi i tekstfelt under') &&
+      this.checkNulls(this.applicationBasis.OtherLegalBasis__c)
     ) {
-      console.log('Missing other legal basis');
       this.setErrorFor(this.otherLegalBasis, 'Obligatorisk');
+      this.otherLegalBasis.setCustomValidity('Obligatorisk');
+    }
+  }
+
+  @api focusInput() {
+    let invalidFields = this.template.querySelector(':invalid');
+
+    if (invalidFields) {
+      invalidFields.focus();
+      return true;
+    }
+    return false;
+  }
+
+  checkNulls(field) {
+    if (field === null || field === '') {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -181,5 +210,12 @@ export default class Aareg_applicationBasis extends LightningElement {
     let small = formControl.querySelector('small');
     small.innerText = message;
     formControl.className = 'form-control error';
+  }
+
+  resetErrors() {
+    let formControl = this.template.querySelectorAll('.form-control');
+    formControl.forEach((element) => {
+      element.classList.remove('error');
+    });
   }
 }

@@ -3,6 +3,7 @@
     <fullName>Status__c</fullName>
     <description>The status of the application.</description>
     <externalId>false</externalId>
+    <inlineHelpText>Dette feltet angir status på søknad som vises ut til søker. Denne vil kunne avvike fra &quot;status på søknad&quot; som benyttes internt i saksbehandlingen.</inlineHelpText>
     <label>Status</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
@@ -41,6 +42,11 @@
                 <fullName>Declined</fullName>
                 <default>false</default>
                 <label>Declined</label>
+            </value>
+            <value>
+                <fullName>Suspension</fullName>
+                <default>false</default>
+                <label>Suspension</label>
             </value>
             <value>
                 <fullName>In Process</fullName>
