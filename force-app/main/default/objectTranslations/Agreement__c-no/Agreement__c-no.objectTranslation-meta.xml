@@ -42,6 +42,10 @@
             <section>Custom Links</section>
         </sections>
         <sections>
+            <label>Databehandler</label>
+            <section>Dataprocessor</section>
+        </sections>
+        <sections>
             <label>Vedtak</label>
             <section>Decision</section>
         </sections>
