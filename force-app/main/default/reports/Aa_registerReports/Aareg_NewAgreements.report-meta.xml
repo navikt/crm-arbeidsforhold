@@ -4,6 +4,9 @@
         <field>CUST_NAME</field>
     </columns>
     <columns>
+        <field>Agreement__c.Status__c</field>
+    </columns>
+    <columns>
         <aggregateTypes>Sum</aggregateTypes>
         <field>Agreement__c.OnlineAccess__c</field>
     </columns>
@@ -20,9 +23,6 @@
     </columns>
     <columns>
         <field>Agreement__c.DataProcessorOrganizationNumber__c</field>
-    </columns>
-    <columns>
-        <field>Agreement__c.Status__c</field>
     </columns>
     <description>Rapport som viser alle nye avtaler den siste uken.
 Rapporten er skedulert og sendes til produksjon en gang daglig</description>
