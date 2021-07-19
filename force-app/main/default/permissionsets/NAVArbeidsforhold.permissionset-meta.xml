@@ -171,6 +171,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Agreement__c.DataProcessorName__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Agreement__c.DataProcessorOrganizationNumber__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Agreement__c.Decision__c</field>
         <readable>true</readable>
     </fieldPermissions>
