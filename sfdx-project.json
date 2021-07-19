@@ -26,10 +26,6 @@
                 {
                     "package": "crm-platform-email-scheduling",
                     "versionNumber": "1.1.0.LATEST"
-                },
-                {
-                    "package": "crm-messaging",
-                    "versionNumber": "0.1.0.LATEST"
                 }
             ]
         }
@@ -43,7 +39,6 @@
         "crm-platform-access-control": "0Ho2o0000008OR3CAM",
         "crm-community-base": "0Ho2o0000008OSzCAM",
         "crm-platform-integration": "0Ho2o0000008ORrCAM",
-        "crm-platform-email-scheduling": "0Ho2o000000fxWwCAI",
-        "crm-messaging": "0Ho2o000000fxXGCAY"
+        "crm-platform-email-scheduling": "0Ho2o000000fxWwCAI"
     }
 }
