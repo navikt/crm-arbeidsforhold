@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="valueString" type="String" label="Values" description="The String with the available values for the Picklist"></property>
+            <property name="valueChosen" type="String" label="Chosen Value" description="The String with the value selected at the picklist"></property>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
