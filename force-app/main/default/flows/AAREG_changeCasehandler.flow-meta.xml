@@ -10,14 +10,14 @@
             <assignToReference>varInText</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference>getUsers.Name</elementReference>
+                <stringValue>;</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varInText</assignToReference>
             <operator>Add</operator>
             <value>
-                <stringValue>;</stringValue>
+                <elementReference>getUsers.Name</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -307,7 +307,7 @@
         <isInput>true</isInput>
         <isOutput>true</isOutput>
         <value>
-            <stringValue>-- Velg bruker --;</stringValue>
+            <stringValue>-- Velg bruker --</stringValue>
         </value>
     </variables>
     <variables>
