@@ -233,6 +233,7 @@
         </inputAssignments>
         <object>Application__c</object>
     </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
     <screens>
         <name>ErrorMessage</name>
         <label>ErrorMessage</label>
