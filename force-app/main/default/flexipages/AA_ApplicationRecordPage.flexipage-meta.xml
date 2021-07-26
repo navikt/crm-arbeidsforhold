@@ -368,7 +368,7 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.CasehandlerOwner__c</fieldItem>
+                <fieldItem>Record.applicationOwner__c</fieldItem>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
