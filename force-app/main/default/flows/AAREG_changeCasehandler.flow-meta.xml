@@ -187,6 +187,7 @@
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>User</object>
         <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -229,6 +230,12 @@
             <field>CasehandlerOwner__c</field>
             <value>
                 <elementReference>getUser.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>applicationOwner__c</field>
+            <value>
+                <elementReference>getUser.Name</elementReference>
             </value>
         </inputAssignments>
         <object>Application__c</object>

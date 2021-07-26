@@ -290,6 +290,21 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Application__c.AA_ApplicationArchivedDate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Application__c.AA_ApplicationArchived__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Application__c.AA_CaseHandlerNavIdent__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Application__c.AA_CasehandlerDeadlineFlag__c</field>
         <readable>true</readable>
@@ -297,6 +312,21 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Application__c.AA_CasehandlerDecisionTemplate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Application__c.AA_DecisionArchiveText__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Application__c.AA_DecisionArchivedDate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Application__c.AA_DecisionArchived__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -328,6 +358,11 @@
         <editable>true</editable>
         <field>Application__c.ApplicationDeadlineForReply__c</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Application__c.ApplicationDeadline__c</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -437,6 +472,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Application__c.TermsOfUse__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Application__c.applicationOwner__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

@@ -2,6 +2,10 @@
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
     <description>Used in Aa-register application to set owner and In progress status</description>
     <fieldOverrides>
+        <field>applicationOwner__c</field>
+        <formula>$User.FirstName +&apos; &apos;+ $User.LastName</formula>
+    </fieldOverrides>
+    <fieldOverrides>
         <field>Casehandler_Status__c</field>
         <literalValue>In Progress</literalValue>
     </fieldOverrides>
@@ -20,7 +24,7 @@
         <quickActionLayoutColumns>
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
-                <field>CasehandlerOwner__c</field>
+                <field>applicationOwner__c</field>
                 <uiBehavior>Edit</uiBehavior>
             </quickActionLayoutItems>
             <quickActionLayoutItems>
