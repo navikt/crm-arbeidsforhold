@@ -86,7 +86,6 @@
         </rules>
     </decisions>
     <interviewLabel>AAREG_changeCasehandler {!$Flow.CurrentDateTime}</interviewLabel>
-    <isAdditionalPermissionRequiredToRun>true</isAdditionalPermissionRequiredToRun>
     <label>AAREG_changeCasehandler</label>
     <loops>
         <name>loopThroughMemberIds</name>
@@ -282,15 +281,12 @@
                     <elementReference>varInText</elementReference>
                 </value>
             </inputParameters>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <inputsOnNextNavToAssocScrn>ResetValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
-            <outputParameters>
-                <assignToReference>varOutText</assignToReference>
-                <name>valueChosen</name>
-            </outputParameters>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
         </fields>
         <showFooter>true</showFooter>
-        <showHeader>false</showHeader>
+        <showHeader>true</showHeader>
     </screens>
     <start>
         <locationX>50</locationX>
@@ -299,7 +295,7 @@
             <targetReference>getPublicGroupId</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
