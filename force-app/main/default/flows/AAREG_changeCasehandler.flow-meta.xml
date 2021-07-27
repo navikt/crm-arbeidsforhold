@@ -86,6 +86,7 @@
         </rules>
     </decisions>
     <interviewLabel>AAREG_changeCasehandler {!$Flow.CurrentDateTime}</interviewLabel>
+    <isAdditionalPermissionRequiredToRun>true</isAdditionalPermissionRequiredToRun>
     <label>AAREG_changeCasehandler</label>
     <loops>
         <name>loopThroughMemberIds</name>
@@ -240,7 +241,7 @@
         </inputAssignments>
         <object>Application__c</object>
     </recordUpdates>
-    <runInMode>SystemModeWithSharing</runInMode>
+    <runInMode>SystemModeWithoutSharing</runInMode>
     <screens>
         <name>ErrorMessage</name>
         <label>ErrorMessage</label>
