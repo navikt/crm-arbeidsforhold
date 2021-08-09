@@ -431,6 +431,11 @@
             <field>ApplicationDeadlineForReply__c</field>
             <table>Account.Applications__r</table>
         </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>applicationOwner__c</field>
+            <table>Account.Applications__r</table>
+        </columns>
         <masterLabel>Applications</masterLabel>
     </sections>
     <sections>
@@ -477,6 +482,16 @@
         <columns>
             <checkedByDefault>false</checkedByDefault>
             <field>Status__c</field>
+            <table>Account.Applications__r.Agreements__r</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>DataProcessorOrganizationNumber__c</field>
+            <table>Account.Applications__r.Agreements__r</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>DataProcessorName__c</field>
             <table>Account.Applications__r.Agreements__r</table>
         </columns>
         <masterLabel>Agreements</masterLabel>

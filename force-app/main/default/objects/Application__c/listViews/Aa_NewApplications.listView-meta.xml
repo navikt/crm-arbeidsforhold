@@ -7,7 +7,7 @@
     <columns>AA_CasehandlerDeadlineFlag__c</columns>
     <columns>APIAccess__c</columns>
     <columns>OnlineAccess__c</columns>
-    <columns>CasehandlerOwner__c</columns>
+    <columns>applicationOwner__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
         <field>RECORDTYPE</field>

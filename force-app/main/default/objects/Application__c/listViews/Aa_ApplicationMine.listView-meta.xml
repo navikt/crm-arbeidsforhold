@@ -8,7 +8,7 @@
     <columns>APIAccess__c</columns>
     <columns>OnlineAccess__c</columns>
     <columns>ExtractionAccess__c</columns>
-    <columns>CasehandlerOwner__c</columns>
+    <columns>applicationOwner__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
         <field>RECORDTYPE</field>
@@ -19,6 +19,11 @@
         <field>IsCasehandlerOwner__c</field>
         <operation>equals</operation>
         <value>1</value>
+    </filters>
+    <filters>
+        <field>Casehandler_Status__c</field>
+        <operation>notEqual</operation>
+        <value>Closed</value>
     </filters>
     <label>Aa-reg Søknader Mine</label>
     <sharedTo>
