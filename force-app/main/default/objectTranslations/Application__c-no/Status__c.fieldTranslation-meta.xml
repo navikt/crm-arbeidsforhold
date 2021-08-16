@@ -20,6 +20,10 @@
         <translation>Avslag</translation>
     </picklistValues>
     <picklistValues>
+        <masterLabel>Draft</masterLabel>
+        <translation>Utkast</translation>
+    </picklistValues>
+    <picklistValues>
         <masterLabel>In Progress</masterLabel>
         <translation>Under Behandling</translation>
     </picklistValues>

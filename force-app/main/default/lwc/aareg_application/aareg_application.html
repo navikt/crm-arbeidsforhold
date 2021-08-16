@@ -100,8 +100,10 @@
                       type="email"
                       name="e-post"
                       id="epost"
-                      data-id="email"
-                      onchange={handleApplicationInputChange}
+                      data-id="Email__c"
+                      value={application.Email__c}
+                      onchange={handleInputChange}
+                      disabled={isReadOnly}
                       required
                     />
                     <small>Error Message</small>
@@ -116,6 +118,7 @@
                 <div key={row.uuid} class="app-section">
                   <c-aareg_application-basis
                     record={row}
+                    read-only={isReadOnly}
                     organization-type={organizationType}
                     onapplicationbasischange={applicationBasisChange}
                     onvalidationerror={processError}
@@ -134,7 +137,7 @@
                 </div>
               </template>
 
-              <div class="button-container">
+              <div class="button-container" if:false={isReadOnly}>
                 <button
                   type="button"
                   name="legg til grunnlag og hjemmel"
@@ -173,6 +176,8 @@
                       name="Databehandler organisasjonsnummer"
                       id="databehandler-organisasjonsnummer"
                       data-id="data-processor"
+                      disabled={isReadOnly}
+                      value={application.DataProcessorOrganizationNumber__c}
                       onchange={handleDataProcessorChange}
                     />
                     <small>Error</small>
@@ -185,6 +190,7 @@
                       type="text"
                       name="Navn på databehandler"
                       id="navn-databehandler"
+                      data-id="DataProcessorName__c"
                       value={application.DataProcessorName__c}
                       disabled="disabled"
                     />
@@ -209,8 +215,10 @@
                     type="checkbox"
                     name="type tilgang api"
                     id="tilgang-api"
-                    data-id="api-access"
-                    onchange={handleApplicationInputChange}
+                    data-id="APIAccess__c"
+                    disabled={isReadOnly}
+                    checked={application.APIAccess__c}
+                    onchange={handleCheckboxChange}
                   />
                   <label for="tilgang-api"
                     >Integrert oppslag (API)
@@ -227,8 +235,10 @@
                     type="checkbox"
                     name="type tilgang online"
                     id="tilgang-online"
-                    data-id="online-access"
-                    onchange={handleApplicationInputChange}
+                    data-id="OnlineAccess__c"
+                    disabled={isReadOnly}
+                    checked={application.OnlineAccess__c}
+                    onchange={handleCheckboxChange}
                   />
                   <label for="tilgang-online"
                     >Web-oppslag
@@ -245,8 +255,10 @@
                     type="checkbox"
                     name="type tilgang uttrekk"
                     id="tilgang-uttrekk"
-                    data-id="extraction-access"
-                    onchange={handleApplicationInputChange}
+                    data-id="ExtractionAccess__c"
+                    disabled={isReadOnly}
+                    checked={application.ExtractionAccess__c}
+                    onchange={handleCheckboxChange}
                   />
                   <label for="tilgang-uttrekk"
                     >Uttrekk
@@ -274,6 +286,7 @@
                 <div key={row.uuid} class="app-section">
                   <c-aareg_application-contact
                     record={row}
+                    read-only={isReadOnly}
                     oncontactchange={contactChange}
                     onvalidationerror={processError}
                     data-id={row.uuid}
@@ -293,7 +306,7 @@
                 </div>
               </template>
 
-              <div class="button-container">
+              <div class="button-container" if:false={isReadOnly}>
                 <button
                   type="button"
                   name="legg til kontaktperson"
@@ -313,7 +326,7 @@
                 </button>
               </div>
             </section>
-            <section class="app-section">
+            <section class="app-section" if:false={isReadOnly}>
               <span class="form-control">
                 <span data-id="data-element"></span>
                 <h2 class="header-with-info-text">Dataelementer</h2>
@@ -337,6 +350,7 @@
                             name="uploadFile"
                             accept={acceptedFileFormats}
                             data-id="file-input"
+                            disabled={isReadOnly}
                             required
                             hidden
                             class="slds-file-selector__input slds-assistive-text"
@@ -378,7 +392,7 @@
               </div>
             </section>
 
-            <section class="app-section">
+            <section class="app-section" if:false={isReadOnly}>
               <span class="form-control">
                 <span data-id="terms"></span>
                 <h2>Bruksvilkår</h2>
@@ -390,8 +404,10 @@
                     type="checkbox"
                     name="bruksvilkar"
                     id="terms-of-use"
-                    data-id="terms-of-use"
-                    onchange={handleApplicationInputChange}
+                    data-id="TermsOfUse__c"
+                    disabled={isReadOnly}
+                    checked={application.TermsOfUse__c}
+                    onchange={handleCheckboxChange}
                     required
                   />
                   <label for="terms-of-use">
@@ -402,21 +418,32 @@
                 </span>
               </div>
             </section>
-            <p class="pl-16">
-              Ved å trykke «SEND INN» signerer du søknaden digitalt på vegne av din virksomhet. Signaturen er juridisk
-              bindende.
-            </p>
-            <div class="button-container">
-              <button
-                type="submit"
-                name="Send inn"
-                class="button button-main"
-                onclick={handleSubmit}
-                style="margin: 10px"
-              >
-                Send inn
-              </button>
-            </div>
+            <section if:false={isReadOnly}>
+              <p class="pl-16">
+                Ved å trykke «SEND INN» signerer du søknaden digitalt på vegne av din virksomhet. Signaturen er juridisk
+                bindende.
+              </p>
+              <div class="button-container save-submit">
+                <button
+                  type="submit"
+                  name="lagre"
+                  class="button button-flat"
+                  onclick={handleSaveAsDraft}
+                  style="margin: 10px"
+                >
+                  Lagre
+                </button>
+                <button
+                  type="submit"
+                  name="Send inn"
+                  class="button button-main"
+                  onclick={handleSubmit}
+                  style="margin: 10px"
+                >
+                  Send inn
+                </button>
+              </div>
+            </section>
           </form>
         </div>
       </template>

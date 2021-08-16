@@ -1,0 +1,11 @@
+{
+  "activeViewId": "7ee36226-0e10-414e-87ba-a321aad669fe",
+  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+  "configurationTags": [],
+  "id": "ae315344-dbe1-4e96-ae58-4242349417b9",
+  "label": "Mine Søknader",
+  "pageAccess": "UseParent",
+  "routeType": "custom-mine-soknader",
+  "type": "route",
+  "urlPrefix": "mine-soknader"
+}

@@ -1,8 +1,8 @@
 {
   "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
   "componentName": "siteforce:dynamicLayout",
-  "id": "690e0194-4d1a-4261-b993-4eed34eca28d",
-  "label": "Ny Søknad Aa-registret",
+  "id": "7ee36226-0e10-414e-87ba-a321aad669fe",
+  "label": "Mine Søknader",
   "regions": [
     {
       "components": [
@@ -12,10 +12,10 @@
             "backgroundOverlay": "rgba(0,0,0,0.5)",
             "contentAreaWidth": 100,
             "sectionConfig": {
-              "UUID": "5182ab99-f805-486e-8ad5-bac8bd254b7b",
+              "UUID": "d6fa03f4-cc46-423f-82da-78cbfec79849",
               "columns": [
                 {
-                  "UUID": "16d25c46-41ee-4fb3-9eda-7fc8ecda26c5",
+                  "UUID": "be7d025e-5820-4746-8668-00bcda3dd192",
                   "columnKey": "1",
                   "columnName": "Column 1",
                   "columnWidth": "12",
@@ -26,28 +26,22 @@
             "sectionHeight": 32
           },
           "componentName": "forceCommunity:section",
-          "id": "5182ab99-f805-486e-8ad5-bac8bd254b7b",
+          "id": "d6fa03f4-cc46-423f-82da-78cbfec79849",
           "regions": [
             {
               "components": [
                 {
-                  "componentAttributes": {},
+                  "componentAttributes": {
+                    "NAVarea": "Privatperson"
+                  },
                   "componentName": "c:globalCommunityHeader",
-                  "id": "fa875156-c481-462d-ba76-636357983a6e",
-                  "renderPriority": "NEUTRAL",
-                  "renditionMap": {},
-                  "type": "component"
-                },
-                {
-                  "componentAttributes": {},
-                  "componentName": "c:aareg_mainBanner",
-                  "id": "8d7b2ec5-1090-4215-a59e-ffb1e6a0bcaf",
+                  "id": "941bfa38-cb5b-406f-968b-8347a3c7f885",
                   "renderPriority": "NEUTRAL",
                   "renditionMap": {},
                   "type": "component"
                 }
               ],
-              "id": "16d25c46-41ee-4fb3-9eda-7fc8ecda26c5",
+              "id": "be7d025e-5820-4746-8668-00bcda3dd192",
               "regionLabel": "Column 1",
               "regionName": "1",
               "renditionMap": {},
@@ -64,10 +58,10 @@
             "backgroundOverlay": "rgba(0,0,0,0.5)",
             "contentAreaWidth": 100,
             "sectionConfig": {
-              "UUID": "cead1eca-0914-422e-a052-cd62aceab5f6",
+              "UUID": "2cd4ce61-8f83-4f15-9c09-05198437a8d5",
               "columns": [
                 {
-                  "UUID": "ea0b580a-05d8-40a5-887e-9ff176e5a637",
+                  "UUID": "7b926477-b69b-4a7b-adbb-6ab2a8e8f601",
                   "columnKey": "1",
                   "columnName": "Column 1",
                   "columnWidth": "12",
@@ -78,20 +72,20 @@
             "sectionHeight": 300
           },
           "componentName": "forceCommunity:section",
-          "id": "cead1eca-0914-422e-a052-cd62aceab5f6",
+          "id": "2cd4ce61-8f83-4f15-9c09-05198437a8d5",
           "regions": [
             {
               "components": [
                 {
                   "componentAttributes": {},
-                  "componentName": "c:aareg_application",
-                  "id": "e4076aa4-763c-43bf-b7cb-3b4c37a900cb",
+                  "componentName": "c:aareg_myApplications",
+                  "id": "2ebfcf7a-0a04-490d-96bb-b40721c04f31",
                   "renderPriority": "NEUTRAL",
                   "renditionMap": {},
                   "type": "component"
                 }
               ],
-              "id": "ea0b580a-05d8-40a5-887e-9ff176e5a637",
+              "id": "7b926477-b69b-4a7b-adbb-6ab2a8e8f601",
               "regionLabel": "Column 1",
               "regionName": "1",
               "renditionMap": {},
@@ -108,10 +102,10 @@
             "backgroundOverlay": "rgba(0,0,0,0.5)",
             "contentAreaWidth": 100,
             "sectionConfig": {
-              "UUID": "0149f440-2032-452e-b8c4-2cd99d2b3aab",
+              "UUID": "747b375b-aa0a-4e9a-bd8c-5039cd51d248",
               "columns": [
                 {
-                  "UUID": "ba11b987-2217-48a7-91d0-9f6f1bf4af54",
+                  "UUID": "47db7716-18cb-43f0-a388-cbe1d9ef3046",
                   "columnKey": "1",
                   "columnName": "Column 1",
                   "columnWidth": "12",
@@ -122,20 +116,22 @@
             "sectionHeight": 300
           },
           "componentName": "forceCommunity:section",
-          "id": "0149f440-2032-452e-b8c4-2cd99d2b3aab",
+          "id": "747b375b-aa0a-4e9a-bd8c-5039cd51d248",
           "regions": [
             {
               "components": [
                 {
-                  "componentAttributes": {},
+                  "componentAttributes": {
+                    "NAVarea": "Privatperson"
+                  },
                   "componentName": "c:globalCommunityFooter",
-                  "id": "4d6ce347-cfa9-4df2-8faa-40c1fdfb37e5",
+                  "id": "4fffa7b5-178f-4c58-a6df-c02f022eeef4",
                   "renderPriority": "NEUTRAL",
                   "renditionMap": {},
                   "type": "component"
                 }
               ],
-              "id": "ba11b987-2217-48a7-91d0-9f6f1bf4af54",
+              "id": "47db7716-18cb-43f0-a388-cbe1d9ef3046",
               "regionLabel": "Column 1",
               "regionName": "1",
               "renditionMap": {},
@@ -147,7 +143,7 @@
           "type": "component"
         }
       ],
-      "id": "30fa33ea-ac7b-4895-8a33-e226658590bb",
+      "id": "3b255f5b-8b88-46ce-b015-98cd1588a18e",
       "regionName": "content",
       "type": "region"
     },
@@ -157,20 +153,20 @@
           "componentAttributes": {
             "customHeadTags": "",
             "description": "",
-            "title": "Ny Søknad Aa-registret"
+            "title": "Mine Søknader"
           },
           "componentName": "forceCommunity:seoAssistant",
-          "id": "40c16d50-fc1a-4171-9ed9-df67ac75f4d2",
+          "id": "10674ab7-a3de-448f-ae76-5b8455c4ca34",
           "renditionMap": {},
           "type": "component"
         }
       ],
-      "id": "d80b5d9f-760f-4120-ba7f-825d7bcc3407",
+      "id": "d0341285-3be0-451f-a6b4-8626909ef0b5",
       "regionName": "sfdcHiddenRegion",
       "type": "region"
     }
   ],
   "themeLayoutType": "Inner",
   "type": "view",
-  "viewType": "custom-ny-soknad-aa-registret"
+  "viewType": "custom-mine-soknader"
 }

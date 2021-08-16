@@ -10,6 +10,7 @@
   </targets>
   <targetConfigs>
     <targetConfig targets="lightningCommunity__Default">
+      <property name="recordId" type="String" label="Record Id" description="Makes component aware of the page's record id" default="{!recordId}" />
       <property name="linkToDataElements" type="String" label="Data elements URL" description="The URL for the data element file." default="https://navikt.github.io/aareg/om_tjenestene/soke_om_tilgang.html" />
       <property name="linkToTermsOfUse" type="String" label="Terms of use URL" description="The URL for the terms of use document." default="https://nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/Bruksvilkår_for_tilgang_til_Aa-registeret.pdf" />
     </targetConfig>

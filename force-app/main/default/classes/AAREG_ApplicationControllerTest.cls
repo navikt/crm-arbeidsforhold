@@ -13,14 +13,14 @@ public class AAREG_ApplicationControllerTest {
   }
 
   @isTest
-  static void testGetAccountNameByOrgNumber() {
+  static void getAccountNameByOrgNumber() {
     String accountName = AAREG_ApplicationController.getAccountNameByOrgNumber('123456789');
 
     System.assertEquals('Test', accountName, 'Assert that correct account name is returned');
   }
 
   @isTest
-  static void testProcessNewApplication() {
+  static void processNewApplication() {
     Account account = [SELECT Id, Name FROM Account LIMIT 1];
 
     Application__c application = new Application__c();
@@ -56,7 +56,41 @@ public class AAREG_ApplicationControllerTest {
   }
 
   @isTest
-  static void testGetLastUsedOrganizationInformation() {
+  static void saveAsDraft() {
+    Account account = [SELECT Id, Name FROM Account LIMIT 1];
+
+    Application__c application = new Application__c();
+    application.Account__c = account.Id;
+    application.IsConfirmationEmailSent__c = true;
+
+    List<RelatedContact__c> contacts = new List<RelatedContact__c>();
+    contacts.add(new RelatedContact__c(name = 'Test Contact 1'));
+    contacts.add(new RelatedContact__c(name = 'Test Contact 2'));
+
+    List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
+    basisCodes.add(new ApplicationBasisCode__c());
+    basisCodes.add(new ApplicationBasisCode__c());
+
+    AAREG_ApplicationController.saveAsDraft(application, basisCodes, contacts);
+    Application__c processedApplication = [SELECT Id, Status__c FROM Application__c LIMIT 1];
+    List<RelatedContact__c> processedContacts = [
+      SELECT Id, Name, Application__c
+      FROM RelatedContact__c
+      WHERE Application__c = :processedApplication.Id
+    ];
+    List<ApplicationBasisCode__c> processedBasisCodes = [
+      SELECT Id, Application__c
+      FROM ApplicationBasisCode__c
+      WHERE Application__c = :processedApplication.Id
+    ];
+
+    System.assertEquals(2, processedContacts.size(), 'Check that both contacts were inserted');
+    System.assertEquals(2, processedBasisCodes.size(), 'Check that both Application Basis Codes were inserted');
+    System.assertEquals('Draft', processedApplication.Status__c, 'Assert correct application status');
+  }
+
+  @isTest
+  static void getLastUsedOrganizationInformation() {
     Profile profile = [SELECT Id, UserLicense.Name FROM Profile WHERE Name = 'Standard User' LIMIT 1];
     User user = new User();
 
@@ -78,5 +112,48 @@ public class AAREG_ApplicationControllerTest {
     Account lastUsedOrganization = AAREG_ApplicationController.getLastUsedOrganizationInformation(user.id);
 
     System.assertEquals(lastUsedOrganization.name, 'Test', 'Assert that the correct account name is returned.');
+  }
+
+  @isTest
+  static void getDraftApplication() {
+    Profile profile = [SELECT Id, UserLicense.Name FROM Profile WHERE Name = 'Standard User' LIMIT 1];
+    User user = AAREG_TestDataFactory.getStandardUser();
+    insert user;
+
+    Account account = [SELECT Id, Name FROM Account LIMIT 1];
+
+    Application__c application = AAREG_TestDataFactory.getApplication(account.Id);
+    insert application;
+
+    List<RelatedContact__c> contacts = new List<RelatedContact__c>();
+    contacts.add(new RelatedContact__c(application__c = application.Id, name = 'Test Contact 1'));
+    contacts.add(new RelatedContact__c(application__c = application.Id, name = 'Test Contact 2'));
+    insert contacts;
+
+    List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
+    basisCodes.add(new ApplicationBasisCode__c(application__c = application.Id));
+    basisCodes.add(new ApplicationBasisCode__c(application__c = application.Id));
+    insert basisCodes;
+
+    AAREG_ApplicationController.DraftApplication draft = AAREG_ApplicationController.getDraftApplication(
+      application.Id
+    );
+    System.assertEquals(application.Id, draft.application.Id, 'Draft application retrieved');
+    System.assertEquals(2, draft.basisCodes.size(), '2 draft basis codes retrieved');
+    System.assertEquals(2, draft.contacts.size(), '2 draft related contacts retrieved');
+  }
+
+  @isTest
+  static void deleteDraftRecord() {
+    Account account = [SELECT Id, Name FROM Account LIMIT 1];
+
+    Application__c application = AAREG_TestDataFactory.getApplication(account.Id);
+    insert application;
+
+    AAREG_ApplicationController.deleteDraftRecord(application);
+
+    List<Application__c> applications = [SELECT Id FROM Application__c];
+
+    System.assertEquals(0, applications.size(), 'No applications. Successful record deletion.');
   }
 }

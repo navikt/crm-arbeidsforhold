@@ -20,24 +20,6 @@
           "renderPriority": "NEUTRAL",
           "renditionMap": {},
           "type": "component"
-        },
-        {
-          "componentAttributes": {
-            "detailsTabLabel": "Details",
-            "discussionsTabLabel": "Feed",
-            "recordId": "{!recordId}",
-            "relatedTabLabel": "Related",
-            "tab1Type": "details",
-            "tab2Type": "related",
-            "tab3Type": "chatter",
-            "tab4Type": "none",
-            "timelineTabLabel": "Activity"
-          },
-          "componentName": "forceCommunity:recordHomeTabs",
-          "id": "8b71a993-33b4-4823-b362-b14cffeb194c",
-          "renderPriority": "NEUTRAL",
-          "renditionMap": {},
-          "type": "component"
         }
       ],
       "id": "1ee5caff-d517-4c35-ba8e-df79c750d9f2",
@@ -45,6 +27,18 @@
       "type": "region"
     },
     {
+      "components": [
+        {
+          "componentAttributes": {
+            "recordId": "{!recordId}"
+          },
+          "componentName": "forceCommunity:lwcRecordDetail",
+          "id": "9c0739f6-74cb-408e-ab4d-8742cb936c58",
+          "renderPriority": "NEUTRAL",
+          "renditionMap": {},
+          "type": "component"
+        }
+      ],
       "id": "d3705c59-cad8-4704-94a8-f69c10d955fb",
       "regionName": "footer",
       "type": "region"

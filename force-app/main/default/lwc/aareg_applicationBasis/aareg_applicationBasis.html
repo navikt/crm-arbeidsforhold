@@ -17,10 +17,11 @@
             aria-invalid="false"
             id="hjemmel"
             data-id="legal-basis"
+            disabled={readOnly}
             onchange={handleLegalBasisChange}
             required
           >
-            <option value="">Velg</option>
+            <option if:false={legalBasisValue} value="">Velg</option>
             <template for:each={legalBasisOptions} for:item="option">
               <option key={option.key} value={option.key}>{option.value}</option>
             </template>
@@ -44,10 +45,12 @@
             aria-invalid="false"
             id="Formal"
             data-id="purpose"
+            disabled={readOnly}
             onchange={handlePurposeChange}
             required
           >
-            <option value="">Velg</option>
+            <option if:false={purposeValue} value="">Velg</option>
+            <option if:true={purposeValue} value="(purposeValue)">{purposeValue}</option>
             <template for:each={purposeOptions} for:item="option">
               <option key={option.key} value={option.key}>{option.value}</option>
             </template>
@@ -70,9 +73,12 @@
               id="annet-hjemmel"
               data-id="other-legal-basis"
               class="form-input-text-area"
+              disabled={readOnly}
               required
               onchange={handleInputChange}
-            ></textarea>
+            >
+            {applicationBasis.OtherLegalBasis__c}
+            </textarea>
             <small>Error Message</small>
           </span>
         </div>
@@ -87,9 +93,12 @@
               id="annet-formal"
               data-id="other-purpose"
               class="form-input-text-area"
+              disabled={readOnly}
               required
               onchange={handleInputChange}
-            ></textarea>
+            >
+            {applicationBasis.OtherPurpose__c}
+            </textarea>
             <small>Error Message</small>
           </span>
         </div>
@@ -111,11 +120,14 @@
           <textarea
             name="Behandlingsgrunnlag"
             id="behandlingsgrunnlag"
-            data-id="processing-basis"
             class="form-input-text-area"
+            data-id="processing-basis"
+            disabled={readOnly}
             onchange={handleInputChange}
             required
-          ></textarea>
+          >
+          {applicationBasis.ProcessingBasis__c}
+          </textarea>
           <small>Error Message</small>
         </span>
       </div>

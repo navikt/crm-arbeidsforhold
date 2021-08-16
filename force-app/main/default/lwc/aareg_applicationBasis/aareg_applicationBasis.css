@@ -18,6 +18,16 @@ select:invalid:required {
   box-shadow: 0 0 0 1px #ba3a26;
 }
 
+.form-control select:disabled {
+  background-color: #f1f1f1;
+  font-weight: 600;
+}
+
+.form-control textArea:disabled {
+  background-color: #f1f1f1;
+  font-weight: 600;
+}
+
 .app-section {
   /*
   display: flex;

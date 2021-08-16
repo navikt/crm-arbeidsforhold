@@ -55,6 +55,10 @@
             <default>false</default>
         </values>
         <values>
+            <fullName>Draft</fullName>
+            <default>false</default>
+        </values>
+        <values>
             <fullName>In Progress</fullName>
             <default>false</default>
         </values>
