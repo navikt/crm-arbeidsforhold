@@ -1,17 +1,18 @@
 <template>
-    <div class="container">
-        <div class="inner-container">
-            <lightning-datatable
-                key-field="id"
-                data={applications}
-                columns={columns}
-                onrowaction={viewApplication}
-                hide-checkbox-column="true"
-            >
-            </lightning-datatable>
-            <div if:false={applications} class="no-applications-container">
-                <p>Det finnes ingen aktive søknader.</p>
-            </div>
-        </div>
+  <c-aareg_main-banner>Mine Søknader Aa-registret</c-aareg_main-banner>
+  <div class="container">
+    <div class="inner-container">
+      <lightning-datatable
+        key-field="id"
+        data={applications}
+        columns={columns}
+        onrowaction={viewApplication}
+        hide-checkbox-column="true"
+      >
+      </lightning-datatable>
+      <div if:false={applications} class="no-applications-container">
+        <p>Det finnes ingen aktive søknader.</p>
+      </div>
     </div>
+  </div>
 </template>

@@ -126,7 +126,7 @@ public without sharing class AAREG_ApplicationController {
     return [
       SELECT
         Id,
-        Status__c,
+        AA_isPortalUserEditable__c,
         Email__c,
         DataProcessorName__c,
         APIAccess__c,

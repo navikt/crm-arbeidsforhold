@@ -64,7 +64,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
         } else {
           this.applicationBasisRows.push({ uuid: this.createUUID() });
         }
-        if (this.application.Status__c !== 'Draft') {
+        if (!this.application.AA_isPortalUserEditable__c) {
           this.setAsReadOnly();
         }
         // initialize new application.
@@ -141,14 +141,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   setAsReadOnly() {
     this.isReadOnly = true;
-    let cons = this.template.querySelectorAll('c-aareg_application-contact');
-    cons.forEach((con) => {
-      con.isReadOnly = true;
-    });
-    let purposes = this.template.querySelectorAll('c-aareg_application-basis');
-    purposes.forEach((purpose) => {
-      purpose.isReadOnly = true;
-    });
   }
 
   /*************** Dynamic Element handlers ***************/
@@ -248,6 +240,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.checkApplicationInputs();
 
     if (this.hasErrors) {
+      console.log('Has errors');
       this.focusInput();
       return;
     }
@@ -386,6 +379,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       }
     });
     if (agreementNotification < 1 || changeNofiication < 1 || errorNotification < 1 || securityNotification < 1) {
+      console.log('Missing contact notification');
       this.setErrorFor(this.contacts, 'Det må oppgis minimum en kontaktperson per type varsling.');
     }
   }
@@ -439,6 +433,11 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   resetErrors() {
     this.hasErrors = false;
+
+    let inputs = this.template.querySelectorAll('input');
+    inputs.forEach((input) => {
+      input.classList.remove('invalid');
+    });
     let formControl = this.template.querySelectorAll('.form-control');
     formControl.forEach((element) => {
       element.classList.remove('error');
