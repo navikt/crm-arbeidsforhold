@@ -23,6 +23,9 @@
     "communitiesSettings": {
       "enableNetworksEnabled": true
     },
+    "experienceBundleSettings": {
+      "enableExperienceBundleMetadata": true
+    },
     "lightningExperienceSettings": {
       "enableS1DesktopEnabled": true
     },

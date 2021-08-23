@@ -7,7 +7,7 @@
 # NOTE!! Do NOT use **/ before
 !unpackagable/profiles/*
 # NOTE!! Do NOT use **/ before
-
+**/unpackagable/experiences/*
 
 # standard fields not needed in source control
 # ----------------------------------------------------------------------------------------

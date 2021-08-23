@@ -22,7 +22,8 @@
     <referrerPolicyOriginWhenCrossOrigin>true</referrerPolicyOriginWhenCrossOrigin>
     <requireHttps>true</requireHttps>
     <selfRegPage>CommunitiesSelfReg</selfRegPage>
-    <siteAdmin>jordan.mathews@nav.no.aareg</siteAdmin>
+    <siteAdmin>test-af7rhvdq7gc3@example.com</siteAdmin>
+    <siteGuestRecordDefaultOwner>test-af7rhvdq7gc3@example.com</siteGuestRecordDefaultOwner>
     <siteType>ChatterNetwork</siteType>
-    <subdomain>jordan.mathews@nav.no.aareg</subdomain>
+    <subdomain>java-power-5432-17b733568fc</subdomain>
 </CustomSite>
