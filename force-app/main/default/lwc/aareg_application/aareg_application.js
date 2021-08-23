@@ -92,12 +92,11 @@ export default class Aareg_application extends LightningElement {
   }
 
   get dataElementURL() {
-    console.log(this.linkToDataElements);
-    return this.linkToDataElements;
+    return 'https://navikt.github.io/aareg/om_tjenestene/soke_om_tilgang.html';
   }
 
   get termsOfUseURL() {
-    return this.linkToTermsOfUse;
+    return 'https://nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/Bruksvilkår_for_tilgang_til_Aa-registeret.pdf';
   }
 
   /*************** Dynamic Element handlers ***************/
