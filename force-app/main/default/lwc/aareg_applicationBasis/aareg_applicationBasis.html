@@ -50,7 +50,6 @@
             required
           >
             <option if:false={purposeValue} value="">Velg</option>
-            <option if:true={purposeValue} value="(purposeValue)">{purposeValue}</option>
             <template for:each={purposeOptions} for:item="option">
               <option key={option.key} value={option.key}>{option.value}</option>
             </template>

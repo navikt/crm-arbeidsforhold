@@ -31,7 +31,9 @@
             {
               "components": [
                 {
-                  "componentAttributes": {},
+                  "componentAttributes": {
+                    "NAVarea": "Privatperson"
+                  },
                   "componentName": "c:globalCommunityHeader",
                   "id": "fa875156-c481-462d-ba76-636357983a6e",
                   "renderPriority": "NEUTRAL",

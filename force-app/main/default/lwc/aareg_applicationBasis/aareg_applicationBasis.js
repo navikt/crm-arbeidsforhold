@@ -78,6 +78,7 @@ export default class Aareg_applicationBasis extends LightningElement {
   applicationBasisPicklists({ data, error }) {
     if (data) {
       this.legalBasisOptions = data.picklistFieldValues[this.legalBasisFieldName].values.map((arr) => ({ ...arr }));
+
       this.legalBasisOptions.forEach((el, index) => {
         if (el.value === this.applicationBasis[this.legalBasisFieldName]) {
           this.legalBasisOptions.splice(index, 1);
@@ -85,6 +86,18 @@ export default class Aareg_applicationBasis extends LightningElement {
         }
       });
       this.purposeData = data.picklistFieldValues[this.purposeFieldName];
+
+      if (this.applicationBasis[this.legalBasisFieldName]) {
+        let key = this.purposeData.controllerValues[this.applicationBasis[this.legalBasisFieldName]];
+        this.purposeOptions = this.purposeData.values.filter((opt) => opt.validFor.includes(key));
+
+        this.purposeOptions.forEach((el, index) => {
+          if (el.value === this.applicationBasis[this.purposeFieldName]) {
+            this.purposeOptions.splice(index, 1);
+            this.purposeOptions.unshift(el);
+          }
+        });
+      }
     } else if (error) {
       console.error(error);
     }
@@ -236,8 +249,17 @@ export default class Aareg_applicationBasis extends LightningElement {
 
   resetErrors() {
     let formControl = this.template.querySelectorAll('.form-control');
+
     formControl.forEach((element) => {
       element.classList.remove('error');
     });
+
+    this.legalBasis.setCustomValidity('');
+    this.purpose.setCustomValidity('');
+    this.processingBasis.setCustomValidity('');
+    if (this.otherLegalBasis) {
+      this.otherLegalBasis.setCustomValidity('');
+      this.otherPurpose.setCustomValidity('');
+    }
   }
 }

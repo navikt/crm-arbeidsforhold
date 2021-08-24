@@ -2,6 +2,12 @@
   <c-aareg_main-banner>Mine Søknader Aa-registret</c-aareg_main-banner>
   <div class="container">
     <div class="inner-container">
+      <div class="breadcrumbs">
+        <lightning-breadcrumbs class="skjema-max-width">
+          <lightning-breadcrumb label="Min Side" href="/s/"> </lightning-breadcrumb>
+          <lightning-breadcrumb label="Mine Søknader" href="/s/mine-soknader"> </lightning-breadcrumb>
+        </lightning-breadcrumbs>
+      </div>
       <lightning-datatable
         key-field="id"
         data={applications}

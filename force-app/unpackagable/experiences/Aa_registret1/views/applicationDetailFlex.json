@@ -87,7 +87,8 @@
                 {
                   "componentAttributes": {
                     "linkToDataElements": "https://navikt.github.io/aareg/om_tjenestene/soke_om_tilgang.html",
-                    "linkToTermsOfUse": "https://nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/Bruksvilkår_for_tilgang_til_Aa-registeret.pdf"
+                    "linkToTermsOfUse": "https://nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/Bruksvilkår_for_tilgang_til_Aa-registeret.pdf",
+                    "recordId": "{!recordId}"
                   },
                   "componentName": "c:aareg_application",
                   "id": "e55b013b-137b-4f7f-a3ee-5b56d68e084c",

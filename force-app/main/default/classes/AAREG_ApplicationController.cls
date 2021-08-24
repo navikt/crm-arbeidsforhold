@@ -1,4 +1,9 @@
 public without sharing class AAREG_ApplicationController {
+  private static final String ADDITIONAL_INFORMATION = 'Additional Information Required';
+  private static final String DRAFT_APPLICATION = 'Draft';
+  private static final String NEW_APPLICATION = 'New';
+  private static final String IN_PROGRESS = 'In Progress';
+
   @AuraEnabled(cacheable=true)
   public static Account getLastUsedOrganizationInformation(String userId) {
     User currentUser = [SELECT Id, LastUsedOrganization__c FROM USER WHERE Id = :userId];
@@ -21,24 +26,32 @@ public without sharing class AAREG_ApplicationController {
 
   @AuraEnabled
   public static string getAccountNameByOrgNumber(String orgNumber) {
-    String accountName = '';
-    accountName = [
+    String accountName = [
       SELECT Id, Name, INT_OrganizationNumber__c
       FROM Account
       WHERE INT_OrganizationNumber__c = :orgNumber
       LIMIT 1
     ]
     ?.Name;
+
     return accountName;
+  }
+
+  @AuraEnabled
+  public static DraftApplication getDraftApplication(String recordId) {
+    return new DraftApplication(getApplication(recordId), getBasisCodes(recordId), getRelatedContacts(recordId));
   }
 
   @AuraEnabled
   public static Id saveAsDraft(
     Application__c application,
-    ApplicationBasisCode__c[] basisCode,
-    RelatedContact__c[] relatedContacts
+    List<ApplicationBasisCode__c> basisCode,
+    List<RelatedContact__c> relatedContacts
   ) {
-    application.status__c = 'Draft';
+    if (application.Status__c != ADDITIONAL_INFORMATION) {
+      application.status__c = DRAFT_APPLICATION;
+    }
+
     try {
       upsert application;
       upsertRelatedContacts(application.Id, relatedContacts);
@@ -50,23 +63,30 @@ public without sharing class AAREG_ApplicationController {
   }
 
   @AuraEnabled
-  public static void processApplication(
+  public static Id processApplication(
     Application__c application,
-    ApplicationBasisCode__c[] basisCode,
-    RelatedContact__c[] relatedContacts,
+    List<ApplicationBasisCode__c> basisCode,
+    List<RelatedContact__c> relatedContacts,
     String base64,
     String fileName
   ) {
-    application.Casehandler_Status__c = 'New';
-    application.status__c = 'New';
+    if (application.Status__c != ADDITIONAL_INFORMATION) {
+      application.Casehandler_Status__c = NEW_APPLICATION;
+      application.status__c = NEW_APPLICATION;
+    } else {
+      application.Casehandler_Status__c = IN_PROGRESS;
+      application.status__c = IN_PROGRESS;
+    }
+
     try {
       upsert application;
-      insertDocumentWithLink(application.Id, base64, fileName);
       upsertRelatedContacts(application.Id, relatedContacts);
       upsertBasisCodes(application.Id, basisCode);
+      insertDocumentWithLink(application.Id, base64, fileName);
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
     }
+    return application.Id;
   }
 
   @AuraEnabled
@@ -78,19 +98,14 @@ public without sharing class AAREG_ApplicationController {
     }
   }
 
-  @AuraEnabled
-  public static DraftApplication getDraftApplication(String recordId) {
-    return new DraftApplication(getApplication(recordId), getBasisCodes(recordId), getRelatedContacts(recordId));
-  }
-
-  private static void upsertRelatedContacts(Id applicationId, RelatedContact__c[] relatedContacts) {
+  private static void upsertRelatedContacts(Id applicationId, List<RelatedContact__c> relatedContacts) {
     for (RelatedContact__c contact : relatedContacts) {
       contact.Application__c = applicationId;
     }
     upsert relatedContacts;
   }
 
-  private static void upsertBasisCodes(Id applicationId, ApplicationBasisCode__c[] basisCodes) {
+  private static void upsertBasisCodes(Id applicationId, List<ApplicationBasisCode__c> basisCodes) {
     for (ApplicationBasisCode__c code : basisCodes) {
       code.Application__c = applicationId;
     }
@@ -98,6 +113,9 @@ public without sharing class AAREG_ApplicationController {
   }
 
   private static void insertDocumentWithLink(Id applicationId, String base64, String fileName) {
+    if (base64 == null || fileName == null) {
+      return;
+    }
     ContentVersion cv = generateContentVersion(base64, filename);
     generateContentDocumentLink(applicationId, cv.Id);
   }
@@ -128,6 +146,7 @@ public without sharing class AAREG_ApplicationController {
         Id,
         AA_isPortalUserEditable__c,
         Email__c,
+        Status__c,
         DataProcessorName__c,
         APIAccess__c,
         ExtractionAccess__c,

@@ -9,6 +9,7 @@ export default class aareg_applicationContact extends LightningElement {
     this.name = this.template.querySelector('[data-id="Name"]');
     this.phone = this.template.querySelector('[data-id="Phone__c"]');
     this.email = this.template.querySelector('[data-id="Email__c"]');
+    this.agreementNotification = this.template.querySelector('[data-id="AgreementNotifications__c"]');
   }
 
   connectedCallback() {
@@ -75,6 +76,10 @@ export default class aareg_applicationContact extends LightningElement {
       return true;
     }
     return false;
+  }
+
+  @api focusAgreementNotification() {
+    this.agreementNotification.focus();
   }
 
   checkNulls(field) {

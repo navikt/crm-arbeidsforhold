@@ -56,6 +56,44 @@ public class AAREG_ApplicationControllerTest {
   }
 
   @isTest
+  static void processAdditionalInformationApplication() {
+    Account account = [SELECT Id, Name FROM Account LIMIT 1];
+
+    Application__c application = new Application__c();
+    application.Account__c = account.Id;
+    application.Status__c = 'Additional Information Required';
+    application.IsConfirmationEmailSent__c = true;
+
+    List<RelatedContact__c> contacts = new List<RelatedContact__c>();
+    contacts.add(new RelatedContact__c(name = 'Test Contact 1'));
+    contacts.add(new RelatedContact__c(name = 'Test Contact 2'));
+
+    List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
+    basisCodes.add(new ApplicationBasisCode__c());
+    basisCodes.add(new ApplicationBasisCode__c());
+
+    String base64 = null;
+    String fileName = null;
+
+    AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
+    List<Application__c> processedApplications = [SELECT Id, Status__c, Casehandler_Status__c FROM Application__c];
+    List<RelatedContact__c> processedContacts = [SELECT Id, Name, Application__c FROM RelatedContact__c];
+    List<ApplicationBasisCode__c> processedBasisCodes = [SELECT Id, Application__c FROM ApplicationBasisCode__c];
+    List<ContentDocumentLink> documentLink = [
+      SELECT Id
+      FROM ContentDocumentLink
+      WHERE LinkedEntityId = :processedApplications[0].Id
+    ];
+
+    System.assertEquals(1, processedApplications.size(), 'Check only one application was upserted');
+    System.assertEquals(2, processedContacts.size(), 'Check that both contacts were upserted');
+    System.assertEquals(2, processedBasisCodes.size(), 'Check that both Application Basis Codes were upserted');
+    System.assertEquals('In Progress', processedApplications[0].Status__c, 'Correct application status');
+    System.assertEquals('In Progress', processedApplications[0].Casehandler_Status__c, 'Correct application status');
+    System.assertEquals(true, documentLink.isEmpty(), 'No documentLinks created');
+  }
+
+  @isTest
   static void saveAsDraft() {
     Account account = [SELECT Id, Name FROM Account LIMIT 1];
 

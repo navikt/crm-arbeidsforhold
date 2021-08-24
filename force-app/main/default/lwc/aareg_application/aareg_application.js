@@ -25,7 +25,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   lastUsedOrganization;
   organizationType;
   isLoaded = false;
-  fileData;
+  fileData = { base64: null, filename: null };
   error;
 
   connectedCallback() {
@@ -45,7 +45,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       // initialize application based on previously saved draft.
       if (this.recordId) {
         let draftApplication = await getDraftApplication({ recordId: this.recordId });
-        console.log('Draft Application: ', draftApplication);
+
         this.initApplication();
         this.application = { ...this.application, ...draftApplication.application };
 
@@ -132,7 +132,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
         }
       })
       .catch((error) => {
-        console.error('RE', error);
+        console.error(error);
       })
       .finally(() => {
         return this.hasAccess;
@@ -214,8 +214,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.isLoaded = false;
     let draftContacts = this.contactRows.filter((el) => el.Name !== null && el.Name !== '');
 
-    console.log(draftContacts);
-
     saveAsDraft({
       application: this.application,
       basisCode: this.applicationBasisRows,
@@ -240,12 +238,12 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.checkApplicationInputs();
 
     if (this.hasErrors) {
-      console.log('Has errors');
       this.focusInput();
       return;
     }
     this.isLoaded = false;
     const { base64, filename } = this.fileData;
+    console.log(base64, filename);
     processApplication({
       application: this.application,
       basisCode: this.applicationBasisRows,
@@ -253,13 +251,17 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       base64: base64,
       fileName: filename
     })
-      .then((response) => {
+      .then((result) => {
+        if (this.application.Status__c === 'Additional Information Required') {
+          this.navigateToApplication(result);
+        }
         this.applicationSubmitted = true;
-        this.isLoaded = true;
-        console.log(response);
       })
       .catch((error) => {
-        console.log(JSON.stringify(error));
+        console.error(error);
+      })
+      .finally(() => {
+        this.isLoaded = true;
       });
   }
 
@@ -353,7 +355,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     let changeNofiication = 0;
     let errorNotification = 0;
     let securityNotification = 0;
-    console.log(this.contactRows.length);
 
     let cons = this.template.querySelectorAll('c-aareg_application-contact');
 
@@ -362,25 +363,28 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     });
 
     this.contactRows.forEach((contact) => {
-      if (contact.AgreementNotifications__c !== false) {
+      if (contact.AgreementNotifications__c) {
         agreementNotification += 1;
       }
 
-      if (contact.ChangeNotifications__c !== false) {
+      if (contact.ChangeNotifications__c) {
         changeNofiication += 1;
       }
 
-      if (contact.ErrorMessageNotifications__c !== false) {
+      if (contact.ErrorMessageNotifications__c) {
         errorNotification += 1;
       }
 
-      if (contact.SecurityNotifications__c !== false) {
+      if (contact.SecurityNotifications__c) {
         securityNotification += 1;
       }
     });
+
     if (agreementNotification < 1 || changeNofiication < 1 || errorNotification < 1 || securityNotification < 1) {
-      console.log('Missing contact notification');
+      this.missingContactNotifications = true;
       this.setErrorFor(this.contacts, 'Det må oppgis minimum en kontaktperson per type varsling.');
+    } else {
+      this.missingContactNotifications = false;
     }
   }
 
@@ -413,7 +417,10 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       this.apiAccess.className = 'invalid';
     }
 
-    if (this.fileData === undefined) {
+    if (
+      (this.fileData.base64 === null || this.fileData.filename === null) &&
+      this.application.Status__c != 'Additional Information Required'
+    ) {
       this.setErrorFor(this.dataElements, 'Obligatorisk');
     }
 
@@ -453,7 +460,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     let purposes = this.template.querySelectorAll('c-aareg_application-basis');
 
     for (let i = 0; i < purposes.length; i++) {
-      var isFocused = purposes[i].focusInput();
+      let isFocused = purposes[i].focusInput();
 
       if (isFocused) {
         return;
@@ -468,10 +475,16 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     let contacts = this.template.querySelectorAll('c-aareg_application-contact');
 
     for (let i = 0; i < contacts.length; i++) {
-      var isFocused = contacts[i].focusInput();
+      let isFocused = contacts[i].focusInput();
       if (isFocused) {
         return;
       }
+    }
+
+    if (this.missingContactNotifications) {
+      console.log('Missing notfication: ', this.missingContactNotifications);
+      contacts[0].focusAgreementNotification();
+      return;
     }
 
     if (this.fileInput.className === 'invalid') {

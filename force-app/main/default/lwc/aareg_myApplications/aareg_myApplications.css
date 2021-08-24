@@ -19,3 +19,7 @@
 .no-applications-container p {
   margin: 25px;
 }
+
+.breadcrumbs {
+  margin-bottom: 1rem;
+}
