@@ -12,6 +12,10 @@
         <apexClass>AAREG_HomeController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>AAREG_MyApplicationsController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <fieldPermissions>
         <editable>false</editable>
         <field>ApplicationBasisCode__c.Application__c</field>
