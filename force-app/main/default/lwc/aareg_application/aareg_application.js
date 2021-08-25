@@ -6,6 +6,7 @@ import getAccountNameByOrgNumber from '@salesforce/apex/AAREG_ApplicationControl
 import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
 
 export default class Aareg_application extends LightningElement {
+  @api recordId;
   @api hasErrors;
   @api linkToDataElements;
   @api linkToTermsOfUse;
