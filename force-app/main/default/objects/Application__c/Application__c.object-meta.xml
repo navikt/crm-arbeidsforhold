@@ -167,6 +167,7 @@
         <searchResultsAdditionalFields>Account__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>ApplicationSubmittedDate__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>AA_CasehandlerDeadlineFlag__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Casehandler_Status__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>applicationOwner__c</searchResultsAdditionalFields>
     </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
