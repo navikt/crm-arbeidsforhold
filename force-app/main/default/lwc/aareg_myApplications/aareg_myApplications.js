@@ -48,4 +48,14 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
       }
     });
   }
+
+  navigateToPage(event) {
+    const page = event.target.name;
+    this[NavigationMixin.Navigate]({
+      type: 'comm__namedPage',
+      attributes: {
+        name: page
+      }
+    });
+  }
 }

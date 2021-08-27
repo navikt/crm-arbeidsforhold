@@ -8,8 +8,8 @@ import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
 export default class Aareg_home extends LightningElement {
   @track organizations;
   @track error;
-  hasAccess = false;
   isLoaded = false;
+  hasAccess = false;
   lastUsedOrganization;
   currentUser = Id;
 
@@ -113,7 +113,11 @@ export default class Aareg_home extends LightningElement {
       this.hasAccess = false;
       return;
     }
-    getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization, serviceCode: '5719' })
+    await getUserRights({
+      userId: this.currentUser,
+      organizationNumber: this.lastUsedOrganization,
+      serviceCode: '5719'
+    })
       .then((result) => {
         if (result.success) {
           let privileges = JSON.parse(JSON.stringify(result.rights));
