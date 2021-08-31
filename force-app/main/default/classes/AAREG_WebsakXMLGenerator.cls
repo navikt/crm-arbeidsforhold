@@ -129,6 +129,7 @@ public class AAREG_WebsakXMLGenerator {
       dom.XmlNode documentFormat = documentVersion.addChildElement('VE.DOKFORMAT', null, null).addTextNode(fileFormat);
       dom.XmlNode documentReference = documentVersion.addChildElement('VE.FILREF', null, null).addTextNode(fileName);
     }
+
     return doc.toXmlString();
   }
 

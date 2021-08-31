@@ -6,7 +6,7 @@ public class AAREG_ArchiveService {
   private static final String BUSINESS_UNIT_ID = '4534000';
   private static final String MANIFEST_FORMAT = '.xml';
   private static final String DECISION_NAME = 'VEDTAK';
-  private static final String APPLICATION_NAME = 'SØKNAD';
+  private static final String APPLICATION_NAME = 'SOKNAD';
   private static final String DEFALUT_FILE_FORMAT = '.html';
 
   public void archiveApplications(List<Application__c> applicationList) {
@@ -15,7 +15,7 @@ public class AAREG_ArchiveService {
     List<Application__c> applicationsToUpdate = new List<Application__c>();
 
     for (Application__c application : applicationList) {
-      String applicationFileName = application.Name + APPLICATION_NAME + DEFALUT_FILE_FORMAT;
+      String applicationFileName = formatFileName(application.Name + APPLICATION_NAME + DEFALUT_FILE_FORMAT);
       String manifestName = getManifestName(application.Name, APPLICATION_NAME, Date.Today());
 
       Map<String, String> fileNameFormatMap = new Map<String, String>();
@@ -32,7 +32,8 @@ public class AAREG_ArchiveService {
         fileNameFormatMap.putAll(getFileNameFormatMap(contentVersions.get(application.Id), application.Name));
         filesToSend.putAll(getContentVersionFileMap(contentVersions.get(application.Id), application.Name));
       }
-
+      system.debug('files to send: ' + filesToSend);
+      system.debug('filename format map: ' + fileNameFormatMap);
       Boolean success = sendFiles(filesToSend);
 
       if (success) {
@@ -112,7 +113,7 @@ public class AAREG_ArchiveService {
   private Map<String, Blob> getContentVersionFileMap(List<ContentVersion> content, String applicationName) {
     Map<String, Blob> contentFileMap = new Map<String, Blob>();
     for (ContentVersion cv : content) {
-      String fileName = cv.title + ' ' + applicationName;
+      String fileName = formatFileName(applicationName + formatFileName(cv.title));
       contentFileMap.put(fileName, cv.VersionData);
     }
     return contentFileMap;
@@ -122,7 +123,7 @@ public class AAREG_ArchiveService {
     Map<String, String> fileNameFormat = new Map<String, String>();
 
     for (ContentVersion cv : contentVersions) {
-      String fileName = cv.title + ' ' + refrenceNumber;
+      String fileName = formatFileName(refrenceNumber + formatFileName(cv.title));
       fileNameFormat.put(fileName, cv.fileType);
     }
     return fileNameFormat;
@@ -174,7 +175,11 @@ public class AAREG_ArchiveService {
   }
 
   private String getManifestName(String applicationNumber, String type, Date archiveDate) {
-    return applicationNumber.replace('-', '') + '_' + type + '_' + formatDateString(archiveDate) + MANIFEST_FORMAT;
+    return applicationNumber.replaceAll('-', '') + '_' + type + '_' + formatDateString(archiveDate) + MANIFEST_FORMAT;
+  }
+
+  private String formatFileName(String fileName) {
+    return fileName.replaceAll('-', '').replaceAll(' ', '_');
   }
 
   private String formatDateString(Date input) {

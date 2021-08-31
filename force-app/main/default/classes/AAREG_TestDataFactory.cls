@@ -54,7 +54,7 @@ public with sharing class AAREG_TestDataFactory {
     String data = 'Test Data';
     ContentVersion contentVersion = new ContentVersion(
       VersionData = EncodingUtil.base64Decode(data),
-      Title = 'Test File',
+      Title = 'TestFile.html',
       PathOnClient = 'Test File'
     );
     return contentVersion;
