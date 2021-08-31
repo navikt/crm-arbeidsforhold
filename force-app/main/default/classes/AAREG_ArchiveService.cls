@@ -17,24 +17,23 @@ public class AAREG_ArchiveService {
     for (Application__c application : applicationList) {
       String applicationFileName = formatFileName(application.Name + APPLICATION_NAME + DEFALUT_FILE_FORMAT);
       String manifestName = getManifestName(application.Name, APPLICATION_NAME, Date.Today());
-
-      Map<String, String> fileNameFormatMap = new Map<String, String>();
-      fileNameFormatMap.put(applicationFileName, DEFALUT_FILE_FORMAT);
-
       Map<String, Blob> filesToSend = new Map<String, Blob>();
+      Map<String, String> fileNameFormatMap = new Map<String, String>();
+
       filesToSend.put(applicationFileName, Blob.valueOf(application.AA_register_application_text__c));
-      filesToSend.put(
-        manifestName,
-        getManifest(fileNameFormatMap, application, INCOMING_POST, application.ApplicationSubmittedDate__c)
-      );
+      fileNameFormatMap.put(applicationFileName, DEFALUT_FILE_FORMAT);
 
       if (contentVersions.get(application.Id) != null) {
         fileNameFormatMap.putAll(getFileNameFormatMap(contentVersions.get(application.Id), application.Name));
         filesToSend.putAll(getContentVersionFileMap(contentVersions.get(application.Id), application.Name));
       }
-      system.debug('files to send: ' + filesToSend);
-      system.debug('filename format map: ' + fileNameFormatMap);
-      Boolean success = sendFiles(filesToSend);
+
+      filesToSend.put(
+        manifestName,
+        getManifest(fileNameFormatMap, application, INCOMING_POST, application.ApplicationSubmittedDate__c)
+      );
+
+      Boolean success = sendFiles(filesToSend, manifestName);
 
       if (success) {
         application.AA_ApplicationArchived__c = true;
@@ -62,7 +61,7 @@ public class AAREG_ArchiveService {
         getManifest(fileNameFormat, application, OUTGOING_POST, application.DecisionDate__c)
       );
 
-      Boolean success = sendFiles(filesToSend);
+      Boolean success = sendFiles(filesToSend, manifestName);
 
       if (success) {
         application.AA_DecisionArchived__c = true;
@@ -73,16 +72,40 @@ public class AAREG_ArchiveService {
     Database.update(applicationsToUpdate);
   }
 
-  private Boolean sendFiles(Map<String, Blob> files) {
+  private Boolean sendFiles(Map<String, Blob> files, String xmlManifestName) {
     Boolean success = true;
+    String xmlFileName;
+    Blob xmlFileContent;
+
+    if (files.containsKey(xmlManifestName)) {
+      xmlFileName = xmlManifestName;
+      xmlFileContent = files.get(xmlManifestName);
+      files.remove(xmlManifestName);
+    }
+
     for (String file : files.keySet()) {
       Blob fileData = files.get(file);
       WebSakFileService.WebSakFileResponse response = new WebSakFileService().postFile(file, fileData);
+
       if (!response.success) {
         success = false;
       }
     }
+
+    if (xmlFileName != null && xmlFileContent != null) {
+      success = sendXmlManifest(xmlFileName, xmlFileContent);
+    }
+
     return success;
+  }
+
+  private Boolean sendXmlManifest(String xmlFileName, Blob xmlFileContent) {
+    WebSakFileService.WebSakFileResponse xmlResponse = new WebSakFileService().postFile(xmlFileName, xmlFileContent);
+
+    if (!xmlResponse.success) {
+      return false;
+    }
+    return true;
   }
 
   private Blob getManifest(
