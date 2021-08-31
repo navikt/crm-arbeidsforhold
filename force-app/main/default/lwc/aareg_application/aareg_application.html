@@ -1,4 +1,11 @@
 <template>
+  <div class="breadcrumbs">
+    <lightning-breadcrumbs>
+      <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
+      <lightning-breadcrumb label="Ny søknad" name="custom_ny_soknad_aa_registret__c" onclick={navigateToPage}>
+      </lightning-breadcrumb>
+    </lightning-breadcrumbs>
+  </div>
   <template if:true={hasAccess}>
     <template if:true={organization}>
       <template if:false={applicationSubmitted}>

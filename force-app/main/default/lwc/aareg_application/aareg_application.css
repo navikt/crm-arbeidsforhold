@@ -243,3 +243,11 @@ input:invalid:required {
 .pb-10 {
   padding-bottom: 10px;
 }
+
+.breadcrumbs {
+  margin-bottom: 1rem;
+  margin: 0 auto;
+  padding-left: 50px;
+  padding-top: 1rem;
+  max-width: 800px;
+}

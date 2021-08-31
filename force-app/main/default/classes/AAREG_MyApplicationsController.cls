@@ -17,7 +17,7 @@ public with sharing class AAREG_MyApplicationsController {
         SELECT Id, Name, toLabel(Status__c), ApplicationSubmittedDate__c
         FROM Application__c
         WHERE OrganizationNumber__c = :lastUsedOrganization
-        ORDER BY Name ASC
+        ORDER BY ApplicationSubmittedDate__c DESC
       ]
     );
     return applications;

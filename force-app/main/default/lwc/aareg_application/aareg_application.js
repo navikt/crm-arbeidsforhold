@@ -265,6 +265,8 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       });
   }
 
+  /*************** Navigation ***************/
+
   navigateToApplication(applicationId) {
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',
@@ -272,6 +274,16 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
         recordId: applicationId,
         objectApiName: 'Application__c',
         actionName: 'view'
+      }
+    });
+  }
+
+  navigateToPage(event) {
+    const page = event.target.name;
+    this[NavigationMixin.Navigate]({
+      type: 'comm__namedPage',
+      attributes: {
+        name: page
       }
     });
   }
