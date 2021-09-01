@@ -52,7 +52,7 @@ public class AAREG_ArchiveService {
       String manifestName = getManifestName(application.Name, DECISION_NAME, Date.Today());
 
       Map<String, String> fileNameFormat = new Map<String, String>();
-      fileNameFormat.put(application.Name + DECISION_NAME, DEFALUT_FILE_FORMAT);
+      fileNameFormat.put(decisionFileName, DEFALUT_FILE_FORMAT);
 
       Map<String, Blob> filesToSend = new Map<String, Blob>();
       filesToSend.put(decisionFileName, Blob.valueOf(application.AA_DecisionArchiveText__c));
