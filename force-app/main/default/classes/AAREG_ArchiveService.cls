@@ -119,7 +119,7 @@ public class AAREG_ArchiveService {
       .businessUnitName(BUSINESS_UNIT)
       .journalPostStatus(JOURNAL_POST_STATUS)
       .journalPostType(postType)
-      .applicationId(application.Id)
+      .applicationId(application.Name)
       .userNavIdent(application.AA_CaseHandlerNavIdent__c)
       .organizationName(application.AccountName__c)
       .organizationNumber(application.OrganizationNumber__c)

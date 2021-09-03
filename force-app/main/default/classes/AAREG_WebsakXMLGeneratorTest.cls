@@ -3,10 +3,10 @@ public class AAREG_WebsakXMLGeneratorTest {
   @isTest
   private static void testXMLGeneration() {
     Map<String, String> documents = new Map<String, String>{
-      'Test Document 1' => '.docx',
-      'Test Document 2' => '.xlsx'
+      'Test Document 1.docx' => '.docx',
+      'Test Document 2.xlsx' => '.xlsx'
     };
-     Date currDate= date.newInstance(2021, 07, 13);
+    Date currDate = date.newInstance(2021, 7, 13);
     AAREG_WebsakXMLGenerator generator = new AAREG_WebsakXMLGenerator()
       .businessUnitId('1234Id')
       .businessUnitName('Test BU name')
@@ -26,8 +26,8 @@ public class AAREG_WebsakXMLGeneratorTest {
     String xmlString = generator.generateXML();
     StaticResource resource = [SELECT Id, Body FROM StaticResource WHERE Name = 'WebsakXMLManifest' LIMIT 1];
     String expectedXml = resource.Body.toString().remove('\n');
-    System.debug('Expected: '+expectedXml);
-    System.debug('String: '+xmlString);
+    System.debug('Expected: ' + expectedXml);
+    System.debug('String: ' + xmlString);
 
     System.assertEquals(expectedXml, xmlString, 'XML generated correctly');
   }
