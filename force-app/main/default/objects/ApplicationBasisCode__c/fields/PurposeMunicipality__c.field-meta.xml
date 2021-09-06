@@ -122,6 +122,12 @@
                 <isActive>false</isActive>
                 <label>Planleggingsarbeid - infrastruktur</label>
             </value>
+            <value>
+                <fullName>Skjenkebevilling</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Skjenkebevilling</label>
+            </value>
         </valueSetDefinition>
         <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 9 bokstav f</controllingFieldValue>
