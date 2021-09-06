@@ -15,7 +15,7 @@ public class AAREG_ArchiveService {
     List<Application__c> applicationsToUpdate = new List<Application__c>();
 
     for (Application__c application : applicationList) {
-      String applicationFileName = formatFileName(application.Name + APPLICATION_NAME + DEFALUT_FILE_FORMAT);
+      String applicationFileName = formatFileName(application.Name + ' ' + APPLICATION_NAME + DEFALUT_FILE_FORMAT);
       String manifestName = getManifestName(application.Name, APPLICATION_NAME, Date.Today());
       Map<String, Blob> filesToSend = new Map<String, Blob>();
       Map<String, String> fileNameFormatMap = new Map<String, String>();
@@ -48,7 +48,7 @@ public class AAREG_ArchiveService {
     List<Application__c> applicationsToUpdate = new List<Application__c>();
 
     for (Application__c application : applications) {
-      String decisionFileName = application.Name + DECISION_NAME + DEFALUT_FILE_FORMAT;
+      String decisionFileName = formatFileName(application.Name + ' ' + DECISION_NAME + DEFALUT_FILE_FORMAT);
       String manifestName = getManifestName(application.Name, DECISION_NAME, Date.Today());
 
       Map<String, String> fileNameFormat = new Map<String, String>();
@@ -76,6 +76,7 @@ public class AAREG_ArchiveService {
     Boolean success = true;
     String xmlFileName;
     Blob xmlFileContent;
+    System.debug(files);
 
     if (files.containsKey(xmlManifestName)) {
       xmlFileName = xmlManifestName;
@@ -119,7 +120,7 @@ public class AAREG_ArchiveService {
       .businessUnitName(BUSINESS_UNIT)
       .journalPostStatus(JOURNAL_POST_STATUS)
       .journalPostType(postType)
-      .applicationId(application.Id)
+      .applicationId(application.Name)
       .userNavIdent(application.AA_CaseHandlerNavIdent__c)
       .organizationName(application.AccountName__c)
       .organizationNumber(application.OrganizationNumber__c)

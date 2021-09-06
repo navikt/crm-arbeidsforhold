@@ -143,6 +143,6 @@ public class AAREG_WebsakXMLGenerator {
   }
 
   private String getFormattedContentString() {
-    return 'Soknad AA-registeret-' + applicationId + '-' + organizationNumber;
+    return 'Soknad AA-registeret-' + applicationId.replaceAll('-', '');
   }
 }
