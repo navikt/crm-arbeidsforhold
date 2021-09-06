@@ -12,6 +12,7 @@ public class AAREG_WebsakXMLGeneratorTest {
       .businessUnitName('Test BU name')
       .journalPostStatus('J')
       .journalPostType('I')
+      .journalPostName('S000047_SOKNAD_202110903')
       .applicationId('1234AppID')
       .userNavIdent('1234UserNavIdent')
       .organizationName('Test Organization')
@@ -26,8 +27,6 @@ public class AAREG_WebsakXMLGeneratorTest {
     String xmlString = generator.generateXML();
     StaticResource resource = [SELECT Id, Body FROM StaticResource WHERE Name = 'WebsakXMLManifest' LIMIT 1];
     String expectedXml = resource.Body.toString().remove('\n');
-    System.debug('Expected: ' + expectedXml);
-    System.debug('String: ' + xmlString);
 
     System.assertEquals(expectedXml, xmlString, 'XML generated correctly');
   }
