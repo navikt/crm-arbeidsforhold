@@ -22,6 +22,17 @@ IF(
 IF(
   AND(
     INT_SectorCode__c == &apos;6100&apos;,
+    INT_IndustryCode__c == &apos;84.300&apos;,
+    OR(
+      INT_OrganizationalStructure__c == &apos;STAT&apos;,
+      INT_OrganizationalStructure__c == &apos;ORGL&apos;
+    )
+
+), &apos;Pension&apos;,
+
+IF(
+  AND(
+    INT_SectorCode__c == &apos;6100&apos;,
     OR(
       INT_IndustryCode__c == &apos;84.130&apos;,
       INT_IndustryCode__c == &apos;84.120&apos;,
@@ -80,6 +91,7 @@ IF(
     INT_OrganizationalStructure__c &lt;&gt; &apos;VIFE&apos;
   ), &apos;Other&apos;, &apos;&apos;
 ) 
+)
 ) 
 ) 
 ) 
