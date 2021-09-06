@@ -11,6 +11,8 @@ export default class Aareg_applicationBasis extends LightningElement {
   purposeFieldName;
   legalBasisFieldName;
   applicationBasis;
+  otherLegalBasisCharUsed = 0;
+  otherPurposeCharUsed = 0;
   isOtherOrganizationType = false;
   legalBasisRemovedValuePlaceholder;
 
@@ -42,6 +44,14 @@ export default class Aareg_applicationBasis extends LightningElement {
     );
   }
 
+  get remainingOtherLegalBasisChar() {
+    return `${this.otherLegalBasisCharUsed} / 255 `;
+  }
+
+  get remainingOtherPurposeChar() {
+    return `${this.otherPurposeCharUsed} / 255 `;
+  }
+
   init() {
     this.applicationBasis = {
       uuid: this.record.uuid,
@@ -65,6 +75,15 @@ export default class Aareg_applicationBasis extends LightningElement {
         ? this.record.PurposeElectricitySupervision__c
         : null
     };
+
+    if (this.applicationBasis.OtherLegalBasis__c) {
+      this.otherLegalBasisCharUsed = this.applicationBasis.OtherLegalBasis__c.length;
+    }
+
+    if (this.applicationBasis.OtherPurpose__c) {
+      this.otherPurposeCharUsed = this.applicationBasis.OtherPurpose__c.length;
+    }
+
     this.publishChange();
   }
 
@@ -179,6 +198,18 @@ export default class Aareg_applicationBasis extends LightningElement {
   publishError() {
     const changeEvent = new CustomEvent('validationerror', { detail: true });
     this.dispatchEvent(changeEvent);
+  }
+
+  countOtherLegalBasisChar(event) {
+    if (event.target.value.length >= 0) {
+      this.otherLegalBasisCharUsed = event.target.value.length;
+    }
+  }
+
+  countOtherPurposeChar(event) {
+    if (event.target.value.length >= 0) {
+      this.otherPurposeCharUsed = event.target.value.length;
+    }
   }
 
   /*************** Validation ***************/

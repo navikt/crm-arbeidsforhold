@@ -73,11 +73,14 @@
               data-id="other-legal-basis"
               class="form-input-text-area"
               disabled={readOnly}
-              required
               onchange={handleInputChange}
+              onkeyup={countOtherLegalBasisChar}
+              maxlength="255"
+              required
             >
             {applicationBasis.OtherLegalBasis__c}
             </textarea>
+            <span class="character-count">{remainingOtherLegalBasisChar}</span>
             <small>Error Message</small>
           </span>
         </div>
@@ -93,11 +96,14 @@
               data-id="other-purpose"
               class="form-input-text-area"
               disabled={readOnly}
-              required
               onchange={handleInputChange}
+              onkeyup={countOtherPurposeChar}
+              maxlength="255"
+              required
             >
             {applicationBasis.OtherPurpose__c}
             </textarea>
+            <span class="character-count">{remainingOtherPurposeChar}</span>
             <small>Error Message</small>
           </span>
         </div>
