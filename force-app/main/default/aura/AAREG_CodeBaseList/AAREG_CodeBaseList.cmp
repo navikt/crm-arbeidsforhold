@@ -1,351 +1,353 @@
 <!--Aura component to display records in application recordpagelayout -->
 
-<aura:component controller="AAREG_CodeBaseListController" implements="flexipage:availableForRecordHome,force:hasRecordId" access="global" >
-        
-    <aura:attribute name="recordId" type="Id"/>
-    <aura:attribute name="codeBaseList" type="ApplicationBasisCode__c[]" />
-    <aura:attribute name="columns" type="List"/>
-    <!-- HARDCODED VALUES  -->
-    <aura:attribute name="currentCounty" type="String" default="County"/>
-    <aura:attribute name="currentState" type="String" default="State"/>
-    <aura:attribute name="currentEL" type="String" default="Electricity Supervision"/>
-    <aura:attribute name="currentMunicipality" type="String" default="Municipality"/>
-    <aura:attribute name="currentPension" type="String" default="Pension"/>
-    <aura:attribute name="currentOther" type="String" default="Other"/>
-    
-    <aura:handler name="init" value="{!this}" action="{!c.fetchCodeBaseList}"/>
+<aura:component
+  controller="AAREG_CodeBaseListController"
+  implements="flexipage:availableForRecordHome,force:hasRecordId"
+  access="global"
+>
+  <aura:attribute name="recordId" type="Id" />
+  <aura:attribute name="codeBaseList" type="ApplicationBasisCode__c[]" />
+  <aura:attribute name="columns" type="List" />
+  <!-- HARDCODED VALUES  -->
+  <aura:attribute name="currentCounty" type="String" default="County" />
+  <aura:attribute name="currentState" type="String" default="State" />
+  <aura:attribute name="currentEL" type="String" default="Electricity Supervision" />
+  <aura:attribute name="currentMunicipality" type="String" default="Municipality" />
+  <aura:attribute name="currentPension" type="String" default="Pension" />
+  <aura:attribute name="currentOther" type="String" default="Other" />
 
-    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout">
-          <thead>  
-              <th class="slds-text-title_caps" style="width:20%">
-                        <div class="slds-truncate" title="title">Grunnlag</div>
-              </th>
-            </thead>
-        <tbody>
-            <aura:iteration items="{!v.codeBaseList}" var="base">
-                <!--**************County***********************************-->
-                <!--compares organization types, so correct fields is appearing-->
-                 <aura:if isTrue="{!v.currentCounty == base.OrganizationType__c}">
-                     <aura:if isTrue="{!base.LegalBasisCounty__c=='Annet - oppgi i tekstfelt under'}">
-                         <tr>
-                            <td >
-                                <div title="Hjemmel">Hjemmel</div>
-                            </td>
-                              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            <div class="slds-cell-wrap" title="Hjemmel">{!base.OtherLegalBasis__c}</div>  
-                             </td>
-                        </tr>
-                       <tr >
-                            <td >
-                                <div  title="Formål">Formål</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            <div class="slds-cell-wrap" title="Formål">{!base.OtherPurpose__c}</div>  
-                            </td>
-                        </tr>
-                        <tr >
-                            <td >
-                                <div title="Beslutning">Behandlingsgrunnlag</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>    
-                            </td>
-                        </tr>
-                         <!--Content when false -->
-                          <aura:set attribute="else">
-                              <tr >
-                            <td >
-                                <div title="Hjemmel">Hjemmel</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            <div class="slds-cell-wrap"  title="Hjemmel">{!base.LegalBasisCounty__c}</div>  
-                            </td>
-                        </tr>
-                        <tr>
-                            <td >
-                                <div title="Formål">Formål</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            <div class="slds-cell-wrap"  title="Formål">{!base.PurposeCounty__c}</div>  
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div title="Beslutning">Behandlingsgrunnlag</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>    
-                            </td>
-                        </tr>
-                        </aura:set>
-                     </aura:if>
-                   <br></br>
-                   <br></br>
-                </aura:if>     
-                <!--**************EL***********************************-->
-                <aura:if isTrue="{!v.currentEL == base.OrganizationType__c}">
-                     <aura:if isTrue="{!base.LegalBasisElectricitySupervision__c=='Annet - oppgi i tekstfelt under'}">
-                         <tr>
-                            <td>
-                                <div title="Hjemmel">Hjemmel</div>
-                            </td>
-                              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            <div class="slds-cell-wrap" title="Hjemmel">{!base.OtherLegalBasis__c}</div>  
-                             </td>
-                        </tr>
-                       <tr>
-                            <td>
-                                <div title="Formål">Formål</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            <div class="slds-cell-wrap" title="Formål">{!base.OtherPurpose__c}</div>  
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div title="Beslutning">Behandlingsgrunnlag</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            <div class="slds-cell-wrap"  title="Beslutning">{!base.ProcessingBasis__c}</div>    
-                            </td>
-                        </tr>
-                         <!--Content when false -->
-                            <aura:set attribute="else">
-                             <tr>
-                                    <td>
-                                        <div title="Hjemmel">Hjemmel</div>
-                                    </td>
-                                    <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            			<div class="slds-cell-wrap"  title="Hjemmel">{!base.LegalBasisElectricitySupervision__c}</div>  
-                                    </td>
-                             </tr>
-                             <tr>
-                                    <td>
-                                        <div title="Formål">Formål</div>
-                                    </td>
-                                    <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            			<div class="slds-cell-wrap"  title="Formål">{!base.PurposeElectricitySupervision__c}</div>  
-                                    </td>
-                             </tr>
-                             <tr>
-                                    <td>
-                                        <div title="Beslutning">Behandlingsgrunnlag</div>
-                                    </td>
-                                    <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            			<div class="slds-cell-wrap"  title="Beslutning">{!base.ProcessingBasis__c}</div>    
-                                    </td>
-                             </tr>
-                            </aura:set>
-                    </aura:if>
-                   <br></br>
-                   <br></br>
-                </aura:if>    
-                <!--**************Municipality***********************************-->
-                <aura:if isTrue="{!v.currentMunicipality == base.OrganizationType__c}">
-                    <aura:if isTrue="{!base.LegalBasisMunicipality__c=='Annet - oppgi i tekstfelt under'}">
-                         <tr>
-                            <td >
-                                <div title="Hjemmel">Hjemmel</div>
-                            </td>
-                              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            	<div class="slds-cell-wrap" title="Hjemmel">{!base.OtherLegalBasis__c}</div>  
-                             </td>
-                        </tr>
-                       <tr>
-                            <td>
-                                <div title="Formål">Formål</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            	<div class="slds-cell-wrap" title="Formål">{!base.OtherPurpose__c}</div>  
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div title="Beslutning">Behandlingsgrunnlag</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            	<div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>    
-                            </td>
-                        </tr>
-                        <!--Content when false -->
-                         <aura:set attribute="else">
-                             <tr>
-                                    <td>
-                                        <div title="Hjemmel">Hjemmel</div>
-                                    </td>
-                                    <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            			<div class="slds-cell-wrap" title="Hjemmel">{!base.LegalBasisMunicipality__c}</div>  
-                                    </td>
-                             </tr>
-                             <tr>
-                                    <td>
-                                        <div title="Formål">Formål</div>
-                                    </td>
-                                    <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            			<div class="slds-cell-wrap" title="Formål">{!base.PurposeMunicipality__c}</div>  
-                                    </td>
-                             </tr>
-                             <tr>
-                                    <td>
-                                        <div  title="Beslutning">Behandlingsgrunnlag</div>
-                                    </td>
-                                    <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            			<div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>    
-                                    </td>
-                             </tr>
-                             </aura:set>
-                        </aura:if>
-                   <br></br>
-                   <br></br>
-                </aura:if>
-                <!--**************Pension***********************************-->
-                <!-- TYPE == PENSION -->
-                <aura:if isTrue="{!v.currentPension == base.OrganizationType__c}">
-                    <aura:if isTrue="{!base.LegalBasisPension__c=='Annet - oppgi i tekstfelt under'}">
-                         <tr>
-                            <td>
-                                <div title="Hjemmel">Hjemmel</div>
-                            </td>
-                              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            	<div class="slds-cell-wrap" title="Hjemmel">{!base.OtherLegalBasis__c}</div>  
-                             </td>
-                        </tr>
-                       <tr>
-                            <td>
-                                <div title="Formål">Formål</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            	<div class="slds-cell-wrap" title="Formål">{!base.OtherPurpose__c}</div>  
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div title="Beslutning">Behandlingsgrunnlag</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            	<div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>    
-                            </td>
-                        </tr>
-                        <!--Content when false -->
-                        <aura:set attribute="else">
-                                <tr>
-                                    <td>
-                                        <div title="Hjemmel">Hjemmel</div>
-                                    </td>
-                                    <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            			<div class="slds-cell-wrap" title="Hjemmel">{!base.LegalBasisPension__c}</div>  
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div title="Formål">Formål</div>
-                                    </td>
-                                    <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            			<div class="slds-cell-wrap" title="Formål">{!base.PurposePension__c}</div>  
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div title="Beslutning">Behandlingsgrunnlag</div>
-                                    </td>
-                                    <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            			<div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>
-                                    </td> 
-                             </tr>
-                        </aura:set>
-                    </aura:if>
-                    <br></br>
-                   <br></br>
-                </aura:if>
-                <!--**************Other***********************************-->
-                <aura:if isTrue="{!v.currentOther == base.OrganizationType__c}">
-                    <tr>
-                            <td>
-                                <div title="Hjemmel">Hjemmel</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            	<div class="slds-cell-wrap" title="Hjemmel">{!base.OtherLegalBasis__c}</div>  
-                            </td>
-                     </tr>
-                     <tr>
-                            <td>
-                                <div title="Formål">Formål</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            	<div class="slds-cell-wrap" title="Formål">{!base.OtherPurpose__c}</div>  
-                            </td>            
-                     </tr>
-                     <tr>
-                            <td>
-                                <div title="Beslutning">Behandlingsgrunnlag</div>
-                            </td>
-                            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            	<div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>    
-                            </td>
-                     </tr>
-                     <br></br>
-                     <br></br>
-                </aura:if>
-                <!--**************State***********************************-->
-                <aura:if isTrue="{!v.currentState == base.OrganizationType__c}">
-                 <aura:if isTrue="{!base.LegalBasisState__c=='Annet - oppgi i tekstfelt under'}">
-                     <tr >
-                        <td >
-                            <div title="Hjemmel">Hjemmel</div>
-                        </td>
-                          <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            <div class="slds-cell-wrap" title="Hjemmel">{!base.OtherLegalBasis__c}</div>  
-                         </td>
-                    </tr>
-                   <tr >
-                        <td >
-                            <div title="Formål">Formål</div>
-                        </td>
-                        <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            <div class="slds-cell-wrap" title="Formål">{!base.OtherPurpose__c}</div>  
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <div title="Beslutning">Behandlingsgrunnlag</div>
-                        </td>
-                        <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                            <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>    
-                        </td>
-                    </tr>
-                    <!--Content when false -->
-                     <aura:set attribute="else">
-                         <tr >
-                                <td >
-                                    <div title="Hjemmel">Hjemmel</div>
-                                </td>
-                                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                                    <div class="slds-cell-wrap" title="Hjemmel">{!base.LegalBasisState__c}</div>  
-                                </td>
-                         </tr>
-                         <tr >
-                                <td>
-                                    <div title="Formål">Formål</div>
-                                </td>
-                                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                                    <div class="slds-cell-wrap" title="Formål">{!base.PurposeState__c}</div>  
-                                </td>
-                         </tr>
-                         <tr >
-                                <td >
-                                    <div title="Beslutning">Behandlingsgrunnlag</div>
-                                </td>
-                                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
-                                    <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>    
-                                </td>
-                         </tr>
-                    </aura:set>
-                </aura:if>
-                 <br></br>
-                 <br></br>
-            </aura:if>
-         
-            </aura:iteration>
-    	</tbody>
-    </table>
+  <aura:handler name="init" value="{!this}" action="{!c.fetchCodeBaseList}" />
+
+  <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout">
+    <thead>
+      <th class="slds-text-title_caps" style="width: 20%">
+        <div class="slds-truncate" title="title">Grunnlag</div>
+      </th>
+    </thead>
+    <tbody>
+      <aura:iteration items="{!v.codeBaseList}" var="base">
+        <!--**************County***********************************-->
+        <!--compares organization types, so correct fields is appearing-->
+        <aura:if isTrue="{!v.currentCounty == base.OrganizationType__c}">
+          <aura:if isTrue="{!base.LegalBasisCounty__c=='Annet - oppgi i tekstfelt under'}">
+            <tr>
+              <td>
+                <div title="Hjemmel">Hjemmel</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Hjemmel">{!base.OtherLegalBasis__c}</div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div title="Formål">Formål</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Formål">{!base.OtherPurpose__c}</div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div title="Beslutning">Behandlingsgrunnlag</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>
+              </td>
+            </tr>
+            <!--Content when false -->
+            <aura:set attribute="else">
+              <tr>
+                <td>
+                  <div title="Hjemmel">Hjemmel</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Hjemmel">{!base.LegalBasisCounty__c}</div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div title="Formål">Formål</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Formål">{!base.PurposeCounty__c}</div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div title="Beslutning">Behandlingsgrunnlag</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>
+                </td>
+              </tr>
+            </aura:set>
+          </aura:if>
+          <br />
+          <br />
+        </aura:if>
+        <!--**************EL***********************************-->
+        <aura:if isTrue="{!v.currentEL == base.OrganizationType__c}">
+          <aura:if isTrue="{!base.LegalBasisElectricitySupervision__c=='Annet - oppgi i tekstfelt under'}">
+            <tr>
+              <td>
+                <div title="Hjemmel">Hjemmel</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Hjemmel">{!base.OtherLegalBasis__c}</div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div title="Formål">Formål</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Formål">{!base.OtherPurpose__c}</div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div title="Beslutning">Behandlingsgrunnlag</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>
+              </td>
+            </tr>
+            <!--Content when false -->
+            <aura:set attribute="else">
+              <tr>
+                <td>
+                  <div title="Hjemmel">Hjemmel</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Hjemmel">{!base.LegalBasisElectricitySupervision__c}</div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div title="Formål">Formål</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Formål">{!base.PurposeElectricitySupervision__c}</div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div title="Beslutning">Behandlingsgrunnlag</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>
+                </td>
+              </tr>
+            </aura:set>
+          </aura:if>
+          <br />
+          <br />
+        </aura:if>
+        <!--**************Municipality***********************************-->
+        <aura:if isTrue="{!v.currentMunicipality == base.OrganizationType__c}">
+          <aura:if isTrue="{!base.LegalBasisMunicipality__c=='Annet - oppgi i tekstfelt under'}">
+            <tr>
+              <td>
+                <div title="Hjemmel">Hjemmel</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Hjemmel">{!base.OtherLegalBasis__c}</div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div title="Formål">Formål</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Formål">{!base.OtherPurpose__c}</div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div title="Beslutning">Behandlingsgrunnlag</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>
+              </td>
+            </tr>
+            <!--Content when false -->
+            <aura:set attribute="else">
+              <tr>
+                <td>
+                  <div title="Hjemmel">Hjemmel</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Hjemmel">{!base.LegalBasisMunicipality__c}</div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div title="Formål">Formål</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Formål">{!base.PurposeMunicipality__c}</div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div title="Beslutning">Behandlingsgrunnlag</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>
+                </td>
+              </tr>
+            </aura:set>
+          </aura:if>
+          <br />
+          <br />
+        </aura:if>
+        <!--**************Pension***********************************-->
+        <!-- TYPE == PENSION -->
+        <aura:if isTrue="{!v.currentPension == base.OrganizationType__c}">
+          <aura:if isTrue="{!base.LegalBasisPension__c=='Annet - oppgi i tekstfelt under'}">
+            <tr>
+              <td>
+                <div title="Hjemmel">Hjemmel</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Hjemmel">{!base.OtherLegalBasis__c}</div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div title="Formål">Formål</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Formål">{!base.OtherPurpose__c}</div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div title="Beslutning">Behandlingsgrunnlag</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>
+              </td>
+            </tr>
+            <!--Content when false -->
+            <aura:set attribute="else">
+              <tr>
+                <td>
+                  <div title="Hjemmel">Hjemmel</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Hjemmel">{!base.LegalBasisPension__c}</div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div title="Formål">Formål</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Formål">{!base.PurposePension__c}</div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div title="Beslutning">Behandlingsgrunnlag</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>
+                </td>
+              </tr>
+            </aura:set>
+          </aura:if>
+          <br />
+          <br />
+        </aura:if>
+        <!--**************Other***********************************-->
+        <aura:if isTrue="{!v.currentOther == base.OrganizationType__c}">
+          <tr>
+            <td>
+              <div title="Hjemmel">Hjemmel</div>
+            </td>
+            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+              <div class="slds-cell-wrap" title="Hjemmel">{!base.OtherLegalBasis__c}</div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div title="Formål">Formål</div>
+            </td>
+            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+              <div class="slds-cell-wrap" title="Formål">{!base.OtherPurpose__c}</div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div title="Beslutning">Behandlingsgrunnlag</div>
+            </td>
+            <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+              <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>
+            </td>
+          </tr>
+          <br />
+          <br />
+        </aura:if>
+        <!--**************State***********************************-->
+        <aura:if isTrue="{!v.currentState == base.OrganizationType__c}">
+          <aura:if isTrue="{!base.LegalBasisState__c=='Annet - oppgi i tekstfelt under'}">
+            <tr>
+              <td>
+                <div title="Hjemmel">Hjemmel</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Hjemmel">{!base.OtherLegalBasis__c}</div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div title="Formål">Formål</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Formål">{!base.OtherPurpose__c}</div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div title="Beslutning">Behandlingsgrunnlag</div>
+              </td>
+              <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>
+              </td>
+            </tr>
+            <!--Content when false -->
+            <aura:set attribute="else">
+              <tr>
+                <td>
+                  <div title="Hjemmel">Hjemmel</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Hjemmel">{!base.LegalBasisState__c}</div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div title="Formål">Formål</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Formål">{!base.PurposeState__c}</div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div title="Beslutning">Behandlingsgrunnlag</div>
+                </td>
+                <td class="slds-form-element slds-size--1-of-12 td-fixed-width">
+                  <div class="slds-cell-wrap" title="Beslutning">{!base.ProcessingBasis__c}</div>
+                </td>
+              </tr>
+            </aura:set>
+          </aura:if>
+          <br />
+          <br />
+        </aura:if>
+      </aura:iteration>
+    </tbody>
+  </table>
 </aura:component>
