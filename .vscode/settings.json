@@ -7,7 +7,7 @@
     "workbench.tree.indent": 16,
     "workbench.startupEditor": "none",
     "editor.multiCursorModifier": "ctrlCmd",
-    "editor.tabSize": 4,
+    "editor.tabSize": 2,
     "editor.formatOnSave": true,
     "editor.detectIndentation": false,
     "git.autofetch": true,

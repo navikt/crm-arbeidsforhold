@@ -9,9 +9,6 @@ p {
 }
 
 .app-section {
-  /*padding: 10px;*/
-  /*border-bottom: 0.25rem solid #f1f1f1;*/
-  /*text-align: center;*/
   padding-bottom: 30px;
 }
 
@@ -159,6 +156,10 @@ input:invalid:required {
   text-align: center;
 }
 
+.button-container.save-submit {
+  margin-top: 30px;
+}
+
 .button-remove {
   color: #0067c5;
   text-decoration: underline;
@@ -190,6 +191,16 @@ input:invalid:required {
   vertical-align: middle;
   border: 2px solid #0067c5;
   color: #0067c5;
+}
+
+.button-flat {
+  color: #0067c5;
+  border: 2px solid transparent;
+  background: transparent;
+}
+
+.button-flat:hover {
+  border: 2px solid #0067c5;
 }
 
 .dropzone-label {
@@ -231,4 +242,12 @@ input:invalid:required {
 
 .pb-10 {
   padding-bottom: 10px;
+}
+
+.breadcrumbs {
+  margin-bottom: 1rem;
+  margin: 0 auto;
+  padding-left: 50px;
+  padding-top: 1rem;
+  max-width: 800px;
 }

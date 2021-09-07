@@ -8,8 +8,8 @@ import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
 export default class Aareg_home extends LightningElement {
   @track organizations;
   @track error;
-  hasAccess = false;
   isLoaded = false;
+  hasAccess = false;
   lastUsedOrganization;
   currentUser = Id;
 
@@ -58,8 +58,8 @@ export default class Aareg_home extends LightningElement {
       this.sortOrganizations();
       await this.checkAccessToApplication();
     } catch (error) {
-      console.log('Error! ', error);
       this.error = error;
+      console.error(error);
     } finally {
       this.isLoaded = true;
     }
@@ -76,7 +76,7 @@ export default class Aareg_home extends LightningElement {
       })
       .catch((error) => {
         this.error = error;
-        console.log('Org Change Error: ', error);
+        console.error(error);
       });
   }
 
@@ -113,15 +113,16 @@ export default class Aareg_home extends LightningElement {
       this.hasAccess = false;
       return;
     }
-    console.log(this.currentUser);
-    console.log(this.lastUsedOrganization);
-    getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization, serviceCode: '5719' })
+    await getUserRights({
+      userId: this.currentUser,
+      organizationNumber: this.lastUsedOrganization,
+      serviceCode: '5719'
+    })
       .then((result) => {
         if (result.success) {
           let privileges = JSON.parse(JSON.stringify(result.rights));
 
           privileges.forEach((privilege) => {
-            console.log(privilege.ServiceCode);
             if (privilege.ServiceCode === '5719') {
               this.hasAccess = true;
               return;
@@ -134,7 +135,7 @@ export default class Aareg_home extends LightningElement {
       .catch((error) => {
         this.hasAccess = false;
         this.error = true;
-        console.log('Error: ', error);
+        console.error(error);
       })
       .finally(() => {
         this.isLoaded = true;

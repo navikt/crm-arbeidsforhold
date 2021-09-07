@@ -31,9 +31,19 @@
             {
               "components": [
                 {
-                  "componentAttributes": {},
+                  "componentAttributes": {
+                    "NAVarea": "Privatperson"
+                  },
                   "componentName": "c:globalCommunityHeader",
                   "id": "fa875156-c481-462d-ba76-636357983a6e",
+                  "renderPriority": "NEUTRAL",
+                  "renditionMap": {},
+                  "type": "component"
+                },
+                {
+                  "componentAttributes": {},
+                  "componentName": "c:aareg_mainBanner",
+                  "id": "8d7b2ec5-1090-4215-a59e-ffb1e6a0bcaf",
                   "renderPriority": "NEUTRAL",
                   "renditionMap": {},
                   "type": "component"

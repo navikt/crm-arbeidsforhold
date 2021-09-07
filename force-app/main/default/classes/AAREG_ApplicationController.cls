@@ -1,4 +1,9 @@
 public without sharing class AAREG_ApplicationController {
+  private static final String ADDITIONAL_INFORMATION = 'Additional Information Required';
+  private static final String DRAFT_APPLICATION = 'Draft';
+  private static final String NEW_APPLICATION = 'New';
+  private static final String IN_PROGRESS = 'In Progress';
+
   @AuraEnabled(cacheable=true)
   public static Account getLastUsedOrganizationInformation(String userId) {
     User currentUser = [SELECT Id, LastUsedOrganization__c FROM USER WHERE Id = :userId];
@@ -21,51 +26,96 @@ public without sharing class AAREG_ApplicationController {
 
   @AuraEnabled
   public static string getAccountNameByOrgNumber(String orgNumber) {
-    String accountName = '';
-    accountName = [
+    String accountName = [
       SELECT Id, Name, INT_OrganizationNumber__c
       FROM Account
       WHERE INT_OrganizationNumber__c = :orgNumber
       LIMIT 1
     ]
-    .Name;
+    ?.Name;
+
     return accountName;
   }
 
   @AuraEnabled
-  public static void processApplication(
+  public static DraftApplication getDraftApplication(String recordId) {
+    return new DraftApplication(getApplication(recordId), getBasisCodes(recordId), getRelatedContacts(recordId));
+  }
+
+  @AuraEnabled
+  public static Id saveAsDraft(
     Application__c application,
-    ApplicationBasisCode__c[] basisCode,
-    RelatedContact__c[] relatedContacts,
-    String base64,
-    String fileName //Id contentVersionId
+    List<ApplicationBasisCode__c> basisCode,
+    List<RelatedContact__c> relatedContacts
   ) {
-    application.Casehandler_Status__c = 'New';
+    if (application.Status__c != ADDITIONAL_INFORMATION) {
+      application.status__c = DRAFT_APPLICATION;
+    }
+
     try {
-      insert application;
-      insertDocumentWithLink(application.Id, base64, fileName);
-      insertRelatedContacts(application.Id, relatedContacts);
-      insertBasisCodes(application.Id, basisCode);
+      upsert application;
+      upsertRelatedContacts(application.Id, relatedContacts);
+      upsertBasisCodes(application.Id, basisCode);
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
     }
+    return application.Id;
   }
 
-  private static void insertRelatedContacts(Id applicationId, RelatedContact__c[] relatedContacts) {
+  @AuraEnabled
+  public static Id processApplication(
+    Application__c application,
+    List<ApplicationBasisCode__c> basisCode,
+    List<RelatedContact__c> relatedContacts,
+    String base64,
+    String fileName
+  ) {
+    if (application.Status__c != ADDITIONAL_INFORMATION) {
+      application.Casehandler_Status__c = NEW_APPLICATION;
+      application.status__c = NEW_APPLICATION;
+    } else {
+      application.Casehandler_Status__c = IN_PROGRESS;
+      application.status__c = IN_PROGRESS;
+    }
+
+    try {
+      upsert application;
+      upsertRelatedContacts(application.Id, relatedContacts);
+      upsertBasisCodes(application.Id, basisCode);
+      insertDocumentWithLink(application.Id, base64, fileName);
+    } catch (Exception e) {
+      throw new AuraHandledException(e.getMessage());
+    }
+    return application.Id;
+  }
+
+  @AuraEnabled
+  public static void deleteDraftRecord(SObject record) {
+    try {
+      delete record;
+    } catch (Exception ex) {
+      throw new AuraHandledException(ex.getMessage());
+    }
+  }
+
+  private static void upsertRelatedContacts(Id applicationId, List<RelatedContact__c> relatedContacts) {
     for (RelatedContact__c contact : relatedContacts) {
       contact.Application__c = applicationId;
     }
-    insert relatedContacts;
+    upsert relatedContacts;
   }
 
-  private static void insertBasisCodes(Id applicationId, ApplicationBasisCode__c[] basisCodes) {
+  private static void upsertBasisCodes(Id applicationId, List<ApplicationBasisCode__c> basisCodes) {
     for (ApplicationBasisCode__c code : basisCodes) {
       code.Application__c = applicationId;
     }
-    insert basisCodes;
+    upsert basisCodes;
   }
 
   private static void insertDocumentWithLink(Id applicationId, String base64, String fileName) {
+    if (base64 == null || fileName == null) {
+      return;
+    }
     ContentVersion cv = generateContentVersion(base64, filename);
     generateContentDocumentLink(applicationId, cv.Id);
   }
@@ -88,5 +138,80 @@ public without sharing class AAREG_ApplicationController {
     documentLink.ShareType = 'I';
 
     insert documentLink;
+  }
+
+  private static Application__c getApplication(Id applicationId) {
+    return [
+      SELECT
+        Id,
+        AA_isPortalUserEditable__c,
+        Email__c,
+        Status__c,
+        DataProcessorName__c,
+        APIAccess__c,
+        ExtractionAccess__c,
+        OnlineAccess__c,
+        DataProcessorOrganizationNumber__c,
+        TermsOfUse__c
+      FROM Application__c
+      WHERE Id = :applicationId
+    ];
+  }
+
+  private static List<RelatedContact__c> getRelatedContacts(Id applicationId) {
+    return [
+      SELECT
+        Id,
+        Name,
+        Phone__c,
+        Email__c,
+        AgreementNotifications__c,
+        ChangeNotifications__c,
+        ErrorMessageNotifications__c,
+        SecurityNotifications__c
+      FROM RelatedContact__c
+      WHERE Application__c = :applicationId
+    ];
+  }
+
+  private static List<ApplicationBasisCode__c> getBasisCodes(Id applicationId) {
+    return [
+      SELECT
+        Id,
+        OtherLegalBasis__c,
+        OtherPurpose__c,
+        ProcessingBasis__c,
+        PurposeMunicipality__c,
+        LegalBasisMunicipality__c,
+        PurposeCounty__c,
+        LegalBasisCounty__c,
+        PurposeState__c,
+        LegalBasisState__c,
+        PurposeElectricitySupervision__c,
+        LegalBasisElectricitySupervision__c,
+        PurposePension__c,
+        LegalBasisPension__c
+      FROM ApplicationBasisCode__c
+      WHERE Application__c = :applicationId
+    ];
+  }
+
+  public class DraftApplication {
+    @AuraEnabled
+    public Application__c application;
+    @AuraEnabled
+    public List<ApplicationBasisCode__c> basisCodes;
+    @AuraEnabled
+    public List<RelatedContact__c> contacts;
+
+    public DraftApplication(
+      Application__c application,
+      List<ApplicationBasisCode__c> basisCodes,
+      List<RelatedContact__c> contacts
+    ) {
+      this.application = application;
+      this.basisCodes = basisCodes;
+      this.contacts = contacts;
+    }
   }
 }

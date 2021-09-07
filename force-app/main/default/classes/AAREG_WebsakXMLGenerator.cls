@@ -3,6 +3,7 @@ public class AAREG_WebsakXMLGenerator {
   private String businessUnitName;
   private String journalPostStatus;
   private String journalPostType;
+  private String journalPostName;
   private String applicationId;
   private String userNavIdent;
   private String organizationName;
@@ -30,6 +31,11 @@ public class AAREG_WebsakXMLGenerator {
 
   public AAREG_WebsakXMLGenerator journalPostType(String journalPostType) {
     this.journalPostType = journalPostType;
+    return this;
+  }
+
+  public AAREG_WebsakXMLGenerator journalPostName(String journalPostName) {
+    this.journalPostName = journalPostName;
     return this;
   }
 
@@ -85,6 +91,7 @@ public class AAREG_WebsakXMLGenerator {
     generator.businessUnitName = this.businessUnitName;
     generator.journalPostStatus = this.journalPostStatus;
     generator.journalPostType = this.journalPostType;
+    generator.journalPostName = this.journalPostName;
     generator.applicationId = this.applicationId;
     generator.userNavIdent = this.userNavIdent;
     generator.organizationName = this.organizationName;
@@ -94,6 +101,7 @@ public class AAREG_WebsakXMLGenerator {
     generator.mailingPostalCode = this.mailingPostalCode;
     generator.submissionDate = this.submissionDate;
     generator.documentNameFormat = this.documentNameFormat;
+
     return generator;
   }
 
@@ -104,7 +112,7 @@ public class AAREG_WebsakXMLGenerator {
     dom.xmlNode application = noArkSak.addChildElement('SA.SOKNADSID', null, null).addTextNode(applicationId);
     dom.xmlNode journalPostTab = noArkSak.addChildElement('JOURNALPOST.TAB', null, null);
     dom.xmlNode post = journalPostTab.addChildElement('JOURNALPOST', null, null);
-    dom.xmlNode postContent = post.addChildElement('JP.INNHOLD', null, null).addTextNode(getFormattedContentString());
+    dom.xmlNode postContent = post.addChildElement('JP.INNHOLD', null, null).addTextNode(journalPostName);
     dom.xmlNode postDate = post.addChildElement('JP.DOKDATO', null, null).addTextNode(formatDateString(submissionDate));
     dom.xmlNode journalPostType = post.addChildElement('JP.DOKTYPE', null, null).addTextNode(journalPostType);
     dom.xmlNode journalPostStatus = post.addChildElement('JP.STATUS', null, null).addTextNode(journalPostStatus);
@@ -140,9 +148,5 @@ public class AAREG_WebsakXMLGenerator {
 
   private String formatCityPostalCode(String city, String postalCode) {
     return city + ' ' + postalCode;
-  }
-
-  private String getFormattedContentString() {
-    return 'Soknad AA-registeret-' + applicationId.replaceAll('-', '');
   }
 }

@@ -4,17 +4,21 @@ import APPLICATION_BASIS_CODE_OBJECT from '@salesforce/schema/ApplicationBasisCo
 
 export default class Aareg_applicationBasis extends LightningElement {
   @api record;
+  @api readOnly;
   @api organizationType;
   @track purposeOptions;
   @track legalBasisOptions;
-  @track showOtherInput = false;
   purposeFieldName;
   legalBasisFieldName;
   applicationBasis;
+  otherLegalBasisCharUsed = 0;
+  otherPurposeCharUsed = 0;
   isOtherOrganizationType = false;
+  legalBasisRemovedValuePlaceholder;
 
   connectedCallback() {
-    this.initApplicationBasis();
+    this.setPicklistFieldNames();
+    this.init();
   }
 
   renderedCallback() {
@@ -25,24 +29,61 @@ export default class Aareg_applicationBasis extends LightningElement {
     this.processingBasis = this.template.querySelector('[data-id="processing-basis"]');
   }
 
-  initApplicationBasis() {
+  get legalBasisValue() {
+    return this.applicationBasis[this.legalBasisFieldName];
+  }
+
+  get purposeValue() {
+    return this.applicationBasis[this.purposeFieldName];
+  }
+
+  get showOtherInput() {
+    return (
+      this.isOtherOrganizationType ||
+      this.applicationBasis[this.legalBasisFieldName] === 'Annet - oppgi i tekstfelt under'
+    );
+  }
+
+  get remainingOtherLegalBasisChar() {
+    return `${this.otherLegalBasisCharUsed} / 255 `;
+  }
+
+  get remainingOtherPurposeChar() {
+    return `${this.otherPurposeCharUsed} / 255 `;
+  }
+
+  init() {
     this.applicationBasis = {
       uuid: this.record.uuid,
+      Id: this.record.Id ? this.record.Id : null,
       OrganizationType__c: this.organizationType,
-      LegalBasisMunicipality__c: null,
-      PurposeMunicipality__c: null,
-      LegalBasisCounty__c: null,
-      PurposeCounty__c: null,
-      LegalBasisState__c: null,
-      PurposeState__c: null,
-      LegalBasisElectricitySupervision__c: null,
-      PurposeElectricitySupervision__c: null,
-      LegalBasisPension__c: null,
-      PurposePension__c: null,
-      OtherLegalBasis__c: null,
-      OtherPurpose__c: null,
-      ProcessingBasis__c: null
+      LegalBasisMunicipality__c: this.record.LegalBasisMunicipality__c ? this.record.LegalBasisMunicipality__c : null,
+      PurposeMunicipality__c: this.record.PurposeMunicipality__c ? this.record.PurposeMunicipality__c : null,
+      LegalBasisCounty__c: this.record.LegalBasisCounty__c ? this.record.LegalBasisCounty__c : null,
+      PurposeCounty__c: this.record.PurposeCounty__c ? this.record.PurposeCounty__c : null,
+      LegalBasisState__c: this.record.LegalBasisState__c ? this.record.LegalBasisState__c : null,
+      PurposeState__c: this.record.PurposeState__c ? this.record.PurposeState__c : null,
+      LegalBasisPension__c: this.record.LegalBasisPension__c ? this.record.LegalBasisPension__c : null,
+      PurposePension__c: this.record.PurposePension__c ? this.record.PurposePension__c : null,
+      OtherLegalBasis__c: this.record.OtherLegalBasis__c ? this.record.OtherLegalBasis__c : null,
+      OtherPurpose__c: this.record.OtherPurpose__c ? this.record.OtherPurpose__c : null,
+      ProcessingBasis__c: this.record.ProcessingBasis__c ? this.record.ProcessingBasis__c : null,
+      LegalBasisElectricitySupervision__c: this.record.LegalBasisElectricitySupervision__c
+        ? this.record.LegalBasisElectricitySupervision__c
+        : null,
+      PurposeElectricitySupervision__c: this.record.PurposeElectricitySupervision__c
+        ? this.record.PurposeElectricitySupervision__c
+        : null
     };
+
+    if (this.applicationBasis.OtherLegalBasis__c) {
+      this.otherLegalBasisCharUsed = this.applicationBasis.OtherLegalBasis__c.length;
+    }
+
+    if (this.applicationBasis.OtherPurpose__c) {
+      this.otherPurposeCharUsed = this.applicationBasis.OtherPurpose__c.length;
+    }
+
     this.publishChange();
   }
 
@@ -55,47 +96,59 @@ export default class Aareg_applicationBasis extends LightningElement {
   })
   applicationBasisPicklists({ data, error }) {
     if (data) {
-      console.log('Org Type: ', this.organizationType);
-      switch (this.organizationType) {
-        case 'Municipality':
-          this.purposeFieldName = 'PurposeMunicipality__c';
-          this.legalBasisFieldName = 'LegalBasisMunicipality__c';
-          this.legalBasisOptions = data.picklistFieldValues.LegalBasisMunicipality__c.values;
-          this.purposeData = data.picklistFieldValues.PurposeMunicipality__c;
-          break;
-        case 'County':
-          this.purposeFieldName = 'PurposeCounty__c';
-          this.legalBasisFieldName = 'LegalBasisCounty__c';
-          this.legalBasisOptions = data.picklistFieldValues.LegalBasisCounty__c.values;
-          this.purposeData = data.picklistFieldValues.PurposeCounty__c;
-          break;
-        case 'State':
-          this.purposeFieldName = 'PurposeState__c';
-          this.legalBasisFieldName = 'LegalBasisState__c';
-          this.legalBasisOptions = data.picklistFieldValues.LegalBasisState__c.values;
-          this.purposeData = data.picklistFieldValues.PurposeState__c;
-          break;
-        case 'Electricity Supervision':
-          this.purposeFieldName = 'PurposeElectricitySupervision__c';
-          this.legalBasisFieldName = 'LegalBasisElectricitySupervision__c';
-          this.legalBasisOptions = data.picklistFieldValues.LegalBasisElectricitySupervision__c.values;
-          this.purposeData = data.picklistFieldValues.PurposeElectricitySupervision__c;
-          break;
-        case 'Pension':
-          this.purposeFieldName = 'PurposePension__c';
-          this.legalBasisFieldName = 'LegalBasisPension__c';
-          this.legalBasisOptions = data.picklistFieldValues.LegalBasisPension__c.values;
-          this.purposeData = data.picklistFieldValues.PurposePension__c;
-          break;
-        case 'Other':
-          this.showOtherInput = true;
-          this.isOtherOrganizationType = true;
-          break;
-        default:
-          break;
+      this.legalBasisOptions = data.picklistFieldValues[this.legalBasisFieldName].values.map((arr) => ({ ...arr }));
+
+      this.legalBasisOptions.forEach((el, index) => {
+        if (el.value === this.applicationBasis[this.legalBasisFieldName]) {
+          this.legalBasisOptions.splice(index, 1);
+          this.legalBasisOptions.unshift(el);
+        }
+      });
+      this.purposeData = data.picklistFieldValues[this.purposeFieldName];
+
+      if (this.applicationBasis[this.legalBasisFieldName]) {
+        let key = this.purposeData.controllerValues[this.applicationBasis[this.legalBasisFieldName]];
+        this.purposeOptions = this.purposeData.values.filter((opt) => opt.validFor.includes(key));
+
+        this.purposeOptions.forEach((el, index) => {
+          if (el.value === this.applicationBasis[this.purposeFieldName]) {
+            this.purposeOptions.splice(index, 1);
+            this.purposeOptions.unshift(el);
+          }
+        });
       }
     } else if (error) {
-      console.log('Error!!!', error);
+      console.error(error);
+    }
+  }
+
+  setPicklistFieldNames() {
+    switch (this.organizationType) {
+      case 'Municipality':
+        this.purposeFieldName = 'PurposeMunicipality__c';
+        this.legalBasisFieldName = 'LegalBasisMunicipality__c';
+        break;
+      case 'County':
+        this.purposeFieldName = 'PurposeCounty__c';
+        this.legalBasisFieldName = 'LegalBasisCounty__c';
+        break;
+      case 'State':
+        this.purposeFieldName = 'PurposeState__c';
+        this.legalBasisFieldName = 'LegalBasisState__c';
+        break;
+      case 'Electricity Supervision':
+        this.purposeFieldName = 'PurposeElectricitySupervision__c';
+        this.legalBasisFieldName = 'LegalBasisElectricitySupervision__c';
+        break;
+      case 'Pension':
+        this.purposeFieldName = 'PurposePension__c';
+        this.legalBasisFieldName = 'LegalBasisPension__c';
+        break;
+      case 'Other':
+        this.isOtherOrganizationType = true;
+        break;
+      default:
+        break;
     }
   }
 
@@ -105,12 +158,13 @@ export default class Aareg_applicationBasis extends LightningElement {
     let key = this.purposeData.controllerValues[event.target.value];
     this.purposeOptions = this.purposeData.values.filter((opt) => opt.validFor.includes(key));
     this.applicationBasis[this.legalBasisFieldName] = event.target.value;
-    this.applicationBasis[this.purposeFieldName] = '';
+
     if (event.target.value === 'Annet - oppgi i tekstfelt under') {
-      this.showOtherInput = true;
+      this.applicationBasis[this.purposeFieldName] = 'Annet - oppgi i tekstfelt under';
     } else {
-      this.showOtherInput = false;
+      this.applicationBasis[this.purposeFieldName] = '';
     }
+
     this.publishChange();
   }
 
@@ -144,6 +198,18 @@ export default class Aareg_applicationBasis extends LightningElement {
   publishError() {
     const changeEvent = new CustomEvent('validationerror', { detail: true });
     this.dispatchEvent(changeEvent);
+  }
+
+  countOtherLegalBasisChar(event) {
+    if (event.target.value.length >= 0) {
+      this.otherLegalBasisCharUsed = event.target.value.length;
+    }
+  }
+
+  countOtherPurposeChar(event) {
+    if (event.target.value.length >= 0) {
+      this.otherPurposeCharUsed = event.target.value.length;
+    }
   }
 
   /*************** Validation ***************/
@@ -214,8 +280,17 @@ export default class Aareg_applicationBasis extends LightningElement {
 
   resetErrors() {
     let formControl = this.template.querySelectorAll('.form-control');
+
     formControl.forEach((element) => {
       element.classList.remove('error');
     });
+
+    this.legalBasis.setCustomValidity('');
+    this.purpose.setCustomValidity('');
+    this.processingBasis.setCustomValidity('');
+    if (this.otherLegalBasis) {
+      this.otherLegalBasis.setCustomValidity('');
+      this.otherPurpose.setCustomValidity('');
+    }
   }
 }
