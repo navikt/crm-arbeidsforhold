@@ -68,9 +68,9 @@
                 <label>Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser</label>
             </value>
             <value>
-                <fullName>Skjenkebevilling</fullName>
+                <fullName>Salg- og skjenkebevilling</fullName>
                 <default>false</default>
-                <label>Skjenkebevilling</label>
+                <label>Salg- og skjenkebevilling</label>
             </value>
             <value>
                 <fullName>Smittesporing</fullName>
@@ -121,6 +121,12 @@
                 <default>false</default>
                 <isActive>false</isActive>
                 <label>Planleggingsarbeid - infrastruktur</label>
+            </value>
+            <value>
+                <fullName>Skjenkebevilling</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Skjenkebevilling</label>
             </value>
         </valueSetDefinition>
         <valueSettings>
@@ -173,7 +179,7 @@
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Skjenkebevilling</valueName>
+            <valueName>Salg- og skjenkebevilling</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>

@@ -15,10 +15,10 @@ public class AAREG_ArchiveService {
     List<Application__c> applicationsToUpdate = new List<Application__c>();
 
     for (Application__c application : applicationList) {
-      String applicationFileName = formatFileName(application.Name + APPLICATION_NAME + DEFALUT_FILE_FORMAT);
-      String manifestName = getManifestName(application.Name, APPLICATION_NAME, Date.Today());
       Map<String, Blob> filesToSend = new Map<String, Blob>();
       Map<String, String> fileNameFormatMap = new Map<String, String>();
+      String applicationFileName = formatFileName(application.Name + ' ' + APPLICATION_NAME + DEFALUT_FILE_FORMAT);
+      String manifestName = getManifestName(application.Name, APPLICATION_NAME, Date.Today());
 
       filesToSend.put(applicationFileName, Blob.valueOf(application.AA_register_application_text__c));
       fileNameFormatMap.put(applicationFileName, DEFALUT_FILE_FORMAT);
@@ -30,7 +30,13 @@ public class AAREG_ArchiveService {
 
       filesToSend.put(
         manifestName,
-        getManifest(fileNameFormatMap, application, INCOMING_POST, application.ApplicationSubmittedDate__c)
+        getManifest(
+          fileNameFormatMap,
+          application,
+          INCOMING_POST,
+          getJournalPostName('Søknad', application.Name),
+          application.ApplicationSubmittedDate__c
+        )
       );
 
       Boolean success = sendFiles(filesToSend, manifestName);
@@ -48,7 +54,7 @@ public class AAREG_ArchiveService {
     List<Application__c> applicationsToUpdate = new List<Application__c>();
 
     for (Application__c application : applications) {
-      String decisionFileName = application.Name + DECISION_NAME + DEFALUT_FILE_FORMAT;
+      String decisionFileName = formatFileName(application.Name + ' ' + DECISION_NAME + DEFALUT_FILE_FORMAT);
       String manifestName = getManifestName(application.Name, DECISION_NAME, Date.Today());
 
       Map<String, String> fileNameFormat = new Map<String, String>();
@@ -58,7 +64,13 @@ public class AAREG_ArchiveService {
       filesToSend.put(decisionFileName, Blob.valueOf(application.AA_DecisionArchiveText__c));
       filesToSend.put(
         manifestName,
-        getManifest(fileNameFormat, application, OUTGOING_POST, application.DecisionDate__c)
+        getManifest(
+          fileNameFormat,
+          application,
+          OUTGOING_POST,
+          getJournalPostName('Vedtak', application.Name),
+          application.DecisionDate__c
+        )
       );
 
       Boolean success = sendFiles(filesToSend, manifestName);
@@ -112,6 +124,7 @@ public class AAREG_ArchiveService {
     Map<String, String> fileInfo,
     Application__c application,
     String postType,
+    String journalPostName,
     Date referenceDate
   ) {
     AAREG_WebsakXMLGenerator generator = new AAREG_WebsakXMLGenerator()
@@ -119,7 +132,8 @@ public class AAREG_ArchiveService {
       .businessUnitName(BUSINESS_UNIT)
       .journalPostStatus(JOURNAL_POST_STATUS)
       .journalPostType(postType)
-      .applicationId(application.Id)
+      .journalPostName(journalPostName)
+      .applicationId(application.Name)
       .userNavIdent(application.AA_CaseHandlerNavIdent__c)
       .organizationName(application.AccountName__c)
       .organizationNumber(application.OrganizationNumber__c)
@@ -130,6 +144,7 @@ public class AAREG_ArchiveService {
       .documentNameFormat(fileInfo)
       .build();
 
+    system.debug(generator.generateXML());
     return Blob.valueOf(generator.generateXML());
   }
 
@@ -199,6 +214,10 @@ public class AAREG_ArchiveService {
 
   private String getManifestName(String applicationNumber, String type, Date archiveDate) {
     return applicationNumber.replaceAll('-', '') + '_' + type + '_' + formatDateString(archiveDate) + MANIFEST_FORMAT;
+  }
+
+  private String getJournalPostName(String type, String applicationNumber) {
+    return type + ' - tilgang til AA-registeret - ' + applicationNumber.replaceAll('-', '');
   }
 
   private String formatFileName(String fileName) {

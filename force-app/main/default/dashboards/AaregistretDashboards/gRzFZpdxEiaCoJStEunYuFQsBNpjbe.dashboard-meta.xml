@@ -4,9 +4,9 @@
     <backgroundFadeDirection>Diagonal</backgroundFadeDirection>
     <backgroundStartColor>#FFFFFF</backgroundStartColor>
     <chartTheme>light</chartTheme>
-    <colorPalette>unity</colorPalette>
+    <colorPalette>watermelon</colorPalette>
     <dashboardChartTheme>light</dashboardChartTheme>
-    <dashboardColorPalette>unity</dashboardColorPalette>
+    <dashboardColorPalette>watermelon</dashboardColorPalette>
     <dashboardGridLayout>
         <dashboardGridComponents>
             <colSpan>5</colSpan>
@@ -56,7 +56,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <groupingSortProperties />
+                <groupingSortProperties/>
                 <header>Antall nye søknader</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -129,7 +129,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <groupingSortProperties />
+                <groupingSortProperties/>
                 <header>Antall nye søknader</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -155,7 +155,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <groupingSortProperties />
+                <groupingSortProperties/>
                 <header>Antall nye søknader</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -172,9 +172,9 @@
         <numberOfColumns>12</numberOfColumns>
         <rowHeight>36</rowHeight>
     </dashboardGridLayout>
-    <dashboardType>SpecifiedUser</dashboardType>
+    <dashboardType>LoggedInUser</dashboardType>
     <isGridLayout>true</isGridLayout>
-    <runningUser>jordan.mathews@nav.no.aareg</runningUser>
+    <runningUser>test-ql4c65f8wpa2@example.com</runningUser>
     <textColor>#000000</textColor>
     <title>Aa-registeret dashboard</title>
     <titleColor>#000000</titleColor>
