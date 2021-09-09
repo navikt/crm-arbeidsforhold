@@ -23,6 +23,6 @@ public with sharing class AAREG_CodeBaseListController {
       FROM ApplicationBasisCode__c
       WHERE Application__c = :recordId
     ];
-    return codes;    
+    return codes;
   }
 }
