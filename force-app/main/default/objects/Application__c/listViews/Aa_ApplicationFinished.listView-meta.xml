@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Aa_ApplicationFinished</fullName>
+    <booleanFilter>1 AND 2 AND 3</booleanFilter>
     <columns>NAME</columns>
     <columns>Account__c</columns>
     <columns>ApplicationSubmittedDate__c</columns>
     <columns>AA_CasehandlerDeadlineFlag__c</columns>
     <columns>Casehandler_Status__c</columns>
+    <columns>Status__c</columns>
     <columns>applicationOwner__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
@@ -21,7 +23,7 @@
     <filters>
         <field>Status__c</field>
         <operation>notEqual</operation>
-        <value>Suspension</value>
+        <value>Declined,Suspension</value>
     </filters>
     <label>Aa-reg Søknader Ferdigbehandlet</label>
     <sharedTo>
