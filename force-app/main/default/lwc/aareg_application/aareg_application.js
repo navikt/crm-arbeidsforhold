@@ -1,78 +1,93 @@
 import { LightningElement, track, api } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import processApplication from '@salesforce/apex/AAREG_ApplicationController.processApplication';
 import getLastUsedOrganizationInformation from '@salesforce/apex/AAREG_ApplicationController.getLastUsedOrganizationInformation';
+import getDraftApplication from '@salesforce/apex/AAREG_ApplicationController.getDraftApplication';
 import getAccountNameByOrgNumber from '@salesforce/apex/AAREG_ApplicationController.getAccountNameByOrgNumber';
+import deleteDraftRecord from '@salesforce/apex/AAREG_ApplicationController.deleteDraftRecord';
+import saveAsDraft from '@salesforce/apex/AAREG_ApplicationController.saveAsDraft';
 import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
 
-export default class Aareg_application extends LightningElement {
+export default class Aareg_application extends NavigationMixin(LightningElement) {
+  @api recordId;
   @api hasErrors;
   @api linkToDataElements;
   @api linkToTermsOfUse;
-  @track contactRows;
-  @track applicationBasisRows;
   @track application;
   @track organization;
+  @track contactRows = [];
+  @track applicationBasisRows = [];
   currentUser = Id;
   hasAccess = false;
-  showContactRemove = false;
+  isReadOnly = false;
   applicationSubmitted = false;
-  showApplicationBasisRemove = false;
   lastUsedOrganization;
   organizationType;
   isLoaded = false;
-  fileData;
+  fileData = { base64: null, filename: null };
   error;
 
   connectedCallback() {
-    getLastUsedOrganizationInformation({ userId: this.currentUser })
-      .then((result) => {
-        this.organization = result;
-        this.organizationType = result.AAREG_OrganizationCategory__c;
-        this.lastUsedOrganization = result.INT_OrganizationNumber__c;
-        this.error = undefined;
-        console.log(this.lastUsedOrganization);
-        console.log(this.currentUser);
-        this.checkAccessToApplication();
-        this.initializeNewApplication();
-        this.isLoaded = true;
-      })
-      .catch((error) => {
-        this.error = error;
-        this.organizations = undefined;
-        console.log('LUO', error);
-      });
+    this.init();
   }
 
-  checkAccessToApplication() {
-    getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization, serviceCode: '5719' })
-      .then((result) => {
-        if (result.success) {
-          let privileges = JSON.parse(JSON.stringify(result.rights));
+  async init() {
+    try {
+      // get the organization info for the current user
+      let orgInfo = await getLastUsedOrganizationInformation({ userId: this.currentUser });
+      this.organization = orgInfo;
+      this.organizationType = orgInfo.AAREG_OrganizationCategory__c;
+      this.lastUsedOrganization = orgInfo.INT_OrganizationNumber__c;
 
-          privileges.forEach((privilege) => {
-            console.log(privilege.ServiceCode);
-            if (privilege.ServiceCode === '5719') {
-              this.hasAccess = true;
-              return;
-            }
+      await this.checkAccessToApplication();
+
+      // initialize application based on previously saved draft.
+      if (this.recordId) {
+        let draftApplication = await getDraftApplication({ recordId: this.recordId });
+
+        this.initApplication();
+        this.application = { ...this.application, ...draftApplication.application };
+
+        if (draftApplication.contacts.length >= 1) {
+          draftApplication.contacts.forEach((contact) => {
+            this.contactRows.push({ uuid: this.createUUID(), ...contact });
           });
+        } else {
+          this.contactRows.push({ uuid: this.createUUID() });
         }
-      })
-      .catch((error) => {
-        console.log('RE', error);
-      });
+
+        if (draftApplication.basisCodes.length >= 1) {
+          draftApplication.basisCodes.forEach((code) => {
+            this.applicationBasisRows.push({ uuid: this.createUUID(), ...code });
+          });
+        } else {
+          this.applicationBasisRows.push({ uuid: this.createUUID() });
+        }
+        if (!this.application.AA_isPortalUserEditable__c) {
+          this.setAsReadOnly();
+        }
+        // initialize new application.
+      } else {
+        this.initApplication();
+        this.contactRows.push({ uuid: this.createUUID() });
+        this.applicationBasisRows.push({ uuid: this.createUUID() });
+      }
+    } catch (error) {
+      this.hasErrors = true;
+      console.error(error);
+    } finally {
+      this.isLoaded = true;
+    }
   }
 
-  initializeNewApplication() {
+  initApplication() {
     this.application = {
-      AccountId__c: this.organization.Id,
-      AccountName__c: this.organization.Name,
-      OrganizationNumber__c: this.organization.INT_OrganizationNumber__c,
-      OrganizationStructure__c: this.organization.INT_OrganizationalStructure__c,
-      MailingAddress__c: this.organization.ShippingStreet,
-      MailingCity__c: this.organization.ShippingCity,
-      MailingPostalCode__c: this.organization.ShippingPostalCode,
+      AccountId__c: this.organization.Id ? this.organization.Id : null,
+      AccountName__c: this.organization.Name ? this.organization.Name : null,
+      MailingAddress__c: this.organization.ShippingStreet ? this.organization.ShippingStreet : null,
+      MailingCity__c: this.organization.ShippingCity ? this.organization.ShippingCity : null,
+      MailingPostalCode__c: this.organization.ShippingPostalCode ? this.organization.ShippingPostalCode : null,
       Email__c: null,
       DataProcessorName__c: null,
       APIAccess__c: false,
@@ -80,11 +95,14 @@ export default class Aareg_application extends LightningElement {
       OnlineAccess__c: false,
       DataProcessorOrganizationNumber__c: null,
       TermsOfUse__c: false,
-      organizationName: this.organization.Name
+      organizationName: this.organization.Name ? this.organization.Name : null,
+      OrganizationNumber__c: this.organization.INT_OrganizationNumber__c
+        ? this.organization.INT_OrganizationNumber__c
+        : null,
+      OrganizationStructure__c: this.organization.INT_OrganizationalStructure__c
+        ? this.organization.INT_OrganizationalStructure__c
+        : null
     };
-
-    this.contactRows = [{ uuid: this.createUUID() }];
-    this.applicationBasisRows = [{ uuid: this.createUUID() }];
   }
 
   get acceptedFileFormats() {
@@ -99,7 +117,41 @@ export default class Aareg_application extends LightningElement {
     return 'https://nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/Bruksvilkår_for_tilgang_til_Aa-registeret.pdf';
   }
 
+  async checkAccessToApplication() {
+    getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization, serviceCode: '5719' })
+      .then((result) => {
+        if (result.success) {
+          let privileges = JSON.parse(JSON.stringify(result.rights));
+
+          privileges.forEach((privilege) => {
+            if (privilege.ServiceCode === '5719') {
+              this.hasAccess = true;
+              return;
+            }
+          });
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        return this.hasAccess;
+      });
+  }
+
+  setAsReadOnly() {
+    this.isReadOnly = true;
+  }
+
   /*************** Dynamic Element handlers ***************/
+
+  get showContactRemove() {
+    return this.contactRows.length > 1 && !this.isReadOnly;
+  }
+
+  get showApplicationBasisRemove() {
+    return this.applicationBasisRows.length > 1 && !this.isReadOnly;
+  }
 
   createUUID() {
     let dt = new Date().getTime();
@@ -112,34 +164,71 @@ export default class Aareg_application extends LightningElement {
   }
 
   removeContactRow(event) {
-    if (this.contactRows.length > 1) {
+    let contact = this.contactRows[event.target.value];
+    if (contact.Id) {
+      this.deleteRecord(contact)
+        .then(() => {
+          this.contactRows.splice(event.target.value, 1);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
       this.contactRows.splice(event.target.value, 1);
-    }
-    if (this.contactRows.length == 1) {
-      this.showContactRemove = false;
     }
   }
 
   addContactRow() {
     this.contactRows.push({ uuid: this.createUUID() });
-    this.showContactRemove = true;
   }
 
   removeApplicationBasisRow(event) {
-    if (this.applicationBasisRows.length > 1) {
+    let basisCode = this.applicationBasisRows[event.target.value];
+    if (basisCode.Id) {
+      this.deleteRecord(basisCode)
+        .then(() => {
+          this.applicationBasisRows.splice(event.target.value, 1);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
       this.applicationBasisRows.splice(event.target.value, 1);
-    }
-    if (this.applicationBasisRows.length == 1) {
-      this.showApplicationBasisRemove = false;
     }
   }
 
   addApplicationBasisRow() {
     this.applicationBasisRows.push({ uuid: this.createUUID() });
-    this.showApplicationBasisRemove = true;
+  }
+
+  async deleteRecord(recordToDelete) {
+    deleteDraftRecord({ record: recordToDelete }).catch((error) => {
+      console.error(error);
+    });
   }
 
   /****************************************************************************************/
+
+  handleSaveAsDraft(event) {
+    event.preventDefault();
+    this.isLoaded = false;
+    let draftContacts = this.contactRows.filter((el) => el.Name !== null && el.Name !== '');
+
+    saveAsDraft({
+      application: this.application,
+      basisCode: this.applicationBasisRows,
+      relatedContacts: draftContacts
+    })
+      .then((result) => {
+        this.navigateToApplication(result);
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        this.isLoaded = true;
+      });
+  }
 
   handleSubmit(event) {
     event.preventDefault();
@@ -149,12 +238,12 @@ export default class Aareg_application extends LightningElement {
     this.checkApplicationInputs();
 
     if (this.hasErrors) {
-      console.log('Has Errors did not submit!!');
       this.focusInput();
       return;
     }
     this.isLoaded = false;
     const { base64, filename } = this.fileData;
+    console.log(base64, filename);
     processApplication({
       application: this.application,
       basisCode: this.applicationBasisRows,
@@ -162,14 +251,41 @@ export default class Aareg_application extends LightningElement {
       base64: base64,
       fileName: filename
     })
-      .then((response) => {
+      .then((result) => {
+        if (this.application.Status__c === 'Additional Information Required') {
+          this.navigateToApplication(result);
+        }
         this.applicationSubmitted = true;
-        this.isLoaded = true;
-        console.log(response);
       })
       .catch((error) => {
-        console.log(JSON.stringify(error));
+        console.error(error);
+      })
+      .finally(() => {
+        this.isLoaded = true;
       });
+  }
+
+  /*************** Navigation ***************/
+
+  navigateToApplication(applicationId) {
+    this[NavigationMixin.Navigate]({
+      type: 'standard__recordPage',
+      attributes: {
+        recordId: applicationId,
+        objectApiName: 'Application__c',
+        actionName: 'view'
+      }
+    });
+  }
+
+  navigateToPage(event) {
+    const page = event.target.name;
+    this[NavigationMixin.Navigate]({
+      type: 'comm__namedPage',
+      attributes: {
+        name: page
+      }
+    });
   }
 
   /*************** Change handlers ***************/
@@ -202,7 +318,6 @@ export default class Aareg_application extends LightningElement {
           this.application.DataProcessorName__c = null;
           this.application.DataProcessorOrganizationNumber__c = null;
           this.setErrorFor(this.dataProcess, 'Ugyldig organisasjonsnummer');
-          console.log('set error');
         });
     } else if (this.application.DataProcessor__c != null) {
       this.application.DataProcessor__c = null;
@@ -210,34 +325,12 @@ export default class Aareg_application extends LightningElement {
     }
   }
 
-  handleApplicationInputChange(event) {
-    let isChecked = (fieldName) => {
-      if (fieldName) {
-        return false;
-      } else {
-        return true;
-      }
-    };
+  handleInputChange(event) {
+    this.application[event.target.dataset.id] = event.target.value;
+  }
 
-    switch (event.target.dataset.id) {
-      case 'email':
-        this.application.Email__c = event.target.value;
-        break;
-      case 'api-access':
-        this.application.APIAccess__c = isChecked(this.application.APIAccess__c);
-        break;
-      case 'online-access':
-        this.application.OnlineAccess__c = isChecked(this.application.OnlineAccess__c);
-        break;
-      case 'extraction-access':
-        this.application.ExtractionAccess__c = isChecked(this.application.ExtractionAccess__c);
-        break;
-      case 'terms-of-use':
-        this.application.TermsOfUse__c = isChecked(this.application.TermsOfUse__c);
-        break;
-      default:
-        return;
-    }
+  handleCheckboxChange(event) {
+    this.application[event.target.dataset.id] = event.target.checked;
   }
 
   onFileUpload(event) {
@@ -274,7 +367,6 @@ export default class Aareg_application extends LightningElement {
     let changeNofiication = 0;
     let errorNotification = 0;
     let securityNotification = 0;
-    console.log(this.contactRows.length);
 
     let cons = this.template.querySelectorAll('c-aareg_application-contact');
 
@@ -283,38 +375,42 @@ export default class Aareg_application extends LightningElement {
     });
 
     this.contactRows.forEach((contact) => {
-      if (contact.AgreementNotifications__c !== false) {
+      if (contact.AgreementNotifications__c) {
         agreementNotification += 1;
       }
 
-      if (contact.ChangeNotifications__c !== false) {
+      if (contact.ChangeNotifications__c) {
         changeNofiication += 1;
       }
 
-      if (contact.ErrorMessageNotifications__c !== false) {
+      if (contact.ErrorMessageNotifications__c) {
         errorNotification += 1;
       }
 
-      if (contact.SecurityNotifications__c !== false) {
+      if (contact.SecurityNotifications__c) {
         securityNotification += 1;
       }
     });
+
     if (agreementNotification < 1 || changeNofiication < 1 || errorNotification < 1 || securityNotification < 1) {
+      this.missingContactNotifications = true;
       this.setErrorFor(this.contacts, 'Det må oppgis minimum en kontaktperson per type varsling.');
+    } else {
+      this.missingContactNotifications = false;
     }
   }
 
   renderedCallback() {
-    this.email = this.template.querySelector('[data-id="email"]');
+    this.email = this.template.querySelector('[data-id="Email__c"]');
     this.contacts = this.template.querySelector('[data-id="contacts"]');
-    this.apiAccess = this.template.querySelector('[data-id="api-access"]');
-    this.onlineAccess = this.template.querySelector('[data-id="online-access"]');
-    this.extractionAccess = this.template.querySelector('[data-id="extraction-access"]');
+    this.apiAccess = this.template.querySelector('[data-id="APIAccess__c"]');
+    this.onlineAccess = this.template.querySelector('[data-id="OnlineAccess__c"]');
+    this.extractionAccess = this.template.querySelector('[data-id="ExtractionAccess__c"]');
     this.accessTypes = this.template.querySelector('[data-id="access-types"]');
     this.dataElements = this.template.querySelector('[data-id="data-element"]');
     this.fileInput = this.template.querySelector('[data-id="file-input"]');
     this.termsOfUse = this.template.querySelector('[data-id="terms"]');
-    this.termsOfUseInput = this.template.querySelector('[data-id="terms-of-use"]');
+    this.termsOfUseInput = this.template.querySelector('[data-id="TermsOfUse__c"]');
     this.dataProcess = this.template.querySelector('[data-id="data-processor"]');
   }
 
@@ -333,9 +429,11 @@ export default class Aareg_application extends LightningElement {
       this.apiAccess.className = 'invalid';
     }
 
-    if (this.fileData === undefined) {
+    if (
+      (this.fileData.base64 === null || this.fileData.filename === null) &&
+      this.application.Status__c != 'Additional Information Required'
+    ) {
       this.setErrorFor(this.dataElements, 'Obligatorisk');
-      //this.fileInput.className = 'invalid';
     }
 
     if (this.application.TermsOfUse__c === false) {
@@ -354,6 +452,11 @@ export default class Aareg_application extends LightningElement {
 
   resetErrors() {
     this.hasErrors = false;
+
+    let inputs = this.template.querySelectorAll('input');
+    inputs.forEach((input) => {
+      input.classList.remove('invalid');
+    });
     let formControl = this.template.querySelectorAll('.form-control');
     formControl.forEach((element) => {
       element.classList.remove('error');
@@ -369,7 +472,7 @@ export default class Aareg_application extends LightningElement {
     let purposes = this.template.querySelectorAll('c-aareg_application-basis');
 
     for (let i = 0; i < purposes.length; i++) {
-      var isFocused = purposes[i].focusInput();
+      let isFocused = purposes[i].focusInput();
 
       if (isFocused) {
         return;
@@ -384,10 +487,16 @@ export default class Aareg_application extends LightningElement {
     let contacts = this.template.querySelectorAll('c-aareg_application-contact');
 
     for (let i = 0; i < contacts.length; i++) {
-      var isFocused = contacts[i].focusInput();
+      let isFocused = contacts[i].focusInput();
       if (isFocused) {
         return;
       }
+    }
+
+    if (this.missingContactNotifications) {
+      console.log('Missing notfication: ', this.missingContactNotifications);
+      contacts[0].focusAgreementNotification();
+      return;
     }
 
     if (this.fileInput.className === 'invalid') {

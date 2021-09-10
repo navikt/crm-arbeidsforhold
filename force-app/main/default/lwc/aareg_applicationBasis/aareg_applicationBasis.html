@@ -17,10 +17,11 @@
             aria-invalid="false"
             id="hjemmel"
             data-id="legal-basis"
+            disabled={readOnly}
             onchange={handleLegalBasisChange}
             required
           >
-            <option value="">Velg</option>
+            <option if:false={legalBasisValue} value="">Velg</option>
             <template for:each={legalBasisOptions} for:item="option">
               <option key={option.key} value={option.key}>{option.value}</option>
             </template>
@@ -44,10 +45,11 @@
             aria-invalid="false"
             id="Formal"
             data-id="purpose"
+            disabled={readOnly}
             onchange={handlePurposeChange}
             required
           >
-            <option value="">Velg</option>
+            <option if:false={purposeValue} value="">Velg</option>
             <template for:each={purposeOptions} for:item="option">
               <option key={option.key} value={option.key}>{option.value}</option>
             </template>
@@ -70,9 +72,15 @@
               id="annet-hjemmel"
               data-id="other-legal-basis"
               class="form-input-text-area"
-              required
+              disabled={readOnly}
               onchange={handleInputChange}
-            ></textarea>
+              onkeyup={countOtherLegalBasisChar}
+              maxlength="255"
+              required
+            >
+            {applicationBasis.OtherLegalBasis__c}
+            </textarea>
+            <span class="character-count">{remainingOtherLegalBasisChar}</span>
             <small>Error Message</small>
           </span>
         </div>
@@ -87,9 +95,15 @@
               id="annet-formal"
               data-id="other-purpose"
               class="form-input-text-area"
-              required
+              disabled={readOnly}
               onchange={handleInputChange}
-            ></textarea>
+              onkeyup={countOtherPurposeChar}
+              maxlength="255"
+              required
+            >
+            {applicationBasis.OtherPurpose__c}
+            </textarea>
+            <span class="character-count">{remainingOtherPurposeChar}</span>
             <small>Error Message</small>
           </span>
         </div>
@@ -111,11 +125,14 @@
           <textarea
             name="Behandlingsgrunnlag"
             id="behandlingsgrunnlag"
-            data-id="processing-basis"
             class="form-input-text-area"
+            data-id="processing-basis"
+            disabled={readOnly}
             onchange={handleInputChange}
             required
-          ></textarea>
+          >
+          {applicationBasis.ProcessingBasis__c}
+          </textarea>
           <small>Error Message</small>
         </span>
       </div>

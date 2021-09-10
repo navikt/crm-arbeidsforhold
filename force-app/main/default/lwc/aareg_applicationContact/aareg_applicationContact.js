@@ -2,12 +2,14 @@ import { LightningElement, api } from 'lwc';
 
 export default class aareg_applicationContact extends LightningElement {
   @api record;
+  @api readOnly;
   contact;
 
   renderedCallback() {
-    this.name = this.template.querySelector('[data-id="name"]');
-    this.phone = this.template.querySelector('[data-id="phone"]');
-    this.email = this.template.querySelector('[data-id="email"]');
+    this.name = this.template.querySelector('[data-id="Name"]');
+    this.phone = this.template.querySelector('[data-id="Phone__c"]');
+    this.email = this.template.querySelector('[data-id="Email__c"]');
+    this.agreementNotification = this.template.querySelector('[data-id="AgreementNotifications__c"]');
   }
 
   connectedCallback() {
@@ -17,45 +19,27 @@ export default class aareg_applicationContact extends LightningElement {
   initContact() {
     this.contact = {
       uuid: this.record.uuid,
-      Name: null,
-      Phone__c: null,
-      Email__c: null,
-      AgreementNotifications__c: false,
-      ChangeNotifications__c: false,
-      ErrorMessageNotifications__c: false,
-      SecurityNotifications__c: false
+      Id: this.record.Id ? this.record.Id : null,
+      Name: this.record.Name ? this.record.Name : null,
+      Phone__c: this.record.Phone__c ? this.record.Phone__c : null,
+      Email__c: this.record.Email__c ? this.record.Email__c : null,
+      AgreementNotifications__c: this.record.AgreementNotifications__c,
+      ChangeNotifications__c: this.record.ChangeNotifications__c,
+      ErrorMessageNotifications__c: this.record.ErrorMessageNotifications__c,
+      SecurityNotifications__c: this.record.SecurityNotifications__c
     };
     this.publishChange();
   }
 
   /*************** Change handlers ***************/
 
-  handleChange(event) {
-    switch (event.target.dataset.id) {
-      case 'name':
-        this.contact.Name = event.target.value;
-        break;
-      case 'phone':
-        this.contact.Phone__c = event.target.value;
-        break;
-      case 'email':
-        this.contact.Email__c = event.target.value;
-        break;
-      case 'agreement':
-        this.contact.AgreementNotifications__c = this.isChecked(this.agreementNotifications);
-        break;
-      case 'change':
-        this.contact.ChangeNotifications__c = this.isChecked(this.changeNotifications);
-        break;
-      case 'error':
-        this.contact.ErrorMessageNotifications__c = this.isChecked(this.errorMessageNotifications);
-        break;
-      case 'security':
-        this.contact.SecurityNotifications__c = this.isChecked(this.securityNotifications);
-        break;
-      default:
-        return;
-    }
+  handleInputChange(event) {
+    this.contact[event.target.dataset.id] = event.target.value;
+    this.publishChange();
+  }
+
+  handleCheckboxChange(event) {
+    this.contact[event.target.dataset.id] = event.target.checked;
     this.publishChange();
   }
 
@@ -67,14 +51,6 @@ export default class aareg_applicationContact extends LightningElement {
   publishError() {
     const changeEvent = new CustomEvent('validationerror', { detail: true });
     this.dispatchEvent(changeEvent);
-  }
-
-  isChecked(fieldName) {
-    if (fieldName) {
-      return false;
-    } else {
-      return true;
-    }
   }
 
   /*************** Validation ***************/
@@ -100,6 +76,10 @@ export default class aareg_applicationContact extends LightningElement {
       return true;
     }
     return false;
+  }
+
+  @api focusAgreementNotification() {
+    this.agreementNotification.focus();
   }
 
   checkNulls(field) {

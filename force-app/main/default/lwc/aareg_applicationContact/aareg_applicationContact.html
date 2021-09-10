@@ -7,7 +7,16 @@
             <abbr class="slds-required" title="required">* </abbr>
             Navn</label
           >
-          <input type="text" name="kontakt navn" id="name" data-id="name" onchange={handleChange} required />
+          <input
+            type="text"
+            name="kontakt navn"
+            id="name"
+            data-id="Name"
+            disabled={readOnly}
+            value={contact.Name}
+            onchange={handleInputChange}
+            required
+          />
           <small>Error Message</small>
         </span>
       </div>
@@ -17,7 +26,16 @@
             <abbr class="slds-required" title="required">* </abbr>
             E-post</label
           >
-          <input type="email" name="kontakt e-post" id="email" data-id="email" onchange={handleChange} required />
+          <input
+            type="email"
+            name="kontakt e-post"
+            id="email"
+            data-id="Email__c"
+            disabled={readOnly}
+            value={contact.Email__c}
+            onchange={handleInputChange}
+            required
+          />
           <small>Error Message</small>
         </span>
       </div>
@@ -27,7 +45,16 @@
             <abbr class="slds-required" title="required">* </abbr>
             Telefonnummer</label
           >
-          <input type="tel" name="kontakt telefon" id="phone" data-id="phone" onchange={handleChange} required />
+          <input
+            type="tel"
+            name="kontakt telefon"
+            id="phone"
+            data-id="Phone__c"
+            disabled={readOnly}
+            value={contact.Phone__c}
+            onchange={handleInputChange}
+            required
+          />
           <small>Error Message</small>
         </span>
       </div>
@@ -41,8 +68,10 @@
           type="checkbox"
           name="varsle avtale"
           id="agreement-notification"
-          data-id="agreement"
-          onclick={handleChange}
+          data-id="AgreementNotifications__c"
+          disabled={readOnly}
+          checked={contact.AgreementNotifications__c}
+          onchange={handleCheckboxChange}
         />
         <label for="agreement-notification">Avtale</label>
       </span>
@@ -52,8 +81,10 @@
           type="checkbox"
           name="varsle endring"
           id="change-notification"
-          data-id="change"
-          onchange={handleChange}
+          data-id="ChangeNotifications__c"
+          disabled={readOnly}
+          checked={contact.ChangeNotifications__c}
+          onchange={handleCheckboxChange}
         />
         <label for="change-notification">Endringer</label>
       </span>
@@ -63,8 +94,10 @@
           type="checkbox"
           name="varsle feilmelding"
           id="error-notification"
-          data-id="error"
-          onchange={handleChange}
+          data-id="ErrorMessageNotifications__c"
+          disabled={readOnly}
+          checked={contact.ErrorMessageNotifications__c}
+          onchange={handleCheckboxChange}
         />
         <label for="error-notification">Feilmelding</label>
       </span>
@@ -74,8 +107,10 @@
           type="checkbox"
           name="varsle sikkerhet"
           id="security-notification"
-          data-id="security"
-          onchange={handleChange}
+          data-id="SecurityNotifications__c"
+          disabled={readOnly}
+          checked={contact.SecurityNotifications__c}
+          onchange={handleCheckboxChange}
         />
         <label for="security-notification">Sikkerhet</label>
       </span>
