@@ -1,0 +1,40 @@
+<template>
+  <!--
+      ** Hva gjelder dette?
+        Eksisterende Søknad
+        Annet
+      ** If Existing application is choosen 
+        - get list of users applications and display in dropdown with Application Id as the key.
+        - show text are for description
+        - on submit
+            - Create a thread and connect to application. 
+            - Create a message with info from the description.
+      ** If Other
+        - show text area for description
+        - show other fields
+        - on submit
+          - create new case 
+          - create thread connected to the case
+          - Add message to the case summarizing which summarizes the description. 
+    -->
+  <div>
+    <form class="container">
+      <label>Hva gjelder dette?</label>
+      <select onchang={handleInputChange} data-id="Type__c">
+        <option value="">Velg</option>
+        <option value="Eksisterende Søknad">Eksisterende Søknad</option>
+        <option value="Annet">Annet</option>
+      </select>
+      <div if:true={regardingExistingApplication}>
+        <label>Søknader</label>
+        <select>
+          <option value="">Velg</option>
+          <option value="Eksisterende Søknad">Eksisterende Søknad</option>
+          <option value="Annet">Annet</option>
+        </select>
+      </div>
+      <label>Beskrivelse</label>
+      <textarea></textarea>
+    </form>
+  </div>
+</template>
