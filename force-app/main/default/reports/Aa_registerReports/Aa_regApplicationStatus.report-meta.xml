@@ -9,9 +9,17 @@
     <filter>
         <criteriaItems>
             <column>CUST_RECORDTYPE</column>
+            <columnToColumn>false</columnToColumn>
             <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>Application__c.Aa_RegisterAccess</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>Application__c.Status__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>false</isUnlocked>
+            <operator>notEqual</operator>
+            <value>Draft</value>
         </criteriaItems>
         <language>en_US</language>
     </filter>
