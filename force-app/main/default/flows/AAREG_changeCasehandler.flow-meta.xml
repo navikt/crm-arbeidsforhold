@@ -283,7 +283,10 @@
             </inputParameters>
             <inputsOnNextNavToAssocScrn>ResetValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
-            <storeOutputAutomatically>true</storeOutputAutomatically>
+            <outputParameters>
+                <assignToReference>varOutText</assignToReference>
+                <name>valueChosen</name>
+            </outputParameters>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>

@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
     <fieldUpdates>
+        <fullName>UpdateApplicationStatus</fullName>
+        <field>Status__c</field>
+        <literalValue>Additional Information Required</literalValue>
+        <name>UpdateApplicationStatus</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
         <fullName>updateApplicationDeadline</fullName>
         <field>ApplicationDeadlineForReply__c</field>
         <formula>ApplicationSubmittedDate__c + ( 365 / 12 )</formula>
@@ -10,4 +20,24 @@
         <protected>false</protected>
         <reevaluateOnChange>false</reevaluateOnChange>
     </fieldUpdates>
+    <rules>
+        <fullName>IsApplicationAdditionalInformationRequired</fullName>
+        <actions>
+            <name>UpdateApplicationStatus</name>
+            <type>FieldUpdate</type>
+        </actions>
+        <active>true</active>
+        <criteriaItems>
+            <field>Application__c.Casehandler_Status__c</field>
+            <operation>equals</operation>
+            <value>Additional Information Required</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Application__c.RecordTypeId</field>
+            <operation>equals</operation>
+            <value>Aa-register access</value>
+        </criteriaItems>
+        <description>Set application in Additional Information Required for applicants when casehandler update casehandler status</description>
+        <triggerType>onCreateOrTriggeringUpdate</triggerType>
+    </rules>
 </Workflow>
