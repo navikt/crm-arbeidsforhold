@@ -60,7 +60,7 @@ public class AAREG_ArchiveBatchHandler {
         ApplicationSubmittedDate__c,
         DecisionDate__c
       FROM Application__c
-      WHERE Id IN :recordIds AND CaseHandlerOwner__c != NULL
+      WHERE Id IN :recordIds AND AA_CaseHandlerNavIdent__c != NULL
     ];
   }
 }
