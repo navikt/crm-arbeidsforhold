@@ -1,40 +1,45 @@
 <template>
-  <!--
-      ** Hva gjelder dette?
-        Eksisterende Søknad
-        Annet
-      ** If Existing application is choosen 
-        - get list of users applications and display in dropdown with Application Id as the key.
-        - show text are for description
-        - on submit
-            - Create a thread and connect to application. 
-            - Create a message with info from the description.
-      ** If Other
-        - show text area for description
-        - show other fields
-        - on submit
-          - create new case 
-          - create thread connected to the case
-          - Add message to the case summarizing which summarizes the description. 
-    -->
-  <div>
-    <form class="container">
-      <label>Hva gjelder dette?</label>
-      <select onchang={handleInputChange} data-id="Type__c">
-        <option value="">Velg</option>
-        <option value="Eksisterende Søknad">Eksisterende Søknad</option>
-        <option value="Annet">Annet</option>
-      </select>
-      <div if:true={regardingExistingApplication}>
-        <label>Søknader</label>
-        <select>
-          <option value="">Velg</option>
-          <option value="Eksisterende Søknad">Eksisterende Søknad</option>
-          <option value="Annet">Annet</option>
-        </select>
+  <div class="container">
+    <form if:false={inquirySubmitted}>
+      <div class="slds-m-vertical_xx-large">
+        <div class="slds-grid slds-grid_vertical support-form">
+          <div class="slds-col slds-align_absolute-center slds-m-vertical_small">
+            <h1>Ny henvendelse</h1>
+          </div>
+          <div class="slds-col slds-m-vertical_small">
+            <label>Hva gjelder dette?</label>
+            <select onchange={handleInputChange} data-id="Type__c">
+              <option value="">Velg</option>
+              <option value="Eksisterende Søknad">Eksisterende Søknad</option>
+              <option value="Annet">Annet</option>
+            </select>
+          </div>
+          <div class="slds-col slds-m-vertical_small" if:true={regardingExistingApplication}>
+            <label>Søknader</label>
+            <select onchange={handleRelatedApplicationChange}>
+              <option value="">Velg</option>
+              <template for:each={existingApplications} for:item="option">
+                <option key={option.Id} value={option.Id}>{option.Name} - {option.Status__c}</option>
+              </template>
+            </select>
+          </div>
+          <div class="slds-col slds-m-vertical_small">
+            <label>Beskrivelse</label>
+            <textarea onchange={handleInputChange} data-id="Description__c"></textarea>
+          </div>
+          <div class="slds-col slds-align_absolute-center slds-m-vertical_small">
+            <button type="submit" name="Send inn" class="button button-main" onclick={handleSubmit}>Send inn</button>
+          </div>
+        </div>
       </div>
-      <label>Beskrivelse</label>
-      <textarea></textarea>
     </form>
+    <template if:true={inquirySubmitted}>
+      <div class="submission-success">
+        <h2>Takk for din henvendelse. Vi svarer deg så fort vi kan.</h2>
+      </div>
+    </template>
+    <template if:true={isLoading}>
+      <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+    </template>
   </div>
 </template>

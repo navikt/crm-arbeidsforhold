@@ -2,3 +2,98 @@
   max-width: 800px;
   margin: 0 auto;
 }
+
+.support-form label {
+  display: inline-block;
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-left: 0.5rem;
+}
+
+.support-form input[type='text'] {
+  display: block;
+  font-family: Source Sans Pro, Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  appearance: none;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  background-color: #fff;
+  border-radius: 4px;
+  border: 1px solid #6a6a6a;
+  box-sizing: border-box;
+  line-height: 1.375rem;
+  min-width: 100%;
+  max-width: 100%;
+}
+
+.support-form select {
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  padding: 0.5rem;
+  background-color: #fff;
+  border-radius: 4px;
+  border: 1px solid #78706a;
+  box-sizing: border-box;
+  line-height: 1.375rem;
+  max-width: 100%;
+  width: 100%;
+  margin: 0.5rem;
+  display: block;
+}
+
+.support-form option {
+  max-width: 100%;
+}
+
+.support-form textArea {
+  width: 100%;
+  height: 75px;
+  max-width: 100%;
+  margin: 8px 8px 0px 8px;
+  resize: none;
+}
+
+.button-standard {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-family: Source Sans Pro, Arial, sans-serif;
+  font-size: 1em;
+  white-space: nowrap;
+  border-radius: 0.125em;
+  cursor: pointer;
+  user-select: none;
+  letter-spacing: 0.0625em;
+  line-height: 1.375rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  background-color: #fff;
+  padding: calc(0.475rem - 1px) 2.5rem calc(0.525rem - 1px);
+  min-height: 2.5rem;
+  vertical-align: middle;
+  border: 2px solid #0067c5;
+  color: #0067c5;
+}
+
+.submission-success {
+  margin: 50px;
+  display: flex;
+  flex-wrap: wrap;
+  text-align: center;
+  font-size: 1.5rem;
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+}
+
+.support-form h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  font-family: inherit;
+  margin: 0.5rem;
+  padding: 0.5rem;
+}
