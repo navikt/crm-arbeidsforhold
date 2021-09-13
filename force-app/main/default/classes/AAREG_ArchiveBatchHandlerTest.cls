@@ -61,7 +61,6 @@ public class AAREG_ArchiveBatchHandlerTest {
 
     Application__c application = AAREG_TestDataFactory.getApplication(account.Id);
     application.CasehandlerOwner__c = user.Id;
-    application.AA_ApplicationArchived__c = true;
     application.Casehandler_Status__c = 'Closed';
     insert application;
 
@@ -90,7 +89,7 @@ public class AAREG_ArchiveBatchHandlerTest {
     Application__c application = AAREG_TestDataFactory.getApplication(account.Id);
     application.CasehandlerOwner__c = user.Id;
     application.Casehandler_Status__c = 'Closed';
-    application.AA_ApplicationArchived__c = true;
+
     application.AA_DecisionArchived__c = true;
     application.AA_DecisionArchivedDate__c = Date.today();
     insert application;
