@@ -18,25 +18,43 @@
         </template>
       </div>
     </div>
-
     <template if:true={hasAccess}>
-      <div class="slds-grid slds-wrap" style="margin-top: 50px; margin-bottom: 50px">
-        <div class="slds-col slds-size_6-of-12">
-          <c-link-panel
-            title="Ny søknad"
-            sub-title="Her kan du opprette en ny søknad."
-            relative-path="/ny-soknad-aa-registret"
-            style="display: flex; width: 100%"
-          ></c-link-panel>
+      <div class="slds-grid inner-container">
+        <div class="slds-col">
+          <div class="slds-col">
+            <c-link-panel
+              title="Ny søknad"
+              sub-title="Her kan du opprette en ny søknad."
+              relative-path="/ny-soknad-aa-registret"
+              style="display: flex; width: 100%"
+            ></c-link-panel>
+          </div>
+          <div class="slds-col">
+            <c-link-panel
+              title="Mine meldinger"
+              sub-title="Her finner du en oversikt av dine medlinger"
+              relative-path="/mine-meldinger"
+              style="display: flex; width: 100%"
+            ></c-link-panel>
+          </div>
         </div>
-
-        <div class="slds-col slds-size_6-of-12">
-          <c-link-panel
-            title="Mine søknader"
-            sub-title="Her finner du en oversikt av dine søknader"
-            relative-path="/mine-soknader"
-            style="display: flex; width: 100%"
-          ></c-link-panel>
+        <div class="slds-col">
+          <div class="slds-col">
+            <c-link-panel
+              title="Mine søknader"
+              sub-title="Her finner du en oversikt av dine søknader"
+              relative-path="/mine-soknader"
+              style="display: flex; width: 100%"
+            ></c-link-panel>
+          </div>
+          <div class="slds-col">
+            <c-link-panel
+              title="Support"
+              sub-title="Er de noe du lurer på? Send oss en henvendelse."
+              relative-path="/ny-henvendelse"
+              style="display: flex; width: 100%"
+            ></c-link-panel>
+          </div>
         </div>
       </div>
     </template>
