@@ -41,6 +41,9 @@
                 <behavior>Edit</behavior>
                 <field>InquiryDescription__c</field>
             </layoutItems>
+            <layoutItems>
+                <emptySpace>true</emptySpace>
+            </layoutItems>
         </layoutColumns>
         <style>OneColumn</style>
     </layoutSections>
