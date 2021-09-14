@@ -33,8 +33,8 @@ public class AAREG_ArchiveBatchHandler {
   private static Boolean isDecisionArchivable(Application__c application) {
     return application.Casehandler_Status__c == CLOSED_APPLICATION &&
       !application.AA_DecisionArchived__c &&
-      application.DecisionDate__c != null &&
       application.AA_ApplicationArchived__c == true &&
+      application.DecisionDate__c != null &&
       String.isNotBlank(application.AA_DecisionArchiveText__c);
   }
 
