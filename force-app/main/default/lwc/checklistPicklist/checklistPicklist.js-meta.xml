@@ -7,8 +7,8 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__FlowScreen">
-            <property name="valueString" type="String" label="Values" description="The String with the available values for the Picklist"></property>
-            <property name="valueChosen" type="String" label="Chosen Value" description="The String with the value selected at the picklist"></property>
+            <property name="valueString" type="String" label="Values" description="The String with the available values for the Picklist"/>
+            <property name="valueChosen" type="String" label="Chosen Value" description="The String with the value selected at the picklist"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
