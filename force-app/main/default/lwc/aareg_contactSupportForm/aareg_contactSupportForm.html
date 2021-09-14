@@ -1,31 +1,33 @@
 <template>
   <div class="container">
     <form if:false={inquirySubmitted}>
-      <div class="slds-m-vertical_xx-large">
+      <div if:true={inquiryTypeOptions} class="slds-m-vertical_xx-large">
         <div class="slds-grid slds-grid_vertical support-form">
           <div class="slds-col slds-align_absolute-center slds-m-vertical_small">
-            <h1>Ny medling</h1>
+            <h1>Ny melding</h1>
           </div>
           <div class="slds-col slds-m-vertical_small">
             <label>Hva gjelder dette?</label>
-            <select onchange={handleInputChange} data-id="Type__c">
+            <select onchange={handleInputChange} data-id="TypeOfInquiry__c">
               <option value="">Velg</option>
-              <option value="Eksisterende Søknad">Eksisterende Søknad</option>
-              <option value="Annet">Annet</option>
+              <option if:true={hasOpenApplications} value="Søknad under behandling">Søknad under behandling</option>
+              <template for:each={inquiryTypeOptions} for:item="option">
+                <option key={option.value} value={option.value}>{option.label}</option>
+              </template>
             </select>
           </div>
-          <div class="slds-col slds-m-vertical_small" if:true={regardingExistingApplication}>
+          <div class="slds-col slds-m-vertical_small" if:true={regardingApplicationInProcess}>
             <label>Søknader</label>
             <select onchange={handleRelatedApplicationChange}>
               <option value="">Velg</option>
               <template for:each={existingApplications} for:item="option">
-                <option key={option.Id} value={option.Id}>{option.Name} - {option.Status__c}</option>
+                <option key={option.Id} value={option.Id}>Søknad {option.Name} - {option.Status__c}</option>
               </template>
             </select>
           </div>
           <div class="slds-col slds-m-vertical_small">
             <label>Beskrivelse</label>
-            <textarea onchange={handleInputChange} data-id="Description__c"></textarea>
+            <textarea onchange={handleInputChange} data-id="InquiryDescription__c"></textarea>
           </div>
           <div class="slds-col slds-align_absolute-center slds-m-vertical_small">
             <button type="submit" name="Send inn" class="button button-main" onclick={handleSubmit}>Send inn</button>
