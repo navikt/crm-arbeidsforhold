@@ -8,16 +8,16 @@ const COLUMNS = [
   {
     label: 'Antall uleste medlinger',
     fieldName: 'CRM_Number_of_unread_Messages__c',
-    type: 'number',
+    type: 'text',
     hideDefaultActions: true
   },
-  { label: 'Siste medlingsdato', fieldName: 'CRM_Latest_Message_Datetime__c', type: 'date', hideDefaultActions: true },
+  { label: 'Siste meldings dato', fieldName: 'CRM_Latest_Message_Datetime__c', type: 'date', hideDefaultActions: true },
   {
     type: 'button',
     fixedWidth: 150,
     typeAttributes: {
-      label: 'Les tråden',
-      title: 'Les tråden',
+      label: 'Se medling',
+      title: 'Se medling',
       name: 'Thread',
       variant: 'base'
     }
