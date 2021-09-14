@@ -74,6 +74,7 @@ public without sharing class AAREG_ApplicationController {
       application.Casehandler_Status__c = NEW_APPLICATION;
       application.status__c = NEW_APPLICATION;
     } else {
+      application.AA_ApplicationArchived__c = false;
       application.Casehandler_Status__c = IN_PROGRESS;
       application.status__c = IN_PROGRESS;
     }
