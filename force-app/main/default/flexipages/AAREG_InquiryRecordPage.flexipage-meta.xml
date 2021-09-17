@@ -45,51 +45,23 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>force:detailPanel</componentName>
+                <componentInstanceProperties>
+                    <name>singleThread</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>crmMessagingMessageComponent</componentName>
             </componentInstance>
         </itemInstances>
-        <name>Facet-f40695da-0da2-4dca-b707-411cb2166bdd</name>
-        <type>Facet</type>
+        <name>main</name>
+        <type>Region</type>
     </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentInstanceProperties>
-                    <name>lookupFieldName</name>
-                    <value>Inquiry__c.ContactId__c</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>titleFieldName</name>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>updateQuickActionName</name>
-                    <value>Contact.aa_ContactDetails</value>
-                </componentInstanceProperties>
-                <componentName>console:relatedRecord</componentName>
+                <componentName>force:detailPanel</componentName>
             </componentInstance>
         </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>createQuickActionName</name>
-                    <value>NewAccount</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>lookupFieldName</name>
-                    <value>Inquiry__c.AccountId__c</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>titleFieldName</name>
-                    <value>Account details</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>updateQuickActionName</name>
-                    <value>Account.AA_AccountDetails</value>
-                </componentInstanceProperties>
-                <componentName>console:relatedRecord</componentName>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-566908b5-0405-4cf7-940b-6d0ba312e5e8</name>
+        <name>Facet-8cca2a60-57d7-404b-9219-3204def18007</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -105,7 +77,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListComponentOverride</name>
-                    <value>NONE</value>
+                    <value>ADVGRID</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>rowsToDisplay</name>
@@ -118,7 +90,7 @@
                 <componentName>force:relatedListSingleContainer</componentName>
             </componentInstance>
         </itemInstances>
-        <name>Facet-39048e20-cad8-4920-b13b-56a767b2e25c</name>
+        <name>Facet-c152accf-c003-428d-806f-37570b3bfff0</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -130,7 +102,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-f40695da-0da2-4dca-b707-411cb2166bdd</value>
+                    <value>Facet-8cca2a60-57d7-404b-9219-3204def18007</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
@@ -147,45 +119,41 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-566908b5-0405-4cf7-940b-6d0ba312e5e8</value>
+                    <value>Facet-c152accf-c003-428d-806f-37570b3bfff0</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Contact details</value>
+                    <value>{!$Label.Agreements}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
             </componentInstance>
         </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-39048e20-cad8-4920-b13b-56a767b2e25c</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Agreements</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-2f614263-f46d-498f-bd05-900b93aaee2e</name>
+        <name>Facet-9826ddff-a9bc-47cc-805e-af416bedbefa</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>lookupFieldName</name>
+                    <value>Inquiry__c.AccountId__c</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>updateQuickActionName</name>
+                    <value>Account.AA_AccountDetails</value>
+                </componentInstanceProperties>
+                <componentName>console:relatedRecord</componentName>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
                     <name>tabs</name>
-                    <value>Facet-2f614263-f46d-498f-bd05-900b93aaee2e</value>
+                    <value>Facet-9826ddff-a9bc-47cc-805e-af416bedbefa</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tabset</componentName>
             </componentInstance>
         </itemInstances>
-        <name>main</name>
-        <type>Region</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
