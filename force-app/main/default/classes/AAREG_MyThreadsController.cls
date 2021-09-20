@@ -1,4 +1,4 @@
-public class AAREG_MyThreadsController {
+public with sharing class AAREG_MyThreadsController {
   @AuraEnabled(cacheable=true)
   public static List<Thread__c> getUsersThreads(String userId) {
     List<Thread__c> threads;
@@ -13,6 +13,7 @@ public class AAREG_MyThreadsController {
           CRM_Related_Object__c,
           CRM_isActive__c
         FROM Thread__c
+        WHERE CRM_Recipient__c = :userId OR CRM_From__c = :userId
       ];
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
