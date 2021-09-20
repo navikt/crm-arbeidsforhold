@@ -141,4 +141,8 @@ export default class Aareg_home extends LightningElement {
         this.isLoaded = true;
       });
   }
+
+  get hasPreviouslySelectedOrganization() {
+    return this.lastUsedOrganization;
+  }
 }

@@ -7,6 +7,7 @@
       <div>
         <template if:true={organizations}>
           <select class="organization-select" aria-invalid="false" onchange={handleOrganizationChange}>
+            <option if:false={hasPreviouslySelectedOrganization} value="">-- Velg virksomhet --</option>
             <template for:each={organizations} for:item="organization">
               <option key={organization.OrganizationNumber} value={organization.OrganizationNumber}>
                 <div>
