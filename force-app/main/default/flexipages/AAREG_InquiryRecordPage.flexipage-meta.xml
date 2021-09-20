@@ -97,19 +97,6 @@
     <itemInstances>
       <componentInstance>
         <componentInstanceProperties>
-          <name>singleThread</name>
-          <value>true</value>
-        </componentInstanceProperties>
-        <componentName>crmMessagingMessageComponent</componentName>
-      </componentInstance>
-    </itemInstances>
-    <name>Facet-6318cc00-22d9-4ce5-9e97-8fdfaf3bdb29</name>
-    <type>Facet</type>
-  </flexiPageRegions>
-  <flexiPageRegions>
-    <itemInstances>
-      <componentInstance>
-        <componentInstanceProperties>
           <name>active</name>
           <value>true</value>
         </componentInstanceProperties>
