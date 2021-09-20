@@ -20,6 +20,8 @@
     </actionOverrides>
     <brand>
         <headerColor>#C90C0F</headerColor>
+        <logo>NavLogoRd</logo>
+        <logoVersion>1</logoVersion>
         <shouldOverrideOrgTheme>true</shouldOverrideOrgTheme>
     </brand>
     <description>Application used by team arbeidsforhold support</description>

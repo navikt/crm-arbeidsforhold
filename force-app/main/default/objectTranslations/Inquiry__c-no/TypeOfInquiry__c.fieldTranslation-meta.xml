@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Henvendelsestype</label>
+    <name>TypeOfInquiry__c</name>
+    <picklistValues>
+        <masterLabel>Change</masterLabel>
+        <translation>Endringsbehov</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Incident</masterLabel>
+        <translation>Feil i løsningen</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Professional / functional questions</masterLabel>
+        <translation>Faglige/funksjonelle spørsmål</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Questions related to application for access</masterLabel>
+        <translation>Spørsmål knyttet til søknad om tilgang</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Security breach</masterLabel>
+        <translation>Sikkerhetsbrudd</translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Technical questions</masterLabel>
+        <translation>Tekniske spørsmål</translation>
+    </picklistValues>
+</CustomFieldTranslation>

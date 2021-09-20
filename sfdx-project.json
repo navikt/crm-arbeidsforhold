@@ -5,11 +5,11 @@
             "default": true,
             "package": "crm-arbeidsforhold",
             "versionName": "ver 0.1",
-            "versionNumber": "0.61.0.NEXT",
+            "versionNumber": "0.62.0.NEXT",
             "dependencies": [
                 {
                     "package": "crm-platform-base",
-                    "versionNumber": "0.115.0.LATEST"
+                    "versionNumber": "0.118.0.LATEST"
                 },
                 {
                     "package": "crm-platform-integration",
@@ -29,11 +29,11 @@
                 },
                 {
                     "package": "crm-journal-utilities",
-                    "versionNumber": "0.3.0.LATEST"
+                    "versionNumber": "0.4.0.LATEST"
                 },
                 {
                     "package": "crm-henvendelse",
-                    "versionNumber": "0.3.0.LATEST"
+                    "versionNumber": "0.4.0.LATEST"
                 }
             ]
         }
@@ -49,7 +49,7 @@
         "crm-community-base": "0Ho2o0000008OSzCAM",
         "crm-platform-integration": "0Ho2o0000008ORrCAM",
         "crm-platform-email-scheduling": "0Ho2o000000fxWwCAI",
-        "crm-henvendelse": "0Ho2o000000fxXfCAI",
-        "crm-journal-utilities": "0Ho2o000000fxXkCAI"
+        "crm-journal-utilities": "0Ho2o000000fxXkCAI",
+        "crm-henvendelse": "0Ho2o000000fxXfCAI"
     }
 }

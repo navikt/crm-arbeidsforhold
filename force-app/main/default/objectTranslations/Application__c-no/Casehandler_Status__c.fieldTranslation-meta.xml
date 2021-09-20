@@ -16,7 +16,7 @@
     </picklistValues>
     <picklistValues>
         <masterLabel>Closed</masterLabel>
-        <translation>Ferdig behandlet</translation>
+        <translation>Ferdigbehandlet</translation>
     </picklistValues>
     <picklistValues>
         <masterLabel>Declined</masterLabel>
@@ -24,7 +24,7 @@
     </picklistValues>
     <picklistValues>
         <masterLabel>In Progress</masterLabel>
-        <translation>Under Behandling</translation>
+        <translation>Under behandling</translation>
     </picklistValues>
     <picklistValues>
         <masterLabel>New</masterLabel>

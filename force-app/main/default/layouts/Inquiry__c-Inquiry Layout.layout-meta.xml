@@ -12,8 +12,8 @@
                 <field>Name</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Edit</behavior>
-                <field>InquiryOwner__c</field>
+                <behavior>Readonly</behavior>
+                <field>CreatedById</field>
             </layoutItems>
             <layoutItems>
                 <emptySpace>true</emptySpace>
@@ -23,6 +23,10 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Status__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>InquiryOwner__c</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsLeftToRight</style>
@@ -54,10 +58,6 @@
         <label>System Information</label>
         <layoutColumns>
             <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>CreatedById</field>
-            </layoutItems>
-            <layoutItems>
                 <behavior>Edit</behavior>
                 <field>OwnerId</field>
             </layoutItems>
@@ -86,7 +86,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h5E0000017E3b</masterLabel>
+        <masterLabel>00h0E0000024DLI</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

@@ -27,6 +27,11 @@
     <description>Permissions for support solution related to Aa-registeret</description>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Account.AAREG_OrganizationCategory__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Account.BillingAddress</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -331,6 +336,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Application__c.AA_isPortalUserEditable__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Application__c.AA_register_application_text__c</field>
         <readable>true</readable>
@@ -359,6 +369,11 @@
         <editable>true</editable>
         <field>Application__c.ApplicationDeadlineForReply__c</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Application__c.ApplicationDeadline__c</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -719,6 +734,15 @@
         <modifyAllRecords>false</modifyAllRecords>
         <object>NavUnit__c</object>
         <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>QuickText</object>
+        <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
