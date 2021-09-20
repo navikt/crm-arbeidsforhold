@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <label>Sakseier Id</label>
-    <name>InquiryOwner__c</name>
-    <relationshipLabel>Arbeidsforhold - henvendelser</relationshipLabel>
+    <label>Interne merknader</label>
+    <name>InternalComments__c</name>
 </CustomFieldTranslation>
