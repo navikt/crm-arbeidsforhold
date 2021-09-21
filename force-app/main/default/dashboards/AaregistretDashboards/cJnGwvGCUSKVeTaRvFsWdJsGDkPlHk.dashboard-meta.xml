@@ -250,7 +250,7 @@
     <isGridLayout>true</isGridLayout>
     <runningUser>test-kmieaftfrv6d@example.com</runningUser>
     <textColor>#000000</textColor>
-    <title>AAREG Support Dashboard</title>
+    <title>AAREG Henvendelse Dashboard</title>
     <titleColor>#000000</titleColor>
     <titleSize>12</titleSize>
 </Dashboard>
