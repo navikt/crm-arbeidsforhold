@@ -246,6 +246,7 @@
         <rowHeight>36</rowHeight>
     </dashboardGridLayout>
     <dashboardType>LoggedInUser</dashboardType>
+    <description>Dashboard for arbeidsforhold - henvendelse app</description>
     <isGridLayout>true</isGridLayout>
     <runningUser>test-kmieaftfrv6d@example.com</runningUser>
     <textColor>#000000</textColor>
