@@ -43,4 +43,9 @@
         </sections>
     </layouts>
     <nameFieldLabel>Henvendelse nummer</nameFieldLabel>
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Sett sakseier og status</label>
+        <name>aaReg_UpdateCaseOwner</name>
+    </quickActions>
 </CustomObjectTranslation>

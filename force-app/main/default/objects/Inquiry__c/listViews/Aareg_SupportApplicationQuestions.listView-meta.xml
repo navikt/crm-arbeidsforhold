@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Aareg_SupportApplicationQuestions</fullName>
+    <columns>NAME</columns>
+    <columns>AccountId__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>TypeOfInquiry__c</columns>
+    <columns>Status__c</columns>
+    <columns>InquiryOwnerName__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>TypeOfInquiry__c</field>
+        <operation>equals</operation>
+        <value>Questions related to application for access</value>
+    </filters>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>New,In progress</value>
+    </filters>
+    <label>Aareg Support Spm Knyttet Til Søknad</label>
+    <sharedTo>
+        <group>AAREG_Support</group>
+    </sharedTo>
+</ListView>
