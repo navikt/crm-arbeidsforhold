@@ -4,9 +4,9 @@
     <backgroundFadeDirection>Diagonal</backgroundFadeDirection>
     <backgroundStartColor>#FFFFFF</backgroundStartColor>
     <chartTheme>light</chartTheme>
-    <colorPalette>watermelon</colorPalette>
+    <colorPalette>nightfall</colorPalette>
     <dashboardChartTheme>light</dashboardChartTheme>
-    <dashboardColorPalette>watermelon</dashboardColorPalette>
+    <dashboardColorPalette>nightfall</dashboardColorPalette>
     <dashboardGridLayout>
         <dashboardGridComponents>
             <colSpan>5</colSpan>
@@ -173,8 +173,9 @@
         <rowHeight>36</rowHeight>
     </dashboardGridLayout>
     <dashboardType>LoggedInUser</dashboardType>
+    <description>Dashboard for arbeidsforhold app</description>
     <isGridLayout>true</isGridLayout>
-    <runningUser>test-ql4c65f8wpa2@example.com</runningUser>
+    <runningUser>test-kmieaftfrv6d@example.com</runningUser>
     <textColor>#000000</textColor>
     <title>Aa-registeret dashboard</title>
     <titleColor>#000000</titleColor>
