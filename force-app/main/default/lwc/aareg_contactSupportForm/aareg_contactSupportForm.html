@@ -7,27 +7,45 @@
             <h1>Ny melding</h1>
           </div>
           <div class="slds-col slds-m-vertical_small">
-            <label>Hva gjelder dette?</label>
-            <select onchange={handleInputChange} data-id="TypeOfInquiry__c">
-              <option value="">Velg</option>
-              <option if:true={hasOpenApplications} value="Søknad under behandling">Søknad under behandling</option>
-              <template for:each={inquiryTypeOptions} for:item="option">
-                <option key={option.value} value={option.value}>{option.label}</option>
-              </template>
-            </select>
+            <span class="form-control">
+              <label>
+                <abbr class="slds-required" title="required">* </abbr>
+                Hva gjelder dette?
+              </label>
+              <select onchange={handleInputChange} data-id="TypeOfInquiry__c" required>
+                <option value="">Velg</option>
+                <option if:true={hasOpenApplications} value="Søknad under behandling">Søknad under behandling</option>
+                <template for:each={inquiryTypeOptions} for:item="option">
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                </template>
+              </select>
+              <small>Error</small>
+            </span>
           </div>
           <div class="slds-col slds-m-vertical_small" if:true={regardingApplicationInProcess}>
-            <label>Søknader</label>
-            <select onchange={handleRelatedApplicationChange}>
-              <option value="">Velg</option>
-              <template for:each={existingApplications} for:item="option">
-                <option key={option.Id} value={option.Id}>Søknad {option.Name} - {option.Status__c}</option>
-              </template>
-            </select>
+            <span class="form-control">
+              <label>
+                <abbr class="slds-required" title="required">* </abbr>
+                Søknader
+              </label>
+              <select onchange={handleRelatedApplicationChange} required>
+                <option value="">Velg</option>
+                <template for:each={existingApplications} for:item="option">
+                  <option key={option.Id} value={option.Id}>Søknad {option.Name} - {option.Status__c}</option>
+                </template>
+              </select>
+              <small>Error</small>
+            </span>
           </div>
           <div class="slds-col slds-m-vertical_small">
-            <label>Beskrivelse</label>
-            <textarea onchange={handleInputChange} data-id="InquiryDescription__c"></textarea>
+            <span class="form-control">
+              <label>
+                <abbr class="slds-required" title="required">* </abbr>
+                Beskrivelse
+              </label>
+              <textarea onchange={handleInputChange} data-id="InquiryDescription__c" required></textarea>
+              <small>Error</small>
+            </span>
           </div>
           <div class="slds-col slds-align_absolute-center slds-m-vertical_small">
             <button type="submit" name="Send inn" class="button button-main" onclick={handleSubmit}>Send inn</button>

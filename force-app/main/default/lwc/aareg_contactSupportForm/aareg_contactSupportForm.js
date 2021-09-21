@@ -48,9 +48,7 @@ export default class Aareg_contactSupportForm extends LightningElement {
   @wire(getPicklistValues, { recordTypeId: '$inquiryObjectInfo.data.defaultRecordTypeId', fieldApiName: TYPE_FIELD })
   typePicklistValues({ data, error }) {
     if (data) {
-      console.log(data.values);
       this.inquiryTypeOptions = data.values.map((arr) => ({ ...arr }));
-      console.log(this.inquiryTypeOptions);
     } else if (error) {
       console.error(error);
     }
@@ -58,7 +56,6 @@ export default class Aareg_contactSupportForm extends LightningElement {
 
   handleInputChange(event) {
     this.inquiry[event.target.dataset.id] = event.target.value;
-    console.log(this.inquiry);
   }
 
   handleRelatedApplicationChange(event) {
@@ -68,6 +65,18 @@ export default class Aareg_contactSupportForm extends LightningElement {
   handleSubmit(event) {
     event.preventDefault();
     this.isLoading = true;
+    this.resetErrors();
+
+    const form = this.template.querySelector('form');
+
+    if (!form.checkValidity()) {
+      let invalidInputs = form.querySelectorAll(':invalid');
+      invalidInputs.forEach((element) => {
+        this.setErrorFor(element, 'Obligatorisk');
+      });
+      this.isLoading = false;
+      return;
+    }
 
     if (this.regardingApplicationInProcess) {
       createThreadForApplication({
@@ -99,6 +108,21 @@ export default class Aareg_contactSupportForm extends LightningElement {
           this.isLoading = false;
         });
     }
+  }
+
+  setErrorFor(inputField, message) {
+    this.hasErrors = true;
+    let formControl = inputField.parentElement;
+    let small = formControl.querySelector('small');
+    small.innerText = message;
+    formControl.className = 'form-control error';
+  }
+
+  resetErrors() {
+    let formControl = this.template.querySelectorAll('.form-control');
+    formControl.forEach((element) => {
+      element.classList.remove('error');
+    });
   }
 
   get regardingApplicationInProcess() {
