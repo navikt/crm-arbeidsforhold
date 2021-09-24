@@ -12,6 +12,16 @@
 
 .agreement-section {
   font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 1rem;
+}
+
+.agreement-section .label {
+  display: inline-block;
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.375rem;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .agreement-section h2 {
@@ -20,6 +30,56 @@
   font-family: inherit;
   margin: 0.5rem;
   padding: 0.5rem;
+}
+
+.agreement-section .section-info {
+  font-family: inherit;
+  margin: 0.5rem;
+  padding: 0.5rem;
+}
+
+.section-info div {
+  margin-bottom: 1rem;
+}
+
+.agreement-section .section-info span {
+  display: block;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.agreement-section .slds-col {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.agreement-section label {
+  display: inline-block;
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-left: 0.5rem;
+}
+
+.agreement-section input[type='checkbox'] {
+  display: inline;
+  text-align: center;
+  background-color: #fff;
+  background-position: center center;
+  background-repeat: no-repeat;
+  margin: 0.5rem;
+  border: 1px solid #78706a;
+  width: 24px;
+  height: 24px;
+  left: 0;
+  top: 0;
+}
+
+.agreement-section input:disabled {
+  background-color: #f1f1f1;
+  font-weight: 600;
 }
 
 .inner-container button {
@@ -31,4 +91,13 @@
   margin: 0 auto;
   padding-top: 1rem;
   max-width: 800px;
+}
+
+.sub-title {
+  font-family: inherit;
+  font-size: 1rem;
+  margin: 0.5rem;
+  padding: 0.5rem;
+  margin-top: 0;
+  padding-top: 0;
 }

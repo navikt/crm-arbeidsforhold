@@ -1,5 +1,5 @@
 <template>
-  <c-aareg_main-banner>Avtale Aa-registret</c-aareg_main-banner>
+  <c-aareg_main-banner>Aa-registret Avtale {name}</c-aareg_main-banner>
   <div>
     <div class="breadcrumbs">
       <lightning-breadcrumbs>
@@ -13,23 +13,174 @@
         <div class="slds-grid slds-grid_vertical">
           <div class="slds-col">
             <section class="agreement-section">
-              <h2 class="header-with-info-text">Avtalepart</h2>
+              <div class="slds-grid slds-grid_align-spread">
+                <div class="slds-col">
+                  <h2>Avtale</h2>
+                </div>
+                <div class="slds-col">
+                  <button type="button" class="button button-flat" onclick={toggleReadOnly}>
+                    <svg
+                      style="margin-right: 0.5rem"
+                      width="1em"
+                      height="1em"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M22.835 1.165a3.976 3.976 0 010 5.623L8.073 21.549.682 24 0 23.318l2.45-7.392L17.21 1.165a3.977 3.977 0 015.624 0zm-4.218 7.029l-2.811-2.812L4.188 17l-1.393 4.205 4.207-1.395L18.618 8.194zM21.43 2.57a1.989 1.989 0 00-2.703-.1l-.108.1-1.406 1.406 2.811 2.812 1.406-1.406a1.988 1.988 0 00.101-2.703l-.1-.109z"
+                        fill="#0067C5"
+                      ></path>
+                    </svg>
+                    Redigere avtalen
+                  </button>
+                </div>
+              </div>
+              <div class="slds-grid slds-wrap section-info">
+                <div class="slds-col slds-size_1-of-3">
+                  <span class="label">Virksomhetsnavn</span>
+                  <span>Test Virksomhet</span>
+                </div>
+                <div class="slds-col slds-size_2-of-3">
+                  <span class="label">Organisasjonsnummer</span>
+                  <span>{organizationNumber}</span>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                  <span class="label">Databehandler</span>
+                  <span>{organizationNumber}</span>
+                </div>
+                <div class="slds-col slds-size_2-of-3">
+                  <span class="label">Databehandler Organisasjonsnummer</span>
+                  <span>{organizationNumber}</span>
+                </div>
+              </div>
             </section>
           </div>
           <div class="slds-col">
             <section class="agreement-section">
-              <h2 class="header-with-info-text">Type tilgang</h2>
+              <h2>Tilganger</h2>
+              <p class="sub-title">Du har fått innvilget følgende tilganger.</p>
+              <div class="slds-grid slds-wrap section-info">
+                <div class="slds-col" if:true={apiAccess}>
+                  <input
+                    type="checkbox"
+                    name="type tilgang api"
+                    data-id="APIAccess__c"
+                    checked={apiAccess}
+                    disabled={isReadOnly}
+                  />
+                  <label for="tilgang-api"
+                    >Integrert oppslag (API)
+                    <lightning-helptext
+                      content="«Integrert oppslag (API)» gir tilgang til maskin-til-maskin-integrasjon. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
+                      class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
+                  </label>
+                </div>
+                <div class="slds-col" if:true={onlineAccess}>
+                  <input
+                    type="checkbox"
+                    name="type tilgang online"
+                    id="tilgang-online"
+                    data-id="OnlineAccess__c"
+                    checked={onlineAccess}
+                    disabled={isReadOnly}
+                  />
+                  <label for="tilgang-online"
+                    >Web-oppslag
+                    <lightning-helptext
+                      content="«Web-oppslag» gir tilgang til web-oppslag i innlogget løsning på nav.no. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
+                      class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
+                  </label>
+                </div>
+                <div class="slds-col" if:true={extractionAccess}>
+                  <input
+                    type="checkbox"
+                    name="type tilgang uttrekk"
+                    id="tilgang-uttrekk"
+                    data-id="ExtractionAccess__c"
+                    checked={extractionAccess}
+                    disabled={isReadOnly}
+                  />
+                  <label for="tilgang-uttrekk"
+                    >Uttrekk
+                    <lightning-helptext
+                      content="«Uttrekk» er utlevering som ikke er på standardformat. Det må oppgis en detaljert beskrivelse i «Vedlegg til søknad - Datainnhold» (standardformat) hva som skal inngå i uttrekket og utleveringsfrekvens. NAV kan ta seg betalt for å utvikle uttrekket."
+                      class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
+                  </label>
+                </div>
+              </div>
             </section>
           </div>
           <div class="slds-col">
             <section class="agreement-section">
-              <h2 class="header-with-info-text">Kontaktpersoner</h2>
+              <h2>Kontaktpersoner</h2>
+              <p class="sub-title">
+                Disse kontaktpersonene blir kontaktet av NAV ved spørsmål knyttet til Avtale, Endringer i løsninger,
+                Feilhåndtering eller Sikkerhetsbrudd. Kontaktpersonene kan redigeres men alle fire bokser må være
+                krysset ut av en eller flere kontaktpersoner til en hver tid.
+              </p>
+              <template if:true={contactRows} for:each={contactRows} for:item="row" for:index="index">
+                <div key={row.uuid} class="app-section">
+                  <c-aareg_application-contact
+                    record={row}
+                    read-only={isReadOnly}
+                    oncontactchange={contactChange}
+                    onvalidationerror={processError}
+                    data-id={row.uuid}
+                  ></c-aareg_application-contact>
+
+                  <div class="button-container" if:true={showContactRemove}>
+                    <button
+                      type="button"
+                      name="fjern kontaktperson"
+                      class="button-remove"
+                      value={index}
+                      onclick={removeContactRow}
+                    >
+                      Fjern
+                    </button>
+                  </div>
+                </div>
+              </template>
+            </section>
+          </div>
+          <div class="slds-col">
+            <section class="agreement-section">
+              <h2 class="header-with-info-text">Vedtak</h2>
+              <p class="sub-title">
+                Her finner du vedtaket for denne avtalen.
+                <button type="button" name="laste-ned" class="button button-flat" onclick={toggleDecision}>
+                  Se vedtak
+                </button>
+              </p>
             </section>
           </div>
           <div class="slds-col">
             <div class="slds-align_absolute-center">
-              <button type="submit" name="lagre" class="button button-flat" onclick={handleSaveAsDraft}>Lagre</button>
-              <button type="submit" name="Send inn" class="button button-delete" onclick={handleSubmit}>
+              <button
+                if:false={isReadOnly}
+                type="submit"
+                name="lagre"
+                class="button button-flat"
+                onclick={handleSaveAsDraft}
+              >
+                Lagre
+              </button>
+              <button
+                if:false={isReadOnly}
+                type="submit"
+                name="Send inn"
+                class="button button-delete"
+                onclick={handleSubmit}
+              >
                 Avslutt Avtale
               </button>
             </div>
@@ -38,4 +189,38 @@
       </div>
     </div>
   </div>
+  <template if:true={showDecision}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      aria-label="Meaningful description of the modal content"
+      aria-modal="true"
+      aria-describedby="modal-content-id-1"
+      class="slds-modal slds-fade-in-open"
+    >
+      <div class="slds-modal__container">
+        <header class="slds-modal__header slds-modal__header_empty"></header>
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+          <div class="slds-clearfix">
+            <div class="slds-float_right">
+              <button class="button button-flat" title="Close" onclick={toggleDecision}>
+                <svg width="2em" height="2em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M21 4.385L13.385 12 21 19.615 19.615 21 12 13.385 4.385 21 3 19.615 10.615 12 3 4.385 4.385 3 12 10.615 19.615 3 21 4.385z"
+                    fill="#0067C5"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div>
+            <lightning-formatted-rich-text value={decision}></lightning-formatted-rich-text>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
 </template>
