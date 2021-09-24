@@ -1,0 +1,11 @@
+{
+  "activeViewId": "8bb9916b-445b-403c-9539-c9d19cc91cbe",
+  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+  "configurationTags": [],
+  "id": "59d0ea7e-7a96-4695-b5bc-887573123436",
+  "label": "Agreement Related List",
+  "objectApiName": "Agreement__c",
+  "routeType": "relatedlist-a0U",
+  "type": "route",
+  "urlPrefix": "agreement"
+}

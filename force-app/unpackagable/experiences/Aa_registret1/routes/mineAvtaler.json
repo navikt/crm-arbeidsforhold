@@ -1,0 +1,11 @@
+{
+  "activeViewId": "0b90edf8-dcda-416e-8fc0-c11f79ea7e45",
+  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+  "configurationTags": [],
+  "id": "d31bdb61-6392-4876-830a-98683428ee1b",
+  "label": "Mine Avtaler",
+  "pageAccess": "UseParent",
+  "routeType": "custom-mine-avtaler",
+  "type": "route",
+  "urlPrefix": "mine-avtaler"
+}

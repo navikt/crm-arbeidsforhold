@@ -5,7 +5,7 @@
   "id": "a179b37c-5fc3-4631-9e36-d25426bc8d46",
   "label": "Application Related List",
   "objectApiName": "Application__c",
-  "routeType": "relatedlist-a0S",
+  "routeType": "relatedlist-a0W",
   "type": "route",
   "urlPrefix": "application"
 }

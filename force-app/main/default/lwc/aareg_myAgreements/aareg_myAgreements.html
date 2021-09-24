@@ -1,0 +1,25 @@
+<template>
+  <c-aareg_main-banner>Mine Avtaler Aa-registret</c-aareg_main-banner>
+  <div class="container">
+    <div class="inner-container">
+      <div class="breadcrumbs">
+        <lightning-breadcrumbs class="skjema-max-width">
+          <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
+          <lightning-breadcrumb label="Mine avtaler" name="Mine_Avtaler__c" onclick={navigateToPage}>
+          </lightning-breadcrumb>
+        </lightning-breadcrumbs>
+      </div>
+      <lightning-datatable
+        key-field="id"
+        data={agreements}
+        columns={columns}
+        onrowaction={viewAgreement}
+        hide-checkbox-column="true"
+      >
+      </lightning-datatable>
+      <div if:false={agreements} class="no-applications-container">
+        <p>Du har ingen aktive avtaler.</p>
+      </div>
+    </div>
+  </div>
+</template>

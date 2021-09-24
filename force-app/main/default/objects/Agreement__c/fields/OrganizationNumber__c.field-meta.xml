@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>OrganizationNumber__c</fullName>
+    <description>Organization number for the related account.</description>
+    <externalId>false</externalId>
+    <formula>Application__r.Account__r.INT_OrganizationNumber__c</formula>
+    <label>Organization Number</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

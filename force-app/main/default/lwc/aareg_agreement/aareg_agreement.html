@@ -1,0 +1,41 @@
+<template>
+  <c-aareg_main-banner>Avtale Aa-registret</c-aareg_main-banner>
+  <div>
+    <div class="breadcrumbs">
+      <lightning-breadcrumbs>
+        <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
+        <lightning-breadcrumb label="Ny søknad" name="custom_ny_soknad_aa_registret__c" onclick={navigateToPage}>
+        </lightning-breadcrumb>
+      </lightning-breadcrumbs>
+    </div>
+    <div class="container">
+      <div class="inner-container">
+        <div class="slds-grid slds-grid_vertical">
+          <div class="slds-col">
+            <section class="agreement-section">
+              <h2 class="header-with-info-text">Avtalepart</h2>
+            </section>
+          </div>
+          <div class="slds-col">
+            <section class="agreement-section">
+              <h2 class="header-with-info-text">Type tilgang</h2>
+            </section>
+          </div>
+          <div class="slds-col">
+            <section class="agreement-section">
+              <h2 class="header-with-info-text">Kontaktpersoner</h2>
+            </section>
+          </div>
+          <div class="slds-col">
+            <div class="slds-align_absolute-center">
+              <button type="submit" name="lagre" class="button button-flat" onclick={handleSaveAsDraft}>Lagre</button>
+              <button type="submit" name="Send inn" class="button button-delete" onclick={handleSubmit}>
+                Avslutt Avtale
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
