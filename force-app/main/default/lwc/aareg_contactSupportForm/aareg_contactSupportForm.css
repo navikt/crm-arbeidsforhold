@@ -3,6 +3,10 @@
   margin: 0 auto;
 }
 
+.container form {
+  margin: 1rem;
+}
+
 .support-form label {
   display: inline-block;
   font-family: 'Source Sans Pro', Arial, sans-serif;
