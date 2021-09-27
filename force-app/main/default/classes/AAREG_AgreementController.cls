@@ -21,4 +21,22 @@ public with sharing class AAREG_AgreementController {
     }
     return contacts;
   }
+
+  @AuraEnabled
+  public static void updateAgreement(
+    Agreement__c agreement,
+    List<RelatedContact__c> contacts,
+    List<RelatedContact__c> contactsToDelete
+  ) {
+    try {
+      for (RelatedContact__c con : contacts) {
+        con.Agreement__c = agreement.Id;
+      }
+      update agreement;
+      upsert contacts;
+      delete contactsToDelete;
+    } catch (Exception e) {
+      throw new AuraHandledException(e.getMessage());
+    }
+  }
 }
