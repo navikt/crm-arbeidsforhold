@@ -30,7 +30,7 @@ public class AAREG_ContactSupportControllerTest {
     Inquiry__c inquiry = AAREG_TestDataFactory.getInquiry();
 
     Test.startTest();
-    AAREG_contactSupportController.createNewInquiry(String.valueOf(user.Id), inquiry);
+    AAREG_contactSupportController.createNewInquiry(String.valueOf(usr.Id), inquiry);
     Test.stopTest();
 
     List<Inquiry__c> newInquires = [SELECT Id, InquiryDescription__c, Status__c, TypeOfInquiry__c FROM Inquiry__c];
