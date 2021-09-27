@@ -1,8 +1,8 @@
 {
   "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
   "componentName": "siteforce:dynamicLayout",
-  "id": "9b868f90-7261-4d6f-8daf-f40025495a37",
-  "label": "Application Detail Flex",
+  "id": "f13ac20b-13d5-4288-ac42-be351c7e4705",
+  "label": "Thread Detail Flex",
   "regions": [
     {
       "components": [
@@ -12,10 +12,10 @@
             "backgroundOverlay": "rgba(0,0,0,0.5)",
             "contentAreaWidth": 100,
             "sectionConfig": {
-              "UUID": "3cb93a84-2ebd-4f17-b95a-41074a7d2594",
+              "UUID": "3d48d021-ec16-494e-8e92-913ff1203cbf",
               "columns": [
                 {
-                  "UUID": "d3e61750-9e7a-4353-a0fc-2150bac703ec",
+                  "UUID": "aeb1d846-7076-446f-aa40-4b69ac7b2fcb",
                   "columnKey": "1",
                   "columnName": "Column 1",
                   "columnWidth": "12",
@@ -26,7 +26,7 @@
             "sectionHeight": 32
           },
           "componentName": "forceCommunity:section",
-          "id": "3cb93a84-2ebd-4f17-b95a-41074a7d2594",
+          "id": "3d48d021-ec16-494e-8e92-913ff1203cbf",
           "regions": [
             {
               "components": [
@@ -35,21 +35,13 @@
                     "NAVarea": "Privatperson"
                   },
                   "componentName": "c:globalCommunityHeader",
-                  "id": "4aa94da7-138a-409c-9a22-88295153aa92",
-                  "renderPriority": "NEUTRAL",
-                  "renditionMap": {},
-                  "type": "component"
-                },
-                {
-                  "componentAttributes": {},
-                  "componentName": "c:aareg_mainBanner",
-                  "id": "0df4e306-4039-498a-ba5a-3bbcc85f3ae9",
+                  "id": "76254e0e-1a02-4be8-9d65-21f656a22f42",
                   "renderPriority": "NEUTRAL",
                   "renditionMap": {},
                   "type": "component"
                 }
               ],
-              "id": "d3e61750-9e7a-4353-a0fc-2150bac703ec",
+              "id": "aeb1d846-7076-446f-aa40-4b69ac7b2fcb",
               "regionLabel": "Column 1",
               "regionName": "1",
               "renditionMap": {},
@@ -62,14 +54,122 @@
         },
         {
           "componentAttributes": {
-            "background": "background: rgb(241,241,241)",
+            "background": "background: rgba(0,0,0,0)",
             "backgroundOverlay": "rgba(0,0,0,0.5)",
             "contentAreaWidth": 100,
             "sectionConfig": {
-              "UUID": "9e75e2f1-faf5-4796-9a5b-e2fcff1efb5c",
+              "UUID": "df9c13b8-1479-426d-a179-8ffb84debfe7",
               "columns": [
                 {
-                  "UUID": "b693c426-2b51-4049-b302-cf1782129e1c",
+                  "UUID": "2a7a58ed-4a85-4ded-bbc1-077b273f16f7",
+                  "columnKey": "1",
+                  "columnName": "Column 1",
+                  "columnWidth": "12",
+                  "seedComponents": []
+                }
+              ]
+            },
+            "sectionHeight": 100
+          },
+          "componentName": "forceCommunity:section",
+          "id": "df9c13b8-1479-426d-a179-8ffb84debfe7",
+          "regions": [
+            {
+              "id": "2a7a58ed-4a85-4ded-bbc1-077b273f16f7",
+              "regionLabel": "Column 1",
+              "regionName": "1",
+              "renditionMap": {},
+              "type": "region"
+            }
+          ],
+          "renderPriority": "NEUTRAL",
+          "renditionMap": {},
+          "type": "component"
+        },
+        {
+          "componentAttributes": {
+            "background": "background: rgba(0,0,0,0)",
+            "backgroundOverlay": "rgba(0,0,0,0.5)",
+            "contentAreaWidth": 100,
+            "sectionConfig": {
+              "UUID": "9c415c8a-a52f-48cd-a23d-c47d87e35c60",
+              "columns": [
+                {
+                  "UUID": "abdeda1d-e28c-4754-a16d-c5252594b9ff",
+                  "columnKey": "1",
+                  "columnName": "Column 1",
+                  "columnWidth": "3",
+                  "seedComponents": []
+                },
+                {
+                  "UUID": "688315d7-5d85-4bf2-ab2f-d25e43e75828",
+                  "columnKey": "7d1b9",
+                  "columnName": "Column 2",
+                  "columnWidth": "6",
+                  "seedComponents": []
+                },
+                {
+                  "UUID": "9a7a84b3-9084-42fc-a0b8-7d0ffeb31a40",
+                  "columnKey": "97bd4",
+                  "columnName": "Column 3",
+                  "columnWidth": "3",
+                  "seedComponents": []
+                }
+              ]
+            },
+            "sectionHeight": 300
+          },
+          "componentName": "forceCommunity:section",
+          "id": "9c415c8a-a52f-48cd-a23d-c47d87e35c60",
+          "regions": [
+            {
+              "id": "abdeda1d-e28c-4754-a16d-c5252594b9ff",
+              "regionLabel": "Column 1",
+              "regionName": "1",
+              "renditionMap": {},
+              "type": "region"
+            },
+            {
+              "components": [
+                {
+                  "componentAttributes": {
+                    "recordId": "{!recordId}"
+                  },
+                  "componentName": "c:crmMessagingCommunityThreadViewer",
+                  "id": "9dd0395c-d12c-4279-bcb0-bd5aa5552ccb",
+                  "renderPriority": "NEUTRAL",
+                  "renditionMap": {},
+                  "type": "component"
+                }
+              ],
+              "id": "688315d7-5d85-4bf2-ab2f-d25e43e75828",
+              "regionLabel": "Column 2",
+              "regionName": "7d1b9",
+              "renditionMap": {},
+              "type": "region"
+            },
+            {
+              "id": "9a7a84b3-9084-42fc-a0b8-7d0ffeb31a40",
+              "regionLabel": "Column 3",
+              "regionName": "97bd4",
+              "renditionMap": {},
+              "type": "region"
+            }
+          ],
+          "renderPriority": "NEUTRAL",
+          "renditionMap": {},
+          "type": "component"
+        },
+        {
+          "componentAttributes": {
+            "background": "background: rgba(0,0,0,0)",
+            "backgroundOverlay": "rgba(0,0,0,0.5)",
+            "contentAreaWidth": 100,
+            "sectionConfig": {
+              "UUID": "39bf6877-7d9d-48c4-936c-3bf23794875e",
+              "columns": [
+                {
+                  "UUID": "0db653ad-ea92-4044-8a5d-db90d1deb904",
                   "columnKey": "1",
                   "columnName": "Column 1",
                   "columnWidth": "12",
@@ -80,55 +180,7 @@
             "sectionHeight": 300
           },
           "componentName": "forceCommunity:section",
-          "id": "9e75e2f1-faf5-4796-9a5b-e2fcff1efb5c",
-          "regions": [
-            {
-              "components": [
-                {
-                  "componentAttributes": {
-                    "linkToDataElements": "https://navikt.github.io/aareg/om_tjenestene/soke_om_tilgang.html",
-                    "linkToTermsOfUse": "https://nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/Bruksvilkår_for_tilgang_til_Aa-registeret.pdf",
-                    "recordId": "{!recordId}"
-                  },
-                  "componentName": "c:aareg_application",
-                  "id": "e55b013b-137b-4f7f-a3ee-5b56d68e084c",
-                  "renderPriority": "NEUTRAL",
-                  "renditionMap": {},
-                  "type": "component"
-                }
-              ],
-              "id": "b693c426-2b51-4049-b302-cf1782129e1c",
-              "regionLabel": "Column 1",
-              "regionName": "1",
-              "renditionMap": {},
-              "type": "region"
-            }
-          ],
-          "renderPriority": "NEUTRAL",
-          "renditionMap": {},
-          "type": "component"
-        },
-        {
-          "componentAttributes": {
-            "background": "background: rgba(0,0,0,0)",
-            "backgroundOverlay": "rgba(0,0,0,0.5)",
-            "contentAreaWidth": 100,
-            "sectionConfig": {
-              "UUID": "5c6e76d2-338e-4817-9a83-c7a999317416",
-              "columns": [
-                {
-                  "UUID": "f6273b74-6ed3-4095-909b-049b8ff13a11",
-                  "columnKey": "1",
-                  "columnName": "Column 1",
-                  "columnWidth": "12",
-                  "seedComponents": []
-                }
-              ]
-            },
-            "sectionHeight": 32
-          },
-          "componentName": "forceCommunity:section",
-          "id": "5c6e76d2-338e-4817-9a83-c7a999317416",
+          "id": "39bf6877-7d9d-48c4-936c-3bf23794875e",
           "regions": [
             {
               "components": [
@@ -137,13 +189,13 @@
                     "NAVarea": "Privatperson"
                   },
                   "componentName": "c:globalCommunityFooter",
-                  "id": "3e02c8d8-81fa-4ea3-b286-9663d399daaa",
+                  "id": "90ac9ddf-8f4f-4b29-b493-b208262df284",
                   "renderPriority": "NEUTRAL",
                   "renditionMap": {},
                   "type": "component"
                 }
               ],
-              "id": "f6273b74-6ed3-4095-909b-049b8ff13a11",
+              "id": "0db653ad-ea92-4044-8a5d-db90d1deb904",
               "regionLabel": "Column 1",
               "regionName": "1",
               "renditionMap": {},
@@ -155,7 +207,7 @@
           "type": "component"
         }
       ],
-      "id": "25681408-18c9-426f-a25a-f9b2bed62def",
+      "id": "1c8c669a-2bdc-430d-ac67-4329145fe399",
       "regionName": "content",
       "type": "region"
     },
@@ -168,17 +220,17 @@
             "title": "{!Record._Object}: {!Record._Title}"
           },
           "componentName": "forceCommunity:seoAssistant",
-          "id": "270fdec9-949e-4b5d-af7f-693c4c4ada1c",
+          "id": "db380081-8da3-4f5f-a7bc-10c1ac1d64a0",
           "renditionMap": {},
           "type": "component"
         }
       ],
-      "id": "fcdf722d-4589-4042-8248-01aa71d0213c",
+      "id": "9b44134d-75e9-4aa2-ad07-55116f4b5440",
       "regionName": "sfdcHiddenRegion",
       "type": "region"
     }
   ],
   "themeLayoutType": "Inner",
   "type": "view",
-  "viewType": "detail-a0W"
+  "viewType": "detail-a0T"
 }

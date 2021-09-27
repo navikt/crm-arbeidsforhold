@@ -243,7 +243,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     }
     this.isLoaded = false;
     const { base64, filename } = this.fileData;
-
     processApplication({
       application: this.application,
       basisCode: this.applicationBasisRows,

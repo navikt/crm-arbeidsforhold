@@ -1,0 +1,74 @@
+{
+  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+  "componentName": "siteforce:sldsOneColLayout",
+  "id": "5752acc1-33d7-45b1-abec-e08a801b375d",
+  "label": "Thread Detail",
+  "regions": [
+    {
+      "id": "73822ebd-6f7e-4c2d-b427-5d7bac70aa9f",
+      "regionName": "header",
+      "type": "region"
+    },
+    {
+      "components": [
+        {
+          "componentAttributes": {
+            "recordId": "{!recordId}"
+          },
+          "componentName": "forceCommunity:recordHeadline",
+          "id": "bb34e0ec-46a8-45c6-bf1c-8240d31ca02a",
+          "renderPriority": "NEUTRAL",
+          "renditionMap": {},
+          "type": "component"
+        },
+        {
+          "componentAttributes": {
+            "detailsTabLabel": "Details",
+            "discussionsTabLabel": "Feed",
+            "recordId": "{!recordId}",
+            "relatedTabLabel": "Related",
+            "tab1Type": "details",
+            "tab2Type": "related",
+            "tab3Type": "chatter",
+            "tab4Type": "none",
+            "timelineTabLabel": "Activity"
+          },
+          "componentName": "forceCommunity:recordHomeTabs",
+          "id": "671a8fbb-6ccb-42ff-8f63-f3a692d44b67",
+          "renderPriority": "NEUTRAL",
+          "renditionMap": {},
+          "type": "component"
+        }
+      ],
+      "id": "91ef8e06-9c65-490b-95e5-4fb00217645c",
+      "regionName": "content",
+      "type": "region"
+    },
+    {
+      "id": "b7bed59e-71b4-4840-9ce8-b4a91d67e277",
+      "regionName": "footer",
+      "type": "region"
+    },
+    {
+      "components": [
+        {
+          "componentAttributes": {
+            "customHeadTags": "",
+            "description": "",
+            "title": "{!Record._Object}: {!Record._Title}"
+          },
+          "componentName": "forceCommunity:seoAssistant",
+          "id": "d1210454-788b-491a-85e1-539658aa41b1",
+          "renditionMap": {},
+          "type": "component"
+        }
+      ],
+      "id": "72b7234c-7808-43e6-b372-4339f8bcf82f",
+      "regionName": "sfdcHiddenRegion",
+      "type": "region"
+    }
+  ],
+  "themeLayoutType": "Inner",
+  "type": "view",
+  "viewType": "detail-a0T"
+}

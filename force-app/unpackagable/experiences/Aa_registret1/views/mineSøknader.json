@@ -54,7 +54,7 @@
         },
         {
           "componentAttributes": {
-            "background": "background: rgb(241,241,241)",
+            "background": "background: rgba(241,241,241,0)",
             "backgroundOverlay": "rgba(0,0,0,0.5)",
             "contentAreaWidth": 100,
             "sectionConfig": {

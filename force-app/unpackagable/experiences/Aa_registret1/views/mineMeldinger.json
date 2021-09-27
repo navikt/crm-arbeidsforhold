@@ -1,8 +1,8 @@
 {
   "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
   "componentName": "siteforce:dynamicLayout",
-  "id": "9b868f90-7261-4d6f-8daf-f40025495a37",
-  "label": "Application Detail Flex",
+  "id": "7ae8045e-78a3-4983-8cea-f2c5a1102434",
+  "label": "Mine Meldinger",
   "regions": [
     {
       "components": [
@@ -12,10 +12,10 @@
             "backgroundOverlay": "rgba(0,0,0,0.5)",
             "contentAreaWidth": 100,
             "sectionConfig": {
-              "UUID": "3cb93a84-2ebd-4f17-b95a-41074a7d2594",
+              "UUID": "ceb34b0c-f760-445c-8b15-70fba20123f8",
               "columns": [
                 {
-                  "UUID": "d3e61750-9e7a-4353-a0fc-2150bac703ec",
+                  "UUID": "730fae65-0d7d-4eda-a933-3b5aa016a6a4",
                   "columnKey": "1",
                   "columnName": "Column 1",
                   "columnWidth": "12",
@@ -26,7 +26,7 @@
             "sectionHeight": 32
           },
           "componentName": "forceCommunity:section",
-          "id": "3cb93a84-2ebd-4f17-b95a-41074a7d2594",
+          "id": "ceb34b0c-f760-445c-8b15-70fba20123f8",
           "regions": [
             {
               "components": [
@@ -35,21 +35,13 @@
                     "NAVarea": "Privatperson"
                   },
                   "componentName": "c:globalCommunityHeader",
-                  "id": "4aa94da7-138a-409c-9a22-88295153aa92",
-                  "renderPriority": "NEUTRAL",
-                  "renditionMap": {},
-                  "type": "component"
-                },
-                {
-                  "componentAttributes": {},
-                  "componentName": "c:aareg_mainBanner",
-                  "id": "0df4e306-4039-498a-ba5a-3bbcc85f3ae9",
+                  "id": "b18d78b2-624a-4853-916d-6cde264a5c0c",
                   "renderPriority": "NEUTRAL",
                   "renditionMap": {},
                   "type": "component"
                 }
               ],
-              "id": "d3e61750-9e7a-4353-a0fc-2150bac703ec",
+              "id": "730fae65-0d7d-4eda-a933-3b5aa016a6a4",
               "regionLabel": "Column 1",
               "regionName": "1",
               "renditionMap": {},
@@ -62,14 +54,14 @@
         },
         {
           "componentAttributes": {
-            "background": "background: rgb(241,241,241)",
+            "background": "background: rgba(0,0,0,0)",
             "backgroundOverlay": "rgba(0,0,0,0.5)",
             "contentAreaWidth": 100,
             "sectionConfig": {
-              "UUID": "9e75e2f1-faf5-4796-9a5b-e2fcff1efb5c",
+              "UUID": "5a588b3c-729c-45bc-b5ef-c10cf7f0f282",
               "columns": [
                 {
-                  "UUID": "b693c426-2b51-4049-b302-cf1782129e1c",
+                  "UUID": "3b5ea371-bd91-4654-8219-9d1cd784624f",
                   "columnKey": "1",
                   "columnName": "Column 1",
                   "columnWidth": "12",
@@ -80,24 +72,20 @@
             "sectionHeight": 300
           },
           "componentName": "forceCommunity:section",
-          "id": "9e75e2f1-faf5-4796-9a5b-e2fcff1efb5c",
+          "id": "5a588b3c-729c-45bc-b5ef-c10cf7f0f282",
           "regions": [
             {
               "components": [
                 {
-                  "componentAttributes": {
-                    "linkToDataElements": "https://navikt.github.io/aareg/om_tjenestene/soke_om_tilgang.html",
-                    "linkToTermsOfUse": "https://nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/Bruksvilkår_for_tilgang_til_Aa-registeret.pdf",
-                    "recordId": "{!recordId}"
-                  },
-                  "componentName": "c:aareg_application",
-                  "id": "e55b013b-137b-4f7f-a3ee-5b56d68e084c",
+                  "componentAttributes": {},
+                  "componentName": "c:aareg_myThreads",
+                  "id": "2c3f00bf-f925-4fb9-84c5-817a1cb023e7",
                   "renderPriority": "NEUTRAL",
                   "renditionMap": {},
                   "type": "component"
                 }
               ],
-              "id": "b693c426-2b51-4049-b302-cf1782129e1c",
+              "id": "3b5ea371-bd91-4654-8219-9d1cd784624f",
               "regionLabel": "Column 1",
               "regionName": "1",
               "renditionMap": {},
@@ -114,10 +102,10 @@
             "backgroundOverlay": "rgba(0,0,0,0.5)",
             "contentAreaWidth": 100,
             "sectionConfig": {
-              "UUID": "5c6e76d2-338e-4817-9a83-c7a999317416",
+              "UUID": "570b01a2-3d6a-4eb9-b49c-7922d48df2f1",
               "columns": [
                 {
-                  "UUID": "f6273b74-6ed3-4095-909b-049b8ff13a11",
+                  "UUID": "6df92d23-1959-49bf-8b8b-a75c7427b517",
                   "columnKey": "1",
                   "columnName": "Column 1",
                   "columnWidth": "12",
@@ -125,10 +113,10 @@
                 }
               ]
             },
-            "sectionHeight": 32
+            "sectionHeight": 300
           },
           "componentName": "forceCommunity:section",
-          "id": "5c6e76d2-338e-4817-9a83-c7a999317416",
+          "id": "570b01a2-3d6a-4eb9-b49c-7922d48df2f1",
           "regions": [
             {
               "components": [
@@ -137,13 +125,13 @@
                     "NAVarea": "Privatperson"
                   },
                   "componentName": "c:globalCommunityFooter",
-                  "id": "3e02c8d8-81fa-4ea3-b286-9663d399daaa",
+                  "id": "a82b9941-06aa-4879-8125-ea752c4dfab9",
                   "renderPriority": "NEUTRAL",
                   "renditionMap": {},
                   "type": "component"
                 }
               ],
-              "id": "f6273b74-6ed3-4095-909b-049b8ff13a11",
+              "id": "6df92d23-1959-49bf-8b8b-a75c7427b517",
               "regionLabel": "Column 1",
               "regionName": "1",
               "renditionMap": {},
@@ -155,7 +143,7 @@
           "type": "component"
         }
       ],
-      "id": "25681408-18c9-426f-a25a-f9b2bed62def",
+      "id": "fd9f3113-7163-4f15-a9b4-bf795f9b8d09",
       "regionName": "content",
       "type": "region"
     },
@@ -165,20 +153,20 @@
           "componentAttributes": {
             "customHeadTags": "",
             "description": "",
-            "title": "{!Record._Object}: {!Record._Title}"
+            "title": "Mine Meldinger"
           },
           "componentName": "forceCommunity:seoAssistant",
-          "id": "270fdec9-949e-4b5d-af7f-693c4c4ada1c",
+          "id": "c1c2dd08-09c1-42a5-8500-cc823d64e594",
           "renditionMap": {},
           "type": "component"
         }
       ],
-      "id": "fcdf722d-4589-4042-8248-01aa71d0213c",
+      "id": "6f0eb553-dcfe-43ac-86a2-c19dedcb42cc",
       "regionName": "sfdcHiddenRegion",
       "type": "region"
     }
   ],
   "themeLayoutType": "Inner",
   "type": "view",
-  "viewType": "detail-a0W"
+  "viewType": "custom-mine-meldinger"
 }

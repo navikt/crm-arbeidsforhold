@@ -1,0 +1,11 @@
+{
+  "activeViewId": "7ae8045e-78a3-4983-8cea-f2c5a1102434",
+  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+  "configurationTags": [],
+  "id": "babba212-3f9f-49b0-ab42-5e0b3d39ecaf",
+  "label": "Mine Meldinger",
+  "pageAccess": "UseParent",
+  "routeType": "custom-mine-meldinger",
+  "type": "route",
+  "urlPrefix": "mine-meldinger"
+}
