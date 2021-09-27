@@ -14,6 +14,9 @@ public with sharing class AAREG_contactSupportController {
   @AuraEnabled
   public static void createNewInquiry(String userId, Inquiry__c inquiry) {
     try {
+      String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId]
+      ?.LastUsedOrganization__c;
+      inquiry.CreatedByOrganizationNumber__c = lastUsedOrganizationNumber;
       insert inquiry;
 
       createTheadWithMessages(userId, inquiry.Id, inquiry.InquiryDescription__c);
