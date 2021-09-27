@@ -17,6 +17,11 @@
                 <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 første ledd bokstav c</label>
             </value>
             <value>
+                <fullName>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b</fullName>
+                <default>false</default>
+                <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b</label>
+            </value>
+            <value>
                 <fullName>LOV-2010-02-19-5 AFP-tilskottsloven § 29 annet ledd</fullName>
                 <default>false</default>
                 <label>LOV-2010-02-19-5 AFP-tilskottsloven § 29 annet ledd</label>

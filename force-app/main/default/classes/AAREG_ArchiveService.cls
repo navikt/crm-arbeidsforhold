@@ -7,7 +7,7 @@ public class AAREG_ArchiveService {
   private static final String MANIFEST_FORMAT = '.xml';
   private static final String DECISION_NAME = 'VEDTAK';
   private static final String APPLICATION_NAME = 'SOKNAD';
-  private static final String DEFALUT_FILE_FORMAT = '.html';
+  private static final String DEFAULT_FILE_FORMAT = '.pdf';
 
   public void archiveApplications(List<Application__c> applicationList) {
     Map<Id, Application__c> applications = new Map<Id, Application__c>(applicationList);
@@ -17,11 +17,11 @@ public class AAREG_ArchiveService {
     for (Application__c application : applicationList) {
       Map<String, Blob> filesToSend = new Map<String, Blob>();
       Map<String, String> fileNameFormatMap = new Map<String, String>();
-      String applicationFileName = formatFileName(application.Name + ' ' + APPLICATION_NAME + DEFALUT_FILE_FORMAT);
+      String applicationFileName = formatFileName(application.Name + ' ' + APPLICATION_NAME + DEFAULT_FILE_FORMAT);
       String manifestName = getManifestName(application.Name, APPLICATION_NAME, Date.Today());
 
-      filesToSend.put(applicationFileName, Blob.valueOf(application.AA_register_application_text__c));
-      fileNameFormatMap.put(applicationFileName, DEFALUT_FILE_FORMAT);
+      filesToSend.put(applicationFileName, Blob.toPdf(application.AA_register_application_text__c));
+      fileNameFormatMap.put(applicationFileName, DEFAULT_FILE_FORMAT);
 
       if (contentVersions.get(application.Id) != null) {
         fileNameFormatMap.putAll(getFileNameFormatMap(contentVersions.get(application.Id), application.Name));
@@ -54,14 +54,14 @@ public class AAREG_ArchiveService {
     List<Application__c> applicationsToUpdate = new List<Application__c>();
 
     for (Application__c application : applications) {
-      String decisionFileName = formatFileName(application.Name + ' ' + DECISION_NAME + DEFALUT_FILE_FORMAT);
+      String decisionFileName = formatFileName(application.Name + ' ' + DECISION_NAME + DEFAULT_FILE_FORMAT);
       String manifestName = getManifestName(application.Name, DECISION_NAME, Date.Today());
 
       Map<String, String> fileNameFormat = new Map<String, String>();
-      fileNameFormat.put(decisionFileName, DEFALUT_FILE_FORMAT);
+      fileNameFormat.put(decisionFileName, DEFAULT_FILE_FORMAT);
 
       Map<String, Blob> filesToSend = new Map<String, Blob>();
-      filesToSend.put(decisionFileName, Blob.valueOf(application.AA_DecisionArchiveText__c));
+      filesToSend.put(decisionFileName, Blob.toPdf(application.AA_DecisionArchiveText__c));
       filesToSend.put(
         manifestName,
         getManifest(
