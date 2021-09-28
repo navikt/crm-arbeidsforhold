@@ -91,6 +91,7 @@ input:invalid:required {
   font-weight: 600;
   line-height: 1.4;
   margin-left: 0.5rem;
+  vertical-align: middle;
 }
 
 .form-control input[type='text'],
@@ -114,6 +115,7 @@ input:invalid:required {
 .form-control input[type='checkbox'] {
   display: inline;
   text-align: center;
+  vertical-align: middle;
   background-color: #fff;
   background-position: center center;
   background-repeat: no-repeat;

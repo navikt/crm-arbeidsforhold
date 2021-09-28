@@ -1,35 +1,40 @@
 import { LightningElement, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
-import getUsersApplications from '@salesforce/apex/AAREG_MyApplicationsController.getUsersApplications';
+import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreads';
 
 const COLUMNS = [
-  { label: 'Søknadsnummer', fieldName: 'Name', type: 'text', hideDefaultActions: true },
-  { label: 'Dato innlevert', fieldName: 'ApplicationSubmittedDate__c', type: 'date', hideDefaultActions: true },
-  { label: 'Status', fieldName: 'Status__c', type: 'text', hideDefaultActions: true },
+  { label: 'Melding', fieldName: 'Name', type: 'text', hideDefaultActions: true },
+  {
+    label: 'Antall uleste medlinger',
+    fieldName: 'CRM_Number_of_unread_Messages__c',
+    type: 'text',
+    hideDefaultActions: true
+  },
+  { label: 'Siste meldings dato', fieldName: 'CRM_Latest_Message_Datetime__c', type: 'date', hideDefaultActions: true },
   {
     type: 'button',
     fixedWidth: 150,
     typeAttributes: {
-      label: 'Se søknad',
-      title: 'Se søknad',
-      name: 'Søknad',
+      label: 'Se medling',
+      title: 'Se medling',
+      name: 'Thread',
       variant: 'base'
     }
   }
 ];
 
-export default class Aareg_myApplications extends NavigationMixin(LightningElement) {
-  @track applications;
+export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
+  @track threads;
   columns = COLUMNS;
   currentUser = Id;
   error;
 
-  @wire(getUsersApplications, { userId: '$currentUser' })
-  applications(result) {
+  @wire(getUsersThreads, { userId: '$currentUser' })
+  threads(result) {
     if (result.data) {
       if (result.data.length > 0) {
-        this.applications = result.data;
+        this.threads = result.data;
       }
       this.error = undefined;
     } else if (result.error) {
@@ -38,7 +43,8 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     }
   }
 
-  viewApplication(event) {
+  viewThread(event) {
+    console.log(event.detail.row);
     const row = event.detail.row;
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',

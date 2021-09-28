@@ -190,7 +190,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
           this.applicationBasisRows.splice(event.target.value, 1);
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
         });
     } else {
       this.applicationBasisRows.splice(event.target.value, 1);
@@ -243,7 +243,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     }
     this.isLoaded = false;
     const { base64, filename } = this.fileData;
-    console.log(base64, filename);
     processApplication({
       application: this.application,
       basisCode: this.applicationBasisRows,
@@ -494,7 +493,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     }
 
     if (this.missingContactNotifications) {
-      console.log('Missing notfication: ', this.missingContactNotifications);
       contacts[0].focusAgreementNotification();
       return;
     }

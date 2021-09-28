@@ -42,6 +42,15 @@ public with sharing class AAREG_TestDataFactory {
     return contact;
   }
 
+  public static Inquiry__c getInquiry() {
+    Inquiry__c inquiry = new Inquiry__c(
+      InquiryDescription__c = 'Test Description',
+      Status__c = 'New',
+      TypeOfInquiry__c = 'Technical questions'
+    );
+    return inquiry;
+  }
+
   public static Account getAccount() {
     Account acct = new Account(
       Name = 'Test',

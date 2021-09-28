@@ -1,0 +1,11 @@
+{
+  "activeViewId": "695694c2-f7c9-436f-9fdd-b402dfec8de5",
+  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+  "configurationTags": [],
+  "id": "2c6541ce-34b1-4922-baed-b69d123aa47e",
+  "label": "Thread Related List",
+  "objectApiName": "Thread__c",
+  "routeType": "relatedlist-a0T",
+  "type": "route",
+  "urlPrefix": "thread"
+}

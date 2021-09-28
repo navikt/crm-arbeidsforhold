@@ -27,6 +27,21 @@
                 <default>false</default>
                 <label>Annet - oppgi i tekstfelt under</label>
             </value>
+            <value>
+                <fullName>Arbeid med administrasjon knyttet til sliterordningene</fullName>
+                <default>false</default>
+                <label>Arbeid med administrasjon knyttet til sliterordningene</label>
+            </value>
+            <value>
+                <fullName>Arbeid med administrasjon knyttet til sluttvederlagsordningen</fullName>
+                <default>false</default>
+                <label>Arbeid med administrasjon knyttet til sluttvederlagsordningen</label>
+            </value>
+            <value>
+                <fullName>Arbeid med administrasjon knyttet til OU-samordningen</fullName>
+                <default>false</default>
+                <label>Arbeid med administrasjon knyttet til OU-samordningen</label>
+            </value>
         </valueSetDefinition>
         <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 første ledd bokstav c</controllingFieldValue>
@@ -39,6 +54,18 @@
         <valueSettings>
             <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
             <valueName>Annet - oppgi i tekstfelt under</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b</controllingFieldValue>
+            <valueName>Arbeid med administrasjon knyttet til sliterordningene</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b</controllingFieldValue>
+            <valueName>Arbeid med administrasjon knyttet til sluttvederlagsordningen</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b</controllingFieldValue>
+            <valueName>Arbeid med administrasjon knyttet til OU-samordningen</valueName>
         </valueSettings>
     </valueSet>
 </CustomField>

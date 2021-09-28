@@ -16,6 +16,10 @@
   flex-wrap: wrap;
 }
 
+.inner-container {
+  margin: 50px 25px 50px 25px;
+}
+
 .home-container h1 {
   margin-bottom: 0.5rem;
 }

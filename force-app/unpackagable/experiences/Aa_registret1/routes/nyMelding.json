@@ -1,0 +1,11 @@
+{
+  "activeViewId": "2c77f127-83fd-424b-aa5b-7769968b08dc",
+  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+  "configurationTags": [],
+  "id": "7f0ad58e-e0d9-45b1-9253-e73456e7a828",
+  "label": "Ny Melding",
+  "pageAccess": "UseParent",
+  "routeType": "custom-ny-melding",
+  "type": "route",
+  "urlPrefix": "ny-melding"
+}

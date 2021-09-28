@@ -639,6 +639,15 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>singleThread</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentName>crmMessagingMessageComponent</componentName>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
                     <name>lookupFieldName</name>
                     <value>Application__c.Account__c</value>
                 </componentInstanceProperties>

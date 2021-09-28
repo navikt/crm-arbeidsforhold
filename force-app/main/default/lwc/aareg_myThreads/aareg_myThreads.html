@@ -1,0 +1,39 @@
+<template>
+  <c-aareg_main-banner>Mine meldinger Aa-registret</c-aareg_main-banner>
+  <div class="container">
+    <div class="inner-container">
+      <div class="slds-grid slds-grid_vertical">
+        <div class="slds-col slds-m-bottom_xx-large">
+          <div class="slds-clearfix">
+            <div class="slds-float_left">
+              <lightning-breadcrumbs class="skjema-max-width">
+                <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
+                <lightning-breadcrumb label="Mine meldinger" name="Mine_Meldinger__c" onclick={navigateToPage}>
+                </lightning-breadcrumb>
+              </lightning-breadcrumbs>
+            </div>
+            <div class="slds-float_right">
+              <button type="button" name="Ny_Melding__c" class="button button-main" onclick={navigateToPage}>
+                Ny melding
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="slds-col">
+          <lightning-datatable
+            key-field="id"
+            data={threads}
+            columns={columns}
+            onrowaction={viewThread}
+            hide-checkbox-column="true"
+          >
+          </lightning-datatable>
+          <div if:false={threads} class="no-applications-container">
+            <p>Du har ingen meldinger.</p>
+          </div>
+        </div>
+      </div>
+      <div class="breadcrumbs"></div>
+    </div>
+  </div>
+</template>

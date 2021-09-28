@@ -10,6 +10,7 @@ public class AAREG_ApplicationArchiveBatch implements Database.Batchable<sObject
   }
 
   public void execute(Database.BatchableContext context, List<Application__c> applications) {
+    System.debug('Applications ' + applications);
     new AAREG_ArchiveService().archiveApplications(applications);
   }
 

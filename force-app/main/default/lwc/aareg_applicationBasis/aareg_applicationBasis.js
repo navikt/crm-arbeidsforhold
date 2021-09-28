@@ -279,18 +279,25 @@ export default class Aareg_applicationBasis extends LightningElement {
   }
 
   resetErrors() {
-    let formControl = this.template.querySelectorAll('.form-control');
+    try {
+      let formControl = this.template.querySelectorAll('.form-control');
 
-    formControl.forEach((element) => {
-      element.classList.remove('error');
-    });
+      formControl.forEach((element) => {
+        element.classList.remove('error');
+      });
 
-    this.legalBasis.setCustomValidity('');
-    this.purpose.setCustomValidity('');
-    this.processingBasis.setCustomValidity('');
-    if (this.otherLegalBasis) {
-      this.otherLegalBasis.setCustomValidity('');
-      this.otherPurpose.setCustomValidity('');
+      if (this.legalBasis) this.legalBasis.setCustomValidity('');
+
+      if (this.purpose) this.purpose.setCustomValidity('');
+
+      if (this.processingBasis) this.processingBasis.setCustomValidity('');
+
+      if (this.otherLegalBasis) {
+        this.otherLegalBasis.setCustomValidity('');
+        this.otherPurpose.setCustomValidity('');
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 }
