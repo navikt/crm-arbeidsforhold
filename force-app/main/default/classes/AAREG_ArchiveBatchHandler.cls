@@ -15,11 +15,11 @@ public class AAREG_ArchiveBatchHandler {
       }
     }
     if (!applicationsToArchive.isEmpty()) {
-      Database.executeBatch(new AAREG_ApplicationArchiveBatch(applicationsToArchive), 20);
+      Database.executeBatch(new AAREG_ApplicationArchiveBatch(applicationsToArchive), 10);
     }
 
     if (!decisionsToArchive.isEmpty()) {
-      Database.executeBatch(new AAREG_DecisionArchiveBatch(decisionsToArchive), 40);
+      Database.executeBatch(new AAREG_DecisionArchiveBatch(decisionsToArchive), 10);
     }
   }
 
