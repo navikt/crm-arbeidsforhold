@@ -221,7 +221,7 @@
                 type="submit"
                 name="Send inn"
                 class="button button-delete"
-                onclick={handleSubmit}
+                onclick={toggleEndAgreement}
               >
                 Avslutt Avtale
               </button>
@@ -231,40 +231,33 @@
       </div>
     </div>
   </div>
-  <template if:true={showDecision}>
-    <section
-      role="dialog"
-      tabindex="-1"
-      aria-label="Meaningful description of the modal content"
-      aria-modal="true"
-      aria-describedby="modal-content-id-1"
-      class="slds-modal slds-fade-in-open"
-    >
-      <div class="slds-modal__container">
-        <header class="slds-modal__header slds-modal__header_empty"></header>
-        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
-          <div class="slds-clearfix">
-            <div class="slds-float_right">
-              <button class="button button-flat" title="Close" onclick={toggleDecision}>
-                <svg width="2em" height="2em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M21 4.385L13.385 12 21 19.615 19.615 21 12 13.385 4.385 21 3 19.615 10.615 12 3 4.385 4.385 3 12 10.615 19.615 3 21 4.385z"
-                    fill="#0067C5"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div>
-            <lightning-formatted-rich-text value={decision}></lightning-formatted-rich-text>
-          </div>
+  <c-aareg_modal data-id="Decision-Modal">
+    <!--
+      <iframe src={iFrameLink} style="width: 100%; height: 400px"> </iframe>
+    -->
+    <lightning-formatted-rich-text value={decision}></lightning-formatted-rich-text>
+  </c-aareg_modal>
+
+  <c-aareg_modal data-id="End-Agreement">
+    <section class="agreement-section">
+      <input
+        type="checkbox"
+        name="type tilgang online"
+        id="confirm-agreement-end"
+        data-id="AgreementEndConfirmation__c"
+        required
+      />
+      <label for="tilgang-online">Jeg bekrefter at jeg ønsker å avslutte denne avtalen. </label>
+    </section>
+    <div class="slds-grid">
+      <div class="slds-col">
+        <div class="slds-align_absolute-center slds-m-top_xx-large">
+          <button type="button" name="Avslutt Avtalen" class="button button-delete">Avslutt Avtale</button>
         </div>
       </div>
-    </section>
-    <div class="slds-backdrop slds-backdrop_open"></div>
-  </template>
+    </div>
+  </c-aareg_modal>
+
   <template if:true={isLoading}>
     <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
   </template>
