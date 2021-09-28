@@ -1,0 +1,36 @@
+<template>
+  <template if:true={showModal}>
+    <section
+      role="dialog"
+      tabindex="-1"
+      aria-label="Meaningful description of the modal content"
+      aria-modal="true"
+      aria-describedby="modal-content-id-1"
+      class="slds-modal slds-fade-in-open"
+    >
+      <div class="slds-modal__container">
+        <header class="slds-modal__header slds-modal__header_empty"></header>
+        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+          <div class="slds-clearfix">
+            <div class="slds-float_right">
+              <button class="button button-flat" title="Close" onclick={toggle}>
+                <svg width="2em" height="2em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M21 4.385L13.385 12 21 19.615 19.615 21 12 13.385 4.385 21 3 19.615 10.615 12 3 4.385 4.385 3 12 10.615 19.615 3 21 4.385z"
+                    fill="#0067C5"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div>
+            <slot></slot>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+</template>

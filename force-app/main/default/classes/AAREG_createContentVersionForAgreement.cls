@@ -11,11 +11,11 @@ public class AAREG_createContentVersionForAgreement {
       agrId = input.currRecId;
     }
 
-    appId = [SELECT id, application__c FROM agreement__c WHERE id = :agrId LIMIT 1].application__c;
+    appId = [SELECT id, application__c FROM agreement__c WHERE id = :agrId LIMIT 1]?.application__c;
     contId = [SELECT id, ContentDocumentId FROM contentdocumentlink WHERE LinkedEntityId = :appId LIMIT 1]
-    .ContentDocumentId;
+    ?.ContentDocumentId;
     condId = [SELECT id, LatestPublishedVersionId FROM contentdocument WHERE id = :contId LIMIT 1]
-    .LatestPublishedVersionId;
+    ?.LatestPublishedVersionId;
 
     //fetch contentversion data from application id
     for (contentVersion conv : [

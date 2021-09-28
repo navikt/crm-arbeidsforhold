@@ -18,6 +18,30 @@ public with sharing class AAREG_TestDataFactory {
     return application;
   }
 
+  public static Agreement__c getAgreement(Id accountId) {
+    Agreement__c agreement = new Agreement__c(
+      Account__c = accountId,
+      Status__c = 'Active',
+      APIAccess__c = true,
+      OnlineAccess__c = true,
+      ExtractionAccess__c = true
+    );
+    return agreement;
+  }
+
+  public static RelatedContact__c getRelatedContact() {
+    RelatedContact__c contact = new RelatedContact__c(
+      ErrorMessageNotifications__c = true,
+      AgreementNotifications__c = true,
+      SecurityNotifications__c = true,
+      ChangeNotifications__c = true,
+      Phone__c = '41161711',
+      Name = 'Test Contact',
+      Email__c = 'test@nav.no'
+    );
+    return contact;
+  }
+
   public static Inquiry__c getInquiry() {
     Inquiry__c inquiry = new Inquiry__c(
       InquiryDescription__c = 'Test Description',
