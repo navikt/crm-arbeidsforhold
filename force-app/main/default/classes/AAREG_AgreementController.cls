@@ -39,4 +39,14 @@ public with sharing class AAREG_AgreementController {
       throw new AuraHandledException(e.getMessage());
     }
   }
+
+  @AuraEnabled
+  public static void cancelAgreement(Agreement__c agreement) {
+    try {
+      agreement.Status__c = 'Deactivated';
+      update agreement;
+    } catch (Exception e) {
+      throw new AuraHandledException(e.getMessage());
+    }
+  }
 }

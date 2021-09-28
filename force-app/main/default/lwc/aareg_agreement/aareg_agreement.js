@@ -10,6 +10,7 @@ import EXTRACTION_ACCESS from '@salesforce/schema/Agreement__c.ExtractionAccess_
 import ORGANIZATION_NUMBER from '@salesforce/schema/Agreement__c.OrganizationNumber__c';
 import getAgreementContacts from '@salesforce/apex/AAREG_AgreementController.getAgreementContacts';
 import updateAgreement from '@salesforce/apex/AAREG_AgreementController.updateAgreement';
+import cancelAgreement from '@salesforce/apex/AAREG_AgreementController.cancelAgreement';
 
 const AGREEMENT_FIELDS = [NAME, API_ACCESS, EXTRACTION_ACCESS, ONLINE_ACCESS, DECISION, ORGANIZATION_NUMBER];
 
@@ -21,6 +22,7 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
   readOnly = true;
   isLoading = false;
   showDecision = false;
+  showAgreementCancellationConfirmation = false;
   error;
 
   connectedCallback() {
@@ -64,6 +66,27 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
     } else {
       this.isLoading = false;
     }
+  }
+
+  handleAgreementCancellation() {
+    this.isLoading = true;
+    if (this.agreementUpdates.AA_ConfirmedAgreementCancellation__c) {
+      cancelAgreement({
+        agreement: this.agreementUpdates
+      })
+        .then((result) => {
+          this.toggleEndAgreement();
+          this.showAgreementCancellationConfirmation = true;
+          console.log(result);
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => {
+          this.isLoading = false;
+        });
+    }
+    this.isLoading = false;
   }
 
   toggleDecision() {

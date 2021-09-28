@@ -9,7 +9,7 @@
       </lightning-breadcrumbs>
     </div>
     <div class="container">
-      <div class="inner-container">
+      <div class="inner-container" if:false={showAgreementCancellationConfirmation}>
         <div class="slds-grid slds-grid_vertical">
           <div class="slds-col">
             <section class="agreement-section">
@@ -244,7 +244,8 @@
         type="checkbox"
         name="type tilgang online"
         id="confirm-agreement-end"
-        data-id="AgreementEndConfirmation__c"
+        data-id="AA_ConfirmedAgreementCancellation__c"
+        onchange={handleCheckboxChange}
         required
       />
       <label for="tilgang-online">Jeg bekrefter at jeg ønsker å avslutte denne avtalen. </label>
@@ -252,7 +253,14 @@
     <div class="slds-grid">
       <div class="slds-col">
         <div class="slds-align_absolute-center slds-m-top_xx-large">
-          <button type="button" name="Avslutt Avtalen" class="button button-delete">Avslutt Avtale</button>
+          <button
+            type="button"
+            name="Avslutt Avtalen"
+            class="button button-delete"
+            onclick={handleAgreementCancellation}
+          >
+            Avslutt Avtale
+          </button>
         </div>
       </div>
     </div>
