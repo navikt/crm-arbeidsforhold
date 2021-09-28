@@ -4,8 +4,7 @@
     <div class="breadcrumbs">
       <lightning-breadcrumbs>
         <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
-        <lightning-breadcrumb label="Ny søknad" name="custom_ny_soknad_aa_registret__c" onclick={navigateToPage}>
-        </lightning-breadcrumb>
+        <lightning-breadcrumb label="Avtale" name="Agreement__c"> </lightning-breadcrumb>
       </lightning-breadcrumbs>
     </div>
     <div class="container">
@@ -230,9 +229,16 @@
         </div>
       </div>
     </div>
+    <template if:true={showAgreementCancellationConfirmation}>
+      <div class="submission-success">
+        <h2>Avtalen har blitt deaktivert.</h2>
+      </div>
+    </template>
   </div>
   <c-aareg_modal data-id="Decision-Modal">
     <!--
+      Render visualforce pdf in iFrame modal to allow for pdf download
+      
       <iframe src={iFrameLink} style="width: 100%; height: 400px"> </iframe>
     -->
     <lightning-formatted-rich-text value={decision}></lightning-formatted-rich-text>
