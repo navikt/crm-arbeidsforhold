@@ -29,7 +29,11 @@ public with sharing class AAREG_contactSupportController {
     Thread__c thread = new Thread__c(CRM_Related_Object__c = relatedRecordId, CRM_From__c = userId);
     insert thread;
 
-    Message__c msg = new Message__c(CRM_Thread__c = thread.Id, CRM_Message_Text__c = description);
+    Message__c msg = new Message__c(
+      CRM_Thread__c = thread.Id,
+      CRM_From_User__c = userId,
+      CRM_Message_Text__c = description
+    );
     insert msg;
 
     return thread.Id;
