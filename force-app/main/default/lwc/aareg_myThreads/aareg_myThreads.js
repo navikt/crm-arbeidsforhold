@@ -6,7 +6,7 @@ import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsers
 const COLUMNS = [
   { label: 'Melding', fieldName: 'Name', type: 'text', hideDefaultActions: true },
   {
-    label: 'Antall uleste medlinger',
+    label: 'Antall uleste meldinger',
     fieldName: 'CRM_Number_of_unread_Messages__c',
     type: 'text',
     hideDefaultActions: true
@@ -16,8 +16,8 @@ const COLUMNS = [
     type: 'button',
     fixedWidth: 150,
     typeAttributes: {
-      label: 'Se medling',
-      title: 'Se medling',
+      label: 'Se melding',
+      title: 'Se melding',
       name: 'Thread',
       variant: 'base'
     }
