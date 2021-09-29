@@ -509,6 +509,11 @@
             <field>AA_ConfirmedAgreementCancellation__c</field>
             <table>Account.Applications__r.Agreements__r</table>
         </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>AccountName__c</field>
+            <table>Account.Applications__r.Agreements__r</table>
+        </columns>
         <masterLabel>Agreements</masterLabel>
     </sections>
     <sections>
