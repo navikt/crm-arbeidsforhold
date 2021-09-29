@@ -54,7 +54,7 @@
         },
         {
           "componentAttributes": {
-            "background": "background: rgba(0,0,0,0)",
+            "background": "background: rgb(241,241,241)",
             "backgroundOverlay": "rgba(0,0,0,0.5)",
             "contentAreaWidth": 100,
             "sectionConfig": {
@@ -75,6 +75,18 @@
           "id": "4973fe5e-4521-4081-951d-cb72cf496dc9",
           "regions": [
             {
+              "components": [
+                {
+                  "componentAttributes": {
+                    "recordId": "{!recordId}"
+                  },
+                  "componentName": "c:aareg_agreement",
+                  "id": "94cd416b-970f-4e6c-b22f-d56928b2036b",
+                  "renderPriority": "NEUTRAL",
+                  "renditionMap": {},
+                  "type": "component"
+                }
+              ],
               "id": "49f6cc89-5c40-41b1-a7f7-3a2154a31717",
               "regionLabel": "Column 1",
               "regionName": "1",

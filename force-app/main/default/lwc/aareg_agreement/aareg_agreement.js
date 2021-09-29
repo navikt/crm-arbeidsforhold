@@ -1,18 +1,30 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
-//import basePath from '@salesforce/community/basePath';
 import NAME from '@salesforce/schema/Agreement__c.Name';
 import DECISION from '@salesforce/schema/Agreement__c.Decision__c';
 import API_ACCESS from '@salesforce/schema/Agreement__c.APIAccess__c';
+import ACCOUNT_NAME from '@salesforce/schema/Agreement__c.AccountName__c';
 import ONLINE_ACCESS from '@salesforce/schema/Agreement__c.OnlineAccess__c';
 import EXTRACTION_ACCESS from '@salesforce/schema/Agreement__c.ExtractionAccess__c';
 import ORGANIZATION_NUMBER from '@salesforce/schema/Agreement__c.OrganizationNumber__c';
+import DATA_PROCESSOR_NAME from '@salesforce/schema/Agreement__c.DataProcessorName__c';
+import DATA_PROCESSOR_ORGNUMBER from '@salesforce/schema/Agreement__c.DataProcessorOrganizationNumber__c';
 import getAgreementContacts from '@salesforce/apex/AAREG_AgreementController.getAgreementContacts';
 import updateAgreement from '@salesforce/apex/AAREG_AgreementController.updateAgreement';
 import cancelAgreement from '@salesforce/apex/AAREG_AgreementController.cancelAgreement';
 
-const AGREEMENT_FIELDS = [NAME, API_ACCESS, EXTRACTION_ACCESS, ONLINE_ACCESS, DECISION, ORGANIZATION_NUMBER];
+const AGREEMENT_FIELDS = [
+  NAME,
+  DECISION,
+  API_ACCESS,
+  ACCOUNT_NAME,
+  ONLINE_ACCESS,
+  EXTRACTION_ACCESS,
+  DATA_PROCESSOR_NAME,
+  ORGANIZATION_NUMBER,
+  DATA_PROCESSOR_ORGNUMBER
+];
 
 export default class Aareg_agreement extends NavigationMixin(LightningElement) {
   @api recordId;
@@ -224,13 +236,6 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
     });
   }
 
-  /*
-  get iFrameLink() {
-    console.log(basePath + '/apex/AAREG_DecisionDocument?id=' + this.recordId);
-    return basePath + '/apex/AAREG_DecisionDocument?id=' + this.recordId;
-  }
-  */
-
   get showContactRemove() {
     return this.contactRows.length > 1 && !this.isReadOnly;
   }
@@ -257,6 +262,18 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
 
   get organizationNumber() {
     return getFieldValue(this.agreement.data, ORGANIZATION_NUMBER);
+  }
+
+  get accountName() {
+    return getFieldValue(this.agreement.data, ACCOUNT_NAME);
+  }
+
+  get dataProcessorName() {
+    return getFieldValue(this.agreement.data, DATA_PROCESSOR_NAME);
+  }
+
+  get dataProcessorOrgNumber() {
+    return getFieldValue(this.agreement.data, DATA_PROCESSOR_ORGNUMBER);
   }
 
   get isReadOnly() {

@@ -58,7 +58,7 @@
               <div class="slds-grid slds-wrap section-info">
                 <div class="slds-col slds-size_1-of-3">
                   <span class="label">Virksomhetsnavn</span>
-                  <span>Test Virksomhet</span>
+                  <span>{accountName}</span>
                 </div>
                 <div class="slds-col slds-size_2-of-3">
                   <span class="label">Organisasjonsnummer</span>
@@ -66,11 +66,11 @@
                 </div>
                 <div class="slds-col slds-size_1-of-3">
                   <span class="label">Databehandler</span>
-                  <span>{organizationNumber}</span>
+                  <span>{dataProcessorName}</span>
                 </div>
                 <div class="slds-col slds-size_2-of-3">
                   <span class="label">Databehandler Organisasjonsnummer</span>
-                  <span>{organizationNumber}</span>
+                  <span>{dataProcessorOrgNumber}</span>
                 </div>
               </div>
             </section>
@@ -236,11 +236,6 @@
     </template>
   </div>
   <c-aareg_modal data-id="Decision-Modal">
-    <!--
-      Render visualforce pdf in iFrame modal to allow for pdf download
-      
-      <iframe src={iFrameLink} style="width: 100%; height: 400px"> </iframe>
-    -->
     <lightning-formatted-rich-text value={decision}></lightning-formatted-rich-text>
   </c-aareg_modal>
 
