@@ -1,7 +1,8 @@
 import { LightningElement, api } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
 import communityBase from '@salesforce/community/basePath';
 
-export default class LinkPanel extends LightningElement {
+export default class LinkPanel extends NavigationMixin(LightningElement) {
   @api title;
   @api subTitle;
   @api relativePath;
@@ -15,7 +16,12 @@ export default class LinkPanel extends LightningElement {
     return this.subTitle;
   }
 
-  get url() {
-    return this.basePath + this.relativePath;
+  navigateToPage(event) {
+    this[NavigationMixin.Navigate]({
+      type: 'comm__namedPage',
+      attributes: {
+        name: this.relativePath
+      }
+    });
   }
 }
