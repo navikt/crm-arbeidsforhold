@@ -4,7 +4,7 @@ public without sharing class AAREG_ApplicationController {
   private static final String NEW_APPLICATION = 'New';
   private static final String IN_PROGRESS = 'In Progress';
 
-  @AuraEnabled(cacheable=true)
+  @AuraEnabled
   public static Account getLastUsedOrganizationInformation(String userId) {
     User currentUser = [SELECT Id, LastUsedOrganization__c FROM USER WHERE Id = :userId];
     Account lastUsedOrganization = [
