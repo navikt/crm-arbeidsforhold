@@ -336,6 +336,19 @@
     </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>singleThread</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentName>crmMessagingMessageComponent</componentName>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-012f0290-0ab0-49ee-85de-ee01d3df4ae2</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
@@ -413,6 +426,43 @@
                     <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.DecisionDate__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.AA_AccessTypes__c</fieldItem>
+                <visibilityRule>
+                    <booleanFilter>(1 OR 2) OR(3 AND 4) OR (3 AND 5)</booleanFilter>
+                    <criteria>
+                        <leftValue>{!Record.Casehandler_Status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Approved Partially</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.Casehandler_Status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Approved</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.Casehandler_Status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Closed</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.Status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Approved Partially</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.Status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Approved</rightValue>
+                    </criteria>
+                </visibilityRule>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -597,6 +647,19 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
+                    <value>Facet-012f0290-0ab0-49ee-85de-ee01d3df4ae2</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>title</name>
+                    <value>{!$Label.Dialog}</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:tab</componentName>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
                     <value>Facet-b4c5986b-d7e8-4e97-9b92-4186202c9517</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -636,15 +699,6 @@
         <type>Region</type>
     </flexiPageRegions>
     <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>singleThread</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentName>crmMessagingMessageComponent</componentName>
-            </componentInstance>
-        </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
