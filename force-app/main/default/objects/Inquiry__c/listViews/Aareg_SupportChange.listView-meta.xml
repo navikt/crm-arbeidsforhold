@@ -20,6 +20,7 @@
     </filters>
     <label>Aareg Support Endringsbehov</label>
     <sharedTo>
+        <group>AAREG_Casehandling</group>
         <group>AAREG_Support</group>
     </sharedTo>
 </ListView>

@@ -4,6 +4,10 @@
         <application>Arbeidsforhold</application>
         <visible>true</visible>
     </applicationVisibilities>
+    <applicationVisibilities>
+        <application>Arbeidsforhold_henvendelse</application>
+        <visible>true</visible>
+    </applicationVisibilities>
     <classAccesses>
         <apexClass>AAREG_ApplicationController</apexClass>
         <enabled>true</enabled>
