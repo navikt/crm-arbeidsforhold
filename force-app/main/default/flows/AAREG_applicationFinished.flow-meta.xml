@@ -704,7 +704,7 @@
             <targetReference>getApplication</targetReference>
         </connector>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <variables>
         <name>agreementId</name>
         <dataType>String</dataType>
