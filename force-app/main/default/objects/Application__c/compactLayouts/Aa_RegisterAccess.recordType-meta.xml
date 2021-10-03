@@ -6,6 +6,33 @@
     <description>Application for partners to access Aa-register</description>
     <label>Aa-register access</label>
     <picklistValues>
+        <picklist>AA_AccessTypes__c</picklist>
+        <values>
+            <fullName>Access API</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Access API with dataprocessor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Access OTP</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Access OTP with dataprocessor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Access Online</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Extract</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Casehandler_Status__c</picklist>
         <values>
             <fullName>Additional Information Required</fullName>
@@ -52,10 +79,6 @@
         </values>
         <values>
             <fullName>Declined</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Draft</fullName>
             <default>false</default>
         </values>
         <values>
