@@ -20,6 +20,7 @@
     </filters>
     <label>Aareg Support Feil i løsningen</label>
     <sharedTo>
+        <group>AAREG_Casehandling</group>
         <group>AAREG_Support</group>
     </sharedTo>
 </ListView>
