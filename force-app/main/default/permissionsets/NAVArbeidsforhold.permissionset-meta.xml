@@ -21,6 +21,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>AAREG_MultiSelectFlowValues</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>AAREG_createContentVersionForAgreement</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -165,6 +169,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Agreement__c.AccountName__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Agreement__c.Application__c</field>
         <readable>true</readable>
@@ -192,6 +201,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Agreement__c.OnlineAccess__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Agreement__c.OrganizationNumber__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -291,6 +305,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Application__c.AA_AccessTypes__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Application__c.AA_ApplicationArchivedDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -358,11 +377,6 @@
         <editable>true</editable>
         <field>Application__c.ApplicationDeadlineForReply__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Application__c.ApplicationDeadline__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
