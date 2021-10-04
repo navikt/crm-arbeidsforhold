@@ -464,12 +464,6 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>OwnerId</field>
-            <value>
-                <elementReference>varOwnerId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>Status__c</field>
             <value>
                 <stringValue>Active</stringValue>
@@ -572,6 +566,7 @@
         <queriedFields>DataProcessorOrganizationNumber__c</queriedFields>
         <queriedFields>AA_AccessTypes__c</queriedFields>
         <queriedFields>OwnerId</queriedFields>
+        <queriedFields>createdById__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -720,7 +715,7 @@
             <targetReference>getApplication</targetReference>
         </connector>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <variables>
         <name>agreementId</name>
         <dataType>String</dataType>

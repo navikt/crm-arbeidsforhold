@@ -4,10 +4,6 @@
         <application>Arbeidsforhold</application>
         <visible>true</visible>
     </applicationVisibilities>
-    <applicationVisibilities>
-        <application>Arbeidsforhold_henvendelse</application>
-        <visible>true</visible>
-    </applicationVisibilities>
     <classAccesses>
         <apexClass>AAREG_ApplicationController</apexClass>
         <enabled>true</enabled>
@@ -486,6 +482,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Application__c.applicationOwner__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Application__c.createdById__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
