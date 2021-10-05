@@ -16,7 +16,12 @@ public with sharing class AAREG_contactSupportController {
     try {
       String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId]
       ?.LastUsedOrganization__c;
+      String accountId;
+      if(lastUsedOrganizationNumber!=null){
+        accountId = [SELECT id FROM ACCOUNT WHERE INT_OrganizationNumber__c =:lastUsedOrganizationNumber]?.id;
+      }
       inquiry.CreatedByOrganizationNumber__c = lastUsedOrganizationNumber;
+      inquiry.AccountId__c = accountId;
       insert inquiry;
 
       createTheadWithMessages(userId, inquiry.Id, inquiry.InquiryDescription__c);
@@ -27,7 +32,7 @@ public with sharing class AAREG_contactSupportController {
 
   private static Id createTheadWithMessages(String userId, String relatedRecordId, String description) {
     Id relRecId =Id.valueOf(relatedRecordId);
-	String relatedRecordObjectName = relRecId.getSObjectType().getDescribe().getName();
+    String relatedRecordObjectName = relRecId.getSObjectType().getDescribe().getName();
     String accountId;
     String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId]?.LastUsedOrganization__c;
       if(lastUsedOrganizationNumber!=null){
