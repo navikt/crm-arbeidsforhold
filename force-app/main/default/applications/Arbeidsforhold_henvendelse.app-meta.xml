@@ -50,6 +50,7 @@
     <utilityBar>Arbeidsforhold_henvendelse_UtilityBar</utilityBar>
     <workspaceConfig>
         <mappings>
+            <fieldName>AccountId__c</fieldName>
             <tab>Inquiry__c</tab>
         </mappings>
         <mappings>
