@@ -38,6 +38,11 @@
     </classAccesses>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Agreement__c.AA_ConfirmedAgreementCancellationDate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Agreement__c.AA_ConfirmedAgreementCancellation__c</field>
         <readable>true</readable>
     </fieldPermissions>
