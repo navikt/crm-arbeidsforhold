@@ -610,6 +610,11 @@
             <field>account__c</field>
             <table>Account.Applications__r.Agreements__r</table>
         </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>AA_ConfirmedAgreementCancellationDate__c</field>
+            <table>Account.Applications__r.Agreements__r</table>
+        </columns>
         <masterLabel>Avtaler</masterLabel>
     </sections>
 </ReportType>

@@ -42,6 +42,7 @@ public with sharing class AAREG_AgreementController {
   public static void cancelAgreement(Agreement__c agreement) {
     try {
       agreement.Status__c = 'Deactivated';
+      agreement.AA_ConfirmedAgreementCancellationDate__c =System.today();
       update agreement;
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
