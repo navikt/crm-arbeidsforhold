@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
-        <name>checkObjectTypeNameAndUpdate</name>
-        <label>checkObjectTypeNameAndUpdate</label>
-        <locationX>717</locationX>
-        <locationY>270</locationY>
+        <name>getObjectTypeName</name>
+        <label>getObjectTypeName</label>
+        <locationX>656</locationX>
+        <locationY>513</locationY>
         <actionName>AAREG_checkObjectTypeNameche</actionName>
         <actionType>apex</actionType>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
@@ -16,7 +16,7 @@
         </inputParameters>
     </actionCalls>
     <apiVersion>52.0</apiVersion>
-    <description>Get object type name and test if it is creating thread from application, then get accountId and user</description>
+    <description>Get object type name and test if it is creating thread from application, then get accountId</description>
     <interviewLabel>AAREG_getObjectTypeName {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_getObjectTypeName</label>
     <processMetadataValues>
@@ -42,13 +42,13 @@
         <locationX>214</locationX>
         <locationY>88</locationY>
         <connector>
-            <targetReference>checkObjectTypeNameAndUpdate</targetReference>
+            <targetReference>getObjectTypeName</targetReference>
         </connector>
         <object>Thread__c</object>
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
