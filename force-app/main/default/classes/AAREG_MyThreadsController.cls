@@ -9,6 +9,7 @@ public with sharing class AAREG_MyThreadsController {
         SELECT
           Id,
           Name,
+          CRM_Conversation_Summary__c,
           CRM_Number_of_External_Messages__c,
           CRM_Latest_Message_Datetime__c,
           CRM_Number_of_unread_Messages__c,
@@ -16,6 +17,7 @@ public with sharing class AAREG_MyThreadsController {
           CRM_isActive__c
         FROM Thread__c
         WHERE CRM_Account__r.INT_OrganizationNumber__c = :lastUsedOrganizationNumber
+        ORDER BY CRM_Latest_Message_Datetime__c DESC
       ];
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
