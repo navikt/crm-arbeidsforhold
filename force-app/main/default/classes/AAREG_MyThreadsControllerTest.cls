@@ -1,5 +1,6 @@
 @isTest
 public class AAREG_MyThreadsControllerTest {
+    static final String STRING_CONST = 'Test Thread';
   @isTest
   static void getUsersThreads() {
     User usr;
@@ -17,8 +18,8 @@ public class AAREG_MyThreadsControllerTest {
 
     List<Thread__c> threads = new List<Thread__c>();
 
-    Thread__c firstThread = new Thread__c(Name = 'Test Thread',CRM_Related_Object__c=app.id, CRM_FROM__c = usr.Id, CRM_Account__c = acct.Id);
-    Thread__c secondThread = new Thread__c(Name = 'Test Thread', CRM_FROM__c = usr.Id);
+    Thread__c firstThread = new Thread__c(Name =STRING_CONST,CRM_Related_Object__c=app.id, CRM_FROM__c = usr.Id, CRM_Account__c = acct.Id);
+    Thread__c secondThread = new Thread__c(Name =STRING_CONST, CRM_FROM__c = usr.Id);
     threads.add(firstThread);
     threads.add(secondThread);
 
@@ -42,7 +43,7 @@ public class AAREG_MyThreadsControllerTest {
     	insert usr;  
       }
 
-    Thread__c thread = new Thread__c(Name = 'Test Thread');
+    Thread__c thread = new Thread__c(Name = STRING_CONST);
     insert thread;
 
     List<Thread__c> userThreads;
