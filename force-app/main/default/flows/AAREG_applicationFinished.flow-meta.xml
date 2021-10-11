@@ -344,7 +344,7 @@
         <defaultConnectorLabel>Standardutfall</defaultConnectorLabel>
         <rules>
             <name>IsStatusCorrect</name>
-            <conditionLogic>or</conditionLogic>
+            <conditionLogic>4 AND (1 OR 2 OR 3)</conditionLogic>
             <conditions>
                 <leftValueReference>getApplication.Casehandler_Status__c</leftValueReference>
                 <operator>EqualTo</operator>
@@ -364,6 +364,13 @@
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Declined</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getApplication.AA_AccessTypes__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -661,6 +668,7 @@
         </inputAssignments>
         <object>RelatedContact__c</object>
     </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
     <screens>
         <name>applicationDone</name>
         <label>Application Done</label>
@@ -708,7 +716,7 @@
         <allowPause>false</allowPause>
         <fields>
             <name>changeStatus</name>
-            <fieldText>&lt;p&gt;To be able to close the application - it have to be in approved, partially approved or declined status&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;To be able to close the application - it have to be in approved, partially approved or declined status.&lt;/p&gt;&lt;p&gt;Check also that access type has been set.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <showFooter>true</showFooter>
