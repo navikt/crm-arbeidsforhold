@@ -63,10 +63,11 @@
     <recordCreates>
         <name>createContact</name>
         <label>createContact</label>
-        <locationX>1122</locationX>
-        <locationY>255</locationY>
+        <locationX>1121</locationX>
+        <locationY>351</locationY>
+        <assignRecordIdToReference>varContactID</assignRecordIdToReference>
         <connector>
-            <targetReference>getContactId</targetReference>
+            <targetReference>UpdateApplication</targetReference>
         </connector>
         <inputAssignments>
             <field>AccountId</field>
@@ -99,14 +100,13 @@
             </value>
         </inputAssignments>
         <object>Contact</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordCreates>
         <description>Create email queue for sending email</description>
         <name>CreateEmailQueue</name>
         <label>CreateEmailQueue</label>
-        <locationX>929</locationX>
-        <locationY>596</locationY>
+        <locationX>928</locationX>
+        <locationY>589</locationY>
         <connector>
             <targetReference>UpdateSentConfirmation</targetReference>
         </connector>
@@ -181,36 +181,6 @@
         </outputAssignments>
     </recordLookups>
     <recordLookups>
-        <name>getContactId</name>
-        <label>getContactId</label>
-        <locationX>1122</locationX>
-        <locationY>447</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>UpdateApplication</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Email</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.Email__c</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>AccountId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.Account__c</elementReference>
-            </value>
-        </filters>
-        <object>Contact</object>
-        <outputAssignments>
-            <assignToReference>varContactID</assignToReference>
-            <field>Id</field>
-        </outputAssignments>
-    </recordLookups>
-    <recordLookups>
         <name>getEmailTemplate</name>
         <label>getEmailTemplate</label>
         <locationX>505</locationX>
@@ -262,8 +232,8 @@
         <description>Update the send confirmation on application</description>
         <name>UpdateSentConfirmation</name>
         <label>UpdateSentConfirmation</label>
-        <locationX>774</locationX>
-        <locationY>595</locationY>
+        <locationX>779</locationX>
+        <locationY>589</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -286,6 +256,7 @@
         <connector>
             <targetReference>getEmailTemplate</targetReference>
         </connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Casehandler_Status__c</field>
@@ -312,7 +283,7 @@
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <variables>
         <name>templateId</name>
         <dataType>String</dataType>
