@@ -14,7 +14,7 @@ public with sharing class AAREG_MyApplicationsController {
   private static List<Application__c> getApplications(String lastUsedOrganization) {
     List<Application__c> applications = new List<Application__c>(
       [
-        SELECT Id, Name, Casehandler_Status__c, toLabel(Status__c), ApplicationSubmittedDate__c
+        SELECT Id, Name, Casehandler_Status__c, toLabel(Status__c), ApplicationSubmittedDate__c,ApplicationDeadlineForReply__c
         FROM Application__c
         WHERE OrganizationNumber__c = :lastUsedOrganization
         ORDER BY ApplicationSubmittedDate__c DESC
