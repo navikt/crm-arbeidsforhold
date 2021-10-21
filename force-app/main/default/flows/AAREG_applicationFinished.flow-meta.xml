@@ -4,7 +4,7 @@
         <name>AccessTypeMultiSelect</name>
         <label>AccessTypeMultiSelect</label>
         <locationX>50</locationX>
-        <locationY>1334</locationY>
+        <locationY>1670</locationY>
         <actionName>AAREG_MultiSelectFlowValues</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -24,7 +24,7 @@
         <name>applyCurrentStatus</name>
         <label>applyCurrentStatus</label>
         <locationX>424</locationX>
-        <locationY>638</locationY>
+        <locationY>974</locationY>
         <assignmentItems>
             <assignToReference>currCaseHandlerStatus</assignToReference>
             <operator>Assign</operator>
@@ -40,7 +40,7 @@
         <name>applyOwnerId</name>
         <label>applyOwnerId</label>
         <locationX>424</locationX>
-        <locationY>518</locationY>
+        <locationY>854</locationY>
         <assignmentItems>
             <assignToReference>varOwnerId</assignToReference>
             <operator>Assign</operator>
@@ -56,7 +56,7 @@
         <name>setAPI</name>
         <label>setAPI</label>
         <locationX>138</locationX>
-        <locationY>1814</locationY>
+        <locationY>2150</locationY>
         <assignmentItems>
             <assignToReference>API</assignToReference>
             <operator>Assign</operator>
@@ -72,7 +72,7 @@
         <name>setDataProcessor</name>
         <label>setDataProcessor</label>
         <locationX>50</locationX>
-        <locationY>998</locationY>
+        <locationY>1334</locationY>
         <assignmentItems>
             <assignToReference>dataProcessorOrgNr</assignToReference>
             <operator>Assign</operator>
@@ -95,7 +95,7 @@
         <name>setExtract</name>
         <label>setExtract</label>
         <locationX>666</locationX>
-        <locationY>1814</locationY>
+        <locationY>2150</locationY>
         <assignmentItems>
             <assignToReference>Extract</assignToReference>
             <operator>Assign</operator>
@@ -111,7 +111,7 @@
         <name>setOnline</name>
         <label>setOnline</label>
         <locationX>402</locationX>
-        <locationY>1814</locationY>
+        <locationY>2150</locationY>
         <assignmentItems>
             <assignToReference>Online</assignToReference>
             <operator>Assign</operator>
@@ -127,7 +127,7 @@
         <name>setSingleAcessType</name>
         <label>setSingleAcessType</label>
         <locationX>534</locationX>
-        <locationY>1574</locationY>
+        <locationY>1910</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
             <operator>Assign</operator>
@@ -143,7 +143,7 @@
         <name>checkAccessType</name>
         <label>checkAccessType</label>
         <locationX>182</locationX>
-        <locationY>1214</locationY>
+        <locationY>1550</locationY>
         <defaultConnector>
             <targetReference>createAgreement</targetReference>
         </defaultConnector>
@@ -168,7 +168,7 @@
         <name>checkAccessTypes</name>
         <label>checkAccessTypes</label>
         <locationX>534</locationX>
-        <locationY>1694</locationY>
+        <locationY>2030</locationY>
         <defaultConnector>
             <targetReference>loopTextCollectionMultiPicklistSelect</targetReference>
         </defaultConnector>
@@ -251,7 +251,7 @@
         <name>checkDataProcessor</name>
         <label>checkDataProcessor</label>
         <locationX>182</locationX>
-        <locationY>878</locationY>
+        <locationY>1214</locationY>
         <defaultConnector>
             <targetReference>checkAccessType</targetReference>
         </defaultConnector>
@@ -276,7 +276,7 @@
         <name>isApplicationDone</name>
         <label>isApplicationDone</label>
         <locationX>424</locationX>
-        <locationY>758</locationY>
+        <locationY>1094</locationY>
         <defaultConnector>
             <targetReference>IsNotChecked</targetReference>
         </defaultConnector>
@@ -336,15 +336,15 @@
     <decisions>
         <name>IsStatus</name>
         <label>IsStatus</label>
-        <locationX>677</locationX>
+        <locationX>424</locationX>
         <locationY>278</locationY>
         <defaultConnector>
             <targetReference>IsNotCorrectStatus</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Standardutfall</defaultConnectorLabel>
         <rules>
-            <name>IsStatusCorrect</name>
-            <conditionLogic>4 AND (1 OR 2 OR 3)</conditionLogic>
+            <name>IsStatusApproved</name>
+            <conditionLogic>3 AND (1 OR 2 )</conditionLogic>
             <conditions>
                 <leftValueReference>getApplication.Casehandler_Status__c</leftValueReference>
                 <operator>EqualTo</operator>
@@ -360,13 +360,6 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>getApplication.Casehandler_Status__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Declined</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
                 <leftValueReference>getApplication.AA_AccessTypes__c</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
@@ -376,7 +369,22 @@
             <connector>
                 <targetReference>applicationDone</targetReference>
             </connector>
-            <label>IsStatusCorrect</label>
+            <label>IsStatusApproved</label>
+        </rules>
+        <rules>
+            <name>isStatusDeclined</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getApplication.Casehandler_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Declined</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>applicationDone</targetReference>
+            </connector>
+            <label>isStatusDeclined</label>
         </rules>
     </decisions>
     <formulas>
@@ -390,7 +398,7 @@
         <name>loopTextCollectionMultiPicklistSelect</name>
         <label>loopTextCollectionMultiPicklistSelect</label>
         <locationX>50</locationX>
-        <locationY>1454</locationY>
+        <locationY>1790</locationY>
         <collectionReference>AccessTypeMultiSelect</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -423,7 +431,7 @@
         <name>createAgreement</name>
         <label>createAgreement</label>
         <locationX>182</locationX>
-        <locationY>2222</locationY>
+        <locationY>2558</locationY>
         <assignRecordIdToReference>agreementId</assignRecordIdToReference>
         <connector>
             <targetReference>updateRelatedContacts</targetReference>
@@ -494,7 +502,7 @@
         <name>createTask</name>
         <label>createTask</label>
         <locationX>424</locationX>
-        <locationY>2678</locationY>
+        <locationY>3014</locationY>
         <connector>
             <targetReference>updateApplication</targetReference>
         </connector>
@@ -552,7 +560,7 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>677</locationX>
+        <locationX>424</locationX>
         <locationY>158</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -586,7 +594,7 @@
         <name>getRecordTypeid</name>
         <label>getRecordTypeid</label>
         <locationX>424</locationX>
-        <locationY>2558</locationY>
+        <locationY>2894</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createTask</targetReference>
@@ -609,7 +617,7 @@
         <name>updateApplication</name>
         <label>updateApplication</label>
         <locationX>424</locationX>
-        <locationY>2798</locationY>
+        <locationY>3134</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -648,7 +656,7 @@
         <name>updateRelatedContacts</name>
         <label>updateRelatedContacts</label>
         <locationX>182</locationX>
-        <locationY>2342</locationY>
+        <locationY>2678</locationY>
         <connector>
             <targetReference>getRecordTypeid</targetReference>
         </connector>
@@ -673,7 +681,7 @@
         <name>applicationDone</name>
         <label>Application Done</label>
         <locationX>424</locationX>
-        <locationY>398</locationY>
+        <locationY>734</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -694,7 +702,7 @@
         <name>IsNotChecked</name>
         <label>IsNotChecked</label>
         <locationX>666</locationX>
-        <locationY>878</locationY>
+        <locationY>1214</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -709,7 +717,7 @@
     <screens>
         <name>IsNotCorrectStatus</name>
         <label>IsNotCorrectStatus</label>
-        <locationX>930</locationX>
+        <locationX>600</locationX>
         <locationY>398</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
@@ -723,7 +731,7 @@
         <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>551</locationX>
+        <locationX>298</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getApplication</targetReference>
