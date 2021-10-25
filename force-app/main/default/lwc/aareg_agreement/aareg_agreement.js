@@ -1,6 +1,6 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
-import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
+import { getRecord, getFieldValue,updateRecord } from 'lightning/uiRecordApi';
 import NAME from '@salesforce/schema/Agreement__c.Name';
 import DECISION from '@salesforce/schema/Agreement__c.Decision__c';
 import API_ACCESS from '@salesforce/schema/Agreement__c.APIAccess__c';
@@ -13,7 +13,6 @@ import DATA_PROCESSOR_ORGNUMBER from '@salesforce/schema/Agreement__c.DataProces
 import getAgreementContacts from '@salesforce/apex/AAREG_AgreementController.getAgreementContacts';
 import updateAgreement from '@salesforce/apex/AAREG_AgreementController.updateAgreement';
 import cancelAgreement from '@salesforce/apex/AAREG_AgreementController.cancelAgreement';
-import { updateRecord } from 'lightning/uiRecordApi';
 
 const AGREEMENT_FIELDS = [
   NAME,
