@@ -13,6 +13,7 @@ import DATA_PROCESSOR_ORGNUMBER from '@salesforce/schema/Agreement__c.DataProces
 import getAgreementContacts from '@salesforce/apex/AAREG_AgreementController.getAgreementContacts';
 import updateAgreement from '@salesforce/apex/AAREG_AgreementController.updateAgreement';
 import cancelAgreement from '@salesforce/apex/AAREG_AgreementController.cancelAgreement';
+import { updateRecord } from 'lightning/uiRecordApi';
 
 const AGREEMENT_FIELDS = [
   NAME,
@@ -68,12 +69,13 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
       })
         .then((result) => {
           this.readOnly = true;
+          updateRecord({fields: this.recordId});
         })
         .catch((error) => {
           console.error(error);
         })
         .finally(() => {
-          this.isLoading = true;
+          this.isLoading = false;
         });
     } else {
       this.isLoading = false;
