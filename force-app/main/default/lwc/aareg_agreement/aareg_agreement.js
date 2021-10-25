@@ -73,7 +73,7 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
           console.error(error);
         })
         .finally(() => {
-          this.isLoading = false;
+          this.isLoading = true;
         });
     } else {
       this.isLoading = false;
