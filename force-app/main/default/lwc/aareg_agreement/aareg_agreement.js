@@ -67,7 +67,7 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
         contactsToDelete: this.contactsToDelete
       })
         .then((result) => {
-          this.isReadOnly = true;
+          this.readOnly = true;
         })
         .catch((error) => {
           console.error(error);
