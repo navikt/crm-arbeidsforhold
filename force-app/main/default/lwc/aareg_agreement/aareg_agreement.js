@@ -1,6 +1,6 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
-import { getRecord, getFieldValue, getRecordNotifyChange } from 'lightning/uiRecordApi';
+import { getRecord, getFieldValue} from 'lightning/uiRecordApi';
 import NAME from '@salesforce/schema/Agreement__c.Name';
 import DECISION from '@salesforce/schema/Agreement__c.Decision__c';
 import API_ACCESS from '@salesforce/schema/Agreement__c.APIAccess__c';
@@ -68,7 +68,6 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
       })
         .then((result) => {
           this.readOnly = true;
-          getRecordNotifyChange([{recordId: this.recordId}]);
         })
         .catch((error) => {
           console.error(error);
