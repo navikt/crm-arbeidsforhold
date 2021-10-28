@@ -51,4 +51,9 @@
         </sections>
     </layouts>
     <nameFieldLabel>Avtale nummer</nameFieldLabel>
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Deaktiver avtale</label>
+        <name>AAREG_deactivateAgreement</name>
+    </quickActions>
 </CustomObjectTranslation>
