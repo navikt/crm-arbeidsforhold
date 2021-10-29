@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://soap.sforce.com/2006/04/metadata">
     <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>Account.Applications__r$APIAccess__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>Account.Applications__r$ExtractionAccess__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>Account.Applications__r$OnlineAccess__c</field>
+    </columns>
+    <columns>
         <field>Account.Applications__r.Agreements__r$CreatedBy</field>
     </columns>
     <columns>
@@ -31,6 +43,7 @@
     <filter>
         <criteriaItems>
             <column>Account.Applications__r.Agreements__r$Status__c</column>
+            <columnToColumn>false</columnToColumn>
             <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>Active</value>
