@@ -8,7 +8,7 @@
         <actionName>AAREG_distributionAccessController</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>createActivtyHistory</targetReference>
+            <targetReference>getRecordTypeId</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -140,7 +140,7 @@
         <name>createActivtyHistory</name>
         <label>createActivtyHistory</label>
         <locationX>264</locationX>
-        <locationY>1175</locationY>
+        <locationY>1295</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
         </connector>
@@ -154,6 +154,12 @@
             <field>Description</field>
             <value>
                 <elementReference>varTaskDescription</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>RecordTypeId</field>
+            <value>
+                <elementReference>varRecordTypeId</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -230,6 +236,29 @@
         <queriedFields>AA_AccessTypes__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordLookups>
+        <name>getRecordTypeId</name>
+        <label>getRecordTypeId</label>
+        <locationX>264</locationX>
+        <locationY>1175</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>createActivtyHistory</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>AAREG_Task</stringValue>
+            </value>
+        </filters>
+        <object>RecordType</object>
+        <outputAssignments>
+            <assignToReference>varRecordTypeId</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
     <start>
         <locationX>50</locationX>
         <locationY>0</locationY>
@@ -252,6 +281,13 @@
     <status>Active</status>
     <variables>
         <name>recordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>varRecordTypeId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
