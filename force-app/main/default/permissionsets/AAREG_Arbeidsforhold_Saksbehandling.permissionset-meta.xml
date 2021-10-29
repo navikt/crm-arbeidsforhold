@@ -32,6 +32,14 @@
         <apexClass>AAREG_createContentVersionForAgreement</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>AAREG_distributionAccessController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>AAREG_distributionAccessRequest</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <description>Permissions for casehandling and application related to Aa-registeret</description>
     <fieldPermissions>
         <editable>false</editable>
@@ -211,6 +219,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Agreement__c.OnlineAccess__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Agreement__c.OrganizationNumber__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
