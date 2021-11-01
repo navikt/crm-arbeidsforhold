@@ -11,11 +11,11 @@ public class AAREG_distributionAccessController {
         switch on(request[0].referenceType){
             when 'DELETE'{
                 jsonS= AAREG_distributionAccessRequest.generateJson(request[0].refAccessType);
-              	AAREG_distributionAccessRequest.generateHeaderToDistribution(request[0].refOrganizationNumber,'DEL_AAREG_DIST_TILGANG',jsonS);
+              	AAREG_distributionAccessRequest.generateHeaderToDistribution(request[0].refOrganizationNumber,'DEL_AAREG_DIST_TILGANG',jsonS,request[0].referenceId);
             }
             when 'PUT'{
                 jsonS=AAREG_distributionAccessRequest.generateJson(request[0].refAccessType);
-                AAREG_distributionAccessRequest.generateHeaderToDistribution(request[0].refOrganizationNumber,'PUT_AAREG_DIST_TILGANG',jsonS);
+                AAREG_distributionAccessRequest.generateHeaderToDistribution(request[0].refOrganizationNumber,'PUT_AAREG_DIST_TILGANG',jsonS,request[0].referenceId);
             }
         }
         return returnList;
