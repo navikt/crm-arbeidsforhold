@@ -9,10 +9,10 @@ public class AAREG_distributionAccessController {
        String jsonS;
         
         switch on(request[0].referenceType){
-            when 'DELETE'{
+           /* when 'DELETE'{
                 jsonS= AAREG_distributionAccessRequest.generateJson(request[0].refAccessType);
               	AAREG_distributionAccessRequest.generateHeaderToDistribution(request[0].refOrganizationNumber,'DEL_AAREG_DIST_TILGANG',jsonS);
-            }
+            }*/
             when 'PUT'{
                 jsonS=AAREG_distributionAccessRequest.generateJson(request[0].refAccessType);
                 AAREG_distributionAccessRequest.generateHeaderToDistribution(request[0].refOrganizationNumber,'PUT_AAREG_DIST_TILGANG',jsonS);
