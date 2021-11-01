@@ -101,7 +101,7 @@
     <formulas>
         <name>varTaskDescription</name>
         <dataType>String</dataType>
-        <expression>&apos;Access sendt&apos;</expression>
+        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har trigget en opprettelse av tilgang&apos;</expression>
     </formulas>
     <interviewLabel>AAREG_createDistributionAccess {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_createDistributionAccess</label>
@@ -146,7 +146,7 @@
         <inputAssignments>
             <field>ActivityDate</field>
             <value>
-                <elementReference>$System.OriginDateTime</elementReference>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -170,13 +170,13 @@
         <inputAssignments>
             <field>Subject</field>
             <value>
-                <stringValue>Access sendt</stringValue>
+                <elementReference>varTaskDescription</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Type</field>
             <value>
-                <elementReference>varTaskDescription</elementReference>
+                <stringValue>Tilgang</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>

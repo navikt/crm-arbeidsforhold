@@ -102,7 +102,7 @@
     <formulas>
         <name>varTaskDescription</name>
         <dataType>String</dataType>
-        <expression>&apos;Access is deactivated &apos;+ {!varSingleAccessType}</expression>
+        <expression>&apos;Tilgang er deaktivert av  &apos;+{!$User.FirstName}+&apos; &apos;+{!$User.LastName}</expression>
     </formulas>
     <interviewLabel>AAREG_removeAccessToDistribution {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_removeAccessToDistribution</label>
@@ -147,7 +147,7 @@
         <inputAssignments>
             <field>ActivityDate</field>
             <value>
-                <elementReference>$System.OriginDateTime</elementReference>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -171,13 +171,13 @@
         <inputAssignments>
             <field>Subject</field>
             <value>
-                <stringValue>Access deactivated</stringValue>
+                <elementReference>varTaskDescription</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Type</field>
             <value>
-                <elementReference>varTaskDescription</elementReference>
+                <stringValue>Tilgang</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
