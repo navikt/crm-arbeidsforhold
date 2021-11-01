@@ -7,6 +7,7 @@ public class AAREG_distributionAccessController {
     public static List<FlowOutputs> handleRequest(List<FlowInputs> request) {
        List<FlowOutputs> returnList = new List<FlowOutputs>();
        String jsonS;
+       
         
         switch on(request[0].referenceType){
            /* when 'DELETE'{
