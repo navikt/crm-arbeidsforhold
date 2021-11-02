@@ -10,10 +10,10 @@ public class AAREG_distributionAccessController {
        
         
         switch on(request[0].referenceType){
-           /* when 'DELETE'{
+            when 'DELETE'{
                 jsonS= AAREG_distributionAccessRequest.generateJson(request[0].refAccessType);
-              	AAREG_distributionAccessRequest.generateHeaderToDistribution(request[0].refOrganizationNumber,'DEL_AAREG_DIST_TILGANG',jsonS);
-            }*/
+                AAREG_distributionAccessRequest.generateHeaderToDistribution(request[0].refOrganizationNumber,'DEL_AAREG_DIST_TILGANG',jsonS);
+            }
             when 'PUT'{
                 jsonS=AAREG_distributionAccessRequest.generateJson(request[0].refAccessType);
                 AAREG_distributionAccessRequest.generateHeaderToDistribution(request[0].refOrganizationNumber,'PUT_AAREG_DIST_TILGANG',jsonS);
@@ -26,12 +26,12 @@ public class AAREG_distributionAccessController {
     public class FlowInputs{
         @InvocableVariable(label='Agreement id' required=true)
         public Id referenceId;
-    	@InvocableVariable(label='PUT OR DELETE' required=true)
+        @InvocableVariable(label='PUT OR DELETE' required=true)
         public String referenceType;
         @InvocableVariable(label='Access type' required=true)
         public String refAccessType;
-    	@InvocableVariable(label='' required=true)
-     	public String refOrganizationNumber;
+        @InvocableVariable(label='' required=true)
+        public String refOrganizationNumber;
     }
     
     public class FlowOutputs{
