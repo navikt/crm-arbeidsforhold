@@ -73,6 +73,8 @@
         <object>Agreement__c</object>
         <queriedFields>Id</queriedFields>
         <queriedFields>Status__c</queriedFields>
+        <queriedFields>AA_ConfirmedAgreementCancellation__c</queriedFields>
+        <queriedFields>AA_ConfirmedAgreementCancellationDate__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
@@ -88,6 +90,18 @@
                 <elementReference>getAgreement.Id</elementReference>
             </value>
         </filters>
+        <inputAssignments>
+            <field>AA_ConfirmedAgreementCancellationDate__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>AA_ConfirmedAgreementCancellation__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
         <inputAssignments>
             <field>Status__c</field>
             <value>
