@@ -510,6 +510,11 @@
                 <fieldItem>Record.reasonForSuspension__c</fieldItem>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.DecisionDescription__c</fieldItem>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fb0ca233-7957-4d7c-b31e-8323a2928a54</name>
         <type>Facet</type>
     </flexiPageRegions>
