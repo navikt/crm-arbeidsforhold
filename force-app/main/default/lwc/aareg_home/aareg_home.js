@@ -57,6 +57,7 @@ export default class Aareg_home extends LightningElement {
 
       this.sortOrganizations();
       await this.checkAccessToApplication();
+      await this.checkAccessToSupport();
     } catch (error) {
       this.error = error;
       console.error(error);
@@ -73,6 +74,7 @@ export default class Aareg_home extends LightningElement {
       .then((result) => {
         this.sortOrganizations();
         this.checkAccessToApplication();
+        this.checkAccessToSupport();
       })
       .catch((error) => {
         this.error = error;
@@ -124,6 +126,44 @@ export default class Aareg_home extends LightningElement {
 
           privileges.forEach((privilege) => {
             if (privilege.ServiceCode === '5719') {
+              this.hasAccess = true;
+              return;
+            }
+          });
+        } else {
+          throw `Failed to get rights ${result.errorMessage}`;
+        }
+      })
+      .catch((error) => {
+        this.hasAccess = false;
+        this.error = true;
+        console.error(error);
+      })
+      .finally(() => {
+        this.isLoaded = true;
+      });
+  }
+
+  async checkAccessToSupport() {
+    if (this.organizations === undefined) {
+      this.hasAccess = false;
+      return;
+    }
+    if (this.lastUsedOrganization === null || '') {
+      this.hasAccess = false;
+      return;
+    }
+    await getUserRights({
+      userId: this.currentUser,
+      organizationNumber: this.lastUsedOrganization,
+      serviceCode: '5441'
+    })
+      .then((result) => {
+        if (result.success) {
+          let privileges = JSON.parse(JSON.stringify(result.rights));
+
+          privileges.forEach((privilege) => {
+            if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode=='2') {
               this.hasAccess = true;
               return;
             }
