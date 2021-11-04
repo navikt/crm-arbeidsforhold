@@ -130,7 +130,6 @@ export default class Aareg_home extends LightningElement {
           });
         } else {
           throw `Failed to get rights to application ${result.errorMessage}`;
-            throw `Failed to get rights ${result.errorMessage}`;
         }
       })
       .catch((error) => {
