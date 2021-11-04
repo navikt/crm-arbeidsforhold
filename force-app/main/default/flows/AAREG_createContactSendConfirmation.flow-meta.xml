@@ -135,9 +135,9 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>TemplateId__c</field>
+            <field>TemplateName__c</field>
             <value>
-                <elementReference>templateId</elementReference>
+                <stringValue>aaRegApplicationConfirmation_1636046532436</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -153,8 +153,8 @@
         <description>Check if contact email already is created on account</description>
         <name>checkContact</name>
         <label>checkContact</label>
-        <locationX>712</locationX>
-        <locationY>259</locationY>
+        <locationX>595</locationX>
+        <locationY>156</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>IsContactNull</targetReference>
@@ -177,29 +177,6 @@
         <object>Contact</object>
         <outputAssignments>
             <assignToReference>varContactID</assignToReference>
-            <field>Id</field>
-        </outputAssignments>
-    </recordLookups>
-    <recordLookups>
-        <name>getEmailTemplate</name>
-        <label>getEmailTemplate</label>
-        <locationX>505</locationX>
-        <locationY>258</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>checkContact</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Name</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>aaRegApplicationConfirmation</stringValue>
-            </value>
-        </filters>
-        <object>EmailTemplate</object>
-        <outputAssignments>
-            <assignToReference>templateId</assignToReference>
             <field>Id</field>
         </outputAssignments>
     </recordLookups>
@@ -254,7 +231,7 @@
         <locationX>51</locationX>
         <locationY>50</locationY>
         <connector>
-            <targetReference>getEmailTemplate</targetReference>
+            <targetReference>checkContact</targetReference>
         </connector>
         <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
