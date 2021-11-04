@@ -446,6 +446,11 @@
             <field>AA_AccessTypes__c</field>
             <table>Account.Applications__r</table>
         </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>IsEmailConfirmationSent__c</field>
+            <table>Account.Applications__r</table>
+        </columns>
         <masterLabel>Applications</masterLabel>
     </sections>
     <sections>

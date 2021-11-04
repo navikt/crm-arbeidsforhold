@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Permission set group for persons working with application and support for aa-registeret</description>
+    <label>AAREG Arbeidsforhold Saksbehandling_GroupSet</label>
+    <permissionSets>AAREG_Arbeidsforhold_Saksbehandling</permissionSets>
+    <permissionSets>AAREG_Arbeidsforhold_Support</permissionSets>
+    <permissionSets>Messaging_Quicktext_read_access</permissionSets>
+    <permissionSets>Messaging_Read_and_Write_Messages_and_Threads</permissionSets>
+    <status>Updated</status>
+</PermissionSetGroup>

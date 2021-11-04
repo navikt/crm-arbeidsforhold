@@ -243,7 +243,7 @@
             </value>
         </filters>
         <inputAssignments>
-            <field>IsConfirmationEmailSent__c</field>
+            <field>IsEmailConfirmationSent__c</field>
             <value>
                 <booleanValue>true</booleanValue>
             </value>
@@ -273,7 +273,7 @@
             </value>
         </filters>
         <filters>
-            <field>IsConfirmationEmailSent__c</field>
+            <field>IsEmailConfirmationSent__c</field>
             <operator>EqualTo</operator>
             <value>
                 <booleanValue>false</booleanValue>
