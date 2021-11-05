@@ -463,7 +463,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Application__c.IsConfirmationEmailSent__c</field>
+        <field>Application__c.IsEmailConfirmationSent__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
