@@ -9,19 +9,19 @@
             "dependencies": [
                 {
                     "package": "crm-platform-base",
-                    "versionNumber": "0.123.0.LATEST"
+                    "versionNumber": "0.126.0.LATEST"
                 },
                 {
                     "package": "crm-platform-integration",
-                    "versionNumber": "0.61.0.LATEST"
+                    "versionNumber": "0.63.0.LATEST"
                 },
                 {
                     "package": "crm-platform-access-control",
-                    "versionNumber": "0.79.0.LATEST"
+                    "versionNumber": "0.80.0.LATEST"
                 },
                 {
                     "package": "crm-community-base",
-                    "versionNumber": "0.28.0.LATEST"
+                    "versionNumber": "0.30.0.LATEST"
                 },
                 {
                     "package": "crm-platform-email-scheduling",
@@ -29,18 +29,18 @@
                 },
                 {
                     "package": "crm-journal-utilities",
-                    "versionNumber": "0.6.0.LATEST"
+                    "versionNumber": "0.7.0.LATEST"
                 },
                 {
                     "package": "crm-henvendelse",
-                    "versionNumber": "0.14.0.LATEST"
+                    "versionNumber": "0.17.0.LATEST"
                 }
             ]
         }
     ],
     "namespace": "",
     "sfdcLoginUrl": "https://login.salesforce.com",
-    "sourceApiVersion": "51.0",
+    "sourceApiVersion": "53.0",
     "packageAliases": {
         "crm-arbeidsforhold": "0Ho2o000000fxX1CAI",
         "crm-platform-base": "0Ho2o0000008ORmCAM",
