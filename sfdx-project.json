@@ -32,6 +32,10 @@
                     "versionNumber": "0.7.0.LATEST"
                 },
                 {
+                    "package": "crm-shared-user-notification",
+                    "versionNumber": "0.1.LATEST"
+                },
+                {
                     "package": "crm-henvendelse",
                     "versionNumber": "0.16.0.LATEST"
                 }
@@ -50,6 +54,7 @@
         "crm-platform-integration": "0Ho2o0000008ORrCAM",
         "crm-platform-email-scheduling": "0Ho2o000000fxWwCAI",
         "crm-journal-utilities": "0Ho2o000000fxXkCAI",
+        "crm-shared-user-notification": "0Ho2o000000fxY4CAI",
         "crm-henvendelse": "0Ho2o000000fxXfCAI"
     }
 }
