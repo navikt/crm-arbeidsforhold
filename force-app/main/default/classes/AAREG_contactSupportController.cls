@@ -17,6 +17,7 @@ public with sharing class AAREG_contactSupportController {
       String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId]
       ?.LastUsedOrganization__c;
       String accountId;
+      
       if(lastUsedOrganizationNumber!=null){
         accountId = [SELECT id FROM ACCOUNT WHERE INT_OrganizationNumber__c =:lastUsedOrganizationNumber]?.id;
       }
@@ -32,12 +33,14 @@ public with sharing class AAREG_contactSupportController {
 
   private static Id createTheadWithMessages(String userId, String relatedRecordId, String description) {
     String accountId;
+    Id relatedObjectId = Id.valueOf(relatedRecordId);
+    String sObjName = relatedObjectId.getSObjectType().getDescribe().getName();
     String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId]?.LastUsedOrganization__c;
       if(lastUsedOrganizationNumber!=null){
         accountId = [SELECT id FROM ACCOUNT WHERE INT_OrganizationNumber__c =:lastUsedOrganizationNumber]?.id;
       }
   
-    Thread__c thread = new Thread__c(CRM_Related_Object__c = relatedRecordId, CRM_From__c = userId,CRM_Account__c=accountId);
+    Thread__c thread = new Thread__c(CRM_Related_Object__c = relatedRecordId,CRM_Related_Object_Type__c=sObjName, CRM_From__c = userId,CRM_Account__c=accountId);
     insert thread;
 
     Message__c msg = new Message__c(
