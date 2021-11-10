@@ -19,8 +19,8 @@
         </template>
       </div>
     </div>
-    <template if:true={hasApplicationAccess}>
-      <div class="slds-grid inner-container">
+    <template if:true={hasAccess}>
+      <div if:true={hasApplicationAccess} class="slds-grid inner-container">
         <div class="slds-col">
           <div class="slds-col">
             <c-link-panel
@@ -29,12 +29,9 @@
               relative-path="custom_ny_soknad_aa_registret__c"
               style="display: flex; width: 100%"
             ></c-link-panel>
-          </div>
-        </div>
-      </div>
-      </template>
-      <template if:true={hasAccess}>
-          <div class="slds-col">
+            </div>
+
+          <div if:true={hasSupportAccess} class="slds-col">
             <c-link-panel
               title="Mine meldinger"
               sub-title="Her finner du en oversikt av dine meldinger"
@@ -42,9 +39,8 @@
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>
-      </template>
-      <template if:true={hasApplicationAccess}>
-          <div class="slds-col">
+
+          <div if:true={hasApplicationAccess} class="slds-col">
             <c-link-panel
               title="Mine avtaler"
               sub-title="Her finner du en oversikt av dine avtaler"
@@ -53,9 +49,8 @@
             ></c-link-panel>
           </div>
         </div>
-</template>
-<template if:true={hasApplicationAccess}>
-        <div class="slds-col">
+
+        <div if:true={hasApplicationAccess} class="slds-col">
           <div class="slds-col">
             <c-link-panel
               title="Mine søknader"
@@ -64,10 +59,8 @@
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>
-          </div>
-        </template>
-        <template if:true={hasSupportAccess}>
-          <div class="slds-col">
+
+          <div if:true={hasSupportAccess} class="slds-col">
             <c-link-panel
               title="Support"
               sub-title="Er de noe du lurer på? Send oss en melding."

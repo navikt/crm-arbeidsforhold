@@ -131,15 +131,18 @@ export default class Aareg_home extends LightningElement {
           let privileges = JSON.parse(JSON.stringify(result.rights));
 
           privileges.forEach((privilege) => {
-            if (privilege.ServiceCode === '5719') {
-              this.hasApplicationAccess = true;
+            if (privilege.serviceCode==='5441' && privilege.ServiceEditionCode ==='2') {
+              this.hasApplicationAccess = false;
               this.hasSupportAccess= true;
               this.hasAccess = true;
+              console.log(privilege.serviceCode);
               return;
             }
-            else if(privilege.serviceCode==='5441' && privilege.ServiceEditionCode ==='2'){
+            else if(privilege.ServiceCode === '5719'){
               this.hasSupportAccess = true;
+              this.hasApplicationAccess = true;
               this.hasAccess = true;
+              console.log(privilege.serviceCode+' '+privilege.ServiceEditionCode);
               return;
             }
           });
