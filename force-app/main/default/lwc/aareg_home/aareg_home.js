@@ -154,8 +154,7 @@ export default class Aareg_home extends LightningElement {
       .finally(() => {
         this.isLoaded = true;
       });
-
-    };
+    }
   }
 
   
