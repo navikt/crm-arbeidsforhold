@@ -34,7 +34,7 @@ public with sharing class AAREG_contactSupportController {
   private static Id createTheadWithMessages(String userId, String relatedRecordId, String description) {
     String accountId;
     String contactId = null;
-    String crmThreadType ='AAREG_EXP';//type indicate thread is created externally.
+    //String crmThreadType ='AAREG_EXP';//type indicate thread is created externally.
     Id relatedObjectId = Id.valueOf(relatedRecordId);
     String sObjName = relatedObjectId.getSObjectType().getDescribe().getName();
     String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId]?.LastUsedOrganization__c;
@@ -48,7 +48,7 @@ public with sharing class AAREG_contactSupportController {
     Thread__c thread = new Thread__c(
         CRM_Related_Object__c = relatedRecordId,
         CRM_Related_Object_Type__c=sObjName,
-        CRM_Thread_Type__c =crmThreadType,
+        //CRM_Thread_Type__c =crmThreadType,
         CRM_Contact__c =contactId,
         CRM_Account__c=accountId
     );
