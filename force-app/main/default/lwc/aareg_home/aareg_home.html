@@ -19,9 +19,12 @@
         </template>
       </div>
     </div>
-    <template if:true={hasAccess}>
-      <div if:true={hasApplicationAccess} class="slds-grid inner-container">
+  
+    <template if:true={hasApplicationAccess}>
+      <div class="slds-grid inner-container">
+        
         <div class="slds-col">
+
           <div class="slds-col">
             <c-link-panel
               title="Ny søknad"
@@ -29,18 +32,9 @@
               relative-path="custom_ny_soknad_aa_registret__c"
               style="display: flex; width: 100%"
             ></c-link-panel>
-            </div>
-
-          <div if:true={hasSupportAccess} class="slds-col">
-            <c-link-panel
-              title="Mine meldinger"
-              sub-title="Her finner du en oversikt av dine meldinger"
-              relative-path="Mine_Meldinger__c"
-              style="display: flex; width: 100%"
-            ></c-link-panel>
           </div>
 
-          <div if:true={hasApplicationAccess} class="slds-col">
+          <div class="slds-col">
             <c-link-panel
               title="Mine avtaler"
               sub-title="Her finner du en oversikt av dine avtaler"
@@ -48,34 +42,53 @@
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>
-        </div>
-
-        <div if:true={hasApplicationAccess} class="slds-col">
+          
           <div class="slds-col">
-            <c-link-panel
-              title="Mine søknader"
-              sub-title="Her finner du en oversikt av dine søknader"
-              relative-path="custom_mine_soknader__c"
-              style="display: flex; width: 100%"
-            ></c-link-panel>
-          </div>
+            
+            <div class="slds-col">
+              <c-link-panel
+                title="Mine søknader"
+                sub-title="Her finner du en oversikt av dine søknader"
+                relative-path="custom_mine_soknader__c"
+                style="display: flex; width: 100%"
+              ></c-link-panel>
+            </div>
 
-          <div if:true={hasSupportAccess} class="slds-col">
-            <c-link-panel
-              title="Support"
-              sub-title="Er de noe du lurer på? Send oss en melding."
-              relative-path="Ny_Melding__c"
-              style="display: flex; width: 100%"
-            ></c-link-panel>
-          </div>
+        </div>
         </div>
       </div>
     </template>
-    <template if:false={hasAccess}>
-      <c-aareg_missing-access></c-aareg_missing-access>
+
+    <template if:true={hasSupportAccess}>
+      <div class="slds-col">
+        <div class="slds-col">
+          <c-link-panel
+            title="Mine meldinger"
+            sub-title="Her finner du en oversikt av dine medlinger"
+            relative-path="Mine_Meldinger__c"
+            style="display: flex; width: 100%"
+          ></c-link-panel>
+        </div>
+        
+        <div class="slds-col">
+          <c-link-panel
+            title="Mine avtaler"
+            sub-title="Her finner du en oversikt av dine avtaler"
+            relative-path="Mine_Avtaler__c"
+            style="display: flex; width: 100%"
+          ></c-link-panel>
+        </div>
+
+      </div>
+</div>
     </template>
+
+
+  <template if:false={hasAccess}>
+      <c-aareg_missing-access></c-aareg_missing-access>
+  </template>
   </template>
   <template if:false={isLoaded}>
     <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
-  </template>
+</template>
 </template>
