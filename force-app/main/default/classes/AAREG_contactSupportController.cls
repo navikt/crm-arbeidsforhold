@@ -33,7 +33,7 @@ public with sharing class AAREG_contactSupportController {
 
   private static Id createTheadWithMessages(String userId, String relatedRecordId, String description) {
     String accountId;
-    String contactId;
+    String contactId = null;
     String crmThreadType ='AAREG_EXP';//type indicate thread is created externally.
     Id relatedObjectId = Id.valueOf(relatedRecordId);
     String sObjName = relatedObjectId.getSObjectType().getDescribe().getName();
