@@ -19,7 +19,7 @@
         </template>
       </div>
     </div>
-    <template if:true={hasAccess}>
+    <template if:true={hasApplicationAccess}>
       <div class="slds-grid inner-container">
         <div class="slds-col">
           <div class="slds-col">
@@ -30,14 +30,20 @@
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>
+        </div>
+      </div>
+      </template>
+      <template if:true={hasAccess}>
           <div class="slds-col">
             <c-link-panel
               title="Mine meldinger"
-              sub-title="Her finner du en oversikt av dine medlinger"
+              sub-title="Her finner du en oversikt av dine meldinger"
               relative-path="Mine_Meldinger__c"
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>
+      </template>
+      <template if:true={hasApplicationAccess}>
           <div class="slds-col">
             <c-link-panel
               title="Mine avtaler"
@@ -47,6 +53,8 @@
             ></c-link-panel>
           </div>
         </div>
+</template>
+<template if:true={hasApplicationAccess}>
         <div class="slds-col">
           <div class="slds-col">
             <c-link-panel
@@ -56,6 +64,9 @@
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>
+          </div>
+        </template>
+        <template if:true={hasSupportAccess}>
           <div class="slds-col">
             <c-link-panel
               title="Support"
