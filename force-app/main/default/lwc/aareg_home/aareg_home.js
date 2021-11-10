@@ -10,6 +10,8 @@ export default class Aareg_home extends LightningElement {
   @track error;
   isLoaded = false;
   hasAccess = false;
+  hasApplicationAccess =false;//new
+  hasSupportAccess = false;//new
   lastUsedOrganization;
   currentUser = Id;
 
@@ -68,6 +70,8 @@ export default class Aareg_home extends LightningElement {
   handleOrganizationChange(event) {
     this.isLoaded = false;
     this.hasAccess = false;
+    this.hasApplicationAccess = false;
+    this.hasSupportAccess = false;
     this.lastUsedOrganization = event.target.value;
     updateLastUsedOrganization({ organizationNumber: this.lastUsedOrganization, userId: this.currentUser })
       .then((result) => {
@@ -105,6 +109,8 @@ export default class Aareg_home extends LightningElement {
   }
 
   async checkAccessToApplication() {
+    let serviceCode = ["5719", "5441"];
+
     if (this.organizations === undefined) {
       this.hasAccess = false;
       return;
@@ -113,17 +119,26 @@ export default class Aareg_home extends LightningElement {
       this.hasAccess = false;
       return;
     }
-    await getUserRights({
-      userId: this.currentUser,
-      organizationNumber: this.lastUsedOrganization,
-      serviceCode: '5719'
-    })
-      .then((result) => {
+
+    for (const sc of serviceCode){
+      console.log(sc);
+      await getUserRights({
+        userId: this.currentUser,
+        organizationNumber: this.lastUsedOrganization,
+        serviceCode: sc
+      }).then((result) => {
         if (result.success) {
           let privileges = JSON.parse(JSON.stringify(result.rights));
 
           privileges.forEach((privilege) => {
             if (privilege.ServiceCode === '5719') {
+              this.hasApplicationAccess = true;
+              this.hasSupportAccess= true;
+              this.hasAccess = true;
+              return;
+            }
+            else if(privilege.serviceCode==='5441' && privilege.ServiceEditionCode ==='2'){
+              this.hasSupportAccess = true;
               this.hasAccess = true;
               return;
             }
@@ -131,8 +146,7 @@ export default class Aareg_home extends LightningElement {
         } else {
           throw `Failed to get rights to application ${result.errorMessage}`;
         }
-      })
-      .catch((error) => {
+      }) .catch((error) => {
         this.hasAccess = false;
         this.error = true;
         console.error(error);
@@ -140,6 +154,7 @@ export default class Aareg_home extends LightningElement {
       .finally(() => {
         this.isLoaded = true;
       });
+    }
   }
 
   
