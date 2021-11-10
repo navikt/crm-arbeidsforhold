@@ -121,7 +121,7 @@ export default class Aareg_home extends LightningElement {
     }
 
     for (const sc of serviceCode){
-      console.log(sc);
+      
       await getUserRights({
         userId: this.currentUser,
         organizationNumber: this.lastUsedOrganization,
@@ -135,14 +135,18 @@ export default class Aareg_home extends LightningElement {
               this.hasApplicationAccess = false;
               this.hasSupportAccess= true;
               this.hasAccess = true;
-              console.log(privilege.serviceCode);
+              console.log('privilege' + privilege.serviceCode+' '+privilege.ServiceEditionCode);
+              console.log('applicationaccess ' +hasApplicationAccess);
+              console.log('supportaccess '+hasSupportAccess);
               return;
             }
             else if(privilege.ServiceCode === '5719'){
               this.hasSupportAccess = true;
               this.hasApplicationAccess = true;
               this.hasAccess = true;
-              console.log(privilege.serviceCode+' '+privilege.ServiceEditionCode);
+              console.log('privilege' + privilege.serviceCode+' '+privilege.ServiceEditionCode);
+              console.log('applicationaccess ' +hasApplicationAccess);
+              console.log('supportaccess '+hasSupportAccess);
               return;
             }
           });
