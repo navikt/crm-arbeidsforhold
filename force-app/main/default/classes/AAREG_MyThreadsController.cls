@@ -14,6 +14,7 @@ public with sharing class AAREG_MyThreadsController {
           CRM_Latest_Message_Datetime__c,
           CRM_Number_of_unread_Messages__c,
           CRM_Related_Object__c,
+          AAREG_Thread_Subject__c,
           CRM_isActive__c
         FROM Thread__c
         WHERE CRM_Account__r.INT_OrganizationNumber__c = :lastUsedOrganizationNumber
