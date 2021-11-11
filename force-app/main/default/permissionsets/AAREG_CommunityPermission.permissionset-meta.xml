@@ -368,6 +368,11 @@
         <field>RelatedContact__c.SecurityNotifications__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Thread__c.AAREG_Thread_Subject__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>AAREG Community Permission</label>
     <objectPermissions>
