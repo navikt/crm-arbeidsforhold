@@ -4,7 +4,11 @@ import Id from '@salesforce/user/Id';
 import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreads';
 
 const COLUMNS = [
-  { label: 'Meldingsemne', fieldName: 'AAREG_Thread_Subject__c', type: 'text', hideDefaultActions: true },
+  { 
+    label: 'Meldingen gjelder', 
+    fieldName: 'AAREG_Thread_Subject__c', 
+    type: 'text', 
+    hideDefaultActions: true },
   {
     label: 'Antall uleste meldinger',
     fieldName: 'CRM_Number_of_unread_Messages__c',

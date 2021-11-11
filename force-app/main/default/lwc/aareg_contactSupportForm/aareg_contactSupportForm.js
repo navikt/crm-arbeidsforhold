@@ -82,7 +82,8 @@ export default class Aareg_contactSupportForm extends LightningElement {
       createThreadForApplication({
         userId: this.currentUser,
         relatedApplicationId: this.selectedApplicationId,
-        description: this.inquiry.InquiryDescription__c
+        description: this.inquiry.InquiryDescription__c,
+        inquiryType: this.inquiry.TypeOfInquiry__c
       })
         .then((result) => {
           this.isSubmitted = true;
