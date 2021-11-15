@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>TypeOfInquiry__c</fullName>
+    <deprecated>false</deprecated>
     <description>Category or type of inquiry</description>
     <externalId>false</externalId>
     <label>Type Of Inquiry</label>
@@ -12,34 +13,34 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
+                <fullName>Questions related to application for access</fullName>
+                <default>false</default>
+                <label>Spørsmål før du søker om tilgang</label>
+            </value>
+            <value>
                 <fullName>Technical questions</fullName>
                 <default>false</default>
-                <label>Technical questions</label>
+                <label>Tekniske spørsmål</label>
             </value>
             <value>
                 <fullName>Professional / functional questions</fullName>
                 <default>false</default>
-                <label>Professional / functional questions</label>
+                <label>Faglige/funksjonelle spørsmål</label>
             </value>
             <value>
                 <fullName>Incident</fullName>
                 <default>false</default>
-                <label>Incident</label>
+                <label>Feil i løsningen</label>
             </value>
             <value>
                 <fullName>Change</fullName>
                 <default>false</default>
-                <label>Change</label>
+                <label>Endringsbehov</label>
             </value>
             <value>
                 <fullName>Security breach</fullName>
                 <default>false</default>
-                <label>Security breach</label>
-            </value>
-            <value>
-                <fullName>Questions related to application for access</fullName>
-                <default>false</default>
-                <label>Questions related to application for access</label>
+                <label>Sikkerhetsbrudd</label>
             </value>
         </valueSetDefinition>
     </valueSet>
