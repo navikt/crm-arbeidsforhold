@@ -12,6 +12,11 @@
                 <abbr class="slds-required" title="required">* </abbr>
                 Hva gjelder dette?
               </label>
+              <lightning-helptext
+                      content=" Kategori."
+                      class="slds-m-left_xx-small"
+                    >
+                  </lightning-helptext>
               <select onchange={handleInputChange} data-id="TypeOfInquiry__c" required>
                 <option value="">Velg</option>
                 <option if:true={hasOpenApplications} value="Søknad under behandling">Søknad under behandling</option>
@@ -38,12 +43,22 @@
             </span>
           </div>
           <div class="slds-col slds-m-top_none" if:false={regardingApplicationInProcess}>
-            <span class="form-control">
+            <span class="form-control" style="max-width: 65%">
               <label>
                 <abbr class="slds-required" title="required">* </abbr>
-                Kontakt e-post
+                Kontakt epost
               </label>
-              <textarea onchange={handleInputChange} data-id="Email__c" required></textarea>
+              <lightning-helptext
+                      content=" Oppgi en e-postadresse som NAV kan kontakte deg på."
+                      class="slds-m-left_xx-small"
+                    >
+                  </lightning-helptext>
+              <textarea 
+              type="email"
+              onchange={handleInputChange} 
+              data-id="Email__c" 
+              required>
+            </textarea>
               <small>Error</small>
             </span>
           </div>
