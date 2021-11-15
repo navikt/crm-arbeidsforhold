@@ -7,7 +7,7 @@
       <div>
         <template if:true={organizations}>
           <select class="organization-select" aria-invalid="false" onchange={handleOrganizationChange}>
-            <option value="">-- Velg virksomhet --</option>
+            <option if:false={hasPreviouslySelectedOrganization} value="">-- Velg virksomhet --</option>
             <template for:each={organizations} for:item="organization">
               <option key={organization.OrganizationNumber} value={organization.OrganizationNumber}>
                 <div>
@@ -32,17 +32,17 @@
           </div>
           <div class="slds-col">
             <c-link-panel
-              title="Mine meldinger"
-              sub-title="Her finner du en oversikt av dine meldinger"
-              relative-path="Mine_Meldinger__c"
+              title="Mine avtaler"
+              sub-title="Her finner du en oversikt av dine avtaler"
+              relative-path="Mine_Avtaler__c"
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>
           <div class="slds-col">
             <c-link-panel
-              title="Mine avtaler"
-              sub-title="Her finner du en oversikt av dine avtaler"
-              relative-path="Mine_Avtaler__c"
+              title="Mine meldinger"
+              sub-title="Her finner du en oversikt av dine meldinger"
+              relative-path="Mine_Meldinger__c"
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>
@@ -58,7 +58,7 @@
           </div>
           <div class="slds-col">
             <c-link-panel
-              title="Support"
+              title="Brukerstøtte"
               sub-title="Er de noe du lurer på? Send oss en melding."
               relative-path="Ny_Melding__c"
               style="display: flex; width: 100%"
