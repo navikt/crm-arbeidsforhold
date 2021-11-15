@@ -4,7 +4,27 @@
       <div if:true={inquiryTypeOptions} class="slds-m-vertical_xx-large">
         <div class="slds-grid slds-grid_vertical support-form">
           <div class="slds-col slds-align_absolute-center slds-m-vertical_small">
-            <h1>Ny melding</h1>
+            <h1>Ny melding til NAV</h1>
+          </div>
+          <div>
+            <p class="pl-16">
+              Spørsmål knyttet til søknad om tilgang til Aa-registeret 
+              Spørsmål om du kan få tilgang til Aa-registeret 
+              Spørsmål om hvordan du fyller ut søknaden 
+              Funksjonelle spørsmål 
+              Spørsmål knyttet til hvordan våre tjenester fungerer 
+              Faglige spørsmål 
+              Generelle spørsmål om Aa-registeret 
+              Spørsmål om hvordan du skal forstå innholdet i Aa-registeret 
+              Tekniske spørsmål  
+              Spørsmål knyttet til våre tekniske løsninger 
+              Varsel om feil 
+              Dersom du oppdager feil i NAVs løsninger må du orientere om dette så snart som mulig 
+              Varsel om sikkerhetsbrudd 
+              Dersom det er avdekket sikkerhetsbrudd i løsningen fra NAV, eller hos konsument som kan medføre brudd på sikkerhetsbestemmelsene, må dette varsles NAV så snart som mulig. 
+              Endringsønsker 
+              Dersom du har ønsker om endringer i tjenestene til NAV. NAV forbeholder seg retten til å bestemme hva som kan foretas av endringer og ikke. 
+            </p>
           </div>
           <div class="slds-col slds-m-vertical_small">
             <span class="form-control">
@@ -12,11 +32,6 @@
                 <abbr class="slds-required" title="required">* </abbr>
                 Hva gjelder dette?
               </label>
-              <lightning-helptext
-                      content=" Kategori."
-                      class="slds-m-left_xx-small"
-                    >
-                  </lightning-helptext>
               <select onchange={handleInputChange} data-id="TypeOfInquiry__c" required>
                 <option value="">Velg</option>
                 <option if:true={hasOpenApplications} value="Søknad under behandling">Søknad under behandling</option>
