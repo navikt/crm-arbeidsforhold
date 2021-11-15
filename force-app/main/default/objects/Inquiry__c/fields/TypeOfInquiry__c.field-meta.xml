@@ -15,32 +15,32 @@
             <value>
                 <fullName>Questions related to application for access</fullName>
                 <default>false</default>
-                <label>Spørsmål før du søker om tilgang</label>
+                <label>Questions related to application for access</label>
             </value>
             <value>
                 <fullName>Technical questions</fullName>
                 <default>false</default>
-                <label>Tekniske spørsmål</label>
+                <label>Technical questions</label>
             </value>
             <value>
                 <fullName>Professional / functional questions</fullName>
                 <default>false</default>
-                <label>Faglige/funksjonelle spørsmål</label>
+                <label>Professional / functional questions</label>
             </value>
             <value>
                 <fullName>Incident</fullName>
                 <default>false</default>
-                <label>Feil i løsningen</label>
+                <label>Incident</label>
             </value>
             <value>
                 <fullName>Change</fullName>
                 <default>false</default>
-                <label>Endringsbehov</label>
+                <label>Change</label>
             </value>
             <value>
                 <fullName>Security breach</fullName>
                 <default>false</default>
-                <label>Sikkerhetsbrudd</label>
+                <label>Security breach</label>
             </value>
         </valueSetDefinition>
     </valueSet>
