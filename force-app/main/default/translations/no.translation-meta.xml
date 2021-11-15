@@ -5,9 +5,7 @@
     <name>Arbeidsforhold</name>
   </customApplications>
   <customApplications>
-    <label>
-      <!-- Arbeidsforhold - henvendelse -->
-    </label>
+    <label>Arbeidsforhold - henvendelse</label>
     <name>Arbeidsforhold_henvendelse</name>
   </customApplications>
   <customApplications>
