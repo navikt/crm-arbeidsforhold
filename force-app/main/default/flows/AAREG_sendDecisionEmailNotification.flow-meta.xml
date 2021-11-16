@@ -4,13 +4,13 @@
     <assignments>
         <name>setTemplateName</name>
         <label>setTemplateName</label>
-        <locationX>504</locationX>
+        <locationX>505</locationX>
         <locationY>619</locationY>
         <assignmentItems>
             <assignToReference>varTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>	aaRegApplicationDecisionConfirmation_1636054096747</stringValue>
+                <stringValue>aaRegApplicationDecisionConfirmation</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -26,7 +26,7 @@
             <assignToReference>varTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>aaRegApplicationSuspensionConfirmation_1636056659535</stringValue>
+                <stringValue>aaRegApplicationSuspensionConfirmation</stringValue>
             </value>
         </assignmentItems>
         <connector>
