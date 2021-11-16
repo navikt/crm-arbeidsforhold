@@ -3,31 +3,20 @@
     <form if:false={inquirySubmitted}>
       <div if:true={inquiryTypeOptions} class="slds-m-vertical_xx-large">
         <div class="slds-grid slds-grid_vertical support-form">
-          <div class="slds-col slds-align_absolute-center slds-m-vertical_small">
+          <div class="slds-col slds-align_absolute-center slds-m-top_x-small">
             <h1>Ny melding til NAV</h1>
           </div>
           <div>
-            <p class="pl-16">
-              Kategorier
-              Spørsmål knyttet til søknad om tilgang til Aa-registeret 
-              Spørsmål om du kan få tilgang til Aa-registeret 
-              Spørsmål om hvordan du fyller ut søknaden 
-              Funksjonelle spørsmål 
-              Spørsmål knyttet til hvordan våre tjenester fungerer 
-              Faglige spørsmål 
-              Generelle spørsmål om Aa-registeret 
-              Spørsmål om hvordan du skal forstå innholdet i Aa-registeret 
-              Tekniske spørsmål  
-              Spørsmål knyttet til våre tekniske løsninger 
-              Varsel om feil 
-              Dersom du oppdager feil i NAVs løsninger må du orientere om dette så snart som mulig 
-              Varsel om sikkerhetsbrudd 
-              Dersom det er avdekket sikkerhetsbrudd i løsningen fra NAV, eller hos konsument som kan medføre brudd på sikkerhetsbestemmelsene, må dette varsles NAV så snart som mulig. 
-              Endringsønsker 
-              Dersom du har ønsker om endringer i tjenestene til NAV. NAV forbeholder seg retten til å bestemme hva som kan foretas av endringer og ikke. 
+            <p class="pl-20" style="text-align: center;">
+              Dersom du ikke finner svar på dine spørsmål i tjenestens «Spørsmål og svar», skal tjenesten benyttes ved: <br>
+              Spørsmål knyttet til søknad om tilgang til Aa-registeret <br>
+              Faglige, funksjonelle og tekniske spørsmål til Aa-registeret og våre distribusjonsløsninger <br>
+              Varsel om feil eller sikkerhetsbrudd <br>
+              Melding om endringsønsker  
             </p>
           </div>
-          <div class="slds-col slds-m-vertical_small">
+          
+          <div class="slds-col slds-m-top_small">
             <span class="form-control">
               <label>
                 <abbr class="slds-required" title="required">* </abbr>
@@ -43,7 +32,7 @@
               <small>Error</small>
             </span>
           </div>
-          <div class="slds-col slds-m-vertical_small" if:true={regardingApplicationInProcess}>
+          <div class="slds-col slds-m-top_x-small" if:true={regardingApplicationInProcess}>
             <span class="form-control">
               <label>
                 <abbr class="slds-required" title="required">* </abbr>
@@ -58,33 +47,37 @@
               <small>Error</small>
             </span>
           </div>
-          <div class="row" if:false={regardingApplicationInProcess}>
-            <span class="form-control" style="max-width: 65%">
+          <div class="slds-col slds-m-top_small" if:false={regardingApplicationInProcess}>  
+            <span class="form-control">
               <label>
                 <abbr class="slds-required" title="required">* </abbr>
-                Kontakt epost
+                Kontakt epost<br>
               </label>
               <lightning-helptext
                       content=" Oppgi en e-postadresse som NAV kan kontakte deg på."
                       class="slds-m-left_xx-small"
                     >
                   </lightning-helptext>
-              <textarea 
-              type="email"
-              onchange={handleInputChange} 
-              data-id="Email__c" 
-              required>
-            </textarea>
+              <div class="slds-m-left_x-small slds-m-top_small">
+                <input
+                type="email"
+                size="107"
+                data-id="Email__c"
+                onchange={handleInputChange}
+                disabled={isReadOnly}
+                required
+              />
+              </div>   
               <small>Error</small>
             </span>
           </div>
-          <div class="slds-col slds-m-vertical_small">
+          <div class="slds-col slds-m-top_x-small" >
             <span class="form-control">
               <label>
                 <abbr class="slds-required" title="required">* </abbr>
                 Beskrivelse
               </label>
-              <textarea onchange={handleInputChange} data-id="InquiryDescription__c" maxlength="32768" required></textarea>
+              <textarea onchange={handleInputChange} data-id="InquiryDescription__c" rows="20" cols="100" maxlength="32768" required></textarea>
               <small>Error</small>
             </span>
           </div>
