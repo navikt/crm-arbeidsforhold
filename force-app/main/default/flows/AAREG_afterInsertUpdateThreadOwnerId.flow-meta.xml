@@ -2,28 +2,40 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>53.0</apiVersion>
     <decisions>
-        <name>checkThreadType</name>
-        <label>checkThreadType</label>
+        <name>checkObjectType</name>
+        <label>checkObjectType</label>
         <locationX>182</locationX>
         <locationY>455</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
-            <name>IsInternalType</name>
+            <name>isApplication</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>getThread.CRM_Type__c</leftValueReference>
-                <operator>EqualTo</operator>
+                <leftValueReference>getThread.CRM_Related_Object__c</leftValueReference>
+                <operator>StartsWith</operator>
                 <rightValue>
-                    <stringValue>AAREG_INT</stringValue>
+                    <stringValue>a1e</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getThread.CRM_Contact__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
                 <targetReference>getApplication</targetReference>
             </connector>
-            <label>IsInternalType</label>
+            <label>isApplication</label>
         </rules>
     </decisions>
     <description>Update Thread Owner  to portal owner, if the Thread is created from NAV.</description>
+    <formulas>
+        <name>varThreadSubject</name>
+        <dataType>String</dataType>
+        <expression>&quot;Henvendelse fra NAV - &quot;&amp; {!getApplication.Name}</expression>
+    </formulas>
     <interviewLabel>AAREG_afterInsertUpdateThreadOwnerId {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_afterInsertUpdateThreadOwnerId</label>
     <processMetadataValues>
@@ -66,7 +78,9 @@
         <object>Application__c</object>
         <queriedFields>Id</queriedFields>
         <queriedFields>OwnerId</queriedFields>
-        <queriedFields>AccountId__c</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>Contact__c</queriedFields>
+        <queriedFields>Account__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -76,7 +90,7 @@
         <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>checkThreadType</targetReference>
+            <targetReference>checkObjectType</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -89,11 +103,12 @@
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Thread__c</object>
         <queriedFields>Id</queriedFields>
-        <queriedFields>CreatedById</queriedFields>
+        <queriedFields>CRM_Account__c</queriedFields>
+        <queriedFields>CRM_Contact__c</queriedFields>
+        <queriedFields>CRM_Related_Object_Type__c</queriedFields>
         <queriedFields>OwnerId</queriedFields>
         <queriedFields>CRM_Related_Object__c</queriedFields>
-        <queriedFields>CRM_Related_Object_Type__c</queriedFields>
-        <queriedFields>CRM_Type__c</queriedFields>
+        <queriedFields>CRM_Thread_Type__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
@@ -102,9 +117,39 @@
         <locationX>50</locationX>
         <locationY>695</locationY>
         <inputAssignments>
+            <field>AAREG_Thread_Subject__c</field>
+            <value>
+                <elementReference>varThreadSubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Account__c</field>
+            <value>
+                <elementReference>getApplication.Account__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Contact__c</field>
+            <value>
+                <elementReference>getApplication.Contact__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Related_Object_Type__c</field>
+            <value>
+                <stringValue>Application__c</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Thread_Type__c</field>
+            <value>
+                <stringValue>AAREG_INT</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>OwnerId</field>
             <value>
-                <elementReference>getApplication.Owner:User.Id</elementReference>
+                <elementReference>getApplication.OwnerId</elementReference>
             </value>
         </inputAssignments>
         <inputReference>$Record</inputReference>
