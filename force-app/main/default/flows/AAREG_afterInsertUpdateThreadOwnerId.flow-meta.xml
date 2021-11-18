@@ -5,7 +5,7 @@
         <name>checkObjectType</name>
         <label>checkObjectType</label>
         <locationX>386</locationX>
-        <locationY>456</locationY>
+        <locationY>458</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>isApplication</name>
@@ -34,7 +34,7 @@
     <formulas>
         <name>varThreadSubject</name>
         <dataType>String</dataType>
-        <expression>&quot;Henvendelse fra NAV - &quot;&amp; {!getApplication.Name}</expression>
+        <expression>&quot;Henvendelse fra NAV&quot;</expression>
     </formulas>
     <interviewLabel>AAREG_afterInsertUpdateThreadOwnerId {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_afterInsertUpdateThreadOwnerId</label>
@@ -61,7 +61,7 @@
         <name>getApplication</name>
         <label>getApplication</label>
         <locationX>254</locationX>
-        <locationY>576</locationY>
+        <locationY>579</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>updateThreadOwner</targetReference>
@@ -78,7 +78,6 @@
         <object>Application__c</object>
         <queriedFields>Id</queriedFields>
         <queriedFields>OwnerId</queriedFields>
-        <queriedFields>Name</queriedFields>
         <queriedFields>Contact__c</queriedFields>
         <queriedFields>Account__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
@@ -86,8 +85,8 @@
     <recordLookups>
         <name>getThread</name>
         <label>getThread</label>
-        <locationX>386</locationX>
-        <locationY>336</locationY>
+        <locationX>394</locationX>
+        <locationY>295</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkObjectType</targetReference>
