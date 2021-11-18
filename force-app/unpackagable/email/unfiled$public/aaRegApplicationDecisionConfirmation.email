@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html style="overflow-y: hidden;">
-<head><meta content="text/html; charset=utf-8"><meta content="width=device-width" name="viewport"><meta content="IE=edge">
+<head><meta content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width"><meta content="IE=edge">
 	<title></title>
 	<style type="text/css">body {
 			margin: 0;
@@ -228,7 +228,7 @@
 			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;">Hei!<br />
 			Din&nbsp;s&oslash;knad om tilgang til Aa-registeret {{{Application__c.Name}}}&nbsp;er ferdigbehandlet.&nbsp;&nbsp;<br />
 			Logg inn i s&oslash;knadsportalen&nbsp;og velg &laquo;Mine avtaler&raquo; for &aring; se vedtaket.&nbsp;&nbsp;<br />
-			Hilsen NAV Registerforvaltning.&nbsp;</p>
+			Hilsen NAV.&nbsp;</p>
 
 			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;">&nbsp;</p>
 			</div>

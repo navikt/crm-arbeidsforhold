@@ -228,11 +228,9 @@
 			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;"><span style="font-size: 20px;">Hei!<br />
 			NAV har mottatt s&oslash;knad fra {{{Application__c.Account__c}}}&nbsp;om&nbsp;tilgang til </span>Arbeidsgiver- og arbeidstakerregisteret.</p>
 
-			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;"><br />
-			S&oslash;knadsnummer:&nbsp;{{{Application__c.Name}}}</p>
+			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;">S&oslash;knadsnummer:&nbsp;{{{Application__c.Name}}}</p>
 
-			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;"><br />
-			Hilsen NAV Registerforvaltning</p>
+			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;">Hilsen NAV</p>
 
 			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;">&nbsp;</p>
 			</div>
@@ -325,7 +323,7 @@
 			<div style="border-top:0px solid transparent; border-left:0px solid transparent; border-bottom:0px solid transparent; border-right:0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 25px; padding-left: 25px;">
 			<div style="color:#3e3832;font-family:Source Sans Pro, Tahoma, Verdana, Segoe, sans-serif;line-height:1.2;padding-top:0px;padding-right:0px;padding-bottom:0px;padding-left:0px;">
 			<div style="font-size: 14px; line-height: 1.2; color: #3e3832; font-family: Source Sans Pro, Tahoma, Verdana, Segoe, sans-serif; mso-line-height-alt: 17px;">
-			<p style="font-size: 38px; line-height: 1.2; word-break: break-word; text-align: left; mso-line-height-alt: 46px; margin: 0;"><span style="font-size: 38px;"><strong><span style=""><span style="">Har du&nbsp;sp&oslash;rsm&aring;l relatert til aa-registeret?</span></span></strong></span></p>
+			<p style="font-size: 38px; line-height: 1.2; word-break: break-word; text-align: left; mso-line-height-alt: 46px; margin: 0;"><span style="font-size: 38px;"><strong><span style=""><span style="">Har du&nbsp;sp&oslash;rsm&aring;l relatert til Aa-registeret?</span></span></strong></span></p>
 			</div>
 			</div>
 
