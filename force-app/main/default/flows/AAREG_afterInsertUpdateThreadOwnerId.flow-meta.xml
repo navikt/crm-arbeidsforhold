@@ -4,8 +4,8 @@
     <decisions>
         <name>checkObjectType</name>
         <label>checkObjectType</label>
-        <locationX>182</locationX>
-        <locationY>455</locationY>
+        <locationX>386</locationX>
+        <locationY>456</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>isApplication</name>
@@ -47,7 +47,7 @@
     <processMetadataValues>
         <name>CanvasMode</name>
         <value>
-            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
         </value>
     </processMetadataValues>
     <processMetadataValues>
@@ -60,8 +60,8 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>50</locationX>
-        <locationY>575</locationY>
+        <locationX>254</locationX>
+        <locationY>576</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>updateThreadOwner</targetReference>
@@ -86,8 +86,8 @@
     <recordLookups>
         <name>getThread</name>
         <label>getThread</label>
-        <locationX>182</locationX>
-        <locationY>335</locationY>
+        <locationX>386</locationX>
+        <locationY>336</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkObjectType</targetReference>
@@ -114,8 +114,8 @@
     <recordUpdates>
         <name>updateThreadOwner</name>
         <label>updateThreadOwner</label>
-        <locationX>50</locationX>
-        <locationY>695</locationY>
+        <locationX>254</locationX>
+        <locationY>696</locationY>
         <inputAssignments>
             <field>AAREG_Thread_Subject__c</field>
             <value>
@@ -155,13 +155,15 @@
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>56</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <targetReference>getThread</targetReference>
-        </connector>
+        <locationX>458</locationX>
+        <locationY>48</locationY>
         <object>Thread__c</object>
         <recordTriggerType>Create</recordTriggerType>
+        <scheduledPaths>
+            <connector>
+                <targetReference>getThread</targetReference>
+            </connector>
+        </scheduledPaths>
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
