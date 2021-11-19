@@ -34,7 +34,7 @@
     <formulas>
         <name>varThreadSubject</name>
         <dataType>String</dataType>
-        <expression>&quot;Henvendelse fra NAV&quot;</expression>
+        <expression>&quot;Henvendelse fra NAV - &quot;&amp; {!getApplication.Name}</expression>
     </formulas>
     <interviewLabel>AAREG_afterInsertUpdateThreadOwnerId {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_afterInsertUpdateThreadOwnerId</label>
@@ -80,6 +80,7 @@
         <queriedFields>OwnerId</queriedFields>
         <queriedFields>Contact__c</queriedFields>
         <queriedFields>Account__c</queriedFields>
+        <queriedFields>Name</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
