@@ -173,13 +173,11 @@
     <start>
         <locationX>458</locationX>
         <locationY>48</locationY>
+        <connector>
+            <targetReference>getThread</targetReference>
+        </connector>
         <object>Thread__c</object>
         <recordTriggerType>Create</recordTriggerType>
-        <scheduledPaths>
-            <connector>
-                <targetReference>getThread</targetReference>
-            </connector>
-        </scheduledPaths>
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
