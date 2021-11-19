@@ -133,7 +133,7 @@
 			<div class="col num4" style="max-width: 320px; min-width: 245px; display: table-cell; vertical-align: top; width: 245px;">
 			<div style="width:100% !important;">
 			<div style="border-top:0px solid transparent; border-left:0px solid transparent; border-bottom:0px solid transparent; border-right:0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 0px; padding-left: 0px;">
-			<div align="center" class="img-container center fixedwidth" style="padding-right: 0px;padding-left: 10px;"><img align="center" alt="NAV Logo" border="0" class="center fixedwidth" src="https://EU25.salesforce.com/servlet/servlet.ImageServer?id=0152o000005v5nL&oid=00D2o000000aANV" style="text-decoration: none; -ms-interpolation-mode: bicubic; border: 0; height: auto; width: 100%; max-width: 134px; display: block;" title="NAV Logo" width="134" />
+			<div align="center" class="img-container center fixedwidth" style="padding-right: 0px;padding-left: 10px;"><img align="center" alt="NAV Logo" border="0" class="center fixedwidth" src="https://navdialog.my.salesforce.com/servlet/servlet.ImageServer?id=0152o000005v5nL&oid=00D2o000000aANV" style="text-decoration: none; -ms-interpolation-mode: bicubic; border: 0; height: auto; width: 100%; max-width: 134px; display: block;" title="NAV Logo" width="134" />
 			<div style="font-size:1px;line-height:10px">&nbsp;</div>
 			</div>
 			</div>
@@ -307,7 +307,7 @@
 			<div style="border-top:0px solid transparent; border-left:0px solid transparent; border-bottom:0px solid transparent; border-right:0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 15px; padding-left: 20px;">
 			<div align="left" class="img-container left fixedwidth" style="padding-right: 5px;padding-left: 5px;">
 			<div style="font-size:1px;line-height:5px">&nbsp;</div>
-			<img alt="Laptop" border="0" class="left fixedwidth" src="https://EU25.salesforce.com/servlet/servlet.ImageServer?id=0152o000005v5nV&oid=00D2o000000aANV" style="text-decoration: none; -ms-interpolation-mode: bicubic; border: 0; height: auto; width: 100%; max-width: 111px; display: block;" title="Laptop" width="111" />
+			<img alt="Laptop" border="0" class="left fixedwidth" src="https://navdialog.my.salesforce.com/servlet/servlet.ImageServer?id=0152o000005v5nV&oid=00D2o000000aANV" style="text-decoration: none; -ms-interpolation-mode: bicubic; border: 0; height: auto; width: 100%; max-width: 111px; display: block;" title="Laptop" width="111" />
 			<div style="font-size:1px;line-height:5px">&nbsp;</div>
 			</div>
 			</div>

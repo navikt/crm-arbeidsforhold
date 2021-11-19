@@ -6,7 +6,7 @@
     <name>aaRegApplicationConfirmation</name>
     <relatedEntityType>Application__c</relatedEntityType>
     <style>none</style>
-    <subject>Søknad om tilgang til aa-registeret mottatt - ref: {{{Application__c.Name}}}</subject>
+    <subject>Søknad om tilgang til Aa-registeret mottatt - ref: {{{Application__c.Name}}}</subject>
     <type>custom</type>
     <uiType>SFX</uiType>
 </EmailTemplate>

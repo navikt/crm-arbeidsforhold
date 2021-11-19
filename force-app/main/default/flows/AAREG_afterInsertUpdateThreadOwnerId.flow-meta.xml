@@ -1,11 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>53.0</apiVersion>
+    <assignments>
+        <name>setApplicationName</name>
+        <label>setApplicationName</label>
+        <locationX>4</locationX>
+        <locationY>651</locationY>
+        <assignmentItems>
+            <assignToReference>varApplicationName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getApplication.Name</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>updateThreadOwner</targetReference>
+        </connector>
+    </assignments>
     <decisions>
         <name>checkObjectType</name>
         <label>checkObjectType</label>
-        <locationX>182</locationX>
-        <locationY>455</locationY>
+        <locationX>386</locationX>
+        <locationY>458</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>isApplication</name>
@@ -34,7 +50,7 @@
     <formulas>
         <name>varThreadSubject</name>
         <dataType>String</dataType>
-        <expression>&quot;Henvendelse fra NAV - &quot;&amp; {!getApplication.Name}</expression>
+        <expression>&quot;Henvendelse fra NAV - &quot;&amp; {!varApplicationName}</expression>
     </formulas>
     <interviewLabel>AAREG_afterInsertUpdateThreadOwnerId {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_afterInsertUpdateThreadOwnerId</label>
@@ -47,7 +63,7 @@
     <processMetadataValues>
         <name>CanvasMode</name>
         <value>
-            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
         </value>
     </processMetadataValues>
     <processMetadataValues>
@@ -60,11 +76,11 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>50</locationX>
-        <locationY>575</locationY>
+        <locationX>254</locationX>
+        <locationY>579</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>updateThreadOwner</targetReference>
+            <targetReference>setApplicationName</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -78,16 +94,16 @@
         <object>Application__c</object>
         <queriedFields>Id</queriedFields>
         <queriedFields>OwnerId</queriedFields>
-        <queriedFields>Name</queriedFields>
         <queriedFields>Contact__c</queriedFields>
         <queriedFields>Account__c</queriedFields>
+        <queriedFields>Name</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
         <name>getThread</name>
         <label>getThread</label>
-        <locationX>182</locationX>
-        <locationY>335</locationY>
+        <locationX>394</locationX>
+        <locationY>295</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkObjectType</targetReference>
@@ -114,8 +130,8 @@
     <recordUpdates>
         <name>updateThreadOwner</name>
         <label>updateThreadOwner</label>
-        <locationX>50</locationX>
-        <locationY>695</locationY>
+        <locationX>248</locationX>
+        <locationY>776</locationY>
         <inputAssignments>
             <field>AAREG_Thread_Subject__c</field>
             <value>
@@ -155,8 +171,8 @@
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>56</locationX>
-        <locationY>0</locationY>
+        <locationX>458</locationX>
+        <locationY>48</locationY>
         <connector>
             <targetReference>getThread</targetReference>
         </connector>
@@ -165,4 +181,11 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <variables>
+        <name>varApplicationName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+    </variables>
 </Flow>

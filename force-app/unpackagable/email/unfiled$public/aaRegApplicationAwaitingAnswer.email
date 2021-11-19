@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html style="overflow-y: hidden;">
-<head><meta content="text/html; charset=utf-8"><meta content="width=device-width" name="viewport"><meta content="IE=edge">
+<head><meta content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width"><meta content="IE=edge">
 	<title></title>
 	<style type="text/css">body {
 			margin: 0;
@@ -205,10 +205,8 @@
 			<div style="font-size: 14px; line-height: 1.5; color: #3e3832; font-family: Source Sans Pro, Tahoma, Verdana, Segoe, sans-serif; mso-line-height-alt: 21px;">
 			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;">Hei!<br />
 			Vi&nbsp;trenger &aring; komme i kontakt med deg&nbsp;vedr&oslash;rende&nbsp;din&nbsp;s&oslash;knad om tilgang til Aa-registeret, {{{Application__c.Name}}}.&nbsp;<br />
-			<br />
 			Logg inn i s&oslash;knadsportalen&nbsp;og velg&nbsp;&laquo;Mine meldinger&raquo;&nbsp;for &aring; se meldingen fra oss.&nbsp;<br />
-			<br />
-			Hilsen&nbsp;NAV Registerforvaltning.&nbsp;<br />
+			Hilsen&nbsp;NAV.&nbsp;<br />
 			&nbsp;</p>
 
 			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;">&nbsp;</p>
