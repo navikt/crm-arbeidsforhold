@@ -98,6 +98,9 @@
                       <abbr class="slds-required" title="required">* </abbr>
                       E-post
                     </label>
+                    <p class="pl-16 pb-10">
+                    Oppgi e-postadressen til virksomheten du representerer. Ikke benytt din personlige e-postadressse i virksomheten. 
+                    </p>
                     <lightning-helptext
                       content=" Oppgi en e-postadresse til virksomheten du representerer og som ikke er personrelatert. NAV benytter e-postadressen for å orientere virksomheten når søknaden er ferdig behandlet. "
                       class="slds-m-left_xx-small"
@@ -120,7 +123,11 @@
             </section>
             <section class="app-section">
               <h2>Begrunnelse</h2>
-
+              <p class="pl-16 pb-10">
+                Her skal dere dokumentere at deres virksomhet har lov til å innhente opplysningene, hva dere skal bruke opplysningene til og at dere har lov til å bruke opplysningene til å løse oppgaver i deres virksomhet.​<br>
+                Om dere skal bruke opplysningene til flere formål/oppgaver, skal dere oppgi hvert formål for seg. Benytt «legg til» knappen for å legge til flere formål. 
+                </p>
+               
               <template if:true={applicationBasisRows} for:each={applicationBasisRows} for:item="row" for:index="index">
                 <div key={row.uuid} class="app-section">
                   <c-aareg_application-basis
