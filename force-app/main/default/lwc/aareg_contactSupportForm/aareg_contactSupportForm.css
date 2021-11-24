@@ -35,7 +35,7 @@
   max-width: 100%;
 }
 
-.form-control input[type='text'],
+.form-control input[type='email'],
 [type='email'] {
   display: block;
   font-family: Source Sans Pro, Arial, sans-serif;
