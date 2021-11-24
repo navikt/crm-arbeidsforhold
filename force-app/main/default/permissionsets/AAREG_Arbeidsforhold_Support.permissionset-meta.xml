@@ -562,6 +562,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Inquiry__c.CreatedByOrganizationNumber__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Inquiry__c.Email__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -588,6 +593,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Inquiry__c.Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Inquiry__c.Subject__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
