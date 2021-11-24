@@ -5,17 +5,32 @@ import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsers
 
 const COLUMNS = [
   { 
+    label: 'Henvendelsesnummer', 
+    fieldName: 'CRM_HenvendelseId__c', 
+    type: 'text', 
+    hideDefaultActions: true },
+    { 
+      label: 'Opprettet dato', 
+      fieldName: 'Createddate', 
+      type: 'date', 
+      hideDefaultActions: true },
+    { 
+        label: 'Siste meldings dato', 
+        fieldName: 'CRM_Latest_Message_Datetime__c', 
+        type: 'date', 
+        hideDefaultActions: true },
+  { 
     label: 'Meldingen gjelder', 
     fieldName: 'AAREG_Thread_Subject__c', 
     type: 'text', 
     hideDefaultActions: true },
+    
   {
-    label: 'Antall uleste meldinger',
+    label: 'Antall meldinger',
     fieldName: 'CRM_Number_of_unread_Messages__c',
     type: 'text',
     hideDefaultActions: true
   },
-  { label: 'Siste meldings dato', fieldName: 'CRM_Latest_Message_Datetime__c', type: 'date', hideDefaultActions: true },
   {
     type: 'button',
     fixedWidth: 150,
