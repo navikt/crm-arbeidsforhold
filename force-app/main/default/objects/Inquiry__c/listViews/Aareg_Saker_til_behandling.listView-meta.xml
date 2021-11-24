@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Aareg_SupportProfessionalFunctionalQuestions</fullName>
+    <fullName>Aareg_Saker_til_behandling</fullName>
     <columns>NAME</columns>
     <columns>AccountId__c</columns>
     <columns>CREATED_DATE</columns>
@@ -11,16 +11,15 @@
     <filters>
         <field>TypeOfInquiry__c</field>
         <operation>equals</operation>
-        <value>Professional / functional questions</value>
+        <value>Questions related to application for access,Professional / functional questions</value>
     </filters>
     <filters>
         <field>Status__c</field>
         <operation>equals</operation>
         <value>New,In progress</value>
     </filters>
-    <label>Aareg Support Faglige/Funksjonelle Spm</label>
+    <label>Aareg Saker til behandling</label>
     <sharedTo>
-        <group>AAREG_Casehandling</group>
         <group>AAREG_Support</group>
     </sharedTo>
 </ListView>
