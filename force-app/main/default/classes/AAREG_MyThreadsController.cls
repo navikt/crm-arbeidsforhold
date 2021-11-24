@@ -9,6 +9,7 @@ public with sharing class AAREG_MyThreadsController {
         SELECT
           Id,
           Name,
+          CreatedDate ,
           CRM_Conversation_Summary__c,
           CRM_Number_of_External_Messages__c,
           CRM_Latest_Message_Datetime__c,

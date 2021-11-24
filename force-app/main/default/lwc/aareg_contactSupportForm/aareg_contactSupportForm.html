@@ -47,7 +47,7 @@
               <small>Error</small>
             </span>
           </div>
-          <div class="slds-col slds-m-top_small" if:false={regardingApplicationInProcess}>  
+          <div class="slds-col slds-m-top_x-small" if:false={regardingApplicationInProcess}>  
             <span class="form-control">
               <label>
                 <abbr class="slds-required" title="required">* </abbr>
@@ -60,14 +60,32 @@
                   </lightning-helptext>
                   <input
                       type="email"
-                      name="e-post"
-                      id="epost"
                       data-id="Email__c"
                       onchange={handleInputChange}
-                      disabled={isReadOnly}
+                      maxlength ="255"
                       required
                     />
-                  
+              <small>Error</small>
+            </span>
+          </div>
+          <div class="slds-col slds-m-top_x-small">  
+            <span class="form-control">
+              <label>
+                <abbr class="slds-required" title="required">* </abbr>
+                Emne<br>
+              </label>
+              <lightning-helptext
+                      content="Kort beskrivelse på saken."
+                      class="slds-m-left_xx-small"
+                    >
+                  </lightning-helptext>
+                  <input
+                      type="email"
+                      data-id="Subject__c"
+                      onchange={handleInputChange}
+                      maxlength ="255"
+                      required
+                    />
               <small>Error</small>
             </span>
           </div>

@@ -9,10 +9,14 @@
     <name>Arbeidsforhold_henvendelse</name>
   </customApplications>
   <customApplications>
-    <label>
-      <!-- Email Scheduling -->
-    </label>
+    <label />
     <name>Email_Scheduling</name>
+  </customApplications>
+  <customApplications>
+    <label>
+      <!-- Sladding -->
+    </label>
+    <name>Sladding</name>
   </customApplications>
   <customLabels>
     <label>Tilgangstype</label>
@@ -35,12 +39,15 @@
     <name>ApplicationBasisCode</name>
   </customLabels>
   <customLabels>
-
+    <label>Virksomhet</label>
+    <name>Business</name>
+  </customLabels>
+  <customLabels>
     <label>Kodeverk</label>
     <name>Codes</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>Kontaktperson</label>
     <name>Contacts</name>
   </customLabels>
   <customLabels>
@@ -60,21 +67,25 @@
     <name>Detail</name>
   </customLabels>
   <customLabels>
-    <label>
-      <!-- Dialog -->
-    </label>
+    <label />
     <name>Dialog</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- Errors_CannotFindTriggerHandlerClass -->
+    </label>
     <name>Errors_CannotFindTriggerHandlerClass</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- Errors_DuplicateTriggerHandlerClass -->
+    </label>
     <name>Errors_DuplicateTriggerHandlerClass</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- Errors_InvalidSettingConfiguration -->
+    </label>
     <name>Errors_InvalidSettingConfiguration</name>
   </customLabels>
   <customLabels>
@@ -98,71 +109,85 @@
     <name>applicantBusiness</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- Error when selecting a cross-object fieldsset is not allowed and attempted. -->
+    </label>
     <name>fflib_QueryFactory_crossobject_fieldsets_not_allowed_error</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- Error when selecting a field set for a different sobject type. -->
+    </label>
     <name>fflib_QueryFactory_fieldset_wrong_sobject_error</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- Presented when attempting to nest subqueries. -->
+    </label>
     <name>fflib_QueryFactory_recursive_subquery_error</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- Presented when attempting to create a subquery from an invalid relationship. -->
+    </label>
     <name>fflib_QueryFactory_subquery_invalid_relationship</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- fflib_security_error_field_not_insertable -->
+    </label>
     <name>fflib_security_error_field_not_insertable</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- fflib_security_error_field_not_readable -->
+    </label>
     <name>fflib_security_error_field_not_readable</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- fflib_security_error_field_not_updateable -->
+    </label>
     <name>fflib_security_error_field_not_updateable</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- fflib_security_error_object_not_deletable -->
+    </label>
     <name>fflib_security_error_object_not_deletable</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- fflib_security_error_object_not_insertable -->
+    </label>
     <name>fflib_security_error_object_not_insertable</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- fflib_security_error_object_not_readable -->
+    </label>
     <name>fflib_security_error_object_not_readable</name>
   </customLabels>
   <customLabels>
-    <label />
+    <label>
+      <!-- fflib_security_error_object_not_updateable -->
+    </label>
     <name>fflib_security_error_object_not_updateable</name>
   </customLabels>
   <customTabs>
-    <label>
-      <!-- API Transactions -->
-    </label>
+    <label />
     <name>API_Transactions</name>
   </customTabs>
   <customTabs>
-    <label>
-      <!-- Errors -->
-    </label>
+    <label />
     <name>EmailQueueErrors</name>
   </customTabs>
   <customTabs>
-    <label>
-      <!-- Queued -->
-    </label>
+    <label />
     <name>EmailQueueQueued</name>
   </customTabs>
   <customTabs>
-    <label>
-      <!-- Sent -->
-    </label>
+    <label />
     <name>EmailQueueSent</name>
   </customTabs>
   <flowDefinitions>
@@ -188,6 +213,10 @@
       </screens>
     </flows>
     <fullName>AAREG_addReasonForSuspension</fullName>
+  </flowDefinitions>
+  <flowDefinitions>
+    <flows />
+    <fullName>AAREG_afterInsertUpdateThreadOwnerId</fullName>
   </flowDefinitions>
   <flowDefinitions>
     <flows>
@@ -236,6 +265,14 @@
   <flowDefinitions>
     <flows />
     <fullName>AAREG_createContactSendConfirmation</fullName>
+  </flowDefinitions>
+  <flowDefinitions>
+    <flows />
+    <fullName>AAREG_createDistributionAccess</fullName>
+  </flowDefinitions>
+  <flowDefinitions>
+    <flows />
+    <fullName>AAREG_createSupportContact</fullName>
   </flowDefinitions>
   <flowDefinitions>
     <flows>
@@ -288,6 +325,18 @@
     <fullName>AAREG_populateDecisionText</fullName>
   </flowDefinitions>
   <flowDefinitions>
+    <flows />
+    <fullName>AAREG_removeAccessToDistribution</fullName>
+  </flowDefinitions>
+  <flowDefinitions>
+    <flows />
+    <fullName>AAREG_sendAwaitingResponseEmailNotification</fullName>
+  </flowDefinitions>
+  <flowDefinitions>
+    <flows />
+    <fullName>AAREG_sendDecisionEmailNotification</fullName>
+  </flowDefinitions>
+  <flowDefinitions>
     <flows>
       <screens>
         <fields>
@@ -328,8 +377,8 @@
     <flows />
     <fullName>Agreement_Initiator</fullName>
   </flowDefinitions>
-  <flowDefinitions>
 
+  <flowDefinitions>
     <flows>
       <screens>
         <fields>
@@ -352,14 +401,14 @@
     </flows>
     <fullName>Create_Community_Plus_User</fullName>
   </flowDefinitions>
+
   <flowDefinitions>
     <flows />
-
     <fullName>NAVTask_Owner_Change</fullName>
   </flowDefinitions>
+
   <flowDefinitions>
     <flows />
-
     <fullName>TAG_Update_NavUnit_in_NavTask</fullName>
   </flowDefinitions>
   <flowDefinitions>
@@ -387,63 +436,78 @@
   </flowDefinitions>
 
   <quickActions>
-    <aspect>Master</aspect>
-    <label />
+    <label>
+      <!-- LogACall -->
+    </label>
     <name>LogACall</name>
   </quickActions>
   <quickActions>
-    <aspect>Master</aspect>
-    <label />
+    <label>
+      <!-- NewAccount -->
+    </label>
     <name>NewAccount</name>
   </quickActions>
   <quickActions>
-    <aspect>Master</aspect>
-    <label />
+    <label>
+      <!-- NewCase -->
+    </label>
     <name>NewCase</name>
   </quickActions>
   <quickActions>
-    <aspect>Master</aspect>
-    <label />
+    <label>
+      <!-- NewContact -->
+    </label>
     <name>NewContact</name>
   </quickActions>
   <quickActions>
-    <aspect>Master</aspect>
-    <label />
+    <label>
+      <!-- NewEvent -->
+    </label>
     <name>NewEvent</name>
   </quickActions>
   <quickActions>
-    <aspect>Master</aspect>
-    <label />
+    <label>
+      <!-- NewGroup -->
+    </label>
     <name>NewGroup</name>
   </quickActions>
   <quickActions>
-    <aspect>Master</aspect>
-    <label />
+    <label>
+      <!-- NewLead -->
+    </label>
     <name>NewLead</name>
   </quickActions>
   <quickActions>
-    <aspect>Master</aspect>
-    <label />
+    <label>
+      <!-- NewNote -->
+    </label>
     <name>NewNote</name>
   </quickActions>
   <quickActions>
-    <aspect>Master</aspect>
-    <label />
+    <label>
+      <!-- NewOpportunity -->
+    </label>
     <name>NewOpportunity</name>
   </quickActions>
   <quickActions>
-    <aspect>Master</aspect>
-    <label />
+    <label>
+      <!-- NewTask -->
+    </label>
     <name>NewTask</name>
   </quickActions>
   <quickActions>
-    <aspect>Master</aspect>
-    <label />
+    <label>
+      <!-- SendEmail -->
+    </label>
     <name>SendEmail</name>
   </quickActions>
   <reportTypes>
-    <description />
-    <label />
+    <description>
+      <!-- Aa_reg agreement with related contacts -->
+    </description>
+    <label>
+      <!-- Aa_reg agreement with related contacts -->
+    </label>
     <name>Aa_regAgreementWithRelatedContacts</name>
     <sections>
       <label>Virksomheter</label>
@@ -458,9 +522,7 @@
       <name>Applications</name>
     </sections>
     <sections>
-      <label>
-        <!-- Avtaler -->
-      </label>
+      <label />
       <name>Avtaler</name>
     </sections>
     <sections>
@@ -469,15 +531,23 @@
     </sections>
   </reportTypes>
   <reportTypes>
-    <description />
-    <label />
+    <description>
+      <!-- Screen Flows -->
+    </description>
+    <label>
+      <!-- Screen Flows -->
+    </label>
     <name>screen_flows_prebuilt_crt</name>
     <sections>
-      <label />
+      <label>
+        <!-- Flow Interview Log Entries -->
+      </label>
       <name>Flow Interview Log Entries</name>
     </sections>
     <sections>
-      <label />
+      <label>
+        <!-- Flow Interview Logs -->
+      </label>
       <name>Flow Interview Logs</name>
     </sections>
   </reportTypes>
