@@ -435,7 +435,7 @@
     <fullName>Create_Community_Plus_User</fullName>
   </flowDefinitions>
   <flowDefinitions>
-    </flows>
+    <flows />
     <fullName>NAVTask_Owner_Change</fullName>
   </flowDefinitions>
   <flowDefinitions>
