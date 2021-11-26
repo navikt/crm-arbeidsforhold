@@ -198,36 +198,6 @@
     <flows>
       <screens>
         <fields>
-          <fieldText>Nei, ikke sett henvendelse til ferdig, men send bruker melding</fieldText>
-          <name>notFinished</name>
-        </fields>
-        <fields>
-          <fieldText>Ja, sett henvendelsen til ferdigbehandlet og send melding til bruker</fieldText>
-          <name>yesFinished</name>
-        </fields>
-        <name>closeCaseSendNotification</name>
-      </screens>
-      <screens>
-        <fields>
-          <fieldText>Henvendelses status settes til ferdigbehandlet og bruker blir varslet</fieldText>
-          <name>inquiryClosed</name>
-        </fields>
-        <name>finishedSendNotifidcation</name>
-      </screens>
-      <screens>
-        <fields>
-          <fieldText>Bruker blir varslet</fieldText>
-          <name>notFinishedYet</name>
-        </fields>
-        <name>notFinishedSendNotificationToUser</name>
-      </screens>
-    </flows>
-    <fullName>AAREG_SupportSendNotificationToUser</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <screens>
-        <fields>
           <fieldText>Du kan ikke henlegge en søknad som står i status Ny og ikke har en sakseier</fieldText>
           <name>setOwnerAndStatus</name>
         </fields>
@@ -367,10 +337,6 @@
     <fullName>AAREG_sendDecisionEmailNotification</fullName>
   </flowDefinitions>
   <flowDefinitions>
-    <flows />
-    <fullName>AAREG_supportRemoveCaseOwner</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
     <flows>
       <screens>
         <fields>
@@ -411,6 +377,7 @@
     <flows />
     <fullName>Agreement_Initiator</fullName>
   </flowDefinitions>
+
   <flowDefinitions>
     <flows>
       <screens>
@@ -434,12 +401,14 @@
     </flows>
     <fullName>Create_Community_Plus_User</fullName>
   </flowDefinitions>
+
   <flowDefinitions>
     <flows />
     <fullName>NAVTask_Owner_Change</fullName>
   </flowDefinitions>
-  <flowDefinitions>
 
+  <flowDefinitions>
+    <flows />
     <fullName>TAG_Update_NavUnit_in_NavTask</fullName>
   </flowDefinitions>
   <flowDefinitions>
