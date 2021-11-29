@@ -122,18 +122,16 @@
               </div>
             </section>
             <section class="app-section">
-              <h2 class="header-with-info-text">Begrunnelse</h2>
-              <p class="pl-16 pb-10" >
-                Her skal du:<br>
-                <ul>
+              <h2>Begrunnelse</h2>
+              <p class="pl-16 pb-10">Her skal du:</p>
+                <ul class="pl-16 pb-10">
                   <li>dokumentere at deres virksomhet har lov til å innhente opplysningene.</li>
                   <li>oppgi hva dere skal bruke opplysningene til.</li>
                   <li>dokumentere at dere har lov til å bruke opplysningene til å løse oppgaver i deres virksomhet.</li>
                 </ul>
-                For ytterligere veiledning se «i» for hvert felt. <br>
+                <p>For ytterligere veiledning se «i» for hvert felt. <br>
                 Om dere skal bruke opplysningene til flere formål/oppgaver, skal dere oppgi hvert formål for seg. Benytt «legg til» knappen for å legge til flere formål.​
-                </p>
-               
+              </p>               
               <template if:true={applicationBasisRows} for:each={applicationBasisRows} for:item="row" for:index="index">
                 <div key={row.uuid} class="app-section">
                   <c-aareg_application-basis
