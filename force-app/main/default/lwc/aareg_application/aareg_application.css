@@ -195,6 +195,10 @@ input:invalid:required {
   color: #0067c5;
 }
 
+ul:not(.browser-default) li {
+  list-style-type: disc;
+}
+
 .button-flat {
   color: #0067c5;
   border: 2px solid transparent;
