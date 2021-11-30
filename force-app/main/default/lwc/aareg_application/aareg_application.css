@@ -198,7 +198,8 @@ input:invalid:required {
 ul:not(.browser-default) li {
   list-style-type: disc;
   font-size: 16px;
-  padding: 1px 1px 1px 15px
+  padding-left: 0px;
+  margin-left: 5px;
 }
 
 .button-flat {
