@@ -793,6 +793,10 @@
     </userPermissions>
     <userPermissions>
         <enabled>true</enabled>
+        <name>TransferAnyEntity</name>
+    </userPermissions>
+    <userPermissions>
+        <enabled>true</enabled>
         <name>ViewPublicDashboards</name>
     </userPermissions>
 </PermissionSet>
