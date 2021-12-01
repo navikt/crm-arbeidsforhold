@@ -118,6 +118,7 @@ export default class Aareg_home extends LightningElement {
       return;
     }
 
+    let serviceCodeReturned = new Array(2);
     const  serviceCodeArray = ['5719', '5441'];
     for (let value of serviceCodeArray){
       await getUserRights({
@@ -130,29 +131,31 @@ export default class Aareg_home extends LightningElement {
           let privileges = JSON.parse(JSON.stringify(result.rights));
 
           privileges.forEach((privilege) => {
-            if (privilege.ServiceCode === '5719') {
-              this.hasAccess = true;
-              this.hasApplicationAccess = true;
-              console.log(privilige.ServiceCode);
-              return;
-            }else if (privilege.ServiceCode == '5441' && privilege.ServiceEditionCode == '2'){
-              this.hasAccess = true;
-              this.hasApplicationAccess = false;
-              console.log(privilege.ServiceCode);
-              return;
+
+            if(priviliges.ServiceCode == '5719'){
+              serviceCodeReturned[0] = priviliges.ServiceCode;
+            }
+            
+            if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode =='2'){
+              serviceCodeReturned[1] = priviliges.ServiceCode;
             }
           });
-        }else {throw `Failed to get rights to application ${result.errorMessage}`;} 
+        }else {
+          throw `Failed to get rights to application ${result.errorMessage}`;
+        }
       })
-      .catch((error) => {
-        this.hasAccess = false;
-        this.error = true;
-        console.error(error);
-      })
-      .finally(() => {
-        this.isLoaded = true;
-      });
-    }  
+
+      for (let value of serviceCodeReturned){
+        if(value == '5719'){
+          this.hasAccess = true;
+          this.hasApplicationAccess = true;
+        }else if(value == '5441'){
+          this.hasAccess = true;
+          this.hasApplicationAccess = false;
+        }
+      }
+    }
+    this.isLoaded = true;
   }
 
   get hasPreviouslySelectedOrganization() {
