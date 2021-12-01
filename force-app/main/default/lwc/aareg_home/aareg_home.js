@@ -131,11 +131,12 @@ export default class Aareg_home extends LightningElement {
             if (privilege.ServiceCode === '5719') {
               this.hasAccess = true;
               this.hasApplicationAccess = true;
+              console.log(privilige.ServiceCode);
               return;
-            }
-            if (privilege.ServiceCode == '5441' && privilege.ServiceEditionCode == '2'){
+            }else if (privilege.ServiceCode == '5441' && privilege.ServiceEditionCode == '2'){
               this.hasAccess = true;
               this.hasSupportAccess = true;
+              console.log(privilege.ServiceCode);
               return;
             }
           });
