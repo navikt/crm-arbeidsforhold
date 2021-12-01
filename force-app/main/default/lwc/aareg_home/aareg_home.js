@@ -144,12 +144,13 @@ export default class Aareg_home extends LightningElement {
           throw `Failed to get rights to application ${result.errorMessage}`;
         }
       })
+    }
 
-      for (let value of serviceCodeReturned){
-        if(value == '5719'){
+      for (let ret of serviceCodeReturned){
+        if(ret == '5719'){
           this.hasAccess = true;
           this.hasApplicationAccess = true;
-        }else if(value == '5441'){
+        }else if(ret == '5441'){
           this.hasAccess = true;
           this.hasApplicationAccess = false;
         }
