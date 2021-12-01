@@ -121,7 +121,7 @@ export default class Aareg_home extends LightningElement {
     let serviceCodeReturned = new Array(2);
     const  serviceCodeArray = ['5719', '5441'];
     for (let value of serviceCodeArray){
-      await getUserRights({
+      getUserRights({
         userId: this.currentUser,
         organizationNumber: this.lastUsedOrganization,
         serviceCode: value
@@ -155,9 +155,9 @@ export default class Aareg_home extends LightningElement {
           this.hasApplicationAccess = false;
         }
       }
-    }
-    this.isLoaded = true;
+      this.isLoaded = true;
   }
+
 
   get hasPreviouslySelectedOrganization() {
     return this.lastUsedOrganization;
