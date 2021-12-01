@@ -109,10 +109,12 @@ export default class Aareg_home extends LightningElement {
   async checkAccessToApplication() {
     if (this.organizations === undefined) {
       this.hasAccess = false;
+      this.hasApplicationAccess = false;
       return;
     }
     if (this.lastUsedOrganization === null || '') {
       this.hasAccess = false;
+      this.hasApplicationAccess = false;
       return;
     }
 
@@ -135,19 +137,18 @@ export default class Aareg_home extends LightningElement {
               return;
             }else if (privilege.ServiceCode == '5441' && privilege.ServiceEditionCode == '2'){
               this.hasAccess = true;
-              this.hasSupportAccess = true;
+              this.hasApplicationAccess = false;
               console.log(privilege.ServiceCode);
               return;
             }
           });
-        } else {
-          throw `Failed to get rights to application ${result.errorMessage}`;
-        }
+        } 
       })
       .catch((error) => {
         this.hasAccess = false;
         this.error = true;
         console.error(error);
+          throw `Failed to get rights to application ${result.errorMessage}`;
       })
       .finally(() => {
         this.isLoaded = true;
