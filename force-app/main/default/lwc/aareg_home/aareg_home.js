@@ -9,6 +9,8 @@ export default class Aareg_home extends LightningElement {
   @track organizations;
   @track error;
   isLoaded = false;
+  hasApplicationAccess = false;
+  hasSupportAccess = false;
   hasAccess = false;
   lastUsedOrganization;
   currentUser = Id;
@@ -113,11 +115,14 @@ export default class Aareg_home extends LightningElement {
       this.hasAccess = false;
       return;
     }
-    await getUserRights({
-      userId: this.currentUser,
-      organizationNumber: this.lastUsedOrganization,
-      serviceCode: '5719'
-    })
+
+    const  serviceCodeArray = ['5719', '5441'];
+    for (let value of serviceCodeArray){
+      await getUserRights({
+        userId: this.currentUser,
+        organizationNumber: this.lastUsedOrganization,
+        serviceCode: value
+      })
       .then((result) => {
         if (result.success) {
           let privileges = JSON.parse(JSON.stringify(result.rights));
@@ -125,6 +130,12 @@ export default class Aareg_home extends LightningElement {
           privileges.forEach((privilege) => {
             if (privilege.ServiceCode === '5719') {
               this.hasAccess = true;
+              this.hasApplicationAccess = true;
+              return;
+            }
+            if (privilege.ServiceCode == '5441' && privilege.ServiceEditionCode == '2'){
+              this.hasAccess = true;
+              this.hasSupportAccess = true;
               return;
             }
           });
@@ -140,6 +151,11 @@ export default class Aareg_home extends LightningElement {
       .finally(() => {
         this.isLoaded = true;
       });
+    }
+   
+     
+     
+     
   }
 
   

@@ -19,7 +19,31 @@
         </template>
       </div>
     </div>
-    <template if:true={hasAccess}>
+    <template if:true={hasSupportAccess}>
+      <div class="slds-grid inner-container">
+        <div class="slds-col">
+          <div class="slds-col">
+            <c-link-panel
+              title="Mine meldinger"
+              sub-title="Her finner du en oversikt av dine meldinger"
+              relative-path="Mine_Meldinger__c"
+              style="display: flex; width: 100%"
+            ></c-link-panel>
+          </div>
+        </div>
+        <div class="slds-col">
+          <div class="slds-col">
+            <c-link-panel
+              title="Brukerstøtte"
+              sub-title="Er de noe du lurer på? Send oss en melding."
+              relative-path="Ny_Melding__c"
+              style="display: flex; width: 100%"
+            ></c-link-panel>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template if:true={hasApplicationAccess}>
       <div class="slds-grid inner-container">
         <div class="slds-col">
           <div class="slds-col">
