@@ -116,12 +116,12 @@ export default class Aareg_home extends LightningElement {
       return;
     }
 
-    var serviceCodeArray = ['5719', '5441'];
-    for (var i = 0; i < serviceCodeArray.length; i++){
+    const  serviceCodeArray = ['5719', '5441'];
+    for (let value of serviceCodeArray){
       await getUserRights({
         userId: this.currentUser,
         organizationNumber: this.lastUsedOrganization,
-        serviceCode: serviceCodeArray[i]
+        serviceCode: value
       })
       .then((result) => {
         if (result.success) {
