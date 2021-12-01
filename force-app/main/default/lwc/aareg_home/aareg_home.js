@@ -142,25 +142,18 @@ export default class Aareg_home extends LightningElement {
               return;
             }
           });
-        } 
+        }else {throw `Failed to get rights to application ${result.errorMessage}`;} 
       })
       .catch((error) => {
         this.hasAccess = false;
         this.error = true;
         console.error(error);
-          throw `Failed to get rights to application ${result.errorMessage}`;
       })
       .finally(() => {
         this.isLoaded = true;
       });
-    }
-   
-     
-     
-     
+    }  
   }
-
-  
 
   get hasPreviouslySelectedOrganization() {
     return this.lastUsedOrganization;
