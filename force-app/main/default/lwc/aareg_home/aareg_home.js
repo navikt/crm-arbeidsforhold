@@ -1,3 +1,42 @@
+Skip to content
+Search or jump to…
+Pull requests
+Issues
+Marketplace
+Explore
+ 
+@annolse 
+navikt
+/
+crm-arbeidsforhold
+Public
+generated from navikt/crm-shared-template
+3
+0
+0
+Code
+Issues
+Pull requests
+2
+Actions
+Projects
+Wiki
+Security
+4
+Insights
+Settings
+We found potential security vulnerabilities in your dependencies.
+You can see this message because you have been granted access to Dependabot alerts for this repository.
+
+crm-arbeidsforhold/force-app/main/default/lwc/aareg_home/aareg_home.js
+@jordan-mathews
+jordan-mathews Home page tab access updates
+Latest commit 29e0716 4 hours ago
+ History
+ 2 contributors
+@annolse@jordan-mathews
+158 lines (142 sloc)  4.31 KB
+   
 import { LightningElement, track } from 'lwc';
 import Id from '@salesforce/user/Id';
 import getLastUsersLastUsedOrganiation from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganiation';
@@ -57,7 +96,10 @@ export default class Aareg_home extends LightningElement {
       });
 
       this.sortOrganizations();
-      await this.checkAccessToApplication();
+
+      await this.checkAccessToApplication('5719');
+
+      if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5411');
     } catch (error) {
       this.error = error;
       console.error(error);
@@ -66,19 +108,23 @@ export default class Aareg_home extends LightningElement {
     }
   }
 
-  handleOrganizationChange(event) {
+  async handleOrganizationChange(event) {
     this.isLoaded = false;
     this.hasAccess = false;
     this.lastUsedOrganization = event.target.value;
     updateLastUsedOrganization({ organizationNumber: this.lastUsedOrganization, userId: this.currentUser })
       .then((result) => {
         this.sortOrganizations();
-        this.checkAccessToApplication();
       })
       .catch((error) => {
         this.error = error;
         console.error(error);
+      })
+      .finally(() => {
+        this.isLoaded = true;
       });
+    await this.checkAccessToApplication('5717');
+    if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5411');
   }
 
   sortOrganizations() {
@@ -105,7 +151,7 @@ export default class Aareg_home extends LightningElement {
     }
   }
 
-  async checkAccessToApplication() {
+  async checkAccessToApplication(filterBy) {
     if (this.organizations === undefined) {
       this.hasAccess = false;
       this.hasApplicationAccess = false;
@@ -120,7 +166,7 @@ export default class Aareg_home extends LightningElement {
     await getUserRights({
       userId: this.currentUser,
       organizationNumber: this.lastUsedOrganization,
-      serviceCode: '5719'
+      serviceCode: filterBy
     })
       .then((result) => {
         if (result.success) {
@@ -128,6 +174,9 @@ export default class Aareg_home extends LightningElement {
 
           privileges.forEach((privilege) => {
             if (privilege.ServiceCode === '5719') {
+              this.hasAccess = true;
+              this.hasApplicationAccess = true;
+            } else if (privilege.ServiceCode === '5411' && privilege.ServiceEditionCode === '2') {
               this.hasAccess = true;
             }
           });
@@ -139,13 +188,8 @@ export default class Aareg_home extends LightningElement {
         this.hasAccess = false;
         this.error = true;
         console.error(error);
-      })
-      .finally(() => {
-        this.isLoaded = true;
       });
-
   }
-
 
   get hasPreviouslySelectedOrganization() {
     return this.lastUsedOrganization;

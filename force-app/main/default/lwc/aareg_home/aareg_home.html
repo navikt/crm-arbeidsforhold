@@ -2,7 +2,9 @@
   <template if:true={isLoaded}>
     <div class="home-container bedriftsmeny">
       <div>
-        <h1 class="typo-innholdstittel bedriftsmeny__tittel">Min side – Brukerstøtte og søknad om tilgang om Aa-registeret</h1>
+        <h1 class="typo-innholdstittel bedriftsmeny__tittel">
+          Min side – Brukerstøtte og søknad om tilgang om Aa-registeret
+        </h1>
       </div>
       <div>
         <template if:true={organizations}>
@@ -19,34 +21,10 @@
         </template>
       </div>
     </div>
-    <template if:false={hasApplicationAccess}>
+    <template if:true={hasAccess}>
       <div class="slds-grid inner-container">
         <div class="slds-col">
-          <div class="slds-col">
-            <c-link-panel
-              title="Mine meldinger"
-              sub-title="Her finner du en oversikt av dine meldinger"
-              relative-path="Mine_Meldinger__c"
-              style="display: flex; width: 100%"
-            ></c-link-panel>
-          </div>
-        </div>
-        <div class="slds-col">
-          <div class="slds-col">
-            <c-link-panel
-              title="Brukerstøtte"
-              sub-title="Er de noe du lurer på? Send oss en melding."
-              relative-path="Ny_Melding__c"
-              style="display: flex; width: 100%"
-            ></c-link-panel>
-          </div>
-        </div>
-      </div>
-    </template>
-    <template if:true={hasApplicationAccess}>
-      <div class="slds-grid inner-container">
-        <div class="slds-col">
-          <div class="slds-col">
+          <div if:true={hasApplicationAccess} class="slds-col">
             <c-link-panel
               title="Ny søknad"
               sub-title="Her kan du opprette en ny søknad."
@@ -54,7 +32,7 @@
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>
-          <div class="slds-col">
+          <div if:true={hasApplicationAccess} class="slds-col">
             <c-link-panel
               title="Mine avtaler"
               sub-title="Her finner du en oversikt av dine avtaler"
@@ -72,7 +50,7 @@
           </div>
         </div>
         <div class="slds-col">
-          <div class="slds-col">
+          <div if:true={hasApplicationAccess} class="slds-col">
             <c-link-panel
               title="Mine søknader"
               sub-title="Her finner du en oversikt av dine søknader"
