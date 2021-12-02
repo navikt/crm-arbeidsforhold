@@ -1,42 +1,4 @@
-Skip to content
-Search or jump to…
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@annolse 
-navikt
-/
-crm-arbeidsforhold
-Public
-generated from navikt/crm-shared-template
-3
-0
-0
-Code
-Issues
-Pull requests
-2
-Actions
-Projects
-Wiki
-Security
-4
-Insights
-Settings
-We found potential security vulnerabilities in your dependencies.
-You can see this message because you have been granted access to Dependabot alerts for this repository.
-
-crm-arbeidsforhold/force-app/main/default/lwc/aareg_home/aareg_home.js
-@jordan-mathews
-jordan-mathews Home page tab access updates
-Latest commit 29e0716 4 hours ago
- History
- 2 contributors
-@annolse@jordan-mathews
-158 lines (142 sloc)  4.31 KB
-   
+  
 import { LightningElement, track } from 'lwc';
 import Id from '@salesforce/user/Id';
 import getLastUsersLastUsedOrganiation from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganiation';
@@ -99,7 +61,7 @@ export default class Aareg_home extends LightningElement {
 
       await this.checkAccessToApplication('5719');
 
-      if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5411');
+      if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5441');
     } catch (error) {
       this.error = error;
       console.error(error);
@@ -124,7 +86,7 @@ export default class Aareg_home extends LightningElement {
         this.isLoaded = true;
       });
     await this.checkAccessToApplication('5717');
-    if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5411');
+    if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5441');
   }
 
   sortOrganizations() {
@@ -176,7 +138,7 @@ export default class Aareg_home extends LightningElement {
             if (privilege.ServiceCode === '5719') {
               this.hasAccess = true;
               this.hasApplicationAccess = true;
-            } else if (privilege.ServiceCode === '5411' && privilege.ServiceEditionCode === '2') {
+            } else if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode === '2') {
               this.hasAccess = true;
             }
           });
