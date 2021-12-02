@@ -129,7 +129,6 @@ export default class Aareg_home extends LightningElement {
           privileges.forEach((privilege) => {
             if (privilege.ServiceCode === '5719') {
               this.hasAccess = true;
-              return;
             }
           });
         } else {
