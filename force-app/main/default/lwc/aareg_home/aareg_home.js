@@ -58,7 +58,7 @@ export default class Aareg_home extends LightningElement {
 
       this.sortOrganizations();
 
-      await this.checkAccessToApplication('5719');
+      await this.checkAccessToApplication('15719');
 
       if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5441');
     } catch (error) {
@@ -134,7 +134,7 @@ export default class Aareg_home extends LightningElement {
           let privileges = JSON.parse(JSON.stringify(result.rights));
 
           privileges.forEach((privilege) => {
-            if (privilege.ServiceCode === '5719') {
+            if (privilege.ServiceCode === '15719') {
               this.hasAccess = true;
               this.hasApplicationAccess = true;
             } else if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode === '2') {
