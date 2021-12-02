@@ -83,7 +83,8 @@ export default class Aareg_contactSupportForm extends LightningElement {
         userId: this.currentUser,
         relatedApplicationId: this.selectedApplicationId,
         description: this.inquiry.InquiryDescription__c,
-        inquiryType: this.inquiry.TypeOfInquiry__c
+        inquiryType: this.inquiry.TypeOfInquiry__c,
+        subject: this.inquiry.subject__c
       })
         .then((result) => {
           this.isSubmitted = true;

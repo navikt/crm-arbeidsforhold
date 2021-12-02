@@ -6,6 +6,12 @@
 .container form {
   margin: 1rem;
 }
+ul:not(.browser-default) li {
+  list-style-type: disc;
+  font-size: 20px;
+  padding-left: 0px;
+  margin-left: 25px;
+}
 
 .support-form label {
   display: inline-block;
