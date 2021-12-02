@@ -1,4 +1,3 @@
-  
 import { LightningElement, track } from 'lwc';
 import Id from '@salesforce/user/Id';
 import getLastUsersLastUsedOrganiation from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganiation';
