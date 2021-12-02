@@ -5,7 +5,7 @@
         <name>checkIfContactIsNull</name>
         <label>checkIfContactIsNull</label>
         <locationX>182</locationX>
-        <locationY>455</locationY>
+        <locationY>695</locationY>
         <defaultConnector>
             <targetReference>updateInquiry</targetReference>
         </defaultConnector>
@@ -26,6 +26,7 @@
             <label>contactNotExists</label>
         </rules>
     </decisions>
+    <description>Check contactperson and add account/contact to inquiry</description>
     <interviewLabel>AA {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_createSupportContact</label>
     <processMetadataValues>
@@ -51,7 +52,7 @@
         <name>createContact</name>
         <label>createContact</label>
         <locationX>50</locationX>
-        <locationY>575</locationY>
+        <locationY>815</locationY>
         <assignRecordIdToReference>varContactId</assignRecordIdToReference>
         <connector>
             <targetReference>updateInquiry</targetReference>
@@ -92,7 +93,7 @@
         <name>checkContact</name>
         <label>checkContact</label>
         <locationX>182</locationX>
-        <locationY>335</locationY>
+        <locationY>575</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkIfContactIsNull</targetReference>
@@ -102,7 +103,7 @@
             <field>AccountId</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>$Record.AccountId__c</elementReference>
+                <elementReference>getAccount.Id</elementReference>
             </value>
         </filters>
         <filters>
@@ -118,11 +119,37 @@
             <field>Id</field>
         </outputAssignments>
     </recordLookups>
-    <recordUpdates>
-        <name>updateInquiry</name>
-        <label>updateInquiry</label>
+    <recordLookups>
+        <name>getAccount</name>
+        <label>getAccount</label>
         <locationX>182</locationX>
-        <locationY>791</locationY>
+        <locationY>455</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>checkContact</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>INT_OrganizationNumber__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>getInquiry.CreatedByOrganizationNumber__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <queriedFields>Id</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>getInquiry</name>
+        <label>getInquiry</label>
+        <locationX>182</locationX>
+        <locationY>335</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>getAccount</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -131,6 +158,32 @@
                 <elementReference>$Record.Id</elementReference>
             </value>
         </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Inquiry__c</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>CreatedByOrganizationNumber__c</queriedFields>
+        <queriedFields>AccountId__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>updateInquiry</name>
+        <label>updateInquiry</label>
+        <locationX>182</locationX>
+        <locationY>1031</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>AccountId__c</field>
+            <value>
+                <elementReference>varAccountId</elementReference>
+            </value>
+        </inputAssignments>
         <inputAssignments>
             <field>ContactId__c</field>
             <value>
@@ -143,13 +196,20 @@
         <locationX>56</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>checkContact</targetReference>
+            <targetReference>getInquiry</targetReference>
         </connector>
         <object>Inquiry__c</object>
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <variables>
+        <name>varAccountId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+    </variables>
     <variables>
         <name>varContactId</name>
         <dataType>String</dataType>
