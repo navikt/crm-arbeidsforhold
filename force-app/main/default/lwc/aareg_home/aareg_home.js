@@ -10,7 +10,6 @@ export default class Aareg_home extends LightningElement {
   @track error;
   isLoaded = false;
   hasApplicationAccess = false;
-  hasSupportAccess = false;
   hasAccess = false;
   lastUsedOrganization;
   currentUser = Id;
@@ -118,44 +117,34 @@ export default class Aareg_home extends LightningElement {
       return;
     }
 
-    let serviceCodeReturned = new Array(2);
-    const  serviceCodeArray = ['5719', '5441'];
-    for (let value of serviceCodeArray){
-      getUserRights({
-        userId: this.currentUser,
-        organizationNumber: this.lastUsedOrganization,
-        serviceCode: value
-      })
+    await getUserRights({
+      userId: this.currentUser,
+      organizationNumber: this.lastUsedOrganization,
+      serviceCode: '5719'
+    })
       .then((result) => {
         if (result.success) {
           let privileges = JSON.parse(JSON.stringify(result.rights));
 
           privileges.forEach((privilege) => {
-
-            if(priviliges.ServiceCode == '5719'){
-              serviceCodeReturned[0] = priviliges.ServiceCode;
-            }
-            
-            if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode =='2'){
-              serviceCodeReturned[1] = priviliges.ServiceCode;
+            if (privilege.ServiceCode === '5719') {
+              this.hasAccess = true;
+              return;
             }
           });
-        }else {
+        } else {
           throw `Failed to get rights to application ${result.errorMessage}`;
         }
       })
-    }
+      .catch((error) => {
+        this.hasAccess = false;
+        this.error = true;
+        console.error(error);
+      })
+      .finally(() => {
+        this.isLoaded = true;
+      });
 
-      for (let ret of serviceCodeReturned){
-        if(ret == '5719'){
-          this.hasAccess = true;
-          this.hasApplicationAccess = true;
-        }else if(ret == '5441'){
-          this.hasAccess = true;
-          this.hasApplicationAccess = false;
-        }
-      }
-      this.isLoaded = true;
   }
 
 
