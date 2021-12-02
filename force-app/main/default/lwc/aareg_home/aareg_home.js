@@ -57,7 +57,10 @@ export default class Aareg_home extends LightningElement {
       });
 
       this.sortOrganizations();
-      await this.checkAccessToApplication();
+
+      await this.checkAccessToApplication('5719');
+
+      if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5441');
     } catch (error) {
       this.error = error;
       console.error(error);
@@ -66,19 +69,23 @@ export default class Aareg_home extends LightningElement {
     }
   }
 
-  handleOrganizationChange(event) {
+  async handleOrganizationChange(event) {
     this.isLoaded = false;
     this.hasAccess = false;
     this.lastUsedOrganization = event.target.value;
     updateLastUsedOrganization({ organizationNumber: this.lastUsedOrganization, userId: this.currentUser })
       .then((result) => {
         this.sortOrganizations();
-        this.checkAccessToApplication();
       })
       .catch((error) => {
         this.error = error;
         console.error(error);
+      })
+      .finally(() => {
+        this.isLoaded = true;
       });
+    await this.checkAccessToApplication('5717');
+    if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5441');
   }
 
   sortOrganizations() {
@@ -105,7 +112,7 @@ export default class Aareg_home extends LightningElement {
     }
   }
 
-  async checkAccessToApplication() {
+  async checkAccessToApplication(filterBy) {
     if (this.organizations === undefined) {
       this.hasAccess = false;
       this.hasApplicationAccess = false;
@@ -120,7 +127,7 @@ export default class Aareg_home extends LightningElement {
     await getUserRights({
       userId: this.currentUser,
       organizationNumber: this.lastUsedOrganization,
-      serviceCode: '5719'
+      serviceCode: filterBy
     })
       .then((result) => {
         if (result.success) {
@@ -128,6 +135,9 @@ export default class Aareg_home extends LightningElement {
 
           privileges.forEach((privilege) => {
             if (privilege.ServiceCode === '5719') {
+              this.hasAccess = true;
+              this.hasApplicationAccess = true;
+            } else if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode === '2') {
               this.hasAccess = true;
             }
           });
@@ -139,13 +149,8 @@ export default class Aareg_home extends LightningElement {
         this.hasAccess = false;
         this.error = true;
         console.error(error);
-      })
-      .finally(() => {
-        this.isLoaded = true;
       });
-
   }
-
 
   get hasPreviouslySelectedOrganization() {
     return this.lastUsedOrganization;
