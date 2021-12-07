@@ -38,11 +38,24 @@
             <section>Custom Links</section>
         </sections>
         <sections>
+            <label><!-- Details --></label>
+            <section>Details</section>
+        </sections>
+        <sections>
+            <label><!-- Inquiry --></label>
+            <section>Inquiry</section>
+        </sections>
+        <sections>
             <label><!-- New Section --></label>
             <section>New Section</section>
         </sections>
     </layouts>
     <nameFieldLabel>Henvendelse nummer</nameFieldLabel>
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Send varsel til bruker</label>
+        <name>AAREG_sendNotificationToUser</name>
+    </quickActions>
     <quickActions>
         <aspect>Master</aspect>
         <label>Sett sakseier og status</label>

@@ -11,7 +11,7 @@ const COLUMNS = [
     hideDefaultActions: true },
     { 
       label: 'Opprettet dato', 
-      fieldName: 'Createddate', 
+      fieldName: 'CreatedDate', 
       type: 'date', 
       hideDefaultActions: true },
     { 

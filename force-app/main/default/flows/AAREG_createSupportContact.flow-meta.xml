@@ -1,11 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>53.0</apiVersion>
+    <assignments>
+        <name>setAccountId</name>
+        <label>setAccountId</label>
+        <locationX>182</locationX>
+        <locationY>815</locationY>
+        <assignmentItems>
+            <assignToReference>varAccountId</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>getAccount.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>checkContact</targetReference>
+        </connector>
+    </assignments>
     <decisions>
         <name>checkIfContactIsNull</name>
         <label>checkIfContactIsNull</label>
         <locationX>182</locationX>
-        <locationY>695</locationY>
+        <locationY>1055</locationY>
         <defaultConnector>
             <targetReference>updateInquiry</targetReference>
         </defaultConnector>
@@ -52,7 +68,7 @@
         <name>createContact</name>
         <label>createContact</label>
         <locationX>50</locationX>
-        <locationY>815</locationY>
+        <locationY>1175</locationY>
         <assignRecordIdToReference>varContactId</assignRecordIdToReference>
         <connector>
             <targetReference>updateInquiry</targetReference>
@@ -93,7 +109,7 @@
         <name>checkContact</name>
         <label>checkContact</label>
         <locationX>182</locationX>
-        <locationY>575</locationY>
+        <locationY>935</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkIfContactIsNull</targetReference>
@@ -103,7 +119,7 @@
             <field>AccountId</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>getAccount.Id</elementReference>
+                <elementReference>varAccountId</elementReference>
             </value>
         </filters>
         <filters>
@@ -123,10 +139,10 @@
         <name>getAccount</name>
         <label>getAccount</label>
         <locationX>182</locationX>
-        <locationY>455</locationY>
+        <locationY>695</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>checkContact</targetReference>
+            <targetReference>setAccountId</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -148,7 +164,7 @@
         <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>getAccount</targetReference>
+            <targetReference>getThread</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -165,11 +181,58 @@
         <queriedFields>AccountId__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordLookups>
+        <name>getMessage</name>
+        <label>getMessage</label>
+        <locationX>182</locationX>
+        <locationY>575</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>getAccount</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>CRM_Thread__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>getThread.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Message__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>getThread</name>
+        <label>getThread</label>
+        <locationX>182</locationX>
+        <locationY>455</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>getMessage</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>CRM_Related_Object__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>getInquiry.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Thread__c</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>CRM_Type__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordUpdates>
         <name>updateInquiry</name>
         <label>updateInquiry</label>
         <locationX>182</locationX>
-        <locationY>1031</locationY>
+        <locationY>1391</locationY>
+        <connector>
+            <targetReference>updateMessage</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -192,6 +255,27 @@
         </inputAssignments>
         <object>Inquiry__c</object>
     </recordUpdates>
+    <recordUpdates>
+        <name>updateMessage</name>
+        <label>updateMessage</label>
+        <locationX>182</locationX>
+        <locationY>1511</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>getMessage.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>CRM_From_Contact__c</field>
+            <value>
+                <elementReference>varContactId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Message__c</object>
+    </recordUpdates>
     <start>
         <locationX>56</locationX>
         <locationY>0</locationY>
@@ -202,7 +286,7 @@
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
     <variables>
         <name>varAccountId</name>
         <dataType>String</dataType>

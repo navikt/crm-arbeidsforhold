@@ -36,6 +36,10 @@
                     "versionNumber": "0.3.0.LATEST"
                 },
                 {
+                  "package": "crm-shared-flowComponents",
+                  "versionNumber": "0.1.0.LATEST"
+                },
+                {
                     "package": "crm-henvendelse",
                     "versionNumber": "0.31.0.LATEST"
                 }
@@ -55,6 +59,7 @@
         "crm-platform-email-scheduling": "0Ho2o000000fxWwCAI",
         "crm-journal-utilities": "0Ho2o000000fxXkCAI",
         "crm-shared-user-notification": "0Ho2o000000fxY4CAI",
+        "crm-shared-flowComponents": "0Ho2o000000fxYJCAY",
         "crm-henvendelse": "0Ho2o000000fxXfCAI"
     }
 }
