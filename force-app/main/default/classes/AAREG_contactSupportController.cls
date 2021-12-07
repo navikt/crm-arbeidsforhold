@@ -34,7 +34,7 @@ public with sharing class AAREG_contactSupportController {
     Thread__c thread = new Thread__c(
         CRM_Related_Object__c = relatedRecordId,
         CRM_Related_Object_Type__c=sObjName,
-        AAREG_Thread_Subject__c = subject,
+        AAREG_Thread_Subject__c = subject
     );
     insert thread;
 
