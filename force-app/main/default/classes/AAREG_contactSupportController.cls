@@ -29,8 +29,7 @@ public with sharing class AAREG_contactSupportController {
   private static Id createTheadWithMessages(String userId, String relatedRecordId, String description, String subject) {
     Id relatedObjectId = Id.valueOf(relatedRecordId);
     String sObjName = relatedObjectId.getSObjectType().getDescribe().getName();
-    String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId]?.LastUsedOrganization__c;
-      
+          
     Thread__c thread = new Thread__c(
         CRM_Related_Object__c = relatedRecordId,
         CRM_Related_Object_Type__c=sObjName,
