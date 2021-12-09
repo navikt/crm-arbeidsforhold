@@ -3,27 +3,27 @@
     <label>Henvendelsestype</label>
     <name>TypeOfInquiry__c</name>
     <picklistValues>
-        <masterLabel>Change</masterLabel>
-        <translation>Endringsbehov</translation>
+        <masterLabel>Endringsbehov</masterLabel>
+        <translation><!-- Endringsbehov --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Incident</masterLabel>
-        <translation>Feil i løsningen</translation>
+        <masterLabel>Faglige/funksjonelle spørsmål</masterLabel>
+        <translation><!-- Faglige/funksjonelle spørsmål --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Professional / functional questions</masterLabel>
-        <translation>Faglige/funksjonelle spørsmål</translation>
+        <masterLabel>Feil i løsningen</masterLabel>
+        <translation><!-- Feil i løsningen --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Questions related to application for access</masterLabel>
-        <translation>Spørsmål før du søker om tilgang</translation>
+        <masterLabel>Sikkerhetsbrudd</masterLabel>
+        <translation><!-- Sikkerhetsbrudd --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Security breach</masterLabel>
-        <translation>Sikkerhetsbrudd</translation>
+        <masterLabel>Spørsmål før du søker om tilgang</masterLabel>
+        <translation><!-- Spørsmål før du søker om tilgang --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Technical questions</masterLabel>
-        <translation>Tekniske spørsmål</translation>
+        <masterLabel>Tekniske spørsmål</masterLabel>
+        <translation><!-- Tekniske spørsmål --></translation>
     </picklistValues>
 </CustomFieldTranslation>
