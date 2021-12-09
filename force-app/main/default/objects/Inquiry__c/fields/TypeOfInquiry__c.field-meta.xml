@@ -42,6 +42,36 @@
                 <default>false</default>
                 <label>Security breach</label>
             </value>
+            <value>
+                <fullName>Tekniske spørsmål</fullName>
+                <default>false</default>
+                <label>Tekniske spørsmål</label>
+            </value>
+            <value>
+                <fullName>Faglige/funksjonelle spørsmål</fullName>
+                <default>false</default>
+                <label>Faglige/funksjonelle spørsmål</label>
+            </value>
+            <value>
+                <fullName>Feil i løsningen</fullName>
+                <default>false</default>
+                <label>Feil i løsningen</label>
+            </value>
+            <value>
+                <fullName>Endringsbehov</fullName>
+                <default>false</default>
+                <label>Endringsbehov</label>
+            </value>
+            <value>
+                <fullName>Sikkerhetsbrudd</fullName>
+                <default>false</default>
+                <label>Sikkerhetsbrudd</label>
+            </value>
+            <value>
+                <fullName>Spørsmål før du søker om tilgang</fullName>
+                <default>false</default>
+                <label>Spørsmål før du søker om tilgang</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

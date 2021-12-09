@@ -20,6 +20,24 @@
     </actionOverrides>
     <actionOverrides>
         <actionName>View</actionName>
+        <comment>Action override created by Lightning App Builder during activation.</comment>
+        <content>AAREG_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+        <pageOrSobjectType>Task</pageOrSobjectType>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <comment>Action override created by Lightning App Builder during activation.</comment>
+        <content>AAREG_Record_Page</content>
+        <formFactor>Small</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+        <pageOrSobjectType>Task</pageOrSobjectType>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
         <comment>Action override updated by Lightning App Builder during activation.</comment>
         <content>AA_ApplicationRecordPage</content>
         <formFactor>Small</formFactor>
@@ -65,20 +83,20 @@
     <actionOverrides>
         <actionName>View</actionName>
         <comment>Action override created by Lightning App Builder during activation.</comment>
-        <content>AAREG_Record_Page</content>
-        <formFactor>Large</formFactor>
+        <content>AAREG_Account_Record_Page_Layout</content>
+        <formFactor>Small</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>Flexipage</type>
-        <pageOrSobjectType>Task</pageOrSobjectType>
+        <pageOrSobjectType>Account</pageOrSobjectType>
     </actionOverrides>
     <actionOverrides>
         <actionName>View</actionName>
         <comment>Action override created by Lightning App Builder during activation.</comment>
-        <content>AAREG_Record_Page</content>
-        <formFactor>Small</formFactor>
+        <content>AAREG_Account_Record_Page_Layout</content>
+        <formFactor>Large</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>Flexipage</type>
-        <pageOrSobjectType>Task</pageOrSobjectType>
+        <pageOrSobjectType>Account</pageOrSobjectType>
     </actionOverrides>
     <brand>
         <headerColor>#0070D2</headerColor>
