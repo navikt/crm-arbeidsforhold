@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>53.0</apiVersion>
-    <assignments>
-        <name>setAccountId</name>
-        <label>setAccountId</label>
-        <locationX>182</locationX>
-        <locationY>815</locationY>
-        <assignmentItems>
-            <assignToReference>varAccountId</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>getAccount.Id</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>checkContact</targetReference>
-        </connector>
-    </assignments>
     <decisions>
         <name>checkIfContactIsNull</name>
         <label>checkIfContactIsNull</label>
         <locationX>182</locationX>
-        <locationY>1055</locationY>
+        <locationY>815</locationY>
         <defaultConnector>
             <targetReference>updateInquiry</targetReference>
         </defaultConnector>
@@ -68,7 +52,7 @@
         <name>createContact</name>
         <label>createContact</label>
         <locationX>50</locationX>
-        <locationY>1175</locationY>
+        <locationY>935</locationY>
         <assignRecordIdToReference>varContactId</assignRecordIdToReference>
         <connector>
             <targetReference>updateInquiry</targetReference>
@@ -76,25 +60,25 @@
         <inputAssignments>
             <field>AccountId</field>
             <value>
-                <elementReference>$Record.AccountId__c</elementReference>
+                <elementReference>varAccountId</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Email</field>
             <value>
-                <elementReference>$Record.Email__c</elementReference>
+                <elementReference>getInquiry.Email__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>FirstName</field>
             <value>
-                <elementReference>$Record.CreatedBy.FirstName</elementReference>
+                <elementReference>getUser.FirstName</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>LastName</field>
             <value>
-                <elementReference>$Record.CreatedBy.LastName</elementReference>
+                <elementReference>getUser.LastName</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -109,7 +93,7 @@
         <name>checkContact</name>
         <label>checkContact</label>
         <locationX>182</locationX>
-        <locationY>935</locationY>
+        <locationY>695</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkIfContactIsNull</targetReference>
@@ -126,7 +110,7 @@
             <field>Email</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>$Record.Email__c</elementReference>
+                <elementReference>getInquiry.Email__c</elementReference>
             </value>
         </filters>
         <object>Contact</object>
@@ -139,10 +123,10 @@
         <name>getAccount</name>
         <label>getAccount</label>
         <locationX>182</locationX>
-        <locationY>695</locationY>
+        <locationY>575</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>setAccountId</targetReference>
+            <targetReference>checkContact</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -152,10 +136,11 @@
                 <elementReference>getInquiry.CreatedByOrganizationNumber__c</elementReference>
             </value>
         </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Account</object>
-        <queriedFields>Id</queriedFields>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <outputAssignments>
+            <assignToReference>varAccountId</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
     </recordLookups>
     <recordLookups>
         <name>getInquiry</name>
@@ -164,7 +149,7 @@
         <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>getThread</targetReference>
+            <targetReference>getUser</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -179,68 +164,39 @@
         <queriedFields>Id</queriedFields>
         <queriedFields>CreatedByOrganizationNumber__c</queriedFields>
         <queriedFields>AccountId__c</queriedFields>
+        <queriedFields>Email__c</queriedFields>
+        <queriedFields>OwnerId</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <name>getMessage</name>
-        <label>getMessage</label>
+        <name>getUser</name>
+        <label>getUser</label>
         <locationX>182</locationX>
-        <locationY>575</locationY>
+        <locationY>455</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getAccount</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>CRM_Thread__c</field>
+            <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>getThread.Id</elementReference>
+                <elementReference>getInquiry.OwnerId</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Message__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>getThread</name>
-        <label>getThread</label>
-        <locationX>182</locationX>
-        <locationY>455</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>getMessage</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>CRM_Related_Object__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>getInquiry.Id</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Thread__c</object>
+        <object>User</object>
         <queriedFields>Id</queriedFields>
-        <queriedFields>CRM_Type__c</queriedFields>
+        <queriedFields>LastName</queriedFields>
+        <queriedFields>FirstName</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
         <name>updateInquiry</name>
         <label>updateInquiry</label>
         <locationX>182</locationX>
-        <locationY>1391</locationY>
-        <connector>
-            <targetReference>updateMessage</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </filters>
+        <locationY>1151</locationY>
         <inputAssignments>
             <field>AccountId__c</field>
             <value>
@@ -253,28 +209,7 @@
                 <elementReference>varContactId</elementReference>
             </value>
         </inputAssignments>
-        <object>Inquiry__c</object>
-    </recordUpdates>
-    <recordUpdates>
-        <name>updateMessage</name>
-        <label>updateMessage</label>
-        <locationX>182</locationX>
-        <locationY>1511</locationY>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>getMessage.Id</elementReference>
-            </value>
-        </filters>
-        <inputAssignments>
-            <field>CRM_From_Contact__c</field>
-            <value>
-                <elementReference>varContactId</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Message__c</object>
+        <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
         <locationX>56</locationX>
@@ -286,7 +221,7 @@
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <variables>
         <name>varAccountId</name>
         <dataType>String</dataType>
