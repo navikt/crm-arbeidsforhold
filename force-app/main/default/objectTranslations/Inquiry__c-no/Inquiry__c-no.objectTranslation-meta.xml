@@ -38,11 +38,11 @@
             <section>Custom Links</section>
         </sections>
         <sections>
-            <label><!-- Details --></label>
+            <label>Detaljer</label>
             <section>Details</section>
         </sections>
         <sections>
-            <label><!-- Inquiry --></label>
+            <label>Henvendelse</label>
             <section>Inquiry</section>
         </sections>
         <sections>
@@ -51,6 +51,11 @@
         </sections>
     </layouts>
     <nameFieldLabel>Henvendelse nummer</nameFieldLabel>
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Legg til intern merknad</label>
+        <name>AAREG_addInternalComment</name>
+    </quickActions>
     <quickActions>
         <aspect>Master</aspect>
         <label>Send varsel til bruker</label>
