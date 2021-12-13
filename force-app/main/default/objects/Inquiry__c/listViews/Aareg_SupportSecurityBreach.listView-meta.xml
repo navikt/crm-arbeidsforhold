@@ -11,14 +11,14 @@
     <filters>
         <field>TypeOfInquiry__c</field>
         <operation>equals</operation>
-        <value>Security breach</value>
+        <value>Sikkerhetsbrudd</value>
     </filters>
     <filters>
         <field>Status__c</field>
         <operation>equals</operation>
         <value>New,In progress</value>
     </filters>
-    <label>Aareg Support Sikkerhetsbrudd</label>
+    <label>Aareg Brukerstøtte sikkerhetsbrudd</label>
     <sharedTo>
         <group>AAREG_Casehandling</group>
         <group>AAREG_Support</group>

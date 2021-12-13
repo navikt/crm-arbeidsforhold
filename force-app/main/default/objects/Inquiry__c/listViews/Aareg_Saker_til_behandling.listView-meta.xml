@@ -11,15 +11,16 @@
     <filters>
         <field>TypeOfInquiry__c</field>
         <operation>equals</operation>
-        <value>Questions related to application for access,Professional / functional questions</value>
+        <value>Faglige/funksjonelle spørsmål,Spørsmål før du søker om tilgang</value>
     </filters>
     <filters>
         <field>Status__c</field>
         <operation>equals</operation>
         <value>New,In progress</value>
     </filters>
-    <label>Aareg Saker til behandling</label>
+    <label>Aareg Brukerstøtte saker til behandling</label>
     <sharedTo>
+        <group>AAREG_Casehandling</group>
         <group>AAREG_Support</group>
     </sharedTo>
 </ListView>
