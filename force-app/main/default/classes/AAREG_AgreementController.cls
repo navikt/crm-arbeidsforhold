@@ -1,4 +1,4 @@
-public without sharing class AAREG_AgreementController {
+public with sharing class AAREG_AgreementController {
   @AuraEnabled(cacheable=true)
   public static List<RelatedContact__c> getAgreementContacts(String recordId) {
     List<RelatedContact__c> contacts = new List<RelatedContact__c>();

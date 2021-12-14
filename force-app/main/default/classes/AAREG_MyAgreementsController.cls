@@ -1,4 +1,4 @@
-public without sharing class AAREG_MyAgreementsController {
+public with sharing class AAREG_MyAgreementsController {
   @AuraEnabled(cacheable=true)
   public static List<Agreement__c> getUsersAgreements(String userId) {
     String lastUsedOrganization = [SELECT Id, lastUsedOrganization__c FROM User WHERE ID = :userid]
