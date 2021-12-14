@@ -11,14 +11,14 @@
     <filters>
         <field>TypeOfInquiry__c</field>
         <operation>equals</operation>
-        <value>Technical questions</value>
+        <value>Tekniske spørsmål</value>
     </filters>
     <filters>
         <field>Status__c</field>
         <operation>equals</operation>
         <value>New,In progress</value>
     </filters>
-    <label>Aareg Support Tekniske spørsmål</label>
+    <label>Aareg Brukerstøtte tekniske spørsmål</label>
     <sharedTo>
         <group>AAREG_Casehandling</group>
         <group>AAREG_Support</group>

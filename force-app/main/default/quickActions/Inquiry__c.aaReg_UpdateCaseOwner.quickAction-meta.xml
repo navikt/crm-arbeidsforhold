@@ -26,7 +26,7 @@
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
                 <field>Status__c</field>
-                <uiBehavior>Readonly</uiBehavior>
+                <uiBehavior>Edit</uiBehavior>
             </quickActionLayoutItems>
         </quickActionLayoutColumns>
         <quickActionLayoutColumns/>
