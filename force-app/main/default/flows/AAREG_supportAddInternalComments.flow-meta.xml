@@ -41,6 +41,20 @@
                 <elementReference>varDateTimeUser</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varInternalCommentAdd</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>newLine</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varInternalCommentAdd</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>******************************************</stringValue>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>updateComment</targetReference>
         </connector>

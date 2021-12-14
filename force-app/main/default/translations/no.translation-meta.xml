@@ -181,21 +181,25 @@
     <flows>
       <screens>
         <fields>
+          <fieldText>Nei, ikke ferdigstill henvendelse - send kun varsel</fieldText>
           <name>notFinished</name>
         </fields>
         <fields>
+          <fieldText>Ja, ferdigstill henvendelse og send varsel</fieldText>
           <name>yesFinished</name>
         </fields>
         <name>closeCaseSendNotification</name>
       </screens>
       <screens>
         <fields>
+          <fieldText>Saken vil settes i ferdigbehandlet status og bruker vil bli varslet</fieldText>
           <name>inquiryClosed</name>
         </fields>
         <name>finishedSendNotifidcation</name>
       </screens>
       <screens>
         <fields>
+          <fieldText>Bruker vil bli varslet</fieldText>
           <name>notFinishedYet</name>
         </fields>
         <name>notFinishedSendNotificationToUser</name>
