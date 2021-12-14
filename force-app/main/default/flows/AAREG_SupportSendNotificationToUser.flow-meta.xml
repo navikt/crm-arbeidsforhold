@@ -152,6 +152,7 @@
         </inputAssignments>
         <object>Inquiry__c</object>
     </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
     <screens>
         <name>closeCaseSendNotification</name>
         <label>closeCaseSendNotification</label>
