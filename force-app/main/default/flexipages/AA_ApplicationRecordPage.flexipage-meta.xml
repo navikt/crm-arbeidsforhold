@@ -338,6 +338,10 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>showClose</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>singleThread</name>
                     <value>false</value>
                 </componentInstanceProperties>
@@ -467,6 +471,10 @@
         </itemInstances>
         <itemInstances>
             <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.DecisionDescription__c</fieldItem>
             </fieldInstance>
         </itemInstances>

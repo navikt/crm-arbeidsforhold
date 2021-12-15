@@ -45,6 +45,11 @@
     <nameFieldLabel>Søknads nummer</nameFieldLabel>
     <quickActions>
         <aspect>Master</aspect>
+        <label>Legg til intern merknad</label>
+        <name>AAREG_addAppInternalComment</name>
+    </quickActions>
+    <quickActions>
+        <aspect>Master</aspect>
         <label>Sett sakseier og status</label>
         <name>AA_UpdateCasehandlerOwner</name>
     </quickActions>
