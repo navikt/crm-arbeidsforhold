@@ -235,6 +235,24 @@
     <flows>
       <screens>
         <fields>
+          <fieldText>Legg til merknad - kun for internt bruk</fieldText>
+          <name>addInternalComment</name>
+        </fields>
+        <name>addComment</name>
+      </screens>
+      <textTemplates>
+        <name>newLine</name>
+      </textTemplates>
+      <textTemplates>
+        <name>varAddTextTemplateComments</name>
+      </textTemplates>
+    </flows>
+    <fullName>AAREG_applicationAddInternalComments</fullName>
+  </flowDefinitions>
+  <flowDefinitions>
+    <flows>
+      <screens>
+        <fields>
           <fieldText>Du har ikke bekreftet at søknaden er ferdigbehandlet.</fieldText>
           <name>ErrorMessage</name>
         </fields>
@@ -433,11 +451,13 @@
     </flows>
     <fullName>Create_Community_Plus_User</fullName>
   </flowDefinitions>
+
   <flowDefinitions>
     <flows />
     <fullName>NAVTask_Owner_Change</fullName>
   </flowDefinitions>
   <flowDefinitions>
+
     <flows />
     <fullName>TAG_Update_NavUnit_in_NavTask</fullName>
   </flowDefinitions>

@@ -1,64 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>53.0</apiVersion>
-    <assignments>
-        <name>addInternalComments</name>
-        <label>addInternalComments</label>
-        <locationX>50</locationX>
-        <locationY>518</locationY>
-        <assignmentItems>
-            <assignToReference>varInternalCommentAdd</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>getInquiry.InternalComments__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varInternalCommentAdd</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>newLine</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varInternalCommentAdd</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>addInternalComment</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varInternalCommentAdd</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>newLine</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varInternalCommentAdd</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>varDateTimeUser</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varInternalCommentAdd</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>newLine</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varInternalCommentAdd</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <stringValue>******************************************</stringValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>updateComment</targetReference>
-        </connector>
-    </assignments>
     <constants>
         <description>Used for adding newLine</description>
         <name>conGES</name>
@@ -84,18 +26,25 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>addInternalComments</targetReference>
+                <targetReference>updateComment</targetReference>
             </connector>
             <label>notEmpty</label>
         </rules>
     </decisions>
+    <description>Add an internal comment + user and time/date</description>
+    <formulas>
+        <name>addDescription</name>
+        <dataType>String</dataType>
+        <expression>{!varDateTimeUser}&amp; BR() &amp;
+{!addInternalComment}</expression>
+    </formulas>
     <formulas>
         <name>varDateTimeUser</name>
         <dataType>String</dataType>
         <expression>&apos;Merknad lagt til &apos;&amp; TEXT({!$Flow.CurrentDate})&amp;&apos; av &apos;&amp;{!$User.FirstName}&amp;&apos; &apos;&amp;{!$User.LastName}</expression>
     </formulas>
-    <interviewLabel>AAREG_supportAddInternalComments {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_supportAddInternalComments</label>
+    <interviewLabel>AAREG_applicationAddInternalComments {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>AAREG_applicationAddInternalComments</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -115,9 +64,59 @@
         </value>
     </processMetadataValues>
     <processType>Flow</processType>
+    <recordCreates>
+        <name>createTask</name>
+        <label>createTask</label>
+        <locationX>50</locationX>
+        <locationY>638</locationY>
+        <inputAssignments>
+            <field>ActivityDate</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>addDescription</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Priority</field>
+            <value>
+                <stringValue>Normal</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <stringValue>Merknad lagt til</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <stringValue>Merknad</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId</field>
+            <value>
+                <elementReference>getApplication.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Task</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
     <recordLookups>
-        <name>getInquiry</name>
-        <label>getInquiry</label>
+        <name>getApplication</name>
+        <label>getApplication</label>
         <locationX>182</locationX>
         <locationY>158</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
@@ -133,31 +132,34 @@
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Inquiry__c</object>
+        <object>Application__c</object>
         <queriedFields>Id</queriedFields>
-        <queriedFields>InternalComments__c</queriedFields>
+        <queriedFields>DecisionDescription__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
         <name>updateComment</name>
         <label>updateComment</label>
         <locationX>50</locationX>
-        <locationY>638</locationY>
+        <locationY>518</locationY>
+        <connector>
+            <targetReference>createTask</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>getInquiry.Id</elementReference>
+                <elementReference>getApplication.Id</elementReference>
             </value>
         </filters>
         <inputAssignments>
-            <field>InternalComments__c</field>
+            <field>DecisionDescription__c</field>
             <value>
-                <elementReference>varInternalCommentAdd</elementReference>
+                <elementReference>varAddTextTemplateComments</elementReference>
             </value>
         </inputAssignments>
-        <object>Inquiry__c</object>
+        <object>Application__c</object>
     </recordUpdates>
     <screens>
         <name>addComment</name>
@@ -183,7 +185,7 @@
         <locationX>56</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>getInquiry</targetReference>
+            <targetReference>getApplication</targetReference>
         </connector>
     </start>
     <status>Active</status>
@@ -191,6 +193,14 @@
         <name>newLine</name>
         <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>&lt;p&gt;{!conGES}&lt;/p&gt;</text>
+    </textTemplates>
+    <textTemplates>
+        <name>varAddTextTemplateComments</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>{!getApplication.DecisionDescription__c}
+{!addInternalComment}
+{!varDateTimeUser}
+***************************************</text>
     </textTemplates>
     <variables>
         <name>recordId</name>
