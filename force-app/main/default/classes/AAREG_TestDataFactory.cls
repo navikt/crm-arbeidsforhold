@@ -46,7 +46,7 @@ public with sharing class AAREG_TestDataFactory {
     Inquiry__c inquiry = new Inquiry__c(
       InquiryDescription__c = 'Test Description',
       Status__c = 'New',
-      TypeOfInquiry__c = 'Technical questions'
+      TypeOfInquiry__c = 'Sikkerhetsbrudd'
     );
     return inquiry;
   }
