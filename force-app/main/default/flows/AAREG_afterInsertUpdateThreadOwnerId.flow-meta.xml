@@ -2,15 +2,59 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>53.0</apiVersion>
     <assignments>
-        <name>setApplicationName</name>
-        <label>setApplicationName</label>
-        <locationX>4</locationX>
-        <locationY>651</locationY>
+        <name>setApplicationVariables</name>
+        <label>setApplicationVariables</label>
+        <locationX>50</locationX>
+        <locationY>575</locationY>
         <assignmentItems>
-            <assignToReference>varApplicationName</assignToReference>
+            <assignToReference>varNameNumber</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>getApplication.Name</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varAccountId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getApplication.Account__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varOwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getApplication.OwnerId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>updateThreadOwner</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>setInquiryVariables</name>
+        <label>setInquiryVariables</label>
+        <locationX>314</locationX>
+        <locationY>575</locationY>
+        <assignmentItems>
+            <assignToReference>varAccountId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getInquiry.AccountId__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varNameNumber</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getInquiry.Name</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varOwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getInquiry.OwnerId</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -20,24 +64,17 @@
     <decisions>
         <name>checkObjectType</name>
         <label>checkObjectType</label>
-        <locationX>386</locationX>
-        <locationY>458</locationY>
+        <locationX>314</locationX>
+        <locationY>335</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>isApplication</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>getThread.CRM_Related_Object__c</leftValueReference>
-                <operator>StartsWith</operator>
+                <leftValueReference>$Record.CRM_Related_Object_Type__c</leftValueReference>
+                <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>a1e</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>getThread.CRM_Contact__c</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
+                    <stringValue>Application__c</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -45,13 +82,23 @@
             </connector>
             <label>isApplication</label>
         </rules>
+        <rules>
+            <name>isInquiry</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.CRM_Related_Object__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Inquiry__c</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>getInquiry</targetReference>
+            </connector>
+            <label>isInquiry</label>
+        </rules>
     </decisions>
     <description>Update Thread Owner  to portal owner, if the Thread is created from NAV.</description>
-    <formulas>
-        <name>varThreadSubject</name>
-        <dataType>String</dataType>
-        <expression>&quot;Henvendelse fra NAV - &quot;&amp; {!varApplicationName}</expression>
-    </formulas>
     <interviewLabel>AAREG_afterInsertUpdateThreadOwnerId {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_afterInsertUpdateThreadOwnerId</label>
     <processMetadataValues>
@@ -63,7 +110,7 @@
     <processMetadataValues>
         <name>CanvasMode</name>
         <value>
-            <stringValue>FREE_FORM_CANVAS</stringValue>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
         </value>
     </processMetadataValues>
     <processMetadataValues>
@@ -76,18 +123,18 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>254</locationX>
-        <locationY>579</locationY>
+        <locationX>50</locationX>
+        <locationY>455</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>setApplicationName</targetReference>
+            <targetReference>setApplicationVariables</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>getThread.CRM_Related_Object__c</elementReference>
+                <elementReference>$Record.CRM_Related_Object__c</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -97,95 +144,118 @@
         <queriedFields>Contact__c</queriedFields>
         <queriedFields>Account__c</queriedFields>
         <queriedFields>Name</queriedFields>
+        <queriedFields>AccountId__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <name>getThread</name>
-        <label>getThread</label>
-        <locationX>394</locationX>
-        <locationY>295</locationY>
+        <name>getInquiry</name>
+        <label>getInquiry</label>
+        <locationX>314</locationX>
+        <locationY>455</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>checkObjectType</targetReference>
+            <targetReference>setInquiryVariables</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>$Record.Id</elementReference>
+                <elementReference>$Record.CRM_Related_Object__c</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Thread__c</object>
+        <object>Inquiry__c</object>
         <queriedFields>Id</queriedFields>
-        <queriedFields>CRM_Account__c</queriedFields>
-        <queriedFields>CRM_Contact__c</queriedFields>
-        <queriedFields>CRM_Related_Object_Type__c</queriedFields>
+        <queriedFields>AccountId__c</queriedFields>
+        <queriedFields>ContactId__c</queriedFields>
         <queriedFields>OwnerId</queriedFields>
-        <queriedFields>CRM_Related_Object__c</queriedFields>
-        <queriedFields>CRM_Thread_Type__c</queriedFields>
+        <queriedFields>Name</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
         <name>updateThreadOwner</name>
         <label>updateThreadOwner</label>
-        <locationX>248</locationX>
-        <locationY>776</locationY>
-        <inputAssignments>
-            <field>AAREG_Thread_Subject__c</field>
-            <value>
-                <elementReference>varThreadSubject</elementReference>
-            </value>
-        </inputAssignments>
+        <locationX>314</locationX>
+        <locationY>791</locationY>
         <inputAssignments>
             <field>CRM_Account__c</field>
             <value>
-                <elementReference>getApplication.Account__c</elementReference>
+                <elementReference>varAccountId</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>CRM_Contact__c</field>
+            <field>CRM_From__c</field>
             <value>
-                <elementReference>getApplication.Contact__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CRM_Related_Object_Type__c</field>
-            <value>
-                <stringValue>Application__c</stringValue>
+                <elementReference>varOwnerId</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>CRM_Thread_Type__c</field>
             <value>
-                <stringValue>AAREG_INT</stringValue>
+                <stringValue>AAREG_EXP</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>OwnerId</field>
             <value>
-                <elementReference>getApplication.OwnerId</elementReference>
+                <elementReference>varOwnerId</elementReference>
             </value>
         </inputAssignments>
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>458</locationX>
-        <locationY>48</locationY>
+        <locationX>188</locationX>
+        <locationY>0</locationY>
         <connector>
-            <targetReference>getThread</targetReference>
+            <targetReference>checkObjectType</targetReference>
         </connector>
+        <filterLogic>or</filterLogic>
+        <filters>
+            <field>CRM_Related_Object_Type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Application__c</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>CRM_Related_Object_Type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Inquiry__c</stringValue>
+            </value>
+        </filters>
         <object>Thread__c</object>
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <variables>
-        <name>varApplicationName</name>
+        <name>recordId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
-        <isOutput>true</isOutput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varAccountId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varNameNumber</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varOwnerId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
     </variables>
 </Flow>
