@@ -12,9 +12,9 @@ public class AAREG_ContactSupportControllerTest {
     insert application;
 
     Test.startTest();
-    try{
-      AAREG_contactSupportController.createThreadForApplication(usr.Id, application.Id, 'Test Description','Sikkerhetsbrudd');
-    }cathc(exeption e){}
+      try{
+          AAREG_contactSupportController.createThreadForApplication(usr.Id, application.Id, 'Test Description','Sikkerhetsbrudd');
+      }catch(exception e){}
     
     Test.stopTest();
 
