@@ -6,7 +6,7 @@ public with sharing class AAREG_TestDataFactory {
       Casehandler_Status__c = 'New',
       AA_register_application_text__c = 'Test',
       AA_DecisionArchiveText__c = 'Test',
-      IsConfirmationEmailSent__c = true,
+      IsEmailConfirmationSent__c = true,
       AccountName__c = 'Test Account',
       OrganizationNumber__c = '123456789',
       MailingAddress__c = 'Test 123',
