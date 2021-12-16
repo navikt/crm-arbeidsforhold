@@ -6,7 +6,7 @@ public with sharing class AAREG_TestDataFactory {
       Casehandler_Status__c = 'New',
       AA_register_application_text__c = 'Test',
       AA_DecisionArchiveText__c = 'Test',
-      IsConfirmationEmailSent__c = true,
+      IsEmailConfirmationSent__c = true,
       AccountName__c = 'Test Account',
       OrganizationNumber__c = '123456789',
       MailingAddress__c = 'Test 123',
@@ -46,7 +46,7 @@ public with sharing class AAREG_TestDataFactory {
     Inquiry__c inquiry = new Inquiry__c(
       InquiryDescription__c = 'Test Description',
       Status__c = 'New',
-      TypeOfInquiry__c = 'Technical questions'
+      TypeOfInquiry__c = 'Sikkerhetsbrudd'
     );
     return inquiry;
   }

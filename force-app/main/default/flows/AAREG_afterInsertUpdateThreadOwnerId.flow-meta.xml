@@ -17,7 +17,7 @@
             <assignToReference>varAccountId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>getApplication.AccountId__c</elementReference>
+                <elementReference>getApplication.Account__c</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -144,6 +144,7 @@
         <queriedFields>Contact__c</queriedFields>
         <queriedFields>Account__c</queriedFields>
         <queriedFields>Name</queriedFields>
+        <queriedFields>AccountId__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>

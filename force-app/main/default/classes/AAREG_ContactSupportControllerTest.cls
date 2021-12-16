@@ -12,7 +12,8 @@ public class AAREG_ContactSupportControllerTest {
     insert application;
 
     Test.startTest();
-    AAREG_contactSupportController.createThreadForApplication(usr.Id, application.Id, 'Test Description','Sikkerhetsbrudd');
+          AAREG_contactSupportController.createThreadForApplication(usr.Id, application.Id, 'Test Description','Sikkerhetsbrudd');
+    
     Test.stopTest();
 
     List<Thread__c> threads = [SELECT Id, CRM_Related_Object__c, CRM_Number_of_unread_Messages__c FROM Thread__c];
