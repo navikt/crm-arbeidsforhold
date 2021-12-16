@@ -197,10 +197,10 @@
     <textTemplates>
         <name>varAddTextTemplateComments</name>
         <isViewedAsPlainText>true</isViewedAsPlainText>
-        <text>{!getApplication.DecisionDescription__c}
-{!addInternalComment}
+        <text>{!addInternalComment}
 {!varDateTimeUser}
-***************************************</text>
+**********************************************
+{!getApplication.DecisionDescription__c}</text>
     </textTemplates>
     <variables>
         <name>recordId</name>
