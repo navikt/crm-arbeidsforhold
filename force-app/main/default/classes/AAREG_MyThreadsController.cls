@@ -19,7 +19,7 @@ public with sharing class AAREG_MyThreadsController {
           AAREG_Thread_Subject__c,
           CRM_isActive__c
         FROM Thread__c
-        WHERE CRM_Account__r.INT_OrganizationNumber__c = :lastUsedOrganizationNumber
+        WHERE CRM_Account__r.INT_OrganizationNumber__c!=null AND CRM_Account__r.INT_OrganizationNumber__c = :lastUsedOrganizationNumber
         ORDER BY CRM_Latest_Message_Datetime__c DESC
       ];
     } catch (Exception e) {
