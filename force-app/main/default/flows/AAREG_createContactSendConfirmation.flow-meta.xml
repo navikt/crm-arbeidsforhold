@@ -4,8 +4,8 @@
     <decisions>
         <name>IsContactNull</name>
         <label>IsContactNull</label>
-        <locationX>919</locationX>
-        <locationY>262</locationY>
+        <locationX>270</locationX>
+        <locationY>455</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>contactDoesNotExist</name>
@@ -39,6 +39,11 @@
         </rules>
     </decisions>
     <description>Flow check if there is a contactperson already on the account with the same email. If not a contact is created and an email confirmation is sent</description>
+    <formulas>
+        <name>varThreadSubject</name>
+        <dataType>String</dataType>
+        <expression>&apos;Søknad om tilgang til aa-register - &apos;&amp;{!$Record.Name}</expression>
+    </formulas>
     <interviewLabel>AAREG_createContactSendConfirmation {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_createContactSendConfirmation</label>
     <processMetadataValues>
@@ -50,7 +55,7 @@
     <processMetadataValues>
         <name>CanvasMode</name>
         <value>
-            <stringValue>FREE_FORM_CANVAS</stringValue>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
         </value>
     </processMetadataValues>
     <processMetadataValues>
@@ -63,8 +68,8 @@
     <recordCreates>
         <name>createContact</name>
         <label>createContact</label>
-        <locationX>1121</locationX>
-        <locationY>351</locationY>
+        <locationX>50</locationX>
+        <locationY>575</locationY>
         <assignRecordIdToReference>varContactID</assignRecordIdToReference>
         <connector>
             <targetReference>UpdateApplication</targetReference>
@@ -105,8 +110,8 @@
         <description>Create email queue for sending email</description>
         <name>CreateEmailQueue</name>
         <label>CreateEmailQueue</label>
-        <locationX>928</locationX>
-        <locationY>589</locationY>
+        <locationX>270</locationX>
+        <locationY>911</locationY>
         <connector>
             <targetReference>UpdateSentConfirmation</targetReference>
         </connector>
@@ -149,12 +154,67 @@
         <object>EmailQueue__c</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
+    <recordCreates>
+        <name>createMessage</name>
+        <label>createMessage</label>
+        <locationX>270</locationX>
+        <locationY>1271</locationY>
+        <inputAssignments>
+            <field>CRM_From_User__c</field>
+            <value>
+                <elementReference>$Record.OwnerId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Message_Text__c</field>
+            <value>
+                <elementReference>varMessageText</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Thread__c</field>
+            <value>
+                <elementReference>varThreadId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Message__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>createThread</name>
+        <label>createThread</label>
+        <locationX>270</locationX>
+        <locationY>1151</locationY>
+        <assignRecordIdToReference>varThreadId</assignRecordIdToReference>
+        <connector>
+            <targetReference>createMessage</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>AAREG_Thread_Subject__c</field>
+            <value>
+                <elementReference>varThreadSubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Related_Object_Type__c</field>
+            <value>
+                <stringValue>Application__c</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Related_Object__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Thread__c</object>
+    </recordCreates>
     <recordLookups>
         <description>Check if contact email already is created on account</description>
         <name>checkContact</name>
         <label>checkContact</label>
-        <locationX>595</locationX>
-        <locationY>156</locationY>
+        <locationX>270</locationX>
+        <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>IsContactNull</targetReference>
@@ -184,8 +244,8 @@
         <description>Update application with contactID</description>
         <name>UpdateApplication</name>
         <label>UpdateApplication</label>
-        <locationX>928</locationX>
-        <locationY>446</locationY>
+        <locationX>270</locationX>
+        <locationY>791</locationY>
         <connector>
             <targetReference>CreateEmailQueue</targetReference>
         </connector>
@@ -209,8 +269,11 @@
         <description>Update the send confirmation on application</description>
         <name>UpdateSentConfirmation</name>
         <label>UpdateSentConfirmation</label>
-        <locationX>779</locationX>
-        <locationY>589</locationY>
+        <locationX>270</locationX>
+        <locationY>1031</locationY>
+        <connector>
+            <targetReference>createThread</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -228,8 +291,8 @@
         <object>Application__c</object>
     </recordUpdates>
     <start>
-        <locationX>51</locationX>
-        <locationY>50</locationY>
+        <locationX>144</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>checkContact</targetReference>
         </connector>
@@ -261,6 +324,11 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <textTemplates>
+        <name>varMessageText</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;p&gt;Hei&lt;/p&gt;&lt;p&gt;Søknad om tilgang til aa-registeret er levert av {!$Record.Account__r.Name}&lt;/p&gt;</text>
+    </textTemplates>
     <variables>
         <name>templateId</name>
         <dataType>String</dataType>
@@ -284,6 +352,13 @@
     </variables>
     <variables>
         <name>varContactID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varThreadId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
