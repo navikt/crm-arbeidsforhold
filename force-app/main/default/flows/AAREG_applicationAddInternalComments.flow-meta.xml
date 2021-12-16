@@ -197,8 +197,9 @@
     <textTemplates>
         <name>varAddTextTemplateComments</name>
         <isViewedAsPlainText>true</isViewedAsPlainText>
-        <text>{!addInternalComment}
-{!varDateTimeUser}
+        <text>{!varDateTimeUser}
+
+{!addInternalComment}
 **********************************************
 {!getApplication.DecisionDescription__c}</text>
     </textTemplates>
