@@ -191,12 +191,6 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>CRM_Thread_Type__c</field>
-            <value>
-                <stringValue>AAREG_EXP</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>OwnerId</field>
             <value>
                 <elementReference>varOwnerId</elementReference>

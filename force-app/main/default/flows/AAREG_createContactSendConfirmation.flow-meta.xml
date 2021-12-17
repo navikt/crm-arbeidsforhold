@@ -196,6 +196,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>CRM_HenvendelseId__c</field>
+            <value>
+                <elementReference>$Record.Name</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>CRM_Related_Object_Type__c</field>
             <value>
                 <stringValue>Application__c</stringValue>
