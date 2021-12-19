@@ -2,45 +2,35 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>53.0</apiVersion>
     <assignments>
-        <name>setAfterCategory</name>
-        <label>setAfterCategory</label>
+        <name>setStatus</name>
+        <label>setStatus</label>
         <locationX>176</locationX>
-        <locationY>575</locationY>
+        <locationY>455</locationY>
         <assignmentItems>
-            <assignToReference>varAfterCategory</assignToReference>
+            <assignToReference>varStatus</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.TypeOfInquiry__c</elementReference>
+                <elementReference>$Record.Casehandler_Status__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varPriorStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record__Prior.Casehandler_Status__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>getRecordTypeId</targetReference>
+            <targetReference>createTaskOnChangedStatus</targetReference>
         </connector>
     </assignments>
-    <assignments>
-        <name>setBeforeCategory</name>
-        <label>setBeforeCategory</label>
-        <locationX>176</locationX>
-        <locationY>335</locationY>
-        <assignmentItems>
-            <assignToReference>varBeforeCategory</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record__Prior.TypeOfInquiry__c</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>updateInquiry</targetReference>
-        </connector>
-    </assignments>
-    <description>If support case changes inquiry type - owner removes and status set to new</description>
     <formulas>
         <name>varDescription</name>
         <dataType>String</dataType>
-        <expression>&quot;Saken endret kategori fra &quot; +{!varBeforeCategory}+ &quot; til &quot;+{!varAfterCategory}</expression>
+        <expression>&apos;Status har endret status fra &apos;&amp;{!varPriorStatus} &amp;&apos; til &apos;&amp;{!varStatus}</expression>
     </formulas>
-    <interviewLabel>AAREG_SupportChange {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_supportRemoveCaseOwner</label>
+    <interviewLabel>AAREG_applicationChangingStatus {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>AAREG_applicationChangingStatus</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -61,10 +51,10 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordCreates>
-        <name>createTask</name>
-        <label>createTask</label>
+        <name>createTaskOnChangedStatus</name>
+        <label>createTaskOnChangedStatus</label>
         <locationX>176</locationX>
-        <locationY>815</locationY>
+        <locationY>575</locationY>
         <inputAssignments>
             <field>ActivityDate</field>
             <value>
@@ -86,7 +76,7 @@
         <inputAssignments>
             <field>RecordTypeId</field>
             <value>
-                <elementReference>varRecordTypeId</elementReference>
+                <elementReference>varRecordId</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -98,13 +88,13 @@
         <inputAssignments>
             <field>Subject</field>
             <value>
-                <stringValue>Endret kategori</stringValue>
+                <stringValue>Endring av status</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Type</field>
             <value>
-                <stringValue>Endret kategori</stringValue>
+                <stringValue>Status</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -117,13 +107,13 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordLookups>
-        <name>getRecordTypeId</name>
-        <label>getRecordTypeId</label>
+        <name>getRecordId</name>
+        <label>getRecordId</label>
         <locationX>176</locationX>
-        <locationY>695</locationY>
+        <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>createTask</targetReference>
+            <targetReference>setStatus</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -135,94 +125,45 @@
         </filters>
         <object>RecordType</object>
         <outputAssignments>
-            <assignToReference>varRecordTypeId</assignToReference>
+            <assignToReference>varRecordId</assignToReference>
             <field>Id</field>
         </outputAssignments>
     </recordLookups>
-    <recordUpdates>
-        <name>updateInquiry</name>
-        <label>updateInquiry</label>
-        <locationX>176</locationX>
-        <locationY>455</locationY>
-        <connector>
-            <targetReference>setAfterCategory</targetReference>
-        </connector>
-        <inputAssignments>
-            <field>InquiryOwnerName__c</field>
-            <value>
-                <elementReference>varOwner</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>InquiryOwner__c</field>
-            <value>
-                <elementReference>varOwner</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status__c</field>
-            <value>
-                <stringValue>New</stringValue>
-            </value>
-        </inputAssignments>
-        <inputReference>$Record</inputReference>
-    </recordUpdates>
     <start>
         <locationX>50</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>setBeforeCategory</targetReference>
+            <targetReference>getRecordId</targetReference>
         </connector>
-        <filterLogic>1 AND ( 2 OR 3)</filterLogic>
+        <filterLogic>and</filterLogic>
         <filters>
-            <field>TypeOfInquiry__c</field>
+            <field>Casehandler_Status__c</field>
             <operator>IsChanged</operator>
             <value>
                 <booleanValue>true</booleanValue>
             </value>
         </filters>
-        <filters>
-            <field>InquiryOwner__c</field>
-            <operator>IsNull</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </filters>
-        <filters>
-            <field>Status__c</field>
-            <operator>NotEqualTo</operator>
-            <value>
-                <stringValue>New</stringValue>
-            </value>
-        </filters>
-        <object>Inquiry__c</object>
+        <object>Application__c</object>
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
     <variables>
-        <name>varAfterCategory</name>
+        <name>varPriorStatus</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <name>varBeforeCategory</name>
+        <name>varRecordId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <name>varOwner</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>true</isInput>
-        <isOutput>true</isOutput>
-    </variables>
-    <variables>
-        <name>varRecordTypeId</name>
+        <name>varStatus</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>

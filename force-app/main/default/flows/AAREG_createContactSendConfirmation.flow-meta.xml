@@ -45,7 +45,7 @@
         <expression>&apos;Hei&apos;&amp;BR() &amp;
 &apos;NAV har mottatt søknad om tilgang til Arbeidsgiver- og arbeidstakerregisteret. &apos;&amp;BR() &amp;
 &apos;Ved å bruke denne meldingen til å sende spørsmål eller oppdateringer knyttet til din søknad vil meldingen gå direkte til saksbehandler av søknaden.&apos;&amp;BR() &amp;
-&apos;Dere vil motta et svar senest innen 4 uker.&apos;</expression>
+&apos;Du vil motta et svar senest innen 4 uker.&apos;</expression>
     </formulas>
     <formulas>
         <name>varThreadSubject</name>
