@@ -40,9 +40,17 @@
     </decisions>
     <description>Flow check if there is a contactperson already on the account with the same email. If not a contact is created and an email confirmation is sent</description>
     <formulas>
+        <name>varMessagFromNav</name>
+        <dataType>String</dataType>
+        <expression>&apos;Hei&apos;&amp;BR() &amp;
+&apos;NAV har mottatt søknad om tilgang til Arbeidsgiver- og arbeidstakerregisteret. &apos;&amp;BR() &amp;
+&apos;Ved å bruke denne meldingen til å sende spørsmål eller oppdateringer knyttet til din søknad vil meldingen gå direkte til saksbehandler av søknaden.&apos;&amp;BR() &amp;
+&apos;Dere vil motta et svar senest innen 4 uker.&apos;</expression>
+    </formulas>
+    <formulas>
         <name>varThreadSubject</name>
         <dataType>String</dataType>
-        <expression>&apos;Søknad om tilgang til aa-register - &apos;&amp;{!$Record.Name}</expression>
+        <expression>{!$Record.Name} &amp;&apos; - Søknad om tilgang til aa-register&apos;</expression>
     </formulas>
     <interviewLabel>AAREG_createContactSendConfirmation {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_createContactSendConfirmation</label>
@@ -113,7 +121,7 @@
         <locationX>270</locationX>
         <locationY>911</locationY>
         <connector>
-            <targetReference>UpdateSentConfirmation</targetReference>
+            <targetReference>createThread</targetReference>
         </connector>
         <inputAssignments>
             <field>Priority__c</field>
@@ -158,7 +166,10 @@
         <name>createMessage</name>
         <label>createMessage</label>
         <locationX>270</locationX>
-        <locationY>1271</locationY>
+        <locationY>1151</locationY>
+        <connector>
+            <targetReference>CreateMessageFromNAV</targetReference>
+        </connector>
         <inputAssignments>
             <field>CRM_From_User__c</field>
             <value>
@@ -181,10 +192,30 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordCreates>
+        <name>CreateMessageFromNAV</name>
+        <label>CreateMessageFromNAV</label>
+        <locationX>270</locationX>
+        <locationY>1271</locationY>
+        <inputAssignments>
+            <field>CRM_Message_Text__c</field>
+            <value>
+                <elementReference>varMessagFromNav</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Thread__c</field>
+            <value>
+                <elementReference>varThreadId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Message__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
         <name>createThread</name>
         <label>createThread</label>
         <locationX>270</locationX>
-        <locationY>1151</locationY>
+        <locationY>1031</locationY>
         <assignRecordIdToReference>varThreadId</assignRecordIdToReference>
         <connector>
             <targetReference>createMessage</targetReference>
@@ -193,6 +224,12 @@
             <field>AAREG_Thread_Subject__c</field>
             <value>
                 <elementReference>varThreadSubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Account__c</field>
+            <value>
+                <elementReference>$Record.AccountId__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -269,25 +306,6 @@
                 <elementReference>varContactID</elementReference>
             </value>
         </inputAssignments>
-        <object>Application__c</object>
-    </recordUpdates>
-    <recordUpdates>
-        <description>Update the send confirmation on application</description>
-        <name>UpdateSentConfirmation</name>
-        <label>UpdateSentConfirmation</label>
-        <locationX>270</locationX>
-        <locationY>1031</locationY>
-        <connector>
-            <targetReference>createThread</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </filters>
         <inputAssignments>
             <field>IsEmailConfirmationSent__c</field>
             <value>
