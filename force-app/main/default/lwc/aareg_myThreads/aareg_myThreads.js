@@ -26,7 +26,7 @@ const COLUMNS = [
     hideDefaultActions: true },
     
   {
-    label: 'Antall meldinger',
+    label: 'Antall uleste meldinger',
     fieldName: 'CRM_Number_of_unread_Messages__c',
     type: 'text',
     hideDefaultActions: true
