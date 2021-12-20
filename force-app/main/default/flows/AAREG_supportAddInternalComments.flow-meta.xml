@@ -45,7 +45,7 @@
             <assignToReference>varInternalCommentAdd</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference>getInquiry.InternalComments__c</elementReference>
+                <stringValue>*************************************************************</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -59,7 +59,7 @@
             <assignToReference>varInternalCommentAdd</assignToReference>
             <operator>Add</operator>
             <value>
-                <stringValue>**************************************************</stringValue>
+                <elementReference>getInquiry.InternalComments__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
