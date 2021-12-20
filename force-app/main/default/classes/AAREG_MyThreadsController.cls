@@ -5,7 +5,10 @@ public with sharing class AAREG_MyThreadsController {
     try {
       String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId]
       ?.LastUsedOrganization__c;
-      system.debug(lastUsedOrganizationNumber);
+     if(lastUsedOrganizationNumber==null){
+       system.debug('no organization is found');
+       return new List<Thread__c>();
+     }
       threads = [
         SELECT
           Id,
@@ -20,7 +23,7 @@ public with sharing class AAREG_MyThreadsController {
           AAREG_Thread_Subject__c,
           CRM_isActive__c
         FROM Thread__c
-        WHERE CRM_Account__r.INT_OrganizationNumber__c!=null AND CRM_Account__r.INT_OrganizationNumber__c = :lastUsedOrganizationNumber
+        WHERE CRM_Account__r.INT_OrganizationNumber__c = :lastUsedOrganizationNumber
         ORDER BY CRM_Latest_Message_Datetime__c DESC
       ];
       system.debug(threads.size());
