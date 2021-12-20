@@ -5,6 +5,7 @@ public with sharing class AAREG_MyThreadsController {
     try {
       String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId]
       ?.LastUsedOrganization__c;
+      system.debug(lastUsedOrganizationNumber);
       threads = [
         SELECT
           Id,
@@ -22,7 +23,9 @@ public with sharing class AAREG_MyThreadsController {
         WHERE CRM_Account__r.INT_OrganizationNumber__c!=null AND CRM_Account__r.INT_OrganizationNumber__c = :lastUsedOrganizationNumber
         ORDER BY CRM_Latest_Message_Datetime__c DESC
       ];
+      system.debug(threads.size());
     } catch (Exception e) {
+      system.debug(e.getMessage());
       LoggerUtility logger = new LoggerUtility();
       logger.error(e.getMessage(), null);
       logger.publish();
