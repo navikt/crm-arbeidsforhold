@@ -23,6 +23,9 @@ public with sharing class AAREG_MyThreadsController {
         ORDER BY CRM_Latest_Message_Datetime__c DESC
       ];
     } catch (Exception e) {
+      LoggerUtility logger = new LoggerUtility();
+      logger.error(e.getMessage(), null);
+      logger.publish();
       throw new AuraHandledException(e.getMessage());
     }
     return threads;
