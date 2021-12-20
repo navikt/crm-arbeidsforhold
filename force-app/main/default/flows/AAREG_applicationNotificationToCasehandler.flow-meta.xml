@@ -88,7 +88,7 @@
     <formulas>
         <name>varBody</name>
         <dataType>String</dataType>
-        <expression>&apos;Søker knyttet til søknadsnummer: &apos;&amp;{!$Record.Name}&amp;&apos; har sendt en melding&apos;</expression>
+        <expression>&apos;Søker knyttet til søknadsnummer: &apos;&amp;{!$Record.Name}&amp;&apos; har sendt en melding eller oppdatert søknad&apos;</expression>
     </formulas>
     <interviewLabel>AAREG_applicationNotificationToCasehandler {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_applicationNotificationToCasehandler</label>
@@ -208,7 +208,7 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue>Søker har sendt en melding</stringValue>
+            <stringValue>Søker har sendt en melding eller oppdatert søknad</stringValue>
         </value>
     </variables>
     <variables>
