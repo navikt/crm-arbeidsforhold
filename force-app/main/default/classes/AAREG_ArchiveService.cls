@@ -80,10 +80,6 @@ public class AAREG_ArchiveService {
         application.AA_DecisionArchived__c = true;
         application.AA_DecisionArchivedDate__c = Datetime.now();
         applicationsToUpdate.add(application);
-
-        LoggerUtility logger = new LoggerUtility();
-        logger.info('Søknad ' + application.Name + ' er journalført', null, CRM_ApplicationDomain.Domain.AAREG);
-        logger.publishSynch();
       }
     }
     Database.update(applicationsToUpdate);
@@ -108,27 +104,29 @@ public class AAREG_ArchiveService {
         success = false;
         LoggerUtility logger = new LoggerUtility();
         logger.error(file + ' feilet. ' + response.errorMessage, null, CRM_ApplicationDomain.Domain.AAREG);
-        logger.publishSynch();
+        logger.publish();
       }
     }
 
     if (xmlFileName != null && xmlFileContent != null) {
       success = sendXmlManifest(xmlFileName, xmlFileContent);
-      LoggerUtility logger = new LoggerUtility();
-      logger.info('XML manifest ble overførst med status ' + success, null, CRM_ApplicationDomain.Domain.AAREG);
-      logger.publishSynch();
+      if(success==false){
+        LoggerUtility logger = new LoggerUtility();
+        logger.error('XML manifest ble overførst med status ' + success, null, CRM_ApplicationDomain.Domain.AAREG);
+        logger.publish();
+      }
     }
 
     return success;
   }
 
   private Boolean sendXmlManifest(String xmlFileName, Blob xmlFileContent) {
-    WebSakFileService.WebSakFileResponse xmlResponse = new WebSakFileService().postFile(xmlFileName, xmlFileContent);
+    WebSakFileService.WebSakFileResponse xmlResponse = new WebSakFileService().postFile(xmlFileName, xmlFileContent, FTPS_CATALOGUE);
 
     if (!xmlResponse.success) {
       LoggerUtility logger = new LoggerUtility();
       logger.error(xmlFileName + ' feilet. ' + xmlResponse.errorMessage, null, CRM_ApplicationDomain.Domain.AAREG);
-      logger.publishSynch();
+      logger.publish();
       return false;
     }
     return true;
