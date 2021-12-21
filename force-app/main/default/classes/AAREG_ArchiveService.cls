@@ -83,7 +83,7 @@ public class AAREG_ArchiveService {
 
         LoggerUtility logger = new LoggerUtility();
         logger.info('Søknad ' + application.Name + ' er journalført', null, CRM_ApplicationDomain.Domain.AAREG);
-        logger.publish();
+        logger.publishSynch();
       }
     }
     Database.update(applicationsToUpdate);
@@ -108,7 +108,7 @@ public class AAREG_ArchiveService {
         success = false;
         LoggerUtility logger = new LoggerUtility();
         logger.error(file + ' feilet. ' + response.errorMessage, null, CRM_ApplicationDomain.Domain.AAREG);
-        logger.publish();
+        logger.publishSynch();
       }
     }
 
@@ -116,7 +116,7 @@ public class AAREG_ArchiveService {
       success = sendXmlManifest(xmlFileName, xmlFileContent);
       LoggerUtility logger = new LoggerUtility();
       logger.info('XML manifest ble overførst med status ' + success, null, CRM_ApplicationDomain.Domain.AAREG);
-      logger.publish();
+      logger.publishSynch();
     }
 
     return success;
@@ -128,7 +128,7 @@ public class AAREG_ArchiveService {
     if (!xmlResponse.success) {
       LoggerUtility logger = new LoggerUtility();
       logger.error(xmlFileName + ' feilet. ' + xmlResponse.errorMessage, null, CRM_ApplicationDomain.Domain.AAREG);
-      logger.publish();
+      logger.publishSynch();
       return false;
     }
     return true;
