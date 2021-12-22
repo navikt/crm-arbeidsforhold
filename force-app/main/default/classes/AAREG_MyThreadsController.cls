@@ -7,9 +7,17 @@ public with sharing class AAREG_MyThreadsController {
       try {
           String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId]
           ?.LastUsedOrganization__c;
+          
+          if(lastUsedOrganizationNumber==null){
+              system.debug('No organization is found');
+              return new List<Thread__c>();
+          }
+          
           list<Account> accountIdList = AAREG_accountSelector.selectAccountByOrganizationNumber(lastUsedOrganizationNumber);
-            
-            if(accountIdList.size()>0 || accountIdList!=null){
+          if(accountIdList.isEmpty()){
+              system.debug('No thread is found');
+              return new List<Thread__c>();
+          }
                 String accountId = accountIdList[0]?.Id;
                 threads = [
                     SELECT
@@ -28,14 +36,13 @@ public with sharing class AAREG_MyThreadsController {
                     WHERE CRM_Account__c = :accountId
                     ORDER BY CRM_Latest_Message_Datetime__c DESC
           		];
-            }
-          
+                system.debug(threads.size());          
         } catch (Exception e) {
-          system.debug(e.getMessage());
-          LoggerUtility logger = new LoggerUtility();
-          logger.error(e.getMessage(), null);
-          logger.publish();
-          throw new AuraHandledException(e.getMessage());
+            system.debug(e.getMessage());
+              LoggerUtility logger = new LoggerUtility();
+              logger.error(e.getMessage(), null);
+              logger.publish();
+                  throw new AuraHandledException(e.getMessage());
         }
       
     return threads;
