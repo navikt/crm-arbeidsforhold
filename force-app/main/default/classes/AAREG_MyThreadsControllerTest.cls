@@ -49,9 +49,12 @@ public class AAREG_MyThreadsControllerTest {
     List<Thread__c> userThreads;
 
     Test.startTest();
-    userThreads = AAREG_MyThreadsController.getUsersThreads(String.valueOf(usr.Id));
+      try{
+       userThreads = AAREG_MyThreadsController.getUsersThreads(String.valueOf(usr.Id));   
+      }catch(exception e){}
+    
     Test.stopTest();
 
-    System.assertEquals(0, userThreads.size(), 'User has 0 threads');
+    System.assertEquals(true, userThreads.isEmpty(), 'User has 0 threads');
   }
 }
