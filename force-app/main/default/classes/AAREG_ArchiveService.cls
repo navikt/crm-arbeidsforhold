@@ -8,6 +8,7 @@ public class AAREG_ArchiveService {
   private static final String DECISION_NAME = 'VEDTAK';
   private static final String APPLICATION_NAME = 'SOKNAD';
   private static final String DEFAULT_FILE_FORMAT = '.pdf';
+  private static final String FTPS_CATALOGUE='ftpmottakSFAAreg';
 
   public void archiveApplications(List<Application__c> applicationList) {
     Map<Id, Application__c> applications = new Map<Id, Application__c>(applicationList);
@@ -97,24 +98,35 @@ public class AAREG_ArchiveService {
 
     for (String file : files.keySet()) {
       Blob fileData = files.get(file);
-      WebSakFileService.WebSakFileResponse response = new WebSakFileService().postFile(file, fileData);
+      WebSakFileService.WebSakFileResponse response = new WebSakFileService().postFile(file, fileData, FTPS_CATALOGUE);
 
       if (!response.success) {
         success = false;
+        LoggerUtility logger = new LoggerUtility();
+        logger.error(file + ' feilet. ' + response.errorMessage, null, CRM_ApplicationDomain.Domain.AAREG);
+        logger.publish();
       }
     }
 
     if (xmlFileName != null && xmlFileContent != null) {
       success = sendXmlManifest(xmlFileName, xmlFileContent);
+      if(success==false){
+        LoggerUtility logger = new LoggerUtility();
+        logger.error('XML manifest ble overførst med status ' + success, null, CRM_ApplicationDomain.Domain.AAREG);
+        logger.publish();
+      }
     }
 
     return success;
   }
 
   private Boolean sendXmlManifest(String xmlFileName, Blob xmlFileContent) {
-    WebSakFileService.WebSakFileResponse xmlResponse = new WebSakFileService().postFile(xmlFileName, xmlFileContent);
+    WebSakFileService.WebSakFileResponse xmlResponse = new WebSakFileService().postFile(xmlFileName, xmlFileContent, FTPS_CATALOGUE);
 
     if (!xmlResponse.success) {
+      LoggerUtility logger = new LoggerUtility();
+      logger.error(xmlFileName + ' feilet. ' + xmlResponse.errorMessage, null, CRM_ApplicationDomain.Domain.AAREG);
+      logger.publish();
       return false;
     }
     return true;

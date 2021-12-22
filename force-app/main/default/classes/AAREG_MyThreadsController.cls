@@ -31,6 +31,10 @@ public with sharing class AAREG_MyThreadsController {
             }
           
         } catch (Exception e) {
+          system.debug(e.getMessage());
+          LoggerUtility logger = new LoggerUtility();
+          logger.error(e.getMessage(), null);
+          logger.publish();
           throw new AuraHandledException(e.getMessage());
         }
       
