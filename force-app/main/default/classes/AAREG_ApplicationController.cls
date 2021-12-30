@@ -71,8 +71,11 @@ public without sharing class AAREG_ApplicationController {
     String fileName
   ) {
     if (application.Status__c != ADDITIONAL_INFORMATION) {
+      Date dateSubmitted = date.newInstance(dt.year(), dt.month(), dt.day());
+      Datetime dt = System.now();
       application.Casehandler_Status__c = NEW_APPLICATION;
       application.status__c = NEW_APPLICATION;
+      application.ApplicationSubmittedDate__c = dateSubmitted;
     } else {
       application.AA_ApplicationArchived__c = false;
       application.Casehandler_Status__c = IN_PROGRESS;
