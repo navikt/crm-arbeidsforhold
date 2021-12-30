@@ -235,7 +235,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Application__c.ApplicationSubmittedDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
