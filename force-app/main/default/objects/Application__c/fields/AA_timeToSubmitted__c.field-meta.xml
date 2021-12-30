@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AA_timeToSubmitted__c</fullName>
+    <description>Counts days from user created (draft) - to user submitted(new) the application</description>
+    <externalId>false</externalId>
+    <formula>if(!isBlank(ApplicationSubmittedDate__c),TEXT(ApplicationSubmittedDate__c - DATEVALUE(CreatedDate)),&apos;Ikke sendt inn&apos;)</formula>
+    <label>Time to submitted</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

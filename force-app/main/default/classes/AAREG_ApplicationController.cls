@@ -3,6 +3,8 @@ public without sharing class AAREG_ApplicationController {
   private static final String DRAFT_APPLICATION = 'Draft';
   private static final String NEW_APPLICATION = 'New';
   private static final String IN_PROGRESS = 'In Progress';
+  private static Datetime dt = System.now();
+   
 
   @AuraEnabled
   public static Account getLastUsedOrganizationInformation(String userId) {
@@ -73,6 +75,7 @@ public without sharing class AAREG_ApplicationController {
     if (application.Status__c != ADDITIONAL_INFORMATION) {
       application.Casehandler_Status__c = NEW_APPLICATION;
       application.status__c = NEW_APPLICATION;
+      application.ApplicationSubmittedDate__c = date.newInstance(dt.year(), dt.month(), dt.day());
     } else {
       application.AA_ApplicationArchived__c = false;
       application.Casehandler_Status__c = IN_PROGRESS;

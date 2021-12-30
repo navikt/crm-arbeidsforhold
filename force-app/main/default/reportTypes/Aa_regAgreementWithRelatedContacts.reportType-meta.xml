@@ -451,6 +451,16 @@
             <field>IsEmailConfirmationSent__c</field>
             <table>Account.Applications__r</table>
         </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>AA_timeToSubmitted__c</field>
+            <table>Account.Applications__r</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>AA_timeToDecision__c</field>
+            <table>Account.Applications__r</table>
+        </columns>
         <masterLabel>Applications</masterLabel>
     </sections>
     <sections>
