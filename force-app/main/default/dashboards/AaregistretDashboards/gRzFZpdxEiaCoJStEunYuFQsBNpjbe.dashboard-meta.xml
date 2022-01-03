@@ -18,22 +18,27 @@
                     <axisBinding>y</axisBinding>
                     <column>RowCount</column>
                 </chartSummary>
-                <componentType>Column</componentType>
+                <componentType>ColumnGrouped</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
                 <drillEnabled>false</drillEnabled>
                 <drillToDetailEnabled>false</drillToDetailEnabled>
                 <enableHover>false</enableHover>
                 <expandOthers>false</expandOthers>
+                <groupingColumn>Application__c.ApplicationSubmittedDate__c</groupingColumn>
                 <groupingColumn>Application__c.Casehandler_Status__c</groupingColumn>
                 <groupingSortProperties>
                     <groupingSorts>
                         <groupingLevel>g1</groupingLevel>
                         <sortOrder>a</sortOrder>
                     </groupingSorts>
+                    <groupingSorts>
+                        <groupingLevel>g2</groupingLevel>
+                        <sortOrder>a</sortOrder>
+                    </groupingSorts>
                 </groupingSortProperties>
                 <header>Antall Søknader dette år</header>
-                <legendPosition>Bottom</legendPosition>
+                <legendPosition>Right</legendPosition>
                 <report>Aa_registerReports/Aa_regApplicationStatus</report>
                 <showPercentage>false</showPercentage>
                 <showValues>true</showValues>
@@ -175,7 +180,7 @@
     <dashboardType>LoggedInUser</dashboardType>
     <description>Dashboard for arbeidsforhold app</description>
     <isGridLayout>true</isGridLayout>
-    <runningUser>test-kmieaftfrv6d@example.com</runningUser>
+    <runningUser>test-ebda8m5s46q2@example.com</runningUser>
     <textColor>#000000</textColor>
     <title>Aa-registeret dashboard</title>
     <titleColor>#000000</titleColor>

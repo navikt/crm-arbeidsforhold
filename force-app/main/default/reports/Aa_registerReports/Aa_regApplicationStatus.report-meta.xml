@@ -25,6 +25,11 @@
     </filter>
     <format>Summary</format>
     <groupingsDown>
+        <dateGranularity>Year</dateGranularity>
+        <field>Application__c.ApplicationSubmittedDate__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <groupingsDown>
         <dateGranularity>Day</dateGranularity>
         <field>Application__c.Casehandler_Status__c</field>
         <sortOrder>Asc</sortOrder>
@@ -41,6 +46,6 @@
     <showSubTotals>true</showSubTotals>
     <timeFrameFilter>
         <dateColumn>Application__c.ApplicationSubmittedDate__c</dateColumn>
-        <interval>INTERVAL_CURFY</interval>
+        <interval>INTERVAL_CUSTOM</interval>
     </timeFrameFilter>
 </Report>
