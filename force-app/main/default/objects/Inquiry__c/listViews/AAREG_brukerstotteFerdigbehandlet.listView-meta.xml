@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AAREG_brukerstotteFerdigbehandlet</fullName>
+    <columns>NAME</columns>
+    <columns>AccountId__c</columns>
+    <columns>CREATED_DATE</columns>
+    <columns>TypeOfInquiry__c</columns>
+    <columns>Status__c</columns>
+    <columns>InquiryOwnerName__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>Closed</value>
+    </filters>
+    <label>Aareg Brukerstøtte ferdigbehandlet</label>
+    <sharedTo>
+        <group>AAREG_Casehandling</group>
+        <group>AAREG_Support</group>
+    </sharedTo>
+</ListView>
