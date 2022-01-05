@@ -1,5 +1,13 @@
 <template>
+  <c-aareg_main-banner>Melding til brukerstøtte Aa-registret</c-aareg_main-banner>
   <div class="container">
+    <div class="breadcrumbs">
+      <lightning-breadcrumbs>
+        <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
+        <lightning-breadcrumb label="Ny melding" name="Ny_Melding__c" onclick={navigateToPage}>
+        </lightning-breadcrumb>
+      </lightning-breadcrumbs>
+    </div>
     <form if:false={inquirySubmitted}>
       <div if:true={inquiryTypeOptions} class="slds-m-vertical_xx-large">
         <div class="slds-grid slds-grid_vertical support-form">
@@ -101,7 +109,7 @@
     </form>
     <template if:true={inquirySubmitted}>
       <div class="submission-success">
-        <h2>Takk for din henvendelse. Vi svarer deg så fort vi kan. </h2>
+        <h2>Takk for din henvendelse. Vi svarer deg så fort vi kan. Gå tilbake til min side og velg mine meldinger for å se din melding og svar tilbake. </h2>
       </div>
     </template>
     <template if:true={isLoading}>
