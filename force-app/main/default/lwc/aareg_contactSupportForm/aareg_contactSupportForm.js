@@ -138,4 +138,14 @@ export default class Aareg_contactSupportForm extends LightningElement {
   get inquirySubmitted() {
     return this.isSubmitted;
   }
+
+  navigateToPage(event) {
+    const page = event.target.name;
+    this[NavigationMixin.Navigate]({
+      type: 'comm__namedPage',
+      attributes: {
+        name: page
+      }
+    });
+  }
 }
