@@ -1,4 +1,6 @@
 public with sharing class AAREG_contactSupportController {
+ 
+    
   @AuraEnabled
   public static Id createThreadForApplication(String userId, String relatedApplicationId, String description, String subject) {
     Id threadId;
@@ -29,10 +31,11 @@ public with sharing class AAREG_contactSupportController {
   private static Id createTheadWithMessages(String userId, String relatedRecordId, String description, String subject) {
     Id relatedObjectId = Id.valueOf(relatedRecordId);
     String henvendelsesID='';
+    String accountId='';
     String sObjName = relatedObjectId.getSObjectType().getDescribe().getName();
+      
     if(sObjName=='Inquiry__c'){
-      henvendelsesID = [SELECT name FROM Inquiry__c WHERE Id = :relatedRecordId]
-      ?.name;
+      henvendelsesID = [SELECT name FROM Inquiry__c WHERE Id = :relatedRecordId]?.name;
     }
           
     Thread__c thread = new Thread__c(
