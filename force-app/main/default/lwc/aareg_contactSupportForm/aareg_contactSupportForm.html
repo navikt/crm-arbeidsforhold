@@ -2,7 +2,7 @@
   <c-aareg_main-banner>Melding til brukerstøtte Aa-registret</c-aareg_main-banner>
   <div class="container">
     <div class="inner-container">
-    <div class="breadcrumbs">
+    <div class="slds-float_left">
       <lightning-breadcrumbs>
         <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
         <lightning-breadcrumb label="Ny melding" name="Ny_Melding__c" onclick={navigateToPage}>
@@ -116,6 +116,7 @@
     <template if:true={isLoading}>
       <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
     </template>
+    <div class="breadcrumbs"></div>
   </div>
 </div>
 </template>
