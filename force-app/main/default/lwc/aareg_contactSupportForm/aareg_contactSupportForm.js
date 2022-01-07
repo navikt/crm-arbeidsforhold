@@ -1,4 +1,5 @@
 import { LightningElement, track, wire } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
 import { getObjectInfo, getPicklistValues } from 'lightning/uiObjectInfoApi';
 import INQUIRY_OBJECT from '@salesforce/schema/Inquiry__c';
 import TYPE_FIELD from '@salesforce/schema/Inquiry__c.TypeOfInquiry__c';
