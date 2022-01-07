@@ -23,6 +23,7 @@
             <label>isApplicationObjectType</label>
         </rules>
     </decisions>
+    <description>Saksbehandling - when an application is in status &quot;awaiting answer&quot; - the user answer back in a message, the application status sets to &quot;in progress&quot;</description>
     <interviewLabel>AAREG_applicationChangeStatusAferMessageFromUser {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_applicationChangeStatusAfterMessageFromUser</label>
     <processMetadataValues>
