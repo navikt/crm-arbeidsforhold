@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>52.0</apiVersion>
+    <apiVersion>53.0</apiVersion>
     <decisions>
         <description>Status cannot be New and the case have to have a caseowner due to archive</description>
         <name>checkStatusAndOwner</name>
@@ -10,7 +10,7 @@
         <defaultConnector>
             <targetReference>ErrorMessage</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>Standardutfall</defaultConnectorLabel>
+        <defaultConnectorLabel>IsNot</defaultConnectorLabel>
         <rules>
             <name>IsOwnerAndStatus</name>
             <conditionLogic>and</conditionLogic>
@@ -34,7 +34,7 @@
             <label>IsOwnerAndStatus</label>
         </rules>
     </decisions>
-    <description>When casehandler suspend an application, a reason must be given</description>
+    <description>Saksbehandling - when casehandler suspend an application, a reason must be given. Adds the reason and create a task</description>
     <interviewLabel>AAREG_addReasonForSuspension {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_addReasonForSuspension</label>
     <processMetadataValues>

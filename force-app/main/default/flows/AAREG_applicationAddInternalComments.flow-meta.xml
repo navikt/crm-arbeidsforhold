@@ -31,7 +31,7 @@
             <label>notEmpty</label>
         </rules>
     </decisions>
-    <description>Add an internal comment + user and time/date</description>
+    <description>Saksbehandling - add an internal comment + user and time/date</description>
     <formulas>
         <name>addDescription</name>
         <dataType>String</dataType>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>51.0</apiVersion>
+    <apiVersion>53.0</apiVersion>
     <assignments>
         <name>AssignApplicationFields</name>
         <label>Assign Application Fields</label>
-        <locationX>177</locationX>
-        <locationY>384</locationY>
+        <locationX>176</locationX>
+        <locationY>335</locationY>
         <assignmentItems>
             <assignToReference>$Record.Account__c</assignToReference>
             <operator>Assign</operator>
@@ -17,7 +17,7 @@
             <targetReference>PopulateAccountLookup</targetReference>
         </connector>
     </assignments>
-    <description>Automation to populate fields on the Application object after insert.</description>
+    <description>Saksbehandling - automation to populate fields on the Application object after insert.</description>
     <interviewLabel>AAREG Application- After Insert- Populate Application Fields {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG Application- After Insert- Populate Application Fields</label>
     <processMetadataValues>
@@ -29,7 +29,7 @@
     <processMetadataValues>
         <name>CanvasMode</name>
         <value>
-            <stringValue>FREE_FORM_CANVAS</stringValue>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
         </value>
     </processMetadataValues>
     <processMetadataValues>
@@ -42,13 +42,13 @@
     <recordUpdates>
         <name>PopulateAccountLookup</name>
         <label>Populate Account Lookup</label>
-        <locationX>310</locationX>
-        <locationY>384</locationY>
+        <locationX>176</locationX>
+        <locationY>455</locationY>
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
         <locationX>50</locationX>
-        <locationY>50</locationY>
+        <locationY>0</locationY>
         <connector>
             <targetReference>AssignApplicationFields</targetReference>
         </connector>
