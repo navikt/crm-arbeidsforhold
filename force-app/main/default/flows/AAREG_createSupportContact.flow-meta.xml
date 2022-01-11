@@ -217,6 +217,14 @@
         <connector>
             <targetReference>getInquiry</targetReference>
         </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ContactId__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
         <object>Inquiry__c</object>
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
