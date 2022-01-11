@@ -6,13 +6,10 @@
     <columns>Account__c</columns>
     <columns>ApplicationSubmittedDate__c</columns>
     <columns>DecisionDate__c</columns>
-    <columns>AA_CasehandlerDeadlineFlag__c</columns>
-    <columns>Casehandler_Status__c</columns>
     <columns>Status__c</columns>
     <columns>APIAccess__c</columns>
     <columns>ExtractionAccess__c</columns>
     <columns>OnlineAccess__c</columns>
-    <columns>applicationOwner__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
         <field>RECORDTYPE</field>
