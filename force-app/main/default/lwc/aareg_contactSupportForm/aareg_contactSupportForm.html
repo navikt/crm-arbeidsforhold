@@ -2,11 +2,6 @@
   <c-aareg_main-banner>Melding til brukerstøtte Aa-registret</c-aareg_main-banner>
   <div class="container">
     <div class="inner-container">
-    <div class="slds-float_left">
-      <lightning-breadcrumbs>
-        <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
-      </lightning-breadcrumbs>
-    </div>
     <form if:false={inquirySubmitted}>
       <div if:true={inquiryTypeOptions} class="slds-m-vertical_xx-large">
         <div class="slds-grid slds-grid_vertical support-form">
@@ -15,7 +10,8 @@
           </div>
           <p class="pl-20" style="text-align: left;">
             For at vi skal kunne gi deg raskest mulig svar, må du oppgi hvilken type henvendelse du sender oss. <br>
-            Gå til ofte stilte spørsmål om du lurer på bruk av tjenesten. Lenke videre <a href="https://www.nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/brukerstotte-for-samarbeidspartnere#chapter-3"> Ofte stilte spørsmål </a>
+            Gå til ofte stilte spørsmål om du lurer på bruk av tjenesten. <br>
+            Lenke videre <a href="https://www.nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/brukerstotte-for-samarbeidspartnere#chapter-3"> Ofte stilte spørsmål </a>
           </p>         
           <div class="slds-col slds-m-top_small">
             <span class="form-control">
@@ -25,7 +21,7 @@
               </label>
               <select onchange={handleInputChange} data-id="TypeOfInquiry__c" required>
                 <option value="">Velg</option>
-                <option if:true={hasOpenApplications} value="Søknad under behandling">Søknad under behandling</option>
+               <!-- <option if:true={hasOpenApplications} value="Søknad under behandling">Søknad under behandling</option>-->
                 <template for:each={inquiryTypeOptions} for:item="option">
                   <option key={option.value} value={option.value}>{option.label}</option>
                 </template>
@@ -33,6 +29,7 @@
               <small>Error</small>
             </span>
           </div>
+          <!--
           <div class="slds-col slds-m-top_x-small" if:true={regardingApplicationInProcess}>
             <span class="form-control">
               <label>
@@ -48,6 +45,7 @@
               <small>Error</small>
             </span>
           </div>
+          -->
           <div class="slds-col slds-m-top_x-small" if:false={regardingApplicationInProcess}>  
             <span class="form-control">
               <label>
@@ -107,18 +105,17 @@
       </div>
     </form>
     <template if:true={inquirySubmitted}>
+
       <div class="submission-success">
         <h2>Takk for din henvendelse. Vi svarer deg så fort vi kan.<br> 
-          Gå tilbake til mine meldinger for å se din melding og svar tilbake </h2> 
-          <a href="/aaregisteret/s/mine-meldinger"> mine meldinger </a>
-      </div>
+          Gå til mine meldinger for å se din melding og svar tilbake </h2>
+          <div style="padding-top:25px;padding-right:0px;padding-bottom:10px;padding-left:0px;"><a href="/aaregisteret/s/mine-meldinger" style="-webkit-text-size-adjust: none; text-decoration: none; display: inline-block; color: #0067c5; background-color: transparent; border-radius: 2px; -webkit-border-radius: 2px; -moz-border-radius: 2px; width: auto; width: auto; border-top: 2px solid #0067C5; border-right: 2px solid #0067C5; border-bottom: 2px solid #0067C5; border-left: 2px solid #0067C5; padding-top: 5px; padding-bottom: 5px; font-family: Source Sans Pro, Tahoma, Verdana, Segoe, sans-serif; text-align: center; mso-border-alt: none; word-break: keep-all;" target="_blank"><span style="padding-left:45px;padding-right:45px;font-size:18px;display:inline-block;"><span style="font-size: 16px; line-height: 2; word-break: break-word; mso-line-height-alt: 32px;"><span style="font-size: 18px; line-height: 36px;">Gå til mine meldinger</span></span></span></a></div>
+    </div>
+
     </template>
     <template if:true={isLoading}>
       <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
     </template>
-    <div>
-      <div class="breadcrumbs"></div>
-    </div>
   </div>
 </div>
 </template>
