@@ -24,6 +24,11 @@
         </rules>
     </decisions>
     <description>When thread is created and type = inquiry__c, get account id based on organization number and update thread</description>
+    <formulas>
+        <name>varThreadName</name>
+        <dataType>String</dataType>
+        <expression>&quot;Henvendelse med saksnummer:  &quot;&amp;{!$Record.CRM_HenvendelseId__c}</expression>
+    </formulas>
     <interviewLabel>AAREG_SupportThreadUpdateAccountId {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_SupportThreadUpdateAccountId</label>
     <processMetadataValues>
@@ -100,6 +105,12 @@
             <field>CRM_Account__c</field>
             <value>
                 <elementReference>varAccountId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>varThreadName</elementReference>
             </value>
         </inputAssignments>
         <inputReference>$Record</inputReference>

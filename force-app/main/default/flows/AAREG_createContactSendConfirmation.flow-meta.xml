@@ -48,6 +48,11 @@
 &apos;Du vil motta et svar senest innen 4 uker.&apos;</expression>
     </formulas>
     <formulas>
+        <name>varThreadname</name>
+        <dataType>String</dataType>
+        <expression>&quot;Henvendelse knyttet til : &quot; &amp;{!$Record.Name}</expression>
+    </formulas>
+    <formulas>
         <name>varThreadSubject</name>
         <dataType>String</dataType>
         <expression>{!$Record.Name} &amp;&apos; - Søknad om tilgang til aa-register&apos;</expression>
@@ -248,6 +253,12 @@
             <field>CRM_Related_Object__c</field>
             <value>
                 <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>varThreadname</elementReference>
             </value>
         </inputAssignments>
         <object>Thread__c</object>
