@@ -149,6 +149,45 @@
             <rowSpan>4</rowSpan>
         </dashboardGridComponents>
         <dashboardGridComponents>
+            <colSpan>5</colSpan>
+            <columnIndex>0</columnIndex>
+            <dashboardComponent>
+                <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
+                <componentType>FlexTable</componentType>
+                <flexComponentProperties>
+                    <decimalPrecision>-1</decimalPrecision>
+                    <flexTableColumn>
+                        <reportColumn>CUST_NAME</reportColumn>
+                        <showSubTotal>false</showSubTotal>
+                        <showTotal>false</showTotal>
+                        <type>detail</type>
+                    </flexTableColumn>
+                    <flexTableColumn>
+                        <reportColumn>Application__c.AA_timeToSubmitted__c</reportColumn>
+                        <showSubTotal>false</showSubTotal>
+                        <showTotal>false</showTotal>
+                        <type>detail</type>
+                    </flexTableColumn>
+                    <flexTableColumn>
+                        <reportColumn>Application__c.AA_timeToDecision__c</reportColumn>
+                        <showSubTotal>false</showSubTotal>
+                        <showTotal>false</showTotal>
+                        <type>detail</type>
+                    </flexTableColumn>
+                    <flexTableSortInfo>
+                        <sortColumn>CUST_NAME</sortColumn>
+                        <sortOrder>1</sortOrder>
+                    </flexTableSortInfo>
+                    <hideChatterPhotos>true</hideChatterPhotos>
+                </flexComponentProperties>
+                <groupingSortProperties/>
+                <header>Statistikk på søknad</header>
+                <report>Aa_registerReports/AAREG_applicationStatistics</report>
+            </dashboardComponent>
+            <rowIndex>8</rowIndex>
+            <rowSpan>8</rowSpan>
+        </dashboardGridComponents>
+        <dashboardGridComponents>
             <colSpan>2</colSpan>
             <columnIndex>5</columnIndex>
             <dashboardComponent>
@@ -180,7 +219,7 @@
     <dashboardType>LoggedInUser</dashboardType>
     <description>Dashboard for arbeidsforhold app</description>
     <isGridLayout>true</isGridLayout>
-    <runningUser>test-ebda8m5s46q2@example.com</runningUser>
+    <runningUser>test-9ynnpkckxity@example.com</runningUser>
     <textColor>#000000</textColor>
     <title>Aa-registeret dashboard</title>
     <titleColor>#000000</titleColor>

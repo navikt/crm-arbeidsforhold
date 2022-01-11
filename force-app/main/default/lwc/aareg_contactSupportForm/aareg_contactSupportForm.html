@@ -21,7 +21,6 @@
               </label>
               <select onchange={handleInputChange} data-id="TypeOfInquiry__c" required>
                 <option value="">Velg</option>
-               <!-- <option if:true={hasOpenApplications} value="Søknad under behandling">Søknad under behandling</option>-->
                 <template for:each={inquiryTypeOptions} for:item="option">
                   <option key={option.value} value={option.value}>{option.label}</option>
                 </template>
@@ -29,23 +28,6 @@
               <small>Error</small>
             </span>
           </div>
-          <!--
-          <div class="slds-col slds-m-top_x-small" if:true={regardingApplicationInProcess}>
-            <span class="form-control">
-              <label>
-                <abbr class="slds-required" title="required">* </abbr>
-                Søknader
-              </label>
-              <select onchange={handleRelatedApplicationChange} required>
-                <option value="">Velg</option>
-                <template for:each={existingApplications} for:item="option">
-                  <option key={option.Id} value={option.Id}>Søknad {option.Name} - {option.Status__c}</option>
-                </template>
-              </select>
-              <small>Error</small>
-            </span>
-          </div>
-          -->
           <div class="slds-col slds-m-top_x-small" if:false={regardingApplicationInProcess}>  
             <span class="form-control">
               <label>
@@ -105,13 +87,11 @@
       </div>
     </form>
     <template if:true={inquirySubmitted}>
-
       <div class="submission-success">
         <h2>Takk for din henvendelse. Vi svarer deg så fort vi kan.<br> 
           Gå til mine meldinger for å se din melding og svar tilbake </h2>
-          <div style="padding-top:25px;padding-right:0px;padding-bottom:10px;padding-left:0px;"><a href="/aaregisteret/s/mine-meldinger" style="-webkit-text-size-adjust: none; text-decoration: none; display: inline-block; color: #0067c5; background-color: transparent; border-radius: 2px; -webkit-border-radius: 2px; -moz-border-radius: 2px; width: auto; width: auto; border-top: 2px solid #0067C5; border-right: 2px solid #0067C5; border-bottom: 2px solid #0067C5; border-left: 2px solid #0067C5; padding-top: 5px; padding-bottom: 5px; font-family: Source Sans Pro, Tahoma, Verdana, Segoe, sans-serif; text-align: center; mso-border-alt: none; word-break: keep-all;" target="_blank"><span style="padding-left:45px;padding-right:45px;font-size:18px;display:inline-block;"><span style="font-size: 16px; line-height: 2; word-break: break-word; mso-line-height-alt: 32px;"><span style="font-size: 18px; line-height: 36px;">Gå til mine meldinger</span></span></span></a></div>
+          <div style="padding-top:25px;padding-right:0px;padding-bottom:10px;padding-left:0px;"><a href="/aaregisteret/s/mine-meldinger" style="-webkit-text-size-adjust: none; text-decoration: none; display: inline-block; color: #0067c5; background-color: transparent; border-radius: 2px; -webkit-border-radius: 2px; -moz-border-radius: 2px; width: auto; border-top: 2px solid #0067C5; border-right: 2px solid #0067C5; border-bottom: 2px solid #0067C5; border-left: 2px solid #0067C5; padding-top: 5px; padding-bottom: 5px; font-family: Source Sans Pro, Tahoma, Verdana, Segoe, sans-serif; text-align: center; mso-border-alt: none; word-break: keep-all;" target="_blank"><span style="padding-left:45px;padding-right:45px;font-size:18px;display:inline-block;"><span style="font-size: 16px; line-height: 2; word-break: break-word; mso-line-height-alt: 32px;"><span style="font-size: 18px; line-height: 36px;">Gå til mine meldinger</span></span></span></a></div>
     </div>
-
     </template>
     <template if:true={isLoading}>
       <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>

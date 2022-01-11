@@ -61,7 +61,7 @@
         <label>checkPriorStatus</label>
         <locationX>182</locationX>
         <locationY>335</locationY>
-        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <defaultConnectorLabel>isNot</defaultConnectorLabel>
         <rules>
             <name>isPriorWaiting</name>
             <conditionLogic>and</conditionLogic>
@@ -77,6 +77,13 @@
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>In Progress</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.CasehandlerOwner__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
