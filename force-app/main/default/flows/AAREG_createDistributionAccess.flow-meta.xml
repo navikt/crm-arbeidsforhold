@@ -4,11 +4,11 @@
         <name>createAccessForUser</name>
         <label>createAccessForUser</label>
         <locationX>264</locationX>
-        <locationY>1055</locationY>
+        <locationY>1175</locationY>
         <actionName>AAREG_distributionAccessController</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>getRecordTypeId</targetReference>
+            <targetReference>createActivtyHistory</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -41,7 +41,7 @@
         <name>getAccessTypes</name>
         <label>getAccessTypes</label>
         <locationX>176</locationX>
-        <locationY>575</locationY>
+        <locationY>695</locationY>
         <actionName>AAREG_MultiSelectFlowValues</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -61,7 +61,7 @@
         <name>setSingleAccessTypes</name>
         <label>setSingleAccessTypes</label>
         <locationX>528</locationX>
-        <locationY>815</locationY>
+        <locationY>935</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
             <operator>Assign</operator>
@@ -77,7 +77,7 @@
         <name>checkAccessType</name>
         <label>checkAccessType</label>
         <locationX>528</locationX>
-        <locationY>935</locationY>
+        <locationY>1055</locationY>
         <defaultConnector>
             <targetReference>loopTextCollection</targetReference>
         </defaultConnector>
@@ -154,7 +154,12 @@
     <formulas>
         <name>varTaskDescription</name>
         <dataType>String</dataType>
-        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har trigget en opprettelse av tilgang&apos;</expression>
+        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har trigget en opprettelse av online/web tilgang&apos;</expression>
+    </formulas>
+    <formulas>
+        <name>varTaskDescriptionAPI</name>
+        <dataType>String</dataType>
+        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har opprettet henvendelse: &apos;&amp;{!varInquiryName}&amp; &quot; for tilgang til API&quot;</expression>
     </formulas>
     <formulas>
         <name>varThreadName</name>
@@ -167,7 +172,7 @@
         <name>loopTextCollection</name>
         <label>loopTextCollection</label>
         <locationX>176</locationX>
-        <locationY>695</locationY>
+        <locationY>815</locationY>
         <collectionReference>getAccessTypes</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -193,6 +198,59 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>createActivityHistoryInquiry</name>
+        <label>createActivityHistoryInquiry</label>
+        <locationX>528</locationX>
+        <locationY>1655</locationY>
+        <connector>
+            <targetReference>loopTextCollection</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>ActivityDate</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>varTaskDescriptionAPI</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>RecordTypeId</field>
+            <value>
+                <elementReference>varRecordTypeId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <elementReference>varTaskDescriptionAPI</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <stringValue>Tilgang</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId</field>
+            <value>
+                <elementReference>getAgreement.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Task</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
     <recordCreates>
         <name>createActivtyHistory</name>
         <label>createActivtyHistory</label>
@@ -250,7 +308,7 @@
         <name>createInquiry</name>
         <label>createInquiry</label>
         <locationX>528</locationX>
-        <locationY>1055</locationY>
+        <locationY>1175</locationY>
         <assignRecordIdToReference>varInquiryId</assignRecordIdToReference>
         <connector>
             <targetReference>getInquiryName</targetReference>
@@ -303,9 +361,9 @@
         <name>createMessageFromNav</name>
         <label>createMessageFromNav</label>
         <locationX>528</locationX>
-        <locationY>1415</locationY>
+        <locationY>1535</locationY>
         <connector>
-            <targetReference>loopTextCollection</targetReference>
+            <targetReference>createActivityHistoryInquiry</targetReference>
         </connector>
         <inputAssignments>
             <field>CRM_Message_Text__c</field>
@@ -326,7 +384,7 @@
         <name>createThread</name>
         <label>createThread</label>
         <locationX>528</locationX>
-        <locationY>1295</locationY>
+        <locationY>1415</locationY>
         <assignRecordIdToReference>varThreadId</assignRecordIdToReference>
         <connector>
             <targetReference>createMessageFromNav</targetReference>
@@ -379,7 +437,7 @@
         <name>getAgreement</name>
         <label>getAgreement</label>
         <locationX>176</locationX>
-        <locationY>335</locationY>
+        <locationY>455</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getApplication</targetReference>
@@ -403,7 +461,7 @@
         <name>getApplication</name>
         <label>getApplication</label>
         <locationX>176</locationX>
-        <locationY>455</locationY>
+        <locationY>575</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getAccessTypes</targetReference>
@@ -432,7 +490,7 @@
         <name>getInquiryName</name>
         <label>getInquiryName</label>
         <locationX>528</locationX>
-        <locationY>1175</locationY>
+        <locationY>1295</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createThread</targetReference>
@@ -454,11 +512,11 @@
     <recordLookups>
         <name>getRecordTypeId</name>
         <label>getRecordTypeId</label>
-        <locationX>264</locationX>
-        <locationY>1175</locationY>
+        <locationX>176</locationX>
+        <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>createActivtyHistory</targetReference>
+            <targetReference>getAgreement</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -478,7 +536,7 @@
         <locationX>50</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>getAgreement</targetReference>
+            <targetReference>getRecordTypeId</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
