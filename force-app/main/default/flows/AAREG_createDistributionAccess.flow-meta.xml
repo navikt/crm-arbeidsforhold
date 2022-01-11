@@ -135,7 +135,9 @@
     <formulas>
         <name>varMessageFromNav</name>
         <dataType>String</dataType>
-        <expression>&quot;Tilgang til API vil normalt være tilgjengelig etter 2 virkedager&quot;&amp;BR()
+        <expression>&quot;Hei&quot;&amp;BR()
+&amp;&quot;Vedtak om API er innvilget for organisasjonsnummer: &quot;&amp;{!$Record.account__r.INT_OrganizationNumber__c}&amp;&quot;.&quot;&amp;BR()
+&amp;&quot;Tilgang til API vil normalt være tilgjengelig etter 2 virkedager&quot;&amp;BR()
 &amp;&quot;Hilsen NAV&quot;</expression>
     </formulas>
     <formulas>
@@ -298,39 +300,10 @@
         <object>Inquiry__c</object>
     </recordCreates>
     <recordCreates>
-        <name>createMessage</name>
-        <label>createMessage</label>
-        <locationX>528</locationX>
-        <locationY>1415</locationY>
-        <connector>
-            <targetReference>createMessageFromNav</targetReference>
-        </connector>
-        <inputAssignments>
-            <field>CRM_From_User__c</field>
-            <value>
-                <elementReference>getApplication.OwnerId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CRM_Message_Text__c</field>
-            <value>
-                <elementReference>varMessageText</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CRM_Thread__c</field>
-            <value>
-                <elementReference>varThreadId</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Message__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
-    <recordCreates>
         <name>createMessageFromNav</name>
         <label>createMessageFromNav</label>
         <locationX>528</locationX>
-        <locationY>1535</locationY>
+        <locationY>1415</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
         </connector>
@@ -356,7 +329,7 @@
         <locationY>1295</locationY>
         <assignRecordIdToReference>varThreadId</assignRecordIdToReference>
         <connector>
-            <targetReference>createMessage</targetReference>
+            <targetReference>createMessageFromNav</targetReference>
         </connector>
         <inputAssignments>
             <field>AAREG_Thread_Subject__c</field>
