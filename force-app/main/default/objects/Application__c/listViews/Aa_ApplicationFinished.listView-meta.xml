@@ -5,6 +5,7 @@
     <columns>NAME</columns>
     <columns>Account__c</columns>
     <columns>ApplicationSubmittedDate__c</columns>
+    <columns>DecisionDate__c</columns>
     <columns>AA_CasehandlerDeadlineFlag__c</columns>
     <columns>Casehandler_Status__c</columns>
     <columns>Status__c</columns>
