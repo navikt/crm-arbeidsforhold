@@ -9,7 +9,7 @@
         <defaultConnector>
             <targetReference>youHaveNotSetYesToDeactivate</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <defaultConnectorLabel>isNo</defaultConnectorLabel>
         <rules>
             <name>isYes</name>
             <conditionLogic>and</conditionLogic>
