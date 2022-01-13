@@ -147,7 +147,7 @@
         <defaultConnector>
             <targetReference>createAgreement</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <defaultConnectorLabel>isNull</defaultConnectorLabel>
         <rules>
             <name>isAccessTypesNotNull</name>
             <conditionLogic>and</conditionLogic>
@@ -280,7 +280,7 @@
         <defaultConnector>
             <targetReference>IsNotChecked</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>Standardutfall</defaultConnectorLabel>
+        <defaultConnectorLabel>isNot</defaultConnectorLabel>
         <rules>
             <name>isDone</name>
             <conditionLogic>1 AND( 2 OR 3)</conditionLogic>
@@ -618,6 +618,9 @@
         <label>updateApplication</label>
         <locationX>424</locationX>
         <locationY>3134</locationY>
+        <connector>
+            <targetReference>updateThreadToNotActive</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -675,6 +678,27 @@
             </value>
         </inputAssignments>
         <object>RelatedContact__c</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>updateThreadToNotActive</name>
+        <label>updateThreadToNotActive</label>
+        <locationX>424</locationX>
+        <locationY>3254</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>CRM_Related_Object__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>getApplication.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>CRM_isActive__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>Thread__c</object>
     </recordUpdates>
     <runInMode>SystemModeWithoutSharing</runInMode>
     <screens>
