@@ -60,7 +60,7 @@
         <name>createTask</name>
         <label>createTask</label>
         <locationX>50</locationX>
-        <locationY>758</locationY>
+        <locationY>878</locationY>
         <inputAssignments>
             <field>ActivityDate</field>
             <value>
@@ -140,7 +140,7 @@
         <name>getRecordTypeId</name>
         <label>getRecordTypeId</label>
         <locationX>50</locationX>
-        <locationY>638</locationY>
+        <locationY>758</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createTask</targetReference>
@@ -165,7 +165,7 @@
         <locationX>50</locationX>
         <locationY>518</locationY>
         <connector>
-            <targetReference>getRecordTypeId</targetReference>
+            <targetReference>updateThreadCrmIsActive</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -200,6 +200,30 @@
             </value>
         </inputAssignments>
         <object>Application__c</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>updateThreadCrmIsActive</name>
+        <label>updateThreadCrmIsActive</label>
+        <locationX>50</locationX>
+        <locationY>638</locationY>
+        <connector>
+            <targetReference>getRecordTypeId</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>CRM_Related_Object__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>CRM_isActive__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>Thread__c</object>
     </recordUpdates>
     <screens>
         <name>ErrorMessage</name>
