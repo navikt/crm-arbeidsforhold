@@ -125,9 +125,14 @@
         </rules>
     </decisions>
     <formulas>
+        <name>varConvertAccessType</name>
+        <dataType>String</dataType>
+        <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;AAREG_TILGANG_API&quot;, &quot;Access API with dataprocessor&quot; , &quot;AAREG_TILGANG_API_DATABEHANDLER&quot; , &quot;Access OTP&quot; , &quot;AAREG_TILGANG_API_OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;AAREG_TILGANG_API_OTP_DATABEHANDLER&quot; , &quot;Access Online&quot; , &quot;AAREG_TILGANG_ONLINE&quot; ,  &quot;No Access&quot;)</expression>
+    </formulas>
+    <formulas>
         <name>varDescription</name>
         <dataType>String</dataType>
-        <expression>&quot;Henvendelsen gjelder opprettelse av tilganger for API: &quot;&amp;{!varSingleAccessType} &amp; BR()
+        <expression>&quot;Opprettelse av tilgang(er) for API: &quot;&amp;{!varConvertAccessType} &amp; BR()
 &amp;&quot;Vedtaksdato: &quot;&amp;TEXT(TODAY())&amp; BR()
 &amp;&quot;Virksomhet: &quot;&amp;{!getApplication.Account__r.Name}&amp; BR()
 &amp;&quot;Organisasjonsnummer: &quot;&amp;{!getApplication.Account__r.INT_OrganizationNumber__c}</expression>
@@ -149,22 +154,17 @@
     <formulas>
         <name>varSubject</name>
         <dataType>String</dataType>
-        <expression>&quot;Henvendelsen gjelder tilgang til API&quot;</expression>
+        <expression>&quot;Opprettelse av tilgang(er) til API&quot;</expression>
     </formulas>
     <formulas>
         <name>varTaskDescription</name>
         <dataType>String</dataType>
-        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har trigget en opprettelse av online/web tilgang&apos;</expression>
-    </formulas>
-    <formulas>
-        <name>varTaskDescriptionAPI</name>
-        <dataType>String</dataType>
-        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har opprettet henvendelse: &apos;&amp;{!varInquiryName}&amp; &quot; for tilgang til API&quot;</expression>
+        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har trigget tilgang:  &apos;+ {!varConvertAccessType}</expression>
     </formulas>
     <formulas>
         <name>varThreadName</name>
         <dataType>String</dataType>
-        <expression>&quot;Avtale: &quot;&amp;{!$Record.Name}&amp;&quot;- Tilgang API&quot;</expression>
+        <expression>&quot;Avtale: &quot;&amp;{!$Record.Name}&amp;&quot;- opprettelse av tilgang&quot;</expression>
     </formulas>
     <interviewLabel>AAREG_createDistributionAccess {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_createDistributionAccess</label>
@@ -215,7 +215,7 @@
         <inputAssignments>
             <field>Description</field>
             <value>
-                <elementReference>varTaskDescriptionAPI</elementReference>
+                <elementReference>varTaskDescription</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -233,7 +233,7 @@
         <inputAssignments>
             <field>Subject</field>
             <value>
-                <elementReference>varTaskDescriptionAPI</elementReference>
+                <elementReference>varTaskDescription</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -392,7 +392,7 @@
         <inputAssignments>
             <field>AAREG_Thread_Subject__c</field>
             <value>
-                <stringValue>Opprettelse av API tilgang</stringValue>
+                <stringValue>Opprettelse av tilgang(er) til API</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -484,6 +484,8 @@
         <queriedFields>Email__c</queriedFields>
         <queriedFields>OwnerId</queriedFields>
         <queriedFields>DecisionDate__c</queriedFields>
+        <queriedFields>AccountName__c</queriedFields>
+        <queriedFields>OrganizationNumber__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -578,6 +580,9 @@
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>true</isOutput>
+        <value>
+            <stringValue>No Access</stringValue>
+        </value>
     </variables>
     <variables>
         <name>varThreadId</name>
