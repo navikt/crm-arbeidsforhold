@@ -27,6 +27,11 @@
     <description>Permissions for support solution related to Aa-registeret</description>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Account.AAREG_OrganizationCategory__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Account.BillingAddress</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -214,6 +219,11 @@
         <editable>false</editable>
         <field>Agreement__c.Status__c</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Agreement__c.accountCategory__c</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
