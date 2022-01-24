@@ -3,8 +3,8 @@
     <actionCalls>
         <name>deactivateAccessForUser</name>
         <label>deactivateAccessForUser</label>
-        <locationX>264</locationX>
-        <locationY>1175</locationY>
+        <locationX>664</locationX>
+        <locationY>805</locationY>
         <actionName>AAREG_distributionAccessController</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -40,8 +40,8 @@
     <actionCalls>
         <name>getAccessTypes</name>
         <label>getAccessTypes</label>
-        <locationX>176</locationX>
-        <locationY>695</locationY>
+        <locationX>1384</locationX>
+        <locationY>306</locationY>
         <actionName>AAREG_MultiSelectFlowValues</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -60,8 +60,8 @@
     <assignments>
         <name>setSingleAccessTypes</name>
         <label>setSingleAccessTypes</label>
-        <locationX>528</locationX>
-        <locationY>935</locationY>
+        <locationX>667</locationX>
+        <locationY>408</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
             <operator>Assign</operator>
@@ -76,27 +76,20 @@
     <decisions>
         <name>checkValidAccessTypes</name>
         <label>checkValidAccessTypes</label>
-        <locationX>528</locationX>
-        <locationY>1055</locationY>
+        <locationX>658</locationX>
+        <locationY>574</locationY>
         <defaultConnector>
             <targetReference>loopTextCollection</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>isOnline</name>
-            <conditionLogic>1 AND (2 OR (3 AND 4))</conditionLogic>
+            <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>varSingleAccessType</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Access Online</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>getAgreement.Status__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Deactivated</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
@@ -120,7 +113,7 @@
         </rules>
         <rules>
             <name>isAPI</name>
-            <conditionLogic>5 AND ((1 OR 2 OR 3 OR 4) OR (6 AND 7))</conditionLogic>
+            <conditionLogic>5 AND 6 AND (1 OR 2 OR 3 OR 4)</conditionLogic>
             <conditions>
                 <leftValueReference>varSingleAccessType</leftValueReference>
                 <operator>EqualTo</operator>
@@ -150,13 +143,6 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>getAgreement.Status__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Deactivated</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
                 <leftValueReference>getAgreement.APIAccess__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
@@ -175,6 +161,71 @@
             </connector>
             <label>isAPI</label>
         </rules>
+        <rules>
+            <name>IsDeactivateAgreementOnline</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getAgreement.Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Deactivated</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Access Online</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Access API with dataprocessor</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>deactivateAccessForUser</targetReference>
+            </connector>
+            <label>IsDeactivateAgreementOnline</label>
+        </rules>
+        <rules>
+            <name>isDeactivatedAgreementAPI</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getAgreement.Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Deactivated</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Access API</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Access OTP</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Access OTP with dataprocessor</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>createInquiry</targetReference>
+            </connector>
+            <label>isDeactivatedAgreementAPI</label>
+        </rules>
     </decisions>
     <description>If casehandler or user is deactivating the agreement a cancellation callout is sent to distribution through the integration.</description>
     <formulas>
@@ -187,8 +238,8 @@
     <loops>
         <name>loopTextCollection</name>
         <label>loopTextCollection</label>
-        <locationX>176</locationX>
-        <locationY>815</locationY>
+        <locationX>1140</locationX>
+        <locationY>306</locationY>
         <collectionReference>getAccessTypes</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -204,7 +255,7 @@
     <processMetadataValues>
         <name>CanvasMode</name>
         <value>
-            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
         </value>
     </processMetadataValues>
     <processMetadataValues>
@@ -217,8 +268,8 @@
     <recordCreates>
         <name>createActivtyHistory</name>
         <label>createActivtyHistory</label>
-        <locationX>264</locationX>
-        <locationY>1415</locationY>
+        <locationX>788</locationX>
+        <locationY>969</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
         </connector>
@@ -270,8 +321,8 @@
     <recordCreates>
         <name>createInquiry</name>
         <label>createInquiry</label>
-        <locationX>528</locationX>
-        <locationY>1175</locationY>
+        <locationX>1300</locationX>
+        <locationY>891</locationY>
         <assignRecordIdToReference>varInquiryId</assignRecordIdToReference>
         <connector>
             <targetReference>getInquiryName</targetReference>
@@ -317,8 +368,8 @@
     <recordCreates>
         <name>createThread</name>
         <label>createThread</label>
-        <locationX>528</locationX>
-        <locationY>1415</locationY>
+        <locationX>1449</locationX>
+        <locationY>742</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
         </connector>
@@ -370,8 +421,8 @@
     <recordLookups>
         <name>getAgreement</name>
         <label>getAgreement</label>
-        <locationX>176</locationX>
-        <locationY>335</locationY>
+        <locationX>1100</locationX>
+        <locationY>137</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getApplication</targetReference>
@@ -397,8 +448,8 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>176</locationX>
-        <locationY>455</locationY>
+        <locationX>1249</locationX>
+        <locationY>136</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getRecordTypeId_0</targetReference>
@@ -424,8 +475,8 @@
     <recordLookups>
         <name>getInquiryName</name>
         <label>getInquiryName</label>
-        <locationX>528</locationX>
-        <locationY>1295</locationY>
+        <locationX>1448</locationX>
+        <locationY>894</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createThread</targetReference>
@@ -447,8 +498,8 @@
     <recordLookups>
         <name>getRecordTypeId</name>
         <label>getRecordTypeId</label>
-        <locationX>264</locationX>
-        <locationY>1295</locationY>
+        <locationX>664</locationX>
+        <locationY>986</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createActivtyHistory</targetReference>
@@ -470,8 +521,8 @@
     <recordLookups>
         <name>getRecordTypeId_0</name>
         <label>getRecordTypeId</label>
-        <locationX>176</locationX>
-        <locationY>575</locationY>
+        <locationX>1385</locationX>
+        <locationY>136</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getAccessTypes</targetReference>
@@ -491,12 +542,11 @@
         </outputAssignments>
     </recordLookups>
     <start>
-        <locationX>50</locationX>
-        <locationY>0</locationY>
+        <locationX>650</locationX>
+        <locationY>48</locationY>
         <connector>
             <targetReference>getAgreement</targetReference>
         </connector>
-        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>or</filterLogic>
         <filters>
             <field>Status__c</field>
