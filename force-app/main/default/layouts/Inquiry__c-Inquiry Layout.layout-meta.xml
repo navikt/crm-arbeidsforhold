@@ -39,7 +39,7 @@
         <label>New Section</label>
         <layoutColumns>
             <layoutItems>
-                <behavior>Readonly</behavior>
+                <behavior>Required</behavior>
                 <field>Email__c</field>
             </layoutItems>
             <layoutItems>
@@ -55,7 +55,7 @@
         <label>Inquiry</label>
         <layoutColumns>
             <layoutItems>
-                <behavior>Edit</behavior>
+                <behavior>Required</behavior>
                 <field>TypeOfInquiry__c</field>
             </layoutItems>
             <layoutItems>
