@@ -58,6 +58,11 @@
     </quickActions>
     <quickActions>
         <aspect>Master</aspect>
+        <label>Lukk henvendelse uten varsel</label>
+        <name>AAREG_closeCaseWithoutNotification</name>
+    </quickActions>
+    <quickActions>
+        <aspect>Master</aspect>
         <label>Send varsel til bruker</label>
         <name>AAREG_sendNotificationToUser</name>
     </quickActions>
