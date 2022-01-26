@@ -50,7 +50,7 @@
     <showGrandTotal>false</showGrandTotal>
     <showSubTotals>false</showSubTotals>
     <timeFrameFilter>
-        <dateColumn>Application__c.AA_ApplicationArchivedDate__c</dateColumn>
+        <dateColumn>CUST_CREATED_DATE</dateColumn>
         <interval>INTERVAL_CUSTOM</interval>
     </timeFrameFilter>
 </Report>
