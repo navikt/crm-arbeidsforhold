@@ -90,10 +90,14 @@
       <div class="submission-success">
         <h2>Takk for din henvendelse. Vi svarer deg så fort vi kan.<br> 
           Gå til mine meldinger for å se din melding og svar tilbake </h2>
-          <div class="slds-col slds-align_absolute-center slds-m-vertical_small"></div>
-          <button type="button" name="Mine_Meldinger__c" onclick={navigateToPage} class="button button-main" >Gå til mine meldinger</button>
-      </div>
-    </div>
+          <div>
+          <div class="slds-col slds-align_absolute-center slds-m-vertical_small">
+            <button type="button" name="Mine_Meldinger__c" class="button button-main" onclick={navigateToPage}>
+              Til mine meldinger
+            </button>
+          </div>
+        </div>
+        </div>
     </template>
     <template if:true={isLoading}>
       <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
