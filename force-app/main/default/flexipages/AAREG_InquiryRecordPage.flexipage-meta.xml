@@ -55,7 +55,7 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>showClose</name>
-                    <value>true</value>
+                    <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>singleThread</name>
