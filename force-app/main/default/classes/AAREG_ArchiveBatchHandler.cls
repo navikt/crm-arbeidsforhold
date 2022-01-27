@@ -1,6 +1,7 @@
 public class AAREG_ArchiveBatchHandler {
   private static final String IN_PROGRESS = 'In Progress';
   private static final String CLOSED_APPLICATION = 'Closed';
+  private static final String SUSPENDED_APPLICATION ='Suspension';
 
   public static void archive(Set<Id> recordIds) {
     List<Application__c> applicationsToArchive = new List<Application__c>();
@@ -32,6 +33,7 @@ public class AAREG_ArchiveBatchHandler {
 
   private static Boolean isDecisionArchivable(Application__c application) {
     return application.Casehandler_Status__c == CLOSED_APPLICATION &&
+      application.Status__c != SUSPENDED_APPLICATION &&
       !application.AA_DecisionArchived__c &&
       application.AA_ApplicationArchived__c == true &&
       application.DecisionDate__c != null &&
@@ -43,6 +45,7 @@ public class AAREG_ArchiveBatchHandler {
       SELECT
         Id,
         Name,
+        Status__c,
         Casehandler_Status__c,
         AA_register_application_text__c,
         AA_ApplicationArchived__c,
