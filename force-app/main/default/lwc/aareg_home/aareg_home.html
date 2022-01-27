@@ -34,35 +34,35 @@
           </div>
           <div if:true={hasApplicationAccess} class="slds-col">
             <c-link-panel
+              title="Mine søknader"
+              sub-title="Her finner du en oversikt over dine søknader."
+              relative-path="custom_mine_soknader__c"
+              style="display: flex; width: 100%"
+            ></c-link-panel>
+          </div>
+          <div if:true={hasApplicationAccess} class="slds-col">
+            <c-link-panel
               title="Mine avtaler"
-              sub-title="Her finner du en oversikt av dine avtaler"
+              sub-title="Her finner du en oversikt av dine avtaler, vedtak og kontaktpersoner. Her kan dere også endre kontaktpersoner."
               relative-path="Mine_Avtaler__c"
+              style="display: flex; width: 100%"
+            ></c-link-panel>
+          </div>
+        </div>
+        <div class="slds-col">
+          <div class="slds-col">
+            <c-link-panel
+              title="Brukerstøtte"
+              sub-title="Er det noe du lurer på? Send oss en melding."
+              relative-path="Ny_Melding__c"
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>
           <div class="slds-col">
             <c-link-panel
               title="Mine meldinger"
-              sub-title="Her finner du en oversikt av dine meldinger"
+              sub-title="Her finner du en oversikt av dine meldinger sendt til NAV og svar fra NAV"
               relative-path="Mine_Meldinger__c"
-              style="display: flex; width: 100%"
-            ></c-link-panel>
-          </div>
-        </div>
-        <div class="slds-col">
-          <div if:true={hasApplicationAccess} class="slds-col">
-            <c-link-panel
-              title="Mine søknader"
-              sub-title="Her finner du en oversikt av dine søknader"
-              relative-path="custom_mine_soknader__c"
-              style="display: flex; width: 100%"
-            ></c-link-panel>
-          </div>
-          <div class="slds-col">
-            <c-link-panel
-              title="Brukerstøtte"
-              sub-title="Er de noe du lurer på? Send oss en melding."
-              relative-path="Ny_Melding__c"
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>

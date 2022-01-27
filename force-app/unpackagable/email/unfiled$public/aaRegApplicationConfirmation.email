@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html style="overflow-y: hidden;">
-<head><meta content="text/html; charset=utf-8"><meta content="width=device-width" name="viewport"><meta content="IE=edge">
+<head><meta content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width"><meta content="IE=edge">
 	<title></title>
 	<style type="text/css">body {
 			margin: 0;
@@ -228,7 +228,11 @@
 			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;"><span style="font-size: 20px;">Hei!<br />
 			NAV har mottatt s&oslash;knad fra {{{Application__c.Account__c}}}&nbsp;om&nbsp;tilgang til </span>Arbeidsgiver- og arbeidstakerregisteret.</p>
 
-			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;">S&oslash;knadsnummer:&nbsp;{{{Application__c.Name}}}</p>
+			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;">S&oslash;knadsnummer:&nbsp;{{{Application__c.Name}}}.<br />
+			<br />
+			Ved &aring; bruke meldingen du n&aring; har mottatt via &quot;Mine meldinger&quot; i brukerst&oslash;tte og s&oslash;knadsportalen vil du ved oppdatering eller sp&oslash;rsm&aring;l n&aring; direkte inn til saksbehandler av s&oslash;knaden.<br />
+			<a href="http://aaregisteretsoknad.nav.no/">Logg inn brukerst&oslash;tte og s&oslash;knadsportalen</a><br />
+			&nbsp;</p>
 
 			<p style="font-size: 20px; line-height: 1.5; word-break: break-word; text-align: center; mso-line-height-alt: 30px; margin: 0 20px;">Hilsen NAV</p>
 
@@ -329,7 +333,7 @@
 
 			<div style="color:#3e3832;font-family:Source Sans Pro, Tahoma, Verdana, Segoe, sans-serif;line-height:1.5;padding-top:25px;padding-right:0px;padding-bottom:0px;padding-left:0px;">
 			<div style="font-size: 14px; line-height: 1.5; color: #3e3832; font-family: Source Sans Pro, Tahoma, Verdana, Segoe, sans-serif; mso-line-height-alt: 21px;">
-			<p style="font-size: 22px; line-height: 1.5; word-break: break-word; mso-line-height-alt: 33px; margin: 0;"><span style="font-size: 22px;">P&aring; nav.no finner du informasjon til arbeidsgivere</span></p>
+			<p style="font-size: 22px; line-height: 1.5; word-break: break-word; mso-line-height-alt: 33px; margin: 0;"><span style="font-size: 22px;">P&aring; nav.no finner du informasjon om Aa-registeret</span></p>
 			</div>
 			</div>
 
