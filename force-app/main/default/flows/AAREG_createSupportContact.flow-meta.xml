@@ -5,6 +5,22 @@
         <name>setInternallyFlag</name>
         <label>setInternallyFlag</label>
         <locationX>314</locationX>
+        <locationY>1175</locationY>
+        <assignmentItems>
+            <assignToReference>varInternallyFlag</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>createTask</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>setInternallyFlag_0</name>
+        <label>setInternallyFlag</label>
+        <locationX>754</locationX>
         <locationY>1055</locationY>
         <assignmentItems>
             <assignToReference>varInternallyFlag</assignToReference>
@@ -14,30 +30,14 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>updateInquiry</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>setInternallyFlag_0</name>
-        <label>setInternallyFlag</label>
-        <locationX>754</locationX>
-        <locationY>935</locationY>
-        <assignmentItems>
-            <assignToReference>varInternallyFlag</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>updateInquiry</targetReference>
+            <targetReference>createTask_0</targetReference>
         </connector>
     </assignments>
     <decisions>
         <name>checkIfContactIsNull</name>
         <label>checkIfContactIsNull</label>
         <locationX>534</locationX>
-        <locationY>815</locationY>
+        <locationY>935</locationY>
         <defaultConnector>
             <targetReference>updateInquiry</targetReference>
         </defaultConnector>
@@ -162,7 +162,7 @@
         <name>createContact</name>
         <label>createContact</label>
         <locationX>50</locationX>
-        <locationY>935</locationY>
+        <locationY>1055</locationY>
         <assignRecordIdToReference>varContactId</assignRecordIdToReference>
         <connector>
             <targetReference>updateInquiry</targetReference>
@@ -203,7 +203,7 @@
         <name>createContact_0</name>
         <label>createContact</label>
         <locationX>314</locationX>
-        <locationY>935</locationY>
+        <locationY>1055</locationY>
         <assignRecordIdToReference>varContactId</assignRecordIdToReference>
         <connector>
             <targetReference>setInternallyFlag</targetReference>
@@ -234,11 +234,129 @@
         </inputAssignments>
         <object>Contact</object>
     </recordCreates>
+    <recordCreates>
+        <name>createTask</name>
+        <label>createTask</label>
+        <locationX>314</locationX>
+        <locationY>1295</locationY>
+        <connector>
+            <targetReference>updateInquiry</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>ActivityDate</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>$Record.InquiryDescription__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Priority</field>
+            <value>
+                <stringValue>Normal</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>RecordTypeId</field>
+            <value>
+                <elementReference>varRecordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <stringValue>Opprettelse av henvendelse fra brukerstøtte</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <stringValue>Brukerstøtte</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Task</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>createTask_0</name>
+        <label>createTask</label>
+        <locationX>754</locationX>
+        <locationY>1175</locationY>
+        <connector>
+            <targetReference>updateInquiry</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>ActivityDate</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>$Record.InquiryDescription__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Priority</field>
+            <value>
+                <stringValue>Normal</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>RecordTypeId</field>
+            <value>
+                <elementReference>varRecordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <stringValue>Opprettelse av henvendelse fra brukerstøtte</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <stringValue>Brukerstøtte</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Task</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
     <recordLookups>
         <name>checkContact</name>
         <label>checkContact</label>
         <locationX>534</locationX>
-        <locationY>695</locationY>
+        <locationY>815</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkIfContactIsNull</targetReference>
@@ -268,7 +386,7 @@
         <name>getAccount</name>
         <label>getAccount</label>
         <locationX>534</locationX>
-        <locationY>575</locationY>
+        <locationY>695</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkContact</targetReference>
@@ -294,7 +412,7 @@
         <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>getUser</targetReference>
+            <targetReference>getRecordType</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -314,10 +432,33 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
+        <name>getRecordType</name>
+        <label>getRecordType</label>
+        <locationX>534</locationX>
+        <locationY>455</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>getUser</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>AAREG_Task</stringValue>
+            </value>
+        </filters>
+        <object>RecordType</object>
+        <outputAssignments>
+            <assignToReference>varRecordId</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
         <name>getUser</name>
         <label>getUser</label>
         <locationX>534</locationX>
-        <locationY>455</locationY>
+        <locationY>575</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getAccount</targetReference>
@@ -342,7 +483,7 @@
         <name>updateInquiry</name>
         <label>updateInquiry</label>
         <locationX>534</locationX>
-        <locationY>1271</locationY>
+        <locationY>1511</locationY>
         <inputAssignments>
             <field>AccountId__c</field>
             <value>
@@ -381,7 +522,7 @@
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
     <variables>
         <name>varAccountId</name>
         <dataType>String</dataType>
@@ -405,5 +546,12 @@
         <value>
             <booleanValue>false</booleanValue>
         </value>
+    </variables>
+    <variables>
+        <name>varRecordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
     </variables>
 </Flow>
