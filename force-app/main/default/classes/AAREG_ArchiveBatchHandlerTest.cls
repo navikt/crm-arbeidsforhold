@@ -24,6 +24,7 @@ public class AAREG_ArchiveBatchHandlerTest {
         SELECT
           Id,
           Name,
+          Status__c,
           Casehandler_Status__c,
           AA_register_application_text__c,
           AA_ApplicationArchived__c,
@@ -63,7 +64,6 @@ public class AAREG_ArchiveBatchHandlerTest {
     application.CasehandlerOwner__c = user.Id;
     application.AA_ApplicationArchived__c = true;
     application.Casehandler_Status__c = 'Closed';
-    application.AA_ApplicationArchived__c = true;
     insert application;
 
     Set<Id> applicationIds = new Set<Id>{ application.Id };
