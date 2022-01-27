@@ -176,6 +176,12 @@
             </value>
         </filters>
         <inputAssignments>
+            <field>AA_DecisionArchiveText__c</field>
+            <value>
+                <elementReference>suspensionText</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Casehandler_Status__c</field>
             <value>
                 <stringValue>Closed</stringValue>
