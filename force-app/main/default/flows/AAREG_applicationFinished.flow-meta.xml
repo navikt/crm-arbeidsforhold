@@ -328,7 +328,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>getRecordTypeid</targetReference>
+                <targetReference>createTaskApplicationFinished</targetReference>
             </connector>
             <label>isDoneDeclined</label>
         </rules>
@@ -387,6 +387,7 @@
             <label>isStatusDeclined</label>
         </rules>
     </decisions>
+    <description>Set cashandler status = Closed and status into approved/declined status and create agreement</description>
     <formulas>
         <name>finishDescription</name>
         <dataType>String</dataType>
@@ -498,65 +499,6 @@
         </inputAssignments>
         <object>Agreement__c</object>
     </recordCreates>
-    <recordCreates>
-        <name>createTask</name>
-        <label>createTask</label>
-        <locationX>424</locationX>
-        <locationY>3014</locationY>
-        <connector>
-            <targetReference>updateApplication</targetReference>
-        </connector>
-        <inputAssignments>
-            <field>ActivityDate</field>
-            <value>
-                <elementReference>$Flow.InterviewStartTime</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Description</field>
-            <value>
-                <elementReference>finishDescription</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Priority</field>
-            <value>
-                <stringValue>Normal</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>RecordTypeId</field>
-            <value>
-                <elementReference>recordTypeId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>Completed</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Subject</field>
-            <value>
-                <stringValue>Søknaden er ferdigbehandlet</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Type</field>
-            <value>
-                <stringValue>Ferdigbehandlet</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>WhatId</field>
-            <value>
-                <elementReference>recordId</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Task</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
@@ -590,34 +532,11 @@
         <queriedFields>createdById__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
-    <recordLookups>
-        <name>getRecordTypeid</name>
-        <label>getRecordTypeid</label>
-        <locationX>424</locationX>
-        <locationY>2894</locationY>
-        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>createTask</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>DeveloperName</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>AAREG_Task</stringValue>
-            </value>
-        </filters>
-        <object>RecordType</object>
-        <outputAssignments>
-            <assignToReference>recordTypeId</assignToReference>
-            <field>Id</field>
-        </outputAssignments>
-    </recordLookups>
     <recordUpdates>
         <name>updateApplication</name>
         <label>updateApplication</label>
         <locationX>424</locationX>
-        <locationY>3134</locationY>
+        <locationY>3014</locationY>
         <connector>
             <targetReference>updateThreadToNotActive</targetReference>
         </connector>
@@ -661,7 +580,7 @@
         <locationX>182</locationX>
         <locationY>2678</locationY>
         <connector>
-            <targetReference>getRecordTypeid</targetReference>
+            <targetReference>createTaskApplicationFinished</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -683,7 +602,7 @@
         <name>updateThreadToNotActive</name>
         <label>updateThreadToNotActive</label>
         <locationX>424</locationX>
-        <locationY>3254</locationY>
+        <locationY>3134</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>CRM_Related_Object__c</field>
@@ -762,6 +681,40 @@
         </connector>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>createTaskApplicationFinished</name>
+        <label>createTaskApplicationFinished</label>
+        <locationX>424</locationX>
+        <locationY>2894</locationY>
+        <connector>
+            <targetReference>updateApplication</targetReference>
+        </connector>
+        <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varDescription</name>
+            <value>
+                <elementReference>finishDescription</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRelatedToId</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSubject</name>
+            <value>
+                <elementReference>varTaskSubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varTypeOfTask</name>
+            <value>
+                <stringValue>Ferdigbehandlet</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
     <variables>
         <name>agreementId</name>
         <dataType>String</dataType>
@@ -854,5 +807,15 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varTaskSubject</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Søknaden er ferdigbehandlet</stringValue>
+        </value>
     </variables>
 </Flow>

@@ -5,7 +5,7 @@
         <name>setStatus</name>
         <label>setStatus</label>
         <locationX>176</locationX>
-        <locationY>455</locationY>
+        <locationY>335</locationY>
         <assignmentItems>
             <assignToReference>varStatus</assignToReference>
             <operator>Assign</operator>
@@ -21,13 +21,14 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>createTaskOnChangedStatus</targetReference>
+            <targetReference>createTaskChangeStatus</targetReference>
         </connector>
     </assignments>
+    <description>Adds an task whenever the casehandler status changes on application</description>
     <formulas>
         <name>varDescription</name>
         <dataType>String</dataType>
-        <expression>&apos;Status har endret status fra &apos;&amp;{!varPriorStatus} &amp;&apos; til &apos;&amp;{!varStatus}</expression>
+        <expression>&apos;Status har endret status fra: &apos;&amp;{!varPriorStatus} &amp;&apos; til: &apos;&amp;{!varStatus}</expression>
     </formulas>
     <interviewLabel>AAREG_applicationChangingStatus {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_applicationChangingStatus</label>
@@ -50,90 +51,11 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
-    <recordCreates>
-        <name>createTaskOnChangedStatus</name>
-        <label>createTaskOnChangedStatus</label>
-        <locationX>176</locationX>
-        <locationY>575</locationY>
-        <inputAssignments>
-            <field>ActivityDate</field>
-            <value>
-                <elementReference>$Flow.CurrentDate</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Description</field>
-            <value>
-                <elementReference>varDescription</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Priority</field>
-            <value>
-                <stringValue>Normal</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>RecordTypeId</field>
-            <value>
-                <elementReference>varRecordId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>Completed</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Subject</field>
-            <value>
-                <stringValue>Endring av status</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Type</field>
-            <value>
-                <stringValue>Status</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>WhatId</field>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Task</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
-    <recordLookups>
-        <name>getRecordId</name>
-        <label>getRecordId</label>
-        <locationX>176</locationX>
-        <locationY>335</locationY>
-        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>setStatus</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>DeveloperName</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>AAREG_Task</stringValue>
-            </value>
-        </filters>
-        <object>RecordType</object>
-        <outputAssignments>
-            <assignToReference>varRecordId</assignToReference>
-            <field>Id</field>
-        </outputAssignments>
-    </recordLookups>
     <start>
         <locationX>50</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>getRecordId</targetReference>
+            <targetReference>setStatus</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -148,15 +70,39 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>createTaskChangeStatus</name>
+        <label>createTaskChangeStatus</label>
+        <locationX>176</locationX>
+        <locationY>455</locationY>
+        <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varDescription</name>
+            <value>
+                <elementReference>varDescription</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRelatedToId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSubject</name>
+            <value>
+                <elementReference>varTaskSubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varTypeOfTask</name>
+            <value>
+                <stringValue>Status</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
     <variables>
         <name>varPriorStatus</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <name>varRecordId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -168,5 +114,15 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varTaskSubject</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Endring av status</stringValue>
+        </value>
     </variables>
 </Flow>
