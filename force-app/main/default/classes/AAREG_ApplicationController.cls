@@ -149,6 +149,8 @@ public without sharing class AAREG_ApplicationController {
     return [
       SELECT
         Id,
+        AA_changesInApplication__c, 
+        AA_changeApplicationText__c,
         AA_isPortalUserEditable__c,
         Email__c,
         Status__c,

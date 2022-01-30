@@ -25,6 +25,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   lastUsedOrganization;
   organizationType;
   isLoaded = false;
+  erEndring = false;
   fileData = { base64: null, filename: null };
   error;
 
@@ -89,6 +90,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       MailingCity__c: this.organization.ShippingCity ? this.organization.ShippingCity : null,
       MailingPostalCode__c: this.organization.ShippingPostalCode ? this.organization.ShippingPostalCode : null,
       Email__c: null,
+      erEndring: false,
       DataProcessorName__c: null,
       APIAccess__c: false,
       ExtractionAccess__c: false,
