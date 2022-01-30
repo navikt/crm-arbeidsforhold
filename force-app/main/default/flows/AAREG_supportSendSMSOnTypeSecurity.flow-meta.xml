@@ -37,7 +37,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>createTaskSMS</targetReference>
+                <targetReference>createSupportSMSRecord</targetReference>
             </connector>
             <label>isPhoneNumber</label>
         </rules>
@@ -55,7 +55,7 @@
         <label>loopThroughListOfPerson</label>
         <locationX>176</locationX>
         <locationY>455</locationY>
-        <collectionReference>SMSPersonlist</collectionReference>
+        <collectionReference>getPersonList</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
             <targetReference>setPhoneNumber</targetReference>
@@ -113,10 +113,38 @@
     </start>
     <status>Active</status>
     <subflows>
+        <name>createSupportSMSRecord</name>
+        <label>createSupportSMSRecord</label>
+        <locationX>264</locationX>
+        <locationY>815</locationY>
+        <connector>
+            <targetReference>createTaskSMS</targetReference>
+        </connector>
+        <flowName>AAREG_subflowCreateSMS</flowName>
+        <inputAssignments>
+            <name>varDomain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varMessage</name>
+            <value>
+                <elementReference>smsMessage</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRecipient</name>
+            <value>
+                <elementReference>loopThroughListOfPerson.Mobile_phone_number__c</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
         <name>createTaskSMS</name>
         <label>createTaskSMS</label>
         <locationX>264</locationX>
-        <locationY>815</locationY>
+        <locationY>935</locationY>
         <connector>
             <targetReference>loopThroughListOfPerson</targetReference>
         </connector>
