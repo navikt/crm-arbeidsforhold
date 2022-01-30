@@ -1,7 +1,9 @@
 import { LightningElement, api, wire, track } from 'lwc';
+import navLogo from '@salesforce/resourceUrl/logo';
 import { NavigationMixin } from 'lightning/navigation';
 import { getRecord, getFieldValue} from 'lightning/uiRecordApi';
 import NAME from '@salesforce/schema/Agreement__c.Name';
+import DECISIONDATE from '@salesforce/schema/Agreement__c.Application__r.DecisionDate__c';
 import DECISION from '@salesforce/schema/Agreement__c.Decision__c';
 import API_ACCESS from '@salesforce/schema/Agreement__c.APIAccess__c';
 import ACCOUNT_NAME from '@salesforce/schema/Agreement__c.AccountName__c';
@@ -14,8 +16,10 @@ import getAgreementContacts from '@salesforce/apex/AAREG_AgreementController.get
 import updateAgreement from '@salesforce/apex/AAREG_AgreementController.updateAgreement';
 import cancelAgreement from '@salesforce/apex/AAREG_AgreementController.cancelAgreement';
 
+  
 const AGREEMENT_FIELDS = [
   NAME,
+  DECISIONDATE,
   DECISION,
   API_ACCESS,
   ACCOUNT_NAME,
@@ -36,6 +40,7 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
   showDecision = false;
   showAgreementCancellationConfirmation = false;
   error;
+  navLogoUrl = navLogo;
 
   connectedCallback() {
     this.agreementUpdates = { Id: this.recordId };
@@ -255,6 +260,10 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
 
   get name() {
     return getFieldValue(this.agreement.data, NAME);
+  }
+
+  get decisionDate(){
+    return getFieldValue(this.agreement.data,DECISIONDATE);
   }
 
   get decision() {
