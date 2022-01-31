@@ -121,22 +121,33 @@
                 </div>
               </div>
             </section>
+
+            <section class="app-section" if:false={isReadOnly}>
+              <span class="form-control">
+                <span data-id="changes"></span>
+                <h2>Endring på eksisterende søknad/avtale</h2>
+              </span>
+              <div class="inner-container">
+                <span class="form-control">
+                  <input
+                  type="checkbox"
+                  name="erEndring"
+                  id="erEndring"
+                  data-id="AA_changesInApplication__c"
+                  disabled={isReadOnly}
+                  checked={application.AA_changesInApplication__c}
+                  onchange={handleCheckboxChange}
+                />
+                  <label for="erEndring">
+                    <abbr class="slds-required" title="required">* </abbr>
+                    Huk av boksen hvis søknad er endring på eksisterende avtale/søknad.Jeg har lest og godtar&nbsp;
+                    </label
+                  >
+                </span>
+              </div>
+            </section>
+
             <section class="app-section">
-              <h2>Endring på eksisterende søknad/avtale</h2>
-              <input
-                    type="checkbox"
-                    name="erEndring"
-                    id="erEndring"
-                    data-id="AA_changesInApplication__c"
-                    disabled={isReadOnly}
-                    checked={application.AA_changesInApplication__c}
-                    onchange={handleCheckboxChange}
-                  />
-                  <lightning-helptext
-                  content="Huk av for om søknaden er endring fra eksisterende avtale/søknad."
-                  class="slds-m-left_xx-small"
-                >
-                </lightning-helptext>
               <h2>Begrunnelse</h2>
               <p class="pl-16 pb-10">Her skal du:</p>
               <ul>

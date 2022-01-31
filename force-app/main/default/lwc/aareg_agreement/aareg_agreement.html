@@ -235,13 +235,10 @@
       </div>
     </template>
   </div>
-  <c-aareg_modal data-id="Decision-Modal">
 
+  <c-aareg_modal data-id="Decision-Modal">
     <section class="agreement-section">
-     <!-- <button type="button" name="last-ned" class="button button-flat" onclick={generatePDF}>
-        Last ned vedtak
-      </button>-->
-      <p style="text-align: center;"><img src={navLogoUrl} alt="navlogo" style="width:150px;height:100px;"></p>
+      <p style="text-align: center;"><img src={navLogoUrl} style="width:150px;height:100px;"></p>
     <div class="slds-grid slds-wrap section-info">
       <div class="slds-col slds-size_1-of-1">
         <span class="label">Virksomhet: </span>
@@ -260,7 +257,6 @@
         <span>{name}</span>
       </div>
     </div>
-
     <lightning-formatted-rich-text value={decision}></lightning-formatted-rich-text>
     </section>
   </c-aareg_modal>
