@@ -104,19 +104,6 @@
                 </visibilityRule>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldItem>Record.AA_changesInApplication__c</fieldItem>
-                <identifier>RecordAA_changesInApplication_cField2</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.AA_changesInApplication__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>true</rightValue>
-                    </criteria>
-                </visibilityRule>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-9c440d08-a112-4109-bbe4-758a806c5552</name>
         <type>Facet</type>
     </flexiPageRegions>

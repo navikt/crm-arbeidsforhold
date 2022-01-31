@@ -4,7 +4,7 @@
     <decisions>
         <name>checkYesStatement</name>
         <label>checkYesStatement</label>
-        <locationX>182</locationX>
+        <locationX>446</locationX>
         <locationY>398</locationY>
         <defaultConnector>
             <targetReference>youHaveNotSetYesToDeactivate</targetReference>
@@ -20,10 +20,54 @@
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
+            <conditions>
+                <leftValueReference>getAgreement.Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Active</stringValue>
+                </rightValue>
+            </conditions>
             <connector>
                 <targetReference>updateStatusOnAgreement</targetReference>
             </connector>
             <label>isYes</label>
+        </rules>
+        <rules>
+            <name>isPartially</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>partInactive</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getAgreement.Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Active</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Unchecktheaccesstypetodeactivate</targetReference>
+            </connector>
+            <label>isPartially</label>
+        </rules>
+        <rules>
+            <name>notActive</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getAgreement.Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Deactivated</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Not_active</targetReference>
+            </connector>
+            <label>notActive</label>
         </rules>
     </decisions>
     <formulas>
@@ -55,7 +99,7 @@
     <recordLookups>
         <name>getAgreement</name>
         <label>getAgreement</label>
-        <locationX>182</locationX>
+        <locationX>446</locationX>
         <locationY>158</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -75,8 +119,21 @@
         <queriedFields>Status__c</queriedFields>
         <queriedFields>AA_ConfirmedAgreementCancellation__c</queriedFields>
         <queriedFields>AA_ConfirmedAgreementCancellationDate__c</queriedFields>
+        <queriedFields>APIAccess__c</queriedFields>
+        <queriedFields>ExtractionAccess__c</queriedFields>
+        <queriedFields>OnlineAccess__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordUpdates>
+        <name>updateAccessType</name>
+        <label>updateAccessType</label>
+        <locationX>314</locationX>
+        <locationY>638</locationY>
+        <connector>
+            <targetReference>createPartiallyDeactivateTask</targetReference>
+        </connector>
+        <inputReference>getAgreement</inputReference>
+    </recordUpdates>
     <recordUpdates>
         <name>updateStatusOnAgreement</name>
         <label>updateStatusOnAgreement</label>
@@ -113,7 +170,7 @@
     <screens>
         <name>deactivateAgreement</name>
         <label>deactivateAgreement</label>
-        <locationX>182</locationX>
+        <locationX>446</locationX>
         <locationY>278</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
@@ -121,6 +178,11 @@
         <connector>
             <targetReference>checkYesStatement</targetReference>
         </connector>
+        <fields>
+            <name>inActiveAgreement</name>
+            <fieldText>&lt;p&gt;Deactivate whole agreement or partially deactivate the agreement&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
         <fields>
             <name>yesDeactivateAgreement</name>
             <dataType>Boolean</dataType>
@@ -131,34 +193,161 @@
             <fieldType>InputField</fieldType>
             <isRequired>true</isRequired>
         </fields>
+        <fields>
+            <name>deactivateAgreement_Section1</name>
+            <fieldType>RegionContainer</fieldType>
+            <fields>
+                <name>deactivateAgreement_Section1_Column1</name>
+                <fieldType>Region</fieldType>
+                <inputParameters>
+                    <name>width</name>
+                    <value>
+                        <stringValue>12</stringValue>
+                    </value>
+                </inputParameters>
+                <isRequired>false</isRequired>
+            </fields>
+            <isRequired>false</isRequired>
+        </fields>
+        <fields>
+            <name>partInactive</name>
+            <dataType>Boolean</dataType>
+            <defaultValue>
+                <booleanValue>false</booleanValue>
+            </defaultValue>
+            <fieldText>Yes, I want to partially deactivat agreement.</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>Not_active</name>
+        <label>Not active</label>
+        <locationX>578</locationX>
+        <locationY>518</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <fields>
+            <name>notActiveMessage</name>
+            <fieldText>&lt;p&gt;The agreement is already deactivated&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>Unchecktheaccesstypetodeactivate</name>
+        <label>Uncheck access type to deactivate</label>
+        <locationX>314</locationX>
+        <locationY>518</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>updateAccessType</targetReference>
+        </connector>
+        <fields>
+            <fieldType>ObjectProvided</fieldType>
+            <isRequired>true</isRequired>
+            <objectFieldReference>getAgreement.OnlineAccess__c</objectFieldReference>
+        </fields>
+        <fields>
+            <fieldType>ObjectProvided</fieldType>
+            <isRequired>true</isRequired>
+            <objectFieldReference>getAgreement.ExtractionAccess__c</objectFieldReference>
+        </fields>
+        <fields>
+            <fieldType>ObjectProvided</fieldType>
+            <isRequired>true</isRequired>
+            <objectFieldReference>getAgreement.APIAccess__c</objectFieldReference>
+        </fields>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
     <screens>
         <name>youHaveNotSetYesToDeactivate</name>
         <label>You have not choosen yes to deactivate</label>
-        <locationX>314</locationX>
+        <locationX>842</locationX>
         <locationY>518</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
+        <fields>
+            <name>noneMessage</name>
+            <fieldText>&lt;p&gt;Nothing is selected&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>56</locationX>
+        <locationX>320</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getAgreement</targetReference>
         </connector>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>createPartiallyDeactivateTask</name>
+        <label>createPartiallyDeactivateTask</label>
+        <locationX>314</locationX>
+        <locationY>758</locationY>
+        <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varDescription</name>
+            <value>
+                <elementReference>varDescription</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRelatedToId</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSubject</name>
+            <value>
+                <stringValue>Delvis deaktivering</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varTypeOfTask</name>
+            <value>
+                <stringValue>Deaktivering</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>varAPI</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <name>varDescription</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>En delvis deaktivering</stringValue>
+        </value>
     </variables>
     <variables>
         <name>varSetSubject</name>
