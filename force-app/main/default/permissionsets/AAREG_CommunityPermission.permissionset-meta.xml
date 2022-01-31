@@ -211,6 +211,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Application__c.AA_changesInApplication__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Application__c.APIAccess__c</field>
         <readable>true</readable>
     </fieldPermissions>
