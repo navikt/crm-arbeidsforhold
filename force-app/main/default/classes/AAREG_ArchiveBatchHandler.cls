@@ -11,9 +11,10 @@ public class AAREG_ArchiveBatchHandler {
       if (isApplicationArchivable(application)) {
         applicationsToArchive.add(application);
       }
+      /*Commented out for now 01.02.2022 
       if (isDecisionArchivable(application)) {
         decisionsToArchive.add(application);
-      }
+      }*/
     }
     if (!applicationsToArchive.isEmpty()) {
       Database.executeBatch(new AAREG_ApplicationArchiveBatch(applicationsToArchive), 10);
