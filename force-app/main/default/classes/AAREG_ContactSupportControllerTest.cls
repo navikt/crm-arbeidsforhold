@@ -21,7 +21,7 @@ public class AAREG_ContactSupportControllerTest {
 
     Test.startTest();
       try{
-         AAREG_contactSupportController.createThreadForApplication(usr.Id, application.Id, 'Test Description','Sikkerhetsbrudd'); 
+         AAREG_contactSupportController.createThreadForApplication(usr.Id, application.Id, 'Test Description','Endringsbehov'); 
       }catch(exception e){}
           
     

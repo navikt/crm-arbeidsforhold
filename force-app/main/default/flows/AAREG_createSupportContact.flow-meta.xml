@@ -337,6 +337,7 @@
         <queriedFields>IsPortalEnabled</queriedFields>
         <queriedFields>LastName</queriedFields>
         <queriedFields>FirstName</queriedFields>
+        <queriedFields>Email</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>

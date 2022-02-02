@@ -131,11 +131,11 @@ public class AAREG_WebsakXMLGenerator {
     dom.XmlNode documentTab = post.addChildElement('DOKVERSJON.TAB', null, null);
 
     for (String docName : documentNameFormat.keyset()) {
-      String fileName = docName;
-      String fileFormat = documentNameFormat.get(formatFileName(docName));
+      String fileName = formatFileName(docName);
+      String fileFormat = documentNameFormat.get(docName);
       dom.XmlNode documentVersion = documentTab.addChildElement('DOKVERSJON', null, null);
-      dom.XmlNode documentFormat = documentVersion.addChildElement('VE.DOKFORMAT', null, null).addTextNode(fileFormat+'.'+fileName.toLowerCase());
-      dom.XmlNode documentReference = documentVersion.addChildElement('VE.FILREF', null, null).addTextNode(fileName);
+      dom.XmlNode documentFormat = documentVersion.addChildElement('VE.DOKFORMAT', null, null).addTextNode(fileFormat);
+      dom.XmlNode documentReference = documentVersion.addChildElement('VE.FILREF', null, null).addTextNode(fileName+fileFormat.toLowerCase());
     }
 
     return doc.toXmlString();
