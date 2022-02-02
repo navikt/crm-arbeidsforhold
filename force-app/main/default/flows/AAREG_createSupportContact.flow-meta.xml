@@ -53,8 +53,8 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>getUser.CRM_NAV_Ident__c</leftValueReference>
-                <operator>IsNull</operator>
+                <leftValueReference>getUser.IsPortalEnabled</leftValueReference>
+                <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
@@ -75,8 +75,8 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>getUser.CRM_NAV_Ident__c</leftValueReference>
-                <operator>IsNull</operator>
+                <leftValueReference>getUser.IsPortalEnabled</leftValueReference>
+                <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
@@ -97,8 +97,8 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>getUser.CRM_NAV_Ident__c</leftValueReference>
-                <operator>IsNull</operator>
+                <leftValueReference>getUser.IsPortalEnabled</leftValueReference>
+                <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
@@ -119,8 +119,8 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>getUser.CRM_NAV_Ident__c</leftValueReference>
-                <operator>IsNull</operator>
+                <leftValueReference>getUser.IsPortalEnabled</leftValueReference>
+                <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
@@ -334,9 +334,9 @@
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>User</object>
         <queriedFields>Id</queriedFields>
+        <queriedFields>IsPortalEnabled</queriedFields>
         <queriedFields>LastName</queriedFields>
         <queriedFields>FirstName</queriedFields>
-        <queriedFields>CRM_NAV_Ident__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
@@ -466,6 +466,13 @@
         <isOutput>true</isOutput>
     </variables>
     <variables>
+        <name>varFirstName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
         <name>varInternallyFlag</name>
         <dataType>Boolean</dataType>
         <isCollection>false</isCollection>
@@ -474,6 +481,27 @@
         <value>
             <booleanValue>false</booleanValue>
         </value>
+    </variables>
+    <variables>
+        <name>varLastname</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varNavIdent</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varProfileId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
     </variables>
     <variables>
         <name>varRecordId</name>
