@@ -4,8 +4,8 @@
     <assignments>
         <name>setInternallyFlag</name>
         <label>setInternallyFlag</label>
-        <locationX>314</locationX>
-        <locationY>1055</locationY>
+        <locationX>446</locationX>
+        <locationY>1391</locationY>
         <assignmentItems>
             <assignToReference>varInternallyFlag</assignToReference>
             <operator>Assign</operator>
@@ -20,7 +20,7 @@
     <assignments>
         <name>setInternallyFlag_0</name>
         <label>setInternallyFlag</label>
-        <locationX>754</locationX>
+        <locationX>1018</locationX>
         <locationY>935</locationY>
         <assignmentItems>
             <assignToReference>varInternallyFlag</assignToReference>
@@ -33,10 +33,67 @@
             <targetReference>createTaskSupport_0</targetReference>
         </connector>
     </assignments>
+    <assignments>
+        <name>setLastNameBasedOnEmail</name>
+        <label>setLastNameBasedOnEmail</label>
+        <locationX>314</locationX>
+        <locationY>1055</locationY>
+        <assignmentItems>
+            <assignToReference>varSetLastName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>varContactName</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>createContact_0</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>setLastNameBasedOnEmail_0</name>
+        <label>setLastNameBasedOnEmail</label>
+        <locationX>578</locationX>
+        <locationY>1055</locationY>
+        <assignmentItems>
+            <assignToReference>varSetLastName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Kontakt uten epost</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>createContact_0</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>checkEmail</name>
+        <label>checkEmail</label>
+        <locationX>446</locationX>
+        <locationY>935</locationY>
+        <defaultConnector>
+            <targetReference>setLastNameBasedOnEmail_0</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>isNotEmail</defaultConnectorLabel>
+        <rules>
+            <name>isEmail</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getInquiry.Email__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>setLastNameBasedOnEmail</targetReference>
+            </connector>
+            <label>isEmail</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>checkIfContactIsNull</name>
         <label>checkIfContactIsNull</label>
-        <locationX>534</locationX>
+        <locationX>666</locationX>
         <locationY>815</locationY>
         <defaultConnector>
             <targetReference>updateInquiry</targetReference>
@@ -82,7 +139,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>createContact_0</targetReference>
+                <targetReference>checkEmail</targetReference>
             </connector>
             <label>contactNotExistsInternally</label>
         </rules>
@@ -202,8 +259,8 @@
     <recordCreates>
         <name>createContact_0</name>
         <label>createContact</label>
-        <locationX>314</locationX>
-        <locationY>935</locationY>
+        <locationX>446</locationX>
+        <locationY>1271</locationY>
         <assignRecordIdToReference>varContactId</assignRecordIdToReference>
         <connector>
             <targetReference>setInternallyFlag</targetReference>
@@ -237,7 +294,7 @@
     <recordLookups>
         <name>checkContact</name>
         <label>checkContact</label>
-        <locationX>534</locationX>
+        <locationX>666</locationX>
         <locationY>695</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -267,7 +324,7 @@
     <recordLookups>
         <name>getAccount</name>
         <label>getAccount</label>
-        <locationX>534</locationX>
+        <locationX>666</locationX>
         <locationY>575</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -290,7 +347,7 @@
     <recordLookups>
         <name>getInquiry</name>
         <label>getInquiry</label>
-        <locationX>534</locationX>
+        <locationX>666</locationX>
         <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -317,7 +374,7 @@
     <recordLookups>
         <name>getUser</name>
         <label>getUser</label>
-        <locationX>534</locationX>
+        <locationX>666</locationX>
         <locationY>455</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -343,8 +400,8 @@
     <recordUpdates>
         <name>updateInquiry</name>
         <label>updateInquiry</label>
-        <locationX>534</locationX>
-        <locationY>1391</locationY>
+        <locationX>666</locationX>
+        <locationY>1727</locationY>
         <inputAssignments>
             <field>AccountId__c</field>
             <value>
@@ -366,7 +423,7 @@
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>408</locationX>
+        <locationX>540</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getInquiry</targetReference>
@@ -387,8 +444,8 @@
     <subflows>
         <name>createTaskSupport</name>
         <label>createTaskSupport</label>
-        <locationX>314</locationX>
-        <locationY>1175</locationY>
+        <locationX>446</locationX>
+        <locationY>1511</locationY>
         <connector>
             <targetReference>updateInquiry</targetReference>
         </connector>
@@ -421,7 +478,7 @@
     <subflows>
         <name>createTaskSupport_0</name>
         <label>createTaskSupport</label>
-        <locationX>754</locationX>
+        <locationX>1018</locationX>
         <locationY>1055</locationY>
         <connector>
             <targetReference>updateInquiry</targetReference>
@@ -506,6 +563,13 @@
     </variables>
     <variables>
         <name>varRecordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varSetLastName</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
