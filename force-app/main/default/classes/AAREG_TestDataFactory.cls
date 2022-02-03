@@ -46,7 +46,7 @@ public with sharing class AAREG_TestDataFactory {
     Inquiry__c inquiry = new Inquiry__c(
       InquiryDescription__c = 'Test Description',
       Status__c = 'New',
-      Email__c = 'rør@test33.no',
+      Email__c = 'testperson@test33.no',
       TypeOfInquiry__c = 'Endringsbehov'
     );
     return inquiry;
