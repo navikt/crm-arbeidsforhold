@@ -131,11 +131,11 @@ public class AAREG_WebsakXMLGenerator {
     dom.XmlNode documentTab = post.addChildElement('DOKVERSJON.TAB', null, null);
 
     for (String docName : documentNameFormat.keyset()) {
-      String fileName = docName;
+      String fileName = formatFileName(docName);
       String fileFormat = documentNameFormat.get(docName);
       dom.XmlNode documentVersion = documentTab.addChildElement('DOKVERSJON', null, null);
       dom.XmlNode documentFormat = documentVersion.addChildElement('VE.DOKFORMAT', null, null).addTextNode(fileFormat);
-      dom.XmlNode documentReference = documentVersion.addChildElement('VE.FILREF', null, null).addTextNode(fileName);
+      dom.XmlNode documentReference = documentVersion.addChildElement('VE.FILREF', null, null).addTextNode(fileName+fileFormat.toLowerCase());
     }
 
     return doc.toXmlString();
@@ -145,6 +145,18 @@ public class AAREG_WebsakXMLGenerator {
     Datetime dateToFormat = input;
     return dateToFormat.formatGmt('YYYYMMdd');
   }
+    
+  private String formatFileName(String inputFile){
+      String returnName;
+      Integer last = inputFile.lastIndexOf('.');
+      if(last>0 && last<(inputFile.length()-1))
+      {
+          returnName = inputFile.substring(0,last);
+      }else{
+          returnName = inputFile;
+      }
+      return returnName;
+ 	}
 
   private String formatCityPostalCode(String city, String postalCode) {
     return city + ' ' + postalCode;
