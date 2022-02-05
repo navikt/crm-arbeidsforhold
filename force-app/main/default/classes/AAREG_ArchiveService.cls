@@ -163,7 +163,7 @@ public class AAREG_ArchiveService {
   private Map<String, Blob> getContentVersionFileMap(List<ContentVersion> content, String applicationName) {
     Map<String, Blob> contentFileMap = new Map<String, Blob>();
     for (ContentVersion cv : content) {
-      String fileName = formatFileName(applicationName + formatFileName(cv.title));
+      String fileName = formatFileName(applicationName + formatFileName(cv.PathOnClient));
       contentFileMap.put(fileName, cv.VersionData);
     }
     return contentFileMap;
@@ -173,7 +173,7 @@ public class AAREG_ArchiveService {
     Map<String, String> fileNameFormat = new Map<String, String>();
 
     for (ContentVersion cv : contentVersions) {
-      String fileName = formatFileName(refrenceNumber + formatFileName(cv.title));
+      String fileName = formatFileName(refrenceNumber + formatFileName(cv.PathOnClient));
       fileNameFormat.put(fileName, cv.fileType);
     }
     return fileNameFormat;
@@ -191,7 +191,7 @@ public class AAREG_ArchiveService {
   private Map<Id, List<ContentVersion>> getContentVersionMap(Map<Id, ContentDocumentLink> documentLinkMap) {
     Map<Id, List<ContentVersion>> contentVersionMap = new Map<Id, List<ContentVersion>>();
     List<ContentVersion> contentVersions = [
-      SELECT Id, ContentDocumentId, Title, FileType, VersionData
+      SELECT Id, ContentDocumentId, Title, FileType, VersionData,PathOnClient
       FROM ContentVersion
       WHERE ContentDocumentId = :documentLinkMap.keySet()
     ];

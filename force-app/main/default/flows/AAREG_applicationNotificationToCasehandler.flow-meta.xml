@@ -17,13 +17,13 @@
         <inputParameters>
             <name>body</name>
             <value>
-                <elementReference>varNotificationBody</elementReference>
+                <elementReference>varApplicationNotificationBody</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
             <name>title</name>
             <value>
-                <elementReference>varNotificationTitle</elementReference>
+                <elementReference>varApplicationNotificationTitle</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -41,8 +41,52 @@
     </actionCalls>
     <apiVersion>53.0</apiVersion>
     <assignments>
-        <name>addRecipientValue</name>
-        <label>addRecipientValue</label>
+        <name>setApplicationVariables</name>
+        <label>setApplicationVariables</label>
+        <locationX>182</locationX>
+        <locationY>455</locationY>
+        <assignmentItems>
+            <assignToReference>varLastModUser</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.LastModifiedById</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varOwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.OwnerId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varPriorStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record__Prior.Casehandler_Status__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Casehandler_Status__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCaseOwner</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.CasehandlerOwner__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>checkPriorStatus</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>setRecipient</name>
+        <label>setRecipient</label>
         <locationX>50</locationX>
         <locationY>695</locationY>
         <assignmentItems>
@@ -57,45 +101,54 @@
         </connector>
     </assignments>
     <decisions>
+        <description>If an application goes from additional information to required, and the lastmoduser on application is the application owner and notification is sent to casehandler</description>
         <name>checkPriorStatus</name>
         <label>checkPriorStatus</label>
         <locationX>182</locationX>
-        <locationY>335</locationY>
+        <locationY>575</locationY>
         <defaultConnectorLabel>isNot</defaultConnectorLabel>
         <rules>
             <name>isPriorWaiting</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record__Prior.Casehandler_Status__c</leftValueReference>
+                <leftValueReference>varPriorStatus</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Additional Information Required</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.Casehandler_Status__c</leftValueReference>
+                <leftValueReference>varStatus</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>In Progress</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>$Record.CasehandlerOwner__c</leftValueReference>
+                <leftValueReference>varCaseOwner</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
+            <conditions>
+                <leftValueReference>varLastModUser</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>varOwnerId</elementReference>
+                </rightValue>
+            </conditions>
             <connector>
-                <targetReference>getNotificationId</targetReference>
+                <targetReference>setRecipient</targetReference>
             </connector>
             <label>isPriorWaiting</label>
         </rules>
     </decisions>
+    <description>When a user is altering an application and submits - status is changing an an notification is sendt to casehandler</description>
     <formulas>
-        <name>varBody</name>
+        <name>varApplicationBody</name>
         <dataType>String</dataType>
-        <expression>&apos;Søker knyttet til søknadsnummer: &apos;&amp;{!$Record.Name}&amp;&apos; har sendt en melding eller oppdatert søknad&apos;</expression>
+        <expression>&apos;Søker knyttet til søknadsnummer: &apos;&amp;{!$Record.Name}&amp;&apos; har oppdatert søknad&apos;</expression>
     </formulas>
     <interviewLabel>AAREG_applicationNotificationToCasehandler {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_applicationNotificationToCasehandler</label>
@@ -119,36 +172,13 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordLookups>
-        <name>getCasehandlerOwner</name>
-        <label>getCasehandlerOwner</label>
-        <locationX>50</locationX>
-        <locationY>575</locationY>
-        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>addRecipientValue</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </filters>
-        <object>Application__c</object>
-        <outputAssignments>
-            <assignToReference>varCaseOwner</assignToReference>
-            <field>CasehandlerOwner__c</field>
-        </outputAssignments>
-    </recordLookups>
-    <recordLookups>
-        <name>getNotificationId</name>
+        <name>getNotificationId_0</name>
         <label>getNotificationId</label>
-        <locationX>50</locationX>
-        <locationY>455</locationY>
+        <locationX>182</locationX>
+        <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>getCasehandlerOwner</targetReference>
+            <targetReference>setApplicationVariables</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -168,7 +198,7 @@
         <locationX>56</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>checkPriorStatus</targetReference>
+            <targetReference>getNotificationId_0</targetReference>
         </connector>
         <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
@@ -192,6 +222,26 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <name>varApplicationNotificationBody</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <elementReference>varApplicationBody</elementReference>
+        </value>
+    </variables>
+    <variables>
+        <name>varApplicationNotificationTitle</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Søker har oppdatert søknad</stringValue>
+        </value>
+    </variables>
+    <variables>
         <name>varCaseOwner</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
@@ -199,27 +249,49 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <name>varNotificationBody</name>
+        <name>varLastModUser</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
-        <value>
-            <elementReference>varBody</elementReference>
-        </value>
     </variables>
     <variables>
-        <name>varNotificationTitle</name>
+        <name>varMessageUser</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
-        <value>
-            <stringValue>Søker har sendt en melding eller oppdatert søknad</stringValue>
-        </value>
     </variables>
     <variables>
         <name>varNotifictionId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varOwnerId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varPriorStatus</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varStatus</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varThreadId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
