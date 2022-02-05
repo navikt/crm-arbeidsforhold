@@ -84,7 +84,7 @@ ul:not(.browser-default) li {
   height: 75px;
   max-width: 100%;
   margin: 8px 8px 0px 8px;
-  resize: none;
+  resize: both;
 }
 
 .button-standard {
