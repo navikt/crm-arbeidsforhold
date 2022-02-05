@@ -4,7 +4,7 @@
         <name>sendNotificationToUser</name>
         <label>sendNotificationToUser</label>
         <locationX>50</locationX>
-        <locationY>815</locationY>
+        <locationY>1055</locationY>
         <actionName>customNotificationAction</actionName>
         <actionType>customNotificationAction</actionType>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
@@ -40,11 +40,27 @@
         </inputParameters>
     </actionCalls>
     <apiVersion>53.0</apiVersion>
+    <assignments>
+        <name>setRecipient</name>
+        <label>setRecipient</label>
+        <locationX>50</locationX>
+        <locationY>815</locationY>
+        <assignmentItems>
+            <assignToReference>varRecipientId</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>varCasehandlerOwner</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>updateApplicationStatus</targetReference>
+        </connector>
+    </assignments>
     <decisions>
         <name>checkObjectType</name>
         <label>checkObjectType</label>
         <locationX>182</locationX>
-        <locationY>575</locationY>
+        <locationY>695</locationY>
         <defaultConnectorLabel>isNotApplicationObjectType</defaultConnectorLabel>
         <rules>
             <name>isApplicationObjectType</name>
@@ -57,7 +73,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>updateApplicationStatus</targetReference>
+                <targetReference>setRecipient</targetReference>
             </connector>
             <label>isApplicationObjectType</label>
         </rules>
@@ -85,10 +101,33 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordLookups>
+        <name>getApplication</name>
+        <label>getApplication</label>
+        <locationX>182</locationX>
+        <locationY>455</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>getNotificationId</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>getThreadObjectType.CRM_Related_Object__c</elementReference>
+            </value>
+        </filters>
+        <object>Application__c</object>
+        <outputAssignments>
+            <assignToReference>varCasehandlerOwner</assignToReference>
+            <field>CasehandlerOwner__c</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
         <name>getNotificationId</name>
         <label>getNotificationId</label>
         <locationX>182</locationX>
-        <locationY>455</locationY>
+        <locationY>575</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkObjectType</targetReference>
@@ -114,7 +153,7 @@
         <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>getNotificationId</targetReference>
+            <targetReference>getApplication</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -135,7 +174,7 @@
         <name>updateApplicationStatus</name>
         <label>updateApplicationStatus</label>
         <locationX>50</locationX>
-        <locationY>695</locationY>
+        <locationY>935</locationY>
         <connector>
             <targetReference>sendNotificationToUser</targetReference>
         </connector>
@@ -180,6 +219,13 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <variables>
+        <name>varCasehandlerOwner</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
     <variables>
         <name>varNotificationBody</name>
         <dataType>String</dataType>
