@@ -1,11 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>sendNotificationToUser</name>
+        <label>sendNotificationToUser</label>
+        <locationX>50</locationX>
+        <locationY>815</locationY>
+        <actionName>customNotificationAction</actionName>
+        <actionType>customNotificationAction</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>customNotifTypeId</name>
+            <value>
+                <elementReference>varNotificationId</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>body</name>
+            <value>
+                <elementReference>varNotificationBody</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>title</name>
+            <value>
+                <elementReference>varNotificationTitle</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recipientIds</name>
+            <value>
+                <elementReference>varRecipientId</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>targetId</name>
+            <value>
+                <elementReference>getThreadObjectType.CRM_Related_Object__c</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
     <apiVersion>53.0</apiVersion>
     <decisions>
         <name>checkObjectType</name>
         <label>checkObjectType</label>
         <locationX>182</locationX>
-        <locationY>455</locationY>
+        <locationY>575</locationY>
         <defaultConnectorLabel>isNotApplicationObjectType</defaultConnectorLabel>
         <rules>
             <name>isApplicationObjectType</name>
@@ -46,13 +85,36 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordLookups>
+        <name>getNotificationId</name>
+        <label>getNotificationId</label>
+        <locationX>182</locationX>
+        <locationY>455</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>checkObjectType</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>AAREG_threadNotification</stringValue>
+            </value>
+        </filters>
+        <object>CustomNotificationType</object>
+        <outputAssignments>
+            <assignToReference>varNotificationId</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
         <name>getThreadObjectType</name>
         <label>getThreadObjectType</label>
         <locationX>182</locationX>
         <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>checkObjectType</targetReference>
+            <targetReference>getNotificationId</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -73,7 +135,10 @@
         <name>updateApplicationStatus</name>
         <label>updateApplicationStatus</label>
         <locationX>50</locationX>
-        <locationY>575</locationY>
+        <locationY>695</locationY>
+        <connector>
+            <targetReference>sendNotificationToUser</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -115,4 +180,38 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <variables>
+        <name>varNotificationBody</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>En ny melding fra søker knyttet til søknaden.</stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>varNotificationId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varNotificationTitle</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Ny melding</stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>varRecipientId</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
 </Flow>
