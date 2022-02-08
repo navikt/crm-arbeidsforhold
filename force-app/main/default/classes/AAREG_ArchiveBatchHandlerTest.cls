@@ -51,8 +51,8 @@ public class AAREG_ArchiveBatchHandlerTest {
       FROM AsyncApexJob
       WHERE JobType = 'BatchApex'
     ];
-    //System.assertEquals(1, jobsApexBatch.size(), 'One job scheduled.');
-    //System.assertEquals('AAREG_ApplicationArchiveBatch', jobsApexBatch[0].ApexClass.Name, 'Batch job submitted.');
+    System.assertEquals(1, jobsApexBatch.size(), 'One job scheduled.');
+    System.assertEquals('AAREG_ApplicationArchiveBatch', jobsApexBatch[0].ApexClass.Name, 'Batch job submitted.');
   }
 
   @isTest

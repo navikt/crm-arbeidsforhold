@@ -32,15 +32,15 @@ public class AAREG_ArchiveSchedulerTest {
       FROM AsyncApexJob
       WHERE JobType = 'ScheduledApex'
     ];
-    //System.assertEquals(1, jobsScheduled.size(), 'One job scheduled.');
-    //System.assertEquals('AAREG_ArchiveScheduler', jobsScheduled[0].ApexClass.Name, 'Scheduled the job.');
+    System.assertEquals(1, jobsScheduled.size(), 'One job scheduled.');
+    System.assertEquals('AAREG_ArchiveScheduler', jobsScheduled[0].ApexClass.Name, 'Scheduled the job.');
 
     List<AsyncApexJob> jobsApexBatch = [
       SELECT Id, ApexClassID, ApexClass.Name, Status, JobType
       FROM AsyncApexJob
       WHERE JobType = 'BatchApex'
     ];
-    //System.assertEquals(1, jobsApexBatch.size(), 'One job scheduled.');
-    //System.assertEquals('AAREG_ApplicationArchiveBatch', jobsApexBatch[0].ApexClass.Name, 'Batch job submitted.');
+    System.assertEquals(1, jobsApexBatch.size(), 'One job scheduled.');
+    System.assertEquals('AAREG_ApplicationArchiveBatch', jobsApexBatch[0].ApexClass.Name, 'Batch job submitted.');
   }
 }
