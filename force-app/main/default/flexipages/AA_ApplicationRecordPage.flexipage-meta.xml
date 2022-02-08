@@ -366,7 +366,7 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>showClose</name>
-                    <value>true</value>
+                    <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>singleThread</name>
@@ -374,6 +374,13 @@
                 </componentInstanceProperties>
                 <componentName>crmMessagingMessageComponent</componentName>
                 <identifier>c_crmMessagingMessageComponent1</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!$Client.formFactor}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Large</rightValue>
+                    </criteria>
+                </visibilityRule>
             </componentInstance>
         </itemInstances>
         <name>Facet-efa3cda1-9e8c-4fa9-8801-8a053e38fd57</name>
