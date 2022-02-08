@@ -64,10 +64,16 @@
                 <componentName>crmMessagingMessageComponent</componentName>
                 <identifier>crmMessagingMessageComponent</identifier>
                 <visibilityRule>
+                    <booleanFilter>1 AND 2</booleanFilter>
                     <criteria>
                         <leftValue>{!Record.isCreatedInternally__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>false</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!$Client.formFactor}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Large</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>
