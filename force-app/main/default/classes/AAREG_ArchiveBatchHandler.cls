@@ -6,12 +6,12 @@ public class AAREG_ArchiveBatchHandler {
   public static void archive(Set<Id> recordIds) {
     List<Application__c> applicationsToArchive = new List<Application__c>();
     List<Application__c> decisionsToArchive = new List<Application__c>();
-
+	
     for (Application__c application : getApplications(recordIds)) {
-      if (isApplicationArchivable(application)) {
+      /*Commented out for now 08.02.2022 
+        if (isApplicationArchivable(application)) {
         applicationsToArchive.add(application);
       }
-      /*Commented out for now 01.02.2022 
       if (isDecisionArchivable(application)) {
         decisionsToArchive.add(application);
       }*/
