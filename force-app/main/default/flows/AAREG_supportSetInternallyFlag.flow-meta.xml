@@ -50,7 +50,7 @@
         <label>getNAVuserId</label>
         <locationX>182</locationX>
         <locationY>311</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkIfNAVUser</targetReference>
         </connector>
