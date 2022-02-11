@@ -2,20 +2,25 @@ public class AAREG_ArchiveBatchHandler {
   private static final String IN_PROGRESS = 'In Progress';
   private static final String CLOSED_APPLICATION = 'Closed';
   private static final String SUSPENDED_APPLICATION ='Suspension';
+  private static final String NEW_APPLICATION ='New';
 
   public static void archive(Set<Id> recordIds) {
     List<Application__c> applicationsToArchive = new List<Application__c>();
     List<Application__c> decisionsToArchive = new List<Application__c>();
+    List<Application__c> suspendedToArchive = new List<Application__c>();
 	
     for (Application__c application : getApplications(recordIds)) {
-      /*Commented out for now 08.02.2022 
         if (isApplicationArchivable(application)) {
         applicationsToArchive.add(application);
       }
       if (isDecisionArchivable(application)) {
-        decisionsToArchive.add(application);
-      }*/
+        //decisionsToArchive.add(application);
+      }
+      if(isSuspendedArchivable(application)){
+         //suspendedToArchive.add(application);
+      }
     }
+      
     if (!applicationsToArchive.isEmpty()) {
       Database.executeBatch(new AAREG_ApplicationArchiveBatch(applicationsToArchive), 10);
     }
@@ -23,11 +28,16 @@ public class AAREG_ArchiveBatchHandler {
     if (!decisionsToArchive.isEmpty()) {
       Database.executeBatch(new AAREG_DecisionArchiveBatch(decisionsToArchive), 10);
     }
+    
+    if(!suspendedToArchive.isEmpty()){
+       Database.executeBatch(new AAREG_SuspensionArchiveBatch(suspendedToArchive), 10);
+    }
   }
 
   private static Boolean isApplicationArchivable(Application__c application) {
-    return (application.Casehandler_Status__c == IN_PROGRESS ||
+    return (application.Casehandler_Status__c == NEW_APPLICATION ||application.Casehandler_Status__c == IN_PROGRESS ||
       application.Casehandler_Status__c == CLOSED_APPLICATION) &&
+      application.Status__c != SUSPENDED_APPLICATION &&
       !application.AA_ApplicationArchived__c &&
       String.isNotBlank(application.AA_register_application_text__c);
   }
@@ -35,6 +45,15 @@ public class AAREG_ArchiveBatchHandler {
   private static Boolean isDecisionArchivable(Application__c application) {
     return application.Casehandler_Status__c == CLOSED_APPLICATION &&
       application.Status__c != SUSPENDED_APPLICATION &&
+      !application.AA_DecisionArchived__c &&
+      application.AA_ApplicationArchived__c == true &&
+      application.DecisionDate__c != null &&
+      String.isNotBlank(application.AA_DecisionArchiveText__c);
+  }
+    
+  private static Boolean isSuspendedArchivable(Application__c application) {
+    return application.Casehandler_Status__c == CLOSED_APPLICATION &&
+      application.Status__c == SUSPENDED_APPLICATION &&
       !application.AA_DecisionArchived__c &&
       application.AA_ApplicationArchived__c == true &&
       application.DecisionDate__c != null &&

@@ -7,6 +7,7 @@ public class AAREG_ArchiveService {
   private static final String MANIFEST_FORMAT = '.xml';
   private static final String DECISION_NAME = 'VEDTAK';
   private static final String APPLICATION_NAME = 'SOKNAD';
+  private static final String SUSPENSION_NAME = 'HENLAGT';
   private static final String DEFAULT_FILE_FORMAT = '.pdf';
   private static final String FTPS_CATALOGUE='ftpmottakSFAAreg';
 
@@ -70,6 +71,40 @@ public class AAREG_ArchiveService {
           application,
           OUTGOING_POST,
           getJournalPostName('Vedtak', application.Name),
+          application.DecisionDate__c
+        )
+      );
+
+      Boolean success = sendFiles(filesToSend, manifestName);
+
+      if (success) {
+        application.AA_DecisionArchived__c = true;
+        application.AA_DecisionArchivedDate__c = Datetime.now();
+        applicationsToUpdate.add(application);
+      }
+    }
+    Database.update(applicationsToUpdate);
+  }
+    
+    public void archiveSuspension(List<Application__c> applications) {
+    List<Application__c> applicationsToUpdate = new List<Application__c>();
+
+    for (Application__c application : applications) {
+      String suspensionFileName = formatFileName(application.Name + ' ' + DECISION_NAME + DEFAULT_FILE_FORMAT);
+      String manifestName = getManifestName(application.Name, SUSPENSION_NAME, Date.Today());
+
+      Map<String, String> fileNameFormat = new Map<String, String>();
+      fileNameFormat.put(suspensionFileName, DEFAULT_FILE_FORMAT);
+
+      Map<String, Blob> filesToSend = new Map<String, Blob>();
+      filesToSend.put(suspensionFileName, Blob.toPdf(application.AA_DecisionArchiveText__c));
+      filesToSend.put(
+        manifestName,
+        getManifest(
+          fileNameFormat,
+          application,
+          OUTGOING_POST,
+          getJournalPostName('Henlagt', application.Name),
           application.DecisionDate__c
         )
       );
