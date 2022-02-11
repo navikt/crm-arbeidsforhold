@@ -77,10 +77,9 @@ public without sharing class AAREG_ApplicationController {
       application.status__c = NEW_APPLICATION;
       application.ApplicationSubmittedDate__c = date.newInstance(dt.year(), dt.month(), dt.day());
     } else {
-      application.AA_ApplicationArchived__c = false;
+      //application.AA_ApplicationArchived__c = false;
       application.Casehandler_Status__c = IN_PROGRESS;
       application.status__c = IN_PROGRESS;
-      application.AA_ApplicationArchived__c = false;
     }
 
     try {

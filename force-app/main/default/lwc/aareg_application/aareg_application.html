@@ -125,22 +125,21 @@
             <section class="app-section" if:false={isReadOnly}>
               <span class="form-control">
                 <h2>Endring på eksisterende søknad/avtale</h2>
+                <p class="pl-16 pb-10">Dersom søknaden gjelder endring av dataelementer og/eller tilgangstype knyttet til eksisterende avtale,<br>
+                   oppgi avtalenummer og kort forklaring.(Aktuelt formål, utleveringshjemmel og behandlingsgrunnlag som endringen er knyttet til,<br>
+                   oppgir du i selve søknaden.​
+                </p>
               </span>
               <div class="inner-container">
                 <span class="form-control">
                   <input
-                  type="checkbox"
+                  type="text"
                   name="erEndring"
                   id="erEndring"
-                  data-id="AA_changesInApplication__c"
+                  data-id="AA_changeApplicationText__c"
                   disabled={isReadOnly}
-                  checked={application.AA_changesInApplication__c}
-                  onchange={handleCheckboxChange}
+                  onchange={handleInputChange}
                 />
-                  <label for="erEndring">
-                    <abbr class="slds-required" title="required">* </abbr>
-                    Huk av boksen hvis søknaden gjelder endring på eksisterende avtale/søknad.&nbsp;
-                    </label
                   >
                 </span>
               </div>

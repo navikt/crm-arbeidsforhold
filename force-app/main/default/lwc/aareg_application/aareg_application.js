@@ -92,6 +92,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       Email__c: null,
       erEndring: false,
       DataProcessorName__c: null,
+      AA_changeApplicationText__c: null,
       APIAccess__c: false,
       ExtractionAccess__c: false,
       OnlineAccess__c: false,
@@ -413,6 +414,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.termsOfUse = this.template.querySelector('[data-id="terms"]');
     this.termsOfUseInput = this.template.querySelector('[data-id="TermsOfUse__c"]');
     this.dataProcess = this.template.querySelector('[data-id="data-processor"]');
+    this.AA_changeApplicationText__c = this.template.querySelector('[data-id="erEndring"]')
   }
 
   checkApplicationInputs() {
