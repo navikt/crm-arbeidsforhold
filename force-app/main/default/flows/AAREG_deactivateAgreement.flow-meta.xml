@@ -249,21 +249,7 @@
     <connector>
       <targetReference>updateAccessType</targetReference>
     </connector>
-    <fields>
-      <fieldType>ObjectProvided</fieldType>
-      <isRequired>true</isRequired>
-      <objectFieldReference>getAgreement.OnlineAccess__c</objectFieldReference>
-    </fields>
-    <fields>
-      <fieldType>ObjectProvided</fieldType>
-      <isRequired>true</isRequired>
-      <objectFieldReference>getAgreement.ExtractionAccess__c</objectFieldReference>
-    </fields>
-    <fields>
-      <fieldType>ObjectProvided</fieldType>
-      <isRequired>true</isRequired>
-      <objectFieldReference>getAgreement.APIAccess__c</objectFieldReference>
-    </fields>
+
     <showFooter>true</showFooter>
     <showHeader>false</showHeader>
   </screens>
