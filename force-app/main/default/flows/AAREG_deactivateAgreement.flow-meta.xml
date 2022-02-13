@@ -191,7 +191,7 @@
       </defaultValue>
       <fieldText>Yes, I want to deactivate the agreement</fieldText>
       <fieldType>InputField</fieldType>
-      <isRequired>false</isRequired>
+      <isRequired>true</isRequired>
     </fields>
     <fields>
       <name>deactivateAgreement_Section1</name>
