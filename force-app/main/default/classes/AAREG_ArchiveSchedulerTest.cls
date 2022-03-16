@@ -1,6 +1,6 @@
 @isTest
 public class AAREG_ArchiveSchedulerTest {
-  private static final String CRON_EXP = '0 0 0 15 3 ? 2022';
+  private static final String CRON_EXP = '0 0 0 15 3 ? 2050';
 
   @TestSetup
   static void makeData() {
