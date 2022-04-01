@@ -8,14 +8,16 @@
     "Communities",
     "CustomerCommunity",
     "CustomerCommunityPlus",
+    "ContactsToMultipleAccounts",
     "PersonAccounts",
+    "LiveAgent",
+    "LightningServiceConsole",
     "ProcessBuilder",
     "API",
     "ServiceCloud",
-    "LiveAgent",
-    "LightningServiceConsole",
-    "ContactsToMultipleAccounts",
-    "FIELDSERVICE:1"
+    "Knowledge",
+    "ProcessBuilder",
+    "FieldService:1"
   ],
   "country": "NO",
   "language": "en_US",
@@ -38,6 +40,22 @@
     "liveAgentSettings": {
       "enableLiveAgent": true
     },
+    "knowledgeSettings": {
+      "enableKnowledge": true,
+      "enableLightningKnowledge": true
+  },
+  "chatterSettings": {
+    "enableChatter": true,
+    "enableChatterEmoticons": true,
+    "enableFeedsRichText": true
+},
+"pathAssistantSettings": {
+    "pathAssistantEnabled": true
+},
+"quickTextSettings": {
+    "lightningQuickTextEnabled": true,
+    "quickTextsInFolders": true
+},
     "fieldServiceSettings": {
       "fieldServiceOrgPref": true,
       "doesShareSaParentWoWithAr": false,
