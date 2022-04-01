@@ -12,58 +12,73 @@
     "PersonAccounts",
     "LiveAgent",
     "LightningServiceConsole",
-    "ProcessBuilder",
-    "API",
     "ServiceCloud",
+    "ServiceUser",
     "Knowledge",
     "ProcessBuilder",
+    "API",
     "FieldService:1"
-  ],
+],
   "country": "NO",
   "language": "en_US",
   "settings": {
-    "communitiesSettings": {
-      "enableNetworksEnabled": true
-    },
     "experienceBundleSettings": {
-      "enableExperienceBundleMetadata": true
+        "enableExperienceBundleMetadata": true
+    },
+    "communitiesSettings": {
+        "enableNetworksEnabled": true,
+        "enableOotbProfExtUserOpsEnable": true
     },
     "lightningExperienceSettings": {
-      "enableS1DesktopEnabled": true
+        "enableS1DesktopEnabled": true
+    },
+    "omniChannelSettings": {
+        "enableOmniChannel": true
     },
     "languageSettings": {
-      "enableTranslationWorkbench": true
+        "enableTranslationWorkbench": true
+    },
+    "accountSettings": {
+        "enableAccountTeams": true,
+        "enableRelateContactToMultipleAccounts": true
+    },
+    "emailAdministrationSettings": {
+        "enableEnhancedEmailEnabled": true
     },
     "nameSettings": {
-      "enableMiddleName": true
+        "enableMiddleName": true
     },
     "liveAgentSettings": {
-      "enableLiveAgent": true
+        "enableLiveAgent": true
+    },
+    "securitySettings": {
+        "sessionSettings": {
+            "forceRelogin": false
+        },
+        "enableAdminLoginAsAnyUser": true
     },
     "knowledgeSettings": {
-      "enableKnowledge": true,
-      "enableLightningKnowledge": true
-  },
-  "chatterSettings": {
-    "enableChatter": true,
-    "enableChatterEmoticons": true,
-    "enableFeedsRichText": true
-},
-"pathAssistantSettings": {
-    "pathAssistantEnabled": true
-},
-"quickTextSettings": {
-    "lightningQuickTextEnabled": true,
-    "quickTextsInFolders": true
-},
+        "enableKnowledge": true,
+        "enableLightningKnowledge": true
+    },
+    "userManagementSettings": {
+        "enableNewProfileUI": true
+    },
     "fieldServiceSettings": {
-      "fieldServiceOrgPref": true,
-      "doesShareSaParentWoWithAr": false,
-      "doesShareSaWithAr": false,
-      "enableWorkOrders": true,
-      "isGeoCodeSyncEnabled": false,
-      "isLocationHistoryEnabled": false,
-      "fieldServiceNotificationsOrgPref": true
+        "fieldServiceOrgPref": true,
+        "doesShareSaParentWoWithAr": false,
+        "doesShareSaWithAr": false,
+        "enableWorkOrders": true,
+        "isGeoCodeSyncEnabled": false,
+        "isLocationHistoryEnabled": false,
+        "fieldServiceNotificationsOrgPref": true
+    },
+    "chatterSettings": {
+        "enableChatter": true,
+        "enableChatterEmoticons": true,
+        "enableFeedsRichText": true
+    },
+    "pathAssistantSettings": {
+        "pathAssistantEnabled": true
     }
-  }
 }
