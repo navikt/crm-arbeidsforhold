@@ -71,7 +71,7 @@
         <inputAssignments>
             <field>Type__c</field>
             <value>
-                <stringValue>Manually Created</stringValue>
+                <stringValue>Security Alert</stringValue>
             </value>
         </inputAssignments>
         <object>SMS__c</object>
