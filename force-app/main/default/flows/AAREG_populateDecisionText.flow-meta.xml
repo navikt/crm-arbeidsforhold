@@ -676,6 +676,7 @@
         <queriedFields>Id</queriedFields>
         <queriedFields>AccountName__c</queriedFields>
         <queriedFields>OrganizationNumber__c</queriedFields>
+        <queriedFields>Name</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
