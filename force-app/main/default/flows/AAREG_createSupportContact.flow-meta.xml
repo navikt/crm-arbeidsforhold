@@ -2,22 +2,6 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>53.0</apiVersion>
     <assignments>
-        <name>setInternallyFlag</name>
-        <label>setInternallyFlag</label>
-        <locationX>446</locationX>
-        <locationY>1391</locationY>
-        <assignmentItems>
-            <assignToReference>varInternallyFlag</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>createTaskSupport</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
         <name>setInternallyFlag_0</name>
         <label>setInternallyFlag</label>
         <locationX>1018</locationX>
@@ -31,6 +15,38 @@
         </assignmentItems>
         <connector>
             <targetReference>createTaskSupport_0</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>setInternallyFlagFalse</name>
+        <label>setInternallyFlagFalse</label>
+        <locationX>314</locationX>
+        <locationY>1511</locationY>
+        <assignmentItems>
+            <assignToReference>varInternallyFlag</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>createTaskSupport</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>setInternallyFlagTrue</name>
+        <label>setInternallyFlagTrue</label>
+        <locationX>578</locationX>
+        <locationY>1511</locationY>
+        <assignmentItems>
+            <assignToReference>varInternallyFlag</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>createTaskSupport</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -188,6 +204,31 @@
             <label>contactExistsInternally</label>
         </rules>
     </decisions>
+    <decisions>
+        <name>checkSubject</name>
+        <label>checkSubject</label>
+        <locationX>446</locationX>
+        <locationY>1391</locationY>
+        <defaultConnector>
+            <targetReference>setInternallyFlagTrue</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>isAutomaticallySet</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getInquiry.Subject__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Opprettelse av tilgang(er) til API</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>setInternallyFlagFalse</targetReference>
+            </connector>
+            <label>isAutomaticallySet</label>
+        </rules>
+    </decisions>
     <description>Check contactperson and add account/contact to inquiry</description>
     <formulas>
         <name>varContactName</name>
@@ -263,7 +304,7 @@
         <locationY>1271</locationY>
         <assignRecordIdToReference>varContactId</assignRecordIdToReference>
         <connector>
-            <targetReference>setInternallyFlag</targetReference>
+            <targetReference>checkSubject</targetReference>
         </connector>
         <inputAssignments>
             <field>AccountId</field>
@@ -369,6 +410,7 @@
         <queriedFields>Email__c</queriedFields>
         <queriedFields>OwnerId</queriedFields>
         <queriedFields>InquiryDescription__c</queriedFields>
+        <queriedFields>Subject__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -401,7 +443,7 @@
         <name>updateInquiry</name>
         <label>updateInquiry</label>
         <locationX>666</locationX>
-        <locationY>1727</locationY>
+        <locationY>1943</locationY>
         <inputAssignments>
             <field>AccountId__c</field>
             <value>
@@ -445,7 +487,7 @@
         <name>createTaskSupport</name>
         <label>createTaskSupport</label>
         <locationX>446</locationX>
-        <locationY>1511</locationY>
+        <locationY>1727</locationY>
         <connector>
             <targetReference>updateInquiry</targetReference>
         </connector>
