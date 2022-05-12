@@ -4,8 +4,8 @@
     <decisions>
         <name>checkIfNAVUser</name>
         <label>checkIfNAVUser</label>
-        <locationX>182</locationX>
-        <locationY>431</locationY>
+        <locationX>380</locationX>
+        <locationY>551</locationY>
         <defaultConnectorLabel>isNotNavUser</defaultConnectorLabel>
         <rules>
             <name>isNavUser</name>
@@ -18,9 +18,34 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>updateInternallyFlag</targetReference>
+                <targetReference>checkSubject</targetReference>
             </connector>
             <label>isNavUser</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>checkSubject</name>
+        <label>checkSubject</label>
+        <locationX>182</locationX>
+        <locationY>671</locationY>
+        <defaultConnector>
+            <targetReference>updateInternallyFlag_0</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>isThisSubject</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getInquirySubject.Subject__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Opprettelse av tilgang(er) til API</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>updateInternallyFlag_0_0</targetReference>
+            </connector>
+            <label>isThisSubject</label>
         </rules>
     </decisions>
     <description>Inquiry can be created by support. Internally flag will be set</description>
@@ -46,10 +71,33 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordLookups>
+        <name>getInquirySubject</name>
+        <label>getInquirySubject</label>
+        <locationX>380</locationX>
+        <locationY>311</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>getNAVuserId</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Inquiry__c</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Subject__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <name>getNAVuserId</name>
         <label>getNAVuserId</label>
-        <locationX>182</locationX>
-        <locationY>311</locationY>
+        <locationX>380</locationX>
+        <locationY>431</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkIfNAVUser</targetReference>
@@ -69,10 +117,10 @@
         </outputAssignments>
     </recordLookups>
     <recordUpdates>
-        <name>updateInternallyFlag</name>
+        <name>updateInternallyFlag_0</name>
         <label>updateInternallyFlag</label>
-        <locationX>50</locationX>
-        <locationY>551</locationY>
+        <locationX>314</locationX>
+        <locationY>791</locationY>
         <inputAssignments>
             <field>isCreatedInternally__c</field>
             <value>
@@ -81,11 +129,24 @@
         </inputAssignments>
         <inputReference>$Record</inputReference>
     </recordUpdates>
+    <recordUpdates>
+        <name>updateInternallyFlag_0_0</name>
+        <label>updateInternallyFlag</label>
+        <locationX>50</locationX>
+        <locationY>791</locationY>
+        <inputAssignments>
+            <field>isCreatedInternally__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
     <start>
-        <locationX>56</locationX>
+        <locationX>254</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>getNAVuserId</targetReference>
+            <targetReference>getInquirySubject</targetReference>
         </connector>
         <object>Inquiry__c</object>
         <recordTriggerType>Create</recordTriggerType>
