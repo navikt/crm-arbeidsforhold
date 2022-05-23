@@ -17,8 +17,19 @@ const COLUMNS = [
       name: 'Søknad',
       variant: 'base'
     }
+  },
+  {
+    type: 'button',
+    fixedWidth: 150,
+    typeAttributes: {
+      label: 'Se vedtak',
+      title: 'Se vedtak',
+      name: 'Vedtak',
+      variant: 'base'
+    }
   }
 ];
+  
 
 export default class Aareg_myApplications extends NavigationMixin(LightningElement) {
   @track applications;
