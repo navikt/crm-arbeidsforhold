@@ -192,6 +192,20 @@
                 <stringValue/>
             </value>
         </filters>
+        <filters>
+            <field>CRM_Type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Message</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>CRM_Thread_Type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>AAREG_EXP</stringValue>
+            </value>
+        </filters>
         <object>Message__c</object>
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
