@@ -5,7 +5,7 @@
             "default": true,
             "package": "crm-arbeidsforhold",
             "versionName": "ver 0.1",
-            "versionNumber": "0.265.0.NEXT",
+            "versionNumber": "0.266.0.NEXT",
             "dependencies": [
                 {
                     "package": "crm-platform-base",
@@ -46,7 +46,6 @@
                 {
                     "package": "crm-henvendelse-base",
                     "versionNumber": "0.8.0.LATEST"
-
                 },
                 {
                     "package": "crm-henvendelse",
