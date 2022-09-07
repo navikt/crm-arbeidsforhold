@@ -33,12 +33,6 @@
                 <elementReference>varOwner</elementReference>
             </value>
         </inputParameters>
-        <inputParameters>
-            <name>targetId</name>
-            <value>
-                <elementReference>varRecordId</elementReference>
-            </value>
-        </inputParameters>
     </actionCalls>
     <apiVersion>54.0</apiVersion>
     <assignments>
@@ -181,7 +175,7 @@
         </outputAssignments>
         <outputAssignments>
             <assignToReference>varRecordId</assignToReference>
-            <field>CRM_Related_Object__c</field>
+            <field>CRM_Type__c</field>
         </outputAssignments>
     </recordLookups>
     <start>
@@ -209,14 +203,14 @@
             <field>CRM_Thread_Type__c</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue>AAREG_EXT</stringValue>
+                <stringValue>AAREG_EXP</stringValue>
             </value>
         </filters>
         <object>Message__c</object>
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <variables>
         <name>varInquiryId</name>
         <dataType>String</dataType>
