@@ -47,7 +47,7 @@ export default class Aareg_home extends LightningElement {
             (el) => !this.noAccessOrgForms.includes(el.OrganizationForm)
           );
         } else {
-          throw `Failed to get Organizations ${result.errorMessage}`;
+          throw `Failed to get organizations ${result.errorMessage}`;
         }
       });
 
