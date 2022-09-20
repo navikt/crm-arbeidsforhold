@@ -55,6 +55,16 @@ export default class Aareg_home extends LightningElement {
         this.lastUsedOrganization = result;
         this.sortOrganizations();
       });
+      // Only do callout when doing it for the first time or if no rights saved in session
+      if (sessionStorage.getItem('hasApplicationAccess') === 'true' || sessionStorage.getItem('hasAccess') === 'true') {
+        if (sessionStorage.getItem('hasApplicationAccess') === 'true') {
+          this.hasApplicationAccess = true;
+        }
+        if (sessionStorage.getItem('hasAccess') === 'true') {
+          this.hasAccess = true;
+        }
+        return;
+      }
 
       await this.checkAccessToApplication('5719');
       if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5441');
@@ -123,12 +133,17 @@ export default class Aareg_home extends LightningElement {
           if (privilege.ServiceCode === '5719') {
             this.hasAccess = true;
             this.hasApplicationAccess = true;
+            
           } else if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode === '2') {
             this.hasAccess = true;
           }
+          sessionStorage.setItem('hasAccess', JSON.stringify(this.hasAccess));
+          sessionStorage.setItem('hasApplicationAccess', JSON.stringify(this.hasApplicationAccess));
         });
       } else {
         this.hasAccess = false;
+        sessionStorage.setItem('hasAccess', JSON.stringify(false));
+        sessionStorage.setItem('hasApplicationAccess', JSON.stringify(false));
         throw `Failed to get rights to application ${result.errorMessage}`;
       }
     });
