@@ -41,14 +41,27 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
   showAgreementCancellationConfirmation = false;
   error;
   navLogoUrl = navLogo;
-    
+  @track agreement;
+  initialAgreement;
 
   connectedCallback() {
     this.agreementUpdates = { Id: this.recordId };
   }
 
   @wire(getRecord, { recordId: '$recordId', fields: AGREEMENT_FIELDS })
-  agreement;
+  agreementWire({ data, error }) {
+    if (data) {
+      this.initialAgreement = data;
+      this.agreement = JSON.parse(JSON.stringify(this.initialAgreement));
+      // Remove image from decision (can't be loaded - violates the Content Security Policy)
+      let decisionString = JSON.stringify(this.agreement.fields.Decision__c);
+      let subStr1 = decisionString.substring(0, decisionString.indexOf('<img'));
+      let subStr2 = decisionString.substring(decisionString.indexOf('</img>')+6, decisionString.length);
+      this.agreement.fields.Decision__c = JSON.parse(subStr1 + subStr2);
+    } else if (error) {
+      console.error(error);
+    }
+  }
 
   @wire(getAgreementContacts, { recordId: '$recordId' })
   contacts({ data, error }) {
@@ -245,43 +258,43 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
   }
 
   get apiAccess() {
-    return getFieldValue(this.agreement.data, API_ACCESS);
+    return getFieldValue(this.agreement, API_ACCESS);
   }
 
   get onlineAccess() {
-    return getFieldValue(this.agreement.data, ONLINE_ACCESS);
+    return getFieldValue(this.agreement, ONLINE_ACCESS);
   }
 
   get extractionAccess() {
-    return getFieldValue(this.agreement.data, EXTRACTION_ACCESS);
+    return getFieldValue(this.agreement, EXTRACTION_ACCESS);
   }
 
   get name() {
-    return getFieldValue(this.agreement.data, NAME);
+    return getFieldValue(this.agreement, NAME);
   }
 
   get decisionDate() {
-    return getFieldValue(this.agreement.data, DECISIONDATE);
+    return getFieldValue(this.agreement, DECISIONDATE);
   }
 
   get decision() {
-    return getFieldValue(this.agreement.data, DECISION);
+    return getFieldValue(this.agreement, DECISION);
   }
 
   get organizationNumber() {
-    return getFieldValue(this.agreement.data, ORGANIZATION_NUMBER);
+    return getFieldValue(this.agreement, ORGANIZATION_NUMBER);
   }
 
   get accountName() {
-    return getFieldValue(this.agreement.data, ACCOUNT_NAME);
+    return getFieldValue(this.agreement, ACCOUNT_NAME);
   }
 
   get dataProcessorName() {
-    return getFieldValue(this.agreement.data, DATA_PROCESSOR_NAME);
+    return getFieldValue(this.agreement, DATA_PROCESSOR_NAME);
   }
 
   get dataProcessorOrgNumber() {
-    return getFieldValue(this.agreement.data, DATA_PROCESSOR_ORGNUMBER);
+    return getFieldValue(this.agreement, DATA_PROCESSOR_ORGNUMBER);
   }
 
   get isReadOnly() {
