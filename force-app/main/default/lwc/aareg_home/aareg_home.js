@@ -55,7 +55,7 @@ export default class Aareg_home extends LightningElement {
         this.lastUsedOrganization = result;
         this.sortOrganizations();
       });
-      // Only do callout when doing it for the first time or if no rights saved in session
+      // Avoid doing callout on every ConnectedCallback
       if (sessionStorage.getItem('hasApplicationAccess') === 'true' || sessionStorage.getItem('hasAccess') === 'true') {
         if (sessionStorage.getItem('hasApplicationAccess') === 'true') {
           this.hasApplicationAccess = true;
