@@ -78,6 +78,7 @@ export default class Aareg_home extends LightningElement {
   async handleOrganizationChange(event) {
     this.isLoaded = false;
     this.hasAccess = false;
+    this.hasApplicationAccess = false;
     this.lastUsedOrganization = event.target.value;
     try {
       await updateLastUsedOrganization({ organizationNumber: this.lastUsedOrganization, userId: this.currentUser }).then(() => {
@@ -142,6 +143,7 @@ export default class Aareg_home extends LightningElement {
         });
       } else {
         this.hasAccess = false;
+        this.hasApplicationAccess = false;
         sessionStorage.setItem('hasAccess', JSON.stringify(false));
         sessionStorage.setItem('hasApplicationAccess', JSON.stringify(false));
         throw `Failed to get rights to application ${result.errorMessage}`;
