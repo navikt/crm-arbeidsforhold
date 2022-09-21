@@ -41,13 +41,21 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
   showAgreementCancellationConfirmation = false;
   error;
   navLogoUrl = navLogo;
+  agreement;  
 
   connectedCallback() {
     this.agreementUpdates = { Id: this.recordId };
   }
 
   @wire(getRecord, { recordId: '$recordId', fields: AGREEMENT_FIELDS })
-  agreement;
+  wiredGetAgreement({data, error}) {
+    if (data) {
+      console.log(JSON.stringify(data));
+      this.agreement = data;
+    } else if (error) {
+      console.error(error);   
+    }
+  }
 
   @wire(getAgreementContacts, { recordId: '$recordId' })
   contacts({ data, error }) {
@@ -56,7 +64,6 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
         this.contactRows.push({ uuid: this.createUUID(), ...contact });
       });
     } else if (error) {
-      this.error = error;
       console.error(error);
     }
   }
@@ -251,39 +258,39 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
   }
 
   get onlineAccess() {
-    return getFieldValue(this.agreement.data, ONLINE_ACCESS);
+    return getFieldValue(this.agreement, ONLINE_ACCESS);
   }
 
   get extractionAccess() {
-    return getFieldValue(this.agreement.data, EXTRACTION_ACCESS);
+    return getFieldValue(this.agreement, EXTRACTION_ACCESS);
   }
 
   get name() {
-    return getFieldValue(this.agreement.data, NAME);
+    return getFieldValue(this.agreement, NAME);
   }
 
-  get decisionDate(){
-    return getFieldValue(this.agreement.data,DECISIONDATE);
+  get decisionDate() {
+    return getFieldValue(this.agreement, DECISIONDATE);
   }
 
   get decision() {
-    return getFieldValue(this.agreement.data, DECISION);
+    return getFieldValue(this.agreement, DECISION);
   }
 
   get organizationNumber() {
-    return getFieldValue(this.agreement.data, ORGANIZATION_NUMBER);
+    return getFieldValue(this.agreement, ORGANIZATION_NUMBER);
   }
 
   get accountName() {
-    return getFieldValue(this.agreement.data, ACCOUNT_NAME);
+    return getFieldValue(this.agreement, ACCOUNT_NAME);
   }
 
   get dataProcessorName() {
-    return getFieldValue(this.agreement.data, DATA_PROCESSOR_NAME);
+    return getFieldValue(this.agreement, DATA_PROCESSOR_NAME);
   }
 
   get dataProcessorOrgNumber() {
-    return getFieldValue(this.agreement.data, DATA_PROCESSOR_ORGNUMBER);
+    return getFieldValue(this.agreement, DATA_PROCESSOR_ORGNUMBER);
   }
 
   get isReadOnly() {
