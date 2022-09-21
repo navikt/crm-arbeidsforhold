@@ -55,8 +55,10 @@ export default class Aareg_home extends LightningElement {
         this.lastUsedOrganization = result;
         this.sortOrganizations();
       });
-      // Avoid doing callout on every ConnectedCallback
+      // Only do callout when doing it for the first time or if no rights saved in session
       if (sessionStorage.getItem('hasApplicationAccess') === 'true' || sessionStorage.getItem('hasAccess') === 'true') {
+        console.log('hasApplication from session: ', sessionStorage.getItem('hasApplicationAccess'));
+        console.log('hasAccess from session: ', sessionStorage.getItem('hasAccess'));
         if (sessionStorage.getItem('hasApplicationAccess') === 'true') {
           this.hasApplicationAccess = true;
         }
@@ -65,6 +67,7 @@ export default class Aareg_home extends LightningElement {
         }
         return;
       }
+      console.log('session storage empty');
 
       await this.checkAccessToApplication('5719');
       if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5441');
@@ -128,13 +131,13 @@ export default class Aareg_home extends LightningElement {
       organizationNumber: this.lastUsedOrganization,
       serviceCode: filterBy
     }).then((result) => {
+      console.log(JSON.stringify(result));
       if (result.success) {
         let privileges = JSON.parse(JSON.stringify(result.rights));
         privileges.forEach((privilege) => {
           if (privilege.ServiceCode === '5719') {
             this.hasAccess = true;
             this.hasApplicationAccess = true;
-            
           } else if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode === '2') {
             this.hasAccess = true;
           }
