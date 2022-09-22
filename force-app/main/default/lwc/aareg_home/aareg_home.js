@@ -56,7 +56,8 @@ export default class Aareg_home extends LightningElement {
         this.sortOrganizations();
       });
       // Avoid doing callout on every ConnectedCallback
-      if (sessionStorage.getItem('hasApplicationAccess') === 'true' || sessionStorage.getItem('hasAccess') === 'true') {
+      // Check current user as well to avoid user being logged in on two different users in same session to get access
+      if (sessionStorage.getItem('currentUser') === this.currentUser && (sessionStorage.getItem('hasApplicationAccess') === 'true' || sessionStorage.getItem('hasAccess') === 'true')) {
         if (sessionStorage.getItem('hasApplicationAccess') === 'true') {
           this.hasApplicationAccess = true;
         }
@@ -137,6 +138,7 @@ export default class Aareg_home extends LightningElement {
           } else if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode === '2') {
             this.hasAccess = true;
           }
+          sessionStorage.setItem('currentUser', this.currentUser);
           sessionStorage.setItem('hasAccess', JSON.stringify(this.hasAccess));
           sessionStorage.setItem('hasApplicationAccess', JSON.stringify(this.hasApplicationAccess));
         });
