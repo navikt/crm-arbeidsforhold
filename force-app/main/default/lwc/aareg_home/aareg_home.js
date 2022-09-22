@@ -55,6 +55,17 @@ export default class Aareg_home extends LightningElement {
         this.lastUsedOrganization = result;
         this.sortOrganizations();
       });
+      // Avoid doing callout on every ConnectedCallback
+      // Check current user as well to avoid user being logged in on two different users in same session to get access
+      if (sessionStorage.getItem('currentUser') === this.currentUser && (sessionStorage.getItem('hasApplicationAccess') === 'true' || sessionStorage.getItem('hasAccess') === 'true')) {
+        if (sessionStorage.getItem('hasApplicationAccess') === 'true') {
+          this.hasApplicationAccess = true;
+        }
+        if (sessionStorage.getItem('hasAccess') === 'true') {
+          this.hasAccess = true;
+        }
+        return;
+      }
 
       await this.checkAccessToApplication('5719');
       if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5441');
@@ -68,6 +79,7 @@ export default class Aareg_home extends LightningElement {
   async handleOrganizationChange(event) {
     this.isLoaded = false;
     this.hasAccess = false;
+    this.hasApplicationAccess = false;
     this.lastUsedOrganization = event.target.value;
     try {
       await updateLastUsedOrganization({ organizationNumber: this.lastUsedOrganization, userId: this.currentUser }).then(() => {
@@ -126,9 +138,15 @@ export default class Aareg_home extends LightningElement {
           } else if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode === '2') {
             this.hasAccess = true;
           }
+          sessionStorage.setItem('currentUser', this.currentUser);
+          sessionStorage.setItem('hasAccess', JSON.stringify(this.hasAccess));
+          sessionStorage.setItem('hasApplicationAccess', JSON.stringify(this.hasApplicationAccess));
         });
       } else {
         this.hasAccess = false;
+        this.hasApplicationAccess = false;
+        sessionStorage.setItem('hasAccess', JSON.stringify(false));
+        sessionStorage.setItem('hasApplicationAccess', JSON.stringify(false));
         throw `Failed to get rights to application ${result.errorMessage}`;
       }
     });
