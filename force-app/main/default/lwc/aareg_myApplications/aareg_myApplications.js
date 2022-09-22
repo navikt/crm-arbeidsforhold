@@ -1,6 +1,7 @@
 import { LightningElement, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
+import navLogo from '@salesforce/resourceUrl/logo';
 import getUsersApplications from '@salesforce/apex/AAREG_MyApplicationsController.getUsersApplications';
 
 const COLUMNS = [
@@ -25,31 +26,40 @@ const COLUMNS = [
       label: 'Se vedtak',
       title: 'Se vedtak',
       name: 'Vedtak',
-      variant: 'base'
+      variant: 'base',
+      disabled: {fieldName: 'disableButton'}
     }
   }
 ];
   
 
 export default class Aareg_myApplications extends NavigationMixin(LightningElement) {
+  initialApplications;
   @track applications;
   columns = COLUMNS;
   currentUser = Id;
-  error;
+  navLogoUrl = navLogo;
 
   @wire(getUsersApplications, { userId: '$currentUser' })
-  applications(result) {
-    if (result.data) {
-      if (result.data.length > 0) {
-        this.applications = result.data;
-      }
-      this.error = undefined;
+  wiredGetUsersApplications(result) {
+    if (result.data && result.data.length > 0) {
+        this.initialApplications = result.data;
+        this.applications = JSON.parse(JSON.stringify(this.initialApplications));
+        this.applications.forEach(application => {
+          application.disableButton = application.AA_CasehandlerDecisionTemplate__c === null || application.AA_CasehandlerDecisionTemplate__c === undefined;
+        });
     } else if (result.error) {
       console.error(error);
-      this.error = error;
     }
   }
 
+  handleRowAction(event) {
+    if(event.detail.action.name==='Søknad') {
+        this.viewApplication(event);
+    } else if (event.detail.action.name==='Vedtak') {
+        this.viewDecision(event);
+    }
+}
   viewApplication(event) {
     const row = event.detail.row;
     this[NavigationMixin.Navigate]({
@@ -59,6 +69,20 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
         actionName: 'view'
       }
     });
+  }
+
+  @track decision;
+  viewDecision(event) {
+    const row = event.detail.row;
+    if (row.AA_CasehandlerDecisionTemplate__c !== null && row.AA_CasehandlerDecisionTemplate__c !== undefined) {
+      this.decision = row.AA_CasehandlerDecisionTemplate__c;
+      // Remove image from decision (can't be loaded - violates the Content Security Policy)
+      let decisionString = JSON.stringify(this.decision);
+      let subStr1 = decisionString.substring(0, decisionString.indexOf('<img'));
+      let subStr2 = decisionString.substring(decisionString.indexOf('</img>')+6, decisionString.length);
+      this.decision = JSON.parse(subStr1 + subStr2);
+      this.template.querySelector('c-aareg_modal[data-id="Decision-Modal"]').toggle();
+    }
   }
 
   navigateToPage(event) {
