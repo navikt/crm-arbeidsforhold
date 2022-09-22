@@ -29,7 +29,21 @@ const COLUMNS = [
       variant: 'base',
       disabled: {fieldName: 'disableButton'}
     }
-  }
+  },
+  /*{
+    type: 'button',
+    fixedWidth: 190,
+    typeAttributes: {
+      label: 'Last ned vedtak',
+      title: 'Last ned vedtak',
+      name: 'Last ned',
+      variant: 'Brand Outline',
+      disabled: {fieldName: 'disableButton'},
+      iconName: 'utility:download',
+      iconPosition: 'right',
+      iconAlternativeText: 'Last ned',
+    }
+  }*/
 ];
   
 
@@ -54,11 +68,13 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   }
 
   handleRowAction(event) {
-    if(event.detail.action.name==='Søknad') {
+    if(event.detail.action.name === 'Søknad') {
         this.viewApplication(event);
-    } else if (event.detail.action.name==='Vedtak') {
+    } else if (event.detail.action.name === 'Vedtak') {
         this.viewDecision(event);
-    }
+    }/*else if (event.detail.action.name === 'Last ned') {
+      this.downloadFile(event);
+    }*/
 }
   viewApplication(event) {
     const row = event.detail.row;
@@ -84,6 +100,25 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
       this.template.querySelector('c-aareg_modal[data-id="Decision-Modal"]').toggle();
     }
   }
+
+  // TODO: If type is set to text/html it does not work. Currently only downloads a .txt file with the html tags
+  /*downloadFile(event) {
+    const row = event.detail.row;
+    var file = new Blob([row.AA_CasehandlerDecisionTemplate__c], {type: 'text/plain'});
+    if (window.navigator.msSaveOrOpenBlob) // IE10+
+        window.navigator.msSaveOrOpenBlob(file, row.ApplicationSubmittedDate__c);
+    else { // Others
+      const data = URL.createObjectURL(file);
+      const link = document.createElement('a');
+      link.href = data;
+      link.download = row.ApplicationSubmittedDate__c;
+      document.body.appendChild(link);
+      link.click();
+
+      // Remove link from body
+      document.body.removeChild(link);
+    }
+  }*/
 
   navigateToPage(event) {
     const page = event.target.name;
