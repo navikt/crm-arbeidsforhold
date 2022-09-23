@@ -59,6 +59,10 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
     }
   ];
 
+  get isMobile() {
+    return window.screen.width < 576;
+  }
+
   @wire(getUsersThreads, { userId: '$currentUser' })
   threads(result) {
     if (result.data) {

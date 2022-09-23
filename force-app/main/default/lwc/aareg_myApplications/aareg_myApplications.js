@@ -63,6 +63,10 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     }
   ];
 
+  get isMobile() {
+    return window.screen.width < 576;
+  }
+
   @wire(getUsersApplications, { userId: '$currentUser' })
   wiredGetUsersApplications(result) {
     if (result.data && result.data.length > 0) {

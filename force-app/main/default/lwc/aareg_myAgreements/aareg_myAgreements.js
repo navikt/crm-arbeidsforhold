@@ -34,6 +34,10 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
     }
   ];
 
+  get isMobile() {
+    return window.screen.width < 576;
+  }
+
   @wire(getUsersAgreements, { userId: '$currentUser' })
   agreementList(result) {
     if (result.data) {
