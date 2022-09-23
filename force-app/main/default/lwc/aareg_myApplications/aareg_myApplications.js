@@ -44,8 +44,7 @@ const COLUMNS = [
       iconAlternativeText: 'Last ned',
     }
   }*/
-];
-  
+];  
 
 export default class Aareg_myApplications extends NavigationMixin(LightningElement) {
   initialApplications;
@@ -53,6 +52,16 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   columns = COLUMNS;
   currentUser = Id;
   navLogoUrl = navLogo;
+  breadcrumbs = [
+    {
+      label: 'Min side',
+      href: ''
+    },
+    {
+      label: 'Mine søknader',
+      href: 'mine-soknader'
+    }
+  ];
 
   @wire(getUsersApplications, { userId: '$currentUser' })
   wiredGetUsersApplications(result) {
@@ -82,7 +91,10 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
       type: 'standard__recordPage',
       attributes: {
         recordId: row.Id,
-        actionName: 'view'
+        actionName: 'view',
+      },
+      state: {
+        c__applicationType: 'view',
       }
     });
   }
@@ -119,14 +131,4 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
       document.body.removeChild(link);
     }
   }*/
-
-  navigateToPage(event) {
-    const page = event.target.name;
-    this[NavigationMixin.Navigate]({
-      type: 'comm__namedPage',
-      attributes: {
-        name: page
-      }
-    });
-  }
 }

@@ -6,11 +6,9 @@
         <div class="slds-col slds-m-bottom_xx-large">
           <div class="slds-clearfix">
             <div class="slds-float_left">
-              <lightning-breadcrumbs class="skjema-max-width">
-                <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
-                <lightning-breadcrumb label="Mine meldinger" name="Mine_Meldinger__c" onclick={navigateToPage}>
-                </lightning-breadcrumb>
-              </lightning-breadcrumbs>
+              <div style="padding: 0.5rem">
+                <c-breadcrumbs url-list={breadcrumbs}></c-breadcrumbs>
+              </div>
             </div>
             <div class="slds-float_right">
               <button type="button" name="Ny_Melding__c" class="button button-main" onclick={navigateToPage}>

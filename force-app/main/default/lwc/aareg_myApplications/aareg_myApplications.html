@@ -2,12 +2,8 @@
   <c-aareg_main-banner>Mine Søknader Aa-registret</c-aareg_main-banner>
   <div class="container">
     <div class="inner-container">
-      <div class="breadcrumbs">
-        <lightning-breadcrumbs class="skjema-max-width">
-          <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
-          <lightning-breadcrumb label="Mine søknader" name="custom_mine_soknader__c" onclick={navigateToPage}>
-          </lightning-breadcrumb>
-        </lightning-breadcrumbs>
+      <div style="padding: 0.5rem">
+        <c-breadcrumbs url-list={breadcrumbs}></c-breadcrumbs>
       </div>
       <lightning-datatable
         key-field="id"

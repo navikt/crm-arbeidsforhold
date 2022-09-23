@@ -1,5 +1,5 @@
-import { LightningElement, track, api } from 'lwc';
-import { NavigationMixin } from 'lightning/navigation';
+import { LightningElement, track, api, wire } from 'lwc';
+import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import processApplication from '@salesforce/apex/AAREG_ApplicationController.processApplication';
 import getLastUsedOrganizationInformation from '@salesforce/apex/AAREG_ApplicationController.getLastUsedOrganizationInformation';
@@ -28,9 +28,40 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   erEndring = false;
   fileData = { base64: null, filename: null };
   error;
+  @track numPops = 3;
+  breadcrumbs = [
+    {
+      label: 'Min side',
+      href: ''
+    },
+    {
+      label: 'Mine søknader',
+      href: 'mine-soknader'
+    },
+    {
+      label: 'Se søknad',
+      href: 'soknad'
+    }
+  ];
+
+  @wire(CurrentPageReference)
+    currentPageReference;
 
   connectedCallback() {
     this.init();
+    if (this.currentPageReference.state.c__applicationType !== 'view') {
+      this.breadcrumbs = [
+        {
+          label: 'Min side',
+          href: ''
+        },
+        {
+          label: 'Ny søknad',
+          href: 'soknad'
+        }
+      ];
+      this.numPops = 1;
+    }
   }
 
   async init() {
@@ -279,16 +310,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     });
   }
 
-  navigateToPage(event) {
-    const page = event.target.name;
-    this[NavigationMixin.Navigate]({
-      type: 'comm__namedPage',
-      attributes: {
-        name: page
-      }
-    });
-  }
-
   /*************** Change handlers ***************/
 
   contactChange(event) {
@@ -508,5 +529,39 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       this.termsOfUseInput.focus();
       return;
     }
+  }
+
+  parse_query_string(query) {
+    let vars = query.split('&');
+    let query_string = {};
+    for (let i = 0; i < vars.length; i++) {
+        let pair = vars[i].split('=');
+        let key = decodeURIComponent(pair[0]);
+        let value = decodeURIComponent(pair[1]);
+        // If first entry with this name
+        if (typeof query_string[key] === 'undefined') {
+            query_string[key] = decodeURIComponent(value);
+            // If second entry with this name
+        } else if (typeof query_string[key] === 'string') {
+            let arr = [query_string[key], decodeURIComponent(value)];
+            query_string[key] = arr;
+            // If third or later entry with this name
+        } else {
+            query_string[key].push(decodeURIComponent(value));
+        }
+    }
+    return query_string;
+  }
+
+  getParametersFromURL() {
+    let testURL = window.location.href;
+    let params = testURL.split('?')[1];
+    let parsed_params = null;
+    console.log(params);
+    if (params !== undefined) {
+        parsed_params = parse_query_string(params);
+    }
+    console.log('parsed_params: ', parsed_params);
+    return parsed_params;
   }
 }

@@ -23,6 +23,16 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
   columns = COLUMNS;
   currentUser = Id;
   error;
+  breadcrumbs = [
+    {
+      label: 'Min side',
+      href: ''
+    },
+    {
+      label: 'Mine avtaler',
+      href: 'mine-avtaler'
+    }
+  ];
 
   @wire(getUsersAgreements, { userId: '$currentUser' })
   agreementList(result) {
@@ -44,16 +54,6 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
       attributes: {
         recordId: row.Id,
         actionName: 'view'
-      }
-    });
-  }
-
-  navigateToPage(event) {
-    const page = event.target.name;
-    this[NavigationMixin.Navigate]({
-      type: 'comm__namedPage',
-      attributes: {
-        name: page
       }
     });
   }

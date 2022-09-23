@@ -48,6 +48,16 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
   columns = COLUMNS;
   currentUser = Id;
   error;
+  breadcrumbs = [
+    {
+      label: 'Min side',
+      href: ''
+    },
+    {
+      label: 'Mine meldinger',
+      href: 'mine-meldinger'
+    }
+  ];
 
   @wire(getUsersThreads, { userId: '$currentUser' })
   threads(result) {

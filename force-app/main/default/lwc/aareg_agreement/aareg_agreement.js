@@ -43,6 +43,20 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
   navLogoUrl = navLogo;
   @track agreement;
   initialAgreement;
+  breadcrumbs = [
+    {
+      label: 'Min side',
+      href: ''
+    },
+    {
+      label: 'Mine avtaler',
+      href: 'mine-avtaler'
+    },
+    {
+      label: 'Se avtale',
+      href: 'avtale'
+    }
+  ];
 
   connectedCallback() {
     this.agreementUpdates = { Id: this.recordId };
