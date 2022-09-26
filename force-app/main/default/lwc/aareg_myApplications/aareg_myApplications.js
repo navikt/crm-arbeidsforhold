@@ -121,7 +121,6 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   // Could be solved by downloading and using jsPDF plugin through staticresources
   downloadFile(event) {
     const row = event.detail.row;
-    console.log(row.AA_CasehandlerDecisionTemplate__c);
     let link = document.createElement('a');
     link.download = 'Vedtak for søknad ' + row.Name;
     let blob = new Blob([row.AA_CasehandlerDecisionTemplate__c], {type: 'text/html'});
