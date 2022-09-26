@@ -12,6 +12,7 @@ export default class Aareg_home extends LightningElement {
   hasAccess = false;
   lastUsedOrganization;
   currentUser = Id;
+  showError = false;
 
   noAccessOrgForms = [
     'AAFY',
@@ -138,15 +139,17 @@ export default class Aareg_home extends LightningElement {
           } else if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode === '2') {
             this.hasAccess = true;
           }
-          sessionStorage.setItem('currentUser', this.currentUser);
-          sessionStorage.setItem('hasAccess', JSON.stringify(this.hasAccess));
-          sessionStorage.setItem('hasApplicationAccess', JSON.stringify(this.hasApplicationAccess));
         });
+        sessionStorage.setItem('currentUser', this.currentUser);
+        sessionStorage.setItem('hasAccess', JSON.stringify(this.hasAccess));
+        sessionStorage.setItem('hasApplicationAccess', JSON.stringify(this.hasApplicationAccess));
+        this.showError = false;
       } else {
         this.hasAccess = false;
         this.hasApplicationAccess = false;
         sessionStorage.setItem('hasAccess', JSON.stringify(false));
         sessionStorage.setItem('hasApplicationAccess', JSON.stringify(false));
+        this.showErrorMessage('Henting av brukerrettigheter fra Altinn feilet. Vennligst prøv igjen eller refresh siden.');
         throw `Failed to get rights to application ${result.errorMessage}`;
       }
     });
@@ -154,5 +157,15 @@ export default class Aareg_home extends LightningElement {
 
   get hasPreviouslySelectedOrganization() {
     return this.lastUsedOrganization;
+  }
+
+  closeErrorMessage() {
+    this.showError = false;
+  }
+
+  errorMsg = 'En feil oppstod. Vennligst prøv igjen eller refresh siden.'
+  showErrorMessage(errorMsg) {
+    this.showError = true;
+    this.errorMsg = errorMsg;
   }
 }

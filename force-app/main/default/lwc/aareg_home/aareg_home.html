@@ -1,5 +1,16 @@
 <template>
   <template if:true={isLoaded}>
+    <div if:true={showError} class="error-dropdown" onclick={closeErrorMessage}>
+      <div class="empty-flex"></div>
+      <div class="error-message">
+        <h2 >
+          {errorMsg}
+        </h2>  
+      </div>
+      <div class="close-error-button">
+        <lightning-icon icon-name="utility:close" variant="inverse" onclick={closeErrorMessage} style="padding-right: 1rem; cursor: pointer"></lightning-icon>
+      </div>
+    </div>
     <div class="home-container bedriftsmeny">
       <div class="home_header">
         <h1 class="typo-innholdstittel bedriftsmeny__tittel">

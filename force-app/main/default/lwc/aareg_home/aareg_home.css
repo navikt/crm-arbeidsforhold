@@ -36,7 +36,34 @@
   text-align: end;
 }
 
-@media (max-width: 642px) {
+.error-dropdown {
+  text-align: center;
+  height: 4rem;
+  background-color: rgb(196, 20, 20);;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.empty-flex {
+  flex: 1
+}
+
+.error-message {
+  color: white;
+  flex: 3;
+  text-align: center;
+}
+
+.close-error-button {
+  flex: 1;
+  text-align: end;
+}
+
+.error-message {
+  font-size: 1rem;
+}
+@media (max-width: 1337px) {
   .organization-select {
     width: 100%;
   }
@@ -46,16 +73,18 @@
   .org_picker {
     text-align: center;
   }
+  h1 {
+    font-size: 1.6rem;
+    line-height: unset;
+  }
+  .home-container {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
-@media (min-width: 643px) and (max-width: 1337px) {
-  .organization-select {
-    width: 100%;
-  }
-  .home_header {
-    text-align: start;
-  }
-  .org_picker {
-    text-align: end;
+@media (max-width: 576px) {
+  .error-message {
+    font-size: 0.9rem;
   }
 }
