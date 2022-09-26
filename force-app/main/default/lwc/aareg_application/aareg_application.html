@@ -3,7 +3,7 @@
     <template if:true={organization}>
       <template if:false={applicationSubmitted}>
         <div class="container" if:true={isLoaded}>
-          <div style="padding: 0.5rem; padding-left: 54px; margin: 1rem;">
+          <div class="breadcrumbs">
             <c-breadcrumbs url-list={breadcrumbs} num-pops={numPops}></c-breadcrumbs>
           </div>
           <form>

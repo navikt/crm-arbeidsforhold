@@ -22,5 +22,15 @@
 }
 
 .breadcrumbs {
-  margin-bottom: 1rem;
+  padding-left: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 576px) {
+  .inner-container {
+    padding: 1rem 3rem 1rem 3rem;
+  }
+  .breadcrumbs {
+    margin-bottom: 0;
+  }
 }

@@ -16,7 +16,7 @@ const COLUMNS = [
       label: 'Se søknad',
       title: 'Se søknad',
       name: 'Søknad',
-      variant: 'base'
+      variant: 'Brand Outline'
     }
   },
   {
@@ -26,7 +26,7 @@ const COLUMNS = [
       label: 'Se vedtak',
       title: 'Se vedtak',
       name: 'Vedtak',
-      variant: 'base',
+      variant: 'Brand Outline',
       disabled: {fieldName: 'disableButton'}
     }
   },
@@ -37,7 +37,7 @@ const COLUMNS = [
       label: 'Last ned vedtak',
       title: 'Last ned vedtak',
       name: 'Last ned',
-      variant: 'Brand Outline',
+      variant: 'Brand',
       disabled: {fieldName: 'disableButton'},
       iconName: 'utility:download',
       iconPosition: 'right',

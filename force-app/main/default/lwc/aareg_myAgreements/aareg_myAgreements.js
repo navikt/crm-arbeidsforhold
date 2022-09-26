@@ -13,7 +13,7 @@ const COLUMNS = [
       label: 'Se avtale',
       title: 'Se søknad',
       name: 'Avtale',
-      variant: 'base'
+      variant: 'Brand Outline'
     }
   }
 ];

@@ -94,6 +94,9 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
       type: 'comm__namedPage',
       attributes: {
         name: page
+      },
+      state: {
+        c__fromPage: 'myThreads',
       }
     });
   }
