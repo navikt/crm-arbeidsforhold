@@ -123,7 +123,7 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     const row = event.detail.row;
     console.log(row.AA_CasehandlerDecisionTemplate__c);
     let link = document.createElement('a');
-    link.download = row.ApplicationSubmittedDate__c;
+    link.download = 'Vedtak for søknad ' + row.Name;
     let blob = new Blob([row.AA_CasehandlerDecisionTemplate__c], {type: 'text/html'});
     let reader = new FileReader();
     reader.readAsDataURL(blob); // Converts blob to base64 and calls onload
