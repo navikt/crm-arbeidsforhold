@@ -1,12 +1,12 @@
 <template>
   <template if:true={isLoaded}>
     <div class="home-container bedriftsmeny">
-      <div style="flex: 2; text-align: end">
+      <div class="home_header">
         <h1 class="typo-innholdstittel bedriftsmeny__tittel">
           Min side – Brukerstøtte og søknad om tilgang om Aa-registeret
         </h1>
       </div>
-      <div style="flex: 1; text-align: end">
+      <div class="org_picker">
         <template if:true={organizations}>
           <select class="organization-select" aria-invalid="false" onchange={handleOrganizationChange}>
             <option if:false={hasPreviouslySelectedOrganization} value="">-- Velg virksomhet --</option>

@@ -8,6 +8,8 @@
   border: 1px solid #78706a;
   box-sizing: border-box;
   line-height: 1.375rem;
+  min-width: 7rem;
+  width: unset;
 }
 
 .home-container {
@@ -22,4 +24,38 @@
 
 .home-container h1 {
   margin-bottom: 0.5rem;
+}
+
+.home_header {
+  flex: 2;
+  text-align: end;
+}
+
+.org_picker {
+  flex: 1;
+  text-align: end;
+}
+
+@media (max-width: 642px) {
+  .organization-select {
+    width: 100%;
+  }
+  .home_header {
+    text-align: start;
+  }
+  .org_picker {
+    text-align: center;
+  }
+}
+
+@media (min-width: 643px) and (max-width: 1337px) {
+  .organization-select {
+    width: 100%;
+  }
+  .home_header {
+    text-align: start;
+  }
+  .org_picker {
+    text-align: end;
+  }
 }
