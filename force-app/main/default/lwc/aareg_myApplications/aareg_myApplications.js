@@ -3,9 +3,6 @@ import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import navLogo from '@salesforce/resourceUrl/logo';
 import getUsersApplications from '@salesforce/apex/AAREG_MyApplicationsController.getUsersApplications';
-import { loadScript } from 'lightning/platformResourceLoader';
-import jspdf from '@salesforce/resourceUrl/jspdf';
-
 
 const COLUMNS = [
   { label: 'Søknadsnummer', fieldName: 'Name', type: 'text', hideDefaultActions: true },
@@ -69,12 +66,6 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   get isMobile() {
     return window.screen.width < 576;
   }
-
-  renderedCallback() {
-    loadScript(this, jspdf)
-    .then(() => {
-      console.log('loaded jspdf')});
-  }
     
   @wire(getUsersApplications, { userId: '$currentUser' })
   wiredGetUsersApplications(result) {
@@ -130,20 +121,6 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   // Could be solved by downloading and using jsPDF plugin through staticresources
   downloadFile(event) {
     const row = event.detail.row;
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let blob = new Blob([row.AA_CasehandlerDecisionTemplate__c], {type: 'application/pdf'});
-    let reader = new FileReader();
-    reader.readAsDataURL(blob); // Converts blob to base64 and calls onload
-    reader.onload = (() => {
-      doc.text(reader.result, 5, 15);
-      doc.save('Vedtak for søknad ' + row.Name + '.pdf');
-    });
-    
-    
-    
-   
-    /*const row = event.detail.row;
     let link = document.createElement('a');
     link.download = 'Vedtak for søknad ' + row.Name;
     let blob = new Blob([row.AA_CasehandlerDecisionTemplate__c], {type: 'text/html'});
@@ -152,6 +129,6 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     reader.onload = (() => {
       link.href = reader.result;
       link.click();
-    });*/
+    });
   }
 }
