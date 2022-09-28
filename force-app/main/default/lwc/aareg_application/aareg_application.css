@@ -254,8 +254,18 @@ ul:not(.browser-default) li {
 }
 
 .breadcrumbs {
-  margin-bottom: 1rem;
-  margin: 0 auto;
   padding-top: 1rem;
-  max-width: 800px;
+  padding-left: 30px;
+  margin-bottom: 1.5rem;
+  margin-left: 2.5rem;
+}
+
+@media (max-width: 576px) {
+  form {
+    padding: 0px 2rem;
+  }
+  .breadcrumbs {
+    padding-left: 4rem;
+    margin-left: 0;
+  }
 }

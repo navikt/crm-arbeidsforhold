@@ -48,6 +48,20 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
   columns = COLUMNS;
   currentUser = Id;
   error;
+  breadcrumbs = [
+    {
+      label: 'Min side',
+      href: ''
+    },
+    {
+      label: 'Mine meldinger',
+      href: 'mine-meldinger'
+    }
+  ];
+
+  get isMobile() {
+    return window.screen.width < 576;
+  }
 
   @wire(getUsersThreads, { userId: '$currentUser' })
   threads(result) {
@@ -80,6 +94,9 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
       type: 'comm__namedPage',
       attributes: {
         name: page
+      },
+      state: {
+        c__fromPage: 'myThreads',
       }
     });
   }

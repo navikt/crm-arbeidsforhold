@@ -1,15 +1,11 @@
 <template>
-  <div class="breadcrumbs">
-    <lightning-breadcrumbs>
-      <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
-      <lightning-breadcrumb label="Ny søknad" name="custom_ny_soknad_aa_registret__c" onclick={navigateToPage}>
-      </lightning-breadcrumb>
-    </lightning-breadcrumbs>
-  </div>
   <template if:true={hasAccess}>
     <template if:true={organization}>
       <template if:false={applicationSubmitted}>
         <div class="container" if:true={isLoaded}>
+          <div class="breadcrumbs">
+            <c-breadcrumbs url-list={breadcrumbs} num-pops={numPops}></c-breadcrumbs>
+          </div>
           <form>
             <section class="app-section">
               <h2 class="header-with-info-text">Søker</h2>

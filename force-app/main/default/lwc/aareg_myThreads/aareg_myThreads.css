@@ -22,5 +22,24 @@
 }
 
 .breadcrumbs {
-  margin-bottom: 1rem;
+  padding-left: 0.5rem;
+}
+
+.slds-col {
+  padding-bottom: 1.5rem;
+}
+
+@media (max-width: 576px) {
+  .slds-m-bottom_xx-large {
+    margin-bottom: 0;
+  }
+  .slds-float_right {
+    padding-top: 3rem;
+  }
+  .inner-container {
+    padding: 0.5rem 3rem 1rem 3rem;
+  }
+  .slds-col {
+    padding-bottom: 0;
+  }
 }

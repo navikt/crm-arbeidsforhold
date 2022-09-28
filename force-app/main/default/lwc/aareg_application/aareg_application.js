@@ -1,5 +1,5 @@
-import { LightningElement, track, api } from 'lwc';
-import { NavigationMixin } from 'lightning/navigation';
+import { LightningElement, track, api, wire } from 'lwc';
+import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import processApplication from '@salesforce/apex/AAREG_ApplicationController.processApplication';
 import getLastUsedOrganizationInformation from '@salesforce/apex/AAREG_ApplicationController.getLastUsedOrganizationInformation';
@@ -28,9 +28,40 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   erEndring = false;
   fileData = { base64: null, filename: null };
   error;
+  @track numPops = 3;
+  breadcrumbs = [
+    {
+      label: 'Min side',
+      href: ''
+    },
+    {
+      label: 'Mine søknader',
+      href: 'mine-soknader'
+    },
+    {
+      label: 'Se søknad',
+      href: 'soknad'
+    }
+  ];
+
+  @wire(CurrentPageReference)
+    currentPageReference;
 
   connectedCallback() {
     this.init();
+    if (this.currentPageReference.state.c__applicationType !== 'view') {
+      this.breadcrumbs = [
+        {
+          label: 'Min side',
+          href: ''
+        },
+        {
+          label: 'Ny søknad',
+          href: 'soknad'
+        }
+      ];
+      this.numPops = 1;
+    }
   }
 
   async init() {
@@ -275,16 +306,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
         recordId: applicationId,
         objectApiName: 'Application__c',
         actionName: 'view'
-      }
-    });
-  }
-
-  navigateToPage(event) {
-    const page = event.target.name;
-    this[NavigationMixin.Navigate]({
-      type: 'comm__namedPage',
-      attributes: {
-        name: page
       }
     });
   }

@@ -1,5 +1,5 @@
 import { LightningElement, track, wire } from 'lwc';
-import { NavigationMixin } from 'lightning/navigation';
+import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import { getObjectInfo, getPicklistValues } from 'lightning/uiObjectInfoApi';
 import INQUIRY_OBJECT from '@salesforce/schema/Inquiry__c';
 import TYPE_FIELD from '@salesforce/schema/Inquiry__c.TypeOfInquiry__c';
@@ -16,14 +16,42 @@ export default class Aareg_contactSupportForm extends LightningElement {
   error;
   existingApplications = [];
   isLoading = false;
-
   currentUser = Id;
+  breadcrumbs = [
+    {
+      label: 'Min side',
+      href: ''
+    },
+    {
+      label: 'Ny melding',
+      href: 'ny-melding'
+    }
+  ];
+
+  @wire(CurrentPageReference)
+    currentPageReference;
 
   connectedCallback() {
     this.inquiry = {
       TypeOfInquiry__c: null,
       InquiryDescription__c: null
     };
+    if (this.currentPageReference.state.c__fromPage === 'myThreads') {
+      this.breadcrumbs = [
+        {
+          label: 'Min side',
+          href: ''
+        },
+        {
+          label: 'Mine meldinger',
+          href: 'mine-meldinger'
+        },
+        {
+          label: 'Ny melding',
+          href: 'ny-melding'
+        }
+      ];
+    }
   }
 
   @wire(getUsersApplications, { userId: '$currentUser' })

@@ -2,6 +2,9 @@
   <c-aareg_main-banner>Melding til brukerstøtte Aa-registret</c-aareg_main-banner>
   <div class="container">
     <div class="inner-container">
+      <div class="breadcrumbs">
+        <c-breadcrumbs url-list={breadcrumbs}></c-breadcrumbs>
+      </div>
     <form if:false={inquirySubmitted}>
       <div if:true={inquiryTypeOptions} class="slds-m-vertical_xx-large">
         <div class="slds-grid slds-grid_vertical support-form">

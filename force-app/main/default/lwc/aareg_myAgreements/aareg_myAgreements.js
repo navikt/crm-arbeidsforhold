@@ -13,7 +13,7 @@ const COLUMNS = [
       label: 'Se avtale',
       title: 'Se søknad',
       name: 'Avtale',
-      variant: 'base'
+      variant: 'Brand Outline'
     }
   }
 ];
@@ -23,6 +23,20 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
   columns = COLUMNS;
   currentUser = Id;
   error;
+  breadcrumbs = [
+    {
+      label: 'Min side',
+      href: ''
+    },
+    {
+      label: 'Mine avtaler',
+      href: 'mine-avtaler'
+    }
+  ];
+
+  get isMobile() {
+    return window.screen.width < 576;
+  }
 
   @wire(getUsersAgreements, { userId: '$currentUser' })
   agreementList(result) {
@@ -44,16 +58,6 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
       attributes: {
         recordId: row.Id,
         actionName: 'view'
-      }
-    });
-  }
-
-  navigateToPage(event) {
-    const page = event.target.name;
-    this[NavigationMixin.Navigate]({
-      type: 'comm__namedPage',
-      attributes: {
-        name: page
       }
     });
   }

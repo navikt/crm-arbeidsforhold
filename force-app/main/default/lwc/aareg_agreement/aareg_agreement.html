@@ -1,13 +1,10 @@
 <template>
   <c-aareg_main-banner>Aa-registret Avtale {name}</c-aareg_main-banner>
   <div>
-    <div class="breadcrumbs">
-      <lightning-breadcrumbs>
-        <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
-        <lightning-breadcrumb label="Avtale" name="Agreement__c"> </lightning-breadcrumb>
-      </lightning-breadcrumbs>
-    </div>
     <div class="container">
+      <div style="padding: 0.5rem; padding-left: 54px; margin: 1rem;">
+        <c-breadcrumbs url-list={breadcrumbs} num-pops="3"></c-breadcrumbs>
+      </div>
       <div class="inner-container" if:false={showAgreementCancellationConfirmation}>
         <div class="slds-grid slds-grid_vertical">
           <div class="slds-col">
