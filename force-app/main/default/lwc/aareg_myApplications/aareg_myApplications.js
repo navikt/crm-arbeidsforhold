@@ -70,11 +70,11 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   @wire(getUsersApplications, { userId: '$currentUser' })
   wiredGetUsersApplications(result) {
     if (result.data && result.data.length > 0) {
-        this.initialApplications = result.data;
-        this.applications = JSON.parse(JSON.stringify(this.initialApplications));
-        this.applications.forEach(application => {
-          application.disableButton = application.AA_CasehandlerDecisionTemplate__c === null || application.AA_CasehandlerDecisionTemplate__c === undefined;
-        });
+      this.initialApplications = result.data;
+      this.applications = JSON.parse(JSON.stringify(this.initialApplications));
+      this.applications.forEach(application => {
+        application.disableButton = application.AA_CasehandlerDecisionTemplate__c === null || application.AA_CasehandlerDecisionTemplate__c === undefined;
+      });
     } else if (result.error) {
       console.error(result.error);
     }
@@ -118,7 +118,6 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   }
 
   // Note: Downloading as application/pdf does not work. Downloads as .htm file
-  // Could be solved by downloading and using jsPDF plugin through staticresources
   downloadFile(event) {
     const row = event.detail.row;
     let link = document.createElement('a');
