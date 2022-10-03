@@ -297,6 +297,15 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       });
   }
 
+  returnToHome() {
+    this[NavigationMixin.Navigate]({
+      type: 'standard__namedPage',
+      attributes: {
+          pageName: 'home'
+      },
+    });
+  }
+
   /*************** Navigation ***************/
 
   navigateToApplication(applicationId) {

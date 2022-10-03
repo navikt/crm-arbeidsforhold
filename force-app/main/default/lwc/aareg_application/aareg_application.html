@@ -488,10 +488,19 @@
       </template>
       <template if:true={applicationSubmitted}>
         <div class="submission-success">
-          <h2>
+          <h2 class="submission-success-h2">
             Din søknad om tilgang til Aa-registeret er mottatt. Vi behandler søknaden så raskt vi kan. Dere vil motta et
             svar senest innen 4 uker.
           </h2>
+          <button
+            type="button"
+            name="OK"
+            class="button button-main"
+            onclick={returnToHome}
+            style="margin: 10px"
+          >
+            OK
+          </button>
         </div>
       </template>
     </template>

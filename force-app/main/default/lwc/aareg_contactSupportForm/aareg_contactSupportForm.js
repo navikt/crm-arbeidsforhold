@@ -93,6 +93,7 @@ export default class Aareg_contactSupportForm extends LightningElement {
 
   handleSubmit(event) {
     event.preventDefault();
+    window.scrollTo(0, 0);
     this.isLoading = true;
     this.resetErrors();
 
