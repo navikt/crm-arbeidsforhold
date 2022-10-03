@@ -77,7 +77,6 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
   }
 
   viewThread(event) {
-    console.log(event.detail.row);
     const row = event.detail.row;
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',

@@ -5,7 +5,7 @@
         <name>supportNotificationsToCaseOwner</name>
         <label>supportNotificationsToCaseOwner</label>
         <locationX>50</locationX>
-        <locationY>935</locationY>
+        <locationY>1055</locationY>
         <actionName>customNotificationAction</actionName>
         <actionType>customNotificationAction</actionType>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
@@ -33,13 +33,19 @@
                 <elementReference>varOwner</elementReference>
             </value>
         </inputParameters>
+        <inputParameters>
+            <name>targetId</name>
+            <value>
+                <elementReference>varRecordId</elementReference>
+            </value>
+        </inputParameters>
     </actionCalls>
     <apiVersion>54.0</apiVersion>
     <assignments>
         <name>setRecepient</name>
         <label>setRecepient</label>
         <locationX>50</locationX>
-        <locationY>695</locationY>
+        <locationY>815</locationY>
         <assignmentItems>
             <assignToReference>varOwner</assignToReference>
             <operator>Add</operator>
@@ -54,7 +60,7 @@
     <decisions>
         <name>checkIfInquiry</name>
         <label>checkIfInquiry</label>
-        <locationX>182</locationX>
+        <locationX>380</locationX>
         <locationY>575</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
@@ -71,15 +77,45 @@
                 <leftValueReference>varInquiryOwner</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
-                    <stringValue/>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Inquiry_Owner_null</targetReference>
+            </connector>
+            <label>isInquiry</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Inquiry_Owner_null</name>
+        <label>Inquiry Owner null?</label>
+        <locationX>182</locationX>
+        <locationY>695</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Inquiry_owner_not_null</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varInquiryOwner</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varInquiryOwner</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
                 <targetReference>setRecepient</targetReference>
             </connector>
-            <label>isInquiry</label>
+            <label>Inquiry owner not null</label>
         </rules>
     </decisions>
+    <environments>Default</environments>
     <interviewLabel>AAREG_SupportSendNotificationToCasehandler {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_SupportSendNotificationToCasehandler</label>
     <processMetadataValues>
@@ -104,7 +140,7 @@
     <recordLookups>
         <name>getInquiry</name>
         <label>getInquiry</label>
-        <locationX>182</locationX>
+        <locationX>380</locationX>
         <locationY>455</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -132,7 +168,7 @@
         <name>getNotificationId</name>
         <label>getNotificationId</label>
         <locationX>50</locationX>
-        <locationY>815</locationY>
+        <locationY>935</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>supportNotificationsToCaseOwner</targetReference>
@@ -154,7 +190,7 @@
     <recordLookups>
         <name>getThread</name>
         <label>getThread</label>
-        <locationX>182</locationX>
+        <locationX>380</locationX>
         <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -175,11 +211,11 @@
         </outputAssignments>
         <outputAssignments>
             <assignToReference>varRecordId</assignToReference>
-            <field>CRM_Type__c</field>
+            <field>CRM_Related_Object__c</field>
         </outputAssignments>
     </recordLookups>
     <start>
-        <locationX>56</locationX>
+        <locationX>254</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getThread</targetReference>
@@ -189,7 +225,7 @@
             <field>CRM_From_Contact__c</field>
             <operator>NotEqualTo</operator>
             <value>
-                <stringValue/>
+                <stringValue></stringValue>
             </value>
         </filters>
         <filters>
@@ -203,14 +239,14 @@
             <field>CRM_Thread_Type__c</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue>AAREG_EXP</stringValue>
+                <stringValue>AAREG_EXT</stringValue>
             </value>
         </filters>
         <object>Message__c</object>
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <variables>
         <name>varInquiryId</name>
         <dataType>String</dataType>
