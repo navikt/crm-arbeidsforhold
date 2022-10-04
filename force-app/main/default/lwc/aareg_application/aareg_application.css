@@ -265,6 +265,12 @@ ul:not(.browser-default) li {
   margin-left: 2.5rem;
 }
 
+abbr {
+  border-bottom: none !important;
+  cursor: inherit !important;
+  text-decoration: none !important;
+}
+
 @media (max-width: 576px) {
   form {
     padding: 0px 2rem;

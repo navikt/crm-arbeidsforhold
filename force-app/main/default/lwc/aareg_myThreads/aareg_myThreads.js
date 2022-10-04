@@ -38,7 +38,7 @@ const COLUMNS = [
       label: 'Se melding',
       title: 'Se melding',
       name: 'Thread',
-      variant: 'base'
+      variant: 'Brand Outline'
     }
   }
 ];
