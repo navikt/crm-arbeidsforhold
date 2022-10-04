@@ -5,7 +5,7 @@
         <name>supportNotificationsToCaseOwner</name>
         <label>supportNotificationsToCaseOwner</label>
         <locationX>50</locationX>
-        <locationY>1055</locationY>
+        <locationY>935</locationY>
         <actionName>customNotificationAction</actionName>
         <actionType>customNotificationAction</actionType>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
@@ -45,7 +45,7 @@
         <name>setRecepient</name>
         <label>setRecepient</label>
         <locationX>50</locationX>
-        <locationY>815</locationY>
+        <locationY>695</locationY>
         <assignmentItems>
             <assignToReference>varOwner</assignToReference>
             <operator>Add</operator>
@@ -60,7 +60,7 @@
     <decisions>
         <name>checkIfInquiry</name>
         <label>checkIfInquiry</label>
-        <locationX>380</locationX>
+        <locationX>182</locationX>
         <locationY>575</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
@@ -80,28 +80,6 @@
                     <stringValue></stringValue>
                 </rightValue>
             </conditions>
-            <connector>
-                <targetReference>Inquiry_Owner_null</targetReference>
-            </connector>
-            <label>isInquiry</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Inquiry_Owner_null</name>
-        <label>Inquiry Owner null?</label>
-        <locationX>182</locationX>
-        <locationY>695</locationY>
-        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
-        <rules>
-            <name>Inquiry_owner_not_null</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>varInquiryOwner</leftValueReference>
-                <operator>NotEqualTo</operator>
-                <rightValue>
-                    <stringValue></stringValue>
-                </rightValue>
-            </conditions>
             <conditions>
                 <leftValueReference>varInquiryOwner</leftValueReference>
                 <operator>IsNull</operator>
@@ -112,7 +90,7 @@
             <connector>
                 <targetReference>setRecepient</targetReference>
             </connector>
-            <label>Inquiry owner not null</label>
+            <label>isInquiry</label>
         </rules>
     </decisions>
     <environments>Default</environments>
@@ -140,7 +118,7 @@
     <recordLookups>
         <name>getInquiry</name>
         <label>getInquiry</label>
-        <locationX>380</locationX>
+        <locationX>182</locationX>
         <locationY>455</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -168,7 +146,7 @@
         <name>getNotificationId</name>
         <label>getNotificationId</label>
         <locationX>50</locationX>
-        <locationY>935</locationY>
+        <locationY>815</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>supportNotificationsToCaseOwner</targetReference>
@@ -190,7 +168,7 @@
     <recordLookups>
         <name>getThread</name>
         <label>getThread</label>
-        <locationX>380</locationX>
+        <locationX>182</locationX>
         <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -215,7 +193,7 @@
         </outputAssignments>
     </recordLookups>
     <start>
-        <locationX>254</locationX>
+        <locationX>56</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getThread</targetReference>
