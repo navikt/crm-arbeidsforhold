@@ -52,7 +52,11 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.setBreadcrumbs();
   }
 
+  get isEditForCheckbox() {
+    return this.isEdit && !this.isDraft;
+  }
   isEdit = false;
+  isDraft = false;
   setBreadcrumbs() {
     if (this.currentPageReference.state.c__applicationType !== 'view' && this.currentPageReference.state.c__applicationType !== 'edit') {
       this.isEdit = false;
@@ -69,6 +73,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       this.currentPageReference.state.c__applicationType === 'default' ? this.numPops = 3 : this.numPops = 1;
     }
     if (this.currentPageReference.state.c__applicationType === 'edit') {
+      this.isDraft = this.currentPageReference.state.c__isDraft == 'true';
       this.isEdit = true;
       this.breadcrumbs = [
         {
@@ -80,7 +85,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
           href: 'mine-soknader'
         },
         {
-          label: 'Rediger søknad',
+          label: this.isDraft ? 'Utkast' : 'Rediger søknad',
           href: 'soknad'
         }
       ];
@@ -345,7 +350,8 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
         actionName: 'view'
       },
       state: {
-        c__applicationType: type
+        c__applicationType: type,
+        c__isDraft: this.isDraft,
       }
     });
   }

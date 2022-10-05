@@ -92,7 +92,11 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   viewApplication(event) {
     const row = event.detail.row;
     let applicationType = 'view';
+    let isDraft = false;
     if (row.Status__c === 'Venter på svar' || row.Status__c === 'Utkast') {
+      if (row.Status__c === 'Utkast') {
+        isDraft = true;
+      }
       applicationType = 'edit';
     }
     this[NavigationMixin.Navigate]({
@@ -102,7 +106,8 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
         actionName: 'view',
       },
       state: {
-        c__applicationType: applicationType
+        c__applicationType: applicationType,
+        c__isDraft: isDraft
       }
     });
   }
