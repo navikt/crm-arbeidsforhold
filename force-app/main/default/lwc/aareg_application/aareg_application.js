@@ -49,7 +49,17 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   connectedCallback() {
     this.init();
-    if (this.currentPageReference.state.c__applicationType !== 'view') {
+    this.setBreadcrumbs();
+  }
+
+  get isEditForCheckbox() {
+    return this.isEdit && !this.isDraft;
+  }
+  isEdit = false;
+  isDraft = false;
+  setBreadcrumbs() {
+    if (this.currentPageReference.state.c__applicationType !== 'view' && this.currentPageReference.state.c__applicationType !== 'edit') {
+      this.isEdit = false;
       this.breadcrumbs = [
         {
           label: 'Min side',
@@ -60,11 +70,27 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
           href: 'soknad'
         }
       ];
-      this.numPops = 1;
+      this.currentPageReference.state.c__applicationType === 'default' ? this.numPops = 3 : this.numPops = 1;
     }
-    /*if (this.currentPageReference.state.c__applicationType === 'view' && this.currentPageReference.state.c__applicationStatus !== 'Venter på svar') {
-        // TODO: Remove all required tags
-    }*/
+    if (this.currentPageReference.state.c__applicationType === 'edit') {
+      this.isDraft = this.currentPageReference.state.c__isDraft == 'true';
+      this.isEdit = true;
+      this.breadcrumbs = [
+        {
+          label: 'Min side',
+          href: ''
+        },
+        {
+          label: 'Mine søknader',
+          href: 'mine-soknader'
+        },
+        {
+          label: this.isDraft ? 'Utkast' : 'Rediger søknad',
+          href: 'soknad'
+        }
+      ];
+      this.numPops = 3;
+    }
   }
 
   async init() {
@@ -249,14 +275,17 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     event.preventDefault();
     this.isLoaded = false;
     let draftContacts = this.contactRows.filter((el) => el.Name !== null && el.Name !== '');
-
     saveAsDraft({
       application: this.application,
       basisCode: this.applicationBasisRows,
       relatedContacts: draftContacts
     })
       .then((result) => {
-        this.navigateToApplication(result);
+        if (this.isEdit) {
+          this.navigateToApplication(result, 'edit');
+        } else {
+          this.navigateToApplication(result, 'default');
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -268,6 +297,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   handleSubmit(event) {
     event.preventDefault();
+    window.scrollTo(0, 0);
     this.resetErrors();
     this.validateApplicationBasis();
     this.validateContactsBeforeSubmission();
@@ -288,7 +318,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     })
       .then((result) => {
         if (this.application.Status__c === 'Additional Information Required') {
-          this.navigateToApplication(result);
+          this.navigateToApplication(result, 'view');
         }
         this.applicationSubmitted = true;
       })
@@ -311,13 +341,17 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   /*************** Navigation ***************/
 
-  navigateToApplication(applicationId) {
+  navigateToApplication(applicationId, type) {
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',
       attributes: {
         recordId: applicationId,
         objectApiName: 'Application__c',
         actionName: 'view'
+      },
+      state: {
+        c__applicationType: type,
+        c__isDraft: this.isDraft,
       }
     });
   }
