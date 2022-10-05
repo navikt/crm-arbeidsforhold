@@ -52,8 +52,10 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.setBreadcrumbs();
   }
 
+  isEdit = false;
   setBreadcrumbs() {
     if (this.currentPageReference.state.c__applicationType !== 'view' && this.currentPageReference.state.c__applicationType !== 'edit') {
+      this.isEdit = false;
       this.breadcrumbs = [
         {
           label: 'Min side',
@@ -67,6 +69,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       this.numPops = 1;
     }
     if (this.currentPageReference.state.c__applicationType === 'edit') {
+      this.isEdit = true;
       this.breadcrumbs = [
         {
           label: 'Min side',
@@ -267,14 +270,13 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     event.preventDefault();
     this.isLoaded = false;
     let draftContacts = this.contactRows.filter((el) => el.Name !== null && el.Name !== '');
-
     saveAsDraft({
       application: this.application,
       basisCode: this.applicationBasisRows,
       relatedContacts: draftContacts
     })
       .then((result) => {
-        this.navigateToApplication(result);
+        this.isEdit ? this.navigateToApplication(result, 'edit') : this.navigateToApplication(result, 'default');
       })
       .catch((error) => {
         console.error(error);
@@ -286,6 +288,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   handleSubmit(event) {
     event.preventDefault();
+    window.scrollTo(0, 0);
     this.resetErrors();
     this.validateApplicationBasis();
     this.validateContactsBeforeSubmission();
@@ -306,7 +309,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     })
       .then((result) => {
         if (this.application.Status__c === 'Additional Information Required') {
-          this.navigateToApplication(result);
+          this.navigateToApplication(result, 'view');
         }
         this.applicationSubmitted = true;
       })
@@ -329,13 +332,16 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   /*************** Navigation ***************/
 
-  navigateToApplication(applicationId) {
+  navigateToApplication(applicationId, type) {
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',
       attributes: {
         recordId: applicationId,
         objectApiName: 'Application__c',
         actionName: 'view'
+      },
+      state: {
+        c__applicationType: type
       }
     });
   }
