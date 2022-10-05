@@ -62,11 +62,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       ];
       this.numPops = 1;
     }
-
-    //TODO: REMOVE
-    /*if (this.currentPageReference.state.c__applicationType === 'view' && this.currentPageReference.state.c__applicationStatus !== 'Venter på svar') {
-      this.isViewOnly = true;
-    }*/
   }
 
   async init() {
