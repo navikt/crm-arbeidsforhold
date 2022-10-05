@@ -133,7 +133,7 @@ input:invalid:required {
 }
 
 .form-control input:disabled {
-  background-color: #f1f1f1;
+  background-color: lightgray;
   font-weight: 600;
 }
 

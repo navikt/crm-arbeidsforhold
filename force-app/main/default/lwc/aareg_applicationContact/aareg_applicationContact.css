@@ -11,7 +11,7 @@ input:invalid:required {
 .form-control input[type='text']:disabled,
 [type='email']:disabled,
 [type='tel']:disabled {
-  background-color: #f1f1f1;
+  background-color: lightgray;
   font-weight: 600;
 }
 

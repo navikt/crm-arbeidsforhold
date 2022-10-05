@@ -91,7 +91,7 @@
                 <div class="column">
                   <span class="form-control" style="max-width: 65%">
                     <label for="epost">
-                      <abbr class="slds-required" title="Påkrevd felt">* </abbr>
+                      <abbr if:false={isReadOnly} class="slds-required" title="Påkrevd felt">* </abbr>
                       E-post
                     </label>
                     <p class="pl-16 pb-10">
@@ -134,7 +134,7 @@
                   onchange={handleCheckboxChange}
                 />
                   <label for="erEndring">
-                    <abbr class="slds-required" title="Påkrevd felt">* </abbr>
+                    <abbr if:false={isReadOnly} class="slds-required" title="Påkrevd felt">* </abbr>
                     Huk av boksen hvis søknaden gjelder endring på eksisterende avtale/søknad.&nbsp;
                     </label
                   >
@@ -450,7 +450,7 @@
                     required
                   />
                   <label for="terms-of-use">
-                    <abbr class="slds-required" title="Påkrevd felt">* </abbr>
+                    <abbr if:false={isReadOnly} class="slds-required" title="Påkrevd felt">* </abbr>
                     Jeg har lest og godtar&nbsp;
                     <a target="_blank" rel="noopener noreferrer" href={termsOfUseURL}>bruksvilkårene. </a></label
                   >
