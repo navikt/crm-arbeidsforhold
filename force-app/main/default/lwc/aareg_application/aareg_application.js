@@ -66,7 +66,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
           href: 'soknad'
         }
       ];
-      this.numPops = 1;
+      this.currentPageReference.state.c__applicationType === 'default' ? this.numPops = 3 : this.numPops = 1;
     }
     if (this.currentPageReference.state.c__applicationType === 'edit') {
       this.isEdit = true;
@@ -276,7 +276,11 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       relatedContacts: draftContacts
     })
       .then((result) => {
-        this.isEdit ? this.navigateToApplication(result, 'edit') : this.navigateToApplication(result, 'default');
+        if (this.isEdit) {
+          this.navigateToApplication(result, 'edit');
+        } else {
+          this.navigateToApplication(result, 'default');
+        }
       })
       .catch((error) => {
         console.error(error);

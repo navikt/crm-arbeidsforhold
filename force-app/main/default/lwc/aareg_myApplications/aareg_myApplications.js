@@ -92,7 +92,7 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   viewApplication(event) {
     const row = event.detail.row;
     let applicationType = 'view';
-    if (row.Status__c === 'Venter på svar') {
+    if (row.Status__c === 'Venter på svar' || row.Status__c === 'Utkast') {
       applicationType = 'edit';
     }
     this[NavigationMixin.Navigate]({
