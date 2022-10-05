@@ -49,7 +49,11 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   connectedCallback() {
     this.init();
-    if (this.currentPageReference.state.c__applicationType !== 'view') {
+    this.setBreadcrumbs();
+  }
+
+  setBreadcrumbs() {
+    if (this.currentPageReference.state.c__applicationType !== 'view' && this.currentPageReference.state.c__applicationType !== 'edit') {
       this.breadcrumbs = [
         {
           label: 'Min side',
@@ -61,6 +65,23 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
         }
       ];
       this.numPops = 1;
+    }
+    if (this.currentPageReference.state.c__applicationType === 'edit') {
+      this.breadcrumbs = [
+        {
+          label: 'Min side',
+          href: ''
+        },
+        {
+          label: 'Mine søknader',
+          href: 'mine-soknader'
+        },
+        {
+          label: 'Rediger søknad',
+          href: 'soknad'
+        }
+      ];
+      this.numPops = 3;
     }
   }
 

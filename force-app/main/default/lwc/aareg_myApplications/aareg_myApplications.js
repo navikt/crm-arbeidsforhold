@@ -91,6 +91,10 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
 }
   viewApplication(event) {
     const row = event.detail.row;
+    let applicationType = 'view';
+    if (row.Status__c === 'Venter på svar') {
+      applicationType = 'edit';
+    }
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',
       attributes: {
@@ -98,7 +102,7 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
         actionName: 'view',
       },
       state: {
-        c__applicationType: 'view'
+        c__applicationType: applicationType
       }
     });
   }

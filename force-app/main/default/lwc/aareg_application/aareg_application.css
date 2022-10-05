@@ -209,7 +209,7 @@ ul:not(.browser-default) li {
 
 .button-flat {
   color: #0067c5;
-  border: 2px solid transparent;
+  border: 2px solid #0067c5;
   background: transparent;
 }
 
