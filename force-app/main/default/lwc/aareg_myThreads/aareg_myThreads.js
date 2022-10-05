@@ -38,7 +38,7 @@ const COLUMNS = [
       label: 'Se melding',
       title: 'Se melding',
       name: 'Thread',
-      variant: 'base'
+      variant: 'Brand Outline'
     }
   }
 ];
@@ -77,7 +77,6 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
   }
 
   viewThread(event) {
-    console.log(event.detail.row);
     const row = event.detail.row;
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',

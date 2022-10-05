@@ -99,6 +99,7 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
       },
       state: {
         c__applicationType: 'view',
+        c__applicationStatus: row.Status__c
       }
     });
   }

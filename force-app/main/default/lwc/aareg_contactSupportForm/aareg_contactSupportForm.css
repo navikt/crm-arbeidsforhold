@@ -120,6 +120,10 @@ ul:not(.browser-default) li {
   justify-content: center;
 }
 
+.submission-success-h2 {
+  padding-bottom: 2rem;
+}
+
 .support-form h1 {
   font-size: 2rem;
   font-weight: 600;
@@ -148,6 +152,12 @@ ul:not(.browser-default) li {
 .breadcrumbs {
   padding: 0.5rem;
   padding-left: 1rem;
+}
+
+abbr {
+  border-bottom: none !important;
+  cursor: inherit !important;
+  text-decoration: none !important;
 }
 
 @media (max-width: 576px) {

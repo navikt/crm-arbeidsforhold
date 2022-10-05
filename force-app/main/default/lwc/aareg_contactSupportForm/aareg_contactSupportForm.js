@@ -8,7 +8,7 @@ import getUsersApplications from '@salesforce/apex/AAREG_MyApplicationsControlle
 import createThreadForApplication from '@salesforce/apex/AAREG_contactSupportController.createThreadForApplication';
 import createNewInquiry from '@salesforce/apex/AAREG_contactSupportController.createNewInquiry';
 
-export default class Aareg_contactSupportForm extends LightningElement {
+export default class Aareg_contactSupportForm extends NavigationMixin(LightningElement) {
   @track inquiry;
   @track inquiryTypeOptions;
   selectedApplicationId;
@@ -93,6 +93,7 @@ export default class Aareg_contactSupportForm extends LightningElement {
 
   handleSubmit(event) {
     event.preventDefault();
+    window.scrollTo(0, 0);
     this.isLoading = true;
     this.resetErrors();
 
@@ -168,12 +169,11 @@ export default class Aareg_contactSupportForm extends LightningElement {
     return this.isSubmitted;
   }
 
-  navigateToPage(event) {
-    const page = event.target.name;
+  navigateToMyMessages() {
     this[NavigationMixin.Navigate]({
       type: 'comm__namedPage',
       attributes: {
-        name: page
+        name: 'Mine_Meldinger__c'
       }
     });
   }

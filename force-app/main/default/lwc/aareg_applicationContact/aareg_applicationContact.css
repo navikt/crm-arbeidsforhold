@@ -128,3 +128,9 @@ input:invalid:required {
   padding-block-end: 0.625em;
   min-inline-size: min-content;
 }
+
+abbr {
+  border-bottom: none !important;
+  cursor: inherit !important;
+  text-decoration: none !important;
+}

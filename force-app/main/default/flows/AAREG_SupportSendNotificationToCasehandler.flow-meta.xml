@@ -33,6 +33,12 @@
                 <elementReference>varOwner</elementReference>
             </value>
         </inputParameters>
+        <inputParameters>
+            <name>targetId</name>
+            <value>
+                <elementReference>varRecordId</elementReference>
+            </value>
+        </inputParameters>
     </actionCalls>
     <apiVersion>54.0</apiVersion>
     <assignments>
@@ -71,7 +77,14 @@
                 <leftValueReference>varInquiryOwner</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
-                    <stringValue/>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varInquiryOwner</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -80,6 +93,7 @@
             <label>isInquiry</label>
         </rules>
     </decisions>
+    <environments>Default</environments>
     <interviewLabel>AAREG_SupportSendNotificationToCasehandler {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_SupportSendNotificationToCasehandler</label>
     <processMetadataValues>
@@ -175,7 +189,7 @@
         </outputAssignments>
         <outputAssignments>
             <assignToReference>varRecordId</assignToReference>
-            <field>CRM_Type__c</field>
+            <field>CRM_Related_Object__c</field>
         </outputAssignments>
     </recordLookups>
     <start>
@@ -189,7 +203,7 @@
             <field>CRM_From_Contact__c</field>
             <operator>NotEqualTo</operator>
             <value>
-                <stringValue/>
+                <stringValue></stringValue>
             </value>
         </filters>
         <filters>
@@ -203,14 +217,14 @@
             <field>CRM_Thread_Type__c</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue>AAREG_EXP</stringValue>
+                <stringValue>AAREG_EXT</stringValue>
             </value>
         </filters>
         <object>Message__c</object>
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <variables>
         <name>varInquiryId</name>
         <dataType>String</dataType>

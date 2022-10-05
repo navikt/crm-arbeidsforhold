@@ -2,8 +2,8 @@
   <template if:true={isLoaded}>
     <div if:true={showError} class="error-dropdown" onclick={closeErrorMessage}>
       <div class="empty-flex"></div>
-      <div class="error-message">
-        <h2 >
+      <div class="error-message" aria-live="assertive" aria-atomic="true">
+        <h2>
           {errorMsg}
         </h2>  
       </div>
