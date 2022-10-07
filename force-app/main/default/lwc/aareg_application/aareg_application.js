@@ -8,6 +8,7 @@ import getAccountNameByOrgNumber from '@salesforce/apex/AAREG_ApplicationControl
 import deleteDraftRecord from '@salesforce/apex/AAREG_ApplicationController.deleteDraftRecord';
 import saveAsDraft from '@salesforce/apex/AAREG_ApplicationController.saveAsDraft';
 import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
+import { validateEmail } from 'c/aareg_helperClass';
 
 export default class Aareg_application extends NavigationMixin(LightningElement) {
   @api recordId;
@@ -297,7 +298,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   handleSubmit(event) {
     event.preventDefault();
-    window.scrollTo(0, 0);
     this.resetErrors();
     this.validateApplicationBasis();
     this.validateContactsBeforeSubmission();
@@ -307,6 +307,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       this.focusInput();
       return;
     }
+    window.scrollTo(0, 0);
     this.isLoaded = false;
     const { base64, filename } = this.fileData;
     processApplication({
@@ -483,11 +484,10 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   }
 
   checkApplicationInputs() {
-    if (this.application.Email__c === null || this.application.Email__c === '') {
-      this.setErrorFor(this.email, 'Obligatorisk.');
+    if (validateEmail(this.application.Email__c)) {
+      this.setErrorFor(this.email, 'E-post må være gyldig format.');
       this.email.className = 'invalid';
     }
-
     if (
       this.application.APIAccess__c === false &&
       this.application.ExtractionAccess__c === false &&
