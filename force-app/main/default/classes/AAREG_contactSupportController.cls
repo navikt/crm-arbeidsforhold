@@ -49,11 +49,15 @@ public with sharing class AAREG_contactSupportController {
 
     Message__c msg = new Message__c(
       CRM_Thread__c = thread.Id,
-      CRM_From_User__c = userId,
+      CRM_From_Contact__c = getUserContactId(),
       CRM_Message_Text__c = description
     );
     insert msg;
 
     return thread.Id;
+  }
+
+  public static string getUserContactId() {
+      return [SELECT Id, ContactId FROM User WHERE Id = :UserInfo.getUserId()]?.ContactId;
   }
 }
