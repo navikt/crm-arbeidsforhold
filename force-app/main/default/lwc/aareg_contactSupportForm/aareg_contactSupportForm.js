@@ -14,7 +14,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   @track inquiryTypeOptions;
   selectedApplicationId;
   isSubmitted;
-  error;
   existingApplications = [];
   isLoading = false;
   currentUser = Id;
@@ -65,10 +64,8 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
             return item.Status__c !== 'Utkast';
           });
       }
-      this.error = undefined;
     } else if (result.error) {
-      console.error(error);
-      this.error = error;
+      console.error(result.error);
     }
   }
 
