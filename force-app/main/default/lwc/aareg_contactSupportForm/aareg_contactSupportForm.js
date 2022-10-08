@@ -94,7 +94,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
 
   handleSubmit(event) {
     event.preventDefault();
-    window.scrollTo(0, 0);
     this.isLoading = true;
     this.resetErrors();
 
@@ -111,6 +110,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
       this.isLoading = false;
       return;
     }
+    window.scrollTo(0, 0);
 
     if (this.regardingApplicationInProcess) {
       createThreadForApplication({
