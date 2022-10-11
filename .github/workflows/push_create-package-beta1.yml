@@ -1,4 +1,4 @@
-name: "[PUSH] Create Package"
+name: "[PUSH] Create Package BETA"
 on:
   workflow_dispatch:
   push:
