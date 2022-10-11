@@ -43,17 +43,21 @@ public with sharing class AAREG_contactSupportController {
         CRM_Related_Object_Type__c=sObjName,
         CRM_HenvendelseId__c=henvendelsesID,
         AAREG_Thread_Subject__c = subject,
-        CRM_Thread_Type__c ='AAREG_EXT'
+        CRM_Thread_Type__c ='AAREG_EXP'
     );
     insert thread;
 
     Message__c msg = new Message__c(
       CRM_Thread__c = thread.Id,
-      CRM_From_User__c = userId,
+      CRM_From_Contact__c = getUserContactId(),
       CRM_Message_Text__c = description
     );
     insert msg;
 
     return thread.Id;
+  }
+
+  public static string getUserContactId() {
+      return [SELECT Id, ContactId FROM User WHERE Id = :UserInfo.getUserId()]?.ContactId;
   }
 }

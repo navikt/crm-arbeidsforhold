@@ -7,13 +7,13 @@ import Id from '@salesforce/user/Id';
 import getUsersApplications from '@salesforce/apex/AAREG_MyApplicationsController.getUsersApplications';
 import createThreadForApplication from '@salesforce/apex/AAREG_contactSupportController.createThreadForApplication';
 import createNewInquiry from '@salesforce/apex/AAREG_contactSupportController.createNewInquiry';
+import { validateEmail } from 'c/aareg_helperClass';
 
 export default class Aareg_contactSupportForm extends NavigationMixin(LightningElement) {
   @track inquiry;
   @track inquiryTypeOptions;
   selectedApplicationId;
   isSubmitted;
-  error;
   existingApplications = [];
   isLoading = false;
   currentUser = Id;
@@ -64,10 +64,8 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
             return item.Status__c !== 'Utkast';
           });
       }
-      this.error = undefined;
     } else if (result.error) {
-      console.error(error);
-      this.error = error;
+      console.error(result.error);
     }
   }
 
@@ -93,7 +91,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
 
   handleSubmit(event) {
     event.preventDefault();
-    window.scrollTo(0, 0);
     this.isLoading = true;
     this.resetErrors();
 
@@ -104,9 +101,13 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
       invalidInputs.forEach((element) => {
         this.setErrorFor(element, 'Obligatorisk');
       });
+      if (validateEmail(this.template.querySelector('input[data-id="Email__c"]').value)) {
+        this.setErrorFor(this.template.querySelector('input[data-id="Email__c"]'), 'E-post må være gyldig format.');
+      }
       this.isLoading = false;
       return;
     }
+    window.scrollTo(0, 0);
 
     if (this.regardingApplicationInProcess) {
       createThreadForApplication({

@@ -1,5 +1,5 @@
 import { LightningElement, api } from 'lwc';
-
+import { validateEmail } from 'c/aareg_helperClass';
 export default class aareg_applicationContact extends LightningElement {
   @api record;
   @api readOnly;
@@ -60,11 +60,11 @@ export default class aareg_applicationContact extends LightningElement {
     if (this.checkNulls(this.contact.Name)) {
       this.setErrorFor(this.name, 'Obligatorisk');
     }
-    if (this.checkNulls(this.contact.Phone__c)) {
-      this.setErrorFor(this.phone, 'Obligatorisk');
+    if (validateEmail(this.contact.Email__c)) {
+      this.setErrorFor(this.email, 'E-post må være gyldig format.');
     }
-    if (this.checkNulls(this.contact.Email__c)) {
-      this.setErrorFor(this.email, 'Obligatorisk');
+    if (this.checkFieldLength(this.contact.Phone__c)) {
+      this.setErrorFor(this.phone, 'Nummer må være 8 siffer.')
     }
   }
 
@@ -80,6 +80,14 @@ export default class aareg_applicationContact extends LightningElement {
 
   @api focusAgreementNotification() {
     this.agreementNotification.focus();
+  }
+
+  checkFieldLength(field) {
+    if (field === null || field.length !== 8) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   checkNulls(field) {

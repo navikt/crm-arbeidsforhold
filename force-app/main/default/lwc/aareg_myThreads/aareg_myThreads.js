@@ -2,6 +2,7 @@ import { LightningElement, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreads';
+import { refreshApex } from '@salesforce/apex';
 
 const COLUMNS = [
   { 
@@ -61,6 +62,10 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
 
   get isMobile() {
     return window.screen.width < 576;
+  }
+
+  connectedCallback() {
+    refreshApex(this.threads);
   }
 
   @wire(getUsersThreads, { userId: '$currentUser' })
