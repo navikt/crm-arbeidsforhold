@@ -43,7 +43,7 @@
     <formulas>
         <name>varMessagFromNav</name>
         <dataType>String</dataType>
-        <expression>&apos;Hei&apos;&amp;BR() &amp;
+        <expression>&apos;Hei,&apos;&amp;BR() &amp;
 &apos;NAV har mottatt søknad om tilgang til Arbeidsgiver- og arbeidstakerregisteret. &apos;&amp;BR() &amp;
 &apos;Ved å bruke denne meldingen til å sende spørsmål eller oppdateringer knyttet til din søknad vil meldingen gå direkte til saksbehandler av søknaden.&apos;&amp;BR() &amp;
 &apos;Du vil motta et svar senest innen 4 uker.&apos;</expression>
@@ -177,9 +177,9 @@
             <targetReference>CreateMessageFromNAV</targetReference>
         </connector>
         <inputAssignments>
-            <field>CRM_From_User__c</field>
+            <field>CRM_From_Contact__c</field>
             <value>
-                <elementReference>$Record.OwnerId</elementReference>
+                <elementReference>varContactID</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -369,7 +369,7 @@
     <textTemplates>
         <name>varMessageText</name>
         <isViewedAsPlainText>false</isViewedAsPlainText>
-        <text>&lt;p&gt;Hei&lt;/p&gt;&lt;p&gt;Søknad om tilgang til aa-registeret er levert av {!$Record.Account__r.Name}&lt;/p&gt;</text>
+        <text>&lt;p&gt;Hei,&lt;/p&gt;&lt;p&gt;Søknad om tilgang til Aa-registeret er levert av {!$Record.Account__r.Name}.&lt;/p&gt;</text>
     </textTemplates>
     <variables>
         <name>templateId</name>
