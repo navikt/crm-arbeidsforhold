@@ -38,7 +38,7 @@ public with sharing class AAREG_contactSupportController {
         CRM_Related_Object__c = relatedRecordId,
         CRM_Related_Object_Type__c = sObjName,
         CRM_HenvendelseId__c = henvendelsesId,
-        AAREG_Thread_Subject__c = subject,
+        AAREG_Thread_Subject__c = subject, // Subject is set directly in aaregcontactSupportForm.html input
         CRM_Thread_Type__c = 'AAREG_EXP'
     );
     insert thread;
