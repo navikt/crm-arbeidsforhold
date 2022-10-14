@@ -39,6 +39,7 @@
         </rules>
     </decisions>
     <description>Flow check if there is a contactperson already on the account with the same email. If not a contact is created and an email confirmation is sent</description>
+    <environments>Default</environments>
     <formulas>
         <name>varMessagFromNav</name>
         <dataType>String</dataType>
@@ -256,6 +257,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>CRM_Thread_Type__c</field>
+            <value>
+                <stringValue>AAREG_EXP</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Name</field>
             <value>
                 <elementReference>varThreadname</elementReference>
@@ -344,7 +351,7 @@
             <field>Contact__c</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue/>
+                <stringValue></stringValue>
             </value>
         </filters>
         <filters>
