@@ -4,7 +4,7 @@
     <assignments>
         <name>addUserId</name>
         <label>addUserId</label>
-        <locationX>575</locationX>
+        <locationX>573</locationX>
         <locationY>449</locationY>
         <assignmentItems>
             <assignToReference>varInText</assignToReference>
@@ -159,6 +159,7 @@
         <queriedFields>Id</queriedFields>
         <queriedFields>Casehandler_Status__c</queriedFields>
         <queriedFields>Status__c</queriedFields>
+        <queriedFields>applicationOwner__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -235,7 +236,7 @@
         <name>getUsers</name>
         <label>getUsers</label>
         <locationX>287</locationX>
-        <locationY>450</locationY>
+        <locationY>449</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>addUserId</targetReference>
@@ -317,7 +318,7 @@
         <name>show_list</name>
         <label>show list</label>
         <locationX>1072</locationX>
-        <locationY>181</locationY>
+        <locationY>180</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -338,6 +339,18 @@
                 <name>label</name>
                 <value>
                     <stringValue>Sakseier</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>defaultValue</name>
+                <value>
+                    <elementReference>GetCurrentApplication.applicationOwner__c</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>valueChosen</name>
+                <value>
+                    <elementReference>varOutText</elementReference>
                 </value>
             </inputParameters>
             <inputsOnNextNavToAssocScrn>ResetValues</inputsOnNextNavToAssocScrn>

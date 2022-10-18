@@ -10,6 +10,7 @@
       <property name="valueString" type="String" label="Values" description="The String with the available values for the Picklist" />
       <property name="valueChosen" type="String" label="Chosen Value" description="The String with the value selected at the picklist" />
       <property name="label" type="String" label="Label" />
+      <property name="defaultValue" type="String" label="Default value" />
     </targetConfig>
   </targetConfigs>
 </LightningComponentBundle>
