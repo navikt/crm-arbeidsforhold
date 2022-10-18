@@ -65,13 +65,9 @@ public without sharing class AAREG_ApplicationController {
   }
 
   @AuraEnabled
-  public static Id processApplication(
-    Application__c application,
-    List<ApplicationBasisCode__c> basisCode,
-    List<RelatedContact__c> relatedContacts,
-    String base64,
-    String fileName
-  ) {
+  public static Id processApplication(Application__c application, List<ApplicationBasisCode__c> basisCode,
+    List<RelatedContact__c> relatedContacts, String base64, String fileName) {
+
     if (application.Status__c != ADDITIONAL_INFORMATION) {
       application.Casehandler_Status__c = NEW_APPLICATION;
       application.status__c = NEW_APPLICATION;

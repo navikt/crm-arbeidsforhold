@@ -15,7 +15,6 @@ public class AAREG_ApplicationControllerTest {
   @isTest
   static void getAccountNameByOrgNumber() {
     String accountName = AAREG_ApplicationController.getAccountNameByOrgNumber('123456789');
-
     System.assertEquals('Test', accountName, 'Assert that correct account name is returned');
   }
 
@@ -37,9 +36,8 @@ public class AAREG_ApplicationControllerTest {
 
     String base64 = 'sdkldsfjlcm';
     String fileName = 'Test file name';
-
-    AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
-    List<Application__c> processedApplications = [SELECT Id, Casehandler_Status__c FROM Application__c];
+    Id processedApplicationId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
+    List<Application__c> processedApplications = [SELECT Id, Casehandler_Status__c FROM Application__c WHERE Id = :processedApplicationId];
     List<RelatedContact__c> processedContacts = [SELECT Id, Name, Application__c FROM RelatedContact__c];
     List<ApplicationBasisCode__c> processedBasisCodes = [SELECT Id, Application__c FROM ApplicationBasisCode__c];
     List<ContentDocumentLink> documentLink = [
