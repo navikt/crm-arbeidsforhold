@@ -3,6 +3,7 @@ import { LightningElement, api } from 'lwc';
 export default class ChecklistPicklist extends LightningElement {
   @api valueString; // Arrives from the Flow
   @api valueChosen; // Goes to the Flow
+  @api label;
 
   picklistOptionValues = []; // Contains the options for the Picklist
 

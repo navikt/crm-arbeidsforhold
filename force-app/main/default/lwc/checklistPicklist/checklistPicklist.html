@@ -1,4 +1,5 @@
 <template>
+  <label>{label}</label>
   <select onchange={assignValue} class="slds-select">
     <template for:each={picklistOptionValues} for:item="next">
       <option class="uiINputSelectOption" key={next} value={next}>{next}</option>
