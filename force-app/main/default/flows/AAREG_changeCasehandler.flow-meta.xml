@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <apiVersion>51.0</apiVersion>
     <assignments>
         <name>addUserId</name>
         <label>addUserId</label>
-        <locationX>246</locationX>
-        <locationY>457</locationY>
+        <locationX>573</locationX>
+        <locationY>449</locationY>
         <assignmentItems>
             <assignToReference>varInText</assignToReference>
             <operator>Add</operator>
@@ -27,8 +27,8 @@
     <decisions>
         <name>isMemberUser</name>
         <label>isMemberUser</label>
-        <locationX>336</locationX>
-        <locationY>319</locationY>
+        <locationX>383</locationX>
+        <locationY>316</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>isUser</name>
@@ -49,8 +49,8 @@
     <decisions>
         <name>isValid</name>
         <label>isValidChoice</label>
-        <locationX>730</locationX>
-        <locationY>307</locationY>
+        <locationX>727</locationX>
+        <locationY>365</locationY>
         <defaultConnector>
             <targetReference>getUser</targetReference>
         </defaultConnector>
@@ -69,7 +69,7 @@
                 <leftValueReference>varOutText</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue/>
+                    <stringValue></stringValue>
                 </rightValue>
             </conditions>
             <conditions>
@@ -85,20 +85,37 @@
             <label>isNotValid</label>
         </rules>
     </decisions>
+    <dynamicChoiceSets>
+        <name>CasehandlerStatus</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
+        <picklistField>Casehandler_Status__c</picklistField>
+        <picklistObject>Application__c</picklistObject>
+    </dynamicChoiceSets>
+    <dynamicChoiceSets>
+        <name>Status</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
+        <picklistField>Status__c</picklistField>
+        <picklistObject>Application__c</picklistObject>
+    </dynamicChoiceSets>
+    <environments>Default</environments>
     <interviewLabel>AAREG_changeCasehandler {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_changeCasehandler</label>
     <loops>
         <name>loopThroughMemberIds</name>
         <label>loopThroughMemberIds</label>
-        <locationX>635</locationX>
-        <locationY>173</locationY>
+        <locationX>573</locationX>
+        <locationY>169</locationY>
         <collectionReference>getGroupMemberId</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
             <targetReference>isMemberUser</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>show_list</targetReference>
+            <targetReference>GetCurrentApplication</targetReference>
         </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
@@ -120,6 +137,31 @@
         </value>
     </processMetadataValues>
     <processType>Flow</processType>
+    <recordLookups>
+        <name>GetCurrentApplication</name>
+        <label>GetCurrentApplication</label>
+        <locationX>835</locationX>
+        <locationY>173</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>show_list</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Application__c</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Casehandler_Status__c</queriedFields>
+        <queriedFields>Status__c</queriedFields>
+        <queriedFields>applicationOwner__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordLookups>
         <name>getGroupMemberId</name>
         <label>getGroupMemberId</label>
@@ -148,7 +190,7 @@
         <name>getPublicGroupId</name>
         <label>getPublicGroupId</label>
         <locationX>251</locationX>
-        <locationY>164</locationY>
+        <locationY>161</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getGroupMemberId</targetReference>
@@ -170,8 +212,8 @@
     <recordLookups>
         <name>getUser</name>
         <label>getUser</label>
-        <locationX>735</locationX>
-        <locationY>461</locationY>
+        <locationX>737</locationX>
+        <locationY>564</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>updateCasehandler</targetReference>
@@ -193,8 +235,8 @@
     <recordLookups>
         <name>getUsers</name>
         <label>getUsers</label>
-        <locationX>139</locationX>
-        <locationY>313</locationY>
+        <locationX>287</locationX>
+        <locationY>449</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>addUserId</targetReference>
@@ -216,8 +258,8 @@
     <recordUpdates>
         <name>updateCasehandler</name>
         <label>updateCasehandler</label>
-        <locationX>735</locationX>
-        <locationY>590</locationY>
+        <locationX>737</locationX>
+        <locationY>764</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -233,6 +275,18 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Casehandler_Status__c</field>
+            <value>
+                <elementReference>Casehandler_Status</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status__c</field>
+            <value>
+                <elementReference>ApplicationStatus</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>applicationOwner__c</field>
             <value>
                 <elementReference>getUser.Name</elementReference>
@@ -244,8 +298,8 @@
     <screens>
         <name>ErrorMessage</name>
         <label>ErrorMessage</label>
-        <locationX>992</locationX>
-        <locationY>304</locationY>
+        <locationX>1072</locationX>
+        <locationY>430</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -263,8 +317,8 @@
     <screens>
         <name>show_list</name>
         <label>show list</label>
-        <locationX>832</locationX>
-        <locationY>181</locationY>
+        <locationX>1072</locationX>
+        <locationY>180</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -281,12 +335,53 @@
                     <elementReference>varInText</elementReference>
                 </value>
             </inputParameters>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Sakseier</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>defaultValue</name>
+                <value>
+                    <elementReference>GetCurrentApplication.applicationOwner__c</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>valueChosen</name>
+                <value>
+                    <elementReference>varOutText</elementReference>
+                </value>
+            </inputParameters>
             <inputsOnNextNavToAssocScrn>ResetValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <outputParameters>
                 <assignToReference>varOutText</assignToReference>
                 <name>valueChosen</name>
             </outputParameters>
+        </fields>
+        <fields>
+            <name>Casehandler_Status</name>
+            <choiceReferences>CasehandlerStatus</choiceReferences>
+            <dataType>String</dataType>
+            <defaultValue>
+                <elementReference>GetCurrentApplication.Casehandler_Status__c</elementReference>
+            </defaultValue>
+            <fieldText>Status på søknad</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <isRequired>false</isRequired>
+        </fields>
+        <fields>
+            <name>ApplicationStatus</name>
+            <choiceReferences>Status</choiceReferences>
+            <dataType>String</dataType>
+            <defaultValue>
+                <elementReference>GetCurrentApplication.Status__c</elementReference>
+            </defaultValue>
+            <fieldText>Søkers status</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <helpText>&lt;p&gt;Dette feltet angir status på søknad som vises ut til søker. Denne vil kunne avvike fra &quot;status på søknad&quot; som benyttes internt i saksbehandlingen.&lt;/p&gt;</helpText>
+            <isRequired>false</isRequired>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
