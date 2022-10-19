@@ -39,11 +39,12 @@
         </rules>
     </decisions>
     <description>Flow check if there is a contactperson already on the account with the same email. If not a contact is created and an email confirmation is sent</description>
+    <environments>Default</environments>
     <formulas>
         <name>varMessagFromNav</name>
         <dataType>String</dataType>
-        <expression>&apos;Hei&apos;&amp;BR() &amp;
-&apos;NAV har mottatt søknad om tilgang til Arbeidsgiver- og arbeidstakerregisteret. &apos;&amp;BR() &amp;
+        <expression>&apos;Hei,&apos;&amp;BR() &amp;
+&apos;NAV har mottatt søknad om tilgang til Arbeidsgiver- og arbeidstakerregisteret av &apos; &amp;{!$Record.Account__r.Name} &amp; &apos;.&apos; &amp;BR() &amp;
 &apos;Ved å bruke denne meldingen til å sende spørsmål eller oppdateringer knyttet til din søknad vil meldingen gå direkte til saksbehandler av søknaden.&apos;&amp;BR() &amp;
 &apos;Du vil motta et svar senest innen 4 uker.&apos;</expression>
     </formulas>
@@ -55,7 +56,7 @@
     <formulas>
         <name>varThreadSubject</name>
         <dataType>String</dataType>
-        <expression>{!$Record.Name} &amp;&apos; - Søknad om tilgang til aa-register&apos;</expression>
+        <expression>{!$Record.Name} &amp;&apos; - Søknad om tilgang til Aa-registeret&apos;</expression>
     </formulas>
     <interviewLabel>AAREG_createContactSendConfirmation {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_createContactSendConfirmation</label>
@@ -168,39 +169,10 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordCreates>
-        <name>createMessage</name>
-        <label>createMessage</label>
-        <locationX>270</locationX>
-        <locationY>1151</locationY>
-        <connector>
-            <targetReference>CreateMessageFromNAV</targetReference>
-        </connector>
-        <inputAssignments>
-            <field>CRM_From_User__c</field>
-            <value>
-                <elementReference>$Record.OwnerId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CRM_Message_Text__c</field>
-            <value>
-                <elementReference>varMessageText</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CRM_Thread__c</field>
-            <value>
-                <elementReference>varThreadId</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Message__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
-    <recordCreates>
         <name>CreateMessageFromNAV</name>
         <label>CreateMessageFromNAV</label>
         <locationX>270</locationX>
-        <locationY>1271</locationY>
+        <locationY>1151</locationY>
         <inputAssignments>
             <field>CRM_Message_Text__c</field>
             <value>
@@ -223,7 +195,7 @@
         <locationY>1031</locationY>
         <assignRecordIdToReference>varThreadId</assignRecordIdToReference>
         <connector>
-            <targetReference>createMessage</targetReference>
+            <targetReference>CreateMessageFromNAV</targetReference>
         </connector>
         <inputAssignments>
             <field>AAREG_Thread_Subject__c</field>
@@ -253,6 +225,12 @@
             <field>CRM_Related_Object__c</field>
             <value>
                 <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Thread_Type__c</field>
+            <value>
+                <stringValue>AAREG_EXP</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -344,7 +322,7 @@
             <field>Contact__c</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue/>
+                <stringValue></stringValue>
             </value>
         </filters>
         <filters>
@@ -359,11 +337,6 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
-    <textTemplates>
-        <name>varMessageText</name>
-        <isViewedAsPlainText>false</isViewedAsPlainText>
-        <text>&lt;p&gt;Hei&lt;/p&gt;&lt;p&gt;Søknad om tilgang til aa-registeret er levert av {!$Record.Account__r.Name}&lt;/p&gt;</text>
-    </textTemplates>
     <variables>
         <name>templateId</name>
         <dataType>String</dataType>
