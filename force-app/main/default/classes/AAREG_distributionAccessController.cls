@@ -4,12 +4,12 @@ public class AAREG_distributionAccessController {
     List<FlowOutputs> returnList = new List<FlowOutputs>();
     String jsonS;
 
-    switch on(request[0].referenceType){
-      when 'DELETE'{
+    switch on(request[0].referenceType) {
+      when 'DELETE' {
           jsonS= AAREG_distributionAccessRequest.generateJson(request[0].refAccessType);
           AAREG_distributionAccessRequest.generateHeaderToDistribution(request[0].refOrganizationNumber, 'DEL_AAREG_DIST_TILGANG', jsonS);
       }
-      when 'PUT'{
+      when 'PUT' {
           jsonS=AAREG_distributionAccessRequest.generateJson(request[0].refAccessType);
           AAREG_distributionAccessRequest.generateHeaderToDistribution(request[0].refOrganizationNumber, 'PUT_AAREG_DIST_TILGANG', jsonS);
       }
@@ -17,7 +17,7 @@ public class AAREG_distributionAccessController {
     return returnList;
   }
     
-  public class FlowInputs{
+  public class FlowInputs {
     @InvocableVariable(label='Agreement id' required=true)
     public Id referenceId;
     @InvocableVariable(label='PUT OR DELETE' required=true)
@@ -28,15 +28,15 @@ public class AAREG_distributionAccessController {
     public String refOrganizationNumber;
   }
   
-  public class FlowOutputs{
+  public class FlowOutputs {
     @InvocableVariable
     public Boolean success;
     
-    public FlowOutputs(){
+    public FlowOutputs() {
         this.success = false;
     }
     
-    public FlowOutputs(Boolean success){
+    public FlowOutputs(Boolean success) {
         this.success = success;
     }
   } 
