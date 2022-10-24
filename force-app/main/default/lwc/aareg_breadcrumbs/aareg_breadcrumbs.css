@@ -2,6 +2,10 @@
     flex-direction: row;
     display: flex;
     flex-wrap: wrap;
+    max-width: 1200px; 
+    margin: 0 auto; 
+    padding-top: 30px; 
+    padding-left: 68px;
 }
 
 .listElement {
@@ -24,4 +28,12 @@ span {
     font-size: 1.125rem;
     line-height: 1.333;
     color: #262626;
+}
+
+@media (max-width: 576px) {
+  .breadcrumb {
+    padding-left: 3.5rem;
+    padding-bottom: 2rem;
+    padding-top: 0.5rem;
+  }
 }

@@ -1,6 +1,6 @@
 <template>
     <nav aria-label="Brødsmulesti">
-        <ol class="breadcrumb" style="max-width: 1260px; margin: 0 auto; padding-top: 30px">
+        <ol class="breadcrumb">
             <template iterator:it={urlListToShow}>
                 <li key={it.value.href}>
                     <a if:false={it.last} href={it.value.href} class="listElement" aria-current={it.last}>{it.value.label}</a>
