@@ -2,10 +2,11 @@
   flex-direction: row;
   display: flex;
   flex-wrap: wrap;
-  max-width: 80em; 
+  max-width: 94rem; 
   margin: 0 auto; 
   padding-top: 30px; 
   padding-bottom: 1.5rem;
+  padding-left: 2rem;
 }
 
 .listElement {
