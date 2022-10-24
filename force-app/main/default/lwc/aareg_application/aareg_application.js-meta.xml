@@ -2,8 +2,8 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
   <apiVersion>49.0</apiVersion>
   <isExposed>true</isExposed>
-  <description>Application form used to apply for access to Aa-registret.</description>
-  <masterLabel>Aa-registret Application form</masterLabel>
+  <description>Application form used to apply for access to Aa-registeret.</description>
+  <masterLabel>Aa-registeret Application form</masterLabel>
   <targets>
     <target>lightningCommunity__Page</target>
     <target>lightningCommunity__Default</target>

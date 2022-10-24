@@ -3,7 +3,7 @@
   <apiVersion>52.0</apiVersion>
   <isExposed>true</isExposed>
   <description>Table which displays all agreements for a user.</description>
-  <masterLabel>Aa-registret My Agreements</masterLabel>
+  <masterLabel>Aa-registeret My Agreements</masterLabel>
   <targets>
     <target>lightningCommunity__Page</target>
     <target>lightningCommunity__Default</target>
