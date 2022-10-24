@@ -1,11 +1,11 @@
 {
-  "activeViewId": "2c77f127-83fd-424b-aa5b-7769968b08dc",
-  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
-  "configurationTags": [],
-  "id": "7f0ad58e-e0d9-45b1-9253-e73456e7a828",
-  "label": "Ny Melding",
-  "pageAccess": "UseParent",
-  "routeType": "custom-ny-melding",
-  "type": "route",
-  "urlPrefix": "ny-melding"
+  "activeViewId" : "37d13b7e-dd5e-4d04-8b5f-5dffb27e7993",
+  "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
+  "configurationTags" : [ ],
+  "id" : "0263579b-397c-436d-86de-3c9b7eeac748",
+  "label" : "Ny Melding",
+  "pageAccess" : "UseParent",
+  "routeType" : "custom-ny-melding",
+  "type" : "route",
+  "urlPrefix" : "ny-melding"
 }

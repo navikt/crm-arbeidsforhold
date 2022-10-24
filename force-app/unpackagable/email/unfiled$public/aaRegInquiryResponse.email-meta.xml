@@ -6,7 +6,7 @@
     <name>aaRegInquiryResponse</name>
     <relatedEntityType>Inquiry__c</relatedEntityType>
     <style>none</style>
-    <subject>Du har en henvendelse fra NAV - ref: {{{Inquiry.Name}}}</subject>
+    <subject>Du har en henvendelse fra NAV - ref: {{{Inquiry__c.Name}}}</subject>
     <type>custom</type>
     <uiType>SFX</uiType>
 </EmailTemplate>
