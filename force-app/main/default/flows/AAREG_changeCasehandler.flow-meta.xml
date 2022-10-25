@@ -4,8 +4,8 @@
     <assignments>
         <name>addUserId</name>
         <label>addUserId</label>
-        <locationX>573</locationX>
-        <locationY>449</locationY>
+        <locationX>270</locationX>
+        <locationY>758</locationY>
         <assignmentItems>
             <assignToReference>varInText</assignToReference>
             <operator>Add</operator>
@@ -27,8 +27,11 @@
     <decisions>
         <name>isMemberUser</name>
         <label>isMemberUser</label>
-        <locationX>383</locationX>
-        <locationY>316</locationY>
+        <locationX>402</locationX>
+        <locationY>518</locationY>
+        <defaultConnector>
+            <targetReference>loopThroughMemberIds</targetReference>
+        </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>isUser</name>
@@ -49,8 +52,8 @@
     <decisions>
         <name>isValid</name>
         <label>isValidChoice</label>
-        <locationX>727</locationX>
-        <locationY>365</locationY>
+        <locationX>182</locationX>
+        <locationY>1310</locationY>
         <defaultConnector>
             <targetReference>getUser</targetReference>
         </defaultConnector>
@@ -107,8 +110,8 @@
     <loops>
         <name>loopThroughMemberIds</name>
         <label>loopThroughMemberIds</label>
-        <locationX>573</locationX>
-        <locationY>169</locationY>
+        <locationX>182</locationX>
+        <locationY>398</locationY>
         <collectionReference>getGroupMemberId</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -127,7 +130,7 @@
     <processMetadataValues>
         <name>CanvasMode</name>
         <value>
-            <stringValue>FREE_FORM_CANVAS</stringValue>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
         </value>
     </processMetadataValues>
     <processMetadataValues>
@@ -140,8 +143,8 @@
     <recordLookups>
         <name>GetCurrentApplication</name>
         <label>GetCurrentApplication</label>
-        <locationX>835</locationX>
-        <locationY>173</locationY>
+        <locationX>182</locationX>
+        <locationY>1070</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>show_list</targetReference>
@@ -165,8 +168,8 @@
     <recordLookups>
         <name>getGroupMemberId</name>
         <label>getGroupMemberId</label>
-        <locationX>388</locationX>
-        <locationY>161</locationY>
+        <locationX>182</locationX>
+        <locationY>278</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>loopThroughMemberIds</targetReference>
@@ -189,8 +192,8 @@
         <description>Fetch public group id for AAREG_Casehandling</description>
         <name>getPublicGroupId</name>
         <label>getPublicGroupId</label>
-        <locationX>251</locationX>
-        <locationY>161</locationY>
+        <locationX>182</locationX>
+        <locationY>158</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getGroupMemberId</targetReference>
@@ -212,8 +215,8 @@
     <recordLookups>
         <name>getUser</name>
         <label>getUser</label>
-        <locationX>737</locationX>
-        <locationY>564</locationY>
+        <locationX>314</locationX>
+        <locationY>1430</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>updateCasehandler</targetReference>
@@ -235,8 +238,8 @@
     <recordLookups>
         <name>getUsers</name>
         <label>getUsers</label>
-        <locationX>287</locationX>
-        <locationY>449</locationY>
+        <locationX>270</locationX>
+        <locationY>638</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>addUserId</targetReference>
@@ -258,8 +261,8 @@
     <recordUpdates>
         <name>updateCasehandler</name>
         <label>updateCasehandler</label>
-        <locationX>737</locationX>
-        <locationY>764</locationY>
+        <locationX>314</locationX>
+        <locationY>1550</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -298,12 +301,13 @@
     <screens>
         <name>ErrorMessage</name>
         <label>ErrorMessage</label>
-        <locationX>1072</locationX>
-        <locationY>430</locationY>
+        <locationX>50</locationX>
+        <locationY>1430</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
+            <isGoTo>true</isGoTo>
             <targetReference>show_list</targetReference>
         </connector>
         <fields>
@@ -317,8 +321,8 @@
     <screens>
         <name>show_list</name>
         <label>show list</label>
-        <locationX>1072</locationX>
-        <locationY>180</locationY>
+        <locationX>182</locationX>
+        <locationY>1190</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -387,8 +391,8 @@
         <showHeader>true</showHeader>
     </screens>
     <start>
-        <locationX>50</locationX>
-        <locationY>50</locationY>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>getPublicGroupId</targetReference>
         </connector>
