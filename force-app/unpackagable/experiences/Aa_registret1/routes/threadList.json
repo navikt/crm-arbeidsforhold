@@ -1,11 +1,11 @@
 {
-  "activeViewId": "70586d33-a958-4c6d-9479-b225bcd39b80",
-  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
-  "configurationTags": [],
-  "id": "b7839a6e-5e7b-4640-9f26-957324303384",
-  "label": "Thread List",
-  "objectApiName": "Thread__c",
-  "routeType": "list-a0T",
-  "type": "route",
-  "urlPrefix": "thread"
+  "activeViewId" : "cfc5c927-130c-4f4d-8502-39340a5d2350",
+  "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
+  "configurationTags" : [ ],
+  "id" : "155b4050-f529-42a1-af7f-8db98c6a9f77",
+  "label" : "Thread List",
+  "objectApiName" : "Thread__c",
+  "routeType" : "list-a1h",
+  "type" : "route",
+  "urlPrefix" : "thread"
 }
