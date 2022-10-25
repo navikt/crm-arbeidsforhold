@@ -24,36 +24,32 @@
             <targetReference>loopThroughMemberIds</targetReference>
         </connector>
     </assignments>
-    <decisions>
-        <name>isMemberUser</name>
-        <label>isMemberUser</label>
-        <locationX>402</locationX>
-        <locationY>518</locationY>
-        <defaultConnector>
+    <collectionProcessors>
+        <name>filterGroupMemberIds</name>
+        <elementSubtype>FilterCollectionProcessor</elementSubtype>
+        <label>filterGroupMemberIds</label>
+        <locationX>182</locationX>
+        <locationY>398</locationY>
+        <assignNextValueToReference>currentItem_filterGroupMemberIds</assignNextValueToReference>
+        <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
+        <collectionReference>getGroupMemberId</collectionReference>
+        <conditionLogic>and</conditionLogic>
+        <conditions>
+            <leftValueReference>currentItem_filterGroupMemberIds.UserOrGroupId</leftValueReference>
+            <operator>StartsWith</operator>
+            <rightValue>
+                <stringValue>005</stringValue>
+            </rightValue>
+        </conditions>
+        <connector>
             <targetReference>loopThroughMemberIds</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
-        <rules>
-            <name>isUser</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>loopThroughMemberIds.UserOrGroupId</leftValueReference>
-                <operator>StartsWith</operator>
-                <rightValue>
-                    <stringValue>005</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>getUsers</targetReference>
-            </connector>
-            <label>isUser</label>
-        </rules>
-    </decisions>
+        </connector>
+    </collectionProcessors>
     <decisions>
         <name>isValid</name>
         <label>isValidChoice</label>
         <locationX>182</locationX>
-        <locationY>1310</locationY>
+        <locationY>1214</locationY>
         <defaultConnector>
             <targetReference>getUser</targetReference>
         </defaultConnector>
@@ -111,11 +107,11 @@
         <name>loopThroughMemberIds</name>
         <label>loopThroughMemberIds</label>
         <locationX>182</locationX>
-        <locationY>398</locationY>
-        <collectionReference>getGroupMemberId</collectionReference>
+        <locationY>518</locationY>
+        <collectionReference>filterGroupMemberIds</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
-            <targetReference>isMemberUser</targetReference>
+            <targetReference>getUsers</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
             <targetReference>GetCurrentApplication</targetReference>
@@ -144,7 +140,7 @@
         <name>GetCurrentApplication</name>
         <label>GetCurrentApplication</label>
         <locationX>182</locationX>
-        <locationY>1070</locationY>
+        <locationY>974</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>show_list</targetReference>
@@ -172,7 +168,7 @@
         <locationY>278</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>loopThroughMemberIds</targetReference>
+            <targetReference>filterGroupMemberIds</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -216,7 +212,7 @@
         <name>getUser</name>
         <label>getUser</label>
         <locationX>314</locationX>
-        <locationY>1430</locationY>
+        <locationY>1334</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>updateCasehandler</targetReference>
@@ -262,7 +258,7 @@
         <name>updateCasehandler</name>
         <label>updateCasehandler</label>
         <locationX>314</locationX>
-        <locationY>1550</locationY>
+        <locationY>1454</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -302,7 +298,7 @@
         <name>ErrorMessage</name>
         <label>ErrorMessage</label>
         <locationX>50</locationX>
-        <locationY>1430</locationY>
+        <locationY>1334</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -322,7 +318,7 @@
         <name>show_list</name>
         <label>show list</label>
         <locationX>182</locationX>
-        <locationY>1190</locationY>
+        <locationY>1094</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -398,6 +394,14 @@
         </connector>
     </start>
     <status>Active</status>
+    <variables>
+        <name>currentItem_filterGroupMemberIds</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GroupMember</objectType>
+    </variables>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
