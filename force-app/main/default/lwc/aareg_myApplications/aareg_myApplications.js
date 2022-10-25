@@ -121,7 +121,9 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
       let decisionString = JSON.stringify(this.decision);
       let subStr1 = decisionString.substring(0, decisionString.indexOf('<img'));
       let subStr2 = decisionString.substring(decisionString.indexOf('</img>')+6, decisionString.length);
-      this.decision = JSON.parse(subStr1 + subStr2);
+      if (subStr1 !== '' && subStr2 !== '') {
+        this.decision = JSON.parse(subStr1 + subStr2);
+      }
       this.template.querySelector('c-aareg_modal[data-id="Decision-Modal"]').toggle();
     }
   }
