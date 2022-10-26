@@ -24,18 +24,41 @@
             <targetReference>loopThroughMemberIds</targetReference>
         </connector>
     </assignments>
+    <assignments>
+        <name>addUserId_ForvaltningRegisterGroup</name>
+        <label>addUserId</label>
+        <locationX>270</locationX>
+        <locationY>1574</locationY>
+        <assignmentItems>
+            <assignToReference>varInText</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>;</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varInText</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>getUsers_ForvaltningRegisterGroup.Name</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>loopThroughMemberIds_RegisterForvaltning</targetReference>
+        </connector>
+    </assignments>
     <collectionProcessors>
-        <name>filterGroupMemberIds</name>
+        <name>filterGroupMemberIds_caseHandlerGroup</name>
         <elementSubtype>FilterCollectionProcessor</elementSubtype>
         <label>filterGroupMemberIds</label>
         <locationX>182</locationX>
         <locationY>398</locationY>
-        <assignNextValueToReference>currentItem_filterGroupMemberIds</assignNextValueToReference>
+        <assignNextValueToReference>currentItem_filterGroupMemberIds_RegisterForvaltningGroup</assignNextValueToReference>
         <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
         <collectionReference>getGroupMemberId</collectionReference>
         <conditionLogic>and</conditionLogic>
         <conditions>
-            <leftValueReference>currentItem_filterGroupMemberIds.UserOrGroupId</leftValueReference>
+            <leftValueReference>currentItem_filterGroupMemberIds_RegisterForvaltningGroup.UserOrGroupId</leftValueReference>
             <operator>StartsWith</operator>
             <rightValue>
                 <stringValue>005</stringValue>
@@ -45,11 +68,32 @@
             <targetReference>loopThroughMemberIds</targetReference>
         </connector>
     </collectionProcessors>
+    <collectionProcessors>
+        <name>filterGroupMemberIds_RegisterForvaltningGroup</name>
+        <elementSubtype>FilterCollectionProcessor</elementSubtype>
+        <label>filterGroupMemberIds</label>
+        <locationX>182</locationX>
+        <locationY>1214</locationY>
+        <assignNextValueToReference>currentItem_filterGroupMemberIds_RegisterForvaltningGroup</assignNextValueToReference>
+        <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
+        <collectionReference>getGroupMemberId_in_Nav_Register_Forvaltning_Group</collectionReference>
+        <conditionLogic>and</conditionLogic>
+        <conditions>
+            <leftValueReference>currentItem_filterGroupMemberIds_RegisterForvaltningGroup.UserOrGroupId</leftValueReference>
+            <operator>StartsWith</operator>
+            <rightValue>
+                <stringValue>005</stringValue>
+            </rightValue>
+        </conditions>
+        <connector>
+            <targetReference>loopThroughMemberIds_RegisterForvaltning</targetReference>
+        </connector>
+    </collectionProcessors>
     <decisions>
         <name>isValid</name>
         <label>isValidChoice</label>
         <locationX>182</locationX>
-        <locationY>1214</locationY>
+        <locationY>2030</locationY>
         <defaultConnector>
             <targetReference>getUser</targetReference>
         </defaultConnector>
@@ -108,10 +152,24 @@
         <label>loopThroughMemberIds</label>
         <locationX>182</locationX>
         <locationY>518</locationY>
-        <collectionReference>filterGroupMemberIds</collectionReference>
+        <collectionReference>filterGroupMemberIds_caseHandlerGroup</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
             <targetReference>getUsers</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>getPublicGroupNavRegisterForvaltning</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <name>loopThroughMemberIds_RegisterForvaltning</name>
+        <label>loopThroughMemberIds</label>
+        <locationX>182</locationX>
+        <locationY>1334</locationY>
+        <collectionReference>filterGroupMemberIds_RegisterForvaltningGroup</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>getUsers_ForvaltningRegisterGroup</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
             <targetReference>GetCurrentApplication</targetReference>
@@ -140,7 +198,7 @@
         <name>GetCurrentApplication</name>
         <label>GetCurrentApplication</label>
         <locationX>182</locationX>
-        <locationY>974</locationY>
+        <locationY>1790</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>show_list</targetReference>
@@ -168,7 +226,7 @@
         <locationY>278</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>filterGroupMemberIds</targetReference>
+            <targetReference>filterGroupMemberIds_caseHandlerGroup</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -176,6 +234,29 @@
             <operator>EqualTo</operator>
             <value>
                 <elementReference>varPublicGroupId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>GroupMember</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>UserOrGroupId</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>getGroupMemberId_in_Nav_Register_Forvaltning_Group</name>
+        <label>getGroupMemberId in Nav Register Forvaltning Group</label>
+        <locationX>182</locationX>
+        <locationY>1094</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>filterGroupMemberIds_RegisterForvaltningGroup</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>GroupId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varPublicGroupNavRegister</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
@@ -209,10 +290,33 @@
         </outputAssignments>
     </recordLookups>
     <recordLookups>
+        <name>getPublicGroupNavRegisterForvaltning</name>
+        <label>getPublicGroupNavRegisterForvaltning</label>
+        <locationX>182</locationX>
+        <locationY>974</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>getGroupMemberId_in_Nav_Register_Forvaltning_Group</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>group_4534</stringValue>
+            </value>
+        </filters>
+        <object>Group</object>
+        <outputAssignments>
+            <assignToReference>varPublicGroupNavRegister</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
         <name>getUser</name>
         <label>getUser</label>
         <locationX>314</locationX>
-        <locationY>1334</locationY>
+        <locationY>2150</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>updateCasehandler</targetReference>
@@ -254,11 +358,34 @@
         <queriedFields>Name</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordLookups>
+        <name>getUsers_ForvaltningRegisterGroup</name>
+        <label>getUsers</label>
+        <locationX>270</locationX>
+        <locationY>1454</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>addUserId_ForvaltningRegisterGroup</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>loopThroughMemberIds_RegisterForvaltning.UserOrGroupId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>User</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordUpdates>
         <name>updateCasehandler</name>
         <label>updateCasehandler</label>
         <locationX>314</locationX>
-        <locationY>1454</locationY>
+        <locationY>2270</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -298,7 +425,7 @@
         <name>ErrorMessage</name>
         <label>ErrorMessage</label>
         <locationX>50</locationX>
-        <locationY>1334</locationY>
+        <locationY>2150</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -318,7 +445,7 @@
         <name>show_list</name>
         <label>show list</label>
         <locationX>182</locationX>
-        <locationY>1094</locationY>
+        <locationY>1910</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -395,7 +522,7 @@
     </start>
     <status>Active</status>
     <variables>
-        <name>currentItem_filterGroupMemberIds</name>
+        <name>currentItem_filterGroupMemberIds_RegisterForvaltningGroup</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -432,7 +559,14 @@
         <name>varPublicGroupId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
-        <isInput>true</isInput>
-        <isOutput>true</isOutput>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varPublicGroupNavRegister</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
     </variables>
 </Flow>
