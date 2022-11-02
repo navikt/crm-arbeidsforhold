@@ -21,6 +21,160 @@
     </actionCalls>
     <apiVersion>52.0</apiVersion>
     <assignments>
+        <name>Add_County_Fields</name>
+        <label>Add County Fields</label>
+        <locationX>534</locationX>
+        <locationY>3038</locationY>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Hjemmel: {!Loop_over_Application_Basis_Codes.LegalBasisCounty__c} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Formål: {!Loop_over_Application_Basis_Codes.PurposeCounty__c} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Check_Municipality_Fields</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Add_Electricity_Fields</name>
+        <label>Add Electricity Fields</label>
+        <locationX>534</locationX>
+        <locationY>4382</locationY>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Hjemmel: {!Loop_over_Application_Basis_Codes.LegalBasisElectricitySupervision__c} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Formål: {!Loop_over_Application_Basis_Codes.PurposeElectricitySupervision__c} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Add_ProcessingBasis_field</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Add_Municipality_Fields</name>
+        <label>Add Municipality Fields</label>
+        <locationX>534</locationX>
+        <locationY>3374</locationY>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Hjemmel: {!Loop_over_Application_Basis_Codes.LegalBasisMunicipality__c} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Formål: {!Loop_over_Application_Basis_Codes.PurposeMunicipality__c} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>CheckStateFields</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Add_Other_Fields</name>
+        <label>Add Other Fields</label>
+        <locationX>270</locationX>
+        <locationY>2918</locationY>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Hjemmel: {!Loop_over_Application_Basis_Codes.OtherLegalBasis__c} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Formål: {!Loop_over_Application_Basis_Codes.OtherPurpose__c} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Add_ProcessingBasis_field</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Add_Pension_Fields</name>
+        <label>Add Pension Fields</label>
+        <locationX>534</locationX>
+        <locationY>4046</locationY>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Hjemmel: {!Loop_over_Application_Basis_Codes.LegalBasisPension__c} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Formål: {!Loop_over_Application_Basis_Codes.PurposePension__c} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>CheckElectricityFields</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Add_ProcessingBasis_field</name>
+        <label>Add ProcessingBasis field</label>
+        <locationX>468</locationX>
+        <locationY>4694</locationY>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Behandlingsgrunnlag: {!Loop_over_Application_Basis_Codes.ProcessingBasis__c} {!LineBreak} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_over_Application_Basis_Codes</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>AddStateFields</name>
+        <label>Add State Fields</label>
+        <locationX>534</locationX>
+        <locationY>3710</locationY>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Hjemmel: {!Loop_over_Application_Basis_Codes.LegalBasisState__c} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varApplicationBasisFields</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Formål: {!Loop_over_Application_Basis_Codes.PurposeState__c} {!LineBreak}</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>CheckPensionFields</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>applyCurrentStatus</name>
         <label>applyCurrentStatus</label>
         <locationX>424</locationX>
@@ -140,12 +294,76 @@
         </connector>
     </assignments>
     <decisions>
+        <name>Check_County_Fields</name>
+        <label>Check County Fields</label>
+        <locationX>666</locationX>
+        <locationY>2918</locationY>
+        <defaultConnector>
+            <targetReference>Check_Municipality_Fields</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>CountyNotNull</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Loop_over_Application_Basis_Codes.LegalBasisCounty__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Loop_over_Application_Basis_Codes.PurposeCounty__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Add_County_Fields</targetReference>
+            </connector>
+            <label>County Not Null</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Check_Municipality_Fields</name>
+        <label>Check Municipality Fields</label>
+        <locationX>666</locationX>
+        <locationY>3254</locationY>
+        <defaultConnector>
+            <targetReference>CheckStateFields</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>MunicipalityNotNull</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Loop_over_Application_Basis_Codes.LegalBasisMunicipality__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Loop_over_Application_Basis_Codes.PurposeMunicipality__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Add_Municipality_Fields</targetReference>
+            </connector>
+            <label>Municipality Not Null</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>checkAccessType</name>
         <label>checkAccessType</label>
         <locationX>182</locationX>
         <locationY>1550</locationY>
         <defaultConnector>
-            <targetReference>createAgreement</targetReference>
+            <targetReference>Get_All_Application_Basis_Codes</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>isNull</defaultConnectorLabel>
         <rules>
@@ -273,6 +491,134 @@
         </rules>
     </decisions>
     <decisions>
+        <name>CheckElectricityFields</name>
+        <label>Check Electricity Fields</label>
+        <locationX>666</locationX>
+        <locationY>4262</locationY>
+        <defaultConnector>
+            <targetReference>Add_ProcessingBasis_field</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Electricity_Not_Null</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Loop_over_Application_Basis_Codes.LegalBasisElectricitySupervision__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Loop_over_Application_Basis_Codes.PurposeElectricitySupervision__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Add_Electricity_Fields</targetReference>
+            </connector>
+            <label>Electricity Not Null</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>CheckOtherFields</name>
+        <label>Check Other Fields</label>
+        <locationX>468</locationX>
+        <locationY>2798</locationY>
+        <defaultConnector>
+            <targetReference>Check_County_Fields</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Other_Fields_Not_Null</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Loop_over_Application_Basis_Codes.OtherLegalBasis__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Loop_over_Application_Basis_Codes.OtherPurpose__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Add_Other_Fields</targetReference>
+            </connector>
+            <label>Other Fields Not Null</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>CheckPensionFields</name>
+        <label>Check Pension Fields</label>
+        <locationX>666</locationX>
+        <locationY>3926</locationY>
+        <defaultConnector>
+            <targetReference>CheckElectricityFields</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Pension_Not_Null</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Loop_over_Application_Basis_Codes.LegalBasisPension__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Loop_over_Application_Basis_Codes.PurposePension__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Add_Pension_Fields</targetReference>
+            </connector>
+            <label>Pension Not Null</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>CheckStateFields</name>
+        <label>Check State Fields</label>
+        <locationX>666</locationX>
+        <locationY>3590</locationY>
+        <defaultConnector>
+            <targetReference>CheckPensionFields</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>State_Not_Null</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Loop_over_Application_Basis_Codes.LegalBasisState__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Loop_over_Application_Basis_Codes.PurposeState__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>AddStateFields</targetReference>
+            </connector>
+            <label>State Not Null</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>isApplicationDone</name>
         <label>isApplicationDone</label>
         <locationX>424</locationX>
@@ -388,13 +734,33 @@
         </rules>
     </decisions>
     <description>Set cashandler status = Closed and status into approved/declined status and create agreement</description>
+    <environments>Default</environments>
     <formulas>
         <name>finishDescription</name>
         <dataType>String</dataType>
         <expression>&quot;Søknaden er bekreftet ferdigbehandlet av - &quot; + {!$User.FirstName}+&apos; &apos;+{!$User.LastName}</expression>
     </formulas>
+    <formulas>
+        <name>LineBreak</name>
+        <dataType>String</dataType>
+        <expression>BR()</expression>
+    </formulas>
     <interviewLabel>AAREG_applicationFinished {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_applicationFinished</label>
+    <loops>
+        <name>Loop_over_Application_Basis_Codes</name>
+        <label>Loop over Application Basis Codes</label>
+        <locationX>182</locationX>
+        <locationY>2678</locationY>
+        <collectionReference>Get_All_Application_Basis_Codes</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>CheckOtherFields</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>createAgreement</targetReference>
+        </noMoreValuesConnector>
+    </loops>
     <loops>
         <name>loopTextCollectionMultiPicklistSelect</name>
         <label>loopTextCollectionMultiPicklistSelect</label>
@@ -406,7 +772,7 @@
             <targetReference>setSingleAcessType</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>createAgreement</targetReference>
+            <targetReference>Get_All_Application_Basis_Codes</targetReference>
         </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
@@ -432,7 +798,7 @@
         <name>createAgreement</name>
         <label>createAgreement</label>
         <locationX>182</locationX>
-        <locationY>2558</locationY>
+        <locationY>4910</locationY>
         <assignRecordIdToReference>agreementId</assignRecordIdToReference>
         <connector>
             <targetReference>updateRelatedContacts</targetReference>
@@ -441,6 +807,12 @@
             <field>APIAccess__c</field>
             <value>
                 <elementReference>API</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ApplicationBasisFields__c</field>
+            <value>
+                <elementReference>varApplicationBasisFields</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -500,6 +872,27 @@
         <object>Agreement__c</object>
     </recordCreates>
     <recordLookups>
+        <name>Get_All_Application_Basis_Codes</name>
+        <label>Get All Application Basis Codes</label>
+        <locationX>182</locationX>
+        <locationY>2558</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_over_Application_Basis_Codes</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Application__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>ApplicationBasisCode__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
         <locationX>424</locationX>
@@ -530,13 +923,14 @@
         <queriedFields>AA_AccessTypes__c</queriedFields>
         <queriedFields>OwnerId</queriedFields>
         <queriedFields>createdById__c</queriedFields>
+        <queriedFields>ApplicationBasisFields__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
         <name>updateApplication</name>
         <label>updateApplication</label>
         <locationX>424</locationX>
-        <locationY>3014</locationY>
+        <locationY>5366</locationY>
         <connector>
             <targetReference>updateThreadToNotActive</targetReference>
         </connector>
@@ -578,7 +972,7 @@
         <name>updateRelatedContacts</name>
         <label>updateRelatedContacts</label>
         <locationX>182</locationX>
-        <locationY>2678</locationY>
+        <locationY>5030</locationY>
         <connector>
             <targetReference>createTaskApplicationFinished</targetReference>
         </connector>
@@ -602,7 +996,7 @@
         <name>updateThreadToNotActive</name>
         <label>updateThreadToNotActive</label>
         <locationX>424</locationX>
-        <locationY>3134</locationY>
+        <locationY>5486</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>CRM_Related_Object__c</field>
@@ -685,7 +1079,7 @@
         <name>createTaskApplicationFinished</name>
         <label>createTaskApplicationFinished</label>
         <locationX>424</locationX>
-        <locationY>2894</locationY>
+        <locationY>5246</locationY>
         <connector>
             <targetReference>updateApplication</targetReference>
         </connector>
@@ -793,6 +1187,13 @@
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>varApplicationBasisFields</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
     </variables>
     <variables>
         <name>varOwnerId</name>
