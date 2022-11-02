@@ -34,7 +34,7 @@
     </div>
     <template if:true={hasAccess}>
       <div class="slds-grid inner-container">
-        <div class="slds-col">
+        <div class="slds-col" style="flex: 50%">
           <div if:true={hasApplicationAccess} class="slds-col">
             <c-link-panel
               title="Ny søknad"
@@ -60,7 +60,7 @@
             ></c-link-panel>
           </div>
         </div>
-        <div class="slds-col">
+        <div class="slds-col" style="flex: 50%">
           <div class="slds-col">
             <c-link-panel
               title="Brukerstøtte vedrørende Aa-registeret"
@@ -77,9 +77,6 @@
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>
-        </div>
-        <div class="slds-col">
-          
         </div>
       </div>
     </template>
