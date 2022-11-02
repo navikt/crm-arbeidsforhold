@@ -758,7 +758,7 @@
             <targetReference>CheckOtherFields</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>Update_ApplicationBasisField_on_Application</targetReference>
+            <targetReference>createAgreement</targetReference>
         </noMoreValuesConnector>
     </loops>
     <loops>
@@ -798,7 +798,7 @@
         <name>createAgreement</name>
         <label>createAgreement</label>
         <locationX>182</locationX>
-        <locationY>5030</locationY>
+        <locationY>4910</locationY>
         <assignRecordIdToReference>agreementId</assignRecordIdToReference>
         <connector>
             <targetReference>updateRelatedContacts</targetReference>
@@ -812,7 +812,7 @@
         <inputAssignments>
             <field>ApplicationBasisFields__c</field>
             <value>
-                <elementReference>getApplication.ApplicationBasisFields__c</elementReference>
+                <elementReference>varApplicationBasisFields</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -927,34 +927,10 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
-        <name>Update_ApplicationBasisField_on_Application</name>
-        <label>Update ApplicationBasisField on Application</label>
-        <locationX>182</locationX>
-        <locationY>4910</locationY>
-        <connector>
-            <targetReference>createAgreement</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>getApplication.Id</elementReference>
-            </value>
-        </filters>
-        <inputAssignments>
-            <field>ApplicationBasisFields__c</field>
-            <value>
-                <elementReference>varApplicationBasisFields</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Application__c</object>
-    </recordUpdates>
-    <recordUpdates>
         <name>updateApplication</name>
         <label>updateApplication</label>
         <locationX>424</locationX>
-        <locationY>5486</locationY>
+        <locationY>5366</locationY>
         <connector>
             <targetReference>updateThreadToNotActive</targetReference>
         </connector>
@@ -996,7 +972,7 @@
         <name>updateRelatedContacts</name>
         <label>updateRelatedContacts</label>
         <locationX>182</locationX>
-        <locationY>5150</locationY>
+        <locationY>5030</locationY>
         <connector>
             <targetReference>createTaskApplicationFinished</targetReference>
         </connector>
@@ -1020,7 +996,7 @@
         <name>updateThreadToNotActive</name>
         <label>updateThreadToNotActive</label>
         <locationX>424</locationX>
-        <locationY>5606</locationY>
+        <locationY>5486</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>CRM_Related_Object__c</field>
@@ -1103,7 +1079,7 @@
         <name>createTaskApplicationFinished</name>
         <label>createTaskApplicationFinished</label>
         <locationX>424</locationX>
-        <locationY>5366</locationY>
+        <locationY>5246</locationY>
         <connector>
             <targetReference>updateApplication</targetReference>
         </connector>
