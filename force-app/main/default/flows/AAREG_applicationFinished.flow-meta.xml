@@ -923,7 +923,6 @@
         <queriedFields>AA_AccessTypes__c</queriedFields>
         <queriedFields>OwnerId</queriedFields>
         <queriedFields>createdById__c</queriedFields>
-        <queriedFields>ApplicationBasisFields__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
