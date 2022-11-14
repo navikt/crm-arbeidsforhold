@@ -20,24 +20,4 @@
         <protected>false</protected>
         <reevaluateOnChange>false</reevaluateOnChange>
     </fieldUpdates>
-    <rules>
-        <fullName>IsApplicationAdditionalInformationRequired</fullName>
-        <actions>
-            <name>UpdateApplicationStatus</name>
-            <type>FieldUpdate</type>
-        </actions>
-        <active>true</active>
-        <criteriaItems>
-            <field>Application__c.Casehandler_Status__c</field>
-            <operation>equals</operation>
-            <value>Additional Information Required</value>
-        </criteriaItems>
-        <criteriaItems>
-            <field>Application__c.RecordTypeId</field>
-            <operation>equals</operation>
-            <value>Aa-register access</value>
-        </criteriaItems>
-        <description>Set application in Additional Information Required for applicants when casehandler update casehandler status</description>
-        <triggerType>onCreateOrTriggeringUpdate</triggerType>
-    </rules>
 </Workflow>
