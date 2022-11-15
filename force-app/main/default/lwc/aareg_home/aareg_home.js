@@ -74,6 +74,9 @@ export default class Aareg_home extends LightningElement {
     } catch (error) {
       console.error(error);
     } finally {
+      if (this.hasAccess) {
+        shareAgreementsWithUser();
+      }
       this.isLoaded = true;
     }
   }
