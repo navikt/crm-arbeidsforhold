@@ -39,7 +39,7 @@ public with sharing class AAREG_HomeControllerTest {
   private static void testGetLastUsedOrganizationNumber() {
     User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
 
-    String lastUsedOrganizationNumber = AAREG_HomeController.getLastUsersLastUsedOrganiation(user.Id);
+    String lastUsedOrganizationNumber = AAREG_HomeController.getLastUsersLastUsedOrganization(user.Id);
 
     System.assertEquals('123456789', lastUsedOrganizationNumber, 'Last used organization number returned correctly.');
   }
