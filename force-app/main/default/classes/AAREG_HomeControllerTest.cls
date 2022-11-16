@@ -93,10 +93,6 @@ public with sharing class AAREG_HomeControllerTest {
       FROM RelatedContact__Share
       WHERE UserOrGroupId = :user.Id
     ];
-
-    System.debug('sharedAgreements: ' + sharedAgreements);
-    System.debug('sharedRelatedContacts: ' + sharedRelatedContacts);
-
     System.assertEquals(1, sharedAgreements.size(), '1 Shared agreement records not created.');
     System.assertEquals(2, sharedRelatedContacts.size(), '2 Shared related contact records not created.');
   }

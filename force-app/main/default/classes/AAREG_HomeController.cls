@@ -45,7 +45,6 @@ public without sharing class AAREG_HomeController {
       WHERE OrganizationNumber__c = :lastUsedOrganization AND Status__c = 'Active'
     ];
 
-    System.debug('agreements: ' + agreements);
     List<Agreement__Share> agreementShares = new List<Agreement__Share>();
     Agreement__Share agreementShare;
     for (Agreement__c agreement : agreements) {
@@ -55,7 +54,7 @@ public without sharing class AAREG_HomeController {
       agreementShare.AccessLevel = 'edit';
       agreementShares.add(agreementShare);
     }
-    System.debug('agreementShares: ' + agreementShares);
+
     try {
       Database.SaveResult[] saveResult = Database.insert(agreementShares, false);
     } catch (Exception e) {
@@ -74,8 +73,6 @@ public without sharing class AAREG_HomeController {
       WHERE Agreement__c in :agreements
     ];
 
-    System.debug('relatedContacts: ' + relatedContacts);
-
     List<RelatedContact__Share> relatedContactShares = new List<RelatedContact__Share>();
     RelatedContact__Share relatedContactShare;
     for (RelatedContact__c relatedContact : relatedContacts) {
@@ -85,9 +82,9 @@ public without sharing class AAREG_HomeController {
       relatedContactShare.AccessLevel = 'edit';
       relatedContactShares.add(relatedContactShare);
     }
-    System.debug('relatedContactShares: ' + relatedContactShares);
+
     try {
-      Database.SaveResult[] saveResult = Database.insert(relatedContactShares, false);
+      Database.SaveResult[] saveResult = Database.insert(relatedContactShares, true);
     } catch (Exception e) {
       LoggerUtility logger = new LoggerUtility();
       logger.error(e.getMessage(), null);
