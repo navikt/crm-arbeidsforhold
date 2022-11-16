@@ -75,7 +75,7 @@ export default class Aareg_home extends LightningElement {
       console.error(error);
     } finally {
       if (this.hasAccess) {
-        shareAgreementsWithUser();
+        shareAgreementsWithUser({ userId: this.currentUser });
       }
       this.isLoaded = true;
     }
@@ -98,7 +98,7 @@ export default class Aareg_home extends LightningElement {
     } finally {
       this.isLoaded = true;
       if (this.hasAccess) {
-        shareAgreementsWithUser();
+        shareAgreementsWithUser({ userId: this.currentUser });
       }
     }    
   }

@@ -55,4 +55,49 @@ public with sharing class AAREG_HomeControllerTest {
 
     System.assertEquals(orgNumber, updatedUser.LastUsedOrganization__c, 'Last used organization number updated.');
   }
+
+  @isTest
+  private static void testShareAgreementsWithUser() {
+    User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
+    Account acct = AAREG_TestDataFactory.getAccount();
+    insert acct;
+
+    Application__c application = AAREG_TestDataFactory.getApplication(acct.Id);
+    insert application;
+
+    Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id);
+    agreement.Application__c = application.Id;
+    insert agreement;
+
+    List<RelatedContact__c> contacts = new List<RelatedContact__c>();
+    RelatedContact__c contact = AAREG_TestDataFactory.getRelatedContact();
+    RelatedContact__c contactTwo = AAREG_TestDataFactory.getRelatedContact();
+    contact.Agreement__c = agreement.Id;
+    contactTwo.Agreement__c = agreement.Id;
+    contacts.add(contact);
+    contacts.add(contactTwo);
+
+    insert contacts;
+
+    Test.startTest();
+    AAREG_HomeController.shareAgreementsWithUser(user.Id);
+    Test.stopTest();
+
+    List<Agreement__Share> sharedAgreements = [
+      SELECT Id
+      FROM Agreement__Share
+      WHERE UserOrGroupId = :user.Id
+    ];
+    List<RelatedContact__Share> sharedRelatedContacts = [
+      SELECT Id
+      FROM RelatedContact__Share
+      WHERE UserOrGroupId = :user.Id
+    ];
+
+    System.debug('sharedAgreements: ' + sharedAgreements);
+    System.debug('sharedRelatedContacts: ' + sharedRelatedContacts);
+
+    System.assertEquals(1, sharedAgreements.size(), '1 Shared agreement records not created.');
+    System.assertEquals(2, sharedRelatedContacts.size(), '2 Shared related contact records not created.');
+  }
 }

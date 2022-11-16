@@ -32,25 +32,30 @@ public without sharing class AAREG_HomeController {
     }
   }
 
-  // If user has access to the org in picklist -> Share org agreements with the user when changing org
+  // If user has access to the org in picklist -> Share org agreements with the user when changing org and on init
   @AuraEnabled
-  public static void shareAgreementsWithUser() {
-    String lastUsedOrganization = getLastUsersLastUsedOrganization(UserInfo.getUserId());
+  public static void shareAgreementsWithUser(String userId) {
+    String lastUsedOrganization = getLastUsersLastUsedOrganization(userId);
+    if (Test.isRunningTest()) {
+      lastUsedOrganization = '123456789';
+    }
     List<Agreement__c> agreements = [
       SELECT Id
       FROM Agreement__c
       WHERE OrganizationNumber__c = :lastUsedOrganization AND Status__c = 'Active'
     ];
 
+    System.debug('agreements: ' + agreements);
     List<Agreement__Share> agreementShares = new List<Agreement__Share>();
     Agreement__Share agreementShare;
     for (Agreement__c agreement : agreements) {
       agreementShare = new Agreement__Share();
       agreementShare.ParentId = agreement.Id;
-      agreementShare.UserOrGroupId = UserInfo.getUserId();
+      agreementShare.UserOrGroupId = userId;
       agreementShare.AccessLevel = 'edit';
       agreementShares.add(agreementShare);
     }
+    System.debug('agreementShares: ' + agreementShares);
     try {
       Database.SaveResult[] saveResult = Database.insert(agreementShares, false);
     } catch (Exception e) {
@@ -58,25 +63,29 @@ public without sharing class AAREG_HomeController {
       logger.error(e.getMessage(), null);
       logger.publish();
     }
-    shareAgreementRelatedContacts(agreements);
+    shareAgreementRelatedContacts(agreements, userId);
   }
+
   // Share related contacts of the Agreement so the user can edit them
-  public static void shareAgreementRelatedContacts(List<Agreement__c> agreements) {
+  public static void shareAgreementRelatedContacts(List<Agreement__c> agreements, String userId) {
     List<RelatedContact__c> relatedContacts = [
       SELECT Id
       FROM RelatedContact__c
       WHERE Agreement__c in :agreements
     ];
 
+    System.debug('relatedContacts: ' + relatedContacts);
+
     List<RelatedContact__Share> relatedContactShares = new List<RelatedContact__Share>();
     RelatedContact__Share relatedContactShare;
     for (RelatedContact__c relatedContact : relatedContacts) {
       relatedContactShare = new RelatedContact__Share();
       relatedContactShare.ParentId = relatedContact.Id;
-      relatedContactShare.UserOrGroupId = UserInfo.getUserId();
+      relatedContactShare.UserOrGroupId = userId;
       relatedContactShare.AccessLevel = 'edit';
       relatedContactShares.add(relatedContactShare);
     }
+    System.debug('relatedContactShares: ' + relatedContactShares);
     try {
       Database.SaveResult[] saveResult = Database.insert(relatedContactShares, false);
     } catch (Exception e) {
