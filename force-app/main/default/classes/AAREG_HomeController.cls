@@ -84,7 +84,7 @@ public without sharing class AAREG_HomeController {
     }
 
     try {
-      Database.SaveResult[] saveResult = Database.insert(relatedContactShares, true);
+      Database.SaveResult[] saveResult = Database.insert(relatedContactShares, false);
     } catch (Exception e) {
       LoggerUtility logger = new LoggerUtility();
       logger.error(e.getMessage(), null);
