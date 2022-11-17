@@ -40,7 +40,7 @@ public without sharing class AAREG_HomeController {
       lastUsedOrganization = '123456789';
     }
     List<Agreement__c> agreements = [
-      SELECT Id
+      SELECT Id, OwnerId
       FROM Agreement__c
       WHERE OrganizationNumber__c = :lastUsedOrganization AND Status__c = 'Active'
     ];
@@ -48,6 +48,9 @@ public without sharing class AAREG_HomeController {
     List<Agreement__Share> agreementShares = new List<Agreement__Share>();
     Agreement__Share agreementShare;
     for (Agreement__c agreement : agreements) {
+      if (agreement.OwnerId == userId) {
+        continue; // Do not create Apex Sharing record if user is already owner
+      }
       agreementShare = new Agreement__Share();
       agreementShare.ParentId = agreement.Id;
       agreementShare.UserOrGroupId = userId;
@@ -68,7 +71,7 @@ public without sharing class AAREG_HomeController {
   // Share related contacts of the Agreement so the user can edit them
   public static void shareAgreementRelatedContacts(List<Agreement__c> agreements, String userId) {
     List<RelatedContact__c> relatedContacts = [
-      SELECT Id
+      SELECT Id, OwnerId
       FROM RelatedContact__c
       WHERE Agreement__c in :agreements
     ];
@@ -76,6 +79,9 @@ public without sharing class AAREG_HomeController {
     List<RelatedContact__Share> relatedContactShares = new List<RelatedContact__Share>();
     RelatedContact__Share relatedContactShare;
     for (RelatedContact__c relatedContact : relatedContacts) {
+      if (relatedContact.OwnerId == userId) {
+        continue; // Do not create Apex Sharing record if user is already owner
+      }
       relatedContactShare = new RelatedContact__Share();
       relatedContactShare.ParentId = relatedContact.Id;
       relatedContactShare.UserOrGroupId = userId;
