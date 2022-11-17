@@ -1,8 +1,9 @@
 import { LightningElement, track } from 'lwc';
 import Id from '@salesforce/user/Id';
-import getLastUsersLastUsedOrganiation from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganiation';
+import getLastUsersLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganization';
 import getOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.getOrganizationsWithRoles';
 import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.updateLastUsedOrganization';
+import shareAgreementsWithUser from '@salesforce/apex/AAREG_HomeController.shareAgreementsWithUser';
 import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
 
 export default class Aareg_home extends LightningElement {
@@ -52,7 +53,7 @@ export default class Aareg_home extends LightningElement {
         }
       });
 
-      await getLastUsersLastUsedOrganiation({ userId: this.currentUser }).then((result) => {
+      await getLastUsersLastUsedOrganization({ userId: this.currentUser }).then((result) => {
         this.lastUsedOrganization = result;
         this.sortOrganizations();
       });
@@ -73,6 +74,9 @@ export default class Aareg_home extends LightningElement {
     } catch (error) {
       console.error(error);
     } finally {
+      if (this.hasAccess) {
+        shareAgreementsWithUser({ userId: this.currentUser });
+      }
       this.isLoaded = true;
     }
   }
@@ -93,6 +97,9 @@ export default class Aareg_home extends LightningElement {
       console.error(error);
     } finally {
       this.isLoaded = true;
+      if (this.hasAccess) {
+        shareAgreementsWithUser({ userId: this.currentUser });
+      }
     }    
   }
 
