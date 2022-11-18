@@ -126,9 +126,13 @@
     <formFactor>Small</formFactor>
     <type>Default</type>
   </actionOverrides>
-
   <actionOverrides>
     <actionName>View</actionName>
+    <type>Default</type>
+  </actionOverrides>
+  <actionOverrides>
+    <actionName>View</actionName>
+    <formFactor>Large</formFactor>
     <type>Default</type>
   </actionOverrides>
   <actionOverrides>
@@ -139,6 +143,7 @@
   <allowInChatterGroups>false</allowInChatterGroups>
   <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
   <deploymentStatus>Deployed</deploymentStatus>
+  <deprecated>false</deprecated>
   <description>Used in connection with the Aa-registeret application process to provide relevant values to choose when entering an application basis.</description>
   <enableActivities>false</enableActivities>
   <enableBulkApi>true</enableBulkApi>
@@ -157,7 +162,7 @@
     <type>AutoNumber</type>
   </nameField>
   <pluralLabel>Application Basis Codes</pluralLabel>
-  <searchLayouts />
-  <sharingModel>ReadWrite</sharingModel>
+  <searchLayouts></searchLayouts>
+  <sharingModel>Private</sharingModel>
   <visibility>Public</visibility>
 </CustomObject>
