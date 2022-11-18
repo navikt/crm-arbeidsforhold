@@ -3,6 +3,12 @@
     <template if:true={organization}>
       <template if:false={applicationSubmitted}>
         <div class="container" if:true={isLoaded}>
+          <c-alertdialog
+            content="Dine endringer er lagret."
+            desktop-style="text-align: center;"
+            center-buttons="true"
+            no-cancel-button="true">
+          </c-alertdialog>
           <div class="breadcrumbs">
             <c-breadcrumbs url-list={breadcrumbs} num-pops={numPops}></c-breadcrumbs>
           </div>

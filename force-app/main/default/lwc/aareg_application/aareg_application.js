@@ -49,6 +49,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     currentPageReference;
 
   connectedCallback() {
+    console.log('connected');
     this.init();
     this.setBreadcrumbs();
   }
@@ -274,6 +275,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   handleSaveAsDraft(event) {
     event.preventDefault();
+    let isSaved = true;
     this.isLoaded = false;
     let draftContacts = this.contactRows.filter((el) => el.Name !== null && el.Name !== '');
     saveAsDraft({
@@ -283,9 +285,11 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     })
       .then((result) => {
         if (this.isEdit) {
-          this.navigateToApplication(result, 'edit');
+          console.log(this.isEdit);
+          // TODO: Send boolean for save button pressed here. Handle in rendered and show modal.
+          this.navigateToApplication(result, 'edit', isSaved);
         } else {
-          this.navigateToApplication(result, 'default');
+          this.navigateToApplication(result, 'default', isSaved);
         }
       })
       .catch((error) => {
@@ -342,7 +346,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   /*************** Navigation ***************/
 
-  navigateToApplication(applicationId, type) {
+  navigateToApplication(applicationId, type, isSaved) {
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',
       attributes: {
@@ -353,8 +357,14 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       state: {
         c__applicationType: type,
         c__isDraft: this.isDraft,
+        c__isSaved: isSaved,
       }
     });
+  }
+
+  showModal() {
+    console.log('showModal');
+    this.template.querySelector('c-alertdialog').showModal();
   }
 
   /*************** Change handlers ***************/
@@ -470,6 +480,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   }
 
   renderedCallback() {
+    console.log('rendered');
     this.email = this.template.querySelector('[data-id="Email__c"]');
     this.contacts = this.template.querySelector('[data-id="contacts"]');
     this.apiAccess = this.template.querySelector('[data-id="APIAccess__c"]');
@@ -481,6 +492,11 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.termsOfUse = this.template.querySelector('[data-id="terms"]');
     this.termsOfUseInput = this.template.querySelector('[data-id="TermsOfUse__c"]');
     this.dataProcess = this.template.querySelector('[data-id="data-processor"]');
+    if (this.currentPageReference.state.c__isSaved && this.isLoaded === true && this.template.querySelector('c-alertdialog') !== undefined 
+    && this.template.querySelector('c-alertdialog') !== null) {
+      console.log('isSaved');
+      this.showModal();
+    }
   }
 
   checkApplicationInputs() {
