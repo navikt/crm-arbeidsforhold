@@ -57,15 +57,20 @@ export default class aareg_applicationContact extends LightningElement {
   @api
   validate() {
     this.resetErrors();
+    let error = false;
     if (this.checkNulls(this.contact.Name)) {
       this.setErrorFor(this.name, 'Obligatorisk');
+      error = true;
     }
     if (validateEmail(this.contact.Email__c)) {
       this.setErrorFor(this.email, 'E-post må være gyldig format.');
+      error = true;
     }
     if (this.checkFieldLength(this.contact.Phone__c)) {
-      this.setErrorFor(this.phone, 'Nummer må være 8 siffer.')
+      this.setErrorFor(this.phone, 'Nummer må være 8 siffer.');
+      error = true;
     }
+    return error;
   }
 
   @api focusInput() {
