@@ -4,8 +4,10 @@
       <template if:false={applicationSubmitted}>
         <div class="container" if:true={isLoaded}>
           <c-alertdialog
-            content="Dine endringer er lagret."
-            desktop-style="text-align: center;"
+            header={header}
+            content={content}
+            desktop-style="text-align: center; width: 50%"
+            mobile-style="text-align: center; max-width: 100%"
             center-buttons="true"
             no-cancel-button="true">
           </c-alertdialog>
@@ -469,24 +471,24 @@
                 bindende.
               </p>
               <div class="button-container save-submit">
-                <button
-                  type="submit"
-                  name="lagre"
-                  class="button button-flat"
-                  onclick={handleSaveAsDraft}
-                  style="margin: 10px"
-                >
-                  Lagre
-                </button>
-                <button
-                  type="submit"
-                  name="Send inn"
-                  class="button button-main"
-                  onclick={handleSubmit}
-                  style="margin: 10px"
-                >
-                  Send inn
-                </button>
+                <c-button
+                    class="send-inn-button"
+                    button-styling="Secondary"
+                    button-label="Lagre"
+                    type="submit"
+                    onbuttonclick={handleSaveAsDraft}
+                    desktop-style="width: 8rem; justify-content: center; margin-right: 2rem;"
+                    mobile-style="width: 8rem; justify-content: center; margin-right: 1rem;"
+                ></c-button>
+                <c-button
+                    class="send-inn-button"
+                    button-styling="Primary"
+                    button-label="Send inn"
+                    type="submit"
+                    onbuttonclick={handleSubmit}
+                    desktop-style="width: 8rem; justify-content: center"
+                    mobile-style="width: 8rem; justify-content: center"
+                ></c-button>
               </div>
             </section>
           </form>

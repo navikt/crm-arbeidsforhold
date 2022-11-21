@@ -110,7 +110,6 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
     } else {
       this.isLoading = false;
     }
-    
   }
 
   handleAgreementCancellation() {

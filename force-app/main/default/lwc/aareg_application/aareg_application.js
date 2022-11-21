@@ -49,7 +49,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     currentPageReference;
 
   connectedCallback() {
-    console.log('connected');
     this.init();
     this.setBreadcrumbs();
   }
@@ -275,7 +274,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   handleSaveAsDraft(event) {
     event.preventDefault();
-    let isSaved = true;
     this.isLoaded = false;
     let draftContacts = this.contactRows.filter((el) => el.Name !== null && el.Name !== '');
     saveAsDraft({
@@ -284,12 +282,11 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       relatedContacts: draftContacts
     })
       .then((result) => {
+        sessionStorage.setItem('isSaved', 'true');
         if (this.isEdit) {
-          console.log(this.isEdit);
-          // TODO: Send boolean for save button pressed here. Handle in rendered and show modal.
-          this.navigateToApplication(result, 'edit', isSaved);
+          this.navigateToApplication(result, 'edit', ''); // Edit existing Application
         } else {
-          this.navigateToApplication(result, 'default', isSaved);
+          this.navigateToApplication(result, 'default', ''); // Edit new Application
         }
       })
       .catch((error) => {
@@ -323,7 +320,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     })
       .then((result) => {
         if (this.application.Status__c === 'Additional Information Required') {
-          this.navigateToApplication(result, 'view');
+          this.navigateToApplication(result, 'view', 'AIR');
         }
         this.applicationSubmitted = true;
       })
@@ -346,7 +343,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   /*************** Navigation ***************/
 
-  navigateToApplication(applicationId, type, isSaved) {
+  navigateToApplication(applicationId, type, status) {
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',
       attributes: {
@@ -357,13 +354,12 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       state: {
         c__applicationType: type,
         c__isDraft: this.isDraft,
-        c__isSaved: isSaved,
+        c__status: status,
       }
     });
   }
 
   showModal() {
-    console.log('showModal');
     this.template.querySelector('c-alertdialog').showModal();
   }
 
@@ -479,8 +475,9 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     }
   }
 
+  content = 'Dine endringer er lagret.';
+  header = '';
   renderedCallback() {
-    console.log('rendered');
     this.email = this.template.querySelector('[data-id="Email__c"]');
     this.contacts = this.template.querySelector('[data-id="contacts"]');
     this.apiAccess = this.template.querySelector('[data-id="APIAccess__c"]');
@@ -492,10 +489,17 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.termsOfUse = this.template.querySelector('[data-id="terms"]');
     this.termsOfUseInput = this.template.querySelector('[data-id="TermsOfUse__c"]');
     this.dataProcess = this.template.querySelector('[data-id="data-processor"]');
-    if (this.currentPageReference.state.c__isSaved && this.isLoaded === true && this.template.querySelector('c-alertdialog') !== undefined 
-    && this.template.querySelector('c-alertdialog') !== null) {
-      console.log('isSaved');
-      this.showModal();
+    if (this.isLoaded === true && this.template.querySelector('c-alertdialog') !== undefined && this.template.querySelector('c-alertdialog') !== null) {
+      if (this.currentPageReference.state.c__status === 'AIR') {
+        this.header = 'Søknad redigert';
+        this.content = 'Søknaden er redigert og sendt inn.';
+        this.showModal();
+      } else if (sessionStorage.getItem('isSaved') === 'true') {
+        this.header = 'Søknad lagret';
+        this.content = 'Dine endringer er lagret.';
+        this.showModal();
+        sessionStorage.setItem('isSaved', 'false');
+      } 
     }
   }
 
