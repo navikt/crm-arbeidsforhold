@@ -444,9 +444,9 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     let securityNotification = 0;
 
     let cons = this.template.querySelectorAll('c-aareg_application-contact');
-
+    let error = false;
     cons.forEach((con) => {
-      con.validate();
+      error += con.validate();
     });
 
     this.contactRows.forEach((contact) => {
@@ -472,6 +472,9 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       this.setErrorFor(this.contacts, 'Det må oppgis minimum en kontaktperson per type varsling.');
     } else {
       this.missingContactNotifications = false;
+    }
+    if (error) {
+      this.hasErrors = true;
     }
   }
 
