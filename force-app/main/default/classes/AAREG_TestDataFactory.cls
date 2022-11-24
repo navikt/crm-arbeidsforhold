@@ -24,7 +24,8 @@ public with sharing class AAREG_TestDataFactory {
       Status__c = 'Active',
       APIAccess__c = true,
       OnlineAccess__c = true,
-      ExtractionAccess__c = true
+      ExtractionAccess__c = true,
+      EventAccess__c = true
     );
     return agreement;
   }
