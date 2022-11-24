@@ -1,47 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>AA_AccessTypes__c</fullName>
-    <externalId>false</externalId>
-    <label>Access Types</label>
-    <required>false</required>
-    <trackHistory>false</trackHistory>
-    <trackTrending>false</trackTrending>
-    <type>MultiselectPicklist</type>
-    <valueSet>
-        <restricted>true</restricted>
-        <valueSetDefinition>
-            <sorted>false</sorted>
-            <value>
-                <fullName>Access API</fullName>
-                <default>false</default>
-                <label>Access API</label>
-            </value>
-            <value>
-                <fullName>Access API with dataprocessor</fullName>
-                <default>false</default>
-                <label>Access API with dataprocessor</label>
-            </value>
-            <value>
-                <fullName>Access OTP</fullName>
-                <default>false</default>
-                <label>Access OTP</label>
-            </value>
-            <value>
-                <fullName>Access OTP with dataprocessor</fullName>
-                <default>false</default>
-                <label>Access OTP with dataprocessor</label>
-            </value>
-            <value>
-                <fullName>Access Online</fullName>
-                <default>false</default>
-                <label>Access Online</label>
-            </value>
-            <value>
-                <fullName>Extract</fullName>
-                <default>false</default>
-                <label>Extract</label>
-            </value>
-        </valueSetDefinition>
-    </valueSet>
-    <visibleLines>4</visibleLines>
+  <fullName>AA_AccessTypes__c</fullName>
+  <deprecated>false</deprecated>
+  <externalId>false</externalId>
+  <label>Access Types</label>
+  <required>false</required>
+  <trackHistory>false</trackHistory>
+  <trackTrending>false</trackTrending>
+  <type>MultiselectPicklist</type>
+  <valueSet>
+    <restricted>true</restricted>
+    <valueSetDefinition>
+      <sorted>false</sorted>
+      <value>
+        <fullName>Access API</fullName>
+        <default>false</default>
+        <label>Access API</label>
+      </value>
+      <value>
+        <fullName>Access API with dataprocessor</fullName>
+        <default>false</default>
+        <label>Access API with dataprocessor</label>
+      </value>
+      <value>
+        <fullName>Access OTP</fullName>
+        <default>false</default>
+        <label>Access OTP</label>
+      </value>
+      <value>
+        <fullName>Access OTP with dataprocessor</fullName>
+        <default>false</default>
+        <label>Access OTP with dataprocessor</label>
+      </value>
+      <value>
+        <fullName>Access Online</fullName>
+        <default>false</default>
+        <label>Access Online</label>
+      </value>
+      <value>
+        <fullName>Extract</fullName>
+        <default>false</default>
+        <label>Extract</label>
+      </value>
+      <value>
+        <fullName>Event</fullName>
+        <default>false</default>
+        <label>Event</label>
+      </value>
+    </valueSetDefinition>
+  </valueSet>
+  <visibleLines>4</visibleLines>
 </CustomField>
