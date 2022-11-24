@@ -1,14 +1,12 @@
 global class AAREG_MultiSelectFlowValues {
-   @InvocableMethod
-   public static List<list<string>> CheckSelectedValues(List<String> values) {
-      if(!(values.isEmpty())){
-          string tempStr = values[0];
-          List<String> lstnew = tempStr.split(';');
-          list<list<string>> finalLst = new list<list<string>>();
-          finalLst.add(lstnew);
-          System.debug(finalLst);
-          return finalLst;   
-      }
-      else return null;
-   }
+  @InvocableMethod
+  public static List<List<String>> checkSelectedValues(List<String> values) {
+    if (values.isEmpty()) {
+      return null;
+    }
+    List<String> newList = values[0].split(';');
+    List<List<String>> finalList = new List<List<String>>();
+    finalList.add(newList);
+    return finalList;
+  }
 }
