@@ -8,6 +8,7 @@ import DECISION from '@salesforce/schema/Agreement__c.Decision__c';
 import API_ACCESS from '@salesforce/schema/Agreement__c.APIAccess__c';
 import ACCOUNT_NAME from '@salesforce/schema/Agreement__c.AccountName__c';
 import ONLINE_ACCESS from '@salesforce/schema/Agreement__c.OnlineAccess__c';
+import EVENT_ACCESS from '@salesforce/schema/Agreement__c.EventAccess__c';
 import EXTRACTION_ACCESS from '@salesforce/schema/Agreement__c.ExtractionAccess__c';
 import ORGANIZATION_NUMBER from '@salesforce/schema/Agreement__c.OrganizationNumber__c';
 import DATA_PROCESSOR_NAME from '@salesforce/schema/Agreement__c.DataProcessorName__c';
@@ -24,6 +25,7 @@ const AGREEMENT_FIELDS = [
   API_ACCESS,
   ACCOUNT_NAME,
   ONLINE_ACCESS,
+  EVENT_ACCESS,
   EXTRACTION_ACCESS,
   DATA_PROCESSOR_NAME,
   ORGANIZATION_NUMBER,
@@ -278,6 +280,10 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
 
   get onlineAccess() {
     return getFieldValue(this.agreement, ONLINE_ACCESS);
+  }
+
+  get eventAccess() {
+    return getFieldValue(this.agreement, EVENT_ACCESS);
   }
 
   get extractionAccess() {

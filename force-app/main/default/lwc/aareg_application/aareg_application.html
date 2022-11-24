@@ -316,6 +316,26 @@
                     </lightning-helptext>
                   </label>
                 </span>
+
+                <span class="form-control">
+                  <input
+                    type="checkbox"
+                    name="type tilgang hendelser"
+                    id="tilgang-hendelser"
+                    data-id="EventAccess__c"
+                    disabled={isReadOnly}
+                    checked={application.EventAccess__c}
+                    onchange={handleCheckboxChange}
+                  />
+                  <label for="tilgang-hendelser"
+                    >Hendelser
+                    <lightning-helptext
+                      content="Hendelser placeholder tekst"
+                      class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
+                  </label>
+                </span>
               </div>
             </section>
             <section class="app-section">
