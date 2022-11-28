@@ -1,5 +1,5 @@
 # crm-arbeidsforhold
-Denne pakken inneholder Salesforce metadata som støtter arbeidet NAV gjør rundt Aa-registeret. Løsningen er utviklet av Team Arbeidsforhold og omfatter søknader, avtaler, support, dialog og Experience Cloud i forbindelse med Aa-registeret.
+Denne pakken inneholder Salesforce metadata som støtter arbeidet NAV gjør rundt Aa-registeret. Løsningen er utviklet av Team Arbeidsforhold og omfatter blant annet Experience Cloud, support og dialogløsningen fra NKS, søknader og avtaler.
 
 ## Avhengigheter
 
