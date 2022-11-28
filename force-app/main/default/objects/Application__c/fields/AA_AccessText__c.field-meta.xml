@@ -8,7 +8,7 @@
     IF(APIAccess__c        ,&quot;Integrert oppslag(API), &quot;,NULL) +
     IF(ExtractionAccess__c ,&quot;Uttrekk, &quot;,NULL)+
     IF(OnlineAccess__c     ,&quot;Web-oppslag, &quot;,NULL)+
-    IF(EventAccess__c,&quot;Hendelser &quot;,NULL)+ &quot;&quot;,
+    IF(EventAccess__c,&quot;Hendelser(API) &quot;,NULL)+ &quot;&quot;,
     &quot;,.&quot;,
     NULL)</formula>
   <label>AA_AccessText</label>
