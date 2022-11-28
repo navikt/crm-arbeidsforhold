@@ -1,15 +1,19 @@
 <template>
-  <div class="breadcrumbs">
-    <lightning-breadcrumbs>
-      <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
-      <lightning-breadcrumb label="Ny søknad" name="custom_ny_soknad_aa_registret__c" onclick={navigateToPage}>
-      </lightning-breadcrumb>
-    </lightning-breadcrumbs>
-  </div>
   <template if:true={hasAccess}>
     <template if:true={organization}>
       <template if:false={applicationSubmitted}>
         <div class="container" if:true={isLoaded}>
+          <c-alertdialog
+            header={header}
+            content={content}
+            desktop-style="text-align: center; width: 50%"
+            mobile-style="text-align: center; max-width: 100%"
+            center-buttons="true"
+            no-cancel-button="true">
+          </c-alertdialog>
+          <div class="breadcrumbs">
+            <c-breadcrumbs url-list={breadcrumbs} num-pops={numPops}></c-breadcrumbs>
+          </div>
           <form>
             <section class="app-section">
               <h2 class="header-with-info-text">Søker</h2>
@@ -95,7 +99,7 @@
                 <div class="column">
                   <span class="form-control" style="max-width: 65%">
                     <label for="epost">
-                      <abbr class="slds-required" title="required">* </abbr>
+                      <abbr if:false={isReadOnly} class="slds-required" title="Påkrevd felt">* </abbr>
                       E-post
                     </label>
                     <p class="pl-16 pb-10">
@@ -127,7 +131,7 @@
                 <h2>Endring på eksisterende søknad/avtale</h2>
               </span>
               <div class="inner-container">
-                <span class="form-control">
+                <span class="form-control" style="display: flex; flex-wrap: nowrap; align-items: center;">
                   <input
                   type="checkbox"
                   name="erEndring"
@@ -138,7 +142,7 @@
                   onchange={handleCheckboxChange}
                 />
                   <label for="erEndring">
-                    <abbr class="slds-required" title="required">* </abbr>
+                    <abbr if:true={isEditForCheckbox} class="slds-required" title="Påkrevd felt">* </abbr>
                     Huk av boksen hvis søknaden gjelder endring på eksisterende avtale/søknad.&nbsp;
                     </label
                   >
@@ -430,7 +434,7 @@
                       </div>
                     </div>
                   </div>
-                  <p if:true={fileData}>{fileData.filename}</p>
+                  <p if:true={fileData.filename}>Opplastet fil: {fileData.filename}</p>
                 </div>
               </div>
             </section>
@@ -454,7 +458,7 @@
                     required
                   />
                   <label for="terms-of-use">
-                    <abbr class="slds-required" title="required">* </abbr>
+                    <abbr if:false={isReadOnly} class="slds-required" title="Påkrevd felt">* </abbr>
                     Jeg har lest og godtar&nbsp;
                     <a target="_blank" rel="noopener noreferrer" href={termsOfUseURL}>bruksvilkårene. </a></label
                   >
@@ -467,24 +471,24 @@
                 bindende.
               </p>
               <div class="button-container save-submit">
-                <button
-                  type="submit"
-                  name="lagre"
-                  class="button button-flat"
-                  onclick={handleSaveAsDraft}
-                  style="margin: 10px"
-                >
-                  Lagre
-                </button>
-                <button
-                  type="submit"
-                  name="Send inn"
-                  class="button button-main"
-                  onclick={handleSubmit}
-                  style="margin: 10px"
-                >
-                  Send inn
-                </button>
+                <c-button
+                    class="send-inn-button"
+                    button-styling="Secondary"
+                    button-label="Lagre"
+                    type="submit"
+                    onbuttonclick={handleSaveAsDraft}
+                    desktop-style="width: 8rem; justify-content: center; margin-right: 2rem;"
+                    mobile-style="width: 8rem; justify-content: center; margin-right: 1rem;"
+                ></c-button>
+                <c-button
+                    class="send-inn-button"
+                    button-styling="Primary"
+                    button-label="Send inn"
+                    type="submit"
+                    onbuttonclick={handleSubmit}
+                    desktop-style="width: 8rem; justify-content: center"
+                    mobile-style="width: 8rem; justify-content: center"
+                ></c-button>
               </div>
             </section>
           </form>
@@ -492,10 +496,19 @@
       </template>
       <template if:true={applicationSubmitted}>
         <div class="submission-success">
-          <h2>
+          <h2 class="submission-success-h2">
             Din søknad om tilgang til Aa-registeret er mottatt. Vi behandler søknaden så raskt vi kan. Dere vil motta et
             svar senest innen 4 uker.
           </h2>
+          <button
+            type="button"
+            name="OK"
+            class="button button-main"
+            onclick={returnToHome}
+            style="margin: 10px"
+          >
+            OK
+          </button>
         </div>
       </template>
     </template>

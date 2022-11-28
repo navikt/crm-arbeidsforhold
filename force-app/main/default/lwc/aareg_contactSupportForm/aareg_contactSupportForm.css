@@ -120,12 +120,16 @@ ul:not(.browser-default) li {
   justify-content: center;
 }
 
+.submission-success-h2 {
+  padding-bottom: 2rem;
+}
+
 .support-form h1 {
   font-size: 2rem;
   font-weight: 600;
   font-family: inherit;
-  margin: 0.5rem;
   padding: 0.5rem;
+  margin: 0.5rem;
 }
 
 .form-control.error small {
@@ -143,4 +147,34 @@ ul:not(.browser-default) li {
   position: relative;
   bottom: 0;
   left: 0;
+}
+
+.breadcrumbs {
+  padding: 0.5rem;
+  padding-left: 1rem;
+}
+
+abbr {
+  border-bottom: none !important;
+  cursor: inherit !important;
+  text-decoration: none !important;
+}
+
+@media (max-width: 576px) {
+  .support-form h1 {
+      padding: 0;
+      margin: 0;
+      padding-bottom: 1rem;
+  }
+  .breadcrumbs {
+    padding: 1rem;
+  }
+  .slds-m-vertical_xx-large {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  .inner-container {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
 }

@@ -1,13 +1,10 @@
 <template>
-  <c-aareg_main-banner>Aa-registret Avtale {name}</c-aareg_main-banner>
+  <c-aareg_main-banner>Aa-registeret - Avtale {name}</c-aareg_main-banner>
   <div>
-    <div class="breadcrumbs">
-      <lightning-breadcrumbs>
-        <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
-        <lightning-breadcrumb label="Avtale" name="Agreement__c"> </lightning-breadcrumb>
-      </lightning-breadcrumbs>
-    </div>
     <div class="container">
+      <div style="padding: 0.5rem; padding-left: 54px; margin: 1rem;">
+        <c-breadcrumbs url-list={breadcrumbs} num-pops="3"></c-breadcrumbs>
+      </div>
       <div class="inner-container" if:false={showAgreementCancellationConfirmation}>
         <div class="slds-grid slds-grid_vertical">
           <div class="slds-col">
@@ -56,20 +53,20 @@
                 </div>
               </div>
               <div class="slds-grid slds-wrap section-info">
-                <div class="slds-col slds-size_1-of-3">
+                <div class="slds-col slds-size_3-of-3">
                   <span class="label">Virksomhetsnavn</span>
                   <span>{accountName}</span>
                 </div>
-                <div class="slds-col slds-size_2-of-3">
+                <div class="slds-col slds-size_3-of-3">
                   <span class="label">Organisasjonsnummer</span>
                   <span>{organizationNumber}</span>
                 </div>
-                <div class="slds-col slds-size_1-of-3">
+                <div class="slds-col slds-size_3-of-3">
                   <span class="label">Databehandler</span>
                   <span>{dataProcessorName}</span>
                 </div>
-                <div class="slds-col slds-size_2-of-3">
-                  <span class="label">Databehandler Organisasjonsnummer</span>
+                <div class="slds-col slds-size_3-of-3">
+                  <span class="label">Databehandlers organisasjonsnummer</span>
                   <span>{dataProcessorOrgNumber}</span>
                 </div>
               </div>
@@ -204,7 +201,7 @@
               <h2 class="header-with-info-text">Vedtak</h2>
               <p class="sub-title">
                 Her finner du vedtaket for denne avtalen.
-                <button type="button" name="se-vedtak" class="button button-flat" onclick={toggleDecision}>
+                <button type="button" name="se-vedtak" class="button button-flat vedtak-button" onclick={toggleDecision}>
                   Se vedtak
                 </button>
               </p>
@@ -212,7 +209,7 @@
           </div>
           <div class="slds-col">
             <div class="slds-align_absolute-center">
-              <button if:false={isReadOnly} type="submit" name="lagre" class="button button-flat" onclick={handleSave}>
+              <button if:false={isReadOnly} type="submit" name="lagre" class="button button-save" onclick={handleSave}>
                 Lagre
               </button>
               <button
@@ -222,7 +219,7 @@
                 class="button button-delete"
                 onclick={toggleEndAgreement}
               >
-                Avslutt Avtale
+                Avslutt avtale
               </button>
             </div>
           </div>
@@ -239,24 +236,6 @@
   <c-aareg_modal data-id="Decision-Modal">
     <section class="agreement-section">
       <p style="text-align: center;"><img src={navLogoUrl} style="width:150px;height:100px;"></p>
-    <div class="slds-grid slds-wrap section-info">
-      <div class="slds-col slds-size_1-of-1">
-        <span class="label">Virksomhet: </span>
-        <span>{accountName}</span>
-      </div>
-      <div class="slds-col slds-size_1-of-1">
-        <span class="label">Organisasjonsnummer: </span>
-        <span>{organizationNumber}</span>
-      </div>
-      <div class="slds-col slds-size_1-of-2">
-        <span class="label">Vedtaksdato: </span>
-        <span>{decisionDate}</span>
-      </div>
-      <div class="slds-col slds-size_1-of-2">
-        <span class="label">Avtale nummer: </span>
-        <span>{name}</span>
-      </div>
-    </div>
     <lightning-formatted-rich-text value={decision}></lightning-formatted-rich-text>
     </section>
   </c-aareg_modal>

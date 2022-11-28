@@ -19,12 +19,12 @@ select:invalid:required {
 }
 
 .form-control select:disabled {
-  background-color: #f1f1f1;
+  background-color: lightgray;
   font-weight: 600;
 }
 
 .form-control textArea:disabled {
-  background-color: #f1f1f1;
+  background-color: lightgray;
   font-weight: 600;
 }
 
@@ -59,6 +59,7 @@ select:invalid:required {
   width: 100%;
   margin: 0.5rem;
   display: block;
+  opacity: 100;
 }
 
 .form-control option {
@@ -112,4 +113,10 @@ select:invalid:required {
 .character-count {
   font-family: 'Source Sans Pro', Arial, sans-serif;
   margin-left: 0.5rem;
+}
+
+abbr {
+  border-bottom: none !important;
+  cursor: inherit !important;
+  text-decoration: none !important;
 }

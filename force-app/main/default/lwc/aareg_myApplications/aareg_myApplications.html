@@ -1,25 +1,39 @@
 <template>
-  <c-aareg_main-banner>Mine Søknader Aa-registret</c-aareg_main-banner>
+  <c-aareg_main-banner>Aa-registeret - Mine Søknader</c-aareg_main-banner>
   <div class="container">
     <div class="inner-container">
       <div class="breadcrumbs">
-        <lightning-breadcrumbs class="skjema-max-width">
-          <lightning-breadcrumb label="Min side" name="Home" onclick={navigateToPage}> </lightning-breadcrumb>
-          <lightning-breadcrumb label="Mine søknader" name="custom_mine_soknader__c" onclick={navigateToPage}>
-          </lightning-breadcrumb>
-        </lightning-breadcrumbs>
+        <c-breadcrumbs url-list={breadcrumbs}></c-breadcrumbs>
       </div>
-      <lightning-datatable
-        key-field="id"
-        data={applications}
-        columns={columns}
-        onrowaction={viewApplication}
-        hide-checkbox-column="true"
-      >
-      </lightning-datatable>
+      <div if:true={isMobile} style="height: 600px;">
+        <lightning-datatable
+          key-field="id"
+          data={applications}
+          class="slds-max-medium-table_stacked"
+          columns={columns}
+          onrowaction={handleRowAction}
+          hide-checkbox-column="true">
+        </lightning-datatable>
+      </div>
+      <div if:false={isMobile}>
+        <lightning-datatable
+          key-field="id"
+          data={applications}
+          columns={columns}
+          onrowaction={handleRowAction}
+          hide-checkbox-column="true">
+        </lightning-datatable>
+      </div>
       <div if:false={applications} class="no-applications-container">
         <p>Det finnes ingen aktive søknader.</p>
       </div>
     </div>
   </div>
+
+  <c-aareg_modal data-id="Decision-Modal">
+    <section>
+      <p style="text-align: center;"><img src={navLogoUrl} style="width:150px;height:100px;"></p>
+    <lightning-formatted-rich-text value={decision}></lightning-formatted-rich-text>
+    </section>
+  </c-aareg_modal>
 </template>

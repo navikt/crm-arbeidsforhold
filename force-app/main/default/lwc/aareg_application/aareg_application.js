@@ -1,5 +1,5 @@
-import { LightningElement, track, api } from 'lwc';
-import { NavigationMixin } from 'lightning/navigation';
+import { LightningElement, track, api, wire } from 'lwc';
+import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import processApplication from '@salesforce/apex/AAREG_ApplicationController.processApplication';
 import getLastUsedOrganizationInformation from '@salesforce/apex/AAREG_ApplicationController.getLastUsedOrganizationInformation';
@@ -8,6 +8,7 @@ import getAccountNameByOrgNumber from '@salesforce/apex/AAREG_ApplicationControl
 import deleteDraftRecord from '@salesforce/apex/AAREG_ApplicationController.deleteDraftRecord';
 import saveAsDraft from '@salesforce/apex/AAREG_ApplicationController.saveAsDraft';
 import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
+import { validateEmail } from 'c/aareg_helperClass';
 
 export default class Aareg_application extends NavigationMixin(LightningElement) {
   @api recordId;
@@ -28,9 +29,69 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   erEndring = false;
   fileData = { base64: null, filename: null };
   error;
+  @track numPops = 3;
+  breadcrumbs = [
+    {
+      label: 'Min side',
+      href: ''
+    },
+    {
+      label: 'Mine søknader',
+      href: 'mine-soknader'
+    },
+    {
+      label: 'Se søknad',
+      href: 'soknad'
+    }
+  ];
+
+  @wire(CurrentPageReference)
+    currentPageReference;
 
   connectedCallback() {
     this.init();
+    this.setBreadcrumbs();
+  }
+
+  get isEditForCheckbox() {
+    return this.isEdit && !this.isDraft;
+  }
+  isEdit = false;
+  isDraft = false;
+  setBreadcrumbs() {
+    if (this.currentPageReference.state.c__applicationType !== 'view' && this.currentPageReference.state.c__applicationType !== 'edit') {
+      this.isEdit = false;
+      this.breadcrumbs = [
+        {
+          label: 'Min side',
+          href: ''
+        },
+        {
+          label: 'Ny søknad',
+          href: 'soknad'
+        }
+      ];
+      this.currentPageReference.state.c__applicationType === 'default' ? this.numPops = 3 : this.numPops = 1;
+    }
+    if (this.currentPageReference.state.c__applicationType === 'edit') {
+      this.isDraft = this.currentPageReference.state.c__isDraft == 'true';
+      this.isEdit = true;
+      this.breadcrumbs = [
+        {
+          label: 'Min side',
+          href: ''
+        },
+        {
+          label: 'Mine søknader',
+          href: 'mine-soknader'
+        },
+        {
+          label: this.isDraft ? 'Utkast' : 'Rediger søknad',
+          href: 'soknad'
+        }
+      ];
+      this.numPops = 3;
+    }
   }
 
   async init() {
@@ -215,14 +276,18 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     event.preventDefault();
     this.isLoaded = false;
     let draftContacts = this.contactRows.filter((el) => el.Name !== null && el.Name !== '');
-
     saveAsDraft({
       application: this.application,
       basisCode: this.applicationBasisRows,
       relatedContacts: draftContacts
     })
       .then((result) => {
-        this.navigateToApplication(result);
+        sessionStorage.setItem('isSaved', 'true');
+        if (this.isEdit) {
+          this.navigateToApplication(result, 'edit', ''); // Edit existing Application
+        } else {
+          this.navigateToApplication(result, 'default', ''); // Edit new Application
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -243,6 +308,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       this.focusInput();
       return;
     }
+    window.scrollTo(0, 0);
     this.isLoaded = false;
     const { base64, filename } = this.fileData;
     processApplication({
@@ -254,7 +320,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     })
       .then((result) => {
         if (this.application.Status__c === 'Additional Information Required') {
-          this.navigateToApplication(result);
+          this.navigateToApplication(result, 'view', 'AIR');
         }
         this.applicationSubmitted = true;
       })
@@ -266,27 +332,35 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       });
   }
 
+  returnToHome() {
+    this[NavigationMixin.Navigate]({
+      type: 'standard__namedPage',
+      attributes: {
+          pageName: 'home'
+      },
+    });
+  }
+
   /*************** Navigation ***************/
 
-  navigateToApplication(applicationId) {
+  navigateToApplication(applicationId, type, status) {
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',
       attributes: {
         recordId: applicationId,
         objectApiName: 'Application__c',
         actionName: 'view'
+      },
+      state: {
+        c__applicationType: type,
+        c__isDraft: this.isDraft,
+        c__status: status,
       }
     });
   }
 
-  navigateToPage(event) {
-    const page = event.target.name;
-    this[NavigationMixin.Navigate]({
-      type: 'comm__namedPage',
-      attributes: {
-        name: page
-      }
-    });
+  showModal() {
+    this.template.querySelector('c-alertdialog').showModal();
   }
 
   /*************** Change handlers ***************/
@@ -370,9 +444,9 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     let securityNotification = 0;
 
     let cons = this.template.querySelectorAll('c-aareg_application-contact');
-
+    let error = false;
     cons.forEach((con) => {
-      con.validate();
+      error += con.validate();
     });
 
     this.contactRows.forEach((contact) => {
@@ -399,8 +473,13 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     } else {
       this.missingContactNotifications = false;
     }
+    if (error) {
+      this.hasErrors = true;
+    }
   }
 
+  content = 'Dine endringer er lagret.';
+  header = '';
   renderedCallback() {
     this.email = this.template.querySelector('[data-id="Email__c"]');
     this.contacts = this.template.querySelector('[data-id="contacts"]');
@@ -413,14 +492,25 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.termsOfUse = this.template.querySelector('[data-id="terms"]');
     this.termsOfUseInput = this.template.querySelector('[data-id="TermsOfUse__c"]');
     this.dataProcess = this.template.querySelector('[data-id="data-processor"]');
+    if (this.isLoaded === true && this.template.querySelector('c-alertdialog') !== undefined && this.template.querySelector('c-alertdialog') !== null) {
+      if (this.currentPageReference.state.c__status === 'AIR') {
+        this.header = 'Søknad redigert';
+        this.content = 'Søknaden er redigert og sendt inn.';
+        this.showModal();
+      } else if (sessionStorage.getItem('isSaved') === 'true') {
+        this.header = 'Søknad lagret';
+        this.content = 'Dine endringer er lagret.';
+        this.showModal();
+        sessionStorage.setItem('isSaved', 'false');
+      } 
+    }
   }
 
   checkApplicationInputs() {
-    if (this.application.Email__c === null || this.application.Email__c === '') {
-      this.setErrorFor(this.email, 'Obligatorisk.');
+    if (validateEmail(this.application.Email__c)) {
+      this.setErrorFor(this.email, 'E-post må være gyldig format.');
       this.email.className = 'invalid';
     }
-
     if (
       this.application.APIAccess__c === false &&
       this.application.ExtractionAccess__c === false &&

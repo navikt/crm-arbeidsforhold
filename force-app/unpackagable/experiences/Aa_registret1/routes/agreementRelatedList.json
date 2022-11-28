@@ -1,11 +1,11 @@
 {
-  "activeViewId": "8bb9916b-445b-403c-9539-c9d19cc91cbe",
-  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
-  "configurationTags": [],
-  "id": "59d0ea7e-7a96-4695-b5bc-887573123436",
-  "label": "Agreement Related List",
-  "objectApiName": "Agreement__c",
-  "routeType": "relatedlist-a0U",
-  "type": "route",
-  "urlPrefix": "agreement"
+  "activeViewId" : "cfd8f1e8-4036-455a-8c2d-2aa7cc7f71ed",
+  "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
+  "configurationTags" : [ ],
+  "id" : "787c4ecb-e26d-458d-91f2-9acf99c432ed",
+  "label" : "Agreement Related List",
+  "objectApiName" : "Agreement__c",
+  "routeType" : "relatedlist-a1a",
+  "type" : "route",
+  "urlPrefix" : "agreement"
 }

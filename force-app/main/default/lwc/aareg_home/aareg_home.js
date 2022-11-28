@@ -1,18 +1,19 @@
 import { LightningElement, track } from 'lwc';
 import Id from '@salesforce/user/Id';
-import getLastUsersLastUsedOrganiation from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganiation';
+import getLastUsersLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganization';
 import getOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.getOrganizationsWithRoles';
 import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.updateLastUsedOrganization';
+import shareAgreementsWithUser from '@salesforce/apex/AAREG_HomeController.shareAgreementsWithUser';
 import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
 
 export default class Aareg_home extends LightningElement {
   @track organizations;
-  @track error;
   isLoaded = false;
   hasApplicationAccess = false;
   hasAccess = false;
   lastUsedOrganization;
   currentUser = Id;
+  showError = false;
 
   noAccessOrgForms = [
     'AAFY',
@@ -48,23 +49,34 @@ export default class Aareg_home extends LightningElement {
             (el) => !this.noAccessOrgForms.includes(el.OrganizationForm)
           );
         } else {
-          throw `Failed to get Organizaions ${result.errorMessage}`;
+          throw `Failed to get organizations ${result.errorMessage}`;
         }
       });
 
-      await getLastUsersLastUsedOrganiation({ userId: this.currentUser }).then((result) => {
+      await getLastUsersLastUsedOrganization({ userId: this.currentUser }).then((result) => {
         this.lastUsedOrganization = result;
+        this.sortOrganizations();
       });
-
-      this.sortOrganizations();
+      // Avoid doing callout on every ConnectedCallback
+      // Check current user as well to avoid user being logged in on two different users in same session to get access
+      if (sessionStorage.getItem('currentUser') === this.currentUser && (sessionStorage.getItem('hasApplicationAccess') === 'true' || sessionStorage.getItem('hasAccess') === 'true')) {
+        if (sessionStorage.getItem('hasApplicationAccess') === 'true') {
+          this.hasApplicationAccess = true;
+        }
+        if (sessionStorage.getItem('hasAccess') === 'true') {
+          this.hasAccess = true;
+        }
+        return;
+      }
 
       await this.checkAccessToApplication('5719');
-
       if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5441');
     } catch (error) {
-      this.error = error;
       console.error(error);
     } finally {
+      if (this.hasAccess) {
+        shareAgreementsWithUser({ userId: this.currentUser });
+      }
       this.isLoaded = true;
     }
   }
@@ -72,20 +84,23 @@ export default class Aareg_home extends LightningElement {
   async handleOrganizationChange(event) {
     this.isLoaded = false;
     this.hasAccess = false;
+    this.hasApplicationAccess = false;
     this.lastUsedOrganization = event.target.value;
-    updateLastUsedOrganization({ organizationNumber: this.lastUsedOrganization, userId: this.currentUser })
-      .then((result) => {
+    try {
+      await updateLastUsedOrganization({ organizationNumber: this.lastUsedOrganization, userId: this.currentUser }).then(() => {
         this.sortOrganizations();
-      })
-      .catch((error) => {
-        this.error = error;
-        console.error(error);
-      })
-      .finally(() => {
-        this.isLoaded = true;
       });
-    await this.checkAccessToApplication('5717');
-    if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5441');
+      // Check access rights on new org number (this.lastUsedOrganization)
+      await this.checkAccessToApplication('5719');
+      if (this.hasApplicationAccess === false) await this.checkAccessToApplication('5441');
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.isLoaded = true;
+      if (this.hasAccess) {
+        shareAgreementsWithUser({ userId: this.currentUser });
+      }
+    }    
   }
 
   sortOrganizations() {
@@ -103,22 +118,15 @@ export default class Aareg_home extends LightningElement {
       }
     });
 
-    if (typeof foundIndex !== 'undefined') {
-      if (foundIndex != 0) {
-        let placeholder = this.organizations[0];
-        this.organizations[0] = this.organizations[foundIndex];
-        this.organizations[foundIndex] = placeholder;
-      }
+    if (typeof foundIndex !== 'undefined' && foundIndex !== 0) {
+      let placeholder = this.organizations[0];
+      this.organizations[0] = this.organizations[foundIndex];
+      this.organizations[foundIndex] = placeholder;
     }
   }
 
   async checkAccessToApplication(filterBy) {
-    if (this.organizations === undefined) {
-      this.hasAccess = false;
-      this.hasApplicationAccess = false;
-      return;
-    }
-    if (this.lastUsedOrganization === null || '') {
+    if (this.organizations === undefined || this.lastUsedOrganization === null || '') {
       this.hasAccess = false;
       this.hasApplicationAccess = false;
       return;
@@ -128,31 +136,43 @@ export default class Aareg_home extends LightningElement {
       userId: this.currentUser,
       organizationNumber: this.lastUsedOrganization,
       serviceCode: filterBy
-    })
-      .then((result) => {
-        if (result.success) {
-          let privileges = JSON.parse(JSON.stringify(result.rights));
-
-          privileges.forEach((privilege) => {
-            if (privilege.ServiceCode === '5719') {
-              this.hasAccess = true;
-              this.hasApplicationAccess = true;
-            } else if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode === '2') {
-              this.hasAccess = true;
-            }
-          });
-        } else {
-          throw `Failed to get rights to application ${result.errorMessage}`;
-        }
-      })
-      .catch((error) => {
+    }).then((result) => {
+      if (result.success) {
+        let privileges = JSON.parse(JSON.stringify(result.rights));
+        privileges.forEach((privilege) => {
+          if (privilege.ServiceCode === '5719') {
+            this.hasAccess = true;
+            this.hasApplicationAccess = true;
+          } else if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode === '2') {
+            this.hasAccess = true;
+          }
+        });
+        sessionStorage.setItem('currentUser', this.currentUser);
+        sessionStorage.setItem('hasAccess', JSON.stringify(this.hasAccess));
+        sessionStorage.setItem('hasApplicationAccess', JSON.stringify(this.hasApplicationAccess));
+        this.showError = false;
+      } else {
         this.hasAccess = false;
-        this.error = true;
-        console.error(error);
-      });
+        this.hasApplicationAccess = false;
+        sessionStorage.setItem('hasAccess', JSON.stringify(false));
+        sessionStorage.setItem('hasApplicationAccess', JSON.stringify(false));
+        this.showErrorMessage('Henting av brukerrettigheter fra Altinn feilet. Vennligst prøv igjen eller refresh siden.');
+        throw `Failed to get rights to application ${result.errorMessage}`;
+      }
+    });
   }
 
   get hasPreviouslySelectedOrganization() {
     return this.lastUsedOrganization;
+  }
+
+  closeErrorMessage() {
+    this.showError = false;
+  }
+
+  errorMsg = 'En feil oppstod. Vennligst prøv igjen eller refresh siden.'
+  showErrorMessage(errorMsg) {
+    this.showError = true;
+    this.errorMsg = errorMsg;
   }
 }

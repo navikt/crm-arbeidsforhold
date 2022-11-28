@@ -1,12 +1,23 @@
 <template>
   <template if:true={isLoaded}>
+    <div if:true={showError} class="error-dropdown" onclick={closeErrorMessage}>
+      <div class="empty-flex"></div>
+      <div class="error-message" aria-live="assertive" aria-atomic="true">
+        <h2>
+          {errorMsg}
+        </h2>  
+      </div>
+      <div class="close-error-button">
+        <lightning-icon icon-name="utility:close" variant="inverse" onclick={closeErrorMessage} style="padding-right: 1rem; cursor: pointer"></lightning-icon>
+      </div>
+    </div>
     <div class="home-container bedriftsmeny">
-      <div>
+      <div class="home_header">
         <h1 class="typo-innholdstittel bedriftsmeny__tittel">
-          Min side – Brukerstøtte og søknad om tilgang om Aa-registeret
+          Min side - Brukerstøtte og søknad om tilgang til Aa-registeret
         </h1>
       </div>
-      <div>
+      <div class="org_picker">
         <template if:true={organizations}>
           <select class="organization-select" aria-invalid="false" onchange={handleOrganizationChange}>
             <option if:false={hasPreviouslySelectedOrganization} value="">-- Velg virksomhet --</option>
@@ -23,7 +34,7 @@
     </div>
     <template if:true={hasAccess}>
       <div class="slds-grid inner-container">
-        <div class="slds-col">
+        <div class="slds-col" style="flex: 50%">
           <div if:true={hasApplicationAccess} class="slds-col">
             <c-link-panel
               title="Ny søknad"
@@ -43,13 +54,13 @@
           <div class="slds-col">
             <c-link-panel
               title="Mine avtaler"
-              sub-title="Her finner du en oversikt av dine avtaler"
+              sub-title="Her finner du oversikt over vedtak (avtaler) om tilgang og tilhørende kontaktpersoner. Du kan også avslutte avtale eller opphøre tilgangstype, samt endre kontaktpersoner på denne siden."
               relative-path="Mine_Avtaler__c"
               style="display: flex; width: 100%"
             ></c-link-panel>
           </div>
         </div>
-        <div class="slds-col">
+        <div class="slds-col" style="flex: 50%">
           <div class="slds-col">
             <c-link-panel
               title="Brukerstøtte vedrørende Aa-registeret"
@@ -61,7 +72,7 @@
           <div class="slds-col">
             <c-link-panel
               title="Mine meldinger"
-              sub-title="Her finner du svar på henvendelsen som du har sendt vedrørende Aa-registeret."
+              sub-title="Her finner du svar på henvendelser som du har sendt vedrørende Aa-registeret."
               relative-path="Mine_Meldinger__c"
               style="display: flex; width: 100%"
             ></c-link-panel>

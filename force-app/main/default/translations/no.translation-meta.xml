@@ -322,14 +322,6 @@
     <fullName>AAREG_changeCasehandler</fullName>
   </flowDefinitions>
   <flowDefinitions>
-    <flows>
-      <textTemplates>
-        <name>varMessageText</name>
-      </textTemplates>
-    </flows>
-    <fullName>AAREG_createContactSendConfirmation</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
     <flows />
     <fullName>AAREG_createDistributionAccess</fullName>
   </flowDefinitions>

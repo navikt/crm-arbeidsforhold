@@ -1,172 +1,145 @@
 {
-  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
-  "componentName": "siteforce:dynamicLayout",
-  "id": "0b90edf8-dcda-416e-8fc0-c11f79ea7e45",
-  "label": "Mine Avtaler",
-  "regions": [
-    {
-      "components": [
-        {
-          "componentAttributes": {
-            "background": "background: rgba(0,0,0,0)",
-            "backgroundOverlay": "rgba(0,0,0,0.5)",
-            "contentAreaWidth": 100,
-            "sectionConfig": {
-              "UUID": "943e652c-08e3-49c9-9c5c-abba4d2c67dd",
-              "columns": [
-                {
-                  "UUID": "792eadad-400c-49cb-9661-7302904978b6",
-                  "columnKey": "1",
-                  "columnName": "Column 1",
-                  "columnWidth": "12",
-                  "seedComponents": []
-                }
-              ]
-            },
-            "sectionHeight": 32
-          },
-          "componentName": "forceCommunity:section",
-          "id": "943e652c-08e3-49c9-9c5c-abba4d2c67dd",
-          "regions": [
-            {
-              "components": [
-                {
-                  "componentAttributes": {
-                    "NAVarea": "Privatperson"
-                  },
-                  "componentName": "c:globalCommunityHeader",
-                  "id": "79a1da8c-0733-4e5b-a031-e6dabd95417e",
-                  "renderPriority": "NEUTRAL",
-                  "renditionMap": {},
-                  "type": "component"
-                }
-              ],
-              "id": "792eadad-400c-49cb-9661-7302904978b6",
-              "regionLabel": "Column 1",
-              "regionName": "1",
-              "renditionMap": {},
-              "type": "region"
-            }
-          ],
-          "renderPriority": "NEUTRAL",
-          "renditionMap": {},
-          "type": "component"
+  "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
+  "componentName" : "siteforce:dynamicLayout",
+  "id" : "6a8535bc-43ef-47b1-b1cc-6513791c6026",
+  "label" : "Mine Avtaler",
+  "regions" : [ {
+    "components" : [ {
+      "componentAttributes" : {
+        "background" : "background: rgba(0,0,0,0)",
+        "backgroundOverlay" : "rgba(0,0,0,0.5)",
+        "contentAreaWidth" : 100,
+        "sectionConfig" : {
+          "UUID" : "2bfe2f4a-ab98-4021-9cc1-13ef1276a212",
+          "columns" : [ {
+            "UUID" : "8fc62dfe-3aae-4870-95c9-8b9900ed4d0f",
+            "columnKey" : "1",
+            "columnName" : "Column 1",
+            "columnWidth" : "12",
+            "seedComponents" : [ ]
+          } ]
         },
-        {
-          "componentAttributes": {
-            "background": "background: rgba(0,0,0,0)",
-            "backgroundOverlay": "rgba(0,0,0,0.5)",
-            "contentAreaWidth": 100,
-            "sectionConfig": {
-              "UUID": "c5cdee98-efac-4d72-8915-a3fde3536714",
-              "columns": [
-                {
-                  "UUID": "626df131-472b-4517-9d4b-6bed14720f66",
-                  "columnKey": "1",
-                  "columnName": "Column 1",
-                  "columnWidth": "12",
-                  "seedComponents": []
-                }
-              ]
-            },
-            "sectionHeight": 300
+        "sectionHeight" : 32
+      },
+      "componentName" : "forceCommunity:section",
+      "id" : "2bfe2f4a-ab98-4021-9cc1-13ef1276a212",
+      "regions" : [ {
+        "components" : [ {
+          "componentAttributes" : {
+            "NAVarea" : "Privatperson"
           },
-          "componentName": "forceCommunity:section",
-          "id": "c5cdee98-efac-4d72-8915-a3fde3536714",
-          "regions": [
-            {
-              "components": [
-                {
-                  "componentAttributes": {},
-                  "componentName": "c:aareg_myAgreements",
-                  "id": "7ef589b6-4876-40ec-9bd4-9fb0c05b3ad3",
-                  "renderPriority": "NEUTRAL",
-                  "renditionMap": {},
-                  "type": "component"
-                }
-              ],
-              "id": "626df131-472b-4517-9d4b-6bed14720f66",
-              "regionLabel": "Column 1",
-              "regionName": "1",
-              "renditionMap": {},
-              "type": "region"
-            }
-          ],
-          "renderPriority": "NEUTRAL",
-          "renditionMap": {},
-          "type": "component"
+          "componentName" : "c:globalCommunityHeader",
+          "id" : "1746dd8a-026c-41d8-aff9-df007590e79c",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        } ],
+        "id" : "8fc62dfe-3aae-4870-95c9-8b9900ed4d0f",
+        "regionLabel" : "Column 1",
+        "regionName" : "1",
+        "renditionMap" : { },
+        "type" : "region"
+      } ],
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    }, {
+      "componentAttributes" : {
+        "background" : "background: rgba(0,0,0,0)",
+        "backgroundOverlay" : "rgba(0,0,0,0.5)",
+        "contentAreaWidth" : 100,
+        "sectionConfig" : {
+          "UUID" : "0d691cc0-dd7a-417e-a1f2-a8266214aefd",
+          "columns" : [ {
+            "UUID" : "c24be707-ca6a-497d-aa44-0dac04f4b4b8",
+            "columnKey" : "1",
+            "columnName" : "Column 1",
+            "columnWidth" : "12",
+            "seedComponents" : [ ]
+          } ]
         },
-        {
-          "componentAttributes": {
-            "background": "background: rgba(0,0,0,0)",
-            "backgroundOverlay": "rgba(0,0,0,0.5)",
-            "contentAreaWidth": 100,
-            "sectionConfig": {
-              "UUID": "0d2704f3-17b2-43c3-a73f-ca0ddecd52d0",
-              "columns": [
-                {
-                  "UUID": "dc522d09-09fe-4db5-b545-6f6d441f5b2a",
-                  "columnKey": "1",
-                  "columnName": "Column 1",
-                  "columnWidth": "12",
-                  "seedComponents": []
-                }
-              ]
-            },
-            "sectionHeight": 300
+        "sectionHeight" : 300
+      },
+      "componentName" : "forceCommunity:section",
+      "id" : "0d691cc0-dd7a-417e-a1f2-a8266214aefd",
+      "regions" : [ {
+        "components" : [ {
+          "componentAttributes" : { },
+          "componentName" : "c:aareg_myAgreements",
+          "id" : "20b05016-aa24-433b-a848-e778dfe13fc6",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        } ],
+        "id" : "c24be707-ca6a-497d-aa44-0dac04f4b4b8",
+        "regionLabel" : "Column 1",
+        "regionName" : "1",
+        "renditionMap" : { },
+        "type" : "region"
+      } ],
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    }, {
+      "componentAttributes" : {
+        "background" : "background: rgba(0,0,0,0)",
+        "backgroundOverlay" : "rgba(0,0,0,0.5)",
+        "contentAreaWidth" : 100,
+        "sectionConfig" : {
+          "UUID" : "c19dca38-06b3-4784-a902-234585e3427c",
+          "columns" : [ {
+            "UUID" : "e5a27af4-5998-4537-92db-08a5997f998f",
+            "columnKey" : "1",
+            "columnName" : "Column 1",
+            "columnWidth" : "12",
+            "seedComponents" : [ ]
+          } ]
+        },
+        "sectionHeight" : 32
+      },
+      "componentName" : "forceCommunity:section",
+      "id" : "c19dca38-06b3-4784-a902-234585e3427c",
+      "regions" : [ {
+        "components" : [ {
+          "componentAttributes" : {
+            "NAVarea" : "Privatperson"
           },
-          "componentName": "forceCommunity:section",
-          "id": "0d2704f3-17b2-43c3-a73f-ca0ddecd52d0",
-          "regions": [
-            {
-              "components": [
-                {
-                  "componentAttributes": {
-                    "NAVarea": "Privatperson"
-                  },
-                  "componentName": "c:globalCommunityFooter",
-                  "id": "72d96577-f76f-44d6-a652-17816f8ec882",
-                  "renderPriority": "NEUTRAL",
-                  "renditionMap": {},
-                  "type": "component"
-                }
-              ],
-              "id": "dc522d09-09fe-4db5-b545-6f6d441f5b2a",
-              "regionLabel": "Column 1",
-              "regionName": "1",
-              "renditionMap": {},
-              "type": "region"
-            }
-          ],
-          "renderPriority": "NEUTRAL",
-          "renditionMap": {},
-          "type": "component"
-        }
-      ],
-      "id": "3987555b-f831-4c30-87c0-2b22e7a4ab54",
-      "regionName": "content",
-      "type": "region"
-    },
-    {
-      "components": [
-        {
-          "componentAttributes": {
-            "customHeadTags": "",
-            "description": "",
-            "title": "Mine Avtaler"
-          },
-          "componentName": "forceCommunity:seoAssistant",
-          "id": "07f68bed-6f43-418c-87e8-4be00819694e",
-          "renditionMap": {},
-          "type": "component"
-        }
-      ],
-      "id": "28306beb-c48e-4ccc-99d8-40b39476aa51",
-      "regionName": "sfdcHiddenRegion",
-      "type": "region"
-    }
-  ],
-  "themeLayoutType": "Inner",
-  "type": "view",
-  "viewType": "custom-mine-avtaler"
+          "componentName" : "c:globalCommunityFooter",
+          "id" : "3c08b067-5b59-486d-998b-d8e7b8387892",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        } ],
+        "id" : "e5a27af4-5998-4537-92db-08a5997f998f",
+        "regionLabel" : "Column 1",
+        "regionName" : "1",
+        "renditionMap" : { },
+        "type" : "region"
+      } ],
+      "renderPriority" : "NEUTRAL",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "9a887f69-2f4e-4a8a-a23f-e592935b2d69",
+    "regionName" : "content",
+    "type" : "region"
+  }, {
+    "components" : [ {
+      "componentAttributes" : {
+        "customHeadTags" : "",
+        "description" : "",
+        "title" : "Mine Avtaler"
+      },
+      "componentName" : "forceCommunity:seoAssistant",
+      "id" : "fb27d720-248a-44e2-94df-6b7acc8a1eae",
+      "renditionMap" : { },
+      "type" : "component"
+    } ],
+    "id" : "2eb906fd-5cf3-4ded-b4f7-645f753c8706",
+    "regionName" : "sfdcHiddenRegion",
+    "type" : "region"
+  } ],
+  "themeLayoutType" : "Inner",
+  "type" : "view",
+  "viewType" : "custom-mine-avtaler"
 }

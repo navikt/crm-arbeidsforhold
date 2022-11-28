@@ -1,0 +1,40 @@
+.breadcrumb {
+  flex-direction: row;
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 94rem; 
+  margin: 0 auto; 
+  padding-top: 30px; 
+  padding-bottom: 1.5rem;
+  padding-left: 2rem;
+}
+
+.listElement {
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.333;
+  color: #0067c5;
+}
+
+.listElement:focus {
+  outline: none;
+  color: rgba(255, 255, 255, 1);
+  text-decoration: none;
+  background-color: rgba(0, 52, 125, 1);
+  box-shadow: 0 0 0 2px rgba(0, 52, 125, 1);
+}
+
+span {
+  font-family: 'Source Sans Pro', Arial, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.333;
+  color: #262626;
+}
+
+@media (max-width: 576px) {
+  .breadcrumb {
+    padding-left: 3.5rem;
+    padding-bottom: 2rem;
+    padding-top: 0.5rem;
+  }
+}

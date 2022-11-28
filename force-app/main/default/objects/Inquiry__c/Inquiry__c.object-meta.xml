@@ -143,6 +143,7 @@
   <allowInChatterGroups>false</allowInChatterGroups>
   <compactLayoutAssignment>AAREG_Inquiry_Compact_Layout</compactLayoutAssignment>
   <deploymentStatus>Deployed</deploymentStatus>
+  <deprecated>false</deprecated>
   <description>Custom object used by Arbeidsforhold Support</description>
   <enableActivities>true</enableActivities>
   <enableBulkApi>false</enableBulkApi>
@@ -176,6 +177,6 @@
     <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
     <searchResultsAdditionalFields>InquiryOwnerName__c</searchResultsAdditionalFields>
   </searchLayouts>
-  <sharingModel>ReadWrite</sharingModel>
+  <sharingModel>Private</sharingModel>
   <visibility>Public</visibility>
 </CustomObject>

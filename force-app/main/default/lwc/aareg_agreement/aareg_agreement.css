@@ -117,6 +117,17 @@
   font-size: 1rem;
 }
 
+.button-save {
+  color: white;
+  border: 2px solid transparent;
+  background: #0067c5;
+}
+
+.button-save:hover {
+  background-color: #0056b4;
+  border-color: #0056b4;
+}
+
 .form-control.error small {
   visibility: visible;
   color: #ba3a26;
@@ -143,4 +154,18 @@
   text-align: center;
   font-size: 1.5rem;
   font-family: 'Source Sans Pro', Arial, sans-serif;
+}
+
+@media (max-width: 576px) {
+  .section-info {
+    display: block;
+  }
+  .inner-container {
+    padding: 0px 2rem;
+  }
+  .vedtak-button {
+    margin: unset !important;
+    padding: unset;
+    padding-top: 1rem;
+  }
 }

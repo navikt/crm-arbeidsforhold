@@ -4,7 +4,7 @@
   <isExposed>false</isExposed>
   <isExposed>true</isExposed>
   <description>Table which displays all applications for a user.</description>
-  <masterLabel>Aa-registret My Applications</masterLabel>
+  <masterLabel>Aa-registeret My Applications</masterLabel>
   <targets>
     <target>lightningCommunity__Page</target>
     <target>lightningCommunity__Default</target>

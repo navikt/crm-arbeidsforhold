@@ -28,14 +28,14 @@ public class AAREG_ArchiveBatchHandler {
   private static Boolean isApplicationArchivable(Application__c application) {
     return (application.Casehandler_Status__c == IN_PROGRESS ||
       application.Casehandler_Status__c == CLOSED_APPLICATION) &&
-      !application.AA_ApplicationArchived__c &&
+      application.AA_ApplicationArchived__c == false &&
       String.isNotBlank(application.AA_register_application_text__c);
   }
 
   private static Boolean isDecisionArchivable(Application__c application) {
     return application.Casehandler_Status__c == CLOSED_APPLICATION &&
       application.Status__c != SUSPENDED_APPLICATION &&
-      !application.AA_DecisionArchived__c &&
+      application.AA_DecisionArchived__c == false &&
       application.AA_ApplicationArchived__c == true &&
       application.DecisionDate__c != null &&
       String.isNotBlank(application.AA_DecisionArchiveText__c);

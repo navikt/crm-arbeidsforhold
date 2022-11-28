@@ -1,5 +1,5 @@
 import { LightningElement, track, wire } from 'lwc';
-import { NavigationMixin } from 'lightning/navigation';
+import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import { getObjectInfo, getPicklistValues } from 'lightning/uiObjectInfoApi';
 import INQUIRY_OBJECT from '@salesforce/schema/Inquiry__c';
 import TYPE_FIELD from '@salesforce/schema/Inquiry__c.TypeOfInquiry__c';
@@ -7,23 +7,51 @@ import Id from '@salesforce/user/Id';
 import getUsersApplications from '@salesforce/apex/AAREG_MyApplicationsController.getUsersApplications';
 import createThreadForApplication from '@salesforce/apex/AAREG_contactSupportController.createThreadForApplication';
 import createNewInquiry from '@salesforce/apex/AAREG_contactSupportController.createNewInquiry';
+import { validateEmail } from 'c/aareg_helperClass';
 
-export default class Aareg_contactSupportForm extends LightningElement {
+export default class Aareg_contactSupportForm extends NavigationMixin(LightningElement) {
   @track inquiry;
   @track inquiryTypeOptions;
   selectedApplicationId;
   isSubmitted;
-  error;
   existingApplications = [];
   isLoading = false;
-
   currentUser = Id;
+  breadcrumbs = [
+    {
+      label: 'Min side',
+      href: ''
+    },
+    {
+      label: 'Ny melding',
+      href: 'ny-melding'
+    }
+  ];
+
+  @wire(CurrentPageReference)
+    currentPageReference;
 
   connectedCallback() {
     this.inquiry = {
       TypeOfInquiry__c: null,
       InquiryDescription__c: null
     };
+    if (this.currentPageReference.state.c__fromPage === 'myThreads') {
+      this.breadcrumbs = [
+        {
+          label: 'Min side',
+          href: ''
+        },
+        {
+          label: 'Mine meldinger',
+          href: 'mine-meldinger'
+        },
+        {
+          label: 'Ny melding',
+          href: 'ny-melding'
+        }
+      ];
+    }
   }
 
   @wire(getUsersApplications, { userId: '$currentUser' })
@@ -36,10 +64,8 @@ export default class Aareg_contactSupportForm extends LightningElement {
             return item.Status__c !== 'Utkast';
           });
       }
-      this.error = undefined;
     } else if (result.error) {
-      console.error(error);
-      this.error = error;
+      console.error(result.error);
     }
   }
 
@@ -75,9 +101,13 @@ export default class Aareg_contactSupportForm extends LightningElement {
       invalidInputs.forEach((element) => {
         this.setErrorFor(element, 'Obligatorisk');
       });
+      if (validateEmail(this.template.querySelector('input[data-id="Email__c"]').value)) {
+        this.setErrorFor(this.template.querySelector('input[data-id="Email__c"]'), 'E-post må være gyldig format.');
+      }
       this.isLoading = false;
       return;
     }
+    window.scrollTo(0, 0);
 
     if (this.regardingApplicationInProcess) {
       createThreadForApplication({
@@ -140,12 +170,11 @@ export default class Aareg_contactSupportForm extends LightningElement {
     return this.isSubmitted;
   }
 
-  navigateToPage(event) {
-    const page = event.target.name;
+  navigateToMyMessages() {
     this[NavigationMixin.Navigate]({
       type: 'comm__namedPage',
       attributes: {
-        name: page
+        name: 'Mine_Meldinger__c'
       }
     });
   }

@@ -1,11 +1,11 @@
 {
-  "activeViewId": "0b90edf8-dcda-416e-8fc0-c11f79ea7e45",
-  "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
-  "configurationTags": [],
-  "id": "d31bdb61-6392-4876-830a-98683428ee1b",
-  "label": "Mine Avtaler",
-  "pageAccess": "UseParent",
-  "routeType": "custom-mine-avtaler",
-  "type": "route",
-  "urlPrefix": "mine-avtaler"
+  "activeViewId" : "6a8535bc-43ef-47b1-b1cc-6513791c6026",
+  "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
+  "configurationTags" : [ ],
+  "id" : "ae7a3e1a-5044-42d0-9e34-3ddc0d67c156",
+  "label" : "Mine Avtaler",
+  "pageAccess" : "UseParent",
+  "routeType" : "custom-mine-avtaler",
+  "type" : "route",
+  "urlPrefix" : "mine-avtaler"
 }

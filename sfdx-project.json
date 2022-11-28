@@ -5,27 +5,27 @@
             "default": true,
             "package": "crm-arbeidsforhold",
             "versionName": "ver 0.1",
-            "versionNumber": "0.263.0.NEXT",
+            "versionNumber": "0.283.0.NEXT",
             "dependencies": [
                 {
                     "package": "crm-platform-base",
-                    "versionNumber": "0.151.0.LATEST"
+                    "versionNumber": "0.169.0.LATEST"
                 },
                 {
                     "package": "crm-platform-integration",
-                    "versionNumber": "0.77.0.LATEST"
+                    "versionNumber": "0.84.0.LATEST"
                 },
                 {
                     "package": "crm-platform-access-control",
-                    "versionNumber": "0.89.0.LATEST"
+                    "versionNumber": "0.102.0.LATEST"
                 },
                 {
                     "package": "crm-shared-timeline",
-                    "versionNumber": "1.13.0.LATEST"
+                    "versionNumber": "1.15.0.LATEST"
                 },
                 {
                     "package": "crm-community-base",
-                    "versionNumber": "0.62.0.LATEST"
+                    "versionNumber": "0.74.0.LATEST"
                 },
                 {
                     "package": "crm-platform-email-scheduling",
@@ -33,26 +33,30 @@
                 },
                 {
                     "package": "crm-journal-utilities",
-                    "versionNumber": "0.14.0.LATEST"
+                    "versionNumber": "0.17.0.LATEST"
                 },
                 {
                     "package": "crm-shared-user-notification",
-                    "versionNumber": "0.15.0.LATEST"
+                    "versionNumber": "0.17.0.LATEST"
                 },
                 {
                     "package": "crm-shared-flowComponents",
-                    "versionNumber": "0.2.0.LATEST"
+                    "versionNumber": "0.3.0.LATEST"
+                },
+                {
+                    "package": "crm-henvendelse-base",
+                    "versionNumber": "0.8.0.LATEST"
                 },
                 {
                     "package": "crm-henvendelse",
-                    "versionNumber": "0.55.0.LATEST"
+                    "versionNumber": "0.80.0.LATEST"
                 }
             ]
         }
     ],
     "namespace": "",
     "sfdcLoginUrl": "https://login.salesforce.com",
-    "sourceApiVersion": "53.0",
+    "sourceApiVersion": "55.0",
     "packageAliases": {
         "crm-arbeidsforhold": "0Ho2o000000fxX1CAI",
         "crm-platform-base": "0Ho2o0000008ORmCAM",
@@ -64,6 +68,7 @@
         "crm-journal-utilities": "0Ho2o000000fxXkCAI",
         "crm-shared-user-notification": "0Ho2o000000fxY4CAI",
         "crm-shared-flowComponents": "0Ho2o000000fxYJCAY",
+        "crm-henvendelse-base": "0Ho7U000000000kSAA",
         "crm-henvendelse": "0Ho2o000000fxXfCAI"
     }
 }
