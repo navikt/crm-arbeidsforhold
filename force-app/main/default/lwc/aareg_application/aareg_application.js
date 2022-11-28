@@ -282,10 +282,11 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       relatedContacts: draftContacts
     })
       .then((result) => {
+        sessionStorage.setItem('isSaved', 'true');
         if (this.isEdit) {
-          this.navigateToApplication(result, 'edit');
+          this.navigateToApplication(result, 'edit', ''); // Edit existing Application
         } else {
-          this.navigateToApplication(result, 'default');
+          this.navigateToApplication(result, 'default', ''); // Edit new Application
         }
       })
       .catch((error) => {
@@ -319,7 +320,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     })
       .then((result) => {
         if (this.application.Status__c === 'Additional Information Required') {
-          this.navigateToApplication(result, 'view');
+          this.navigateToApplication(result, 'view', 'AIR');
         }
         this.applicationSubmitted = true;
       })
@@ -342,7 +343,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
 
   /*************** Navigation ***************/
 
-  navigateToApplication(applicationId, type) {
+  navigateToApplication(applicationId, type, status) {
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',
       attributes: {
@@ -353,8 +354,13 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       state: {
         c__applicationType: type,
         c__isDraft: this.isDraft,
+        c__status: status,
       }
     });
+  }
+
+  showModal() {
+    this.template.querySelector('c-alertdialog').showModal();
   }
 
   /*************** Change handlers ***************/
@@ -438,9 +444,9 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     let securityNotification = 0;
 
     let cons = this.template.querySelectorAll('c-aareg_application-contact');
-
+    let error = false;
     cons.forEach((con) => {
-      con.validate();
+      error += con.validate();
     });
 
     this.contactRows.forEach((contact) => {
@@ -467,8 +473,13 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     } else {
       this.missingContactNotifications = false;
     }
+    if (error) {
+      this.hasErrors = true;
+    }
   }
 
+  content = 'Dine endringer er lagret.';
+  header = '';
   renderedCallback() {
     this.email = this.template.querySelector('[data-id="Email__c"]');
     this.contacts = this.template.querySelector('[data-id="contacts"]');
@@ -481,6 +492,18 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.termsOfUse = this.template.querySelector('[data-id="terms"]');
     this.termsOfUseInput = this.template.querySelector('[data-id="TermsOfUse__c"]');
     this.dataProcess = this.template.querySelector('[data-id="data-processor"]');
+    if (this.isLoaded === true && this.template.querySelector('c-alertdialog') !== undefined && this.template.querySelector('c-alertdialog') !== null) {
+      if (this.currentPageReference.state.c__status === 'AIR') {
+        this.header = 'Søknad redigert';
+        this.content = 'Søknaden er redigert og sendt inn.';
+        this.showModal();
+      } else if (sessionStorage.getItem('isSaved') === 'true') {
+        this.header = 'Søknad lagret';
+        this.content = 'Dine endringer er lagret.';
+        this.showModal();
+        sessionStorage.setItem('isSaved', 'false');
+      } 
+    }
   }
 
   checkApplicationInputs() {

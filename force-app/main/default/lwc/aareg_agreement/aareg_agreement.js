@@ -110,7 +110,6 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
     } else {
       this.isLoading = false;
     }
-    
   }
 
   handleAgreementCancellation() {
@@ -209,7 +208,6 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
   /***************** Validation ****************/
 
   validateContacts() {
-    let isValid = false;
     let agreementNotification = 0;
     let changeNofiication = 0;
     let errorNotification = 0;
@@ -217,8 +215,9 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
 
     let contacts = this.template.querySelectorAll('c-aareg_application-contact');
 
+    let error = false;
     contacts.forEach((con, index) => {
-      con.validate();
+      error += con.validate();
       if (this.contactRows[index].AgreementNotifications__c) {
         agreementNotification += 1;
       }
@@ -239,16 +238,18 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
     for (let i = 0; i < contacts.length; i++) {
       let isFocused = contacts[i].focusInput();
       if (isFocused) {
-        return isValid;
+        return false;
       }
     }
 
     if (agreementNotification < 1 || changeNofiication < 1 || errorNotification < 1 || securityNotification < 1) {
       let contacts = this.template.querySelector('[data-id="contacts"]');
       this.setErrorFor(contacts, 'Det må oppgis minimum en kontaktperson per type varsling.');
-      return isValid;
+      return false;
     }
-
+    if (error) {
+      return false;
+    }
     return true;
   }
 

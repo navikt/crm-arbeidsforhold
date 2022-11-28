@@ -3,6 +3,14 @@
     <template if:true={organization}>
       <template if:false={applicationSubmitted}>
         <div class="container" if:true={isLoaded}>
+          <c-alertdialog
+            header={header}
+            content={content}
+            desktop-style="text-align: center; width: 50%"
+            mobile-style="text-align: center; max-width: 100%"
+            center-buttons="true"
+            no-cancel-button="true">
+          </c-alertdialog>
           <div class="breadcrumbs">
             <c-breadcrumbs url-list={breadcrumbs} num-pops={numPops}></c-breadcrumbs>
           </div>
@@ -426,7 +434,7 @@
                       </div>
                     </div>
                   </div>
-                  <p if:true={fileData}>{fileData.filename}</p>
+                  <p if:true={fileData.filename}>Opplastet fil: {fileData.filename}</p>
                 </div>
               </div>
             </section>
@@ -463,24 +471,24 @@
                 bindende.
               </p>
               <div class="button-container save-submit">
-                <button
-                  type="submit"
-                  name="lagre"
-                  class="button button-flat"
-                  onclick={handleSaveAsDraft}
-                  style="margin: 10px"
-                >
-                  Lagre
-                </button>
-                <button
-                  type="submit"
-                  name="Send inn"
-                  class="button button-main"
-                  onclick={handleSubmit}
-                  style="margin: 10px"
-                >
-                  Send inn
-                </button>
+                <c-button
+                    class="send-inn-button"
+                    button-styling="Secondary"
+                    button-label="Lagre"
+                    type="submit"
+                    onbuttonclick={handleSaveAsDraft}
+                    desktop-style="width: 8rem; justify-content: center; margin-right: 2rem;"
+                    mobile-style="width: 8rem; justify-content: center; margin-right: 1rem;"
+                ></c-button>
+                <c-button
+                    class="send-inn-button"
+                    button-styling="Primary"
+                    button-label="Send inn"
+                    type="submit"
+                    onbuttonclick={handleSubmit}
+                    desktop-style="width: 8rem; justify-content: center"
+                    mobile-style="width: 8rem; justify-content: center"
+                ></c-button>
               </div>
             </section>
           </form>
