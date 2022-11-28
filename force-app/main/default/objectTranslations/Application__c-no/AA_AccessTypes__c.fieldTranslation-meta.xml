@@ -27,6 +27,10 @@
     <translation>Hendelser</translation>
   </picklistValues>
   <picklistValues>
+    <masterLabel>Event with dataprocessor</masterLabel>
+    <translation>Hendelser med databehandler</translation>
+  </picklistValues>
+  <picklistValues>
     <masterLabel>Extract</masterLabel>
     <translation>Uttrekk</translation>
   </picklistValues>
