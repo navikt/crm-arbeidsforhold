@@ -24,11 +24,11 @@
   </picklistValues>
   <picklistValues>
     <masterLabel>Event</masterLabel>
-    <translation>Hendelser</translation>
+    <translation>Tilgang hendelser</translation>
   </picklistValues>
   <picklistValues>
     <masterLabel>Event with dataprocessor</masterLabel>
-    <translation>Hendelser med databehandler</translation>
+    <translation>Tilgang hendelser med databehandler</translation>
   </picklistValues>
   <picklistValues>
     <masterLabel>Extract</masterLabel>
