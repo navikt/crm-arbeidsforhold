@@ -588,7 +588,7 @@
         <connector>
             <targetReference>getAgreement</targetReference>
         </connector>
-        <filterLogic>4 AND (1 OR 2 OR 3)</filterLogic>
+        <filterLogic>4 AND (1 OR 2 OR 3 OR 5)</filterLogic>
         <filters>
             <field>Status__c</field>
             <operator>EqualTo</operator>
@@ -612,6 +612,13 @@
         </filters>
         <filters>
             <field>isNoDeactivationAccess__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>EventAccess__c</field>
             <operator>EqualTo</operator>
             <value>
                 <booleanValue>false</booleanValue>
