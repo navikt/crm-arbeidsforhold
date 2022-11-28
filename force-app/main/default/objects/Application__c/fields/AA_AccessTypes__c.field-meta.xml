@@ -47,6 +47,11 @@
         <default>false</default>
         <label>Event</label>
       </value>
+      <value>
+        <fullName>Event with dataprocessor</fullName>
+        <default>false</default>
+        <label>Event with dataprocessor</label>
+      </value>
     </valueSetDefinition>
   </valueSet>
   <visibleLines>4</visibleLines>
