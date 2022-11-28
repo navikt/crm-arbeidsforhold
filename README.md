@@ -1,5 +1,11 @@
 # crm-arbeidsforhold
 
+Denne pakken inneholder Salesforce metadata som støtter arbeidet NAV gjør rundt Aa-registeret. Løsningen er utviklet av Team Arbeidsforhold og omfatter blant annet Experience Cloud og dialogløsningen fra NKS, support, saksbehandling, søknader og avtaler.
+
+## Avhengigheter
+
+Pakken har flere avhengigheter. Sjekk [sfdx-project.json](https://github.com/navikt/crm-arbeidsforhold/blob/master/sfdx-project.json) filen for å se en oversikt over alle avhengigheter.
+
 ## Komme i gang
 
 1. Salesforce DX-bruker. Kontakt #crm-plattform-team på Slack om du ikke har dette
