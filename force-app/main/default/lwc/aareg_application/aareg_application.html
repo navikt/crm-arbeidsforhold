@@ -127,10 +127,10 @@
             </section>
 
             <section class="app-section" if:false={isReadOnly}>
-              <span class="form-control">
+              <span class="form-control" if:true={isEditForCheckbox}>
                 <h2>Endring på eksisterende søknad/avtale</h2>
               </span>
-              <div class="inner-container">
+              <div class="inner-container" if:true={isEditForCheckbox}>
                 <span class="form-control" style="display: flex; flex-wrap: nowrap; align-items: center;">
                   <input
                   type="checkbox"
@@ -140,12 +140,11 @@
                   disabled={isReadOnly}
                   checked={application.AA_changesInApplication__c}
                   onchange={handleCheckboxChange}
-                />
+                  required/>
                   <label for="erEndring">
                     <abbr if:true={isEditForCheckbox} class="slds-required" title="Påkrevd felt">* </abbr>
                     Huk av boksen hvis søknaden gjelder endring på eksisterende avtale/søknad.&nbsp;
-                    </label
-                  >
+                  </label>
                 </span>
               </div>
             </section>
