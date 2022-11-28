@@ -7,7 +7,7 @@ Experience Cloud
 
 ## Avhengigheter
 
-Pakken har flere avhengiheter. Sjekk [sfdx-project.json](https://github.com/navikt/crm-arbeidsforhold/blob/master/sfdx-project.json) filen for å se en oversikt av alle avhengigheter.
+Pakken har flere avhengigheter. Sjekk [sfdx-project.json](https://github.com/navikt/crm-arbeidsforhold/blob/master/sfdx-project.json) filen for å se en oversikt over alle avhengigheter.
 
 ## Komme i gang
 
