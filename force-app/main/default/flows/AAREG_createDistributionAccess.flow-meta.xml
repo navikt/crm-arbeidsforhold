@@ -114,10 +114,6 @@
                     <stringValue>Access API with dataprocessor</stringValue>
                 </rightValue>
             </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-            </conditions>
             <connector>
                 <targetReference>createInquiry</targetReference>
             </connector>
