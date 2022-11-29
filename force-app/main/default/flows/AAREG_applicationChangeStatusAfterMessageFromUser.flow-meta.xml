@@ -43,7 +43,7 @@
     <assignments>
         <name>setRecipient</name>
         <label>setRecipient</label>
-        <locationX>336</locationX>
+        <locationX>380</locationX>
         <locationY>815</locationY>
         <assignmentItems>
             <assignToReference>varRecipientId</assignToReference>
@@ -59,7 +59,7 @@
     <decisions>
         <name>checkObjectType</name>
         <label>checkObjectType</label>
-        <locationX>545</locationX>
+        <locationX>611</locationX>
         <locationY>695</locationY>
         <defaultConnectorLabel>isNotApplicationObjectType</defaultConnectorLabel>
         <rules>
@@ -81,7 +81,7 @@
     <decisions>
         <name>Is_Owner_Null</name>
         <label>Is Owner Null?</label>
-        <locationX>336</locationX>
+        <locationX>380</locationX>
         <locationY>1055</locationY>
         <defaultConnectorLabel>Owner is null</defaultConnectorLabel>
         <rules>
@@ -102,7 +102,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>checkIfUserActive</targetReference>
+                <targetReference>getUser</targetReference>
             </connector>
             <label>Owner not null</label>
         </rules>
@@ -117,10 +117,17 @@
             <name>userIsActive</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>checkIfUserActive.Id</leftValueReference>
+                <leftValueReference>getUser.Id</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
                     <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getUser.IsActive</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -153,30 +160,9 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordLookups>
-        <name>checkIfUserActive</name>
-        <label>checkIfUserActive</label>
-        <locationX>182</locationX>
-        <locationY>1175</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>isUserActiveCheck</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>varCasehandlerOwner</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>User</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>545</locationX>
+        <locationX>611</locationX>
         <locationY>455</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -199,7 +185,7 @@
     <recordLookups>
         <name>getNotificationId</name>
         <label>getNotificationId</label>
-        <locationX>545</locationX>
+        <locationX>611</locationX>
         <locationY>575</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -222,7 +208,7 @@
     <recordLookups>
         <name>getThreadObjectType</name>
         <label>getThreadObjectType</label>
-        <locationX>545</locationX>
+        <locationX>611</locationX>
         <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -243,10 +229,31 @@
         <queriedFields>CRM_Related_Object__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordLookups>
+        <name>getUser</name>
+        <label>getUser</label>
+        <locationX>182</locationX>
+        <locationY>1175</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>isUserActiveCheck</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varCasehandlerOwner</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>User</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordUpdates>
         <name>updateApplicationStatus</name>
         <label>updateApplicationStatus</label>
-        <locationX>336</locationX>
+        <locationX>380</locationX>
         <locationY>935</locationY>
         <connector>
             <targetReference>Is_Owner_Null</targetReference>
@@ -274,7 +281,7 @@
         <object>Application__c</object>
     </recordUpdates>
     <start>
-        <locationX>419</locationX>
+        <locationX>485</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getThreadObjectType</targetReference>
