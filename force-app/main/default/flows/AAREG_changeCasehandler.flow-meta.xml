@@ -510,6 +510,7 @@
             <helpText>&lt;p&gt;Dette feltet angir status på søknad som vises ut til søker. Denne vil kunne avvike fra &quot;status på søknad&quot; som benyttes internt i saksbehandlingen.&lt;/p&gt;</helpText>
             <isRequired>false</isRequired>
         </fields>
+        <nextOrFinishButtonLabel>Fullfør</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
     </screens>
