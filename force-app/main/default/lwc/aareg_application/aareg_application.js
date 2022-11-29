@@ -26,7 +26,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   lastUsedOrganization;
   organizationType;
   isLoaded = false;
-  erEndring = false;
   fileData = { base64: null, filename: null };
   error;
   @track numPops = 3;
@@ -151,7 +150,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       MailingCity__c: this.organization.ShippingCity ? this.organization.ShippingCity : null,
       MailingPostalCode__c: this.organization.ShippingPostalCode ? this.organization.ShippingPostalCode : null,
       Email__c: null,
-      erEndring: false,
+      AA_changesInApplication__c: false,
       DataProcessorName__c: null,
       APIAccess__c: false,
       ExtractionAccess__c: false,
@@ -312,6 +311,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     window.scrollTo(0, 0);
     this.isLoaded = false;
     const { base64, filename } = this.fileData;
+    this.application.AA_changesInApplication__c = this.application.Status__c === 'Additional Information Required' ? true : false;
     processApplication({
       application: this.application,
       basisCode: this.applicationBasisRows,
