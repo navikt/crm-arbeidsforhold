@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>AAREGsoknaderDelvisInnvilget</fullName>
-    <columns>NAME</columns>
-    <columns>Account__c</columns>
-    <columns>ApplicationSubmittedDate__c</columns>
-    <columns>AA_CasehandlerDeadlineFlag__c</columns>
-    <columns>Casehandler_Status__c</columns>
-    <columns>Status__c</columns>
-    <columns>APIAccess__c</columns>
-    <columns>ExtractionAccess__c</columns>
-    <columns>OnlineAccess__c</columns>
-    <columns>applicationOwner__c</columns>
-    <filterScope>Everything</filterScope>
-    <filters>
-        <field>RECORDTYPE</field>
-        <operation>equals</operation>
-        <value>Application__c.Aa_RegisterAccess</value>
-    </filters>
-    <filters>
-        <field>Status__c</field>
-        <operation>equals</operation>
-        <value>Approved Partially</value>
-    </filters>
-    <label>Aa-reg Søknader Delvis Innvilget</label>
-    <sharedTo>
-        <group>AAREG_Casehandling</group>
-    </sharedTo>
+  <fullName>AAREGsoknaderDelvisInnvilget</fullName>
+  <columns>NAME</columns>
+  <columns>Account__c</columns>
+  <columns>ApplicationSubmittedDate__c</columns>
+  <columns>AA_CasehandlerDeadlineFlag__c</columns>
+  <columns>Casehandler_Status__c</columns>
+  <columns>Status__c</columns>
+  <columns>APIAccess__c</columns>
+  <columns>ExtractionAccess__c</columns>
+  <columns>OnlineAccess__c</columns>
+  <columns>EventAccess__c</columns>
+  <columns>applicationOwner__c</columns>
+  <filterScope>Everything</filterScope>
+  <filters>
+    <field>RECORDTYPE</field>
+    <operation>equals</operation>
+    <value>Application__c.Aa_RegisterAccess</value>
+  </filters>
+  <filters>
+    <field>Status__c</field>
+    <operation>equals</operation>
+    <value>Approved Partially</value>
+  </filters>
+  <label>Aa-reg Søknader Delvis Innvilget</label>
+  <sharedTo>
+    <group>AAREG_Casehandling</group>
+  </sharedTo>
 </ListView>
