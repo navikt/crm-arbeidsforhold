@@ -1,29 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <label>Vedtatt tilgangstyper</label>
-    <name>AA_AccessTypes__c</name>
-    <picklistValues>
-        <masterLabel>Access API</masterLabel>
-        <translation>Tilgang API</translation>
-    </picklistValues>
-    <picklistValues>
-        <masterLabel>Access API with dataprocessor</masterLabel>
-        <translation>Tilgang API med databehandler</translation>
-    </picklistValues>
-    <picklistValues>
-        <masterLabel>Access OTP</masterLabel>
-        <translation>Tilgang OTP</translation>
-    </picklistValues>
-    <picklistValues>
-        <masterLabel>Access OTP with dataprocessor</masterLabel>
-        <translation>Tilgang OTP med databehandler</translation>
-    </picklistValues>
-    <picklistValues>
-        <masterLabel>Access Online</masterLabel>
-        <translation>Tilgang Online</translation>
-    </picklistValues>
-    <picklistValues>
-        <masterLabel>Extract</masterLabel>
-        <translation>Uttrekk</translation>
-    </picklistValues>
+  <label>Vedtatt tilgangstyper</label>
+  <name>AA_AccessTypes__c</name>
+  <picklistValues>
+    <masterLabel>Access API</masterLabel>
+    <translation>Tilgang API</translation>
+  </picklistValues>
+  <picklistValues>
+    <masterLabel>Access API with dataprocessor</masterLabel>
+    <translation>Tilgang API med databehandler</translation>
+  </picklistValues>
+  <picklistValues>
+    <masterLabel>Access OTP</masterLabel>
+    <translation>Tilgang OTP</translation>
+  </picklistValues>
+  <picklistValues>
+    <masterLabel>Access OTP with dataprocessor</masterLabel>
+    <translation>Tilgang OTP med databehandler</translation>
+  </picklistValues>
+  <picklistValues>
+    <masterLabel>Access Online</masterLabel>
+    <translation>Tilgang Online</translation>
+  </picklistValues>
+  <picklistValues>
+    <masterLabel>Event</masterLabel>
+    <translation>Tilgang hendelser</translation>
+  </picklistValues>
+  <picklistValues>
+    <masterLabel>Event with dataprocessor</masterLabel>
+    <translation>Tilgang hendelser med databehandler</translation>
+  </picklistValues>
+  <picklistValues>
+    <masterLabel>Extract</masterLabel>
+    <translation>Uttrekk</translation>
+  </picklistValues>
 </CustomFieldTranslation>

@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Aa_AgreementsInactive</fullName>
-    <columns>NAME</columns>
-    <columns>account__c</columns>
-    <columns>CREATED_DATE</columns>
-    <columns>APIAccess__c</columns>
-    <columns>ExtractionAccess__c</columns>
-    <columns>OnlineAccess__c</columns>
-    <columns>Status__c</columns>
-    <filterScope>Everything</filterScope>
-    <filters>
-        <field>Status__c</field>
-        <operation>equals</operation>
-        <value>Deactivated</value>
-    </filters>
-    <label>Aa-reg Avtaler Inaktive</label>
-    <sharedTo>
-        <group>AAREG_Casehandling</group>
-    </sharedTo>
+  <fullName>Aa_AgreementsInactive</fullName>
+  <columns>NAME</columns>
+  <columns>account__c</columns>
+  <columns>CREATED_DATE</columns>
+  <columns>APIAccess__c</columns>
+  <columns>ExtractionAccess__c</columns>
+  <columns>OnlineAccess__c</columns>
+  <columns>EventAccess__c</columns>
+  <columns>Status__c</columns>
+  <filterScope>Everything</filterScope>
+  <filters>
+    <field>Status__c</field>
+    <operation>equals</operation>
+    <value>Deactivated</value>
+  </filters>
+  <label>Aa-reg Avtaler Inaktive</label>
+  <sharedTo>
+    <group>AAREG_Casehandling</group>
+  </sharedTo>
 </ListView>

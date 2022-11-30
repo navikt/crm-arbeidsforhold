@@ -26,7 +26,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   lastUsedOrganization;
   organizationType;
   isLoaded = false;
-  erEndring = false;
   fileData = { base64: null, filename: null };
   error;
   @track numPops = 3;
@@ -151,11 +150,12 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       MailingCity__c: this.organization.ShippingCity ? this.organization.ShippingCity : null,
       MailingPostalCode__c: this.organization.ShippingPostalCode ? this.organization.ShippingPostalCode : null,
       Email__c: null,
-      erEndring: false,
+      AA_changesInApplication__c: false,
       DataProcessorName__c: null,
       APIAccess__c: false,
       ExtractionAccess__c: false,
       OnlineAccess__c: false,
+      EventAccess__c: false,
       DataProcessorOrganizationNumber__c: null,
       TermsOfUse__c: false,
       organizationName: this.organization.Name ? this.organization.Name : null,
@@ -311,6 +311,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     window.scrollTo(0, 0);
     this.isLoaded = false;
     const { base64, filename } = this.fileData;
+    this.application.AA_changesInApplication__c = this.application.Status__c === 'Additional Information Required' ? true : false;
     processApplication({
       application: this.application,
       basisCode: this.applicationBasisRows,
@@ -486,6 +487,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.apiAccess = this.template.querySelector('[data-id="APIAccess__c"]');
     this.onlineAccess = this.template.querySelector('[data-id="OnlineAccess__c"]');
     this.extractionAccess = this.template.querySelector('[data-id="ExtractionAccess__c"]');
+    this.eventAccess = this.template.querySelector('[data-id="EventAccess__c"]');
     this.accessTypes = this.template.querySelector('[data-id="access-types"]');
     this.dataElements = this.template.querySelector('[data-id="data-element"]');
     this.fileInput = this.template.querySelector('[data-id="file-input"]');
@@ -514,7 +516,8 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     if (
       this.application.APIAccess__c === false &&
       this.application.ExtractionAccess__c === false &&
-      this.application.OnlineAccess__c === false
+      this.application.OnlineAccess__c === false &&
+      this.application.EventAccess__c === false
     ) {
       this.setErrorFor(this.accessTypes, 'Minst én type tilgang er obligatorisk');
       this.apiAccess.className = 'invalid';

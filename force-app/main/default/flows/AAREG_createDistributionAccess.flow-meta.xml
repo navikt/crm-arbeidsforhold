@@ -60,7 +60,7 @@
     <assignments>
         <name>setSingleAccessTypes</name>
         <label>setSingleAccessTypes</label>
-        <locationX>528</locationX>
+        <locationX>660</locationX>
         <locationY>935</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
@@ -76,7 +76,7 @@
     <decisions>
         <name>checkAccessType</name>
         <label>checkAccessType</label>
-        <locationX>528</locationX>
+        <locationX>660</locationX>
         <locationY>1055</locationY>
         <defaultConnector>
             <targetReference>loopTextCollection</targetReference>
@@ -114,20 +114,40 @@
                     <stringValue>Access API with dataprocessor</stringValue>
                 </rightValue>
             </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-            </conditions>
             <connector>
                 <targetReference>createInquiry</targetReference>
             </connector>
             <label>isAPI</label>
         </rules>
+        <rules>
+            <name>isEvent</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Event</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Event with dataprocessor</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <isGoTo>true</isGoTo>
+                <targetReference>createInquiry</targetReference>
+            </connector>
+            <label>isEvent</label>
+        </rules>
     </decisions>
+    <environments>Default</environments>
     <formulas>
         <name>varConvertAccessType</name>
         <dataType>String</dataType>
-        <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;AAREG_TILGANG_API&quot;, &quot;Access API with dataprocessor&quot; , &quot;AAREG_TILGANG_API_DATABEHANDLER&quot; , &quot;Access OTP&quot; , &quot;AAREG_TILGANG_API_OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;AAREG_TILGANG_API_OTP_DATABEHANDLER&quot; , &quot;Access Online&quot; , &quot;AAREG_TILGANG_ONLINE&quot; ,  &quot;No Access&quot;)</expression>
+        <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;AAREG_TILGANG_API&quot;, &quot;Access API with dataprocessor&quot; , &quot;AAREG_TILGANG_API_DATABEHANDLER&quot; , &quot;Access OTP&quot; , &quot;AAREG_TILGANG_API_OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;AAREG_TILGANG_API_OTP_DATABEHANDLER&quot; , &quot;Access Online&quot; , &quot;AAREG_TILGANG_ONLINE&quot; ,  &quot;Event&quot;, &quot;AAREG_TILGANG_HENDELSER&quot;, &quot;Event with dataprocessor&quot;, &quot;AAREG_TILGANG_HENDELSER_DATABEHANDLER&quot;, &quot;No Access&quot;)</expression>
     </formulas>
     <formulas>
         <name>varDescription</name>

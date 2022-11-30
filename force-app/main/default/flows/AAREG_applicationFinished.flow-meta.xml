@@ -246,6 +246,22 @@
         </connector>
     </assignments>
     <assignments>
+        <name>setEvent</name>
+        <label>setEvent</label>
+        <locationX>930</locationX>
+        <locationY>2150</locationY>
+        <assignmentItems>
+            <assignToReference>Event</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>loopTextCollectionMultiPicklistSelect</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>setExtract</name>
         <label>setExtract</label>
         <locationX>666</locationX>
@@ -280,7 +296,7 @@
     <assignments>
         <name>setSingleAcessType</name>
         <label>setSingleAcessType</label>
-        <locationX>534</locationX>
+        <locationX>666</locationX>
         <locationY>1910</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
@@ -385,7 +401,7 @@
     <decisions>
         <name>checkAccessTypes</name>
         <label>checkAccessTypes</label>
-        <locationX>534</locationX>
+        <locationX>666</locationX>
         <locationY>2030</locationY>
         <defaultConnector>
             <targetReference>loopTextCollectionMultiPicklistSelect</targetReference>
@@ -463,6 +479,28 @@
                 <targetReference>setExtract</targetReference>
             </connector>
             <label>isExtract</label>
+        </rules>
+        <rules>
+            <name>isEvent</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Event</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Event with dataprocessor</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>setEvent</targetReference>
+            </connector>
+            <label>isEvent</label>
         </rules>
     </decisions>
     <decisions>
@@ -840,6 +878,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>EventAccess__c</field>
+            <value>
+                <elementReference>Event</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>ExtractionAccess__c</field>
             <value>
                 <elementReference>Extract</elementReference>
@@ -923,6 +967,7 @@
         <queriedFields>AA_AccessTypes__c</queriedFields>
         <queriedFields>OwnerId</queriedFields>
         <queriedFields>createdById__c</queriedFields>
+        <queriedFields>EventAccess__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
@@ -1152,6 +1197,16 @@
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>Event</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
     </variables>
     <variables>
         <name>Extract</name>

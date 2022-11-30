@@ -125,31 +125,6 @@
                 </div>
               </div>
             </section>
-
-            <section class="app-section" if:false={isReadOnly}>
-              <span class="form-control">
-                <h2>Endring på eksisterende søknad/avtale</h2>
-              </span>
-              <div class="inner-container">
-                <span class="form-control" style="display: flex; flex-wrap: nowrap; align-items: center;">
-                  <input
-                  type="checkbox"
-                  name="erEndring"
-                  id="erEndring"
-                  data-id="AA_changesInApplication__c"
-                  disabled={isReadOnly}
-                  checked={application.AA_changesInApplication__c}
-                  onchange={handleCheckboxChange}
-                />
-                  <label for="erEndring">
-                    <abbr if:true={isEditForCheckbox} class="slds-required" title="Påkrevd felt">* </abbr>
-                    Huk av boksen hvis søknaden gjelder endring på eksisterende avtale/søknad.&nbsp;
-                    </label
-                  >
-                </span>
-              </div>
-            </section>
-
             <section class="app-section">
               <h2>Begrunnelse</h2>
               <p class="pl-16 pb-10">Her skal du:</p>
@@ -311,6 +286,26 @@
                     >Uttrekk
                     <lightning-helptext
                       content="«Uttrekk» er utlevering som ikke er på standardformat. Det må oppgis en detaljert beskrivelse i «Vedlegg til søknad - Datainnhold» (standardformat) hva som skal inngå i uttrekket og utleveringsfrekvens. NAV kan ta seg betalt for å utvikle uttrekket."
+                      class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
+                  </label>
+                </span>
+
+                <span class="form-control">
+                  <input
+                    type="checkbox"
+                    name="type tilgang hendelser"
+                    id="tilgang-hendelser"
+                    data-id="EventAccess__c"
+                    disabled={isReadOnly}
+                    checked={application.EventAccess__c}
+                    onchange={handleCheckboxChange}
+                  />
+                  <label for="tilgang-hendelser"
+                    >Hendelser (API)
+                    <lightning-helptext
+                      content="Hendelser placeholder tekst"
                       class="slds-m-left_xx-small"
                     >
                     </lightning-helptext>

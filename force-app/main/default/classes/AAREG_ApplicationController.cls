@@ -154,6 +154,7 @@ public without sharing class AAREG_ApplicationController {
         APIAccess__c,
         ExtractionAccess__c,
         OnlineAccess__c,
+        EventAccess__c,
         DataProcessorOrganizationNumber__c,
         TermsOfUse__c
       FROM Application__c

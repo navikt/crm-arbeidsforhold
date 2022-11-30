@@ -5,7 +5,7 @@
         <name>addUserId</name>
         <label>addUserId</label>
         <locationX>270</locationX>
-        <locationY>758</locationY>
+        <locationY>878</locationY>
         <assignmentItems>
             <assignToReference>varInText</assignToReference>
             <operator>Add</operator>
@@ -28,7 +28,7 @@
         <name>addUserId_ForvaltningRegisterGroup</name>
         <label>addUserId</label>
         <locationX>270</locationX>
-        <locationY>1574</locationY>
+        <locationY>1910</locationY>
         <assignmentItems>
             <assignToReference>varInText</assignToReference>
             <operator>Add</operator>
@@ -73,7 +73,7 @@
         <elementSubtype>FilterCollectionProcessor</elementSubtype>
         <label>filterGroupMemberIds</label>
         <locationX>182</locationX>
-        <locationY>1214</locationY>
+        <locationY>1430</locationY>
         <assignNextValueToReference>currentItem_filterGroupMemberIds_RegisterForvaltningGroup</assignNextValueToReference>
         <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
         <collectionReference>getGroupMemberId_in_Nav_Register_Forvaltning_Group</collectionReference>
@@ -90,10 +90,60 @@
         </connector>
     </collectionProcessors>
     <decisions>
+        <name>checkUserActive</name>
+        <label>checkUserActive</label>
+        <locationX>402</locationX>
+        <locationY>758</locationY>
+        <defaultConnector>
+            <targetReference>loopThroughMemberIds</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>userNotActive</defaultConnectorLabel>
+        <rules>
+            <name>userActive</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getUsers.IsActive</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>addUserId</targetReference>
+            </connector>
+            <label>userActive</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>checkUserActive2</name>
+        <label>checkUserActive2</label>
+        <locationX>402</locationX>
+        <locationY>1790</locationY>
+        <defaultConnector>
+            <targetReference>loopThroughMemberIds_RegisterForvaltning</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>userNotActive</defaultConnectorLabel>
+        <rules>
+            <name>userActive2</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getUsers.IsActive</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>addUserId_ForvaltningRegisterGroup</targetReference>
+            </connector>
+            <label>userActive</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>isValid</name>
         <label>isValidChoice</label>
         <locationX>182</locationX>
-        <locationY>2030</locationY>
+        <locationY>2462</locationY>
         <defaultConnector>
             <targetReference>getUser</targetReference>
         </defaultConnector>
@@ -165,7 +215,7 @@
         <name>loopThroughMemberIds_RegisterForvaltning</name>
         <label>loopThroughMemberIds</label>
         <locationX>182</locationX>
-        <locationY>1334</locationY>
+        <locationY>1550</locationY>
         <collectionReference>filterGroupMemberIds_RegisterForvaltningGroup</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -198,7 +248,7 @@
         <name>GetCurrentApplication</name>
         <label>GetCurrentApplication</label>
         <locationX>182</locationX>
-        <locationY>1790</locationY>
+        <locationY>2222</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>show_list</targetReference>
@@ -246,7 +296,7 @@
         <name>getGroupMemberId_in_Nav_Register_Forvaltning_Group</name>
         <label>getGroupMemberId in Nav Register Forvaltning Group</label>
         <locationX>182</locationX>
-        <locationY>1094</locationY>
+        <locationY>1310</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>filterGroupMemberIds_RegisterForvaltningGroup</targetReference>
@@ -293,7 +343,7 @@
         <name>getPublicGroupNavRegisterForvaltning</name>
         <label>getPublicGroupNavRegisterForvaltning</label>
         <locationX>182</locationX>
-        <locationY>974</locationY>
+        <locationY>1190</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getGroupMemberId_in_Nav_Register_Forvaltning_Group</targetReference>
@@ -316,7 +366,7 @@
         <name>getUser</name>
         <label>getUser</label>
         <locationX>314</locationX>
-        <locationY>2150</locationY>
+        <locationY>2582</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>updateCasehandler</targetReference>
@@ -338,11 +388,11 @@
     <recordLookups>
         <name>getUsers</name>
         <label>getUsers</label>
-        <locationX>270</locationX>
+        <locationX>402</locationX>
         <locationY>638</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>addUserId</targetReference>
+            <targetReference>checkUserActive</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -356,16 +406,17 @@
         <object>User</object>
         <queriedFields>Id</queriedFields>
         <queriedFields>Name</queriedFields>
+        <queriedFields>IsActive</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
         <name>getUsers_ForvaltningRegisterGroup</name>
         <label>getUsers</label>
-        <locationX>270</locationX>
-        <locationY>1454</locationY>
+        <locationX>402</locationX>
+        <locationY>1670</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>addUserId_ForvaltningRegisterGroup</targetReference>
+            <targetReference>checkUserActive2</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -379,13 +430,14 @@
         <object>User</object>
         <queriedFields>Id</queriedFields>
         <queriedFields>Name</queriedFields>
+        <queriedFields>IsActive</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
         <name>updateCasehandler</name>
         <label>updateCasehandler</label>
         <locationX>314</locationX>
-        <locationY>2270</locationY>
+        <locationY>2702</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -425,7 +477,7 @@
         <name>ErrorMessage</name>
         <label>ErrorMessage</label>
         <locationX>50</locationX>
-        <locationY>2150</locationY>
+        <locationY>2582</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -445,7 +497,7 @@
         <name>show_list</name>
         <label>show list</label>
         <locationX>182</locationX>
-        <locationY>1910</locationY>
+        <locationY>2342</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -510,6 +562,7 @@
             <helpText>&lt;p&gt;Dette feltet angir status på søknad som vises ut til søker. Denne vil kunne avvike fra &quot;status på søknad&quot; som benyttes internt i saksbehandlingen.&lt;/p&gt;</helpText>
             <isRequired>false</isRequired>
         </fields>
+        <nextOrFinishButtonLabel>Fullfør</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
     </screens>

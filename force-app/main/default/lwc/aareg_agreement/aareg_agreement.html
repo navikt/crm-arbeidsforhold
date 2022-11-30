@@ -133,6 +133,25 @@
                     </lightning-helptext>
                   </label>
                 </div>
+                <div class="slds-col" if:true={eventAccess}>
+                  <input
+                    type="checkbox"
+                    name="type tilgang hendelser"
+                    id="tilgang-hendelser"
+                    data-id="EventAccess__c"
+                    checked={eventAccess}
+                    disabled={isReadOnly}
+                    onchange={handleCheckboxChange}
+                  />
+                  <label for="tilgang-hendelser"
+                    >Hendelser (API)
+                    <lightning-helptext
+                      content="Hendelser placeholder tekst"
+                      class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
+                  </label>
+                </div>
               </div>
             </section>
           </div>

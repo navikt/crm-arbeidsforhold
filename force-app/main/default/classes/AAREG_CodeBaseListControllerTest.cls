@@ -37,6 +37,7 @@ public class AAREG_CodeBaseListControllerTest {
     agr.Decision__c = 'Vedtak';
     agr.ExtractionAccess__c = false;
     agr.OnlineAccess__c = false;
+    agr.EventAccess__c = false;
     agr.Status__c = 'active';
     insert agr;
   }
