@@ -116,6 +116,8 @@ public without sharing class AAREG_ApplicationController {
     upsert basisCodes;
   }
 
+  // File is uploaded on saveAsDraft and on submit. If user presses save, then submit, only files from
+  // save will be uploaded, because when saving it navigates to new Application which resets context and filedata in js.
   private static void insertDocumentWithLink(Id applicationId, String base64, String fileName) {
     if (base64 == null || fileName == null) {
       return;
