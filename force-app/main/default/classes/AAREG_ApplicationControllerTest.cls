@@ -107,7 +107,7 @@ public class AAREG_ApplicationControllerTest {
     basisCodes.add(new ApplicationBasisCode__c());
     basisCodes.add(new ApplicationBasisCode__c());
 
-    AAREG_ApplicationController.saveAsDraft(application, basisCodes, contacts);
+    AAREG_ApplicationController.saveAsDraft(application, basisCodes, contacts, null, null);
     Application__c processedApplication = [SELECT Id, Status__c FROM Application__c LIMIT 1];
     List<RelatedContact__c> processedContacts = [
       SELECT Id, Name, Application__c
