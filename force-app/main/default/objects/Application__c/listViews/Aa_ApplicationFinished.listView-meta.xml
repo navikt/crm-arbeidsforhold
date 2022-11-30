@@ -1,33 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Aa_ApplicationFinished</fullName>
-    <booleanFilter>1 AND 2 AND 3</booleanFilter>
-    <columns>NAME</columns>
-    <columns>Account__c</columns>
-    <columns>ApplicationSubmittedDate__c</columns>
-    <columns>DecisionDate__c</columns>
-    <columns>Status__c</columns>
-    <columns>APIAccess__c</columns>
-    <columns>ExtractionAccess__c</columns>
-    <columns>OnlineAccess__c</columns>
-    <filterScope>Everything</filterScope>
-    <filters>
-        <field>RECORDTYPE</field>
-        <operation>equals</operation>
-        <value>Application__c.Aa_RegisterAccess</value>
-    </filters>
-    <filters>
-        <field>Casehandler_Status__c</field>
-        <operation>equals</operation>
-        <value>Closed</value>
-    </filters>
-    <filters>
-        <field>Status__c</field>
-        <operation>notEqual</operation>
-        <value>Declined,Suspension</value>
-    </filters>
-    <label>Aa-reg Søknader Ferdigbehandlet</label>
-    <sharedTo>
-        <group>AAREG_Casehandling</group>
-    </sharedTo>
+  <fullName>Aa_ApplicationFinished</fullName>
+  <booleanFilter>1 AND 2 AND 3</booleanFilter>
+  <columns>NAME</columns>
+  <columns>Account__c</columns>
+  <columns>ApplicationSubmittedDate__c</columns>
+  <columns>DecisionDate__c</columns>
+  <columns>Status__c</columns>
+  <columns>APIAccess__c</columns>
+  <columns>ExtractionAccess__c</columns>
+  <columns>OnlineAccess__c</columns>
+  <columns>EventAccess__c</columns>
+  <filterScope>Everything</filterScope>
+  <filters>
+    <field>RECORDTYPE</field>
+    <operation>equals</operation>
+    <value>Application__c.Aa_RegisterAccess</value>
+  </filters>
+  <filters>
+    <field>Casehandler_Status__c</field>
+    <operation>equals</operation>
+    <value>Closed</value>
+  </filters>
+  <filters>
+    <field>Status__c</field>
+    <operation>notEqual</operation>
+    <value>Declined,Suspension</value>
+  </filters>
+  <label>Aa-reg Søknader Ferdigbehandlet</label>
+  <sharedTo>
+    <group>AAREG_Casehandling</group>
+  </sharedTo>
 </ListView>
