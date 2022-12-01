@@ -23,3 +23,31 @@ Pakken har flere avhengigheter. Sjekk [sfdx-project.json](https://github.com/nav
 9. Under `Java Home`, legg inn følgende:
    - macOS: `/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home`
    - Windows: `C:\\Program Files\\AdoptOpenJDK\\jdk-11.0.3.7-hotspot` (merk at versjonsnummer kan endre seg)
+
+
+## Testing mot Altinn integrasjon
+
+URL for testbrukere i preprod: https://preprod-navdialog.cs89.force.com/aaregisteret/s/
+
+Bruker 1:
+- Julius Veum
+- Logg inn med bankid med kodebrikke
+- Fnr: 16120102137
+- Engangskode: otp
+- Passord: qwer1234
+- Tilknyttet Tranøy og Sande i vestfold regnskap
+
+Bruker 2:
+- Philip Lundquist
+- Logg inn med bankid med kodebrikke
+- Fnr: 16120101181
+- Engangskode: otp
+- Passord: qwer1234
+- Tilknyttet Malmfjorden og Ridabu regnskap
+
+
+For å endre tilgang til org for brukere:
+- Logg inn med brukeren i tt02.altinn.no
+- Velg virksomhet og innstillinger
+- Velg “Andre med rettigheter til virksomheten”
+- Trykk “Gi eller fjern tilgang” for å endre tilgangene
