@@ -27,8 +27,8 @@ Pakken har flere avhengigheter. Sjekk [sfdx-project.json](https://github.com/nav
 
 ## Testing mot Altinn-integrasjon
 
-URL for testbrukere i preprod: https://preprod-navdialog.cs89.force.com/aaregisteret/s/
-Status for BankID i testmiljøet: https://testmiljo.status.digdir.no/incidents/vpmjh0nlkr1z
+- URL for testbrukere i preprod: https://preprod-navdialog.cs89.force.com/aaregisteret/s/
+- Status for BankID i testmiljøet: https://testmiljo.status.digdir.no/incidents/vpmjh0nlkr1z
 
 Bruker 1:
 - Julius Veum
