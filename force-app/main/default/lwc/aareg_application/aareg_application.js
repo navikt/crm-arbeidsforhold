@@ -276,10 +276,13 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     event.preventDefault();
     this.isLoaded = false;
     let draftContacts = this.contactRows.filter((el) => el.Name !== null && el.Name !== '');
+    const { base64, filename } = this.fileData;
     saveAsDraft({
       application: this.application,
       basisCode: this.applicationBasisRows,
-      relatedContacts: draftContacts
+      relatedContacts: draftContacts,
+      base64: base64,
+      filename: filename
     })
       .then((result) => {
         sessionStorage.setItem('isSaved', 'true');
@@ -522,7 +525,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       this.setErrorFor(this.accessTypes, 'Minst én type tilgang er obligatorisk');
       this.apiAccess.className = 'invalid';
     }
-
     if (
       (this.fileData.base64 === null || this.fileData.filename === null) &&
       this.application.Status__c != 'Additional Information Required'

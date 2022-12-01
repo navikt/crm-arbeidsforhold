@@ -48,7 +48,9 @@ public without sharing class AAREG_ApplicationController {
   public static Id saveAsDraft(
     Application__c application,
     List<ApplicationBasisCode__c> basisCode,
-    List<RelatedContact__c> relatedContacts
+    List<RelatedContact__c> relatedContacts,
+    String base64,
+    String filename
   ) {
     if (application.Status__c != ADDITIONAL_INFORMATION) {
       application.status__c = DRAFT_APPLICATION;
@@ -58,6 +60,7 @@ public without sharing class AAREG_ApplicationController {
       upsert application;
       upsertRelatedContacts(application.Id, relatedContacts);
       upsertBasisCodes(application.Id, basisCode);
+      insertDocumentWithLink(application.Id, base64, filename);
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
     }
@@ -113,6 +116,8 @@ public without sharing class AAREG_ApplicationController {
     upsert basisCodes;
   }
 
+  // File is uploaded on saveAsDraft and on submit. If user presses save, then submit, only files from
+  // save will be uploaded, because when saving it navigates to new Application which resets context and filedata in js.
   private static void insertDocumentWithLink(Id applicationId, String base64, String fileName) {
     if (base64 == null || fileName == null) {
       return;
