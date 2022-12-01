@@ -25,7 +25,7 @@ Pakken har flere avhengigheter. Sjekk [sfdx-project.json](https://github.com/nav
    - Windows: `C:\\Program Files\\AdoptOpenJDK\\jdk-11.0.3.7-hotspot` (merk at versjonsnummer kan endre seg)
 
 
-## Testing mot Altinn integrasjon
+## Testing mot Altinn-integrasjon
 
 URL for testbrukere i preprod: https://preprod-navdialog.cs89.force.com/aaregisteret/s/
 
