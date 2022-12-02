@@ -205,7 +205,7 @@
     <formulas>
         <name>varTaskDescription</name>
         <dataType>String</dataType>
-        <expression>&apos;Tilgang er deaktivert av  &apos;+{!$User.FirstName}+&apos; &apos;+{!$User.LastName}</expression>
+        <expression>&apos;Web-oppslag tilgang er deaktivert av  &apos;+{!$User.FirstName}+&apos; &apos;+{!$User.LastName}+&apos;.&apos;</expression>
     </formulas>
     <interviewLabel>AAREG_removeAccessToDistribution {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_removeAccessToDistribution</label>

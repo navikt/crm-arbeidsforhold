@@ -1,42 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <actionCalls>
-        <name>removeAccessForUser</name>
-        <label>removeAccessForUser</label>
-        <locationX>50</locationX>
-        <locationY>638</locationY>
-        <actionName>AAREG_distributionAccessController</actionName>
-        <actionType>apex</actionType>
-        <connector>
-            <targetReference>updateStatusOnAgreement_0_0</targetReference>
-        </connector>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>refOrganizationNumber</name>
-            <value>
-                <elementReference>getAgreement.OrganizationNumber__c</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>refAccessType</name>
-            <value>
-                <stringValue>AAREG_TILGANG_ONLINE</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>referenceId</name>
-            <value>
-                <elementReference>getAgreement.Id</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>referenceType</name>
-            <value>
-                <stringValue>DELETE</stringValue>
-            </value>
-        </inputParameters>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </actionCalls>
     <apiVersion>53.0</apiVersion>
     <decisions>
         <name>checkDeactivationType</name>
@@ -65,7 +28,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>removeAccessForUser</targetReference>
+                <targetReference>updateStatusOnAgreement_0_0</targetReference>
             </connector>
             <label>isTotalDeactivation</label>
         </rules>
@@ -143,7 +106,7 @@
         <name>create</name>
         <label>createActivityHistory</label>
         <locationX>50</locationX>
-        <locationY>878</locationY>
+        <locationY>758</locationY>
         <inputAssignments>
             <field>ActivityDate</field>
             <value>
@@ -293,7 +256,7 @@
         <name>updateStatusOnAgreement_0_0</name>
         <label>updateStatusOnAgreement</label>
         <locationX>50</locationX>
-        <locationY>758</locationY>
+        <locationY>638</locationY>
         <connector>
             <targetReference>create</targetReference>
         </connector>
@@ -339,6 +302,12 @@
             <field>Status__c</field>
             <value>
                 <stringValue>Deactivated</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>isNoDeactivationAccess__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
             </value>
         </inputAssignments>
         <object>Agreement__c</object>
