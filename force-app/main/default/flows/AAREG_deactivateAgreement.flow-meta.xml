@@ -28,7 +28,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>updateStatusOnAgreement_0_0</targetReference>
+                <targetReference>updateAgreement</targetReference>
             </connector>
             <label>isTotalDeactivation</label>
         </rules>
@@ -227,6 +227,9 @@
         <queriedFields>AA_ConfirmedAgreementCancellationDate__c</queriedFields>
         <queriedFields>OrganizationNumber__c</queriedFields>
         <queriedFields>isNoDeactivationAccess__c</queriedFields>
+        <queriedFields>EventAccess__c</queriedFields>
+        <queriedFields>OnlineAccess__c</queriedFields>
+        <queriedFields>APIAccess__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -253,8 +256,8 @@
         </outputAssignments>
     </recordLookups>
     <recordUpdates>
-        <name>updateStatusOnAgreement_0_0</name>
-        <label>updateStatusOnAgreement</label>
+        <name>updateAgreement</name>
+        <label>updateAgreement</label>
         <locationX>50</locationX>
         <locationY>638</locationY>
         <connector>
