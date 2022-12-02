@@ -328,7 +328,7 @@
         <inputAssignments>
             <field>Subject__c</field>
             <value>
-                <stringValue>Deaktivere tilgang(er) til API</stringValue>
+                <stringValue>Deaktivere tilgang(er)</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -565,7 +565,7 @@
     <textTemplates>
         <name>varInquiryDescription</name>
         <isViewedAsPlainText>false</isViewedAsPlainText>
-        <text>&lt;p&gt;&quot;Deaktivere tilgang(er) til API - &quot;&amp;amp;{!varSingleAccessType} &amp;amp; BR()&lt;/p&gt;&lt;p&gt;&amp;amp;&quot;Vedtaksdato: &quot;&amp;amp;TEXT(TODAY())&amp;amp; BR()&lt;/p&gt;&lt;p&gt;&amp;amp;&quot;Virksomhet: &quot;&amp;amp;{!getApplication.Account__r.Name}&amp;amp; BR()&lt;/p&gt;&lt;p&gt;&amp;amp;&quot;Organisasjonsnummer: &quot;&amp;amp;{!getApplication.Account__r.INT_OrganizationNumber__c}&lt;/p&gt;</text>
+        <text>&lt;p&gt;&quot;Deaktivere tilgang(er): &quot;&amp;amp;{!varSingleAccessType} &amp;amp; BR()&lt;/p&gt;&lt;p&gt;&amp;amp;&quot;Vedtaksdato: &quot;&amp;amp;TEXT(TODAY())&amp;amp; BR()&lt;/p&gt;&lt;p&gt;&amp;amp;&quot;Virksomhet: &quot;&amp;amp;{!getApplication.Account__r.Name}&amp;amp; BR()&lt;/p&gt;&lt;p&gt;&amp;amp;&quot;Organisasjonsnummer: &quot;&amp;amp;{!getApplication.Account__r.INT_OrganizationNumber__c}&lt;/p&gt;</text>
     </textTemplates>
     <textTemplates>
         <name>varThreadMessageNav</name>
