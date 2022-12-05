@@ -457,7 +457,7 @@
         <isInput>true</isInput>
         <isOutput>true</isOutput>
         <value>
-            <stringValue>Avtalen og tilhørende tilganger er deaktivert.</stringValue>
+            <stringValue>Avtalen og tilhørende tilganger er deaktivert</stringValue>
         </value>
     </variables>
     <variables>
@@ -467,7 +467,7 @@
         <isInput>true</isInput>
         <isOutput>true</isOutput>
         <value>
-            <stringValue>Avtalen er deaktivert.</stringValue>
+            <stringValue>Avtalen er deaktivert</stringValue>
         </value>
     </variables>
     <variables>
