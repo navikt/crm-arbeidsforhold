@@ -126,9 +126,14 @@
   <platformActionList>
     <actionListContext>Record</actionListContext>
     <platformActionListItems>
-      <actionName>Agreement__c.AAREG_deactivateAgreement</actionName>
+      <actionName>Agreement__c.AAREG_removeAccess</actionName>
       <actionType>QuickAction</actionType>
       <sortOrder>0</sortOrder>
+    </platformActionListItems>
+    <platformActionListItems>
+      <actionName>Agreement__c.AAREG_deactivateAgreement</actionName>
+      <actionType>QuickAction</actionType>
+      <sortOrder>1</sortOrder>
     </platformActionListItems>
   </platformActionList>
   <relatedLists>
