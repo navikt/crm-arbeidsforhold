@@ -398,17 +398,6 @@
     <fullName>AAREG_populateDecisionText</fullName>
   </flowDefinitions>
   <flowDefinitions>
-    <flows>
-      <textTemplates>
-        <name>varInquiryDescription</name>
-      </textTemplates>
-      <textTemplates>
-        <name>varThreadMessageNav</name>
-      </textTemplates>
-    </flows>
-    <fullName>AAREG_removeAccessToDistribution</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
     <flows />
     <fullName>AAREG_sendAwaitingResponseEmailNotification</fullName>
   </flowDefinitions>
