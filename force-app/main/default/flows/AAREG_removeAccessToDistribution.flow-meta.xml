@@ -8,7 +8,7 @@
         <actionName>AAREG_distributionAccessController</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>checkDeactivationType</targetReference>
+            <targetReference>createInquiry</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -84,7 +84,7 @@
         <name>checkDeactivationType</name>
         <label>checkDeactivationType</label>
         <locationX>792</locationX>
-        <locationY>1751</locationY>
+        <locationY>1871</locationY>
         <defaultConnector>
             <targetReference>loopTextCollection</targetReference>
         </defaultConnector>
@@ -218,7 +218,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>createInquiry</targetReference>
+                <targetReference>createInquiryForIT</targetReference>
             </connector>
             <label>isAPI</label>
         </rules>
@@ -255,7 +255,7 @@
             </conditions>
             <connector>
                 <isGoTo>true</isGoTo>
-                <targetReference>createInquiry</targetReference>
+                <targetReference>createInquiryForIT</targetReference>
             </connector>
             <label>isEvent</label>
         </rules>
@@ -295,7 +295,7 @@
     <formulas>
         <name>convertAccessTextForuser</name>
         <dataType>String</dataType>
-        <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;Tilgang til API&quot;, &quot;Access API with dataprocessor&quot; , &quot;Tilgang til API med databehandler&quot; , &quot;Access OTP&quot; , &quot;Tilgang til OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;Tilgang til OTP med databehandler&quot; , &quot;Access Online&quot; , &quot;Tilgang til Web-oppslag&quot; ,  &quot;Event&quot;, &quot;Tilgang til Hendelser&quot;, &quot;Event with dataprocessor&quot;, &quot;Tilgang til Hendelser med databehandler&quot;, &quot;Extract&quot;, &quot;Uttrekk&quot;, &quot;Ingen tilgang&quot;)</expression>
+        <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;Tilgang til API&quot;, &quot;Access API with dataprocessor&quot; , &quot;Tilgang til API med databehandler&quot; , &quot;Access OTP&quot; , &quot;Tilgang til OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;Tilgang til OTP med databehandler&quot; , &quot;Access Online&quot; , &quot;Tilgang til Web-oppslag&quot; ,  &quot;Event&quot;, &quot;Tilgang til Hendelser&quot;, &quot;Event with dataprocessor&quot;, &quot;Tilgang til Hendelser med databehandler&quot;, &quot;Extract&quot;, &quot;Tilgang til Uttrekk&quot;, &quot;Ingen tilgang&quot;)</expression>
     </formulas>
     <formulas>
         <name>varConvertAccessType</name>
@@ -303,15 +303,29 @@
         <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;AAREG_TILGANG_API&quot;, &quot;Access API with dataprocessor&quot; , &quot;AAREG_TILGANG_API_DATABEHANDLER&quot; , &quot;Access OTP&quot; , &quot;AAREG_TILGANG_API_OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;AAREG_TILGANG_API_OTP_DATABEHANDLER&quot; , &quot;Access Online&quot; , &quot;AAREG_TILGANG_ONLINE&quot; ,  &quot;Event&quot;, &quot;AAREG_TILGANG_HENDELSER&quot;, &quot;Event with dataprocessor&quot;, &quot;AAREG_TILGANG_HENDELSER_DATABEHANDLER&quot;, &quot;Extract&quot;, &quot;AAREG_UTTREKK&quot;, &quot;No Access&quot;)</expression>
     </formulas>
     <formulas>
+        <name>varInquiryDesciptionAPIEvent</name>
+        <dataType>String</dataType>
+        <expression>&quot;Deaktivere &quot; &amp;{!convertAccessTextForuser} &amp;&quot;: &quot; &amp;{!varConvertAccessType} &amp;&quot;.&quot; &amp;BR()
+&amp;&quot;Vedtaksdato: &quot;&amp;TEXT(TODAY()) &amp; BR()
+&amp;&quot;Virksomhet: &quot;&amp;{!getApplication.Account__r.Name} &amp; BR()
+&amp;&quot;Organisasjonsnummer: &quot;&amp;{!getApplication.Account__r.INT_OrganizationNumber__c}</expression>
+    </formulas>
+    <formulas>
         <name>varInquiryDescription</name>
         <dataType>String</dataType>
-        <expression>&quot;Deaktivere &quot; &amp;{!convertAccessTextForuser} &amp;&quot;: &quot; &amp;{!varConvertAccessType} &amp;&quot;. Sjekk at vedtaket stemmer overens med gitte tilganger.&quot; &amp;BR()
+        <expression>{!convertAccessTextForuser} &amp;&quot;: &quot; &amp;{!varConvertAccessType} &amp;&quot;, er deaktivert.&quot; &amp;BR()
+&amp;&quot;Konsument har endret tilgangstype. Vurder konsekvens for vedtak.&quot; &amp;BR()
 &amp;&quot;Vedtaksdato: &quot;&amp;TEXT(TODAY()) &amp; BR()
 &amp;&quot;Virksomhet: &quot;&amp;{!getApplication.Account__r.Name} &amp; BR()
 &amp;&quot;Organisasjonsnummer: &quot;&amp;{!getApplication.Account__r.INT_OrganizationNumber__c}</expression>
     </formulas>
     <formulas>
         <name>varInquirySubject</name>
+        <dataType>String</dataType>
+        <expression>{!convertAccessTextForuser} &amp; &quot; er deaktivert.&quot;</expression>
+    </formulas>
+    <formulas>
+        <name>varInquirySubjectAPIEvent</name>
         <dataType>String</dataType>
         <expression>&quot;Deaktivere: &quot; &amp;{!convertAccessTextForuser}</expression>
     </formulas>
@@ -325,7 +339,7 @@
     <formulas>
         <name>varTaskDescription</name>
         <dataType>String</dataType>
-        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har deaktivert tilgang: &apos; + {!varConvertAccessType} + &apos;. Sjekk at vedtaket stemmer overens med gitte tilganger.&apos;</expression>
+        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har deaktivert tilgang: &apos; + {!varConvertAccessType} + &apos;.&apos;</expression>
     </formulas>
     <formulas>
         <name>varTaskSubject</name>
@@ -371,7 +385,7 @@
         <name>createActivtyHistory</name>
         <label>createActivtyHistory</label>
         <locationX>660</locationX>
-        <locationY>1871</locationY>
+        <locationY>1991</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
         </connector>
@@ -423,8 +437,8 @@
     <recordCreates>
         <name>createInquiry</name>
         <label>createInquiry</label>
-        <locationX>528</locationX>
-        <locationY>1175</locationY>
+        <locationX>792</locationX>
+        <locationY>1391</locationY>
         <assignRecordIdToReference>varInquiryId</assignRecordIdToReference>
         <connector>
             <targetReference>getInquiryName</targetReference>
@@ -462,16 +476,63 @@
         <inputAssignments>
             <field>TypeOfInquiry__c</field>
             <value>
-                <stringValue>Tekniske spørsmål</stringValue>
+                <stringValue>Spørsmål før du søker om tilgang</stringValue>
             </value>
         </inputAssignments>
         <object>Inquiry__c</object>
     </recordCreates>
     <recordCreates>
+        <name>createInquiryForIT</name>
+        <label>createInquiryForIT</label>
+        <locationX>528</locationX>
+        <locationY>1175</locationY>
+        <connector>
+            <targetReference>createInquiry</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>AccountId__c</field>
+            <value>
+                <elementReference>getApplication.Account__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ContactId__c</field>
+            <value>
+                <elementReference>getApplication.Contact__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Email__c</field>
+            <value>
+                <elementReference>getApplication.Email__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>InquiryDescription__c</field>
+            <value>
+                <elementReference>varInquiryDesciptionAPIEvent</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject__c</field>
+            <value>
+                <elementReference>varInquirySubjectAPIEvent</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>TypeOfInquiry__c</field>
+            <value>
+                <stringValue>Tekniske spørsmål</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Inquiry__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
         <name>createMessageFromNAV</name>
         <label>createMessageFromNAV</label>
-        <locationX>528</locationX>
-        <locationY>1535</locationY>
+        <locationX>792</locationX>
+        <locationY>1751</locationY>
         <connector>
             <targetReference>checkDeactivationType</targetReference>
         </connector>
@@ -493,8 +554,8 @@
     <recordCreates>
         <name>createThread</name>
         <label>createThread</label>
-        <locationX>528</locationX>
-        <locationY>1415</locationY>
+        <locationX>792</locationX>
+        <locationY>1631</locationY>
         <connector>
             <targetReference>createMessageFromNAV</targetReference>
         </connector>
@@ -609,8 +670,8 @@
     <recordLookups>
         <name>getInquiryName</name>
         <label>getInquiryName</label>
-        <locationX>528</locationX>
-        <locationY>1295</locationY>
+        <locationX>792</locationX>
+        <locationY>1511</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createThread</targetReference>
@@ -656,7 +717,7 @@
         <name>updateFlowFieldOnAgreementToFalse</name>
         <label>updateFlowFieldOnAgreementToFalse</label>
         <locationX>176</locationX>
-        <locationY>2183</locationY>
+        <locationY>2303</locationY>
         <inputAssignments>
             <field>isAccessDeactivationThroughFlow__c</field>
             <value>

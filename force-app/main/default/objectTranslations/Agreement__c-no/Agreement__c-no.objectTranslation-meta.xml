@@ -60,7 +60,7 @@
   </quickActions>
   <quickActions>
     <aspect>Master</aspect>
-    <label>Fjern tilgang</label>
+    <label>Avslutt type tilgang</label>
     <name>AAREG_removeAccess</name>
   </quickActions>
 </CustomObjectTranslation>
