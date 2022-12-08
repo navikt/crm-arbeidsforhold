@@ -8,7 +8,7 @@
         <actionName>AAREG_distributionAccessController</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>createInquiry</targetReference>
+            <targetReference>checkDeactivationType</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -60,7 +60,7 @@
     <assignments>
         <name>setSingleAccessTypes</name>
         <label>setSingleAccessTypes</label>
-        <locationX>792</locationX>
+        <locationX>748</locationX>
         <locationY>935</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
@@ -83,14 +83,14 @@
     <decisions>
         <name>checkDeactivationType</name>
         <label>checkDeactivationType</label>
-        <locationX>792</locationX>
-        <locationY>1871</locationY>
+        <locationX>748</locationX>
+        <locationY>1391</locationY>
         <defaultConnector>
             <targetReference>loopTextCollection</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
-            <name>isNotDeactivated</name>
+            <name>isActiveOrRemoveAccessFlowWhileInactiveButKeepAccess</name>
             <conditionLogic>(1 AND 2 AND 3) OR (2 AND 3 AND 4 AND 5)</conditionLogic>
             <conditions>
                 <leftValueReference>getAgreement.Status__c</leftValueReference>
@@ -128,15 +128,15 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>createActivtyHistory</targetReference>
+                <targetReference>createInquiry</targetReference>
             </connector>
-            <label>isNotDeactivated</label>
+            <label>isActiveOrRemoveAccessFlowWhileInactiveButKeepAccess</label>
         </rules>
     </decisions>
     <decisions>
         <name>checkValidAccessTypes</name>
         <label>checkValidAccessTypes</label>
-        <locationX>792</locationX>
+        <locationX>748</locationX>
         <locationY>1055</locationY>
         <defaultConnector>
             <isGoTo>true</isGoTo>
@@ -284,8 +284,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <isGoTo>true</isGoTo>
-                <targetReference>createInquiry</targetReference>
+                <targetReference>checkDeactivationType</targetReference>
             </connector>
             <label>isExtract</label>
         </rules>
@@ -382,9 +381,9 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordCreates>
-        <name>createActivtyHistory</name>
-        <label>createActivtyHistory</label>
-        <locationX>660</locationX>
+        <name>createActivityHistory</name>
+        <label>createActivityHistory</label>
+        <locationX>616</locationX>
         <locationY>1991</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
@@ -437,8 +436,8 @@
     <recordCreates>
         <name>createInquiry</name>
         <label>createInquiry</label>
-        <locationX>792</locationX>
-        <locationY>1391</locationY>
+        <locationX>616</locationX>
+        <locationY>1511</locationY>
         <assignRecordIdToReference>varInquiryId</assignRecordIdToReference>
         <connector>
             <targetReference>getInquiryName</targetReference>
@@ -487,7 +486,7 @@
         <locationX>528</locationX>
         <locationY>1175</locationY>
         <connector>
-            <targetReference>createInquiry</targetReference>
+            <targetReference>checkDeactivationType</targetReference>
         </connector>
         <inputAssignments>
             <field>AccountId__c</field>
@@ -531,10 +530,10 @@
     <recordCreates>
         <name>createMessageFromNAV</name>
         <label>createMessageFromNAV</label>
-        <locationX>792</locationX>
-        <locationY>1751</locationY>
+        <locationX>616</locationX>
+        <locationY>1871</locationY>
         <connector>
-            <targetReference>checkDeactivationType</targetReference>
+            <targetReference>createActivityHistory</targetReference>
         </connector>
         <inputAssignments>
             <field>CRM_Message_Text__c</field>
@@ -554,8 +553,8 @@
     <recordCreates>
         <name>createThread</name>
         <label>createThread</label>
-        <locationX>792</locationX>
-        <locationY>1631</locationY>
+        <locationX>616</locationX>
+        <locationY>1751</locationY>
         <connector>
             <targetReference>createMessageFromNAV</targetReference>
         </connector>
@@ -670,8 +669,8 @@
     <recordLookups>
         <name>getInquiryName</name>
         <label>getInquiryName</label>
-        <locationX>792</locationX>
-        <locationY>1511</locationY>
+        <locationX>616</locationX>
+        <locationY>1631</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createThread</targetReference>
