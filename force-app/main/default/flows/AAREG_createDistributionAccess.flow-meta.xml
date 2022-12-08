@@ -60,7 +60,7 @@
     <assignments>
         <name>setSingleAccessTypes</name>
         <label>setSingleAccessTypes</label>
-        <locationX>660</locationX>
+        <locationX>792</locationX>
         <locationY>935</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
@@ -76,7 +76,7 @@
     <decisions>
         <name>checkAccessType</name>
         <label>checkAccessType</label>
-        <locationX>660</locationX>
+        <locationX>792</locationX>
         <locationY>1055</locationY>
         <defaultConnector>
             <targetReference>loopTextCollection</targetReference>
@@ -140,6 +140,21 @@
                 <targetReference>createInquiryEvent</targetReference>
             </connector>
             <label>isEvent</label>
+        </rules>
+        <rules>
+            <name>isExtract</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Extract</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>createActivtyHistoryExtract</targetReference>
+            </connector>
+            <label>isExtract</label>
         </rules>
     </decisions>
     <environments>Default</environments>
@@ -353,6 +368,59 @@
         <label>createActivtyHistory</label>
         <locationX>264</locationX>
         <locationY>1295</locationY>
+        <connector>
+            <targetReference>loopTextCollection</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>ActivityDate</field>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>varTaskDescription</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>RecordTypeId</field>
+            <value>
+                <elementReference>varRecordTypeId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <elementReference>varTaskSubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <stringValue>Tilgang</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId</field>
+            <value>
+                <elementReference>getAgreement.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Task</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>createActivtyHistoryExtract</name>
+        <label>createActivtyHistoryExtract</label>
+        <locationX>1056</locationX>
+        <locationY>1175</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
         </connector>

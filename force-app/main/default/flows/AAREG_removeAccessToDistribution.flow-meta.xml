@@ -3,7 +3,7 @@
     <actionCalls>
         <name>deactivateAccessForUser</name>
         <label>deactivateAccessForUser</label>
-        <locationX>264</locationX>
+        <locationX>270</locationX>
         <locationY>1175</locationY>
         <actionName>AAREG_distributionAccessController</actionName>
         <actionType>apex</actionType>
@@ -40,7 +40,7 @@
     <actionCalls>
         <name>getAccessTypes</name>
         <label>getAccessTypes</label>
-        <locationX>176</locationX>
+        <locationX>182</locationX>
         <locationY>695</locationY>
         <actionName>AAREG_MultiSelectFlowValues</actionName>
         <actionType>apex</actionType>
@@ -60,7 +60,7 @@
     <assignments>
         <name>setSingleAccessTypes</name>
         <label>setSingleAccessTypes</label>
-        <locationX>748</locationX>
+        <locationX>754</locationX>
         <locationY>935</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
@@ -83,7 +83,7 @@
     <decisions>
         <name>checkDeactivationType</name>
         <label>checkDeactivationType</label>
-        <locationX>748</locationX>
+        <locationX>754</locationX>
         <locationY>1391</locationY>
         <defaultConnector>
             <targetReference>loopTextCollection</targetReference>
@@ -134,9 +134,41 @@
         </rules>
     </decisions>
     <decisions>
+        <name>checkStatus</name>
+        <label>checkStatus</label>
+        <locationX>182</locationX>
+        <locationY>2303</locationY>
+        <defaultConnector>
+            <targetReference>updateFlowFieldOnAgreementToFalse</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>isDeactivated</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getAgreement.Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Deactivated</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getAgreement.isAccessDeactivationThroughFlow__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>createActivityHistoryDeactivateAgreement</targetReference>
+            </connector>
+            <label>isDeactivated</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>checkValidAccessTypes</name>
         <label>checkValidAccessTypes</label>
-        <locationX>748</locationX>
+        <locationX>754</locationX>
         <locationY>1055</locationY>
         <defaultConnector>
             <isGoTo>true</isGoTo>
@@ -302,6 +334,16 @@
         <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;AAREG_TILGANG_API&quot;, &quot;Access API with dataprocessor&quot; , &quot;AAREG_TILGANG_API_DATABEHANDLER&quot; , &quot;Access OTP&quot; , &quot;AAREG_TILGANG_API_OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;AAREG_TILGANG_API_OTP_DATABEHANDLER&quot; , &quot;Access Online&quot; , &quot;AAREG_TILGANG_ONLINE&quot; ,  &quot;Event&quot;, &quot;AAREG_TILGANG_HENDELSER&quot;, &quot;Event with dataprocessor&quot;, &quot;AAREG_TILGANG_HENDELSER_DATABEHANDLER&quot;, &quot;Extract&quot;, &quot;AAREG_UTTREKK&quot;, &quot;No Access&quot;)</expression>
     </formulas>
     <formulas>
+        <name>varDeactivatedAgreementDescription</name>
+        <dataType>String</dataType>
+        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har deaktivert avtalen og tilhørende tilganger.&apos;</expression>
+    </formulas>
+    <formulas>
+        <name>varDeactivatedAgreementSubject</name>
+        <dataType>String</dataType>
+        <expression>&quot;Avtalen og tilhørende tilganger er deaktivert&quot;</expression>
+    </formulas>
+    <formulas>
         <name>varInquiryDesciptionAPIEvent</name>
         <dataType>String</dataType>
         <expression>&quot;Deaktivere &quot; &amp;{!convertAccessTextForuser} &amp;&quot;: &quot; &amp;{!varConvertAccessType} &amp;&quot;.&quot; &amp;BR()
@@ -350,7 +392,7 @@
     <loops>
         <name>loopTextCollection</name>
         <label>loopTextCollection</label>
-        <locationX>176</locationX>
+        <locationX>182</locationX>
         <locationY>815</locationY>
         <collectionReference>getAccessTypes</collectionReference>
         <iterationOrder>Asc</iterationOrder>
@@ -358,7 +400,7 @@
             <targetReference>setSingleAccessTypes</targetReference>
         </nextValueConnector>
         <noMoreValuesConnector>
-            <targetReference>updateFlowFieldOnAgreementToFalse</targetReference>
+            <targetReference>checkStatus</targetReference>
         </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
@@ -383,7 +425,7 @@
     <recordCreates>
         <name>createActivityHistory</name>
         <label>createActivityHistory</label>
-        <locationX>616</locationX>
+        <locationX>622</locationX>
         <locationY>1991</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
@@ -434,9 +476,62 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordCreates>
+        <name>createActivityHistoryDeactivateAgreement</name>
+        <label>createActivityHistoryDeactivateAgreement</label>
+        <locationX>50</locationX>
+        <locationY>2423</locationY>
+        <connector>
+            <targetReference>updateFlowFieldOnAgreementToFalse</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>ActivityDate</field>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>varDeactivatedAgreementDescription</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>RecordTypeId</field>
+            <value>
+                <elementReference>varRecordTypeId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <elementReference>varDeactivatedAgreementSubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <stringValue>Tilgang</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId</field>
+            <value>
+                <elementReference>getAgreement.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Task</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
         <name>createInquiry</name>
         <label>createInquiry</label>
-        <locationX>616</locationX>
+        <locationX>622</locationX>
         <locationY>1511</locationY>
         <assignRecordIdToReference>varInquiryId</assignRecordIdToReference>
         <connector>
@@ -483,7 +578,7 @@
     <recordCreates>
         <name>createInquiryForIT</name>
         <label>createInquiryForIT</label>
-        <locationX>528</locationX>
+        <locationX>534</locationX>
         <locationY>1175</locationY>
         <connector>
             <targetReference>checkDeactivationType</targetReference>
@@ -530,7 +625,7 @@
     <recordCreates>
         <name>createMessageFromNAV</name>
         <label>createMessageFromNAV</label>
-        <locationX>616</locationX>
+        <locationX>622</locationX>
         <locationY>1871</locationY>
         <connector>
             <targetReference>createActivityHistory</targetReference>
@@ -553,7 +648,7 @@
     <recordCreates>
         <name>createThread</name>
         <label>createThread</label>
-        <locationX>616</locationX>
+        <locationX>622</locationX>
         <locationY>1751</locationY>
         <connector>
             <targetReference>createMessageFromNAV</targetReference>
@@ -612,7 +707,7 @@
     <recordLookups>
         <name>getAgreement</name>
         <label>getAgreement</label>
-        <locationX>176</locationX>
+        <locationX>182</locationX>
         <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -642,7 +737,7 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>176</locationX>
+        <locationX>182</locationX>
         <locationY>455</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -669,7 +764,7 @@
     <recordLookups>
         <name>getInquiryName</name>
         <label>getInquiryName</label>
-        <locationX>616</locationX>
+        <locationX>622</locationX>
         <locationY>1631</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -692,7 +787,7 @@
     <recordLookups>
         <name>getRecordTypeId_0</name>
         <label>getRecordTypeId</label>
-        <locationX>176</locationX>
+        <locationX>182</locationX>
         <locationY>575</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -715,8 +810,8 @@
     <recordUpdates>
         <name>updateFlowFieldOnAgreementToFalse</name>
         <label>updateFlowFieldOnAgreementToFalse</label>
-        <locationX>176</locationX>
-        <locationY>2303</locationY>
+        <locationX>182</locationX>
+        <locationY>2639</locationY>
         <inputAssignments>
             <field>isAccessDeactivationThroughFlow__c</field>
             <value>
@@ -726,7 +821,7 @@
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>50</locationX>
+        <locationX>56</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getAgreement</targetReference>
