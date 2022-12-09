@@ -146,14 +146,27 @@
 }
 
 .submission-success {
-  max-width: 800px;
-  margin: 0 auto;
-  padding-top: 2rem;
+  justify-content: center;
+  margin: 50px;
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
   text-align: center;
   font-size: 1.5rem;
   font-family: 'Source Sans Pro', Arial, sans-serif;
+}
+
+.submission-success-h2 {
+  padding-bottom: 2rem;
+}
+
+.button-delete:disabled {
+  background-color: #a0a0a0;
+    color: #ffffff;
+    cursor: not-allowed;
+    border-width: 0;
+    box-shadow: none;
+    transform: none;
 }
 
 @media (max-width: 576px) {

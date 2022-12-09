@@ -247,7 +247,12 @@
     </div>
     <template if:true={showAgreementCancellationConfirmation}>
       <div class="submission-success">
-        <h2>Avtalen har blitt deaktivert.</h2>
+        <h2 class="submission-success-h2">Avtalen har blitt deaktivert.</h2>
+        <c-button
+          button-label="Gå til Mine avtaler"
+          button-styling="secondary"
+          onbuttonclick={navigateToMyAgreements}>
+        </c-button>
       </div>
     </template>
   </div>
@@ -259,7 +264,7 @@
     </section>
   </c-aareg_modal>
 
-  <c-aareg_modal data-id="End-Agreement">
+  <c-aareg_modal if:false={hideCancellationPopup} data-id="End-Agreement">
     <section class="agreement-section">
       <input
         type="checkbox"
@@ -279,8 +284,9 @@
             name="Avslutt Avtalen"
             class="button button-delete"
             onclick={handleAgreementCancellation}
+            disabled={disableDeactivateAgreementButton}
           >
-            Avslutt Avtale
+            Avslutt avtale
           </button>
         </div>
       </div>

@@ -64,7 +64,7 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
     return window.screen.width < 576;
   }
 
-  connectedCallback() {
+  renderedCallback() {
     refreshApex(this.threads);
   }
 

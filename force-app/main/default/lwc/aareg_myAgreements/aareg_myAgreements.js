@@ -2,6 +2,7 @@ import { LightningElement, track, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import getUsersAgreements from '@salesforce/apex/AAREG_MyAgreementsController.getUsersAgreements';
+import { refreshApex } from '@salesforce/apex';
 
 const COLUMNS = [
   { label: 'Avtalenummer', fieldName: 'Name', type: 'text', hideDefaultActions: true },
@@ -36,6 +37,10 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
 
   get isMobile() {
     return window.screen.width < 576;
+  }
+
+  renderedCallback() {
+    refreshApex(this.agreements);
   }
 
   @wire(getUsersAgreements, { userId: '$currentUser' })
