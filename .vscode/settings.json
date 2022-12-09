@@ -28,5 +28,11 @@
         "**/.sfdx": true,
         "**/.vscode": true,
         "**/.idea": true
-    }
+    },
+    "scratch.default.permissionsets": [
+      "AAREG_Arbeidsforhold_Saksbehandling",
+      "AAREG_Arbeidsforhold_Support",
+      "AAREG_CommunityPermission",
+      "AAREG_Dialog"
+    ]
 }
