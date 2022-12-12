@@ -62,7 +62,19 @@ public class AAREG_DeactivateAccessBatchTest {
         WhatId IN :agreementIds
         AND Subject = 'Organisasjonen har opphørt fra Enhetsregisteret'
     ];
+    List<Agreement__c> agreementsRes = [
+      SELECT
+        Id,
+        Status__c
+      FROM Agreement__c
+      WHERE 
+        Id IN :agreementIds
+    ];
+    System.debug('agreementsRes: ' + agreementsRes);
     System.assertEquals(1, inquiries.size(), 'All inquiries were not created correctly.');
     System.assertEquals(2, tasks.size(), 'All tasks were not created correctly.');
+    for (Agreement__c agreement : agreementsRes) {
+      System.assertEquals('Deactivated', agreement.Status__c, 'Status was not set to deactivated for Agreement.');
+    }
   }
 }

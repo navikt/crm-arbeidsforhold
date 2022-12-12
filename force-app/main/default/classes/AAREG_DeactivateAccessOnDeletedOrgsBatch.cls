@@ -5,7 +5,7 @@ public with sharing class AAREG_DeactivateAccessOnDeletedOrgsBatch implements Da
   }
 
   public Database.QueryLocator start(Database.BatchableContext bc) {
-    String query = 'SELECT Id, Account__c, Account__r.INT_OrganizationNumber__c, Application__r.Contact__c, Application__r.Email__c FROM Agreement__c WHERE Account__r.EmployerDeletedDate__c = TODAY AND Account__r.IsDeletedEmployer__c = true';
+    String query = 'SELECT Id, Status__c, Account__c, Account__r.INT_OrganizationNumber__c, Application__r.Contact__c, Application__r.Email__c FROM Agreement__c WHERE Account__r.EmployerDeletedDate__c = TODAY AND Account__r.IsDeletedEmployer__c = true';
     return Database.getQueryLocator(query);
   }
 
@@ -14,8 +14,12 @@ public with sharing class AAREG_DeactivateAccessOnDeletedOrgsBatch implements Da
     List<Id> accountIds = new List<Id>();
     List<Task> newTasks = new List<Task>();
     List<Inquiry__c> newInquiries = new List<Inquiry__c>();
+    List<Agreement__c> agreements = new List<Agreement__c>();
 
     for (Agreement__c agreement : records) {
+      agreement.Status__c = 'Deactivated';
+      agreement.isDeactivateThroughBatch__c = true;
+      agreements.add(agreement);
       if (!accountIds.contains(agreement.Account__c)) {
         accountIds.add(agreement.account__c);
       }
@@ -34,9 +38,16 @@ public with sharing class AAREG_DeactivateAccessOnDeletedOrgsBatch implements Da
         logger.exception(e, CRM_ApplicationDomain.Domain.AAREG);
         logger.publishSynch();
     }
-
     try {
       insert newInquiries;
+    } catch (Exception e) {
+        LoggerUtility logger = new LoggerUtility();
+        logger.exception(e, CRM_ApplicationDomain.Domain.AAREG);
+        logger.publishSynch();
+    }
+    System.debug('agreements to update: ' + agreements);
+    try {
+      update agreements;
     } catch (Exception e) {
         LoggerUtility logger = new LoggerUtility();
         logger.exception(e, CRM_ApplicationDomain.Domain.AAREG);
