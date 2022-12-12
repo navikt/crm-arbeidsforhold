@@ -34,10 +34,6 @@ public class AAREG_DeactivateAccessBatchTest {
         Account__r.EmployerDeletedDate__c = TODAY
         AND Account__r.IsDeletedEmployer__c = true
     ];
-    List<Id> agreementIds = new List<Id>();
-    for (Agreement__c agreement : agreements) {
-      agreementIds.add(agreement.Id);
-    }
 
     Test.startTest();
       AAREG_DeactivateAccessOnDeletedOrgsBatch batch = new AAREG_DeactivateAccessOnDeletedOrgsBatch();
@@ -59,7 +55,7 @@ public class AAREG_DeactivateAccessBatchTest {
         Subject
       FROM Task
       WHERE 
-        WhatId IN :agreementIds
+        WhatId IN :agreements
         AND Subject = 'Organisasjonen har opphørt fra Enhetsregisteret'
     ];
     List<Agreement__c> agreementsRes = [
@@ -68,7 +64,7 @@ public class AAREG_DeactivateAccessBatchTest {
         Status__c
       FROM Agreement__c
       WHERE 
-        Id IN :agreementIds
+        Id IN :agreements
     ];
     System.assertEquals(1, inquiries.size(), 'All inquiries were not created correctly.');
     System.assertEquals(2, tasks.size(), 'All tasks were not created correctly.');
