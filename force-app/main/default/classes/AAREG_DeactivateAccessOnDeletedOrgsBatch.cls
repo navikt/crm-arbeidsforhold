@@ -45,7 +45,6 @@ public with sharing class AAREG_DeactivateAccessOnDeletedOrgsBatch implements Da
         logger.exception(e, CRM_ApplicationDomain.Domain.AAREG);
         logger.publishSynch();
     }
-    System.debug('agreements to update: ' + agreements);
     try {
       update agreements;
     } catch (Exception e) {

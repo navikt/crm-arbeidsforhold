@@ -70,7 +70,6 @@ public class AAREG_DeactivateAccessBatchTest {
       WHERE 
         Id IN :agreementIds
     ];
-    System.debug('agreementsRes: ' + agreementsRes);
     System.assertEquals(1, inquiries.size(), 'All inquiries were not created correctly.');
     System.assertEquals(2, tasks.size(), 'All tasks were not created correctly.');
     for (Agreement__c agreement : agreementsRes) {
