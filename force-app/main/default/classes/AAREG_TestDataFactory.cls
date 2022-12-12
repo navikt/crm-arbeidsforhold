@@ -65,6 +65,20 @@ public with sharing class AAREG_TestDataFactory {
     return acct;
   }
 
+  public static Account getDeletedAccount() {
+    Account acct = new Account(
+      Name = 'Test',
+      INT_OrganizationNumber__c = '123456789',
+      INT_OrganizationalStructure__c = 'ORGL',
+      ShippingStreet = 'Test 123',
+      ShippingPostalCode = '0211',
+      ShippingCity = 'Oslo',
+      EmployerDeletedDate__c = Date.today(),
+      IsDeletedEmployer__c = true
+    );
+    return acct;
+  }
+
   public static User getStandardUser() {
     Profile profile = [SELECT Id, UserLicense.Name FROM Profile WHERE Name = 'Standard User' LIMIT 1];
     User user = new User(

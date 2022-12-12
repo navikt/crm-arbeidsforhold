@@ -517,6 +517,11 @@
   </fieldPermissions>
   <fieldPermissions>
     <editable>true</editable>
+    <field>Inquiry__c.CreatedThroughBatch__c</field>
+    <readable>true</readable>
+  </fieldPermissions>
+  <fieldPermissions>
+    <editable>true</editable>
     <field>Inquiry__c.Email__c</field>
     <readable>true</readable>
   </fieldPermissions>
