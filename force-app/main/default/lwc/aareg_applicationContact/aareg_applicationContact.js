@@ -90,9 +90,8 @@ export default class aareg_applicationContact extends LightningElement {
   checkFieldLength(field) {
     if (field === null || field.length !== 8) {
       return true;
-    } else {
-      return false;
-    }
+    } 
+    return false;
   }
 
   checkNulls(field) {
