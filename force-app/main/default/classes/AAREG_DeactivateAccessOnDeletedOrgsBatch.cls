@@ -33,19 +33,7 @@ public with sharing class AAREG_DeactivateAccessOnDeletedOrgsBatch implements Da
 
     try {
       insert newTasks;
-    } catch (Exception e) {
-        LoggerUtility logger = new LoggerUtility();
-        logger.exception(e, CRM_ApplicationDomain.Domain.AAREG);
-        logger.publishSynch();
-    }
-    try {
       insert newInquiries;
-    } catch (Exception e) {
-        LoggerUtility logger = new LoggerUtility();
-        logger.exception(e, CRM_ApplicationDomain.Domain.AAREG);
-        logger.publishSynch();
-    }
-    try {
       update agreements;
     } catch (Exception e) {
         LoggerUtility logger = new LoggerUtility();
