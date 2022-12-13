@@ -72,4 +72,17 @@ public class AAREG_DeactivateAccessBatchTest {
       System.assertEquals('Deactivated', agreement.Status__c, 'Status was not set to deactivated for Agreement.');
     }
   }
+
+  @isTest
+  static void schedulableTest() {
+    String cron_exp = '0 0 0 3 9 ? 2024';
+    Test.startTest();
+    String jobId = System.schedule(
+        'AAREG_DeactivateAccessOnDeletedOrgsBatch',
+        cron_exp,
+        new AAREG_DeactivateAccessOnDeletedOrgsBatch()
+    );
+    Test.stopTest();
+    System.assert(jobId != null);
+  }
 }
