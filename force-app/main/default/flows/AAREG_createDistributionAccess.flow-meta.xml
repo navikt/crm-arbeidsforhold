@@ -60,7 +60,7 @@
     <assignments>
         <name>setSingleAccessTypes</name>
         <label>setSingleAccessTypes</label>
-        <locationX>660</locationX>
+        <locationX>792</locationX>
         <locationY>935</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
@@ -76,7 +76,7 @@
     <decisions>
         <name>checkAccessType</name>
         <label>checkAccessType</label>
-        <locationX>660</locationX>
+        <locationX>792</locationX>
         <locationY>1055</locationY>
         <defaultConnector>
             <targetReference>loopTextCollection</targetReference>
@@ -137,13 +137,32 @@
                 </rightValue>
             </conditions>
             <connector>
-                <isGoTo>true</isGoTo>
-                <targetReference>createInquiry</targetReference>
+                <targetReference>createInquiryEvent</targetReference>
             </connector>
             <label>isEvent</label>
         </rules>
+        <rules>
+            <name>isExtract</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Extract</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>createActivtyHistoryExtract</targetReference>
+            </connector>
+            <label>isExtract</label>
+        </rules>
     </decisions>
     <environments>Default</environments>
+    <formulas>
+        <name>convertAccessTextForUser</name>
+        <dataType>String</dataType>
+        <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;Tilgang til API&quot;, &quot;Access API with dataprocessor&quot; , &quot;Tilgang til API med databehandler&quot; , &quot;Access OTP&quot; , &quot;Tilgang til OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;Tilgang til OTP med databehandler&quot; , &quot;Access Online&quot; , &quot;Tilgang til Web-oppslag&quot; ,  &quot;Event&quot;, &quot;Tilgang til Hendelser&quot;, &quot;Event with dataprocessor&quot;, &quot;Tilgang til Hendelser med databehandler&quot;, &quot;Ingen tilgang&quot;)</expression>
+    </formulas>
     <formulas>
         <name>varConvertAccessType</name>
         <dataType>String</dataType>
@@ -152,34 +171,54 @@
     <formulas>
         <name>varDescription</name>
         <dataType>String</dataType>
-        <expression>&quot;Opprettelse av tilgang(er) for API: &quot;&amp;{!varConvertAccessType} &amp; BR()
+        <expression>&quot;Opprettelse av tilgang(er) til API: &quot;&amp;{!varConvertAccessType} &amp; BR()
 &amp;&quot;Vedtaksdato: &quot;&amp;TEXT(TODAY())&amp; BR()
 &amp;&quot;Virksomhet: &quot;&amp;{!getApplication.Account__r.Name}&amp; BR()
 &amp;&quot;Organisasjonsnummer: &quot;&amp;{!getApplication.Account__r.INT_OrganizationNumber__c}</expression>
     </formulas>
     <formulas>
-        <name>varMessageFromNav</name>
+        <name>varDescriptionEvent</name>
         <dataType>String</dataType>
-        <expression>&quot;Hei&quot;&amp;BR()
-&amp;&quot;Vedtak om API er innvilget for organisasjonsnummer: &quot;&amp;{!$Record.account__r.INT_OrganizationNumber__c}&amp;&quot;.&quot;&amp;BR()
-&amp;&quot;Tilgang til API vil normalt være tilgjengelig etter 2 virkedager&quot;&amp;BR()
-&amp;&quot;Hilsen NAV&quot;</expression>
+        <expression>&quot;Opprettelse av tilgang(er) til Hendelser: &quot;&amp;{!varConvertAccessType} &amp; BR()
+&amp;&quot;Vedtaksdato: &quot;&amp;TEXT(TODAY())&amp; BR()
+&amp;&quot;Virksomhet: &quot;&amp;{!getApplication.Account__r.Name}&amp; BR()
+&amp;&quot;Organisasjonsnummer: &quot;&amp;{!getApplication.Account__r.INT_OrganizationNumber__c}</expression>
     </formulas>
     <formulas>
-        <name>varMessageText</name>
-        <dataType>String</dataType>
-        <expression>&quot;Hei&quot;&amp;BR()
-&amp;&quot;Vedtak om API er innvilget for organisasjonsnummer: &quot;&amp;{!$Record.account__r.INT_OrganizationNumber__c}&amp;&quot;.&quot;&amp;BR()</expression>
-    </formulas>
-    <formulas>
-        <name>varSubject</name>
+        <name>varInquirySubject</name>
         <dataType>String</dataType>
         <expression>&quot;Opprettelse av tilgang(er) til API&quot;</expression>
     </formulas>
     <formulas>
+        <name>varInquirySubjectEvent</name>
+        <dataType>String</dataType>
+        <expression>&quot;Opprettelse av tilgang(er) til Hendelser&quot;</expression>
+    </formulas>
+    <formulas>
+        <name>varMessageFromNav</name>
+        <dataType>String</dataType>
+        <expression>&quot;Hei,&quot;&amp;BR()
+&amp;&quot;Vedtak om API er innvilget for organisasjonsnummer: &quot;&amp;{!$Record.account__r.INT_OrganizationNumber__c}&amp;&quot;.&quot;&amp;BR()
+&amp; {!convertAccessTextForUser} &amp; &quot; vil normalt være tilgjengelig etter 2 virkedager.&quot;&amp;BR()
+&amp;&quot;Hilsen NAV&quot;</expression>
+    </formulas>
+    <formulas>
+        <name>varMessageFromNavEvent</name>
+        <dataType>String</dataType>
+        <expression>&quot;Hei,&quot;&amp;BR()
+&amp;&quot;Vedtak om Hendelser er innvilget for organisasjonsnummer: &quot;&amp;{!$Record.account__r.INT_OrganizationNumber__c}&amp;&quot;.&quot;&amp;BR()
+&amp; {!convertAccessTextForUser} &amp; &quot; vil normalt være tilgjengelig etter 2 virkedager.&quot;&amp;BR()
+&amp;&quot;Hilsen NAV&quot;</expression>
+    </formulas>
+    <formulas>
         <name>varTaskDescription</name>
         <dataType>String</dataType>
-        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har trigget tilgang:  &apos;+ {!varConvertAccessType}</expression>
+        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har aktivert tilgang: &apos; + {!varConvertAccessType} + &apos;.&apos;</expression>
+    </formulas>
+    <formulas>
+        <name>varTaskSubject</name>
+        <dataType>String</dataType>
+        <expression>&apos;Tilgang: &apos; + {!varConvertAccessType} + &apos; er aktivert&apos;</expression>
     </formulas>
     <formulas>
         <name>varThreadName</name>
@@ -219,8 +258,8 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordCreates>
-        <name>createActivityHistoryInquiry</name>
-        <label>createActivityHistoryInquiry</label>
+        <name>createActivityHistoryAPI</name>
+        <label>createActivityHistoryAPI</label>
         <locationX>528</locationX>
         <locationY>1655</locationY>
         <connector>
@@ -253,7 +292,60 @@
         <inputAssignments>
             <field>Subject</field>
             <value>
+                <elementReference>varTaskSubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <stringValue>Tilgang</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId</field>
+            <value>
+                <elementReference>getAgreement.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Task</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>createActivityHistoryEvent</name>
+        <label>createActivityHistoryEvent</label>
+        <locationX>792</locationX>
+        <locationY>1655</locationY>
+        <connector>
+            <targetReference>loopTextCollection</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>ActivityDate</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
                 <elementReference>varTaskDescription</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>RecordTypeId</field>
+            <value>
+                <elementReference>varRecordTypeId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <elementReference>varTaskSubject</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -306,7 +398,60 @@
         <inputAssignments>
             <field>Subject</field>
             <value>
+                <elementReference>varTaskSubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <stringValue>Tilgang</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId</field>
+            <value>
+                <elementReference>getAgreement.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Task</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>createActivtyHistoryExtract</name>
+        <label>createActivtyHistoryExtract</label>
+        <locationX>1056</locationX>
+        <locationY>1175</locationY>
+        <connector>
+            <targetReference>loopTextCollection</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>ActivityDate</field>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
                 <elementReference>varTaskDescription</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>RecordTypeId</field>
+            <value>
+                <elementReference>varRecordTypeId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <elementReference>varTaskSubject</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -366,7 +511,60 @@
         <inputAssignments>
             <field>Subject__c</field>
             <value>
-                <elementReference>varSubject</elementReference>
+                <elementReference>varInquirySubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>TypeOfInquiry__c</field>
+            <value>
+                <stringValue>Tekniske spørsmål</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Inquiry__c</object>
+    </recordCreates>
+    <recordCreates>
+        <name>createInquiryEvent</name>
+        <label>createInquiryEvent</label>
+        <locationX>792</locationX>
+        <locationY>1175</locationY>
+        <assignRecordIdToReference>varInquiryId</assignRecordIdToReference>
+        <connector>
+            <targetReference>getInquiryNameEvent</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>AccountId__c</field>
+            <value>
+                <elementReference>getApplication.Account__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ContactId__c</field>
+            <value>
+                <elementReference>getApplication.Contact__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Email__c</field>
+            <value>
+                <elementReference>getApplication.Email__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>InquiryDescription__c</field>
+            <value>
+                <elementReference>varDescriptionEvent</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>getApplication.OwnerId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject__c</field>
+            <value>
+                <elementReference>varInquirySubjectEvent</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -383,7 +581,7 @@
         <locationX>528</locationX>
         <locationY>1535</locationY>
         <connector>
-            <targetReference>createActivityHistoryInquiry</targetReference>
+            <targetReference>createActivityHistoryAPI</targetReference>
         </connector>
         <inputAssignments>
             <field>CRM_Message_Text__c</field>
@@ -394,7 +592,30 @@
         <inputAssignments>
             <field>CRM_Thread__c</field>
             <value>
-                <elementReference>varThreadId</elementReference>
+                <elementReference>createThread</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Message__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>createMessageFromNavEvent</name>
+        <label>createMessageFromNavEvent</label>
+        <locationX>792</locationX>
+        <locationY>1535</locationY>
+        <connector>
+            <targetReference>createActivityHistoryEvent</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>CRM_Message_Text__c</field>
+            <value>
+                <elementReference>varMessageFromNavEvent</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Thread__c</field>
+            <value>
+                <elementReference>createThreadEvent</elementReference>
             </value>
         </inputAssignments>
         <object>Message__c</object>
@@ -405,7 +626,6 @@
         <label>createThread</label>
         <locationX>528</locationX>
         <locationY>1415</locationY>
-        <assignRecordIdToReference>varThreadId</assignRecordIdToReference>
         <connector>
             <targetReference>createMessageFromNav</targetReference>
         </connector>
@@ -440,6 +660,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>CRM_Thread_Type__c</field>
+            <value>
+                <stringValue>AAREG_EXP</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Name</field>
             <value>
                 <elementReference>varThreadName</elementReference>
@@ -452,6 +678,66 @@
             </value>
         </inputAssignments>
         <object>Thread__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>createThreadEvent</name>
+        <label>createThreadEvent</label>
+        <locationX>792</locationX>
+        <locationY>1415</locationY>
+        <connector>
+            <targetReference>createMessageFromNavEvent</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>AAREG_Thread_Subject__c</field>
+            <value>
+                <stringValue>Opprettelse av tilgang(er) til Hendelser</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Account__c</field>
+            <value>
+                <elementReference>getApplication.Account__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_HenvendelseId__c</field>
+            <value>
+                <elementReference>varInquiryName</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Related_Object_Type__c</field>
+            <value>
+                <stringValue>Inquiry__c</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Related_Object__c</field>
+            <value>
+                <elementReference>varInquiryId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Thread_Type__c</field>
+            <value>
+                <stringValue>AAREG_EXP</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>varThreadName</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>getApplication.OwnerId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Thread__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordLookups>
         <name>getAgreement</name>
@@ -516,6 +802,29 @@
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createThread</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varInquiryId</elementReference>
+            </value>
+        </filters>
+        <object>Inquiry__c</object>
+        <outputAssignments>
+            <assignToReference>varInquiryName</assignToReference>
+            <field>Name</field>
+        </outputAssignments>
+    </recordLookups>
+    <recordLookups>
+        <name>getInquiryNameEvent</name>
+        <label>getInquiryName</label>
+        <locationX>792</locationX>
+        <locationY>1295</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>createThreadEvent</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -603,12 +912,5 @@
         <value>
             <stringValue>No Access</stringValue>
         </value>
-    </variables>
-    <variables>
-        <name>varThreadId</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
     </variables>
 </Flow>

@@ -114,14 +114,15 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
     }
   }
 
+  hideCancellationPopup = false;
   handleAgreementCancellation() {
+    this.hideCancellationPopup = true;
     this.isLoading = true;
     if (this.agreementUpdates.AA_ConfirmedAgreementCancellation__c) {
       cancelAgreement({
         agreement: this.agreementUpdates
       })
         .then((result) => {
-          this.toggleEndAgreement();
           this.showAgreementCancellationConfirmation = true;
         })
         .catch((error) => {
@@ -131,7 +132,6 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
           this.isLoading = false;
         });
     }
-    this.isLoading = false;
   }
 
   toggleDecision() {
@@ -150,8 +150,10 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
     }
   }
 
+  disableDeactivateAgreementButton = true;
   handleCheckboxChange(event) {
     this.agreementUpdates[event.target.dataset.id] = event.target.checked;
+    this.disableDeactivateAgreementButton = !this.agreementUpdates.AA_ConfirmedAgreementCancellation__c;
   }
 
   contactChange(event) {
@@ -187,12 +189,11 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
     });
   }
 
-  navigateToPage(event) {
-    const page = event.target.name;
+  navigateToMyAgreements() {
     this[NavigationMixin.Navigate]({
       type: 'comm__namedPage',
       attributes: {
-        name: page
+        name: 'Mine_Avtaler__c'
       }
     });
   }

@@ -1,42 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <actionCalls>
-        <name>removeAccessForUser</name>
-        <label>removeAccessForUser</label>
-        <locationX>50</locationX>
-        <locationY>638</locationY>
-        <actionName>AAREG_distributionAccessController</actionName>
-        <actionType>apex</actionType>
-        <connector>
-            <targetReference>updateStatusOnAgreement_0_0</targetReference>
-        </connector>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>refOrganizationNumber</name>
-            <value>
-                <elementReference>getAgreement.OrganizationNumber__c</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>refAccessType</name>
-            <value>
-                <stringValue>AAREG_TILGANG_ONLINE</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>referenceId</name>
-            <value>
-                <elementReference>getAgreement.Id</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>referenceType</name>
-            <value>
-                <stringValue>DELETE</stringValue>
-            </value>
-        </inputParameters>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </actionCalls>
     <apiVersion>53.0</apiVersion>
     <decisions>
         <name>checkDeactivationType</name>
@@ -65,7 +28,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>removeAccessForUser</targetReference>
+                <targetReference>updateAgreement</targetReference>
             </connector>
             <label>isTotalDeactivation</label>
         </rules>
@@ -139,56 +102,6 @@
         </value>
     </processMetadataValues>
     <processType>Flow</processType>
-    <recordCreates>
-        <name>create</name>
-        <label>createActivityHistory</label>
-        <locationX>50</locationX>
-        <locationY>878</locationY>
-        <inputAssignments>
-            <field>ActivityDate</field>
-            <value>
-                <elementReference>$Flow.CurrentDateTime</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Description</field>
-            <value>
-                <elementReference>varTaskDescription</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>RecordTypeId</field>
-            <value>
-                <elementReference>varRecordTypeId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>Completed</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Subject</field>
-            <value>
-                <elementReference>varTaskSubject</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Type</field>
-            <value>
-                <stringValue>Tilgang</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>WhatId</field>
-            <value>
-                <elementReference>getAgreement.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Task</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
     <recordCreates>
         <name>createActivityHistory</name>
         <label>createActivityHistory</label>
@@ -264,6 +177,10 @@
         <queriedFields>AA_ConfirmedAgreementCancellationDate__c</queriedFields>
         <queriedFields>OrganizationNumber__c</queriedFields>
         <queriedFields>isNoDeactivationAccess__c</queriedFields>
+        <queriedFields>EventAccess__c</queriedFields>
+        <queriedFields>OnlineAccess__c</queriedFields>
+        <queriedFields>APIAccess__c</queriedFields>
+        <queriedFields>ExtractionAccess__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -290,13 +207,10 @@
         </outputAssignments>
     </recordLookups>
     <recordUpdates>
-        <name>updateStatusOnAgreement_0_0</name>
-        <label>updateStatusOnAgreement</label>
+        <name>updateAgreement</name>
+        <label>updateAgreement</label>
         <locationX>50</locationX>
-        <locationY>758</locationY>
-        <connector>
-            <targetReference>create</targetReference>
-        </connector>
+        <locationY>638</locationY>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -318,9 +232,39 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>APIAccess__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>EventAccess__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ExtractionAccess__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>OnlineAccess__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Status__c</field>
             <value>
                 <stringValue>Deactivated</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>isNoDeactivationAccess__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
             </value>
         </inputAssignments>
         <object>Agreement__c</object>
@@ -467,7 +411,7 @@
         <isInput>true</isInput>
         <isOutput>true</isOutput>
         <value>
-            <stringValue>Avtalen og tilhørende tilganger er deaktivert.</stringValue>
+            <stringValue>Avtalen og tilhørende tilganger er deaktivert</stringValue>
         </value>
     </variables>
     <variables>
@@ -477,7 +421,7 @@
         <isInput>true</isInput>
         <isOutput>true</isOutput>
         <value>
-            <stringValue>Avtalen er deaktivert.</stringValue>
+            <stringValue>Avtalen er deaktivert</stringValue>
         </value>
     </variables>
     <variables>

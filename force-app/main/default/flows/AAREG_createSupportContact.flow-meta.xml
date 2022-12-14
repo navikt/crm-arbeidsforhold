@@ -230,6 +230,7 @@
         </rules>
     </decisions>
     <description>Check contactperson and add account/contact to inquiry</description>
+    <environments>Default</environments>
     <formulas>
         <name>varContactName</name>
         <dataType>String</dataType>
@@ -321,7 +322,7 @@
         <inputAssignments>
             <field>LastName</field>
             <value>
-                <elementReference>varContactName</elementReference>
+                <elementReference>varSetLastName</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -476,6 +477,13 @@
             <operator>IsNull</operator>
             <value>
                 <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>CreatedThroughBatch__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
             </value>
         </filters>
         <object>Inquiry__c</object>

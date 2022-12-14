@@ -42,7 +42,14 @@ public with sharing class AAREG_AgreementController {
   public static void cancelAgreement(Agreement__c agreement) {
     try {
       agreement.Status__c = 'Deactivated';
-      agreement.AA_ConfirmedAgreementCancellationDate__c =System.today();
+      agreement.OnlineAccess__c = false;
+      agreement.EventAccess__c = false;
+      agreement.ExtractionAccess__c = false;
+      agreement.APIAccess__c = false;
+      agreement.AA_ConfirmedAgreementCancellationDate__c = System.today();
+      agreement.isAccessDeactivationThroughFlow__c = false;
+      agreement.isDeactivateThroughBatch__c = false;
+      agreement.isNoDeactivationAccess__c = false;
       update agreement;
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());

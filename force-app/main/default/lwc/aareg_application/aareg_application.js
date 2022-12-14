@@ -306,7 +306,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.validateApplicationBasis();
     this.validateContactsBeforeSubmission();
     this.checkApplicationInputs();
-
     if (this.hasErrors) {
       this.focusInput();
       return;
@@ -448,9 +447,8 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     let securityNotification = 0;
 
     let cons = this.template.querySelectorAll('c-aareg_application-contact');
-    let error = false;
     cons.forEach((con) => {
-      error += con.validate();
+      con.validate();
     });
 
     this.contactRows.forEach((contact) => {
@@ -470,15 +468,11 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
         securityNotification += 1;
       }
     });
-
     if (agreementNotification < 1 || changeNofiication < 1 || errorNotification < 1 || securityNotification < 1) {
       this.missingContactNotifications = true;
       this.setErrorFor(this.contacts, 'Det må oppgis minimum en kontaktperson per type varsling.');
     } else {
       this.missingContactNotifications = false;
-    }
-    if (error) {
-      this.hasErrors = true;
     }
   }
 

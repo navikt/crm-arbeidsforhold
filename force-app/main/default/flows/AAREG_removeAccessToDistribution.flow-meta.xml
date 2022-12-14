@@ -3,12 +3,12 @@
     <actionCalls>
         <name>deactivateAccessForUser</name>
         <label>deactivateAccessForUser</label>
-        <locationX>836</locationX>
-        <locationY>1691</locationY>
+        <locationX>270</locationX>
+        <locationY>1175</locationY>
         <actionName>AAREG_distributionAccessController</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>getRecordTypeId</targetReference>
+            <targetReference>checkDeactivationType</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -40,7 +40,7 @@
     <actionCalls>
         <name>getAccessTypes</name>
         <label>getAccessTypes</label>
-        <locationX>176</locationX>
+        <locationX>182</locationX>
         <locationY>695</locationY>
         <actionName>AAREG_MultiSelectFlowValues</actionName>
         <actionType>apex</actionType>
@@ -60,7 +60,7 @@
     <assignments>
         <name>setSingleAccessTypes</name>
         <label>setSingleAccessTypes</label>
-        <locationX>836</locationX>
+        <locationX>754</locationX>
         <locationY>935</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
@@ -73,10 +73,102 @@
             <targetReference>checkValidAccessTypes</targetReference>
         </connector>
     </assignments>
+    <constants>
+        <name>newLineVal</name>
+        <dataType>String</dataType>
+        <value>
+            <stringValue></stringValue>
+        </value>
+    </constants>
+    <decisions>
+        <name>checkDeactivationType</name>
+        <label>checkDeactivationType</label>
+        <locationX>754</locationX>
+        <locationY>1391</locationY>
+        <defaultConnector>
+            <targetReference>loopTextCollection</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>isActiveOrRemoveAccessFlowWhileInactiveButKeepAccess</name>
+            <conditionLogic>(1 AND 2 AND 3) OR (2 AND 3 AND 4 AND 5)</conditionLogic>
+            <conditions>
+                <leftValueReference>getAgreement.Status__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Deactivated</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue></stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getAgreement.isAccessDeactivationThroughFlow__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getAgreement.Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Deactivated</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>createInquiry</targetReference>
+            </connector>
+            <label>isActiveOrRemoveAccessFlowWhileInactiveButKeepAccess</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>checkStatus</name>
+        <label>checkStatus</label>
+        <locationX>182</locationX>
+        <locationY>2303</locationY>
+        <defaultConnector>
+            <targetReference>updateFlowFieldOnAgreementToFalse</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>isDeactivated</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getAgreement.Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Deactivated</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getAgreement.isAccessDeactivationThroughFlow__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>createActivityHistoryDeactivateAgreement</targetReference>
+            </connector>
+            <label>isDeactivated</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>checkValidAccessTypes</name>
         <label>checkValidAccessTypes</label>
-        <locationX>836</locationX>
+        <locationX>754</locationX>
         <locationY>1055</locationY>
         <defaultConnector>
             <isGoTo>true</isGoTo>
@@ -158,75 +250,9 @@
                 </rightValue>
             </conditions>
             <connector>
-                <isGoTo>true</isGoTo>
-                <targetReference>createInquiry</targetReference>
+                <targetReference>createInquiryForIT</targetReference>
             </connector>
             <label>isAPI</label>
-        </rules>
-        <rules>
-            <name>IsDeactivateAgreementOnline</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>getAgreement.Status__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Deactivated</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Access Online</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Access API with dataprocessor</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>deactivateAccessForUser</targetReference>
-            </connector>
-            <label>IsDeactivateAgreementOnline</label>
-        </rules>
-        <rules>
-            <name>isDeactivatedAgreementAPI</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>getAgreement.Status__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Deactivated</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Access API</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Access OTP</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Access OTP with dataprocessor</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>createInquiry</targetReference>
-            </connector>
-            <label>isDeactivatedAgreementAPI</label>
         </rules>
         <rules>
             <name>isEvent</name>
@@ -261,30 +287,121 @@
             </conditions>
             <connector>
                 <isGoTo>true</isGoTo>
-                <targetReference>createInquiry</targetReference>
+                <targetReference>createInquiryForIT</targetReference>
             </connector>
             <label>isEvent</label>
+        </rules>
+        <rules>
+            <name>isExtract</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varSingleAccessType</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Extract</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getAgreement.ExtractionAccess__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record__Prior.ExtractionAccess__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>checkDeactivationType</targetReference>
+            </connector>
+            <label>isExtract</label>
         </rules>
     </decisions>
     <description>If casehandler or user is deactivating the agreement a cancellation callout is sent to distribution through the integration.</description>
     <environments>Default</environments>
     <formulas>
+        <name>convertAccessTextForuser</name>
+        <dataType>String</dataType>
+        <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;Tilgang til API&quot;, &quot;Access API with dataprocessor&quot; , &quot;Tilgang til API med databehandler&quot; , &quot;Access OTP&quot; , &quot;Tilgang til OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;Tilgang til OTP med databehandler&quot; , &quot;Access Online&quot; , &quot;Tilgang til Web-oppslag&quot; ,  &quot;Event&quot;, &quot;Tilgang til Hendelser&quot;, &quot;Event with dataprocessor&quot;, &quot;Tilgang til Hendelser med databehandler&quot;, &quot;Extract&quot;, &quot;Tilgang til Uttrekk&quot;, &quot;Ingen tilgang&quot;)</expression>
+    </formulas>
+    <formulas>
+        <name>varConvertAccessType</name>
+        <dataType>String</dataType>
+        <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;AAREG_TILGANG_API&quot;, &quot;Access API with dataprocessor&quot; , &quot;AAREG_TILGANG_API_DATABEHANDLER&quot; , &quot;Access OTP&quot; , &quot;AAREG_TILGANG_API_OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;AAREG_TILGANG_API_OTP_DATABEHANDLER&quot; , &quot;Access Online&quot; , &quot;AAREG_TILGANG_ONLINE&quot; ,  &quot;Event&quot;, &quot;AAREG_TILGANG_HENDELSER&quot;, &quot;Event with dataprocessor&quot;, &quot;AAREG_TILGANG_HENDELSER_DATABEHANDLER&quot;, &quot;Extract&quot;, &quot;AAREG_UTTREKK&quot;, &quot;No Access&quot;)</expression>
+    </formulas>
+    <formulas>
+        <name>varDeactivatedAgreementDescription</name>
+        <dataType>String</dataType>
+        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har deaktivert avtalen og tilhørende tilganger.&apos;</expression>
+    </formulas>
+    <formulas>
+        <name>varDeactivatedAgreementSubject</name>
+        <dataType>String</dataType>
+        <expression>&quot;Avtalen og tilhørende tilganger er deaktivert&quot;</expression>
+    </formulas>
+    <formulas>
+        <name>varInquiryDesciptionAPIEvent</name>
+        <dataType>String</dataType>
+        <expression>&quot;Deaktivere &quot; &amp;{!convertAccessTextForuser} &amp;&quot;: &quot; &amp;{!varConvertAccessType} &amp;&quot;.&quot; &amp;BR()
+&amp;&quot;Vedtaksdato: &quot;&amp;TEXT(TODAY()) &amp; BR()
+&amp;&quot;Virksomhet: &quot;&amp;{!getApplication.Account__r.Name} &amp; BR()
+&amp;&quot;Organisasjonsnummer: &quot;&amp;{!getApplication.Account__r.INT_OrganizationNumber__c}</expression>
+    </formulas>
+    <formulas>
+        <name>varInquiryDescription</name>
+        <dataType>String</dataType>
+        <expression>{!convertAccessTextForuser} &amp;&quot;: &quot; &amp;{!varConvertAccessType} &amp;&quot;, er deaktivert.&quot; &amp;BR()
+&amp;&quot;Konsument har endret tilgangstype. Vurder konsekvens for vedtak.&quot; &amp;BR()
+&amp;&quot;Vedtaksdato: &quot;&amp;TEXT(TODAY()) &amp; BR()
+&amp;&quot;Virksomhet: &quot;&amp;{!getApplication.Account__r.Name} &amp; BR()
+&amp;&quot;Organisasjonsnummer: &quot;&amp;{!getApplication.Account__r.INT_OrganizationNumber__c}</expression>
+    </formulas>
+    <formulas>
+        <name>varInquirySubject</name>
+        <dataType>String</dataType>
+        <expression>{!convertAccessTextForuser} &amp; &quot; er deaktivert.&quot;</expression>
+    </formulas>
+    <formulas>
+        <name>varInquirySubjectAPIEvent</name>
+        <dataType>String</dataType>
+        <expression>&quot;Deaktivere: &quot; &amp;{!convertAccessTextForuser}</expression>
+    </formulas>
+    <formulas>
+        <name>varMessageFromNAV</name>
+        <dataType>String</dataType>
+        <expression>&apos;Hei,&apos;&amp;BR()
+&amp;&apos;Vedtak om: &quot;&apos; &amp;{!convertAccessTextForuser} &amp; &apos;&quot; er deaktivert for organisasjonsnummer: &apos;&amp;{!$Record.account__r.INT_OrganizationNumber__c}&amp;&apos;.&apos;&amp;BR()
+&amp;&apos;Hilsen NAV&apos;</expression>
+    </formulas>
+    <formulas>
         <name>varTaskDescription</name>
         <dataType>String</dataType>
-        <expression>&apos;Tilgang er deaktivert av  &apos;+{!$User.FirstName}+&apos; &apos;+{!$User.LastName}</expression>
+        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har deaktivert tilgang: &apos; + {!varConvertAccessType} + &apos;.&apos;</expression>
+    </formulas>
+    <formulas>
+        <name>varTaskSubject</name>
+        <dataType>String</dataType>
+        <expression>&apos;Tilgang: &apos; + {!varConvertAccessType} + &apos; er deaktivert&apos;</expression>
     </formulas>
     <interviewLabel>AAREG_removeAccessToDistribution {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_removeAccessToDistribution</label>
     <loops>
         <name>loopTextCollection</name>
         <label>loopTextCollection</label>
-        <locationX>176</locationX>
+        <locationX>182</locationX>
         <locationY>815</locationY>
         <collectionReference>getAccessTypes</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
             <targetReference>setSingleAccessTypes</targetReference>
         </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>checkStatus</targetReference>
+        </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -306,10 +423,10 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordCreates>
-        <name>createActivtyHistory</name>
-        <label>createActivtyHistory</label>
-        <locationX>836</locationX>
-        <locationY>1931</locationY>
+        <name>createActivityHistory</name>
+        <label>createActivityHistory</label>
+        <locationX>622</locationX>
+        <locationY>1991</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
         </connector>
@@ -340,7 +457,60 @@
         <inputAssignments>
             <field>Subject</field>
             <value>
-                <elementReference>varTaskDescription</elementReference>
+                <elementReference>varTaskSubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <stringValue>Tilgang</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId</field>
+            <value>
+                <elementReference>getAgreement.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Task</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>createActivityHistoryDeactivateAgreement</name>
+        <label>createActivityHistoryDeactivateAgreement</label>
+        <locationX>50</locationX>
+        <locationY>2423</locationY>
+        <connector>
+            <targetReference>updateFlowFieldOnAgreementToFalse</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>ActivityDate</field>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>varDeactivatedAgreementDescription</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>RecordTypeId</field>
+            <value>
+                <elementReference>varRecordTypeId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <elementReference>varDeactivatedAgreementSubject</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -361,8 +531,8 @@
     <recordCreates>
         <name>createInquiry</name>
         <label>createInquiry</label>
-        <locationX>880</locationX>
-        <locationY>1175</locationY>
+        <locationX>622</locationX>
+        <locationY>1511</locationY>
         <assignRecordIdToReference>varInquiryId</assignRecordIdToReference>
         <connector>
             <targetReference>getInquiryName</targetReference>
@@ -394,7 +564,53 @@
         <inputAssignments>
             <field>Subject__c</field>
             <value>
-                <stringValue>Deaktivere tilgang(er) til API</stringValue>
+                <elementReference>varInquirySubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>TypeOfInquiry__c</field>
+            <value>
+                <stringValue>Spørsmål før du søker om tilgang</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Inquiry__c</object>
+    </recordCreates>
+    <recordCreates>
+        <name>createInquiryForIT</name>
+        <label>createInquiryForIT</label>
+        <locationX>534</locationX>
+        <locationY>1175</locationY>
+        <connector>
+            <targetReference>checkDeactivationType</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>AccountId__c</field>
+            <value>
+                <elementReference>getApplication.Account__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ContactId__c</field>
+            <value>
+                <elementReference>getApplication.Contact__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Email__c</field>
+            <value>
+                <elementReference>getApplication.Email__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>InquiryDescription__c</field>
+            <value>
+                <elementReference>varInquiryDesciptionAPIEvent</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject__c</field>
+            <value>
+                <elementReference>varInquirySubjectAPIEvent</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -404,20 +620,43 @@
             </value>
         </inputAssignments>
         <object>Inquiry__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>createMessageFromNAV</name>
+        <label>createMessageFromNAV</label>
+        <locationX>622</locationX>
+        <locationY>1871</locationY>
+        <connector>
+            <targetReference>createActivityHistory</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>CRM_Message_Text__c</field>
+            <value>
+                <elementReference>varMessageFromNAV</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>CRM_Thread__c</field>
+            <value>
+                <elementReference>createThread</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Message__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordCreates>
         <name>createThread</name>
         <label>createThread</label>
-        <locationX>880</locationX>
-        <locationY>1415</locationY>
+        <locationX>622</locationX>
+        <locationY>1751</locationY>
         <connector>
-            <isGoTo>true</isGoTo>
-            <targetReference>loopTextCollection</targetReference>
+            <targetReference>createMessageFromNAV</targetReference>
         </connector>
         <inputAssignments>
             <field>AAREG_Thread_Subject__c</field>
             <value>
-                <stringValue>Deaktivere tilgang(er) til API</stringValue>
+                <stringValue>Deaktivering av tilgang(er)</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -445,6 +684,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>CRM_Thread_Type__c</field>
+            <value>
+                <stringValue>AAREG_EXP</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Name</field>
             <value>
                 <elementReference>varInquiryName</elementReference>
@@ -462,7 +707,7 @@
     <recordLookups>
         <name>getAgreement</name>
         <label>getAgreement</label>
-        <locationX>176</locationX>
+        <locationX>182</locationX>
         <locationY>335</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -484,12 +729,15 @@
         <queriedFields>APIAccess__c</queriedFields>
         <queriedFields>OnlineAccess__c</queriedFields>
         <queriedFields>Status__c</queriedFields>
+        <queriedFields>EventAccess__c</queriedFields>
+        <queriedFields>isAccessDeactivationThroughFlow__c</queriedFields>
+        <queriedFields>ExtractionAccess__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>176</locationX>
+        <locationX>182</locationX>
         <locationY>455</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -516,8 +764,8 @@
     <recordLookups>
         <name>getInquiryName</name>
         <label>getInquiryName</label>
-        <locationX>880</locationX>
-        <locationY>1295</locationY>
+        <locationX>622</locationX>
+        <locationY>1631</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createThread</targetReference>
@@ -537,32 +785,9 @@
         </outputAssignments>
     </recordLookups>
     <recordLookups>
-        <name>getRecordTypeId</name>
-        <label>getRecordTypeId</label>
-        <locationX>836</locationX>
-        <locationY>1811</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>createActivtyHistory</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>DeveloperName</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>AAREG_Task</stringValue>
-            </value>
-        </filters>
-        <object>RecordType</object>
-        <outputAssignments>
-            <assignToReference>varRecordTypeId</assignToReference>
-            <field>Id</field>
-        </outputAssignments>
-    </recordLookups>
-    <recordLookups>
         <name>getRecordTypeId_0</name>
         <label>getRecordTypeId</label>
-        <locationX>176</locationX>
+        <locationX>182</locationX>
         <locationY>575</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -582,13 +807,26 @@
             <field>Id</field>
         </outputAssignments>
     </recordLookups>
+    <recordUpdates>
+        <name>updateFlowFieldOnAgreementToFalse</name>
+        <label>updateFlowFieldOnAgreementToFalse</label>
+        <locationX>182</locationX>
+        <locationY>2639</locationY>
+        <inputAssignments>
+            <field>isAccessDeactivationThroughFlow__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
     <start>
-        <locationX>50</locationX>
+        <locationX>56</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getAgreement</targetReference>
         </connector>
-        <filterLogic>4 AND (1 OR 2 OR 3 OR 5)</filterLogic>
+        <filterLogic>4 AND 7 AND (1 OR 2 OR 3 OR 5 OR 6)</filterLogic>
         <filters>
             <field>Status__c</field>
             <operator>EqualTo</operator>
@@ -624,21 +862,25 @@
                 <booleanValue>false</booleanValue>
             </value>
         </filters>
+        <filters>
+            <field>ExtractionAccess__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>isDeactivateThroughBatch__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
         <object>Agreement__c</object>
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
-    <textTemplates>
-        <name>varInquiryDescription</name>
-        <isViewedAsPlainText>false</isViewedAsPlainText>
-        <text>&lt;p&gt;&quot;Deaktivere tilgang(er) til API - &quot;&amp;amp;{!varSingleAccessType} &amp;amp; BR()&lt;/p&gt;&lt;p&gt;&amp;amp;&quot;Vedtaksdato: &quot;&amp;amp;TEXT(TODAY())&amp;amp; BR()&lt;/p&gt;&lt;p&gt;&amp;amp;&quot;Virksomhet: &quot;&amp;amp;{!getApplication.Account__r.Name}&amp;amp; BR()&lt;/p&gt;&lt;p&gt;&amp;amp;&quot;Organisasjonsnummer: &quot;&amp;amp;{!getApplication.Account__r.INT_OrganizationNumber__c}&lt;/p&gt;</text>
-    </textTemplates>
-    <textTemplates>
-        <name>varThreadMessageNav</name>
-        <isViewedAsPlainText>false</isViewedAsPlainText>
-        <text>&lt;p&gt;Hei&lt;/p&gt;</text>
-    </textTemplates>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
@@ -666,16 +908,6 @@
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>true</isOutput>
-    </variables>
-    <variables>
-        <name>varResponseStatusCode</name>
-        <dataType>Boolean</dataType>
-        <isCollection>false</isCollection>
-        <isInput>true</isInput>
-        <isOutput>true</isOutput>
-        <value>
-            <booleanValue>false</booleanValue>
-        </value>
     </variables>
     <variables>
         <name>varSingleAccessType</name>

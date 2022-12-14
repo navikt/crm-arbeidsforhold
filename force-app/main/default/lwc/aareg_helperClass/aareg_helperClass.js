@@ -2,7 +2,6 @@ export function validateEmail(email) {
   const regExp = /\S+@\S+\.\S+/;
     if (!regExp.test(email) || email === null || email === '') {
       return true;
-    } else {
-      return false;
-    }
+    } 
+    return false;
   }
