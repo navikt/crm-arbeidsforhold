@@ -500,8 +500,13 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
         this.header = 'Søknad lagret';
         this.content = 'Dine endringer er lagret.';
         this.showModal();
-        sessionStorage.setItem('isSaved', 'false');
       } 
+    }
+  }
+
+  handleAlertDialogClick(event) {
+    if (event.detail === 'confirm') {
+      sessionStorage.setItem('isSaved', 'false');
     }
   }
 
