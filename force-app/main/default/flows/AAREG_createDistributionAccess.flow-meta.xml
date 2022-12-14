@@ -161,12 +161,12 @@
     <formulas>
         <name>convertAccessTextForUser</name>
         <dataType>String</dataType>
-        <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;Tilgang til API&quot;, &quot;Access API with dataprocessor&quot; , &quot;Tilgang til API med databehandler&quot; , &quot;Access OTP&quot; , &quot;Tilgang til OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;Tilgang til OTP med databehandler&quot; , &quot;Access Online&quot; , &quot;Tilgang til Web-oppslag&quot; ,  &quot;Event&quot;, &quot;Tilgang til Hendelser&quot;, &quot;Event with dataprocessor&quot;, &quot;Tilgang til Hendelser med databehandler&quot;, &quot;Ingen tilgang&quot;)</expression>
+        <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;Tilgang til API&quot;, &quot;Access API with dataprocessor&quot; , &quot;Tilgang til API med databehandler&quot; , &quot;Access OTP&quot; , &quot;Tilgang til OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;Tilgang til OTP med databehandler&quot; , &quot;Access Online&quot; , &quot;Tilgang til Web-oppslag&quot; ,  &quot;Event&quot;, &quot;Tilgang til Hendelser&quot;, &quot;Event with dataprocessor&quot;, &quot;Tilgang til Hendelser med databehandler&quot;, &quot;Extract&quot;, &quot;Tilgang til Uttrekk&quot;, &quot;Ingen tilgang&quot;)</expression>
     </formulas>
     <formulas>
         <name>varConvertAccessType</name>
         <dataType>String</dataType>
-        <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;AAREG_TILGANG_API&quot;, &quot;Access API with dataprocessor&quot; , &quot;AAREG_TILGANG_API_DATABEHANDLER&quot; , &quot;Access OTP&quot; , &quot;AAREG_TILGANG_API_OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;AAREG_TILGANG_API_OTP_DATABEHANDLER&quot; , &quot;Access Online&quot; , &quot;AAREG_TILGANG_ONLINE&quot; ,  &quot;Event&quot;, &quot;AAREG_TILGANG_HENDELSER&quot;, &quot;Event with dataprocessor&quot;, &quot;AAREG_TILGANG_HENDELSER_DATABEHANDLER&quot;, &quot;No Access&quot;)</expression>
+        <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;AAREG_TILGANG_API&quot;, &quot;Access API with dataprocessor&quot; , &quot;AAREG_TILGANG_API_DATABEHANDLER&quot; , &quot;Access OTP&quot; , &quot;AAREG_TILGANG_API_OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;AAREG_TILGANG_API_OTP_DATABEHANDLER&quot; , &quot;Access Online&quot; , &quot;AAREG_TILGANG_ONLINE&quot; ,  &quot;Event&quot;, &quot;AAREG_TILGANG_HENDELSER&quot;, &quot;Event with dataprocessor&quot;, &quot;AAREG_TILGANG_HENDELSER_DATABEHANDLER&quot;, &quot;Extract&quot;, &quot;AAREG_UTTREKK&quot;, &quot;No Access&quot;)</expression>
     </formulas>
     <formulas>
         <name>varDescription</name>

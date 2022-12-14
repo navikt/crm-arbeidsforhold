@@ -355,7 +355,7 @@
         <name>varInquiryDescription</name>
         <dataType>String</dataType>
         <expression>{!convertAccessTextForuser} &amp;&quot;: &quot; &amp;{!varConvertAccessType} &amp;&quot;, er deaktivert.&quot; &amp;BR()
-&amp;&quot;Konsument har endret tilgangstype. Vurder konsekvens for vedtak.&quot; &amp;BR()
+&amp;&quot;Bruker - &quot; &amp;{!$User.FirstName}&amp; &quot; &quot;&amp;{!$User.LastName} &amp;&quot; har endret tilgangstype. Vurder konsekvens for vedtak.&quot; &amp;BR()
 &amp;&quot;Vedtaksdato: &quot;&amp;TEXT(TODAY()) &amp; BR()
 &amp;&quot;Virksomhet: &quot;&amp;{!getApplication.Account__r.Name} &amp; BR()
 &amp;&quot;Organisasjonsnummer: &quot;&amp;{!getApplication.Account__r.INT_OrganizationNumber__c}</expression>
