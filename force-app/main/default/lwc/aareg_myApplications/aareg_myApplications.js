@@ -130,9 +130,8 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
 
   siteURL = '';
   downloadFile(event) {
-    this.siteURL = window.location.origin + '/aaregisteret';
     const row = event.detail.row;
-    this.siteURL += '/apex/AAREG_decisionPDF?Id=' + row.Id;
+    this.siteURL = window.location.origin + '/aaregisteret' + '/apex/AAREG_decisionPDF?Id=' + row.Id;
     window.open(this.siteURL);
   }
 }
