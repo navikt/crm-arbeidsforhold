@@ -53,6 +53,10 @@
     <enabled>true</enabled>
   </classAccesses>
   <classAccesses>
+    <apexClass>DecisionController</apexClass>
+    <enabled>true</enabled>
+  </classAccesses>
+  <classAccesses>
     <apexClass>LoggerUtility</apexClass>
     <enabled>true</enabled>
   </classAccesses>
@@ -654,6 +658,10 @@
     <object>Thread__c</object>
     <viewAllRecords>false</viewAllRecords>
   </objectPermissions>
+  <pageAccesses>
+    <apexPage>AAREG_decisionPDF</apexPage>
+    <enabled>true</enabled>
+  </pageAccesses>
   <recordTypeVisibilities>
     <recordType>Application__c.Aa_RegisterAccess</recordType>
     <visible>true</visible>
