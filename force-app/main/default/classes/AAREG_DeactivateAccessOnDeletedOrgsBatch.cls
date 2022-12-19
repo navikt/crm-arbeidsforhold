@@ -41,21 +41,5 @@ public with sharing class AAREG_DeactivateAccessOnDeletedOrgsBatch implements Da
         logger.publishSynch();
     }
   }
-
-  public void finish(Database.BatchableContext bc) {
-    if (!Test.isRunningTest()) {
-      try {
-          System.scheduleBatch(
-              new AAREG_DeactivateAccessOnDeletedOrgsBatch(),
-              'AAREG_DeactivateAccessOnDeletedOrgsBatch',
-              1440,
-              50
-          );
-      } catch (Exception e) {
-          LoggerUtility logger = new LoggerUtility();
-          logger.exception(e, CRM_ApplicationDomain.Domain.AAREG);
-          logger.publishSynch();
-      }
-    }
-  }
+  public void finish(Database.BatchableContext bc) {}
 }
