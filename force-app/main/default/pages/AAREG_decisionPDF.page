@@ -1,0 +1,4 @@
+<apex:page renderAs="PDF" controller="DecisionController">
+  <apex:image url="{!$Resource.logo}"/>
+  <apex:outputText value="{!application.AA_CasehandlerDecisionTemplate__c}" escape="false"/>
+</apex:page>

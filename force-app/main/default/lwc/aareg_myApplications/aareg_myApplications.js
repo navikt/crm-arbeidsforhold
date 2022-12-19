@@ -128,17 +128,10 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     }
   }
 
-  // Note: Downloading as application/pdf does not work. Downloads as .htm file
+  siteURL = '';
   downloadFile(event) {
     const row = event.detail.row;
-    let link = document.createElement('a');
-    link.download = 'Vedtak for søknad ' + row.Name;
-    let blob = new Blob([row.AA_CasehandlerDecisionTemplate__c], {type: 'text/html'});
-    let reader = new FileReader();
-    reader.readAsDataURL(blob); // Converts blob to base64 and calls onload
-    reader.onload = (() => {
-      link.href = reader.result;
-      link.click();
-    });
+    this.siteURL = window.location.origin + '/aaregisteret' + '/apex/AAREG_decisionPDF?Id=' + row.Id;
+    window.open(this.siteURL);
   }
 }
