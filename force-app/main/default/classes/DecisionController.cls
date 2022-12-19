@@ -15,9 +15,5 @@ public with sharing class DecisionController {
     if (subStr1 != '' && subStr2 != '') {
       application.AA_CasehandlerDecisionTemplate__c = subStr1 + subStr2;
     }
-    // Remove unecessary linebreaks
-    for (Integer i = 0; i < 6; i++) {
-      application.AA_CasehandlerDecisionTemplate__c = application.AA_CasehandlerDecisionTemplate__c.replaceFirst('<br>', '');
-    }
   }
 }
