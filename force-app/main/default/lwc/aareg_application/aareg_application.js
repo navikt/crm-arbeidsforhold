@@ -526,7 +526,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     }
     if (
       (this.fileData.base64 === null || this.fileData.filename === null) &&
-      this.application.Status__c != 'Additional Information Required'
+      this.application.Status__c != 'Additional Information Required' && this.template.querySelector('c-record-files-with-sharing').checkIfEmpty() === true
     ) {
       this.setErrorFor(this.dataElements, 'Obligatorisk');
     }
