@@ -133,9 +133,9 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     const row = event.detail.row;
     const siteOrigin = window.location.origin;
     if (siteOrigin === 'https://navdialog--preprod.sandbox.my.site.com') { // Preprod
-      this.siteURL = window.location.origin + '/aaregisteret' + '/apex/AAREG_decisionPDF?Id=' + row.Id;
+      this.siteURL = siteOrigin + '/aaregisteret' + '/apex/AAREG_decisionPDF?Id=' + row.Id;
     } else { // Prod
-      this.siteURL = window.location.origin + '/apex/AAREG_decisionPDF?Id=' + row.Id;
+      this.siteURL = siteOrigin + '/apex/AAREG_decisionPDF?Id=' + row.Id;
     }
     console.log(this.siteURL);
     window.open(this.siteURL);
