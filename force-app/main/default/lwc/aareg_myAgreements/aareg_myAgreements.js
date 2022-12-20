@@ -16,6 +16,19 @@ const COLUMNS = [
       name: 'Avtale',
       variant: 'Brand Outline'
     }
+  },
+  {
+    type: 'button',
+    fixedWidth: 190,
+    typeAttributes: {
+      label: 'Last ned vedtak',
+      title: 'Last ned vedtak',
+      name: 'Last ned',
+      variant: 'Brand',
+      iconName: 'utility:download',
+      iconPosition: 'right',
+      iconAlternativeText: 'Last ned',
+    }
   }
 ];
 
@@ -56,6 +69,14 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
     }
   }
 
+  handleRowAction(event) {
+    if(event.detail.action.name === 'Avtale') {
+      this.viewAgreement(event);
+    } else if (event.detail.action.name === 'Last ned') {
+      this.downloadFile(event);
+    }
+  }
+
   viewAgreement(event) {
     const row = event.detail.row;
     this[NavigationMixin.Navigate]({
@@ -65,5 +86,18 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
         actionName: 'view'
       }
     });
+  }
+
+  siteURL = '';
+  downloadFile(event) {
+    const row = event.detail.row;
+    const siteOrigin = window.location.origin;
+    if (siteOrigin === 'https://navdialog--preprod.sandbox.my.site.com') { // Preprod
+      this.siteURL = siteOrigin + '/aaregisteret' + '/apex/AAREG_decisionPDF?Id=' + row.Application__c;
+    } else { // Prod
+      this.siteURL = siteOrigin + '/apex/AAREG_decisionPDF?Id=' + row.Id;
+    }
+    console.log(this.siteURL);
+    window.open(this.siteURL);
   }
 }
