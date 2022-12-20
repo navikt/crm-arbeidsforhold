@@ -97,7 +97,6 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
     } else { // Prod
       this.siteURL = siteOrigin + '/apex/AAREG_decisionPDF?Id=' + row.Id;
     }
-    console.log(this.siteURL);
     window.open(this.siteURL);
   }
 }

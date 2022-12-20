@@ -138,7 +138,6 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     } else { // Prod
       this.siteURL = siteOrigin + '/apex/AAREG_decisionPDF?Id=' + row.Id;
     }
-    console.log(this.siteURL);
     window.open(this.siteURL);
   }
 }
