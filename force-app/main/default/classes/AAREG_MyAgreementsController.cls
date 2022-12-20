@@ -15,7 +15,7 @@ public with sharing class AAREG_MyAgreementsController {
     List<Agreement__c> agreements = new List<Agreement__c>();
 
     agreements = [
-      SELECT Id, Name, toLabel(Status__c)
+      SELECT Id, Name, toLabel(Status__c), Application__c
       FROM Agreement__c
       WHERE OrganizationNumber__c = :lastUsedOrganization AND Status__c = 'Active'
     ];

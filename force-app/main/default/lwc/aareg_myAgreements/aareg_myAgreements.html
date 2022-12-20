@@ -11,7 +11,7 @@
           data={agreements}
           class="slds-max-medium-table_stacked"
           columns={columns}
-          onrowaction={viewAgreement}
+          onrowaction={handleRowAction}
           hide-checkbox-column="true">
         </lightning-datatable>
       </div>
@@ -20,7 +20,7 @@
           key-field="id"
           data={agreements}
           columns={columns}
-          onrowaction={viewAgreement}
+          onrowaction={handleRowAction}
           hide-checkbox-column="true">
         </lightning-datatable>
       </div>

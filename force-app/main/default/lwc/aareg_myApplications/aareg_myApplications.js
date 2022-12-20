@@ -73,7 +73,7 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
       this.initialApplications = result.data;
       this.applications = JSON.parse(JSON.stringify(this.initialApplications));
       this.applications.forEach(application => {
-        application.disableButton = application.AA_CasehandlerDecisionTemplate__c === null || application.AA_CasehandlerDecisionTemplate__c === undefined;
+        application.disableButton = application.Status__c !== 'Innvilget' && application.Status__c !== 'Delvis Innvilget' && application.Status__c !== 'Avslag';
       });
     } else if (result.error) {
       console.error(result.error);
@@ -88,7 +88,8 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     } else if (event.detail.action.name === 'Last ned') {
       this.downloadFile(event);
     }
-}
+  }
+
   viewApplication(event) {
     const row = event.detail.row;
     let applicationType = 'view';
@@ -131,7 +132,12 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   siteURL = '';
   downloadFile(event) {
     const row = event.detail.row;
-    this.siteURL = window.location.origin + '/aaregisteret' + '/apex/AAREG_decisionPDF?Id=' + row.Id;
+    const siteOrigin = window.location.origin;
+    if (siteOrigin === 'https://navdialog--preprod.sandbox.my.site.com') { // Preprod
+      this.siteURL = siteOrigin + '/aaregisteret' + '/apex/AAREG_decisionPDF?Id=' + row.Id;
+    } else { // Prod
+      this.siteURL = siteOrigin + '/apex/AAREG_decisionPDF?Id=' + row.Id;
+    }
     window.open(this.siteURL);
   }
 }
