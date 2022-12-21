@@ -429,7 +429,19 @@
                       </div>
                     </div>
                   </div>
-                  <p if:true={fileData.filename}>Opplastet fil: {fileData.filename}</p>
+                  <div style="display: flex; flex-direction: row">
+                    <p if:true={fileData.filename} style="font-weight: bold;">Opplastet fil:&nbsp;</p>
+                    <p if:true={fileData.filename}>{fileData.filename}</p>
+                  </div>
+                  <br if:true={fileData.filename}/>
+                  <c-record-files-with-sharing
+                    record-id={recordId}
+                    is-get-all="true"
+                    is-delete-option="false"
+                    title="Tidligere opplastede vedlegg"
+                    header-alignment="start"
+                    no-download-link="true">
+                  </c-record-files-with-sharing>
                 </div>
               </div>
             </section>
