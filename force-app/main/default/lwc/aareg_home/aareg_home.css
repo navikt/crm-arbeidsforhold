@@ -27,8 +27,8 @@
 }
 
 .home_header {
-  flex: 2;
-  text-align: end;
+  flex: 1;
+  text-align: center;
 }
 
 .org_picker {
