@@ -133,11 +133,14 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   downloadFile(event) {
     const row = event.detail.row;
     const siteOrigin = window.location.origin;
+    console.log('Id: ', row.Id);
+    console.log('SiteOrigin: ', siteOrigin);
     if (siteOrigin === 'https://navdialog--preprod.sandbox.my.site.com') { // Preprod
       this.siteURL = siteOrigin + '/aaregisteret' + '/apex/AAREG_decisionPDF?Id=' + row.Id;
     } else { // Prod
       this.siteURL = siteOrigin + '/apex/AAREG_decisionPDF?Id=' + row.Id;
     }
+    console.log('siteURL: ', this.siteURL);
     window.open(this.siteURL);
   }
 }
