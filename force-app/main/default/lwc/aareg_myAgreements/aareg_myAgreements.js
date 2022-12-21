@@ -95,7 +95,7 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
     if (siteOrigin === 'https://navdialog--preprod.sandbox.my.site.com') { // Preprod
       this.siteURL = siteOrigin + '/aaregisteret' + '/apex/AAREG_decisionPDF?Id=' + row.Application__c;
     } else { // Prod
-      this.siteURL = siteOrigin + '/apex/AAREG_decisionPDF?Id=' + row.Id;
+      this.siteURL = siteOrigin + '/apex/AAREG_decisionPDF?Id=' + row.Application__c;
     }
     window.open(this.siteURL);
   }
