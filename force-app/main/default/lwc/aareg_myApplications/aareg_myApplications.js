@@ -21,17 +21,6 @@ const COLUMNS = [
   },
   {
     type: 'button',
-    fixedWidth: 150,
-    typeAttributes: {
-      label: 'Se vedtak',
-      title: 'Se vedtak',
-      name: 'Vedtak',
-      variant: 'Brand Outline',
-      disabled: {fieldName: 'disableButton'}
-    }
-  },
-  {
-    type: 'button',
     fixedWidth: 190,
     typeAttributes: {
       label: 'Last ned vedtak',
@@ -83,10 +72,8 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   handleRowAction(event) {
     if(event.detail.action.name === 'Søknad') {
         this.viewApplication(event);
-    } else if (event.detail.action.name === 'Vedtak') {
-        this.viewDecision(event);
     } else if (event.detail.action.name === 'Last ned') {
-      this.downloadFile(event);
+      this.downloadDecision(event);
     }
   }
 
@@ -113,24 +100,8 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     });
   }
 
-  @track decision;
-  viewDecision(event) {
-    const row = event.detail.row;
-    if (row.AA_CasehandlerDecisionTemplate__c !== null && row.AA_CasehandlerDecisionTemplate__c !== undefined) {
-      this.decision = row.AA_CasehandlerDecisionTemplate__c;
-      // Remove first image (NAV Logo) from decision (can't be loaded - violates the Content Security Policy)
-      let decisionString = JSON.stringify(this.decision);
-      let subStr1 = decisionString.substring(0, decisionString.indexOf('<img'));
-      let subStr2 = decisionString.substring(decisionString.indexOf('</img>')+6, decisionString.length);
-      if (subStr1 !== '' && subStr2 !== '') {
-        this.decision = JSON.parse(subStr1 + subStr2);
-      }
-      this.template.querySelector('c-aareg_modal[data-id="Decision-Modal"]').toggle();
-    }
-  }
-
   siteURL = '';
-  downloadFile(event) {
+  downloadDecision(event) {
     const row = event.detail.row;
     const siteOrigin = window.location.origin;
     if (siteOrigin === 'https://navdialog--preprod.sandbox.my.site.com') { // Preprod

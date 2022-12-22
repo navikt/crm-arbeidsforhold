@@ -507,6 +507,9 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   handleAlertDialogClick(event) {
     if (event.detail === 'confirm') {
       sessionStorage.setItem('isSaved', 'false');
+      if (this.template.querySelector('c-record-files-with-sharing') !== null) {
+        this.template.querySelector('c-record-files-with-sharing').refreshContentDocuments();
+      }
     }
   }
 
