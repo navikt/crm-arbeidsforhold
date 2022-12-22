@@ -134,10 +134,6 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
     }
   }
 
-  toggleDecision() {
-    this.template.querySelector('c-aareg_modal[data-id="Decision-Modal"]').toggle();
-  }
-
   toggleEndAgreement() {
     this.template.querySelector('c-aareg_modal[data-id="End-Agreement"]').toggle();
   }
