@@ -17,6 +17,7 @@
             <targetReference>createEmailQueue</targetReference>
         </connector>
     </assignments>
+    <environments>Default</environments>
     <interviewLabel>AAREG_sendAwaitingResponseEmailNotification {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_sendAwaitingResponseEmailNotification</label>
     <processMetadataValues>
@@ -88,6 +89,7 @@
         <connector>
             <targetReference>setVariables</targetReference>
         </connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Casehandler_Status__c</field>
