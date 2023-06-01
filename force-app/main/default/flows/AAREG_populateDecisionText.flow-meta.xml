@@ -847,7 +847,7 @@
     <isViewedAsPlainText>false</isViewedAsPlainText>
     <text>&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;text-align: left;&quot;&gt;&lt;span
       style=&quot;font-size: 14px;&quot;&gt;&lt;img
-      src=&quot;https://navdialog--c.visualforce.com/resource/1587557877000/logo?&quot;&gt;&lt;/span&gt;&lt;/p&gt;&lt;p
+      src=&quot;https://navdialog--c.vf.force.com/resource/1587557877000/logo?&quot;&gt;&lt;/span&gt;&lt;/p&gt;&lt;p
       style=&quot;text-align: left;&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;text-align:
       left;&quot;&gt;&lt;span style=&quot;font-size:
       14px;&quot;&gt;{!getAccountsDetail.Name}&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot;text-align:
@@ -1035,7 +1035,7 @@
     <isViewedAsPlainText>false</isViewedAsPlainText>
     <text>&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;text-align: left;&quot;&gt;&lt;strong
       style=&quot;font-size: 14px;&quot;&gt;&lt;img
-      src=&quot;https://navdialog--c.visualforce.com/resource/1587557877000/logo?&quot;&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p
+      src=&quot;https://navdialog--c.vf.force.com/resource/1587557877000/logo?&quot;&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p
       style=&quot;text-align: left;&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span
       style=&quot;font-size:
       14px;&quot;&gt;{!getAccountsDetail.Name}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
@@ -1112,7 +1112,7 @@
     <isViewedAsPlainText>false</isViewedAsPlainText>
     <text>&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p style=&quot;text-align: left;&quot;&gt;&lt;strong
       style=&quot;font-size: 14px;&quot;&gt;&lt;img
-      src=&quot;https://navdialog--c.visualforce.com/resource/1587557877000/logo?&quot;&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p
+      src=&quot;https://navdialog--c.vf.force.com/resource/1587557877000/logo?&quot;&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p
       style=&quot;text-align: left;&quot;&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span
       style=&quot;font-size:
       14px;&quot;&gt;{!getAccountsDetail.Name}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span
