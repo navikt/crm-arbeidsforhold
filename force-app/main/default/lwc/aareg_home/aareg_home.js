@@ -131,46 +131,36 @@ export default class Aareg_home extends LightningElement {
       this.hasApplicationAccess = false;
       return;
     }
-
-    try{
-
-      const { userId, organizationNumber } = this;
-      const { success, rights, errorMessage } = await getUserRights({ userId, organizationNumber, serviceCode: filterBy });
-
-      if(result.success){
-        let hasAccess = false;
-        let hasApplicationAccess = false;
-
-        rights.forEach(({ ServiceCode, ServiceEditionCode }) => {
-          if (ServiceCode === '5719') {
-            hasAccess = true;
-            hasApplicationAccess = true;
-          } else if (ServiceCode === '5441' && ServiceEditionCode === '2') {
-            hasAccess = true;
+    
+    await getUserRights({ userId: this.currentUser,
+      organizationNumber: this.lastUsedOrganization,
+      serviceCode: filterBy
+    }).then((result) => {
+      if (result.success) {
+        let privileges = JSON.parse(JSON.stringify(result.rights));
+        console.log(privileges);
+        privileges.forEach((privilege) => {
+          if (privilege.ServiceCode === '5719') {
+            this.hasAccess = true;
+            this.hasApplicationAccess = true;
+          } else if (privilege.ServiceCode === '5441' && privilege.ServiceEditionCode === '2') {
+            this.hasAccess = true;
           }
         });
 
-      this.hasAccess = hasAccess;
-      this.hasApplicationAccess = hasApplicationAccess;
-      this.showError = false;
-
-      sessionStorage.setItem('currentUser', this.currentUser);
-      sessionStorage.setItem('hasAccess', hasAccess);
-      sessionStorage.setItem('hasApplicationAccess', hasApplicationAccess);
+        sessionStorage.setItem('currentUser', this.currentUser);
+        sessionStorage.setItem('hasAccess', JSON.stringify(this.hasAccess));
+        sessionStorage.setItem('hasApplicationAccess', JSON.stringify(this.hasApplicationAccess));
+        this.showError = false;
       } else {
         this.hasAccess = false;
         this.hasApplicationAccess = false;
-        this.showError = true;
-  
-        sessionStorage.setItem('hasAccess', false);
-        sessionStorage.setItem('hasApplicationAccess', false);
-        throw new Error('Failed to get rights to application. ${errorMessage}');
+        sessionStorage.setItem('hasAccess', JSON.stringify(false));
+        sessionStorage.setItem('hasApplicationAccess', JSON.stringify(false));
+        this.showErrorMessage('Henting av brukerrettigheter fra Altinn feilet. Vennligst prøv igjen eller refresh siden.');
+        throw `Failed to get rights to application ${result.errorMessage}`;
       }
-    } catch(error){
-      console.error(error);
-      this.showErrorMessage('Henting av brukerrettigheter fra Altinn feilet. Vennligst prøv igjen eller refresh siden.');
-    }
-
+    });
   }
 
   get hasPreviouslySelectedOrganization() {
