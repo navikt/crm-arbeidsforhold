@@ -177,7 +177,7 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   }
 
   get termsOfUseURL() {
-    return 'https://nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/Bruksvilkår_for_tilgang_til_Aa-registeret.pdf';
+    return 'https://www.nav.no/no/samarbeidspartner/andre-samarbeidspartnere/slik-gjor-du-det/tilgang-til-aa-registeret/Bruksvilkår_for_tilgang_til_Aa-registeret.pdf';
   }
 
   async checkAccessToApplication() {
