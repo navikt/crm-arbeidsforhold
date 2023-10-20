@@ -22,6 +22,58 @@ error() {
     fi
 }
 
+cleaningPreviousScratchOrg() {
+    sf org delete scratch --no-prompt --target-org $org_alias &> /dev/null
+}
+
+creatingScratchOrg () {
+    echo ""
+    echo "Org Alias: $org_alias"
+    echo ""
+
+    if [[ -n $npm_config_org_duration ]]; then
+        days=$npm_config_org_duration
+    else
+        days=7
+    fi
+
+    echo "Scratch org duration: $days days"
+    sf org create scratch --set-default --definition-file config/project-scratch-def.json --duration-days "$days" --alias $org_alias || { error $? '"sf org create scratch" command failed.'; }
+}
+
+installDependencies() {
+    keys=""
+    for p in $(jq '.packageAliases | keys[]' sfdx-project.json -r);
+    do
+        keys+=$p":"$secret" ";
+    done
+    sf dependency install --installationkeys "${keys}" --targetusername "$org_alias" --targetdevhubusername "$devHubAlias" || { error $? '"sf dependency install" command failed.'; }
+}
+
+deployingMetadata() {
+    if [[ $npm_config_without_deploy ]]; then
+        echo "Skipping..."
+    else
+        sf project deploy start || { error $? '"sf project deploy start" command failed.'; }
+    fi
+}
+
+assignPermission() {
+    sf org assign permset \
+    --name AAREG_Arbeidsforhold_Saksbehandling \
+    --name AAREG_Arbeidsforhold_Support \
+    --name AAREG_CommunityPermission \
+    || { error $? '"sf org assign permset" command failed.'; }
+}
+
+#insertingTestData() {
+#    sf data import tree --plan dummy-data/plan.json || { error $? '"sf data import tree" command failed.'; }
+#}
+
+runPostInstallScripts() {
+    sf apex run --file ./scripts/apex/activateMock.cls || { error $? '"sf apex run" command failed for Apex class: "activateMock".'; }
+}
+
 publishCommunity() {
     echo "Publishing arbeidsgiver-dialog site..."
     if [[ $npm_config_without_publish ]]; then
@@ -32,40 +84,62 @@ publishCommunity() {
 echo ""
 }
 
-if [[ $npm_config_info ]]; then
+openOrg() {
+    if [[ -n $npm_config_open_in ]]; then
+        sf org open --browser "$npm_config_open_in" --path "lightning/app/c__Arbeidsforhold" || { error $? '"sf org open" command failed.'; }
+    else
+        sf org open --path "lightning/app/c__Arbeidsforhold" || { error $? '"sf org open" command failed.'; }
+    fi
+}
+
+info() {
     echo "Usage: npm run mac:build [options]"
     echo ""
     echo "Options:"
-    echo "  --package-key=<key>         Package key to install"
+    echo "  --package-key=<key>         Package key to install - THIS IS REQUIRED"
     echo "  --org-alias=<alias>         Alias for the scratch org"
     echo "  --org-duration=<days>       Duration of the scratch org"
     echo "  --without-deploy            Skip deploy"
     echo "  --without-publish           Skip publish of community: \"Aa-registret\""
-    echo "  --publish-community         Publish of community: \"Aa-registret\""
-    echo "  --browser=<option>          Browser where the org opens."
+    echo "  --open-in=<option>          Browser where the org opens."
     echo "                              <options: chrome|edge|firefox>"
+    echo "  --start-step=<step-nummer>  Start from a specific step"
+    echo "  --step=<step-nummer>        Run a specific step"
+    echo "                              <steps: clean=1|create=2|dependencies=3|deploy=4|permissions=5|test data=6|run scripts=7|publishing site=8|open=9>"
     echo "  --info                      Show this help"
     echo ""
     exit 0
+}
+
+if [[ $npm_config_info ]]; then
+    info
+elif [[ -z $npm_config_package_key ]] && [[ -z $npm_config_step ]] && [[ -z $npm_config_start_step ]]; then
+    echo "Package key is required."
+    echo ""
+    info
 fi
 
-if [[ $npm_config_publish_community ]]; then
-    publishCommunity
-    
-    exit 0
-fi
-
-sfdx plugins inspect @dxatscale/sfpowerscripts >/dev/null 2>&1 || { 
-    echo >&2 "\"@dxatscale/sfpowerscripts\" is required, but it's not installed."
-    echo "Run \"sfdx plugins install @dxatscale/sfpowerscripts\" to install it."
+sf version >/dev/null 2>&1 || { 
+    echo >&2 "\"sf cli\" is required, but it's not installed."
+    echo "Follow the instruction hereto install it: https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli.htm"
     echo ""
     echo "Aborting...."
     echo ""
     exit 1
 }
-sfdx plugins inspect sfdmu >/dev/null 2>&1 || {
+
+sf plugins inspect @dxatscale/sfpowerscripts >/dev/null 2>&1 || { 
+    echo >&2 "\"@dxatscale/sfpowerscripts\" is required, but it's not installed."
+    echo "Run \"sf plugins install @dxatscale/sfpowerscripts\" to install it."
+    echo ""
+    echo "Aborting...."
+    echo ""
+    exit 1
+}
+
+sf plugins inspect sfdmu >/dev/null 2>&1 || {
     echo >&2 "\"sfdmu\" is required, but it's not installed."
-    echo "Run \"sfdx plugins install sfdmu\" to install it."
+    echo "Run \"sf plugins install sfdmu\" to install it."
     echo ""
     echo "Aborting..."
     echo ""
@@ -83,6 +157,7 @@ command -v jq >/dev/null 2>&1 || {
 
 ORG_ALIAS="arbeidsforhold"
 secret=$npm_config_package_key
+devHubAlias=$(sf config get target-dev-hub --json | jq -r '.result[0].value')
 
 if [[ -n $npm_config_org_alias ]]; then
     org_alias=$npm_config_org_alias
@@ -90,68 +165,56 @@ else
     org_alias=$ORG_ALIAS
 fi
 
-echo ""
-echo "Org Alias: $org_alias"
-echo ""
-
-if [[ -n $npm_config_org_duration ]]; then
-    days=$npm_config_org_duration
-else
-    days=7
-fi
-
-echo "Scratch org duration: $days days"
-echo ""
-
-echo ""
 echo "Installing crm-arbeidsforhold scratch org ($ORG_ALIAS)"
 echo ""
 
-echo "Cleaning previous scratch org..."
-sf org delete scratch --no-prompt --target-org $org_alias &> /dev/null
-echo ""
+operations=(
+    cleaningPreviousScratchOrg
+    creatingScratchOrg
+    installDependencies
+    deployingMetadata
+    assignPermission
+#    insertingTestData
+    runPostInstallScripts
+    publishCommunity
+    openOrg
+)
 
-echo "Creating scratch org..."
-sf org create scratch --set-default --definition-file config/project-scratch-def.json --duration-days "$days" --alias $org_alias || { error $? '"sf org create scratch" command failed.'; }
-echo ""
+operationNames=(
+    "Cleaning previous scratch org"
+    "Creating scratch org"
+    "Installing dependencies"
+    "Deploying/Pushing metadata"
+    "Assigning permissions"
+#    "Inserting test data"
+    "Running post install scripts"
+    "Publishing Aa-registre site"
+    "Opening org"
+)
 
-echo "Installing dependencies..."
-keys=""
-for p in $(jq '.packageAliases | keys[]' sfdx-project.json -r);
-do
-    keys+=$p":"$secret" ";
+if  [[ -n $npm_config_step ]] && [[ -z $npm_config_start_step ]]; then
+    if [[ "$npm_config_step" =~ ^[0-9]+$ ]] && [[ $npm_config_step -ge 1 ]]; then
+        j=$((npm_config_step - 1))
+    else
+        echo "Invalid step number: $npm_config_step"
+        exit 1
+    fi
+
+    echo "Running Step $npm_config_step/${#operations[@]}: ${operationNames[$j]}..."
+    ${operations[$j]}
+    echo ""
+    exit 0
+fi
+
+for i in ${!operations[@]}; do
+    echo "Step $((i+1))/${#operations[@]}: ${operationNames[$i]}..."
+    if [[ $((i+1)) -ge $npm_config_start_step ]]; then
+        ${operations[$i]}
+    else
+        echo "Skipping..."
+    fi
+
+    echo ""
 done
-sfdx sfpowerscripts dependency install --installationkeys "${keys}" || { error $? '"sfdx sfpowerscripts dependency install" command failed.'; }
-echo ""
-
-echo "Deploying/Pushing metadata..."
-if [[ $npm_config_without_deploy ]]; then
-    echo "Skipping deploy..."
-else
-    sf project deploy start || { error $? '"sf project deploy start" command failed.'; }
-fi
-echo ""
-
-echo "Assigning permissions..."
-sf org assign permset \
---name AAREG_Arbeidsforhold_Saksbehandling \
---name AAREG_Arbeidsforhold_Support \
---name AAREG_CommunityPermission \
-|| { error $? '"sf org assign permset" command failed.'; }
-echo ""
-
-echo "Running post install scripts..."
-sf apex run --file ./scripts/apex/activateMock.cls || { error $? '"sf apex run" command failed for Apex class: "activateMock".'; }
-echo ""
-
-echo "Opening org..."
-if [[ -n $npm_config_browser ]]; then
-    sf org open --browser "$browser" --path "lightning/app/c__Arbeidsforhold" || { error $? '"sf org open" command failed.'; }
-else
-    sf org open --path "lightning/app/c__Arbeidsforhold" || { error $? '"sf org open" command failed.'; }
-fi
-echo ""
-
-publishCommunity
 
 error $?
