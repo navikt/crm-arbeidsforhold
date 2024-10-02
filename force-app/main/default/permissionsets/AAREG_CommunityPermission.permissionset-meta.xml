@@ -53,6 +53,10 @@
     <enabled>true</enabled>
   </classAccesses>
   <classAccesses>
+    <apexClass>CRM_MessageHelperExperience</apexClass>
+    <enabled>true</enabled>
+  </classAccesses>
+  <classAccesses>
     <apexClass>DecisionController</apexClass>
     <enabled>true</enabled>
   </classAccesses>
