@@ -9,11 +9,23 @@
             "dependencies": [
                 {
                     "package": "crm-platform-base",
-                    "versionNumber": "0.193.0.LATEST"
+                    "versionNumber": "0.218.0.LATEST"
+                },
+                {
+                  "package": "crm-platform-reporting",
+                  "versionNumber": "0.38.0.LATEST"
+                },
+                {
+                  "package": "crm-shared-flowComponents",
+                  "versionNumber": "0.4.0.LATEST"
+                },
+                {
+                  "package": "crm-henvendelse-base",
+                  "versionNumber": "0.20.0.LATEST"
                 },
                 {
                     "package": "crm-platform-integration",
-                    "versionNumber": "0.99.0.LATEST"
+                    "versionNumber": "0.100.0.LATEST"
                 },
                 {
                     "package": "crm-platform-access-control",
@@ -29,7 +41,7 @@
                 },
                 {
                     "package": "crm-community-base",
-                    "versionNumber": "0.88.0.LATEST"
+                    "versionNumber": "0.92.0.LATEST"
                 },
                 {
                     "package": "crm-platform-email-scheduling",
@@ -37,27 +49,19 @@
                 },
                 {
                     "package": "crm-journal-utilities",
-                    "versionNumber": "0.25.0.LATEST"
+                    "versionNumber": "0.27.0.LATEST"
                 },
                 {
                     "package": "crm-shared-user-notification",
                     "versionNumber": "0.22.0.LATEST"
                 },
                 {
-                    "package": "crm-shared-flowComponents",
-                    "versionNumber": "0.4.0.LATEST"
-                },
-                {
                     "package": "crm-platform-oppgave",
-                    "versionNumber": "0.49.0.LATEST"
-                },
-                {
-                    "package": "crm-henvendelse-base",
-                    "versionNumber": "0.15.0.LATEST"
+                    "versionNumber": "0.51.0.LATEST"
                 },
                 {
                     "package": "crm-henvendelse",
-                    "versionNumber": "0.99.0.LATEST"
+                    "versionNumber": "0.144.0.LATEST"
                 }
             ]
         }
@@ -68,6 +72,7 @@
     "packageAliases": {
         "crm-arbeidsforhold": "0Ho2o000000fxX1CAI",
         "crm-platform-base": "0Ho2o0000008ORmCAM",
+        "crm-platform-reporting": "0Ho2o0000008OSfCAM",
         "crm-platform-access-control": "0Ho2o0000008OR3CAM",
         "crm-thread-view": "0Ho7U000000000zSAA",
         "crm-shared-timeline": "0Ho2o000000fxXBCAY",
