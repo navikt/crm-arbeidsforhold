@@ -16,6 +16,10 @@
                   "versionNumber": "0.38.0.LATEST"
                 },
                 {
+                  "package": "crm-henvendelse-base",
+                  "versionNumber": "0.20.0.LATEST"
+                },
+                {
                     "package": "crm-platform-integration",
                     "versionNumber": "0.100.0.LATEST"
                 },
@@ -54,10 +58,6 @@
                 {
                     "package": "crm-platform-oppgave",
                     "versionNumber": "0.49.0.LATEST"
-                },
-                {
-                    "package": "crm-henvendelse-base",
-                    "versionNumber": "0.20.0.LATEST"
                 },
                 {
                     "package": "crm-henvendelse",
