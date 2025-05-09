@@ -62,7 +62,6 @@ public without sharing class AAREG_HomeController {
     return hasAccess;
   }
 
-
   // If user has access to the org in picklist -> Share org agreements with the user when changing org and on init
   @AuraEnabled
   public static void shareAgreementsWithUser(String userId) {
@@ -104,7 +103,7 @@ public without sharing class AAREG_HomeController {
     List<RelatedContact__c> relatedContacts = [
       SELECT Id, OwnerId
       FROM RelatedContact__c
-      WHERE Agreement__c in :agreements
+      WHERE Agreement__c IN :agreements
     ];
 
     List<RelatedContact__Share> relatedContactShares = new List<RelatedContact__Share>();

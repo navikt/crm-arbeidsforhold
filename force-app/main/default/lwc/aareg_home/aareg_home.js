@@ -15,8 +15,25 @@ export default class Aareg_home extends LightningElement {
   showError = false;
 
   noAccessOrgForms = [
-    'AAFY', 'ADOS', 'BEDR', 'OPMV', 'BRL', 'ENK', 'ESEK', 'IKJP', 'KTRF',
-    'PERS', 'REGN', 'REV', 'SAM', 'SÆR', 'TVAM', 'UDEF', 'UTBG', 'UTLA', 'VIFE'
+    'AAFY',
+    'ADOS',
+    'BEDR',
+    'OPMV',
+    'BRL',
+    'ENK',
+    'ESEK',
+    'IKJP',
+    'KTRF',
+    'PERS',
+    'REGN',
+    'REV',
+    'SAM',
+    'SÆR',
+    'TVAM',
+    'UDEF',
+    'UTBG',
+    'UTLA',
+    'VIFE'
   ];
 
   connectedCallback() {
@@ -40,7 +57,6 @@ export default class Aareg_home extends LightningElement {
       if (this.lastUsedOrganization) {
         await this.secureAccessCheck();
       }
-
     } catch (error) {
       console.error(error);
       this.showErrorMessage('En feil oppstod. Vennligst prøv igjen eller refresh siden.');
@@ -99,7 +115,9 @@ export default class Aareg_home extends LightningElement {
     } catch (error) {
       this.hasApplicationAccess = false;
       this.hasAccess = false;
-      this.showErrorMessage('Henting av brukerrettigheter fra Altinn feilet. Vennligst prøv igjen eller refresh siden.');
+      this.showErrorMessage(
+        'Henting av brukerrettigheter fra Altinn feilet. Vennligst prøv igjen eller refresh siden.'
+      );
       console.error(error);
     }
   }
