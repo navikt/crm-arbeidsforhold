@@ -43,7 +43,7 @@ public without sharing class AAREG_HomeController {
     Boolean hasAccess = false;
     Boolean hasApplicationAccess = false;
 
-    if (rightsResp != null && rightsResp.rights != null) {
+    if (rightsResp?.rights != null) {
       for (AltinnCalloutService.Right right : rightsResp.rights) {
         if (right.ServiceCode == '5719') {
           hasAccess = true;
