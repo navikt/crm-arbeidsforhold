@@ -32,6 +32,37 @@ public without sharing class AAREG_HomeController {
     }
   }
 
+  @AuraEnabled
+  public static Boolean checkAndShareIfAuthorized(Id userId, String orgNumber) {
+    if (String.isEmpty(userId) || String.isEmpty(orgNumber)) {
+      throw new AuraHandledException('Invalid parameters.');
+    }
+
+    AltinnCalloutService.AltinnRightsResponse rightsResp = AAREG_CommunityUtils.getUserRights(userId, orgNumber);
+
+    Boolean hasAccess = false;
+    Boolean hasApplicationAccess = false;
+
+    if (rightsResp != null && rightsResp.rights != null) {
+      for (AltinnCalloutService.Right right : rightsResp.rights) {
+        if (right.ServiceCode == '5719') {
+          hasAccess = true;
+          hasApplicationAccess = true;
+          break;
+        } else if (right.ServiceCode == '5441' && right.ServiceEditionCode == '2') {
+          hasAccess = true;
+        }
+      }
+    }
+
+    if (hasAccess) {
+      shareAgreementsWithUser(userId);
+    }
+
+    return hasAccess;
+  }
+
+
   // If user has access to the org in picklist -> Share org agreements with the user when changing org and on init
   @AuraEnabled
   public static void shareAgreementsWithUser(String userId) {
