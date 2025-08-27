@@ -65,6 +65,22 @@
                 {
                     "package": "crm-henvendelse",
                     "versionNumber": "0.171.0.LATEST"
+                },
+                {
+                    "package": "platform-data-model",
+                    "versionNumber": "0.1.0.LATEST"
+                },
+                {
+                    "package": "custom-metadata-dao",
+                    "versionNumber": "0.1.0.LATEST"
+                },
+                {
+                    "package": "custom-permission-helper",
+                    "versionNumber": "0.1.0.LATEST"
+                },
+                {
+                    "package": "feature-toggle",
+                    "versionNumber": "0.1.0.LATEST"
                 }
             ]
         }
@@ -87,6 +103,10 @@
         "crm-shared-flowComponents": "0Ho2o000000fxYJCAY",
         "crm-platform-oppgave": "0Ho2o000000fxXzCAI",
         "crm-henvendelse-base": "0Ho7U000000000kSAA",
-        "crm-henvendelse": "0Ho2o000000fxXfCAI"
+        "crm-henvendelse": "0Ho2o000000fxXfCAI",
+        "platform-data-model": "0HoKB00000000010AA",
+        "custom-metadata-dao": "0HoKB000000000B0AQ",
+        "custom-permission-helper": "0HoKB000000000f0AA",
+        "feature-toggle": "0HoKB000000000V0AQ"
     }
 }

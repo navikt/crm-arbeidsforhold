@@ -56,11 +56,11 @@
 # ----------------------------------------------------------------------------------------
 
 .vscode/*
-!.vscode/usersnippets/
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# !.vscode/usersnippets/
+# !.vscode/settings.json
+# !.vscode/tasks.json
+# !.vscode/launch.json
+# !.vscode/extensions.json
 
 
 # SSDX Helper
@@ -187,3 +187,7 @@ fabric.properties
 
 # Environment variables
 env.json
+
+# Temp folder where things should be synced to and from the scratch org
+src-temp/**
+!src-temp/README.md
