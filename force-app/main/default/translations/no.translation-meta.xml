@@ -284,7 +284,8 @@
       </screens>
       <screens>
         <fields>
-          <fieldText>Søknaden står ikke i en status som gjør at søknaden kan settes til ferdigbehandlet</fieldText>
+          <fieldText>Søknaden står ikke i en status som gjør at søknaden kan settes til
+            ferdigbehandlet</fieldText>
           <name>changeStatus</name>
         </fields>
         <name>IsNotCorrectStatus</name>
@@ -444,7 +445,8 @@
     <flows>
       <screens>
         <fields>
-          <fieldText>Du kan ikke endre svarfrist dato på en søknad som står i status Ny og ikke har en sakseier</fieldText>
+          <fieldText>Du kan ikke endre svarfrist dato på en søknad som står i status Ny og ikke har
+            en sakseier</fieldText>
           <name>isNotOwnerAndStatusMessage</name>
         </fields>
         <name>ErrorMessage</name>
@@ -480,30 +482,6 @@
   <flowDefinitions>
     <flows />
     <fullName>Agreement_Initiator</fullName>
-  </flowDefinitions>
-
-  <flowDefinitions>
-    <flows>
-      <screens>
-        <fields>
-          <name>Already_added_as_user_text</name>
-        </fields>
-        <name>Already_added_as_user_screen</name>
-      </screens>
-      <screens>
-        <fields>
-          <name>Success_Message</name>
-        </fields>
-        <name>End_Screen</name>
-      </screens>
-      <screens>
-        <fields>
-          <name>No_Access_Text</name>
-        </fields>
-        <name>No_Access_Screen</name>
-      </screens>
-    </flows>
-    <fullName>Create_Community_Plus_User</fullName>
   </flowDefinitions>
 
   <flowDefinitions>
