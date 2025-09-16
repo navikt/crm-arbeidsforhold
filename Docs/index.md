@@ -35,7 +35,7 @@ When the casehandler user logs into Arbeidsforhold app, he is  basically shown f
             <li>***- Antall nye søknader - 4 uker og eldre ***: *AA-reg new fourth and older* - </li>
         </ul>
 
-    <br/><br/><br/>
+<br/><br/><br/>
 
 - #### Arbeidsforhold Application
 <figure>
