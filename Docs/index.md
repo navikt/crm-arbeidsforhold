@@ -16,11 +16,11 @@ And depending on the type of user, access to arbeidsforhold app is provided.
 Casehandler users are basically assigned permissions defined in permission set "AAREG Arbeidsforhold Saksbehandling", and are assigned to app "Arbeidsforhold"
 
 When the casehandler user logs into Arbeidsforhold app, he is  basically shown five tabs
-- Home (This tab is basically the entry page,  this page displays application statistics, list of applications case handler is working, tasks and events scheduled for the day). It also lets user to create a new application, change owner for the application, etc..
-- Application (This tab lets the user see a list of all applications in the system. It also lets user to create a new application, change owner for the application etc.).
-- Agreement (This tab lets the user see a list of all agreements in the system. It also lets user to create a new agreement, change owner for the agreement etc..).
-- Reports (This tab displays all the available reports and lets the user generate different reports).
-- Dashboards (This tab displays all the available dashbaords and lets the user see statistics defined in the reports related to them).
+- [Home](assets/Arbeidsforhold-Home.jpg) (This tab is basically the entry page,  this page displays application statistics, list of applications case handler is working, tasks and events scheduled for the day). It also lets user to create a new application, change owner for the application, etc..
+- [Application](assets/Arbeidsforhold-Applications.jpg) (This tab lets the user see a list of all applications in the system. It also lets user to create a new application, change owner for the application etc.).
+- [Agreement](assets/Arbeidsforhold-Agreements.jpg) (This tab lets the user see a list of all agreements in the system. It also lets user to create a new agreement, change owner for the agreement etc..).
+- [Reports](assets/Arbeidsforhold-reports.jpg) (This tab displays all the available reports and lets the user generate different reports).
+- [Dashboards](assets/Arbeidsforhold-dashboards.jpg) (This tab displays all the available dashbaords and lets the user see statistics defined in the reports related to them).
 
 ### Support Users:
 
