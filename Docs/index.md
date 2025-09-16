@@ -21,8 +21,21 @@ When the casehandler user logs into Arbeidsforhold app, he is  basically shown f
 <figure>
     <img src="assets/Arbeidsforhold-Home.jpg" width="600" height="400"
          alt="Arbeidsforhold - Home">
-    <figcaption>This tab is basically the entry page,  this page displays application statistics, list of applications case handler is working on, tasks and events scheduled for the day). It also lets user to create a new application, change owner for the application, etc..</figcaption>
-</figure><br/><br/><br/>
+    <figcaption>This tab is basically the entry page,  this page displays application statistics, list of applications case handler is working on, tasks and events scheduled for the day. It also lets user to create a new application, change owner for the application, etc..</figcaption>
+</figure>
+    Home page is divided into following sections: <br/>
+    *Dashboard* : Dashboard shows seven types of reports and graphs
+        <ul>
+            <li>***Antall Søknader fordelt pr år***: *Aa-reg Application Status* -displays all applicaitons, grouped yearly, where application recordType is "AA-register access" and status is not Draft, and shows them as a bar-chart</li>
+            <li>***Søknad - statistikk pr status***: *Aa-reg Application Status* - displays all applicaitons, grouped by status, where application recordType is AA-register access" and status is not Draft. Shows fields ApplicationSubmittedDate, CasehandlerStatus, Account and Application number as a lightning table</li>
+            <li>***Aktive avtaler med kontaktperson***:  *AA-reg Agreement with Related Contacts* -gets all active Agreements with their related contacts. Shows AccountName, AgreementNumber, AccessTypes, RelatedContactName, AgreementNotifications and ErrorMessageNotifications"</li>
+            <li>***Statistikk på søknad***: *AAREG Application statistics* -gets all applicaitons. Shows ApplicationCreatedDate,  Application number, TimeToSubmitted and TimeToDecision</li>
+            <li>***Antall nye søknader - Siste 2 uker*** : *AA-reg Last two weeks* - Total number of applicaitons in the last two weeks</li>
+            <li>***Antall nye søknader - I sin 3 uke ***:  *AA-reg third week* -  </li>
+            <li>***- Antall nye søknader - 4 uker og eldre ***: *AA-reg new fourth and older* - </li>
+        </ul>
+
+    <br/><br/><br/>
 
 - #### Arbeidsforhold Application
 <figure>
