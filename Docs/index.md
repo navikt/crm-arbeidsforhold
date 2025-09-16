@@ -16,12 +16,12 @@ And depending on the type of user, access to arbeidsforhold app is provided.
 Casehandler users are basically assigned permissions defined in permission set "AAREG Arbeidsforhold Saksbehandling", and are assigned to app "Arbeidsforhold"
 
 When the casehandler user logs into Arbeidsforhold app, he is  basically shown five tabs
-- ![Home](<img src="assets/Arbeidsforhold-Home.jpg" width="600" height="400"> "Arbeidsforhold - Home") 
+- #### Arbeidsgiver Home
 <figure>
-    <img src="assets/Arbeidsforhold-Home.jpg"
+    <img src="assets/Arbeidsforhold-Home.jpg" width="600" height="400"
          alt="Arbeidsforhold - Home">
     <figcaption>This tab is basically the entry page,  this page displays application statistics, list of applications case handler is working on, tasks and events scheduled for the day). It also lets user to create a new application, change owner for the application, etc..</figcaption>
-</figure>
+</figure><br/><br/><br/>
 
 - ![Application](assets/Arbeidsforhold-Applications.jpg "Arbeidsforhold - Applications") (This tab lets the user see a list of all applications in the system. It also lets user to create a new application, change owner for the application etc.).
 - ![Agreement](assets/Arbeidsforhold-Agreements.jpg "Arbeidsforhold - Agreement") (This tab lets the user see a list of all agreements in the system. It also lets user to create a new agreement, change owner for the agreement etc..).
