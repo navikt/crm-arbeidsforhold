@@ -19,7 +19,7 @@ When the casehandler user logs into Arbeidsforhold app, he is  basically shown f
 
 - #### Arbeidsforhold Home
 <figure>
-    <img src="assets/Arbeidsforhold-Home.jpg" width="50%" height="50%" margin:auto border-radius:50%
+    <img src="assets/Screenshots/Arbeidsforhold-Home.jpg" width="50%" height="50%" margin:auto border-radius:50%
          alt="Arbeidsforhold - Home">
     <figcaption>This tab is basically the entry page,  this page displays application statistics, list of applications case handler is working on, tasks and events scheduled for the day. It also lets user to create a new application, change owner for the application, etc..</figcaption>
 </figure>
@@ -41,28 +41,28 @@ When the casehandler user logs into Arbeidsforhold app, he is  basically shown f
 
 - #### Arbeidsforhold Application
 <figure>
-    <img src="assets/Arbeidsforhold-Applications.jpg" width=50% height=50% margin:auto border-radius:50%
+    <img src="assets/Screenshots/Arbeidsforhold-Applications.jpg" width=50% height=50% margin:auto border-radius:50%
          alt="Arbeidsforhold - Applications">
     <figcaption>This tab lets the user see a list of all applications in the system. It also lets user to create a new application, change owner for the application etc.</figcaption>
 </figure><br/><br/><br/>
 
 - #### Arbeidsforhold Agreements
 <figure>
-    <img src="assets/Arbeidsforhold-Agreements.jpg" width="50%" height="50%" margin:auto border-radius:50%
+    <img src="assets/Screenshots/Arbeidsforhold-Agreements.jpg" width="50%" height="50%" margin:auto border-radius:50%
          alt="Arbeidsforhold - Agreements">
     <figcaption>This tab lets the user see a list of all agreements in the system. It also lets user to create a new agreement, change owner for the agreement etc.</figcaption>
 </figure><br/><br/><br/>
 
 - #### Arbeidsforhold reports
 <figure>
-    <img src="assets/Arbeidsforhold-reports.jpg" width="50%" height="50%" margin:auto border-radius:50%
+    <img src="assets/Screenshots/Arbeidsforhold-reports.jpg" width="50%" height="50%" margin:auto border-radius:50%
          alt="Arbeidsforhold - reports">
     <figcaption>This tab displays all the available reports and lets the user generate different reports</figcaption>
 </figure><br/><br/><br/>
 
 - #### Arbeidsforhold dashboards
 <figure>
-    <img src="assets/Arbeidsforhold-dashboards.jpg" width="50%" height="50%" margin:auto border-radius:50%
+    <img src="assets/Screenshots/Arbeidsforhold-dashboards.jpg" width="50%" height="50%" margin:auto border-radius:50%
          alt="Arbeidsforhold - dashboards">
     <figcaption>This tab displays all the available dashbaords and lets the user see statistics defined in the reports related to them</figcaption>
 </figure><br/><br/><br/>
@@ -75,35 +75,35 @@ When the Support user logs into Arbeidsforhold Henvendelse app, he is  basically
 
 - #### Arbeidsforhold Henvendelse Home
 <figure>
-    <img src="assets/ArbeidsforholdHenvendelse-Home.jpg" width="50%" height="50%" margin:auto border-radius:50%
+    <img src="assets/Screenshots/ArbeidsforholdHenvendelse-Home.jpg" width="50%" height="50%" margin:auto border-radius:50%
          alt="ArbeidsforholdHenvendelse - Home">
     <figcaption>This tab is basically the entry page,  this page displays support cases statistics, list of support cases case handler is working on. It also lets user to create a new support case.</figcaption>
 </figure><br/><br/><br/>
 
 - #### Arbeidsforhold Henvendelse Accounts
 <figure>
-    <img src="assets/ArbeidsforholdHenvendelse-Accounts.jpg" width="50%" height="50%" margin:auto border-radius:50%
+    <img src="assets/Screenshots/ArbeidsforholdHenvendelse-Accounts.jpg" width="50%" height="50%" margin:auto border-radius:50%
          alt="ArbeidsforholdHenvendelse - Accounts">
     <figcaption>This tab lets the user see a list of all accounts in the system. It also lets user to create a new account, could be of type Business / private/ Employer.</figcaption>
 </figure><br/><br/><br/>
 
 - #### Arbeidsforhold Henvendelse Contacts
 <figure>
-    <img src="assets/ArbeidsforholdHenvendelse-contacts.jpg" width="50%" height="50%" margin:auto border-radius:50%
+    <img src="assets/Screenshots/ArbeidsforholdHenvendelse-contacts.jpg" width="50%" height="50%" margin:auto border-radius:50%
          alt="ArbeidsforholdHenvendelse - contacts">
     <figcaption>This tab lets the user see a list of all contacts in the system. It also lets user to create a new contact connected to an account. An account can also be created as a part of this process</figcaption>
 </figure><br/><br/><br/>
 
 - #### Arbeidsforhold Henvendelse Reports
 <figure>
-    <img src="assets/ArbeidsforholdHenvendelse-reports.jpg" width="50%" height="50%" margin:auto border-radius:50%
+    <img src="assets/Screenshots/ArbeidsforholdHenvendelse-reports.jpg" width="50%" height="50%" margin:auto border-radius:50%
          alt="ArbeidsforholdHenvendelse - reports">
     <figcaption>This tab displays all the available reports and lets the user generate different reports.</figcaption>
 </figure><br/><br/><br/>
 
 - #### Arbeidsforhold Henvendelse Dashboards
 <figure>
-    <img src="assets/ArbeidsforholdHenvendelse-Dashboards.jpg" width="50%" height="50%" margin:auto border-radius:50%
+    <img src="assets/Screenshots/ArbeidsforholdHenvendelse-Dashboards.jpg" width="50%" height="50%" margin:auto border-radius:50%
          alt="ArbeidsforholdHenvendelse - Dashboards">
     <figcaption>This tab displays all the available dashbaords and lets the user see statistics defined in the reports related to them.</figcaption>
 </figure><br/><br/><br/>
@@ -116,14 +116,14 @@ When the community user logs into this app, he is basically shown one Home tab b
 
 - #### ExperienceCloud Home
 <figure>
-    <img src="assets/ExperienceCloud-Home.jpg" width="50%" height="50%" margin:auto border-radius:50%
+    <img src="assets/Screenshots/ExperienceCloud-Home.jpg" width="50%" height="50%" margin:auto border-radius:50%
          alt="ArbeidsforholdHenvendelse - Home">
     <figcaption>this tab lets the user to create a new application for the organizations where he is access to. In addition to this, there are sections to choose a different organization, display user owned applications, agreements, inquiries and messages, etc.</figcaption>
 </figure><br/><br/><br/>
 
 - #### ExperienceCloud : Other pages
 <figure>
-    <img src="assets/ExperienceCloud-HomeWithOptionsOfDropDownMenu.jpg" width="50%" height="50%" margin:auto border-radius:50%
+    <img src="assets/Screenshots/ExperienceCloud-HomeWithOptionsOfDropDownMenu.jpg" width="50%" height="50%" margin:auto border-radius:50%
          alt="ArbeidsforholdHenvendelse - Other pages">
     <figcaption>These pages which exists in the drop down menu are basically used as part of the options given on the home page.</figcaption>
 </figure><br/><br/><br/>
