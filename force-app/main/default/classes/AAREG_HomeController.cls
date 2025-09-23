@@ -9,7 +9,6 @@ public without sharing class AAREG_HomeController {
         AltinnCalloutService altinn = new AltinnCalloutService();
         AltinnCalloutService.AltinnOrganizationsResponse response = altinn.getOrganizations(
             currentUser.Contact.Account.INT_PersonIdent__c
-            //'20926896998'
         );
 
         System.debug('getOrganizationsWithRoles - Response from Altinn: ' + JSON.serializePretty(response));
@@ -21,7 +20,6 @@ public without sharing class AAREG_HomeController {
         String lastUsedOrganization = [SELECT Id, LastUsedOrganization__c FROM User WHERE Id = :userId]
         .LastUsedOrganization__c;
         return lastUsedOrganization;
-        //return '210420282';
     }
 
     @AuraEnabled
