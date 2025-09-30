@@ -33,7 +33,7 @@ public without sharing class AAREG_CommunityUtils {
         // TODO: Remove this when Altinn version 3 is fully rolled out
         // This is a temporary fix to ensure that the service codes are correct
         // for the rights returned by Altinn version 2.
-        if (new FeatureToggleBase().isFeatureEnabled('AltinnVersion3', FeatureToggle.ToggleType.FEATURE_FLAG)) {
+        if (new FeatureToggleBase().isFeatureEnabled('Altinn_Version_3', FeatureToggle.ToggleType.FEATURE_FLAG)) {
             for (AltinnCalloutService.Right right : response.rights) {
                 if (right.Resource == 'nav_arbeidsforhold_aa-registeret-sok-tilgang') {
                     right.ServiceCode = '5719';
