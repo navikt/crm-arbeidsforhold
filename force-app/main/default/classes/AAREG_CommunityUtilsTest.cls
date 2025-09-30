@@ -1,3 +1,4 @@
+@SuppressWarnings('PMD')
 @isTest
 public class AAREG_CommunityUtilsTest {
     @TestSetup
@@ -57,10 +58,10 @@ public class AAREG_CommunityUtilsTest {
         List<Feature_Flag__mdt> featureFlags = new List<Feature_Flag__mdt>();
         featureFlags.add(
             new Feature_Flag__mdt(
-                MasterLabel = 'altinn-version3',
-                DeveloperName = 'altinn-version3',
+                MasterLabel = 'Altinn Version 3',
+                DeveloperName = 'Altinn_Version_3',
                 Is_Enabled__c = true,
-                Description__c = 'altinn-version3'
+                Description__c = 'Altinn Version 3'
             )
         );
         CustomMetadataDAO.customMetadataRecordsMap.put(FeatureToggleBase.METADATA_QUERY, featureFlags);
@@ -101,10 +102,10 @@ public class AAREG_CommunityUtilsTest {
         List<Feature_Flag__mdt> featureFlags = new List<Feature_Flag__mdt>();
         featureFlags.add(
             new Feature_Flag__mdt(
-                MasterLabel = 'altinn-version3',
-                DeveloperName = 'altinn-version3',
+                MasterLabel = 'Altinn Version 3',
+                DeveloperName = 'Altinn_Version_3',
                 Is_Enabled__c = true,
-                Description__c = 'altinn-version3'
+                Description__c = 'Altinn Version 3'
             )
         );
         CustomMetadataDAO.customMetadataRecordsMap.put(FeatureToggleBase.METADATA_QUERY, featureFlags);
