@@ -23,10 +23,8 @@ public without sharing class AAREG_CommunityUtils {
         }
         System.debug('getUserRights - serviceCodeNew: ' + serviceCodeNew);
         AltinnCalloutService.AltinnRightsResponse response = altinn.getRights(
-            //currentUser.Contact.Account.INT_PersonIdent__c,
-            //organizationNumber,
-            '08879198748',
-            '313199770',
+            currentUser.Contact.Account.INT_PersonIdent__c,
+            organizationNumber,
             serviceCodeNew
         );
 
