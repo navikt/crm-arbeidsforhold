@@ -552,11 +552,6 @@
     <readable>true</readable>
   </fieldPermissions>
   <fieldPermissions>
-    <editable>true</editable>
-    <field>Thread__c.CRM_Last_Edited_By__c</field>
-    <readable>true</readable>
-  </fieldPermissions>
-  <fieldPermissions>
     <editable>false</editable>
     <field>Thread__c.CRM_Number_of_External_Messages__c</field>
     <readable>true</readable>
@@ -564,11 +559,6 @@
   <fieldPermissions>
     <editable>false</editable>
     <field>Thread__c.CRM_Number_of_unread_Messages__c</field>
-    <readable>true</readable>
-  </fieldPermissions>
-  <fieldPermissions>
-    <editable>true</editable>
-    <field>Thread__c.CRM_Recipient__c</field>
     <readable>true</readable>
   </fieldPermissions>
   <fieldPermissions>

@@ -191,3 +191,7 @@ env.json
 # Temp folder where things should be synced to and from the scratch org
 src-temp/**
 !src-temp/README.md
+
+
+
+bin/install-temp.sh

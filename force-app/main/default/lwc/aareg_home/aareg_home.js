@@ -37,6 +37,8 @@ export default class Aareg_home extends LightningElement {
     'VIFE'
   ];
 
+  onlyOrganizations = ['Organization'];
+
   connectedCallback() {
     this.init();
   }
@@ -44,9 +46,18 @@ export default class Aareg_home extends LightningElement {
   async init() {
     try {
       await getOrganizationsWithRoles({ userId: this.currentUser }).then((result) => {
+        console.log(result);
         if (result.success) {
+          //Altinn 2
           this.organizations = result.organizations.filter(
             (el) => !this.noAccessOrgForms.includes(el.OrganizationForm)
+          );
+          //Altinn 3
+          this.organizations = result.organizations.filter(
+            (el) => this.onlyOrganizations.includes(el.Type)
+          );
+          this.organizations = result.organizations.filter(
+            (el) => !this.noAccessOrgForms.includes(el.UnitType)
           );
         } else {
           throw `Failed to get organizations ${result.errorMessage}`;
