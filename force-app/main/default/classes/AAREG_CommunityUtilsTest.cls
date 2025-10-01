@@ -1,8 +1,8 @@
 @SuppressWarnings('PMD')
-@isTest
-public class AAREG_CommunityUtilsTest {
+@IsTest
+private class AAREG_CommunityUtilsTest {
     @TestSetup
-    static void makeData() {
+    private static void makeData() {
         Profile profile = [SELECT Id, UserLicense.Name FROM Profile WHERE Name = 'Standard User' LIMIT 1];
         User user = new User();
 
@@ -23,8 +23,8 @@ public class AAREG_CommunityUtilsTest {
         BaseTestFactory.insertEncryptionKey();
     }
 
-    @isTest
-    static void testGetUserRights() {
+    @IsTest
+    private static void testGetUserRights() {
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
         ApiMock.setTestMock('GET_ALTINN_RIGHTS', 200, 'OK');
 
