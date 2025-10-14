@@ -59,13 +59,9 @@ export default class Aareg_home extends LightningElement {
             this.organizations = result.organizations.filter(
               (el) => this.onlyOrganizations.includes(el.type)
             );
-            //console.log('After onlyOrganizations filter:\n' + JSON.stringify(this.organizations, null, 2));
-            console.log('After onlyOrganizations filter - organizations count:', Array.isArray(this.organizations) ? this.organizations.length : 0);
             this.organizations = this.organizations.filter(
               (el) => !this.noAccessOrgForms.includes(el.unitType)
             );
-            //console.log('After noAccessOrgForms filter:\n' + JSON.stringify(this.organizations, null, 2));
-            console.log('After noAccessOrgForms filter - organizations count:', Array.isArray(this.organizations) ? this.organizations.length : 0);
           }
         } else {
           throw `Failed to get organizations ${result.errorMessage}`;
