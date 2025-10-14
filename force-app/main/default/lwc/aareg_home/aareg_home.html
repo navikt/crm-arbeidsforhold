@@ -23,9 +23,9 @@
           <select class="organization-select" aria-invalid="false" onchange={handleOrganizationChange}>
             <option if:false={hasPreviouslySelectedOrganization} value="">-- Velg virksomhet --</option>
             <template for:each={organizations} for:item="organization">
-              <option key={organization.OrganizationNumber} value={organization.OrganizationNumber}>
+              <option key={organization.organizationNumber} value={organization.organizationNumber}>
                 <div>
-                  <p>{organization.Name}- ({organization.OrganizationNumber})</p>
+                  <p>{organization.name}- ({organization.organizationNumber})</p>
                 </div>
               </option>
             </template>
