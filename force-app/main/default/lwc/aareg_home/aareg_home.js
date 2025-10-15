@@ -49,16 +49,20 @@ export default class Aareg_home extends LightningElement {
         console.log(result);
         if (result.success) {
           //Altinn 2
+          if (result.altinnVersion === 'v2') {
           this.organizations = result.organizations.filter(
             (el) => !this.noAccessOrgForms.includes(el.OrganizationForm)
           );
+          }
           //Altinn 3
-          this.organizations = result.organizations.filter(
-            (el) => this.onlyOrganizations.includes(el.Type)
-          );
-          this.organizations = result.organizations.filter(
-            (el) => !this.noAccessOrgForms.includes(el.UnitType)
-          );
+          else if (result.altinnVersion === 'v3') {
+            this.organizations = result.organizations.filter(
+              (el) => this.onlyOrganizations.includes(el.type)
+            );
+            this.organizations = this.organizations.filter(
+              (el) => !this.noAccessOrgForms.includes(el.unitType)
+            );
+          }
         } else {
           throw `Failed to get organizations ${result.errorMessage}`;
         }
@@ -121,10 +125,10 @@ export default class Aareg_home extends LightningElement {
 
     let foundIndex;
     this.organizations.forEach((org, i) => {
-      if (org.Type === 'Person') {
+      if (org.type === 'Person') {
         this.organizations.splice(i, 1);
       }
-      if (org.OrganizationNumber === this.lastUsedOrganization) {
+      if (org.organizationNumber === this.lastUsedOrganization) {
         foundIndex = i;
       }
     });
