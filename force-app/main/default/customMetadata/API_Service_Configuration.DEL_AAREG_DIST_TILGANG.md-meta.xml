@@ -8,11 +8,11 @@
     </values>
     <values>
         <field>HTTP_Method__c</field>
-        <value xsi:type="xsd:string">DELETE</value>
+        <value xsi:type="xsd:string">POST</value>
     </values>
     <values>
         <field>Has_Path_Parameters__c</field>
-        <value xsi:type="xsd:boolean">true</value>
+        <value xsi:type="xsd:boolean">false</value>
     </values>
     <values>
         <field>Mock_Response__c</field>
@@ -36,6 +36,6 @@
     </values>
     <values>
         <field>Service_Path__c</field>
-        <value xsi:type="xsd:string">/api/organisasjon/{organisasjonsnummer}/tilgang</value>
+        <value xsi:type="xsd:string">/api/v1/tilganger/fjern</value>
     </values>
 </CustomMetadata>
