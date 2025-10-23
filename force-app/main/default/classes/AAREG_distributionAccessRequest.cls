@@ -2,7 +2,6 @@ public class AAREG_distributionAccessRequest {
     @future(callout=true)
     public static void generateHeaderToDistribution(String organizationNumber, String referenceType, String jsonS) {
         Integer statusCode;
-        LoggerUtility logger = new LoggerUtility();
         ApiController apiCtrl = new ApiController();
         apiCtrl.initRequest('AAREG_DIST_TILGANG_API', referenceType);
         apiCtrl.addHeader('Content-Type', 'application/json');
@@ -17,9 +16,11 @@ public class AAREG_distributionAccessRequest {
                 throw new StatusCodeException('Statuscode: ' + statusCode);
             }
         } catch (StatusCodeException e) {
+            LoggerUtility logger = new LoggerUtility();
             logger.error(e.getMessage(), null);
             logger.publish();
         } catch (Exception e) {
+            LoggerUtility logger = new LoggerUtility();
             logger.error(e.getMessage(), null);
             logger.publish();
         }
