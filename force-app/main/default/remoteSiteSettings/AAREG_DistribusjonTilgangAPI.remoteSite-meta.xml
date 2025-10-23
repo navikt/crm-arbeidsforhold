@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<RemoteSiteSetting xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Url for produksjon.
-Url for testenvironment is: https://aareg-dist-tilgang-q2.ekstern.dev.nav.no</description>
-    <disableProtocolSecurity>false</disableProtocolSecurity>
-    <isActive>true</isActive>
-    <url>https://aareg-dist-tilgang.nav.no</url>
-</RemoteSiteSetting>

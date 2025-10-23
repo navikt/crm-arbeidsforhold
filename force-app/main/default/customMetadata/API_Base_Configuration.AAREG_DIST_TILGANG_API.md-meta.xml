@@ -4,19 +4,19 @@
     <protected>false</protected>
     <values>
         <field>App_Name_Test__c</field>
-        <value xsi:nil="true"/>
+        <value xsi:type="xsd:string">aareg-tilgangskontroll-q2</value>
     </values>
     <values>
         <field>App_Name__c</field>
-        <value xsi:nil="true"/>
+        <value xsi:type="xsd:string">aareg-tilgangskontroll</value>
     </values>
     <values>
         <field>Base_Endpoint_Test__c</field>
-        <value xsi:type="xsd:string">https://aareg-tilgangskontroll-q2.dev-fss-pub.nais.io</value>
+        <value xsi:type="xsd:string">https://aareg-tilgangskontroll-q2.intern.dev.nav.no</value>
     </values>
     <values>
         <field>Base_Endpoint__c</field>
-        <value xsi:type="xsd:string">https://aareg-tilgangskontroll.prod-fss-pub.nais.io</value>
+        <value xsi:type="xsd:string">https://aareg-tilgangskontroll.intern.nav.no</value>
     </values>
     <values>
         <field>Domain__c</field>
@@ -36,7 +36,7 @@
     </values>
     <values>
         <field>Use_GCP_Saas_Proxy__c</field>
-        <value xsi:type="xsd:boolean">false</value>
+        <value xsi:type="xsd:boolean">true</value>
     </values>
     <values>
         <field>Use_Gateway__c</field>

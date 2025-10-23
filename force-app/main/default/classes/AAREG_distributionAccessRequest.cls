@@ -2,13 +2,13 @@ public class AAREG_distributionAccessRequest {
     @future(callout=true)
     public static void generateHeaderToDistribution(String organizationNumber, String referenceType, String jsonS) {
         Integer statusCode;
+        LoggerUtility logger = new LoggerUtility();
         ApiController apiCtrl = new ApiController();
-        //Map<String, String> params = new Map<String, String>();
-        //params.put('organisasjonsnummer', organizationNumber);
-        apiCtrl.initRequest('AAREG_DIST_TILGANG_API', referenceType); //,params);
+        apiCtrl.initRequest('AAREG_DIST_TILGANG_API', referenceType);
         apiCtrl.addHeader('Content-Type', 'application/json');
+        apiCtrl.addHeader('Trace-Id', Request.getCurrent().getRequestId());
         apiCtrl.setSystemContext();
-        apiCtrl.addServiceAuthHeader('aareg');
+        apiCtrl.addSaasProxyServiceAuthHeader();
         apiCtrl.setBody(jsonS);
         try {
             apiCtrl.doCallout();
@@ -17,11 +17,9 @@ public class AAREG_distributionAccessRequest {
                 throw new StatusCodeException('Statuscode: ' + statusCode);
             }
         } catch (StatusCodeException e) {
-            LoggerUtility logger = new LoggerUtility();
             logger.error(e.getMessage(), null);
             logger.publish();
         } catch (Exception e) {
-            LoggerUtility logger = new LoggerUtility();
             logger.error(e.getMessage(), null);
             logger.publish();
         }
