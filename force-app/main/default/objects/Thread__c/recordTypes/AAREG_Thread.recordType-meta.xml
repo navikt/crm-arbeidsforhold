@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AAREG_Thread</fullName>
+    <active>true</active>
+    <description>Aa-Reg/Arbeidsforhold sin Record Type</description>
+    <label>AAREG Thread</label>
+    <picklistValues>
+        <picklist>CRM_Journal_Status__c</picklist>
+        <values>
+            <fullName>Journal Completed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Journal Error</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Journal Started</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Journaled</fullName>
+            <default>true</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>CRM_Thread_Type__c</picklist>
+        <values>
+            <fullName>AAREG_EXP</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>AAREG_INT</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>CHAT</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>DEFAULT</fullName>
+            <default>true</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Cause__c</picklist>
+        <values>
+            <fullName>Ikke statlig dialog</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sendt feil bruker</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sensitive personopplysninger</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sikkerhetshendelse</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Utenfor Navs behandlingsområde</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>NKS_Experience_Site_Source__c</picklist>
+        <values>
+            <fullName>Fedrekvotesaken</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>STO_Category__c</picklist>
+        <values>
+            <fullName>Arbeid</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>
