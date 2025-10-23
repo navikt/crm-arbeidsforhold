@@ -2,14 +2,13 @@
     "packageDirectories": [
         {
             "path": "src-temp",
-            "default": true,
-            "versionNumber": "null.1"
+            "default": true
         },
         {
             "path": "force-app",
             "package": "crm-arbeidsforhold",
             "versionName": "ver 0.1",
-            "versionNumber": "0.295.0.NEXT",
+            "versionNumber": "0.296.0.NEXT",
             "dependencies": [
                 {
                     "package": "platform-data-model",
