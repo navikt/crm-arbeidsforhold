@@ -3,12 +3,11 @@ public class AAREG_distributionAccessRequest {
     public static void generateHeaderToDistribution(String organizationNumber, String referenceType, String jsonS) {
         Integer statusCode;
         ApiController apiCtrl = new ApiController();
-        //Map<String, String> params = new Map<String, String>();
-        //params.put('organisasjonsnummer', organizationNumber);
-        apiCtrl.initRequest('AAREG_DIST_TILGANG_API', referenceType); //,params);
+        apiCtrl.initRequest('AAREG_DIST_TILGANG_API', referenceType);
         apiCtrl.addHeader('Content-Type', 'application/json');
+        apiCtrl.addHeader('Trace-Id', Request.getCurrent().getRequestId());
         apiCtrl.setSystemContext();
-        apiCtrl.addServiceAuthHeader('aareg');
+        apiCtrl.addSaasProxyServiceAuthHeader();
         apiCtrl.setBody(jsonS);
         try {
             apiCtrl.doCallout();
