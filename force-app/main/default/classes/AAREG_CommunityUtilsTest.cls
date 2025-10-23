@@ -25,6 +25,17 @@ private class AAREG_CommunityUtilsTest {
 
     @IsTest
     private static void testGetUserRights() {
+        List<Feature_Flag__mdt> featureFlags = new List<Feature_Flag__mdt>();
+        featureFlags.add(
+            new Feature_Flag__mdt(
+                MasterLabel = 'Altinn Version 3',
+                DeveloperName = 'Altinn_Version_3',
+                Is_Enabled__c = false,
+                Description__c = 'Altinn Version 3'
+            )
+        );
+        CustomMetadataDAO.customMetadataRecordsMap.put(FeatureToggleBase.METADATA_QUERY, featureFlags);
+
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
         ApiMock.setTestMock('GET_ALTINN_RIGHTS', 200, 'OK');
 
