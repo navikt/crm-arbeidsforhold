@@ -8,7 +8,7 @@
             "path": "force-app",
             "package": "crm-arbeidsforhold",
             "versionName": "ver 0.1",
-            "versionNumber": "0.296.0.NEXT",
+            "versionNumber": "0.297.0.NEXT",
             "dependencies": [
                 {
                     "package": "platform-data-model",
