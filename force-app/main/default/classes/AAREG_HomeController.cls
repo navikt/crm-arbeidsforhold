@@ -1,15 +1,14 @@
 @SuppressWarnings('PMD')
 public without sharing class AAREG_HomeController {
-    
     public class AccessResponse {
         @AuraEnabled
         public Boolean hasAccess { get; set; }
         @AuraEnabled
         public Boolean hasApplicationAccess { get; set; }
-        
-        public AccessResponse(Boolean hasAccess, Boolean hasApplicationAccess) {
-            this.hasAccess = hasAccess;
-            this.hasApplicationAccess = hasApplicationAccess;
+
+        public AccessResponse(Boolean access, Boolean applicationAccess) {
+            this.hasAccess = access;
+            this.hasApplicationAccess = applicationAccess;
         }
     }
 
@@ -47,46 +46,54 @@ public without sharing class AAREG_HomeController {
         }
     }
 
-  @AuraEnabled
-  public static AccessResponse checkAndShareIfAuthorized(Id userId, String orgNumber) {
-    if (String.isEmpty(userId) || String.isEmpty(orgNumber)) {
-      throw new AuraHandledException('Invalid parameters.');
-    }
-
-    Boolean hasAccess = false;
-    Boolean hasApplicationAccess = false;
-
-    AltinnCalloutService.AltinnRightsResponse rightsResp = AAREG_CommunityUtils.getUserRights(userId, orgNumber, 'nav_arbeidsforhold_aa-registeret-sok-tilgang');
-
-    if (rightsResp?.rights != null) {
-      for (AltinnCalloutService.Right right : rightsResp.rights) {
-        if (right.Action == 'Access' && right.Decision == 'Permit') {
-          hasAccess = true;
-          hasApplicationAccess = true;
-          break;
+    @AuraEnabled
+    public static AccessResponse checkAndShareIfAuthorized(Id userId, String orgNumber) {
+        if (String.isEmpty(userId) || String.isEmpty(orgNumber)) {
+            throw new AuraHandledException('Invalid parameters.');
         }
-      }
-    }
 
-    if (!hasApplicationAccess) {
-        rightsResp = AAREG_CommunityUtils.getUserRights(userId, orgNumber, 'nav_arbeidsforhold_aa-registeret-brukerstotte');
+        Boolean hasAccess = false;
+        Boolean hasApplicationAccess = false;
+
+        AltinnCalloutService.AltinnRightsResponse rightsResp = AAREG_CommunityUtils.getUserRights(
+            userId,
+            orgNumber,
+            'nav_arbeidsforhold_aa-registeret-sok-tilgang'
+        );
 
         if (rightsResp?.rights != null) {
             for (AltinnCalloutService.Right right : rightsResp.rights) {
                 if (right.Action == 'Access' && right.Decision == 'Permit') {
                     hasAccess = true;
+                    hasApplicationAccess = true;
                     break;
                 }
             }
         }
-    }
 
-    if (hasAccess) {
-      shareAgreementsWithUser(userId);
-    }
+        if (!hasApplicationAccess) {
+            rightsResp = AAREG_CommunityUtils.getUserRights(
+                userId,
+                orgNumber,
+                'nav_arbeidsforhold_aa-registeret-brukerstotte'
+            );
 
-    return new AccessResponse(hasAccess, hasApplicationAccess);
-  }
+            if (rightsResp?.rights != null) {
+                for (AltinnCalloutService.Right right : rightsResp.rights) {
+                    if (right.Action == 'Access' && right.Decision == 'Permit') {
+                        hasAccess = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (hasAccess) {
+            shareAgreementsWithUser(userId);
+        }
+
+        return new AccessResponse(hasAccess, hasApplicationAccess);
+    }
 
     // If user has access to the org in picklist -> Share org agreements with the user when changing org and on init
     @AuraEnabled
