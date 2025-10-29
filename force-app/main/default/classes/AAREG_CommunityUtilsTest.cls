@@ -24,36 +24,6 @@ private class AAREG_CommunityUtilsTest {
     }
 
     @IsTest
-    private static void testGetUserRights() {
-        List<Feature_Flag__mdt> featureFlags = new List<Feature_Flag__mdt>();
-        featureFlags.add(
-            new Feature_Flag__mdt(
-                MasterLabel = 'Altinn Version 3',
-                DeveloperName = 'Altinn_Version_3',
-                Is_Enabled__c = false,
-                Description__c = 'Altinn Version 3'
-            )
-        );
-        CustomMetadataDAO.customMetadataRecordsMap.put(FeatureToggleBase.METADATA_QUERY, featureFlags);
-
-        User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
-        ApiMock.setTestMock('GET_ALTINN_RIGHTS', 200, 'OK');
-
-        Test.startTest();
-        AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(
-            user.Id,
-            '123456789',
-            '5719'
-        );
-        Test.stopTest();
-
-        System.debug(JSON.serializePretty(response));
-        System.assertEquals(true, response.success, 'Expect success');
-        System.assertEquals(null, response.errorMessage, 'Expect no error message');
-        System.assertEquals(51, response.rights.size(), 'Expect 50 rights');
-    }
-
-    @IsTest
     private static void getUserRightsAV3ApplayForAccess() {
         Altinn3IntegrationSetting__c settings = new Altinn3IntegrationSetting__c();
         settings.Name = 'Altinn3IntegrationSettings';
@@ -66,17 +36,6 @@ private class AAREG_CommunityUtilsTest {
         insert settings;
 
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
-        List<Feature_Flag__mdt> featureFlags = new List<Feature_Flag__mdt>();
-        featureFlags.add(
-            new Feature_Flag__mdt(
-                MasterLabel = 'Altinn Version 3',
-                DeveloperName = 'Altinn_Version_3',
-                Is_Enabled__c = true,
-                Description__c = 'Altinn Version 3'
-            )
-        );
-        CustomMetadataDAO.customMetadataRecordsMap.put(FeatureToggleBase.METADATA_QUERY, featureFlags);
-
         String body = '{"response":[{"decision":"Permit","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[{"id":"urn:altinn:obligation:authenticationLevel1","attributeAssignment":[{"attributeId":"urn:altinn:obligation1-assignment1","value":"4","category":"urn:altinn:minimum-authenticationlevel","dataType":"http://www.w3.org/2001/XMLSchema#integer","issuer":null}]}],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
 
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', body, new Map<String, String>());
@@ -86,7 +45,7 @@ private class AAREG_CommunityUtilsTest {
         AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(
             user.Id,
             '123456789',
-            '5719'
+            'nav_arbeidsforhold_aa-registeret-sok-tilgang'
         );
         System.Test.stopTest();
 
@@ -110,17 +69,6 @@ private class AAREG_CommunityUtilsTest {
         insert settings;
 
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
-        List<Feature_Flag__mdt> featureFlags = new List<Feature_Flag__mdt>();
-        featureFlags.add(
-            new Feature_Flag__mdt(
-                MasterLabel = 'Altinn Version 3',
-                DeveloperName = 'Altinn_Version_3',
-                Is_Enabled__c = true,
-                Description__c = 'Altinn Version 3'
-            )
-        );
-        CustomMetadataDAO.customMetadataRecordsMap.put(FeatureToggleBase.METADATA_QUERY, featureFlags);
-
         String body = '{"response":[{"decision":"Permit","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[{"id":"urn:altinn:obligation:authenticationLevel1","attributeAssignment":[{"attributeId":"urn:altinn:obligation1-assignment1","value":"4","category":"urn:altinn:minimum-authenticationlevel","dataType":"http://www.w3.org/2001/XMLSchema#integer","issuer":null}]}],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
 
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', body, new Map<String, String>());
@@ -130,7 +78,7 @@ private class AAREG_CommunityUtilsTest {
         AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(
             user.Id,
             '123456789',
-            '5441'
+            'nav_arbeidsforhold_aa-registeret-brukerstotte'
         );
         System.Test.stopTest();
 

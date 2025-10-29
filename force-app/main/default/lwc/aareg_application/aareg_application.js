@@ -181,13 +181,13 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   }
 
   async checkAccessToApplication() {
-    getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization, serviceCode: '5719' })
+    getUserRights({ userId: this.currentUser, organizationNumber: this.lastUsedOrganization, resourceName: 'nav_arbeidsforhold_aa-registeret-sok-tilgang' })
       .then((result) => {
         if (result.success) {
           let privileges = JSON.parse(JSON.stringify(result.rights));
 
           privileges.forEach((privilege) => {
-            if (privilege.ServiceCode === '5719') {
+            if (privilege.Action === 'Access' && privilege.Decision === 'Permit') {
               this.hasAccess = true;
               return;
             }
