@@ -1,4 +1,4 @@
-@SuppressWarnings('ALL')
+@SuppressWarnings('PMD')
 @isTest
 public with sharing class AAREG_HomeControllerTest {
     @TestSetup
@@ -143,12 +143,15 @@ public with sharing class AAREG_HomeControllerTest {
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', body, new Map<String, String>());
         Test.setMock(HttpCalloutMock.class, mock);
         Test.startTest();
-        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
+        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
+            user.Id,
+            '123456789'
+        );
         Test.stopTest();
 
         System.assertEquals(true, response.hasAccess, 'User should have access with Access action and Permit decision');
         System.assertEquals(true, response.hasApplicationAccess, 'User should have application access');
-        
+
         List<Agreement__Share> sharedAgreements = [
             SELECT Id
             FROM Agreement__Share
@@ -168,7 +171,10 @@ public with sharing class AAREG_HomeControllerTest {
         Test.setMock(HttpCalloutMock.class, mock);
 
         Test.startTest();
-        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
+        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
+            user.Id,
+            '123456789'
+        );
         Test.stopTest();
 
         System.assertEquals(false, response.hasAccess, 'User should not have access with Deny decision');
@@ -229,12 +235,12 @@ public with sharing class AAREG_HomeControllerTest {
 
         // Should not create share records when user is already owner
         List<Agreement__Share> sharedAgreements = [
-            SELECT Id, RowCause 
+            SELECT Id, RowCause
             FROM Agreement__Share
             WHERE UserOrGroupId = :user.Id
         ];
         List<RelatedContact__Share> sharedRelatedContacts = [
-            SELECT Id, RowCause 
+            SELECT Id, RowCause
             FROM RelatedContact__Share
             WHERE UserOrGroupId = :user.Id
         ];
@@ -262,7 +268,7 @@ public with sharing class AAREG_HomeControllerTest {
     @isTest
     private static void testShareAgreementsWithUserNoAgreements() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
-        
+
         // No agreements exist for the organization
         Test.startTest();
         AAREG_HomeController.shareAgreementsWithUser(user.Id);
@@ -286,10 +292,17 @@ public with sharing class AAREG_HomeControllerTest {
         Test.setMock(HttpCalloutMock.class, mock);
 
         Test.startTest();
-        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
+        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
+            user.Id,
+            '123456789'
+        );
         Test.stopTest();
 
         System.assertEquals(false, response.hasAccess, 'Should return false when rights response is null');
-        System.assertEquals(false, response.hasApplicationAccess, 'Should return false for application access when rights response is null');
+        System.assertEquals(
+            false,
+            response.hasApplicationAccess,
+            'Should return false for application access when rights response is null'
+        );
     }
 }
