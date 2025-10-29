@@ -119,8 +119,8 @@ export default class Aareg_home extends LightningElement {
         orgNumber: this.lastUsedOrganization
       });
 
-      this.hasApplicationAccess = result;
-      this.hasAccess = result;
+      this.hasApplicationAccess = result.hasApplicationAccess;
+      this.hasAccess = result.hasAccess;
       this.showError = false;
     } catch (error) {
       this.hasApplicationAccess = false;

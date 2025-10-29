@@ -1,5 +1,18 @@
 @SuppressWarnings('PMD')
 public without sharing class AAREG_HomeController {
+    
+    public class AccessResponse {
+        @AuraEnabled
+        public Boolean hasAccess { get; set; }
+        @AuraEnabled
+        public Boolean hasApplicationAccess { get; set; }
+        
+        public AccessResponse(Boolean hasAccess, Boolean hasApplicationAccess) {
+            this.hasAccess = hasAccess;
+            this.hasApplicationAccess = hasApplicationAccess;
+        }
+    }
+
     @AuraEnabled(cacheable=true)
     public static AltinnCalloutService.AltinnOrganizationsResponse getOrganizationsWithRoles(String userId) {
         User currentUser = [
@@ -35,7 +48,7 @@ public without sharing class AAREG_HomeController {
     }
 
   @AuraEnabled
-  public static Boolean checkAndShareIfAuthorized(Id userId, String orgNumber) {
+  public static AccessResponse checkAndShareIfAuthorized(Id userId, String orgNumber) {
     if (String.isEmpty(userId) || String.isEmpty(orgNumber)) {
       throw new AuraHandledException('Invalid parameters.');
     }
@@ -72,7 +85,7 @@ public without sharing class AAREG_HomeController {
       shareAgreementsWithUser(userId);
     }
 
-    return hasAccess;
+    return new AccessResponse(hasAccess, hasApplicationAccess);
   }
 
     // If user has access to the org in picklist -> Share org agreements with the user when changing org and on init

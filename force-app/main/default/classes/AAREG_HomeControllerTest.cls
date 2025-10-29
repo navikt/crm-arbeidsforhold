@@ -143,10 +143,11 @@ public with sharing class AAREG_HomeControllerTest {
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', body, new Map<String, String>());
         Test.setMock(HttpCalloutMock.class, mock);
         Test.startTest();
-        Boolean hasAccess = AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
+        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
         Test.stopTest();
 
-        System.assertEquals(true, hasAccess, 'User should have access with Access action and Permit decision');
+        System.assertEquals(true, response.hasAccess, 'User should have access with Access action and Permit decision');
+        System.assertEquals(true, response.hasApplicationAccess, 'User should have application access');
         
         List<Agreement__Share> sharedAgreements = [
             SELECT Id
@@ -159,18 +160,19 @@ public with sharing class AAREG_HomeControllerTest {
     @isTest
     private static void testCheckAndShareIfAuthorizedNoAccess() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
-        
+
         // Mock response with Deny decision
         String bodyDeny = '{"response":[{"decision":"Deny","action":"Access","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
-        
+
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', bodyDeny, new Map<String, String>());
         Test.setMock(HttpCalloutMock.class, mock);
 
         Test.startTest();
-        Boolean hasAccess = AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
+        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
         Test.stopTest();
 
-        System.assertEquals(false, hasAccess, 'User should not have access with Deny decision');
+        System.assertEquals(false, response.hasAccess, 'User should not have access with Deny decision');
+        System.assertEquals(false, response.hasApplicationAccess, 'User should not have application access');
     }
 
     @isTest
@@ -277,16 +279,17 @@ public with sharing class AAREG_HomeControllerTest {
     @isTest
     private static void testCheckAndShareIfAuthorizedNullRightsResponse() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
-        
+
         // Mock response with null rights
         String bodyNullRights = '{"response":[]}';
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', bodyNullRights, new Map<String, String>());
         Test.setMock(HttpCalloutMock.class, mock);
 
         Test.startTest();
-        Boolean hasAccess = AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
+        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
         Test.stopTest();
 
-        System.assertEquals(false, hasAccess, 'Should return false when rights response is null');
+        System.assertEquals(false, response.hasAccess, 'Should return false when rights response is null');
+        System.assertEquals(false, response.hasApplicationAccess, 'Should return false for application access when rights response is null');
     }
 }
