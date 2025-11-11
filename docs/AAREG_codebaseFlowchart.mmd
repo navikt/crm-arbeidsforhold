@@ -1,0 +1,26 @@
+---
+title: Code base flowchart
+config:
+    look: classic
+    layout: dagre
+    theme: neutral
+    flowchart:
+        curve: basis
+
+---
+flowchart LR
+    A[Create application] --> B{AAREG_OrganizationCategory__c }
+    B -- STATE --> C[Legal Basis State]
+    C --> D[Purpose State]
+    B -- COUNTY --> E[Legal Basis County]
+    E --> F[Purpose County]
+    B -- MUNCIPALITY --> G[Legal Basis Municipality]
+    G --> H[Purpose Municipality]
+    B -- PENSION --> I[Legal Basis Pension]
+    I --> J[Purpose Pension]
+    B -- EL --> K[Legal Basis Electricity Supervision]
+    K --> L[Purpose Electricity Supervision]
+    B -- OTHER --> M[Legal Basis Other]
+    M --> N[Purpose Other]
+
+
