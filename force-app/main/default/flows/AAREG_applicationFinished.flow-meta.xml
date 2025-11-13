@@ -878,12 +878,6 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>EventAccess__c</field>
-            <value>
-                <elementReference>Event</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>ExtractionAccess__c</field>
             <value>
                 <elementReference>Extract</elementReference>
@@ -967,7 +961,6 @@
         <queriedFields>AA_AccessTypes__c</queriedFields>
         <queriedFields>OwnerId</queriedFields>
         <queriedFields>createdById__c</queriedFields>
-        <queriedFields>EventAccess__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>

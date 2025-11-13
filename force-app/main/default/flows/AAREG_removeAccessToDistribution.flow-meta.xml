@@ -4,7 +4,7 @@
         <name>deactivateAccessForUser</name>
         <label>deactivateAccessForUser</label>
         <locationX>270</locationX>
-        <locationY>1175</locationY>
+        <locationY>1079</locationY>
         <actionName>AAREG_distributionAccessController</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -35,13 +35,15 @@
                 <stringValue>DELETE</stringValue>
             </value>
         </inputParameters>
+        <nameSegment>AAREG_distributionAccessController</nameSegment>
+        <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <actionCalls>
         <name>getAccessTypes</name>
         <label>getAccessTypes</label>
         <locationX>182</locationX>
-        <locationY>695</locationY>
+        <locationY>647</locationY>
         <actionName>AAREG_MultiSelectFlowValues</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -54,14 +56,17 @@
                 <elementReference>getApplication.AA_AccessTypes__c</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>AAREG_MultiSelectFlowValues</nameSegment>
+        <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <apiVersion>53.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>setSingleAccessTypes</name>
         <label>setSingleAccessTypes</label>
-        <locationX>754</locationX>
-        <locationY>935</locationY>
+        <locationX>622</locationX>
+        <locationY>863</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
             <operator>Assign</operator>
@@ -83,8 +88,8 @@
     <decisions>
         <name>checkDeactivationType</name>
         <label>checkDeactivationType</label>
-        <locationX>754</locationX>
-        <locationY>1391</locationY>
+        <locationX>622</locationX>
+        <locationY>1271</locationY>
         <defaultConnector>
             <targetReference>loopTextCollection</targetReference>
         </defaultConnector>
@@ -137,7 +142,7 @@
         <name>checkStatus</name>
         <label>checkStatus</label>
         <locationX>182</locationX>
-        <locationY>2303</locationY>
+        <locationY>2087</locationY>
         <defaultConnector>
             <targetReference>updateFlowFieldOnAgreementToFalse</targetReference>
         </defaultConnector>
@@ -168,8 +173,8 @@
     <decisions>
         <name>checkValidAccessTypes</name>
         <label>checkValidAccessTypes</label>
-        <locationX>754</locationX>
-        <locationY>1055</locationY>
+        <locationX>622</locationX>
+        <locationY>971</locationY>
         <defaultConnector>
             <isGoTo>true</isGoTo>
             <targetReference>loopTextCollection</targetReference>
@@ -253,43 +258,6 @@
                 <targetReference>createInquiryForIT</targetReference>
             </connector>
             <label>isAPI</label>
-        </rules>
-        <rules>
-            <name>isEvent</name>
-            <conditionLogic>(1 OR 2) AND 3 AND 4</conditionLogic>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Event</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Event with dataprocessor</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>getAgreement.EventAccess__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record__Prior.EventAccess__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <isGoTo>true</isGoTo>
-                <targetReference>createInquiryForIT</targetReference>
-            </connector>
-            <label>isEvent</label>
         </rules>
         <rules>
             <name>isExtract</name>
@@ -393,7 +361,7 @@
         <name>loopTextCollection</name>
         <label>loopTextCollection</label>
         <locationX>182</locationX>
-        <locationY>815</locationY>
+        <locationY>755</locationY>
         <collectionReference>getAccessTypes</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -425,8 +393,8 @@
     <recordCreates>
         <name>createActivityHistory</name>
         <label>createActivityHistory</label>
-        <locationX>622</locationX>
-        <locationY>1991</locationY>
+        <locationX>490</locationX>
+        <locationY>1811</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
         </connector>
@@ -479,7 +447,7 @@
         <name>createActivityHistoryDeactivateAgreement</name>
         <label>createActivityHistoryDeactivateAgreement</label>
         <locationX>50</locationX>
-        <locationY>2423</locationY>
+        <locationY>2195</locationY>
         <connector>
             <targetReference>updateFlowFieldOnAgreementToFalse</targetReference>
         </connector>
@@ -531,8 +499,8 @@
     <recordCreates>
         <name>createInquiry</name>
         <label>createInquiry</label>
-        <locationX>622</locationX>
-        <locationY>1511</locationY>
+        <locationX>490</locationX>
+        <locationY>1379</locationY>
         <assignRecordIdToReference>varInquiryId</assignRecordIdToReference>
         <connector>
             <targetReference>getInquiryName</targetReference>
@@ -579,7 +547,7 @@
         <name>createInquiryForIT</name>
         <label>createInquiryForIT</label>
         <locationX>534</locationX>
-        <locationY>1175</locationY>
+        <locationY>1079</locationY>
         <connector>
             <targetReference>checkDeactivationType</targetReference>
         </connector>
@@ -625,8 +593,8 @@
     <recordCreates>
         <name>createMessageFromNAV</name>
         <label>createMessageFromNAV</label>
-        <locationX>622</locationX>
-        <locationY>1871</locationY>
+        <locationX>490</locationX>
+        <locationY>1703</locationY>
         <connector>
             <targetReference>createActivityHistory</targetReference>
         </connector>
@@ -648,8 +616,8 @@
     <recordCreates>
         <name>createThread</name>
         <label>createThread</label>
-        <locationX>622</locationX>
-        <locationY>1751</locationY>
+        <locationX>490</locationX>
+        <locationY>1595</locationY>
         <connector>
             <targetReference>createMessageFromNAV</targetReference>
         </connector>
@@ -708,7 +676,7 @@
         <name>getAgreement</name>
         <label>getAgreement</label>
         <locationX>182</locationX>
-        <locationY>335</locationY>
+        <locationY>323</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getApplication</targetReference>
@@ -729,7 +697,6 @@
         <queriedFields>APIAccess__c</queriedFields>
         <queriedFields>OnlineAccess__c</queriedFields>
         <queriedFields>Status__c</queriedFields>
-        <queriedFields>EventAccess__c</queriedFields>
         <queriedFields>isAccessDeactivationThroughFlow__c</queriedFields>
         <queriedFields>ExtractionAccess__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
@@ -738,7 +705,7 @@
         <name>getApplication</name>
         <label>getApplication</label>
         <locationX>182</locationX>
-        <locationY>455</locationY>
+        <locationY>431</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getRecordTypeId_0</targetReference>
@@ -764,8 +731,8 @@
     <recordLookups>
         <name>getInquiryName</name>
         <label>getInquiryName</label>
-        <locationX>622</locationX>
-        <locationY>1631</locationY>
+        <locationX>490</locationX>
+        <locationY>1487</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createThread</targetReference>
@@ -788,7 +755,7 @@
         <name>getRecordTypeId_0</name>
         <label>getRecordTypeId</label>
         <locationX>182</locationX>
-        <locationY>575</locationY>
+        <locationY>539</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getAccessTypes</targetReference>
@@ -811,7 +778,7 @@
         <name>updateFlowFieldOnAgreementToFalse</name>
         <label>updateFlowFieldOnAgreementToFalse</label>
         <locationX>182</locationX>
-        <locationY>2639</locationY>
+        <locationY>2387</locationY>
         <inputAssignments>
             <field>isAccessDeactivationThroughFlow__c</field>
             <value>

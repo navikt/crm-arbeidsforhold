@@ -64,12 +64,6 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>EventAccess__c</field>
-            <value>
-                <elementReference>eventAccess</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>ExtractionAccess__c</field>
             <value>
                 <elementReference>extractAccess</elementReference>
@@ -144,16 +138,6 @@
                 <elementReference>getAgreement.APIAccess__c</elementReference>
             </defaultValue>
             <fieldText>API</fieldText>
-            <fieldType>InputField</fieldType>
-            <isRequired>true</isRequired>
-        </fields>
-        <fields>
-            <name>eventAccess</name>
-            <dataType>Boolean</dataType>
-            <defaultValue>
-                <elementReference>getAgreement.EventAccess__c</elementReference>
-            </defaultValue>
-            <fieldText>Hendelser</fieldText>
             <fieldType>InputField</fieldType>
             <isRequired>true</isRequired>
         </fields>

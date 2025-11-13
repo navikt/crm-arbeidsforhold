@@ -174,16 +174,6 @@
         <identifier>RecordOnlineAccess_cField1</identifier>
       </fieldInstance>
     </itemInstances>
-    <itemInstances>
-      <fieldInstance>
-        <fieldInstanceProperties>
-          <name>uiBehavior</name>
-          <value>readonly</value>
-        </fieldInstanceProperties>
-        <fieldItem>Record.EventAccess__c</fieldItem>
-        <identifier>RecordEventAccess_cField</identifier>
-      </fieldInstance>
-    </itemInstances>
     <name>Facet-8658628c-9ba8-4df2-a4bd-d22a9ccf5de9</name>
     <type>Facet</type>
   </flexiPageRegions>
