@@ -177,7 +177,6 @@
         <queriedFields>AA_ConfirmedAgreementCancellationDate__c</queriedFields>
         <queriedFields>OrganizationNumber__c</queriedFields>
         <queriedFields>isNoDeactivationAccess__c</queriedFields>
-        <queriedFields>EventAccess__c</queriedFields>
         <queriedFields>OnlineAccess__c</queriedFields>
         <queriedFields>APIAccess__c</queriedFields>
         <queriedFields>ExtractionAccess__c</queriedFields>
@@ -233,12 +232,6 @@
         </inputAssignments>
         <inputAssignments>
             <field>APIAccess__c</field>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>EventAccess__c</field>
             <value>
                 <booleanValue>false</booleanValue>
             </value>

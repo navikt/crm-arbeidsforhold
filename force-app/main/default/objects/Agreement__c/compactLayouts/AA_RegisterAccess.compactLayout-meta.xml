@@ -7,6 +7,5 @@
     <fields>APIAccess__c</fields>
     <fields>ExtractionAccess__c</fields>
     <fields>OnlineAccess__c</fields>
-    <fields>EventAccess__c</fields>
     <label>Aa-register access</label>
 </CompactLayout>

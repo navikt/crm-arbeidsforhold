@@ -43,7 +43,6 @@ public with sharing class AAREG_AgreementController {
     try {
       agreement.Status__c = 'Deactivated';
       agreement.OnlineAccess__c = false;
-      agreement.EventAccess__c = false;
       agreement.ExtractionAccess__c = false;
       agreement.APIAccess__c = false;
       agreement.AA_ConfirmedAgreementCancellationDate__c = System.today();
