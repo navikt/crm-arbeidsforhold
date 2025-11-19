@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
     <available>true</available>
-    <description>Aa-register email confirmation when closed</description>
+    <description>Sendes når søknad har fått vedtak og ferdigstilt</description>
     <encodingKey>UTF-8</encodingKey>
     <name>aaRegApplicationDecisionConfirmation</name>
     <relatedEntityType>Application__c</relatedEntityType>
     <style>none</style>
-    <subject>Søknad {{{Application__c.Name}}} er ferdigbehandlet</subject>
+    <subject>Søknad {{{Application__c.Name}}} er ferdig behandlet</subject>
     <type>custom</type>
     <uiType>SFX</uiType>
 </EmailTemplate>

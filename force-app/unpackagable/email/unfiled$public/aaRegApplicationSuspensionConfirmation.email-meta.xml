@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
     <available>true</available>
-    <description>Aa-register email notification to applicant when application is suspended</description>
+    <description>Sendes når søknad er henlagt etter avtale med konsument.</description>
     <encodingKey>UTF-8</encodingKey>
     <name>aaRegApplicationSuspensionConfirmation</name>
     <relatedEntityType>Application__c</relatedEntityType>
