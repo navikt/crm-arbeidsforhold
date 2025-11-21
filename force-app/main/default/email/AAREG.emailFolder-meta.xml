@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplateFolder xmlns="http://soap.sforce.com/2006/04/metadata">
+    <folderShares>
+        <accessLevel>Manage</accessLevel>
+        <sharedTo>test-bjafmc93dxt0@example.com</sharedTo>
+        <sharedToType>User</sharedToType>
+    </folderShares>
+    <folderShares>
+        <accessLevel>Manage</accessLevel>
+        <sharedTo>AAREG_User_Support</sharedTo>
+        <sharedToType>Group</sharedToType>
+    </folderShares>
+    <name>AAREG</name>
+</EmailTemplateFolder>
