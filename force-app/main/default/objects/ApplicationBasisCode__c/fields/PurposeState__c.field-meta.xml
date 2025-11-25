@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>PurposeState__c</fullName>
     <description>Application purpose state organizations.</description>
-    <externalId>false</externalId>
     <label>Purpose State</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
@@ -43,9 +42,9 @@
                 <label>BeredtC19 (midlertidig register for å gi løpende oversikt og kunnskap om utbredelse, årsakssammenhenger og konsekvenser av covid-19)</label>
             </value>
             <value>
-                <fullName>Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. </fullName>
+                <fullName>Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer.</fullName>
                 <default>false</default>
-                <label>Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. </label>
+                <label>Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer.</label>
             </value>
             <value>
                 <fullName>Bruk i Riksrevisjonens kontrollarbeid</fullName>
@@ -334,222 +333,6 @@
             </value>
         </valueSetDefinition>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Areal- og transportplanlegging</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Avklare nærstående-forhold gjennom arbeidsforhold i stiftelsen</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Behandling av klager på vedtak fattet av Det lokalte eltilsyn (DLE)</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Behandling av søknader om familiegjenforening</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>BeredtC19 (midlertidig register for å gi løpende oversikt og kunnskap om utbredelse, årsakssammenhenger og konsekvenser av covid-19)</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. </valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Bruk i Riksrevisjonens kontrollarbeid</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Etterforskning av straffbare forhold i militær tjeneste</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Fastsette og inndrive toll og avgifter</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Finne arbeidssted til personer som er tiltalt eller er stevnet som vitne</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Forkynning av klager for den innklagede på arbeidsstedet</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Forvaltningsmessige oppgaver knyttet til utlendingsloven,våpenloven,brukthandelloven,vaktvirksomhetsloven, veitrafikkloven, hundeloven og politiloven § 2</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Følge opp forpliktelsene etter forskrift om bruk av lærlinger i offentlige kontrakter</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Følge opp forpliktelsene etter forskrift om lønns- og arbeidsvilkår i offentlige kontrakter</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Føre tilsyn med advokaters virksomhet i henhold til domstolloven</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Inngå og følge opp sikkerhetsavtaler</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Innkreving av våpen og ammunisjon</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Klarering for norske statsborgere i samferdselssektoren</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av ansettelsesforhold gjeldende el-tilsynsloven § 5 og forskrift om elektroforetak mv. §§ 3 og 5</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av antall ansatte knyttet til kompensasjonsløsning for medieforetak</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av at trafikklærere og deres faglige ledere er ansatt ved den virksomheten som de utøver sin prøveperiode ved.</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av førerkort</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av helsepersonells arbeidsforhold som ledd i tilsyn for gode og sikre helsetjenester</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av løyve for gods- og turvogntransport</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av planlagt nasjonalt register om individuell arbeidstid tilrettelagt for forskning.</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av seriøsitetskrav etter byggesaksforskriften § 13-1a</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av teknisk leder i kjøretøyverksteder</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av teknisk leder i virksomhet (periodisk kontroll av kjøretøy)</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av tilskuddsordningen - kontrollere at virksomheter som sysselsetter helsepersonell har meldt inn korrekte opplysninger til Norsk pasientskadeerstatning</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll av vareførselen til og fra tollområdet</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll med foretakssammenslutninger mv.</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontroll med kjøre- og hviletid</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kvalitetssikre at håndverkmestere som knytter sin mestertittel opp mot et firma er ansatt i firmaet.</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Kvalitetssikring av opplysninger ved behandling av søknader om autorisasjon eller lisens av helsepersonell</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>MSIS (permanent register for overvåking av smittsomme sykdommer)</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Opplysninger om arbeidsforhold ved søknader om arbeids- og oppholdstillatelse og evt. tilbakekallelse</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Politioperative gjøremål, etterforskning og etterretningsoppgaver</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Sikkerhetsklareringer av personell</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Tilgangskontroll og -styring i Altinn.  Kontrollen gjelder autorisasjon, herunder tilgangsstyring og tilgangskontroll, i kommunikasjonen med det offentlige</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Tilsyn med friskoler knyttet til krav om bruk av statstilskudd</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Tilsyn med helsepersonell, vurdering av suspensjon</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Tilsyn med helsepersonell og virksomheter som yter helse- og omsorgstjenester</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Tilsyn med helsepersonells yrkesutøvelse</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Tilsyn med lønns- og arbeidsvilkår i offentlige kontrakter</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Tilsyn og kontroll av finansinstitusjoner</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Utstedelse av HMS-kort i bygge- og anleggsplasser</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Utstedelse av HMS-kort i renholdsbransjen</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Utstede offesielle bekreftelser på yrkeserfaring for leger og tannleger i Norge</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Verifisere domfeltes arbeidsforhold i tilknytning til straffegjennomføring</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Vurdere erstatning for tapt arbeidsfortjeneste etter personskade som følge av en straffbar handling</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Vurdere medlemskap og rettighetsspørsmål ved krav om stønad ved helsetjenester</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Vurdering av helserettigheter og rett til refusjon etter EØS-forordningen og folketrygdloven kap. 5 (Helfo).</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Vurdering av statlige tilvirkningsbevillinger etter alkoholloven</valueName>
-        </valueSettings>
-        <valueSettings>
             <controllingFieldValue>FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
             <valueName>Personkontroll ved sikkerhetsklarering</valueName>
         </valueSettings>
@@ -580,6 +363,222 @@
         <valueSettings>
             <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
             <valueName>Annet - oppgi i tekstfelt under</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Areal- og transportplanlegging</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Avklare nærstående-forhold gjennom arbeidsforhold i stiftelsen</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Behandling av klager på vedtak fattet av Det lokalte eltilsyn (DLE)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Behandling av søknader om familiegjenforening</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>BeredtC19 (midlertidig register for å gi løpende oversikt og kunnskap om utbredelse, årsakssammenhenger og konsekvenser av covid-19)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Bruk i Riksrevisjonens kontrollarbeid</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Etterforskning av straffbare forhold i militær tjeneste</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Fastsette og inndrive toll og avgifter</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Finne arbeidssted til personer som er tiltalt eller er stevnet som vitne</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Forkynning av klager for den innklagede på arbeidsstedet</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Forvaltningsmessige oppgaver knyttet til utlendingsloven,våpenloven,brukthandelloven,vaktvirksomhetsloven, veitrafikkloven, hundeloven og politiloven § 2</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Følge opp forpliktelsene etter forskrift om bruk av lærlinger i offentlige kontrakter</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Følge opp forpliktelsene etter forskrift om lønns- og arbeidsvilkår i offentlige kontrakter</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Føre tilsyn med advokaters virksomhet i henhold til domstolloven</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Inngå og følge opp sikkerhetsavtaler</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Innkreving av våpen og ammunisjon</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Klarering for norske statsborgere i samferdselssektoren</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll av ansettelsesforhold gjeldende el-tilsynsloven § 5 og forskrift om elektroforetak mv. §§ 3 og 5</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll av antall ansatte knyttet til kompensasjonsløsning for medieforetak</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll av at trafikklærere og deres faglige ledere er ansatt ved den virksomheten som de utøver sin prøveperiode ved.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll av førerkort</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll av helsepersonells arbeidsforhold som ledd i tilsyn for gode og sikre helsetjenester</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll av løyve for gods- og turvogntransport</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll av planlagt nasjonalt register om individuell arbeidstid tilrettelagt for forskning.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll av seriøsitetskrav etter byggesaksforskriften § 13-1a</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll av teknisk leder i kjøretøyverksteder</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll av teknisk leder i virksomhet (periodisk kontroll av kjøretøy)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll av tilskuddsordningen - kontrollere at virksomheter som sysselsetter helsepersonell har meldt inn korrekte opplysninger til Norsk pasientskadeerstatning</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll av vareførselen til og fra tollområdet</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll med foretakssammenslutninger mv.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontroll med kjøre- og hviletid</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kvalitetssikre at håndverkmestere som knytter sin mestertittel opp mot et firma er ansatt i firmaet.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kvalitetssikring av opplysninger ved behandling av søknader om autorisasjon eller lisens av helsepersonell</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>MSIS (permanent register for overvåking av smittsomme sykdommer)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Opplysninger om arbeidsforhold ved søknader om arbeids- og oppholdstillatelse og evt. tilbakekallelse</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Politioperative gjøremål, etterforskning og etterretningsoppgaver</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Sikkerhetsklareringer av personell</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Tilgangskontroll og -styring i Altinn.  Kontrollen gjelder autorisasjon, herunder tilgangsstyring og tilgangskontroll, i kommunikasjonen med det offentlige</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Tilsyn med friskoler knyttet til krav om bruk av statstilskudd</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Tilsyn med helsepersonell, vurdering av suspensjon</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Tilsyn med helsepersonell og virksomheter som yter helse- og omsorgstjenester</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Tilsyn med helsepersonells yrkesutøvelse</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Tilsyn med lønns- og arbeidsvilkår i offentlige kontrakter</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Tilsyn og kontroll av finansinstitusjoner</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Utstedelse av HMS-kort i bygge- og anleggsplasser</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Utstedelse av HMS-kort i renholdsbransjen</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Utstede offesielle bekreftelser på yrkeserfaring for leger og tannleger i Norge</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Verifisere domfeltes arbeidsforhold i tilknytning til straffegjennomføring</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Vurdere erstatning for tapt arbeidsfortjeneste etter personskade som følge av en straffbar handling</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Vurdere medlemskap og rettighetsspørsmål ved krav om stønad ved helsetjenester</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Vurdering av helserettigheter og rett til refusjon etter EØS-forordningen og folketrygdloven kap. 5 (Helfo).</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Vurdering av statlige tilvirkningsbevillinger etter alkoholloven</valueName>
         </valueSettings>
     </valueSet>
 </CustomField>
