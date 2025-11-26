@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>LegalBasisMunicipality__c</fullName>
     <description>The legal basis available for organizations that fall under the &quot;Municipality&quot; category.</description>
-    <externalId>false</externalId>
     <label>Legal Basis Municipality</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
@@ -17,14 +16,14 @@
                 <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 9 bokstav f</label>
             </value>
             <value>
-                <fullName>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</fullName>
-                <default>false</default>
-                <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</label>
-            </value>
-            <value>
                 <fullName>Annet - oppgi i tekstfelt under</fullName>
                 <default>false</default>
                 <label>Annet - oppgi i tekstfelt under</label>
+            </value>
+            <value>
+                <fullName>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</fullName>
+                <default>false</default>
+                <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</label>
             </value>
             <value>
                 <fullName>Aa-registerforskriften § 10 bokstav e</fullName>
@@ -37,6 +36,12 @@
                 <default>false</default>
                 <isActive>false</isActive>
                 <label>Aa-registerforskriften § 9 bokstav f</label>
+            </value>
+            <value>
+                <fullName>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</label>
             </value>
         </valueSetDefinition>
     </valueSet>

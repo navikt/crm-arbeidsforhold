@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>PurposeMunicipality__c</fullName>
     <description>The application purpose available for organizations that fall under the &quot;Municipality&quot; category.</description>
-    <externalId>false</externalId>
     <label>Purpose Municipality</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
@@ -134,60 +133,60 @@
             <valueName>Særnamsfunksjonen</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <valueName>Annet - oppgi i tekstfelt under</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Behandling av startlån/boligtilskudd</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Behandlinger av søknader om kommunal bolig</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Behandlinger av søknader om gravferdstønad</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Innfordring av kommunale krav (utenom særnamsfunksjonen)</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Kontroll og verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Kontroll og verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, skolefritidsordning (SFO)</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Kontroll av private barnehager (krav til bemanning og økonomi)</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Kontroll av folkevalgtes refusjonskrav</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Innkalling til bystyremøter (Oslo)</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Oppfølging av låneportefølje, sosiale lån</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Salg- og skjenkebevilling</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Smittesporing</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
-            <valueName>Annet - oppgi i tekstfelt under</valueName>
         </valueSettings>
     </valueSet>
 </CustomField>

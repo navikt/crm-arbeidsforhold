@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>PurposeElectricitySupervision__c</fullName>
     <description>The application purpose available for organizations that fall under the &quot;Electricity Supervision&quot; category.</description>
-    <externalId>false</externalId>
     <label>Purpose Electricity Supervision</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
@@ -30,12 +29,12 @@
             </value>
         </valueSetDefinition>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</controllingFieldValue>
-            <valueName>Tilsyn med elektriske anlegg og elektrisk utstyr</valueName>
-        </valueSettings>
-        <valueSettings>
             <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
             <valueName>Annet - oppgi i tekstfelt under</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Tilsyn med elektriske anlegg og elektrisk utstyr</valueName>
         </valueSettings>
     </valueSet>
 </CustomField>
