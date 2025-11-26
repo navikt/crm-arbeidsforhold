@@ -17,9 +17,9 @@ public class AAREG_CodeBaseListControllerTest {
 
     ApplicationBasisCode__c abc = new ApplicationBasisCode__c();
     abc.Application__c = app.Id;
-    abc.OrganizationType__c = 'County';
-    abc.LegalBasisCounty__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e';
-    abc.PurposeCounty__c = 'Tildeling og kontroll av drosjeløyve';
+    abc.OrganizationType__c = 'State';
+    abc.LegalBasisState__c = 'LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58';
+    abc.PurposeState__c = 'Innkalling av tjenestepliktig personell';
     abc.ProcessingBasis__c = 'ja,da...';
     insert abc;
 
