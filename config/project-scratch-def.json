@@ -41,7 +41,8 @@
       "enableOotbProfExtUserOpsEnable": true
     },
     "emailAdministrationSettings": {
-      "enableEnhancedEmailEnabled": true
+      "enableEnhancedEmailEnabled": true,
+      "enableEnhancedFolderSharingForEmailTemplate": true
     },
     "entitlementSettings": {
       "enableEntitlements": true,
