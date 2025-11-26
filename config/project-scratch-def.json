@@ -22,6 +22,7 @@
     "ServiceUser",
     "Sites",
     "SurveyAdvancedFeatures",
+    "EmailTemplateFolderSharing",
     "LiveMessage"
   ],
   "country": "NO",
@@ -41,8 +42,10 @@
       "enableOotbProfExtUserOpsEnable": true
     },
     "emailAdministrationSettings": {
-      "enableEnhancedEmailEnabled": true,
-      "enableEnhancedFolderSharingForEmailTemplate": true
+      "enableEnhancedEmailEnabled": true
+    },
+    "emailTemplateSettings": {
+      "enableLightningEmailTemplates": true
     },
     "entitlementSettings": {
       "enableEntitlements": true,
