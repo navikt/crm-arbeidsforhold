@@ -4,5 +4,6 @@
     "[Log]": {
         "editor.fontSize": 10
     },
-    "terminal.integrated.fontSize": 12
+    "terminal.integrated.fontSize": 14,
+    "xml.preferences.showSchemaDocumentationType": "none"
 }
