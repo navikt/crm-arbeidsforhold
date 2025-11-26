@@ -44,7 +44,7 @@
       "enableEnhancedEmailEnabled": true
     },
     "emailTemplateSettings": {
-      "enableLightningEmailTemplates": true
+      "enableEnhancedFolderSharingForEmailTemplates": true,
     },
     "entitlementSettings": {
       "enableEntitlements": true,
