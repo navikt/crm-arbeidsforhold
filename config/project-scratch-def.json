@@ -43,8 +43,8 @@
     "emailAdministrationSettings": {
       "enableEnhancedEmailEnabled": true
     },
-    "emailTemplateSettings": {
-      "enableEnhancedFolderSharingForEmailTemplates": true
+     "emailTemplateSettings": {
+      "enableTemplateEnhancedFolderPref": true
     },
     "entitlementSettings": {
       "enableEntitlements": true,
