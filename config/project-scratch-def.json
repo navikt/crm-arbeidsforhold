@@ -43,6 +43,9 @@
     "emailAdministrationSettings": {
       "enableEnhancedEmailEnabled": true
     },
+    "emailTemplateSettings": {
+      "enableTemplateEnhancedFolderPref": true
+    },
     "entitlementSettings": {
       "enableEntitlements": true,
       "enableEntitlementVersioning": true
