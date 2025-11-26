@@ -100,9 +100,6 @@
       "enableSurvey": true,
       "enableSurveyOwnerCanManageResponse": false
     },
-    "emailAdministrationSettings": {
-          "enableEnhancedEmailEnabled": true
-    }
     "userManagementSettings": {
       "enableEnhancedConcealPersonalInfo": true,
       "enableEnhancedPermsetMgmt": true,
