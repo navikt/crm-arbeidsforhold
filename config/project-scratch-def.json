@@ -43,7 +43,7 @@
     "emailAdministrationSettings": {
       "enableEnhancedEmailEnabled": true
     },
-     "emailTemplateSettings": {
+    "emailTemplateSettings": {
       "enableTemplateEnhancedFolderPref": true
     },
     "entitlementSettings": {
