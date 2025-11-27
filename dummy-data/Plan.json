@@ -3,7 +3,7 @@
        "sobject": "User", 
        "saveRefs": true,
        "resolveRefs": true,
-       "files": ["dummy-data/User.json"]
+       "files": ["User.json"]
     }
 
 
