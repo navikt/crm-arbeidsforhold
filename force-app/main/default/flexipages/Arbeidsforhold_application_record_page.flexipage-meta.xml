@@ -421,10 +421,6 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>createQuickActionName</name>
-                    <value>NewAccount</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
                     <name>lookupFieldName</name>
                     <value>Application__c.Account__c</value>
                 </componentInstanceProperties>
