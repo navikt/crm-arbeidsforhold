@@ -1,0 +1,40 @@
+{
+    "records":[
+        {
+            "attributes": {
+                "type": "User",
+                "referenceId": "UserRef1"
+            },
+                "Username": "persaksbehandler1@nav.no",
+                "Email": "persaksbehandler1@nav.no",
+                "LastName": "Saksbehandler 1",
+                "FirstName": "Per",
+                "Alias": "ps",
+                "ProfileName": "Standard User",
+                "permsets":["AAREG_Arbeidsforhold_Saksbehandling"],
+                "TimeZoneSidKey": "Europe/Oslo",
+                "LocaleSidKey": "nb_NO",
+                "LanguageLocaleKey": "no",
+                "EmailEncodingKey": "UTF-8",
+                "CommunityNickname": "Saksbehandler1"
+        },
+        {
+            "attributes": {
+                "type": "User",
+                "referenceId": "UserRef2"
+            },
+                "Username": "hannasaksbehandler2@nav.no",
+                "Email": "hannasaksbehandler2@nav.no",
+                "LastName": "Saksbehandler 2",
+                "FirstName": "Hanna",
+                "Alias": "hs",
+                "ProfileName": "Standard User",
+                "permsets":["AAREG_Arbeidsforhold_Saksbehandling"],
+                "TimeZoneSidKey": "Europe/Oslo",
+                "LocaleSidKey": "nb_NO",
+                "LanguageLocaleKey": "no",
+                "EmailEncodingKey": "UTF-8",
+                "CommunityNickname": "Saksbehandler2"
+        }
+    ]
+}
