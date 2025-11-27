@@ -1,0 +1,52 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef1"
+            },
+            "Name": "PENSJONSKASSE",
+            "INT_Industry__c": "Administrasjon av trygdeordninger underlagt offentlig forvaltning",
+            "INT_IndustryCode__c": "84.300",
+            "INT_OrganizationNumber__c": "940415683",
+            "INT_OrganizationalStructure__c": "ORGL",
+            "INT_SectorCode__c": "6100"
+        },
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef2"
+            },
+            "Name": "KRAFTNETT",
+            "INT_Industry__c": "Distribusjon av elektrisitet",
+            "INT_IndustryCode__c": "35.140",
+            "INT_OrganizationNumber__c": "923934138",
+            "INT_OrganizationalStructure__c": "AS",
+            "INT_SectorCode__c": "2100"
+        },
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef3"
+            },
+            "Name": "KOMMUNE",
+            "INT_Industry__c": "Generell offentlig administrasjon",
+            "INT_IndustryCode__c": "84.110",
+            "INT_OrganizationNumber__c": "921133642",
+            "INT_OrganizationalStructure__c": "KOMM",
+            "INT_SectorCode__c": "6500"
+        },
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef4"
+            },
+            "Name": "FYLKESKOMMUNE",
+            "INT_Industry__c": "Generell offentlig administrasjon",
+            "INT_IndustryCode__c": "84.110",
+            "INT_OrganizationNumber__c": "929882989",
+            "INT_OrganizationalStructure__c": "FYLK",
+            "INT_SectorCode__c": "6500"
+        }
+    ]
+}
