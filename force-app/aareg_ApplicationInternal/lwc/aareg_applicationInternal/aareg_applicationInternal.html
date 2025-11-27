@@ -1,0 +1,159 @@
+<template>
+    <lightning-card title={label.applicationTitle} icon-name="custom:custom63" class="container">
+        <template if:true={application}>
+            <div class="legal-basis slds-m-around_medium">
+                <h2>{label.applicantsSection}</h2>
+                <table>
+                    <template for:each={application} for:item="app"> 
+                        
+                                <tr key={app.SoknadsId}>
+                                    <th>Søker</th>
+                                    <td>{app.KonsumentNavn}</td>
+                                </tr>
+                                <tr key={app.SoknadsId}>
+                                    <th>Adresse</th>
+                                    <td>{app.KonsumentAdresse}</td>
+                                </tr>
+                                <tr key={app.SoknadsId}>
+                                    <th>Postnummer</th>
+                                    <td>{app.KonsumentPostnummer}</td>
+                                </tr>
+                                <tr key={app.SoknadsId}>
+                                    <th>Poststed</th>
+                                    <td>{app.KonsumentPoststed}</td>
+                                </tr>
+                                <tr key={app.SoknadsId}>
+                                    <th>Organisasjonsnummer</th>
+                                    <td>{app.KonsumentOrganisasjonsnummer}</td></tr>
+                                <tr key={app.SoknadsId}>
+                                    <th>E-post</th>
+                                    <td>{app.KonsumentEpost}</td>
+                                </tr>
+                                <tr key={app.SoknadsId}>
+                                    <th>Telefon</th>
+                                    <td>{app.KonsumentTelefon}</td>
+                                </tr>
+                                <tr key={app.SoknadsId}>
+                                    <th>Organisasjonstype</th>
+                                    <td>{app.OrganisasjonsType}</td>
+                                </tr>
+                    </template>
+                </table>
+            </div>
+
+            <div class="legal-basis slds-m-around_medium">
+                <h2>Type tilgang</h2>
+                <table>
+                    <template for:each={application} for:item="medium">
+                        <tr key={medium.SoknadsId}>
+                            <th>API</th>
+                            <td><input type="checkbox" disabled checked={medium.APITilgang}></td>
+                        </tr>
+                        <tr key={medium.SoknadsId}>
+                            <th>Uttrekk</th>
+                            <td><input type="checkbox" disabled checked={medium.Uttrekk}></td>
+                        </tr>
+                        <tr key={medium.SoknadsId}>
+                            <th>Web</th>
+                            <td><input type="checkbox" disabled checked={medium.WebTilgang}></td>
+                        </tr>
+                    </template>
+                </table>
+            </div>
+
+            <div class="legal-basis slds-m-around_medium">
+                <h2>{label.legalbasisSection}</h2>
+                <template if:true={basisCodes}>
+                    <table >
+                        <template for:each={basisCodes} for:item="code">
+                            <thead key={code.KodeverkId}>
+                                <tr >
+                                    <th>Hjemmel</th>
+                                    <td>{code.Hjemmel}</td>
+                                </tr>
+                                <tr>
+                                    <th>Formål</th>
+                                    <td>{code.Formaal}</td>
+                                </tr>
+                                <tr>
+                                    <th>Behandlingsgrunnlag</th>
+                                    <td>{code.Behandlingsgrunnlag}</td>
+                                    <td></td>
+                                </tr>
+                            </thead> 
+                        </template>
+                    </table>
+                </template>
+                <template if:false={basisCodes}>
+                    <p>No basis codes found.</p>
+                </template>
+            </div>
+
+            <div class="legal-basis slds-m-around_medium">
+                <h2>Databehandler</h2>
+                <table >
+                    <template for:each={application} for:item="dataProcessor">
+                        <tr key={dataProcessor.SoknadsId}>
+                            <th>Databehandler</th>
+                            <td>{dataProcessor.DatabehandlerNavn}</td>
+                        </tr>
+                        <tr key={dataProcessor.SoknadsId}>
+                            <th>Organisasjonsnummer</th>
+                            <td>{dataProcessor.DatabehandlerOrganisasjonsnummer}</td>
+                        </tr>
+                    </template>
+                </table>
+            </div>
+
+            <div class="legal-basis slds-m-around_medium">
+                <h2>Bruksvilkår</h2>
+                <table >
+                    <template for:each={application} for:item="responsible">
+                        <tr key={responsible.SoknadsId}>
+                            <th>Bruksvilkår</th>
+                            <td><input type="checkbox" disabled checked={responsible.Vilkaar}></td>
+                        </tr>
+                    </template>
+                </table>
+            </div>
+
+            <div>
+                <h2>{label.contactPersonSection}</h2>
+                <template if:true={relatedContacts}>
+                    <table class="related-contact">
+                        <thead>
+                            <tr>
+                                <th>Navn på kontaktperson</th>
+                                <th>E-post</th>
+                                <th>Telefon</th>
+                                <th>Avtale</th>
+                                <th>Endringer</th>
+                                <th>Feil</th>
+                                <th>Sikkerhet</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={relatedContacts} for:item="contact">
+                                <tr key={contact.KontaktId}>
+                                    <td>{contact.KontaktNavn}</td>
+                                    <td>{contact.KontaktEpost}</td>
+                                    <td>{contact.KontaktTelefon}</td>
+                                    <td><input type="checkbox" disabled checked={contact.AvtaleVarsel}> </td>
+                                    <td><input type="checkbox" disabled checked={contact.EndringsVarsel}> </td>
+                                    <td><input type="checkbox" disabled checked={contact.FeilmeldingsVarsel}></td>
+                                    <td><input type="checkbox" disabled checked={contact.SikkerhetsVarsel}> </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </template>
+            </div>
+        </template>
+
+        <template if:true={error}>
+            <div class="slds-m-around_medium">
+                <p class="slds-text-color_error">Error: {error.body.message}</p>
+            </div>
+        </template>
+    </lightning-card>
+</template>

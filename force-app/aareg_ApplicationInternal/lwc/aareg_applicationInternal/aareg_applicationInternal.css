@@ -1,0 +1,34 @@
+.container {
+  /* font-family: 'Source Sans Pro', Arial, sans-serif;*/
+   font-size: 0.813rem; /*13px*/
+   font-weight: 400;
+}
+.legal-basis th {
+    border-collapse: collapse;
+    border: 0.188rem solid white;
+    font-weight: 600;
+    text-align: right;
+    width: 15%;
+}
+.legal-basis td {
+    border-collapse: collapse;
+    border: 0.188rem solid white;
+}
+.legal-basis thead:nth-child(odd) {
+    background-color: #ECEEF0;
+}
+
+.related-contact th {
+    font-weight: 600;
+    text-align: left;
+}
+.related-contact td {
+    border-collapse: collapse;
+    border: 0.188rem solid white;
+}
+
+h2 {
+    font-size: 0.938rem; /*15px*/
+    font-weight: 600;
+    padding-bottom: 1rem;
+}
