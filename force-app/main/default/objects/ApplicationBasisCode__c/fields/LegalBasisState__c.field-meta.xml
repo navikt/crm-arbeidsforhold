@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>LegalBasisState__c</fullName>
     <description>Application legal basis for state.</description>
-    <externalId>false</externalId>
     <label>Legal Basis State</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
@@ -11,11 +10,6 @@
         <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value>
-                <fullName>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</fullName>
-                <default>false</default>
-                <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</label>
-            </value>
             <value>
                 <fullName>FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</fullName>
                 <default>false</default>
@@ -50,6 +44,17 @@
                 <fullName>Annet - oppgi i tekstfelt under</fullName>
                 <default>false</default>
                 <label>Annet - oppgi i tekstfelt under</label>
+            </value>
+            <value>
+                <fullName>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</fullName>
+                <default>false</default>
+                <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</label>
+            </value>
+            <value>
+                <fullName>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav e</label>
             </value>
         </valueSetDefinition>
     </valueSet>
