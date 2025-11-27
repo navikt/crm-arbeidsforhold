@@ -68,7 +68,8 @@
                 <identifier>runtime_sales_pathassistant_pathAssistant</identifier>
             </componentInstance>
         </itemInstances>
-        <name>header</name>
+        <name>
+        header</name>
         <type>Region</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -78,7 +79,8 @@
                 <identifier>c_aareg_applicationInternal</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-449177aa-6e05-4da5-a31f-e3cff1a919a9</name>
+        <name>
+        Facet-449177aa-6e05-4da5-a31f-e3cff1a919a9</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -112,7 +114,8 @@
                 <identifier>RecordAA_CasehandlerDeadlineFlag_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-07c4544b-8b49-4edc-bcaf-d55f0c55580f</name>
+        <name>
+        Facet-07c4544b-8b49-4edc-bcaf-d55f0c55580f</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -136,7 +139,8 @@
                 <identifier>RecordCasehandler_Status_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-f45a89df-41e3-4f7f-a8b1-265d5445dc2a</name>
+        <name>
+        Facet-f45a89df-41e3-4f7f-a8b1-265d5445dc2a</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -160,7 +164,8 @@
                 <identifier>flexipage_column3</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-4b9f885f-11d1-4ee3-825a-f423943b902d</name>
+        <name>
+        Facet-4b9f885f-11d1-4ee3-825a-f423943b902d</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -222,7 +227,8 @@
                 <identifier>RecordAA_CasehandlerDecisionTemplate_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-07ac28ac-7ac0-4ff1-a610-f5e34500b9db</name>
+        <name>
+        Facet-07ac28ac-7ac0-4ff1-a610-f5e34500b9db</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -236,7 +242,8 @@
                 <identifier>flexipage_column4</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-866609a3-7b02-4cdf-a608-f43b90f71f8a</name>
+        <name>
+        Facet-866609a3-7b02-4cdf-a608-f43b90f71f8a</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -260,7 +267,8 @@
                 <identifier>RecordreasonForSuspension_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-f4502a87-40ef-49d6-a393-fd437279b826</name>
+        <name>
+        Facet-f4502a87-40ef-49d6-a393-fd437279b826</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -274,7 +282,8 @@
                 <identifier>flexipage_column5</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-7519bd3b-aaf9-4e19-ace5-76a53b5bafbb</name>
+        <name>
+        Facet-7519bd3b-aaf9-4e19-ace5-76a53b5bafbb</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -332,7 +341,8 @@
                 <identifier>flexipage_fieldSection4</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-1f1a5c88-39d2-4dfe-b312-255a806f175b</name>
+        <name>
+        Facet-1f1a5c88-39d2-4dfe-b312-255a806f175b</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -396,7 +406,8 @@
                 </visibilityRule>
             </componentInstance>
         </itemInstances>
-        <name>Facet-d0da1d2c-4c5e-47fe-8882-5de416fd847f</name>
+        <name>
+        Facet-d0da1d2c-4c5e-47fe-8882-5de416fd847f</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -414,16 +425,13 @@
                 <identifier>flexipage_tabset</identifier>
             </componentInstance>
         </itemInstances>
-        <name>main</name>
+        <name>
+        main</name>
         <type>Region</type>
     </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentInstanceProperties>
-                    <name>createQuickActionName</name>
-                    <value>NewAccount</value>
-                </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>lookupFieldName</name>
                     <value>Application__c.Account__c</value>
@@ -440,7 +448,8 @@
                 <identifier>console_relatedRecord</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-63a7bd35-7bc0-4a1b-a121-89f075137696</name>
+        <name>
+        Facet-63a7bd35-7bc0-4a1b-a121-89f075137696</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -462,7 +471,8 @@
                 <identifier>console_relatedRecord2</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-6c893ef1-6e5a-4cc1-8ca1-b1656bb28355</name>
+        <name>
+        Facet-6c893ef1-6e5a-4cc1-8ca1-b1656bb28355</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -492,7 +502,8 @@
                 <identifier>force_relatedListSingleContainer</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-44e55fdd-d024-417e-9199-a1b07929add1</name>
+        <name>
+        Facet-44e55fdd-d024-417e-9199-a1b07929add1</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -506,7 +517,8 @@
                 <identifier>runtime_sales_activities_activityPanel</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-va8dbc4rq0c</name>
+        <name>
+        Facet-va8dbc4rq0c</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -582,7 +594,8 @@
                 <identifier>flexipage_accordionSection4</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-6c262573-368d-49cb-8312-80275aca136d</name>
+        <name>
+        Facet-6c262573-368d-49cb-8312-80275aca136d</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -596,7 +609,8 @@
                 <identifier>RecordDecisionDescription_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-533ec71f-e29d-4b0a-9fab-8166e56597b6</name>
+        <name>
+        Facet-533ec71f-e29d-4b0a-9fab-8166e56597b6</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -610,7 +624,8 @@
                 <identifier>flexipage_column</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-ae7686fa-ccfa-400b-8f85-01ade3879518</name>
+        <name>
+        Facet-ae7686fa-ccfa-400b-8f85-01ade3879518</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -664,7 +679,8 @@
                 <identifier>c_crmMessagingMessageComponent</identifier>
             </componentInstance>
         </itemInstances>
-        <name>sidebar</name>
+        <name>
+        sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
     <masterLabel>Arbeidsforhold application record page</masterLabel>
