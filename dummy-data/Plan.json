@@ -1,10 +1,30 @@
 [
+     {
+       "sobject": "Account", 
+       "saveRefs": true,
+       "resolveRefs": false,
+       "files": ["Account.json"]
+    },
     {
-       "sobject": "User", 
+       "sobject": "Application__c", 
        "saveRefs": true,
        "resolveRefs": true,
+       "files": ["Application.json"]
+    },
+    {
+       "sobject": "ApplicationBasisCode__c", 
+       "saveRefs": true,
+       "resolveRefs": false,
+       "files": ["CodeBase.json"]
+    },
+    {
+       "sobject": "User", 
+       "saveRefs": false,
+       "resolveRefs": false,
        "files": ["User.json"]
     }
+
+
 
 
 ]
