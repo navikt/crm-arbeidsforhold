@@ -1,10 +1,370 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
+        <name>Create_Inquiry_failed</name>
+        <label>Create Inquiry failed</label>
+        <locationX>1584</locationX>
+        <locationY>1187</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Inquiry__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_createDistributionAccess_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Create_Inquiry_failed_2</name>
+        <label>Create Inquiry failed 2</label>
+        <locationX>2640</locationX>
+        <locationY>1187</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Inquiry__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_createDistributionAccess_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Create_Task_failed</name>
+        <label>Create Task failed</label>
+        <locationX>528</locationX>
+        <locationY>1295</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Task</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_createDistributionAccess_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Create_Task_Failed_2</name>
+        <label>Create Task Failed 2</label>
+        <locationX>1056</locationX>
+        <locationY>1619</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Task</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_createDistributionAccess_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Create_Task_failed_3</name>
+        <label>Create Task failed 3</label>
+        <locationX>2112</locationX>
+        <locationY>1619</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Task</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_createDistributionAccess_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Create_Task_failed_4</name>
+        <label>Create Task failed 4</label>
+        <locationX>3168</locationX>
+        <locationY>1187</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Task</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_createDistributionAccess_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Create_Thread_failed</name>
+        <label>Create Thread failed</label>
+        <locationX>1320</locationX>
+        <locationY>1403</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Thread__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_createDistributionAccess_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Create_Thread_failed_2</name>
+        <label>Create Thread failed 2</label>
+        <locationX>2376</locationX>
+        <locationY>1403</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Thread__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_createDistributionAccess_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
         <name>createAccessForUser</name>
         <label>createAccessForUser</label>
         <locationX>264</locationX>
-        <locationY>1175</locationY>
+        <locationY>1079</locationY>
         <actionName>AAREG_distributionAccessController</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -35,13 +395,15 @@
                 <stringValue>PUT</stringValue>
             </value>
         </inputParameters>
+        <nameSegment>AAREG_distributionAccessController</nameSegment>
+        <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <actionCalls>
         <name>getAccessTypes</name>
         <label>getAccessTypes</label>
         <locationX>176</locationX>
-        <locationY>695</locationY>
+        <locationY>647</locationY>
         <actionName>AAREG_MultiSelectFlowValues</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -54,14 +416,17 @@
                 <elementReference>getApplication.AA_AccessTypes__c</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>AAREG_MultiSelectFlowValues</nameSegment>
+        <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <apiVersion>53.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>setSingleAccessTypes</name>
         <label>setSingleAccessTypes</label>
-        <locationX>792</locationX>
-        <locationY>935</locationY>
+        <locationX>1848</locationX>
+        <locationY>863</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
             <operator>Assign</operator>
@@ -76,8 +441,8 @@
     <decisions>
         <name>checkAccessType</name>
         <label>checkAccessType</label>
-        <locationX>792</locationX>
-        <locationY>1055</locationY>
+        <locationX>1848</locationX>
+        <locationY>971</locationY>
         <defaultConnector>
             <targetReference>loopTextCollection</targetReference>
         </defaultConnector>
@@ -231,7 +596,7 @@
         <name>loopTextCollection</name>
         <label>loopTextCollection</label>
         <locationX>176</locationX>
-        <locationY>815</locationY>
+        <locationY>755</locationY>
         <collectionReference>getAccessTypes</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -260,11 +625,14 @@
     <recordCreates>
         <name>createActivityHistoryAPI</name>
         <label>createActivityHistoryAPI</label>
-        <locationX>528</locationX>
-        <locationY>1655</locationY>
+        <locationX>792</locationX>
+        <locationY>1511</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Create_Task_Failed_2</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>ActivityDate</field>
             <value>
@@ -313,11 +681,14 @@
     <recordCreates>
         <name>createActivityHistoryEvent</name>
         <label>createActivityHistoryEvent</label>
-        <locationX>792</locationX>
-        <locationY>1655</locationY>
+        <locationX>1848</locationX>
+        <locationY>1511</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Create_Task_failed_3</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>ActivityDate</field>
             <value>
@@ -367,10 +738,13 @@
         <name>createActivtyHistory</name>
         <label>createActivtyHistory</label>
         <locationX>264</locationX>
-        <locationY>1295</locationY>
+        <locationY>1187</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Create_Task_failed</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>ActivityDate</field>
             <value>
@@ -419,11 +793,14 @@
     <recordCreates>
         <name>createActivtyHistoryExtract</name>
         <label>createActivtyHistoryExtract</label>
-        <locationX>1056</locationX>
-        <locationY>1175</locationY>
+        <locationX>2904</locationX>
+        <locationY>1079</locationY>
         <connector>
             <targetReference>loopTextCollection</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Create_Task_failed_4</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>ActivityDate</field>
             <value>
@@ -472,12 +849,15 @@
     <recordCreates>
         <name>createInquiry</name>
         <label>createInquiry</label>
-        <locationX>528</locationX>
-        <locationY>1175</locationY>
+        <locationX>792</locationX>
+        <locationY>1079</locationY>
         <assignRecordIdToReference>varInquiryId</assignRecordIdToReference>
         <connector>
             <targetReference>getInquiryName</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Create_Inquiry_failed</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>AccountId__c</field>
             <value>
@@ -525,12 +905,15 @@
     <recordCreates>
         <name>createInquiryEvent</name>
         <label>createInquiryEvent</label>
-        <locationX>792</locationX>
-        <locationY>1175</locationY>
+        <locationX>1848</locationX>
+        <locationY>1079</locationY>
         <assignRecordIdToReference>varInquiryId</assignRecordIdToReference>
         <connector>
             <targetReference>getInquiryNameEvent</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Create_Inquiry_failed_2</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>AccountId__c</field>
             <value>
@@ -578,8 +961,8 @@
     <recordCreates>
         <name>createMessageFromNav</name>
         <label>createMessageFromNav</label>
-        <locationX>528</locationX>
-        <locationY>1535</locationY>
+        <locationX>792</locationX>
+        <locationY>1403</locationY>
         <connector>
             <targetReference>createActivityHistoryAPI</targetReference>
         </connector>
@@ -601,8 +984,8 @@
     <recordCreates>
         <name>createMessageFromNavEvent</name>
         <label>createMessageFromNavEvent</label>
-        <locationX>792</locationX>
-        <locationY>1535</locationY>
+        <locationX>1848</locationX>
+        <locationY>1403</locationY>
         <connector>
             <targetReference>createActivityHistoryEvent</targetReference>
         </connector>
@@ -624,11 +1007,14 @@
     <recordCreates>
         <name>createThread</name>
         <label>createThread</label>
-        <locationX>528</locationX>
-        <locationY>1415</locationY>
+        <locationX>792</locationX>
+        <locationY>1295</locationY>
         <connector>
             <targetReference>createMessageFromNav</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Create_Thread_failed</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>AAREG_Thread_Subject__c</field>
             <value>
@@ -683,11 +1069,14 @@
     <recordCreates>
         <name>createThreadEvent</name>
         <label>createThreadEvent</label>
-        <locationX>792</locationX>
-        <locationY>1415</locationY>
+        <locationX>1848</locationX>
+        <locationY>1295</locationY>
         <connector>
             <targetReference>createMessageFromNavEvent</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Create_Thread_failed_2</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>AAREG_Thread_Subject__c</field>
             <value>
@@ -743,7 +1132,7 @@
         <name>getAgreement</name>
         <label>getAgreement</label>
         <locationX>176</locationX>
-        <locationY>455</locationY>
+        <locationY>431</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getApplication</targetReference>
@@ -767,7 +1156,7 @@
         <name>getApplication</name>
         <label>getApplication</label>
         <locationX>176</locationX>
-        <locationY>575</locationY>
+        <locationY>539</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getAccessTypes</targetReference>
@@ -797,8 +1186,8 @@
     <recordLookups>
         <name>getInquiryName</name>
         <label>getInquiryName</label>
-        <locationX>528</locationX>
-        <locationY>1295</locationY>
+        <locationX>792</locationX>
+        <locationY>1187</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createThread</targetReference>
@@ -820,8 +1209,8 @@
     <recordLookups>
         <name>getInquiryNameEvent</name>
         <label>getInquiryName</label>
-        <locationX>792</locationX>
-        <locationY>1295</locationY>
+        <locationX>1848</locationX>
+        <locationY>1187</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createThreadEvent</targetReference>
@@ -844,7 +1233,7 @@
         <name>getRecordTypeId</name>
         <label>getRecordTypeId</label>
         <locationX>176</locationX>
-        <locationY>335</locationY>
+        <locationY>323</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getAgreement</targetReference>

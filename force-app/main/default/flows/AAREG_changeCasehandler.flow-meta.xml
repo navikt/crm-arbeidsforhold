@@ -1,11 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <actionCalls>
+        <name>Application_updation_failed</name>
+        <label>Application updation failed</label>
+        <locationX>578</locationX>
+        <locationY>2630</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Application__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_changeCasehandler_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>refRecord</name>
+            <value>
+                <elementReference>GetCurrentApplication</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
     <apiVersion>51.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>addUserId</name>
         <label>addUserId</label>
         <locationX>270</locationX>
-        <locationY>878</locationY>
+        <locationY>782</locationY>
         <assignmentItems>
             <assignToReference>varInText</assignToReference>
             <operator>Add</operator>
@@ -28,7 +80,7 @@
         <name>addUserId_ForvaltningRegisterGroup</name>
         <label>addUserId</label>
         <locationX>270</locationX>
-        <locationY>1910</locationY>
+        <locationY>1706</locationY>
         <assignmentItems>
             <assignToReference>varInText</assignToReference>
             <operator>Add</operator>
@@ -52,7 +104,7 @@
         <elementSubtype>FilterCollectionProcessor</elementSubtype>
         <label>filterGroupMemberIds</label>
         <locationX>182</locationX>
-        <locationY>398</locationY>
+        <locationY>350</locationY>
         <assignNextValueToReference>currentItem_filterGroupMemberIds_RegisterForvaltningGroup</assignNextValueToReference>
         <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
         <collectionReference>getGroupMemberId</collectionReference>
@@ -73,7 +125,7 @@
         <elementSubtype>FilterCollectionProcessor</elementSubtype>
         <label>filterGroupMemberIds</label>
         <locationX>182</locationX>
-        <locationY>1430</locationY>
+        <locationY>1274</locationY>
         <assignNextValueToReference>currentItem_filterGroupMemberIds_RegisterForvaltningGroup</assignNextValueToReference>
         <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
         <collectionReference>getGroupMemberId_in_Nav_Register_Forvaltning_Group</collectionReference>
@@ -93,7 +145,7 @@
         <name>checkUserActive</name>
         <label>checkUserActive</label>
         <locationX>402</locationX>
-        <locationY>758</locationY>
+        <locationY>674</locationY>
         <defaultConnector>
             <targetReference>loopThroughMemberIds</targetReference>
         </defaultConnector>
@@ -118,7 +170,7 @@
         <name>checkUserActive2</name>
         <label>checkUserActive2</label>
         <locationX>402</locationX>
-        <locationY>1790</locationY>
+        <locationY>1598</locationY>
         <defaultConnector>
             <targetReference>loopThroughMemberIds_RegisterForvaltning</targetReference>
         </defaultConnector>
@@ -143,7 +195,7 @@
         <name>isValid</name>
         <label>isValidChoice</label>
         <locationX>182</locationX>
-        <locationY>2462</locationY>
+        <locationY>2198</locationY>
         <defaultConnector>
             <targetReference>getUser</targetReference>
         </defaultConnector>
@@ -201,7 +253,7 @@
         <name>loopThroughMemberIds</name>
         <label>loopThroughMemberIds</label>
         <locationX>182</locationX>
-        <locationY>518</locationY>
+        <locationY>458</locationY>
         <collectionReference>filterGroupMemberIds_caseHandlerGroup</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -215,7 +267,7 @@
         <name>loopThroughMemberIds_RegisterForvaltning</name>
         <label>loopThroughMemberIds</label>
         <locationX>182</locationX>
-        <locationY>1550</locationY>
+        <locationY>1382</locationY>
         <collectionReference>filterGroupMemberIds_RegisterForvaltningGroup</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -248,7 +300,7 @@
         <name>GetCurrentApplication</name>
         <label>GetCurrentApplication</label>
         <locationX>182</locationX>
-        <locationY>2222</locationY>
+        <locationY>1982</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>show_list</targetReference>
@@ -273,7 +325,7 @@
         <name>getGroupMemberId</name>
         <label>getGroupMemberId</label>
         <locationX>182</locationX>
-        <locationY>278</locationY>
+        <locationY>242</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>filterGroupMemberIds_caseHandlerGroup</targetReference>
@@ -296,7 +348,7 @@
         <name>getGroupMemberId_in_Nav_Register_Forvaltning_Group</name>
         <label>getGroupMemberId in Nav Register Forvaltning Group</label>
         <locationX>182</locationX>
-        <locationY>1310</locationY>
+        <locationY>1166</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>filterGroupMemberIds_RegisterForvaltningGroup</targetReference>
@@ -320,7 +372,7 @@
         <name>getPublicGroupId</name>
         <label>getPublicGroupId</label>
         <locationX>182</locationX>
-        <locationY>158</locationY>
+        <locationY>134</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getGroupMemberId</targetReference>
@@ -343,7 +395,7 @@
         <name>getPublicGroupNavRegisterForvaltning</name>
         <label>getPublicGroupNavRegisterForvaltning</label>
         <locationX>182</locationX>
-        <locationY>1190</locationY>
+        <locationY>1058</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getGroupMemberId_in_Nav_Register_Forvaltning_Group</targetReference>
@@ -366,7 +418,7 @@
         <name>getUser</name>
         <label>getUser</label>
         <locationX>314</locationX>
-        <locationY>2582</locationY>
+        <locationY>2306</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>updateCasehandler</targetReference>
@@ -389,7 +441,7 @@
         <name>getUsers</name>
         <label>getUsers</label>
         <locationX>402</locationX>
-        <locationY>638</locationY>
+        <locationY>566</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkUserActive</targetReference>
@@ -413,7 +465,7 @@
         <name>getUsers_ForvaltningRegisterGroup</name>
         <label>getUsers</label>
         <locationX>402</locationX>
-        <locationY>1670</locationY>
+        <locationY>1490</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkUserActive2</targetReference>
@@ -437,7 +489,10 @@
         <name>updateCasehandler</name>
         <label>updateCasehandler</label>
         <locationX>314</locationX>
-        <locationY>2702</locationY>
+        <locationY>2414</locationY>
+        <faultConnector>
+            <targetReference>Fault_Screen</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -461,7 +516,7 @@
         <inputAssignments>
             <field>Status__c</field>
             <value>
-                <elementReference>ApplicationStatus</elementReference>
+                <stringValue>TEST</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -477,7 +532,7 @@
         <name>ErrorMessage</name>
         <label>ErrorMessage</label>
         <locationX>50</locationX>
-        <locationY>2582</locationY>
+        <locationY>2306</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -489,15 +544,50 @@
             <name>displayMessage</name>
             <fieldText>&lt;p&gt;You have not selected a user&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
     <screens>
+        <name>Fault_Screen</name>
+        <label>Fault Screen</label>
+        <locationX>578</locationX>
+        <locationY>2522</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Application_updation_failed</targetReference>
+        </connector>
+        <fields>
+            <name>FaultText</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(248, 248, 248); font-size: 15px; font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; color: rgb(29, 28, 29);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
         <name>show_list</name>
         <label>show list</label>
         <locationX>182</locationX>
-        <locationY>2342</locationY>
+        <locationY>2090</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -538,6 +628,14 @@
                 <assignToReference>varOutText</assignToReference>
                 <name>valueChosen</name>
             </outputParameters>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>Casehandler_Status</name>
@@ -548,7 +646,16 @@
             </defaultValue>
             <fieldText>Status på søknad</fieldText>
             <fieldType>DropdownBox</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>ApplicationStatus</name>
@@ -560,7 +667,16 @@
             <fieldText>Søkers status</fieldText>
             <fieldType>DropdownBox</fieldType>
             <helpText>&lt;p&gt;Dette feltet angir status på søknad som vises ut til søker. Denne vil kunne avvike fra &quot;status på søknad&quot; som benyttes internt i saksbehandlingen.&lt;/p&gt;</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <nextOrFinishButtonLabel>Fullfør</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
