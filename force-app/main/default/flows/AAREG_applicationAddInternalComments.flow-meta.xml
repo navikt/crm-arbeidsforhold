@@ -1,19 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Application_updation_failed</name>
+        <label>Application updation failed</label>
+        <locationX>314</locationX>
+        <locationY>674</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Application__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_applicationAddInternalComments_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>refRecord</name>
+            <value>
+                <elementReference>getApplication</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
     <apiVersion>53.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <constants>
         <description>Used for adding newLine</description>
         <name>conGES</name>
         <dataType>String</dataType>
         <value>
-            <stringValue/>
+            <stringValue></stringValue>
         </value>
     </constants>
     <decisions>
         <name>checkComment</name>
         <label>checkComment</label>
-        <locationX>182</locationX>
-        <locationY>398</locationY>
+        <locationX>314</locationX>
+        <locationY>350</locationY>
         <defaultConnectorLabel>isEmpty</defaultConnectorLabel>
         <rules>
             <name>notEmpty</name>
@@ -32,6 +84,7 @@
         </rules>
     </decisions>
     <description>Saksbehandling - add an internal comment + user and time/date</description>
+    <environments>Default</environments>
     <formulas>
         <name>addDescription</name>
         <dataType>String</dataType>
@@ -67,8 +120,8 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>182</locationX>
-        <locationY>158</locationY>
+        <locationX>314</locationX>
+        <locationY>134</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>addComment</targetReference>
@@ -91,10 +144,13 @@
         <name>updateComment</name>
         <label>updateComment</label>
         <locationX>50</locationX>
-        <locationY>518</locationY>
+        <locationY>458</locationY>
         <connector>
             <targetReference>createTaskInternalComments</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Fault_Screen</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -114,8 +170,8 @@
     <screens>
         <name>addComment</name>
         <label>addComment</label>
-        <locationX>182</locationX>
-        <locationY>278</locationY>
+        <locationX>314</locationX>
+        <locationY>242</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -126,13 +182,49 @@
             <name>addInternalComment</name>
             <fieldText>Add comments - only for internal use</fieldText>
             <fieldType>LargeTextArea</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
+    <screens>
+        <name>Fault_Screen</name>
+        <label>Fault Screen</label>
+        <locationX>314</locationX>
+        <locationY>566</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Application_updation_failed</targetReference>
+        </connector>
+        <fields>
+            <name>FaultText</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(248, 248, 248); font-size: 15px; font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; color: rgb(29, 28, 29);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
     <start>
-        <locationX>56</locationX>
+        <locationX>188</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getApplication</targetReference>
@@ -143,7 +235,7 @@
         <name>createTaskInternalComments</name>
         <label>createTaskInternalComments</label>
         <locationX>50</locationX>
-        <locationY>638</locationY>
+        <locationY>566</locationY>
         <flowName>AAREG_subflowCreateTask</flowName>
         <inputAssignments>
             <name>varDescription</name>

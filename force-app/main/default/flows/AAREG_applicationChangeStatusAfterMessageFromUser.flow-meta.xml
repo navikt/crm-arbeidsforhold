@@ -4,7 +4,7 @@
         <name>sendNotificationToUser</name>
         <label>sendNotificationToUser</label>
         <locationX>50</locationX>
-        <locationY>1415</locationY>
+        <locationY>1295</locationY>
         <actionName>customNotificationAction</actionName>
         <actionType>customNotificationAction</actionType>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
@@ -38,13 +38,61 @@
                 <elementReference>getThreadObjectType.CRM_Related_Object__c</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>customNotificationAction</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Update_Application_failed</name>
+        <label>Update Application failed</label>
+        <locationX>842</locationX>
+        <locationY>971</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Application__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_applicationChangeStatusAfterMessageFromUser_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
     </actionCalls>
     <apiVersion>53.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>setRecipient</name>
         <label>setRecipient</label>
         <locationX>380</locationX>
-        <locationY>815</locationY>
+        <locationY>755</locationY>
         <assignmentItems>
             <assignToReference>varRecipientId</assignToReference>
             <operator>Add</operator>
@@ -59,8 +107,8 @@
     <decisions>
         <name>checkObjectType</name>
         <label>checkObjectType</label>
-        <locationX>611</locationX>
-        <locationY>695</locationY>
+        <locationX>743</locationX>
+        <locationY>647</locationY>
         <defaultConnectorLabel>isNotApplicationObjectType</defaultConnectorLabel>
         <rules>
             <name>isApplicationObjectType</name>
@@ -82,7 +130,7 @@
         <name>Is_Owner_Null</name>
         <label>Is Owner Null?</label>
         <locationX>380</locationX>
-        <locationY>1055</locationY>
+        <locationY>971</locationY>
         <defaultConnectorLabel>Owner is null</defaultConnectorLabel>
         <rules>
             <name>Owner_not_null</name>
@@ -111,7 +159,7 @@
         <name>isUserActiveCheck</name>
         <label>isUserActive</label>
         <locationX>182</locationX>
-        <locationY>1295</locationY>
+        <locationY>1187</locationY>
         <defaultConnectorLabel>userNotActive</defaultConnectorLabel>
         <rules>
             <name>userIsActive</name>
@@ -162,8 +210,8 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>611</locationX>
-        <locationY>455</locationY>
+        <locationX>743</locationX>
+        <locationY>431</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getNotificationId</targetReference>
@@ -185,8 +233,8 @@
     <recordLookups>
         <name>getNotificationId</name>
         <label>getNotificationId</label>
-        <locationX>611</locationX>
-        <locationY>575</locationY>
+        <locationX>743</locationX>
+        <locationY>539</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkObjectType</targetReference>
@@ -208,8 +256,8 @@
     <recordLookups>
         <name>getThreadObjectType</name>
         <label>getThreadObjectType</label>
-        <locationX>611</locationX>
-        <locationY>335</locationY>
+        <locationX>743</locationX>
+        <locationY>323</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getApplication</targetReference>
@@ -233,7 +281,7 @@
         <name>getUser</name>
         <label>getUser</label>
         <locationX>182</locationX>
-        <locationY>1175</locationY>
+        <locationY>1079</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>isUserActiveCheck</targetReference>
@@ -254,10 +302,13 @@
         <name>updateApplicationStatus</name>
         <label>updateApplicationStatus</label>
         <locationX>380</locationX>
-        <locationY>935</locationY>
+        <locationY>863</locationY>
         <connector>
             <targetReference>Is_Owner_Null</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Update_Application_failed</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -281,7 +332,7 @@
         <object>Application__c</object>
     </recordUpdates>
     <start>
-        <locationX>485</locationX>
+        <locationX>617</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getThreadObjectType</targetReference>

@@ -1,11 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Update_Application_failed</name>
+        <label>Update Application failed</label>
+        <locationX>440</locationX>
+        <locationY>539</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Application__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG Application- After Insert- Populate Application Fields_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>refRecord</name>
+            <value>
+                <elementReference>$Record</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
     <apiVersion>53.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>AssignApplicationFields</name>
         <label>Assign Application Fields</label>
         <locationX>176</locationX>
-        <locationY>335</locationY>
+        <locationY>323</locationY>
         <assignmentItems>
             <assignToReference>$Record.Account__c</assignToReference>
             <operator>Assign</operator>
@@ -18,6 +70,7 @@
         </connector>
     </assignments>
     <description>Saksbehandling - automation to populate fields on the Application object after insert.</description>
+    <environments>Default</environments>
     <interviewLabel>AAREG Application- After Insert- Populate Application Fields {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG Application- After Insert- Populate Application Fields</label>
     <processMetadataValues>
@@ -43,7 +96,10 @@
         <name>PopulateAccountLookup</name>
         <label>Populate Account Lookup</label>
         <locationX>176</locationX>
-        <locationY>455</locationY>
+        <locationY>431</locationY>
+        <faultConnector>
+            <targetReference>Update_Application_failed</targetReference>
+        </faultConnector>
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
