@@ -192,6 +192,11 @@
                 <label>Kontroll av virksomheter som benytter eksplosiver.</label>
             </value>
             <value>
+                <fullName>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</fullName>
+                <default>false</default>
+                <label>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</label>
+            </value>
+            <value>
                 <fullName>Kontroll med foretakssammenslutninger mv.</fullName>
                 <default>false</default>
                 <label>Kontroll med foretakssammenslutninger mv.</label>
@@ -200,11 +205,6 @@
                 <fullName>Kontroll med kjøre- og hviletid</fullName>
                 <default>false</default>
                 <label>Kontroll med kjøre- og hviletid</label>
-            </value>
-            <value>
-                <fullName>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</fullName>
-                <default>false</default>
-                <label>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</label>
             </value>
             <value>
                 <fullName>Kvalitetssikre at håndverkmestere som knytter sin mestertittel opp mot et firma er ansatt i firmaet.</fullName>
@@ -486,15 +486,15 @@
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
+            <valueName>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Kontroll med foretakssammenslutninger mv.</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Kontroll med kjøre- og hviletid</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
-            <valueName>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>

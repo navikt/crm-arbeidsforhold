@@ -2,7 +2,6 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>PurposePension__c</fullName>
     <description>The application purpose available for organizations that fall under the &quot;Pension&quot; category.</description>
-    <externalId>false</externalId>
     <label>Purpose Pension</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
@@ -13,19 +12,14 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven</fullName>
+                <fullName>AFP kommunal sektor for arbeidstakere født i 1963 eller senere</fullName>
                 <default>false</default>
-                <label>Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven</label>
+                <label>AFP kommunal sektor for arbeidstakere født i 1963 eller senere</label>
             </value>
             <value>
-                <fullName>Arbeid med avtalefestet pensjon i privat sektor</fullName>
+                <fullName>Arbeid med administrasjon knyttet til OU-samordningen</fullName>
                 <default>false</default>
-                <label>Arbeid med avtalefestet pensjon i privat sektor</label>
-            </value>
-            <value>
-                <fullName>Annet - oppgi i tekstfelt under</fullName>
-                <default>false</default>
-                <label>Annet - oppgi i tekstfelt under</label>
+                <label>Arbeid med administrasjon knyttet til OU-samordningen</label>
             </value>
             <value>
                 <fullName>Arbeid med administrasjon knyttet til sliterordningene</fullName>
@@ -38,9 +32,19 @@
                 <label>Arbeid med administrasjon knyttet til sluttvederlagsordningen</label>
             </value>
             <value>
-                <fullName>Arbeid med administrasjon knyttet til OU-samordningen</fullName>
+                <fullName>Arbeid med avtalefestet pensjon i privat sektor</fullName>
                 <default>false</default>
-                <label>Arbeid med administrasjon knyttet til OU-samordningen</label>
+                <label>Arbeid med avtalefestet pensjon i privat sektor</label>
+            </value>
+            <value>
+                <fullName>Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven</fullName>
+                <default>false</default>
+                <label>Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven</label>
+            </value>
+            <value>
+                <fullName>Annet - oppgi i tekstfelt under</fullName>
+                <default>false</default>
+                <label>Annet - oppgi i tekstfelt under</label>
             </value>
         </valueSetDefinition>
         <valueSettings>
@@ -48,12 +52,8 @@
             <valueName>Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>LOV-2010-02-19-5 AFP-tilskottsloven § 29 annet ledd</controllingFieldValue>
-            <valueName>Arbeid med avtalefestet pensjon i privat sektor</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
-            <valueName>Annet - oppgi i tekstfelt under</valueName>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b</controllingFieldValue>
+            <valueName>Arbeid med administrasjon knyttet til OU-samordningen</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b</controllingFieldValue>
@@ -64,8 +64,16 @@
             <valueName>Arbeid med administrasjon knyttet til sluttvederlagsordningen</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b</controllingFieldValue>
-            <valueName>Arbeid med administrasjon knyttet til OU-samordningen</valueName>
+            <controllingFieldValue>LOV-2010-02-19-5 AFP-tilskottsloven § 29 annet ledd</controllingFieldValue>
+            <valueName>Arbeid med avtalefestet pensjon i privat sektor</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <valueName>Annet - oppgi i tekstfelt under</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav d</controllingFieldValue>
+            <valueName>AFP kommunal sektor for arbeidstakere født i 1963 eller senere</valueName>
         </valueSettings>
     </valueSet>
 </CustomField>

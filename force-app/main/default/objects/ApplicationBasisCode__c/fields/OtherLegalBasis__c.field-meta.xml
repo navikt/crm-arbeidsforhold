@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>OtherLegalBasis__c</fullName>
     <description>Used to provide additional information when a user selects &quot;Other&quot; for the application legal basis.</description>
-    <externalId>false</externalId>
     <label>Other Legal Basis</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
