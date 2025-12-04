@@ -1,5 +1,11 @@
 [
-     {
+   {
+      "sobject": "User", 
+      "saveRefs": false,
+      "resolveRefs": true,
+      "files": ["User.json"]
+   },
+   {
        "sobject": "Account", 
        "saveRefs": true,
        "resolveRefs": false,
@@ -8,7 +14,7 @@
     {
        "sobject": "Application__c", 
        "saveRefs": true,
-       "resolveRefs": true,
+       "resolveRefs": false,
        "files": ["Application.json"]
     },
     {
@@ -16,12 +22,6 @@
        "saveRefs": true,
        "resolveRefs": false,
        "files": ["CodeBase.json"]
-    },
-    {
-       "sobject": "User", 
-       "saveRefs": false,
-       "resolveRefs": false,
-       "files": ["User.json"]
     }
 
 
