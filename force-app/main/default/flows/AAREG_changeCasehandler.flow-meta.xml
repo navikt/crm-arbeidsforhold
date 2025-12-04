@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Application_updation_failed</name>
         <label>Application updation failed</label>
-        <locationX>578</locationX>
-        <locationY>2630</locationY>
+        <locationX>842</locationX>
+        <locationY>3038</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -56,7 +56,7 @@
     <assignments>
         <name>addUserId</name>
         <label>addUserId</label>
-        <locationX>270</locationX>
+        <locationX>501</locationX>
         <locationY>782</locationY>
         <assignmentItems>
             <assignToReference>varInText</assignToReference>
@@ -79,7 +79,7 @@
     <assignments>
         <name>addUserId_ForvaltningRegisterGroup</name>
         <label>addUserId</label>
-        <locationX>270</locationX>
+        <locationX>501</locationX>
         <locationY>1706</locationY>
         <assignmentItems>
             <assignToReference>varInText</assignToReference>
@@ -99,18 +99,64 @@
             <targetReference>loopThroughMemberIds_RegisterForvaltning</targetReference>
         </connector>
     </assignments>
+    <assignments>
+        <name>Orginal_Status</name>
+        <label>Orginal Status</label>
+        <locationX>314</locationX>
+        <locationY>2630</locationY>
+        <assignmentItems>
+            <assignToReference>var_Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>GetCurrentApplication.Status__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_Case_handler_Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>GetCurrentApplication.Casehandler_Status__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>updateCasehandler</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Status_TIl_InProgress</name>
+        <label>Status TIl InProgress</label>
+        <locationX>578</locationX>
+        <locationY>2630</locationY>
+        <assignmentItems>
+            <assignToReference>var_Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>In Progress</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_Case_handler_Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>In Progress</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>updateCasehandler</targetReference>
+        </connector>
+    </assignments>
     <collectionProcessors>
         <name>filterGroupMemberIds_caseHandlerGroup</name>
         <elementSubtype>FilterCollectionProcessor</elementSubtype>
         <label>filterGroupMemberIds</label>
-        <locationX>182</locationX>
+        <locationX>413</locationX>
         <locationY>350</locationY>
-        <assignNextValueToReference>currentItem_filterGroupMemberIds_RegisterForvaltningGroup</assignNextValueToReference>
+        <assignNextValueToReference>currentItem_filterGroupMemberIds_caseHandlerGroup</assignNextValueToReference>
         <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
         <collectionReference>getGroupMemberId</collectionReference>
         <conditionLogic>and</conditionLogic>
         <conditions>
-            <leftValueReference>currentItem_filterGroupMemberIds_RegisterForvaltningGroup.UserOrGroupId</leftValueReference>
+            <leftValueReference>currentItem_filterGroupMemberIds_caseHandlerGroup.UserOrGroupId</leftValueReference>
             <operator>StartsWith</operator>
             <rightValue>
                 <stringValue>005</stringValue>
@@ -124,14 +170,14 @@
         <name>filterGroupMemberIds_RegisterForvaltningGroup</name>
         <elementSubtype>FilterCollectionProcessor</elementSubtype>
         <label>filterGroupMemberIds</label>
-        <locationX>182</locationX>
+        <locationX>413</locationX>
         <locationY>1274</locationY>
-        <assignNextValueToReference>currentItem_filterGroupMemberIds_RegisterForvaltningGroup</assignNextValueToReference>
+        <assignNextValueToReference>currentItem_filterGroupMemberIds_caseHandlerGroup</assignNextValueToReference>
         <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
         <collectionReference>getGroupMemberId_in_Nav_Register_Forvaltning_Group</collectionReference>
         <conditionLogic>and</conditionLogic>
         <conditions>
-            <leftValueReference>currentItem_filterGroupMemberIds_RegisterForvaltningGroup.UserOrGroupId</leftValueReference>
+            <leftValueReference>currentItem_filterGroupMemberIds_caseHandlerGroup.UserOrGroupId</leftValueReference>
             <operator>StartsWith</operator>
             <rightValue>
                 <stringValue>005</stringValue>
@@ -142,9 +188,34 @@
         </connector>
     </collectionProcessors>
     <decisions>
+        <name>Casse_Handler_Changed</name>
+        <label>Casse Handler Changed</label>
+        <locationX>776</locationX>
+        <locationY>2414</locationY>
+        <defaultConnector>
+            <targetReference>ErrorMessage_2</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Changed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getUser.Id</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>GetCurrentApplication.CasehandlerOwner__r.Id</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>S_knad_status_skal_endres</targetReference>
+            </connector>
+            <label>Changed</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>checkUserActive</name>
         <label>checkUserActive</label>
-        <locationX>402</locationX>
+        <locationX>633</locationX>
         <locationY>674</locationY>
         <defaultConnector>
             <targetReference>loopThroughMemberIds</targetReference>
@@ -169,7 +240,7 @@
     <decisions>
         <name>checkUserActive2</name>
         <label>checkUserActive2</label>
-        <locationX>402</locationX>
+        <locationX>633</locationX>
         <locationY>1598</locationY>
         <defaultConnector>
             <targetReference>loopThroughMemberIds_RegisterForvaltning</targetReference>
@@ -194,7 +265,7 @@
     <decisions>
         <name>isValid</name>
         <label>isValidChoice</label>
-        <locationX>182</locationX>
+        <locationX>413</locationX>
         <locationY>2198</locationY>
         <defaultConnector>
             <targetReference>getUser</targetReference>
@@ -230,6 +301,31 @@
             <label>isNotValid</label>
         </rules>
     </decisions>
+    <decisions>
+        <name>S_knad_status_skal_endres</name>
+        <label>Søknad status skal endres til inProgress</label>
+        <locationX>446</locationX>
+        <locationY>2522</locationY>
+        <defaultConnector>
+            <targetReference>Status_TIl_InProgress</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Yes</defaultConnectorLabel>
+        <rules>
+            <name>No</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Soknad_status_endres.value</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Orginal_Status</targetReference>
+            </connector>
+            <label>No</label>
+        </rules>
+    </decisions>
     <dynamicChoiceSets>
         <name>CasehandlerStatus</name>
         <dataType>Picklist</dataType>
@@ -252,7 +348,7 @@
     <loops>
         <name>loopThroughMemberIds</name>
         <label>loopThroughMemberIds</label>
-        <locationX>182</locationX>
+        <locationX>413</locationX>
         <locationY>458</locationY>
         <collectionReference>filterGroupMemberIds_caseHandlerGroup</collectionReference>
         <iterationOrder>Asc</iterationOrder>
@@ -266,7 +362,7 @@
     <loops>
         <name>loopThroughMemberIds_RegisterForvaltning</name>
         <label>loopThroughMemberIds</label>
-        <locationX>182</locationX>
+        <locationX>413</locationX>
         <locationY>1382</locationY>
         <collectionReference>filterGroupMemberIds_RegisterForvaltningGroup</collectionReference>
         <iterationOrder>Asc</iterationOrder>
@@ -299,7 +395,7 @@
     <recordLookups>
         <name>GetCurrentApplication</name>
         <label>GetCurrentApplication</label>
-        <locationX>182</locationX>
+        <locationX>413</locationX>
         <locationY>1982</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -319,12 +415,13 @@
         <queriedFields>Casehandler_Status__c</queriedFields>
         <queriedFields>Status__c</queriedFields>
         <queriedFields>applicationOwner__c</queriedFields>
+        <queriedFields>CasehandlerOwner__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
         <name>getGroupMemberId</name>
         <label>getGroupMemberId</label>
-        <locationX>182</locationX>
+        <locationX>413</locationX>
         <locationY>242</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -347,7 +444,7 @@
     <recordLookups>
         <name>getGroupMemberId_in_Nav_Register_Forvaltning_Group</name>
         <label>getGroupMemberId in Nav Register Forvaltning Group</label>
-        <locationX>182</locationX>
+        <locationX>413</locationX>
         <locationY>1166</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -371,7 +468,7 @@
         <description>Fetch public group id for AAREG_Casehandling</description>
         <name>getPublicGroupId</name>
         <label>getPublicGroupId</label>
-        <locationX>182</locationX>
+        <locationX>413</locationX>
         <locationY>134</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -394,7 +491,7 @@
     <recordLookups>
         <name>getPublicGroupNavRegisterForvaltning</name>
         <label>getPublicGroupNavRegisterForvaltning</label>
-        <locationX>182</locationX>
+        <locationX>413</locationX>
         <locationY>1058</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -417,11 +514,11 @@
     <recordLookups>
         <name>getUser</name>
         <label>getUser</label>
-        <locationX>314</locationX>
+        <locationX>776</locationX>
         <locationY>2306</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>updateCasehandler</targetReference>
+            <targetReference>Casse_Handler_Changed</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -440,7 +537,7 @@
     <recordLookups>
         <name>getUsers</name>
         <label>getUsers</label>
-        <locationX>402</locationX>
+        <locationX>633</locationX>
         <locationY>566</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -454,6 +551,13 @@
                 <elementReference>loopThroughMemberIds.UserOrGroupId</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>IsActive</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>User</object>
         <queriedFields>Id</queriedFields>
@@ -464,7 +568,7 @@
     <recordLookups>
         <name>getUsers_ForvaltningRegisterGroup</name>
         <label>getUsers</label>
-        <locationX>402</locationX>
+        <locationX>633</locationX>
         <locationY>1490</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -488,8 +592,8 @@
     <recordUpdates>
         <name>updateCasehandler</name>
         <label>updateCasehandler</label>
-        <locationX>314</locationX>
-        <locationY>2414</locationY>
+        <locationX>446</locationX>
+        <locationY>2822</locationY>
         <faultConnector>
             <targetReference>Fault_Screen</targetReference>
         </faultConnector>
@@ -510,13 +614,13 @@
         <inputAssignments>
             <field>Casehandler_Status__c</field>
             <value>
-                <elementReference>Casehandler_Status</elementReference>
+                <elementReference>var_Case_handler_Status</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Status__c</field>
             <value>
-                <stringValue>TEST</stringValue>
+                <elementReference>var_Status</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -542,7 +646,7 @@
         </connector>
         <fields>
             <name>displayMessage</name>
-            <fieldText>&lt;p&gt;You have not selected a user&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;Sakseier ikke valgt, vennligst velg en sakseier&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -557,10 +661,38 @@
         <showHeader>false</showHeader>
     </screens>
     <screens>
+        <name>ErrorMessage_2</name>
+        <label>ErrorMessage 2</label>
+        <locationX>1106</locationX>
+        <locationY>2522</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>show_list</targetReference>
+        </connector>
+        <fields>
+            <name>Use_not_changed</name>
+            <fieldText>&lt;p&gt;Sakseier ikke endret; velg en annen sakseier&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
         <name>Fault_Screen</name>
         <label>Fault Screen</label>
-        <locationX>578</locationX>
-        <locationY>2522</locationY>
+        <locationX>842</locationX>
+        <locationY>2930</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
@@ -586,7 +718,7 @@
     <screens>
         <name>show_list</name>
         <label>show list</label>
-        <locationX>182</locationX>
+        <locationX>413</locationX>
         <locationY>2090</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
@@ -638,37 +770,30 @@
             </styleProperties>
         </fields>
         <fields>
-            <name>Casehandler_Status</name>
-            <choiceReferences>CasehandlerStatus</choiceReferences>
-            <dataType>String</dataType>
-            <defaultValue>
-                <elementReference>GetCurrentApplication.Casehandler_Status__c</elementReference>
-            </defaultValue>
-            <fieldText>Status på søknad</fieldText>
-            <fieldType>DropdownBox</fieldType>
+            <name>Soknad_status_endres</name>
+            <extensionName>flowruntime:toggle</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>messageToggleActive</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Søknad status endres til In-progress?</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>messageToggleInactive</name>
+                <value>
+                    <booleanValue>false</booleanValue>
+                </value>
+            </inputParameters>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>false</isRequired>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <fields>
-            <name>ApplicationStatus</name>
-            <choiceReferences>Status</choiceReferences>
-            <dataType>String</dataType>
-            <defaultValue>
-                <elementReference>GetCurrentApplication.Status__c</elementReference>
-            </defaultValue>
-            <fieldText>Søkers status</fieldText>
-            <fieldType>DropdownBox</fieldType>
-            <helpText>&lt;p&gt;Dette feltet angir status på søknad som vises ut til søker. Denne vil kunne avvike fra &quot;status på søknad&quot; som benyttes internt i saksbehandlingen.&lt;/p&gt;</helpText>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>false</isRequired>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
             <styleProperties>
                 <verticalAlignment>
                     <stringValue>top</stringValue>
@@ -683,7 +808,7 @@
         <showHeader>true</showHeader>
     </screens>
     <start>
-        <locationX>56</locationX>
+        <locationX>287</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getPublicGroupId</targetReference>
@@ -691,7 +816,7 @@
     </start>
     <status>Active</status>
     <variables>
-        <name>currentItem_filterGroupMemberIds_RegisterForvaltningGroup</name>
+        <name>currentItem_filterGroupMemberIds_caseHandlerGroup</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -704,6 +829,20 @@
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>var_Case_handler_Status</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>var_Status</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
     </variables>
     <variables>
         <description>Used as an in varible for picklist values</description>
