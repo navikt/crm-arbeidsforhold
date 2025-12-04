@@ -11,14 +11,14 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Annet - oppgi i tekstfelt under</fullName>
-                <default>false</default>
-                <label>Annet - oppgi i tekstfelt under</label>
-            </value>
-            <value>
                 <fullName>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</fullName>
                 <default>false</default>
                 <label>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</label>
+            </value>
+            <value>
+                <fullName>Annet - oppgi i tekstfelt under</fullName>
+                <default>false</default>
+                <label>Annet - oppgi i tekstfelt under</label>
             </value>
             <value>
                 <fullName>Aa-registerforskriften § 10 bokstav e</fullName>
