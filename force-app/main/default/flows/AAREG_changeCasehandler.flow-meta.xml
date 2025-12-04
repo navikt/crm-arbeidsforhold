@@ -516,7 +516,7 @@
         <inputAssignments>
             <field>Status__c</field>
             <value>
-                <stringValue>TEST</stringValue>
+                <elementReference>ApplicationStatus</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
