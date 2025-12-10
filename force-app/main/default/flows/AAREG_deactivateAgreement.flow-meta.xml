@@ -1,159 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <actionCalls>
-        <name>Agreement_Status_updation_failed</name>
-        <label>Agreement Status updation failed</label>
-        <locationX>1370</locationX>
-        <locationY>782</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Agreement__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
+    <apiVersion>53.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Agreement_Not_Found</name>
+        <label>Agreement Not Found</label>
+        <locationX>1898</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
             <value>
-                <stringValue>AAREG_deactivateAgreement_failed</stringValue>
+                <stringValue>Agreement not Found.</stringValue>
             </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>refRecord</name>
-            <value>
-                <elementReference>getAgreement</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
-        <name>Agreement_updation_failed</name>
-        <label>Agreement updation failed</label>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Agreement_update_failed</name>
+        <label>Agreement update failed</label>
         <locationX>314</locationX>
         <locationY>782</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Agreement__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <stringValue>AAREG_deactivateAgreement_failed</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>refRecord</name>
+        <assignmentItems>
+            <assignToReference>ref_agreement_rec</assignToReference>
+            <operator>Assign</operator>
             <value>
                 <elementReference>getAgreement</elementReference>
             </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Task_creation_failed</name>
         <label>Task creation failed</label>
         <locationX>1106</locationX>
         <locationY>890</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Task</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <stringValue>AAREG_deactivateAgreement_failed</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
             <value>
                 <elementReference>$Flow.FaultMessage</elementReference>
             </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Add</operator>
             <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
+                <stringValue> Failed while creating related task record</stringValue>
             </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <apiVersion>53.0</apiVersion>
-    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>ref_agreement_rec</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getAgreement</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Technical_error</name>
+        <label>Technical error</label>
+        <locationX>2162</locationX>
+        <locationY>242</locationY>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Agreement_Found</name>
+        <label>Agreement Found</label>
+        <locationX>1370</locationX>
+        <locationY>242</locationY>
+        <defaultConnector>
+            <targetReference>Agreement_Not_Found</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Found</defaultConnectorLabel>
+        <rules>
+            <name>Yes_found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getAgreement</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>getRecordTypeId</targetReference>
+            </connector>
+            <label>Yes found</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>checkDeactivationType</name>
         <label>checkDeactivationType</label>
         <locationX>842</locationX>
-        <locationY>458</locationY>
+        <locationY>566</locationY>
         <defaultConnector>
             <targetReference>youHaveNotSetYesToDeactivate_0_0</targetReference>
         </defaultConnector>
@@ -220,9 +179,9 @@
     </decisions>
     <environments>Default</environments>
     <formulas>
-        <name>varTaskDescription</name>
+        <name>failed_for_record</name>
         <dataType>String</dataType>
-        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har deaktivert avtalen og tilhørende tilganger.&apos;</expression>
+        <expression>&quot;Gjelder &quot; &amp; {!recordId}</expression>
     </formulas>
     <formulas>
         <name>varTaskDescriptionKeepAccess</name>
@@ -254,9 +213,9 @@
         <name>createActivityHistory</name>
         <label>createActivityHistory</label>
         <locationX>842</locationX>
-        <locationY>674</locationY>
+        <locationY>782</locationY>
         <faultConnector>
-            <targetReference>Fault_Screen_3</targetReference>
+            <targetReference>Task_creation_failed</targetReference>
         </faultConnector>
         <inputAssignments>
             <field>ActivityDate</field>
@@ -306,12 +265,15 @@
     <recordLookups>
         <name>getAgreement</name>
         <label>getAgreement</label>
-        <locationX>842</locationX>
-        <locationY>242</locationY>
+        <locationX>1370</locationX>
+        <locationY>134</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>deactivateAgreement</targetReference>
+            <targetReference>Agreement_Found</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Technical_error</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -337,10 +299,10 @@
         <name>getRecordTypeId</name>
         <label>getRecordTypeId</label>
         <locationX>842</locationX>
-        <locationY>134</locationY>
+        <locationY>350</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>getAgreement</targetReference>
+            <targetReference>deactivateAgreement</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -360,9 +322,9 @@
         <name>updateAgreement</name>
         <label>updateAgreement</label>
         <locationX>50</locationX>
-        <locationY>566</locationY>
+        <locationY>674</locationY>
         <faultConnector>
-            <targetReference>Fault_Screen</targetReference>
+            <targetReference>Agreement_update_failed</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -420,12 +382,13 @@
         <name>updateStatusOnAgreement_0_0_0</name>
         <label>updateStatusOnAgreement</label>
         <locationX>842</locationX>
-        <locationY>566</locationY>
+        <locationY>674</locationY>
         <connector>
             <targetReference>createActivityHistory</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Fault_Screen_2</targetReference>
+            <isGoTo>true</isGoTo>
+            <targetReference>Agreement_update_failed</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -465,7 +428,7 @@
         <name>deactivateAgreement</name>
         <label>deactivateAgreement</label>
         <locationX>842</locationX>
-        <locationY>350</locationY>
+        <locationY>458</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -527,91 +490,10 @@
         <showHeader>false</showHeader>
     </screens>
     <screens>
-        <name>Fault_Screen</name>
-        <label>Fault Screen</label>
-        <locationX>314</locationX>
-        <locationY>674</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>Agreement_updation_failed</targetReference>
-        </connector>
-        <fields>
-            <name>FaultText</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(248, 248, 248); font-size: 15px; font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; color: rgb(29, 28, 29);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
-    <screens>
-        <name>Fault_Screen_2</name>
-        <label>Fault Screen 2</label>
-        <locationX>1370</locationX>
-        <locationY>674</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>Agreement_Status_updation_failed</targetReference>
-        </connector>
-        <fields>
-            <name>FaultText2</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(248, 248, 248); font-size: 15px; font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; color: rgb(29, 28, 29);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
-    <screens>
-        <name>Fault_Screen_3</name>
-        <label>Fault Screen 3</label>
-        <locationX>1106</locationX>
-        <locationY>782</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>Task_creation_failed</targetReference>
-        </connector>
-        <fields>
-            <name>FaultText3</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(248, 248, 248); font-size: 15px; font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; color: rgb(29, 28, 29);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
-    <screens>
         <name>Not_active_0</name>
         <label>Not active</label>
         <locationX>578</locationX>
-        <locationY>566</locationY>
+        <locationY>674</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
@@ -635,7 +517,7 @@
         <name>youHaveNotSetYesToDeactivate_0_0</name>
         <label>You have not choosen yes to deactivate</label>
         <locationX>1634</locationX>
-        <locationY>566</locationY>
+        <locationY>674</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -656,13 +538,70 @@
         <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>716</locationX>
+        <locationX>1244</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>getRecordTypeId</targetReference>
+            <targetReference>getAgreement</targetReference>
         </connector>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>Log_Message</name>
+        <label>Log Message</label>
+        <locationX>1898</locationX>
+        <locationY>458</locationY>
+        <flowName>AAREG_Handle_Error_Messages</flowName>
+        <inputAssignments>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_deactivateAgreement</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>error_Message</name>
+            <value>
+                <elementReference>error_message</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>failed_On_Object</name>
+            <value>
+                <stringValue>Agreement</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>fault_time</name>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>flow_Interview_Guid</name>
+            <value>
+                <elementReference>$Flow.InterviewGuid</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>log_Level</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>reference_Agreement_record</name>
+            <value>
+                <elementReference>ref_agreement_rec</elementReference>
+            </value>
+        </inputAssignments>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </subflows>
+    <variables>
+        <name>error_message</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
@@ -671,21 +610,19 @@
         <isOutput>true</isOutput>
     </variables>
     <variables>
+        <name>ref_agreement_rec</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <objectType>Agreement__c</objectType>
+    </variables>
+    <variables>
         <name>varRecordTypeId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
-        <isInput>true</isInput>
+        <isInput>false</isInput>
         <isOutput>true</isOutput>
-    </variables>
-    <variables>
-        <name>varTaskSubject</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>true</isInput>
-        <isOutput>true</isOutput>
-        <value>
-            <stringValue>Avtalen og tilhørende tilganger er deaktivert</stringValue>
-        </value>
     </variables>
     <variables>
         <name>varTaskSubjectKeepAccess</name>

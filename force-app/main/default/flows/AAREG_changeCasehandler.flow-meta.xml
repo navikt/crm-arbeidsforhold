@@ -1,56 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <actionCalls>
-        <name>Application_updation_failed</name>
-        <label>Application updation failed</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Application__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <stringValue>AAREG_changeCasehandler_failed</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>refRecord</name>
-            <value>
-                <elementReference>GetCurrentApplication</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
@@ -343,6 +292,11 @@
         <picklistObject>Application__c</picklistObject>
     </dynamicChoiceSets>
     <environments>Default</environments>
+    <formulas>
+        <name>failed_for_record</name>
+        <dataType>String</dataType>
+        <expression>&quot;Gjelder : &quot; &amp; {!recordId}</expression>
+    </formulas>
     <interviewLabel>AAREG_changeCasehandler {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_changeCasehandler</label>
     <loops>
@@ -595,7 +549,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <faultConnector>
-            <targetReference>Fault_Screen</targetReference>
+            <targetReference>Log_message</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -689,33 +643,6 @@
         <showHeader>true</showHeader>
     </screens>
     <screens>
-        <name>Fault_Screen</name>
-        <label>Fault Screen</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>Application_updation_failed</targetReference>
-        </connector>
-        <fields>
-            <name>FaultText</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(248, 248, 248); font-size: 15px; font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; color: rgb(29, 28, 29);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
-    <screens>
         <name>show_list</name>
         <label>show list</label>
         <locationX>0</locationX>
@@ -781,6 +708,62 @@
         </connector>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>Log_message</name>
+        <label>Log message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>AAREG_Handle_Error_Messages</flowName>
+        <inputAssignments>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_changeCasehandler</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>error_Message</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>failed_On_Object</name>
+            <value>
+                <stringValue>Application</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>fault_time</name>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>flow_Interview_Guid</name>
+            <value>
+                <elementReference>$Flow.InterviewGuid</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>log_Level</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>ref_Application_record</name>
+            <value>
+                <elementReference>GetCurrentApplication</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>source_flow</name>
+            <value>
+                <elementReference>failed_for_record</elementReference>
+            </value>
+        </inputAssignments>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </subflows>
     <variables>
         <name>currentItem_filterGroupMemberIds_caseHandlerGroup</name>
         <dataType>SObject</dataType>

@@ -4,7 +4,7 @@
         <name>AccessTypeMultiSelect</name>
         <label>AccessTypeMultiSelect</label>
         <locationX>50</locationX>
-        <locationY>1490</locationY>
+        <locationY>1598</locationY>
         <actionName>AAREG_MultiSelectFlowValues</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -21,199 +21,13 @@
         <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
-    <actionCalls>
-        <name>Agreement_creation_failed</name>
-        <label>Agreement creation failed</label>
-        <locationX>754</locationX>
-        <locationY>4598</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Agreement__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <stringValue>AAREG_applicationFinished_failed</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
-        <name>Application_update_failed</name>
-        <label>Application update failed</label>
-        <locationX>1722</locationX>
-        <locationY>5354</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Application__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <stringValue>AAREG_applicationFinished_failed</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>refRecord</name>
-            <value>
-                <elementReference>getApplication</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
-        <name>Related_Contact_update_failed</name>
-        <label>Related Contact update failed</label>
-        <locationX>490</locationX>
-        <locationY>4706</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>RelatedContact__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <stringValue>AAREG_applicationFinished_failed</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
-        <name>Thread_updationg_failed</name>
-        <label>Thread updationg failed</label>
-        <locationX>1458</locationX>
-        <locationY>5462</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Thread__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <stringValue>AAREG_applicationFinished_failed</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
     <apiVersion>52.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>Add_County_Fields</name>
         <label>Add County Fields</label>
         <locationX>534</locationX>
-        <locationY>2714</locationY>
+        <locationY>2822</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -236,7 +50,7 @@
         <name>Add_Electricity_Fields</name>
         <label>Add Electricity Fields</label>
         <locationX>534</locationX>
-        <locationY>3914</locationY>
+        <locationY>4022</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -259,7 +73,7 @@
         <name>Add_Municipality_Fields</name>
         <label>Add Municipality Fields</label>
         <locationX>534</locationX>
-        <locationY>3014</locationY>
+        <locationY>3122</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -282,7 +96,7 @@
         <name>Add_Other_Fields</name>
         <label>Add Other Fields</label>
         <locationX>270</locationX>
-        <locationY>2606</locationY>
+        <locationY>2714</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -305,7 +119,7 @@
         <name>Add_Pension_Fields</name>
         <label>Add Pension Fields</label>
         <locationX>534</locationX>
-        <locationY>3614</locationY>
+        <locationY>3722</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -328,7 +142,7 @@
         <name>Add_ProcessingBasis_field</name>
         <label>Add ProcessingBasis field</label>
         <locationX>468</locationX>
-        <locationY>4190</locationY>
+        <locationY>4298</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -344,7 +158,7 @@
         <name>AddStateFields</name>
         <label>Add State Fields</label>
         <locationX>534</locationX>
-        <locationY>3314</locationY>
+        <locationY>3422</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -364,10 +178,27 @@
         </connector>
     </assignments>
     <assignments>
+        <name>Application_not_found</name>
+        <label>Application not found</label>
+        <locationX>1986</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Application not found</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>applyCurrentStatus</name>
         <label>applyCurrentStatus</label>
         <locationX>688</locationX>
-        <locationY>866</locationY>
+        <locationY>974</locationY>
         <assignmentItems>
             <assignToReference>currCaseHandlerStatus</assignToReference>
             <operator>Assign</operator>
@@ -383,7 +214,7 @@
         <name>applyOwnerId</name>
         <label>applyOwnerId</label>
         <locationX>688</locationX>
-        <locationY>758</locationY>
+        <locationY>866</locationY>
         <assignmentItems>
             <assignToReference>varOwnerId</assignToReference>
             <operator>Assign</operator>
@@ -396,10 +227,41 @@
         </connector>
     </assignments>
     <assignments>
+        <name>Create_Agreement_failed</name>
+        <label>Create Agreement failed</label>
+        <locationX>754</locationX>
+        <locationY>4598</locationY>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue> Failed while creating related Agreementrecord</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>application_rec_ref</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getApplication</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>setAPI</name>
         <label>setAPI</label>
         <locationX>138</locationX>
-        <locationY>1922</locationY>
+        <locationY>2030</locationY>
         <assignmentItems>
             <assignToReference>API</assignToReference>
             <operator>Assign</operator>
@@ -415,7 +277,7 @@
         <name>setDataProcessor</name>
         <label>setDataProcessor</label>
         <locationX>50</locationX>
-        <locationY>1190</locationY>
+        <locationY>1298</locationY>
         <assignmentItems>
             <assignToReference>dataProcessorOrgNr</assignToReference>
             <operator>Assign</operator>
@@ -438,7 +300,7 @@
         <name>setEvent</name>
         <label>setEvent</label>
         <locationX>930</locationX>
-        <locationY>1922</locationY>
+        <locationY>2030</locationY>
         <assignmentItems>
             <assignToReference>Event</assignToReference>
             <operator>Assign</operator>
@@ -454,7 +316,7 @@
         <name>setExtract</name>
         <label>setExtract</label>
         <locationX>666</locationX>
-        <locationY>1922</locationY>
+        <locationY>2030</locationY>
         <assignmentItems>
             <assignToReference>Extract</assignToReference>
             <operator>Assign</operator>
@@ -470,7 +332,7 @@
         <name>setOnline</name>
         <label>setOnline</label>
         <locationX>402</locationX>
-        <locationY>1922</locationY>
+        <locationY>2030</locationY>
         <assignmentItems>
             <assignToReference>Online</assignToReference>
             <operator>Assign</operator>
@@ -486,7 +348,7 @@
         <name>setSingleAcessType</name>
         <label>setSingleAcessType</label>
         <locationX>666</locationX>
-        <locationY>1706</locationY>
+        <locationY>1814</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
             <operator>Assign</operator>
@@ -498,11 +360,138 @@
             <targetReference>checkAccessTypes</targetReference>
         </connector>
     </assignments>
+    <assignments>
+        <name>technical_error</name>
+        <label>technical error</label>
+        <locationX>2250</locationX>
+        <locationY>242</locationY>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Update_Application_failed</name>
+        <label>Update Application failed</label>
+        <locationX>1722</locationX>
+        <locationY>5204</locationY>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>application_rec_ref</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getApplication</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Update_Related_Contact_failed</name>
+        <label>Update Related Contact failed</label>
+        <locationX>490</locationX>
+        <locationY>4706</locationY>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue> Failed while creating related contact record</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>application_rec_ref</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getApplication</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Update_thread_failed</name>
+        <label>Update thread failed</label>
+        <locationX>1458</locationX>
+        <locationY>5312</locationY>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue> Failed while updating related thread record</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>application_rec_ref</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getApplication</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Application_found</name>
+        <label>Application found</label>
+        <locationX>1337</locationX>
+        <locationY>242</locationY>
+        <defaultConnector>
+            <targetReference>Application_not_found</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Found</defaultConnectorLabel>
+        <rules>
+            <name>Yes_found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getApplication</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>IsStatus</targetReference>
+            </connector>
+            <label>Yes found</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>Check_County_Fields</name>
         <label>Check County Fields</label>
         <locationX>666</locationX>
-        <locationY>2606</locationY>
+        <locationY>2714</locationY>
         <defaultConnector>
             <targetReference>Check_Municipality_Fields</targetReference>
         </defaultConnector>
@@ -534,7 +523,7 @@
         <name>Check_Municipality_Fields</name>
         <label>Check Municipality Fields</label>
         <locationX>666</locationX>
-        <locationY>2906</locationY>
+        <locationY>3014</locationY>
         <defaultConnector>
             <targetReference>CheckStateFields</targetReference>
         </defaultConnector>
@@ -566,7 +555,7 @@
         <name>checkAccessType</name>
         <label>checkAccessType</label>
         <locationX>182</locationX>
-        <locationY>1382</locationY>
+        <locationY>1490</locationY>
         <defaultConnector>
             <targetReference>Get_All_Application_Basis_Codes</targetReference>
         </defaultConnector>
@@ -591,7 +580,7 @@
         <name>checkAccessTypes</name>
         <label>checkAccessTypes</label>
         <locationX>666</locationX>
-        <locationY>1814</locationY>
+        <locationY>1922</locationY>
         <defaultConnector>
             <targetReference>loopTextCollectionMultiPicklistSelect</targetReference>
         </defaultConnector>
@@ -696,7 +685,7 @@
         <name>checkDataProcessor</name>
         <label>checkDataProcessor</label>
         <locationX>182</locationX>
-        <locationY>1082</locationY>
+        <locationY>1190</locationY>
         <defaultConnector>
             <targetReference>checkAccessType</targetReference>
         </defaultConnector>
@@ -721,7 +710,7 @@
         <name>CheckElectricityFields</name>
         <label>Check Electricity Fields</label>
         <locationX>666</locationX>
-        <locationY>3806</locationY>
+        <locationY>3914</locationY>
         <defaultConnector>
             <targetReference>Add_ProcessingBasis_field</targetReference>
         </defaultConnector>
@@ -753,7 +742,7 @@
         <name>CheckOtherFields</name>
         <label>Check Other Fields</label>
         <locationX>468</locationX>
-        <locationY>2498</locationY>
+        <locationY>2606</locationY>
         <defaultConnector>
             <targetReference>Check_County_Fields</targetReference>
         </defaultConnector>
@@ -785,7 +774,7 @@
         <name>CheckPensionFields</name>
         <label>Check Pension Fields</label>
         <locationX>666</locationX>
-        <locationY>3506</locationY>
+        <locationY>3614</locationY>
         <defaultConnector>
             <targetReference>CheckElectricityFields</targetReference>
         </defaultConnector>
@@ -817,7 +806,7 @@
         <name>CheckStateFields</name>
         <label>Check State Fields</label>
         <locationX>666</locationX>
-        <locationY>3206</locationY>
+        <locationY>3314</locationY>
         <defaultConnector>
             <targetReference>CheckPensionFields</targetReference>
         </defaultConnector>
@@ -849,7 +838,7 @@
         <name>isApplicationDone</name>
         <label>isApplicationDone</label>
         <locationX>688</locationX>
-        <locationY>974</locationY>
+        <locationY>1082</locationY>
         <defaultConnector>
             <targetReference>IsNotChecked</targetReference>
         </defaultConnector>
@@ -910,7 +899,7 @@
         <name>IsStatus</name>
         <label>IsStatus</label>
         <locationX>688</locationX>
-        <locationY>242</locationY>
+        <locationY>350</locationY>
         <defaultConnector>
             <targetReference>IsNotCorrectStatus</targetReference>
         </defaultConnector>
@@ -963,6 +952,11 @@
     <description>Set cashandler status = Closed and status into approved/declined status and create agreement</description>
     <environments>Default</environments>
     <formulas>
+        <name>failed_for_record</name>
+        <dataType>String</dataType>
+        <expression>&quot;Gjelder : &quot; &amp; {!recordId}</expression>
+    </formulas>
+    <formulas>
         <name>finishDescription</name>
         <dataType>String</dataType>
         <expression>&quot;Søknaden er bekreftet ferdigbehandlet av - &quot; + {!$User.FirstName}+&apos; &apos;+{!$User.LastName}</expression>
@@ -978,7 +972,7 @@
         <name>Loop_over_Application_Basis_Codes</name>
         <label>Loop over Application Basis Codes</label>
         <locationX>182</locationX>
-        <locationY>2390</locationY>
+        <locationY>2498</locationY>
         <collectionReference>Get_All_Application_Basis_Codes</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -992,7 +986,7 @@
         <name>loopTextCollectionMultiPicklistSelect</name>
         <label>loopTextCollectionMultiPicklistSelect</label>
         <locationX>50</locationX>
-        <locationY>1598</locationY>
+        <locationY>1706</locationY>
         <collectionReference>AccessTypeMultiSelect</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -1025,13 +1019,13 @@
         <name>createAgreement</name>
         <label>createAgreement</label>
         <locationX>182</locationX>
-        <locationY>4382</locationY>
+        <locationY>4490</locationY>
         <assignRecordIdToReference>agreementId</assignRecordIdToReference>
         <connector>
             <targetReference>updateRelatedContacts</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Fault_Screen</targetReference>
+            <targetReference>Create_Agreement_failed</targetReference>
         </faultConnector>
         <inputAssignments>
             <field>APIAccess__c</field>
@@ -1105,7 +1099,7 @@
         <name>Get_All_Application_Basis_Codes</name>
         <label>Get All Application Basis Codes</label>
         <locationX>182</locationX>
-        <locationY>2282</locationY>
+        <locationY>2390</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Loop_over_Application_Basis_Codes</targetReference>
@@ -1125,12 +1119,15 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>688</locationX>
+        <locationX>1337</locationX>
         <locationY>134</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>IsStatus</targetReference>
+            <targetReference>Application_found</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>technical_error</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -1159,12 +1156,12 @@
         <name>updateApplication</name>
         <label>updateApplication</label>
         <locationX>688</locationX>
-        <locationY>5138</locationY>
+        <locationY>5096</locationY>
         <connector>
             <targetReference>updateThreadToNotActive</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Fault_Screen_3</targetReference>
+            <targetReference>Update_Application_failed</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -1204,12 +1201,12 @@
         <name>updateRelatedContacts</name>
         <label>updateRelatedContacts</label>
         <locationX>182</locationX>
-        <locationY>4490</locationY>
+        <locationY>4598</locationY>
         <connector>
             <targetReference>createTaskApplicationFinished</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Fault_Screen_2</targetReference>
+            <targetReference>Update_Related_Contact_failed</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -1231,9 +1228,9 @@
         <name>updateThreadToNotActive</name>
         <label>updateThreadToNotActive</label>
         <locationX>688</locationX>
-        <locationY>5246</locationY>
+        <locationY>5204</locationY>
         <faultConnector>
-            <targetReference>Fault_Screen_4</targetReference>
+            <targetReference>Update_thread_failed</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -1256,7 +1253,7 @@
         <name>applicationDone</name>
         <label>Application Done</label>
         <locationX>688</locationX>
-        <locationY>650</locationY>
+        <locationY>758</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -1283,118 +1280,10 @@
         <showHeader>false</showHeader>
     </screens>
     <screens>
-        <name>Fault_Screen</name>
-        <label>Fault Screen</label>
-        <locationX>754</locationX>
-        <locationY>4490</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>Agreement_creation_failed</targetReference>
-        </connector>
-        <fields>
-            <name>FaultText</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(248, 248, 248); font-size: 15px; font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; color: rgb(29, 28, 29);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
-    <screens>
-        <name>Fault_Screen_2</name>
-        <label>Fault Screen 2</label>
-        <locationX>490</locationX>
-        <locationY>4598</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>Related_Contact_update_failed</targetReference>
-        </connector>
-        <fields>
-            <name>FaultText2</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(248, 248, 248); font-size: 15px; font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; color: rgb(29, 28, 29);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
-    <screens>
-        <name>Fault_Screen_3</name>
-        <label>Fault Screen 3</label>
-        <locationX>1722</locationX>
-        <locationY>5246</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>Application_update_failed</targetReference>
-        </connector>
-        <fields>
-            <name>FaultText3</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(248, 248, 248); font-size: 15px; font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; color: rgb(29, 28, 29);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
-    <screens>
-        <name>Fault_Screen_4</name>
-        <label>Fault Screen 4</label>
-        <locationX>1458</locationX>
-        <locationY>5354</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>Thread_updationg_failed</targetReference>
-        </connector>
-        <fields>
-            <name>FaultText4</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(248, 248, 248); font-size: 15px; font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; color: rgb(29, 28, 29);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
-    <screens>
         <name>IsNotChecked</name>
         <label>IsNotChecked</label>
         <locationX>1194</locationX>
-        <locationY>1082</locationY>
+        <locationY>1190</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -1418,7 +1307,7 @@
         <name>IsNotCorrectStatus</name>
         <label>IsNotCorrectStatus</label>
         <locationX>864</locationX>
-        <locationY>350</locationY>
+        <locationY>458</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -1439,7 +1328,7 @@
         <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>562</locationX>
+        <locationX>1211</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getApplication</targetReference>
@@ -1450,7 +1339,7 @@
         <name>createTaskApplicationFinished</name>
         <label>createTaskApplicationFinished</label>
         <locationX>688</locationX>
-        <locationY>5030</locationY>
+        <locationY>4988</locationY>
         <connector>
             <targetReference>updateApplication</targetReference>
         </connector>
@@ -1480,6 +1369,62 @@
             </value>
         </inputAssignments>
     </subflows>
+    <subflows>
+        <name>Log_Message</name>
+        <label>Log Message</label>
+        <locationX>1458</locationX>
+        <locationY>5420</locationY>
+        <flowName>AAREG_Handle_Error_Messages</flowName>
+        <inputAssignments>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_applicationFinished</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>error_Message</name>
+            <value>
+                <elementReference>error_message</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>failed_On_Object</name>
+            <value>
+                <stringValue>Application</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>fault_time</name>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>flow_Interview_Guid</name>
+            <value>
+                <elementReference>$Flow.InterviewGuid</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>log_Level</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>ref_Application_record</name>
+            <value>
+                <elementReference>application_rec_ref</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>source_flow</name>
+            <value>
+                <elementReference>failed_for_record</elementReference>
+            </value>
+        </inputAssignments>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </subflows>
     <variables>
         <name>agreementId</name>
         <dataType>String</dataType>
@@ -1496,6 +1441,14 @@
         <value>
             <booleanValue>false</booleanValue>
         </value>
+    </variables>
+    <variables>
+        <name>application_rec_ref</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Application__c</objectType>
     </variables>
     <variables>
         <name>conDocLinkId</name>
@@ -1524,6 +1477,13 @@
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>error_message</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
     </variables>
     <variables>
         <name>Event</name>

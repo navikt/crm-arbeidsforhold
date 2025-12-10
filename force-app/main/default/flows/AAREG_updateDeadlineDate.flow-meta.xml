@@ -1,108 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <actionCalls>
-        <name>Application_updation_failed</name>
-        <label>Application updation failed</label>
+    <apiVersion>52.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>App_lication_update_failed</name>
+        <label>Appålication update failed</label>
         <locationX>314</locationX>
         <locationY>890</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Application__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <stringValue>AAREG_updateDeadlineDate_failed</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
             <value>
                 <elementReference>$Flow.FaultMessage</elementReference>
             </value>
-        </inputParameters>
-        <inputParameters>
-            <name>refRecord</name>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue> Failed while updating deadline date</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>application_rec_ref</assignToReference>
+            <operator>Assign</operator>
             <value>
                 <elementReference>getOwnerAndStatus</elementReference>
             </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Application_not_found</name>
+        <label>Application not found</label>
+        <locationX>1106</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
             <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
+                <stringValue>Application not found</stringValue>
             </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Task_creation_failed</name>
         <label>Task creation failed</label>
         <locationX>578</locationX>
         <locationY>782</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Task</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <stringValue>AAREG_updateDeadlineDate_failed</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
             <value>
                 <elementReference>$Flow.FaultMessage</elementReference>
             </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Add</operator>
             <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
+                <stringValue> Failed while creating related task record</stringValue>
             </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <apiVersion>52.0</apiVersion>
-    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>application_rec_ref</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getOwnerAndStatus</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>technical_error</name>
+        <label>technical error</label>
+        <locationX>1370</locationX>
+        <locationY>242</locationY>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_Message</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Application_found</name>
+        <label>Application found</label>
+        <locationX>776</locationX>
+        <locationY>242</locationY>
+        <defaultConnector>
+            <targetReference>Application_not_found</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Found</defaultConnectorLabel>
+        <rules>
+            <name>Yes_found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getOwnerAndStatus</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>checkStatusAndOwner</targetReference>
+            </connector>
+            <label>Yes found</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>checkStatusAndOwner</name>
         <label>checkStatusAndOwner</label>
         <locationX>446</locationX>
-        <locationY>242</locationY>
+        <locationY>350</locationY>
         <defaultConnector>
             <targetReference>ErrorMessage</targetReference>
         </defaultConnector>
@@ -137,6 +161,11 @@
         <dataType>String</dataType>
         <expression>&quot;Dato satt til: &quot;+TEXT({!deadlineDate}) +&apos; - &apos;+{!reasonForAdjustDeadline}</expression>
     </formulas>
+    <formulas>
+        <name>failed_for_record</name>
+        <dataType>String</dataType>
+        <expression>&quot;Gjelder : &quot; &amp; {!recordId}</expression>
+    </formulas>
     <interviewLabel>AAREG_updateDeadlineDate {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_updateDeadlineDate</label>
     <processMetadataValues>
@@ -162,12 +191,12 @@
         <name>createTaskOnReason</name>
         <label>createTaskOnReason</label>
         <locationX>50</locationX>
-        <locationY>566</locationY>
+        <locationY>674</locationY>
         <connector>
             <targetReference>updataDeadlineDate</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Fault_Screen</targetReference>
+            <targetReference>Task_creation_failed</targetReference>
         </faultConnector>
         <inputAssignments>
             <field>ActivityDate</field>
@@ -223,12 +252,15 @@
     <recordLookups>
         <name>getOwnerAndStatus</name>
         <label>getOwnerAndStatus</label>
-        <locationX>446</locationX>
+        <locationX>776</locationX>
         <locationY>134</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>checkStatusAndOwner</targetReference>
+            <targetReference>Application_found</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>technical_error</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -248,7 +280,7 @@
         <name>getRecordTypeId</name>
         <label>getRecordTypeId</label>
         <locationX>50</locationX>
-        <locationY>458</locationY>
+        <locationY>566</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createTaskOnReason</targetReference>
@@ -272,9 +304,9 @@
         <name>updataDeadlineDate</name>
         <label>updataDeadlineDate</label>
         <locationX>50</locationX>
-        <locationY>674</locationY>
+        <locationY>782</locationY>
         <faultConnector>
-            <targetReference>Fault_Screen_2</targetReference>
+            <targetReference>App_lication_update_failed</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -296,7 +328,7 @@
         <name>changeDeadlineDate</name>
         <label>Change deadline date</label>
         <locationX>50</locationX>
-        <locationY>350</locationY>
+        <locationY>458</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -342,7 +374,7 @@
         <name>ErrorMessage</name>
         <label>ErrorMessage</label>
         <locationX>842</locationX>
-        <locationY>350</locationY>
+        <locationY>458</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -362,68 +394,85 @@
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
-    <screens>
-        <name>Fault_Screen</name>
-        <label>Fault Screen</label>
-        <locationX>578</locationX>
-        <locationY>674</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>Task_creation_failed</targetReference>
-        </connector>
-        <fields>
-            <name>FaultText</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(248, 248, 248); font-size: 15px; font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; color: rgb(29, 28, 29);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
-    <screens>
-        <name>Fault_Screen_2</name>
-        <label>Fault Screen 2</label>
-        <locationX>314</locationX>
-        <locationY>782</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>Application_updation_failed</targetReference>
-        </connector>
-        <fields>
-            <name>FaultText2</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(248, 248, 248); font-size: 15px; font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; color: rgb(29, 28, 29);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
     <start>
-        <locationX>320</locationX>
+        <locationX>650</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getOwnerAndStatus</targetReference>
         </connector>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>Log_Message</name>
+        <label>Log Message</label>
+        <locationX>578</locationX>
+        <locationY>890</locationY>
+        <flowName>AAREG_Handle_Error_Messages</flowName>
+        <inputAssignments>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_updateDeadlineDate</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>error_Message</name>
+            <value>
+                <elementReference>error_message</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>failed_On_Object</name>
+            <value>
+                <stringValue>Application</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>fault_time</name>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>flow_Interview_Guid</name>
+            <value>
+                <elementReference>$Flow.InterviewGuid</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>log_Level</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>ref_Application_record</name>
+            <value>
+                <elementReference>application_rec_ref</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>source_flow</name>
+            <value>
+                <elementReference>failed_for_record</elementReference>
+            </value>
+        </inputAssignments>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </subflows>
+    <variables>
+        <name>application_rec_ref</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Application__c</objectType>
+    </variables>
+    <variables>
+        <name>error_message</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
     <variables>
         <description>Id of the record that trigger the flow</description>
         <name>recordId</name>
