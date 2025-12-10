@@ -1,11 +1,5 @@
 [
    {
-      "sobject": "User", 
-      "saveRefs": false,
-      "resolveRefs": true,
-      "files": ["User.json"]
-   },
-   {
        "sobject": "Account", 
        "saveRefs": true,
        "resolveRefs": false,
