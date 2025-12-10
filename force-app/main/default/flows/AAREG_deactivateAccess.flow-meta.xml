@@ -1,61 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <actionCalls>
-        <name>Agreement_updation_failed</name>
-        <label>Agreement updation failed</label>
-        <locationX>440</locationX>
+    <apiVersion>56.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Agreement_rec</name>
+        <label>Agreement Rec</label>
+        <locationX>314</locationX>
         <locationY>566</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Agreement__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <stringValue>AAREG_deactivateAccess_failed</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>refRecord</name>
+        <assignmentItems>
+            <assignToReference>Ref_Agreement_Rec</assignToReference>
+            <operator>Assign</operator>
             <value>
                 <elementReference>getAgreement</elementReference>
             </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Technical_error</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>AgreementNotFound</name>
+        <label>Agreement Not Found</label>
+        <locationX>578</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>ErrorMessage</assignToReference>
+            <operator>Assign</operator>
             <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
+                <stringValue>Agreement not Found</stringValue>
             </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <apiVersion>56.0</apiVersion>
-    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Technical_error</name>
+        <label>Technical Error</label>
+        <locationX>842</locationX>
+        <locationY>242</locationY>
+        <assignmentItems>
+            <assignToReference>ErrorMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Agreement_Found</name>
+        <label>Agreement Found</label>
+        <locationX>314</locationX>
+        <locationY>242</locationY>
+        <defaultConnector>
+            <targetReference>AgreementNotFound</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not found</defaultConnectorLabel>
+        <rules>
+            <name>Yes_found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getAgreement</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>deactivateAccess</targetReference>
+            </connector>
+            <label>Yes found</label>
+        </rules>
+    </decisions>
     <environments>Default</environments>
+    <formulas>
+        <name>FailedforRecord</name>
+        <dataType>String</dataType>
+        <expression>&quot;Gjelder &quot; &amp; {!recordId}</expression>
+    </formulas>
     <interviewLabel>AAREG_deactivateAccess {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_deactivateAccess</label>
+    <label>AAREG_deactivateAccess_short_message</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -78,12 +107,15 @@
     <recordLookups>
         <name>getAgreement</name>
         <label>getAgreement</label>
-        <locationX>176</locationX>
+        <locationX>314</locationX>
         <locationY>134</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>deactivateAccess</targetReference>
+            <targetReference>Agreement_Found</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Technical_error</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -99,10 +131,10 @@
     <recordUpdates>
         <name>updateAgreement</name>
         <label>updateAgreement</label>
-        <locationX>176</locationX>
-        <locationY>350</locationY>
+        <locationX>50</locationX>
+        <locationY>458</locationY>
         <faultConnector>
-            <targetReference>Fault_Screen</targetReference>
+            <targetReference>Agreement_rec</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -153,8 +185,8 @@
     <screens>
         <name>deactivateAccess</name>
         <label>Deaktiver tilgang</label>
-        <locationX>176</locationX>
-        <locationY>242</locationY>
+        <locationX>50</locationX>
+        <locationY>350</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -235,46 +267,90 @@
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
     </screens>
-    <screens>
-        <name>Fault_Screen</name>
-        <label>Fault Screen</label>
-        <locationX>440</locationX>
-        <locationY>458</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>Agreement_updation_failed</targetReference>
-        </connector>
-        <fields>
-            <name>FaultText</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(29, 28, 29); font-family: Slack-Lato, Slack-Fractions, appleLogo, sans-serif; font-size: 15px; background-color: rgb(248, 248, 248);&quot;&gt;Det skjedde en feil. Gi systemadministrator denne feilmeldingen.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
     <start>
-        <locationX>50</locationX>
+        <locationX>188</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getAgreement</targetReference>
         </connector>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>Log_and_Display_Short_Message</name>
+        <label>Log and Display Short Message</label>
+        <locationX>578</locationX>
+        <locationY>458</locationY>
+        <flowName>AAREG_Log_And_Disp_Short_Messages</flowName>
+        <inputAssignments>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_deactivateAccess</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>error_Message</name>
+            <value>
+                <elementReference>ErrorMessage</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>failed_On_Object</name>
+            <value>
+                <stringValue>Agreement</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>fault_time</name>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>flow_Interview_Guid</name>
+            <value>
+                <elementReference>$Flow.InterviewGuid</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>log_Level</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>ref_agreement_rec</name>
+            <value>
+                <elementReference>Ref_Agreement_Rec</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>source_flow</name>
+            <value>
+                <elementReference>FailedforRecord</elementReference>
+            </value>
+        </inputAssignments>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </subflows>
+    <variables>
+        <name>ErrorMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>Ref_Agreement_Rec</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <objectType>Agreement__c</objectType>
     </variables>
 </Flow>
