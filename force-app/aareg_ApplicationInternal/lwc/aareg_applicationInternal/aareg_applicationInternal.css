@@ -27,8 +27,27 @@
     border: 0.188rem solid white;
 }
 
+.other-sections th{
+    font-weight: 600;
+    text-align: left;
+    width: 5%;
+}
+.other-sections td {
+    border-collapse: collapse;
+    border: 0.188rem solid white;
+    width: 5%;
+}
+
 h2 {
     font-size: 0.938rem; /*15px*/
     font-weight: 600;
     padding-bottom: 1rem;
+}
+
+input[type="checkbox"]:disabled:checked::after  {
+    content: '✔';/* Unicode for a checkmark */
+    font-size: 0.75rem; /* Adjust size as needed */
+    position: relative;
+    top: -0.35rem;
+    left: -0.14rem;
 }
