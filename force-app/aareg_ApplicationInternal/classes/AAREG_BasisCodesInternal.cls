@@ -11,4 +11,7 @@ public with sharing class AAREG_BasisCodesInternal {
     @AuraEnabled public String Hjemmel{get;set;}
     @AuraEnabled public String Formaal{get;set;}
     @AuraEnabled public String Behandlingsgrunnlag{get;set;}
+    @AuraEnabled public Boolean APITilgang{get;set;}
+    @AuraEnabled public Boolean Uttrekk{get;set;}
+    @AuraEnabled public Boolean WebTilgang{get;set;}
 }

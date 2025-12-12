@@ -115,8 +115,11 @@ public static ApplicationWrapper getApplicationDetails(Id recordId) {
              PurposeElectricitySupervision__c,
              PurposeMunicipality__c,
              PurposePension__c,
-             PurposeState__c
-      FROM ApplicationBasisCode__c
+             PurposeState__c,
+             API_Access__c,
+             Online_Access__c,
+             Extraction_Access__c
+             FROM ApplicationBasisCode__c
       WHERE Application__c = :recordId
   ];
 
@@ -127,6 +130,9 @@ public static ApplicationWrapper getApplicationDetails(Id recordId) {
         tempList.KodeverkId = code.Id;
         tempList.KodeverkNummer = code.Name;
         tempList.SoknadsId = code.Application__c;
+        tempList.APITilgang = code.API_Access__c;
+        tempList.Uttrekk = code.Extraction_Access__c;
+        tempList.WebTilgang = code.Online_Access__c;
         tempList.Behandlingsgrunnlag = code.ProcessingBasis__c;
         if(code.OrganizationType__c == 'County'){
           tempList.Hjemmel = code.LegalBasisCounty__c;

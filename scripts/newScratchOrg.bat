@@ -67,8 +67,8 @@ echo "Installerer crm-community-base 135."
 call sf force:package:install --package 04tQC0000012aDJYAY -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
-echo "Installerer crm-platform-email-scheduling 1.6.0."
-call sf force:package:install --package 04t2o000000yRSSAA2 -r --installation-key %1 --wait 4 --publish-wait 4
+echo "Installerer crm-platform-email-scheduling 1.8.0."
+call sf force:package:install --package 04tKB000000Y5TZYA0 -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
 echo "Installerer crm-journal-utilities 0.53.0.."
