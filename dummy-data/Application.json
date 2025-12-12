@@ -20,9 +20,7 @@
             "DataProcessorOrganizationNumber__c": "987657772",
             "Email__c": "Pensjon@test.no",
             "Casehandler_Status__c": "New",
-            "Status__c": "New",
-            "CasehandlerOwner__c": "@UserRef1"
-           
+            "Status__c": "New"
         },
         {
             "attributes": {
@@ -44,9 +42,7 @@
             "DataProcessorOrganizationNumber__c": "988857772",
             "Email__c": "kraftnett@test.no",
             "Casehandler_Status__c": "New",
-            "Status__c": "New",
-            "CasehandlerOwner__c": "@UserRef1"
-           
+            "Status__c": "New"           
         },
         {
             "attributes": {
@@ -68,9 +64,7 @@
             "DataProcessorOrganizationNumber__c": "987654321",
             "Email__c": "Kommune@test.no",
             "Casehandler_Status__c": "New",
-            "Status__c": "New",
-            "CasehandlerOwner__c": "@UserRef2"
-            
+            "Status__c": "New"
         },
         {
             "attributes": {
@@ -92,8 +86,7 @@
             "DataProcessorOrganizationNumber__c": "999957772",
             "Email__c": "fylkeskommune@test.no",
             "Casehandler_Status__c": "New",
-            "Status__c": "New",
-            "CasehandlerOwner__c": "@UserRef2"
+            "Status__c": "New"
         }
     ]
 }
