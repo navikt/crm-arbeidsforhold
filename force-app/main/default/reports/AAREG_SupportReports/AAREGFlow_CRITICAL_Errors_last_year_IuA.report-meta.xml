@@ -8,14 +8,15 @@
             <axisBinding>y</axisBinding>
             <column>RowCount</column>
         </chartSummaries>
-        <chartType>VerticalColumn</chartType>
+        <chartType>Donut</chartType>
         <enableHoverLabels>false</enableHoverLabels>
-        <expandOthers>true</expandOthers>
+        <expandOthers>false</expandOthers>
         <groupingColumn>Application_Log__c.Source_Class__c</groupingColumn>
+        <legendPosition>Right</legendPosition>
         <location>CHART_BOTTOM</location>
-        <showAxisLabels>true</showAxisLabels>
+        <showAxisLabels>false</showAxisLabels>
         <showPercentage>false</showPercentage>
-        <showTotal>false</showTotal>
+        <showTotal>true</showTotal>
         <showValues>false</showValues>
         <size>Medium</size>
         <summaryAxisRange>Auto</summaryAxisRange>
@@ -51,12 +52,19 @@
             <operator>equals</operator>
             <value>AAREG-Flow</value>
         </criteriaItems>
+        <criteriaItems>
+            <column>Application_Log__c.Log_Level__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>CRITICAL</value>
+        </criteriaItems>
         <language>en_US</language>
     </filter>
     <format>Summary</format>
     <groupingsDown>
         <field>CUST_CREATED_DATE</field>
-        <sortOrder>Asc</sortOrder>
+        <sortOrder>Desc</sortOrder>
     </groupingsDown>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>
@@ -68,7 +76,7 @@
         <field>Application_Log__c.Source_Class__c</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
-    <name>AAREG-Flow logger for de siste 7 dager</name>
+    <name>AAREG-Flow CRITICAL Errors last year</name>
     <params>
         <name>co</name>
         <value>1</value>
@@ -80,6 +88,6 @@
     <showSubTotals>false</showSubTotals>
     <timeFrameFilter>
         <dateColumn>CUST_CREATED_DATE</dateColumn>
-        <interval>INTERVAL_LAST7</interval>
+        <interval>INTERVAL_CURFY</interval>
     </timeFrameFilter>
 </Report>

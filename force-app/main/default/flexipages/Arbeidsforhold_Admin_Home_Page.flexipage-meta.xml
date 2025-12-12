@@ -42,9 +42,10 @@
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
-    <masterLabel>Arbeidsforhold Admin Home Page</masterLabel>
+    <masterLabel>Arbeidsforhold Admin Home Page </masterLabel>
     <template>
         <name>home:desktopTemplate</name>
     </template>
     <type>HomePage</type>
 </FlexiPage>
+ 

@@ -31,7 +31,6 @@
     <tabs>standard-home</tabs>
     <tabs>standard-EmailTemplate</tabs>
     <tabs>standard-Dashboard</tabs>
-    <tabs>standard-report</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>Arbeidsforhold_Admin_UtilityBar</utilityBar>
 </CustomApplication>
