@@ -1,0 +1,51 @@
+<apex:page standardController="Application_Decision__c" extensions="AAREG_ApplicationDecisionPDFController" showHeader="false"
+    renderAs="PDF">
+
+    <div style="font-family: SansSerif !important; margin-left: 12px; margin-right: 12px; font-size: 12px">
+        <!-- NAV logo -->
+        <center>
+            <apex:image id="theImage" value="{!$Resource.logo}" width="115px" height="80px" alt="NAV logo" />
+        </center>
+
+
+        <apex:panelGrid columns="1" width="100%" id="letterhead">
+            <apex:outputText value="{!applicationRecord.KonsumentNavn}"></apex:outputText>
+            <apex:outputText value="{!applicationRecord.KonsumentAdresse}"></apex:outputText>
+            <apex:outputText value="{!applicationRecord.KonsumentPostnummer} {!applicationRecord.KonsumentPoststed}"></apex:outputText>
+            <apex:outputText value="{!applicationRecord.KonsumentOrganisasjonsnummer}"></apex:outputText>
+        </apex:panelGrid>
+
+        <apex:panelGrid columns="1" width="100%;" id="letterdate" style="text-align:right;">
+            <apex:outputText value="Deres referanse: {!applicationRecord.KonsumentKontaktNavn}"></apex:outputText>
+            <apex:outputText value="Søknad levert: {!applicationRecord.SoknadLevert}"></apex:outputText>
+            <apex:outputText value="Vår dato: 20-12-2025"></apex:outputText>
+            <apex:outputText value="Vår referanse: 0123456789"></apex:outputText>
+        </apex:panelGrid>
+
+        <!-- Heading -->
+        <h2 style="background-color: #F1F1F1; !important;">Vedtak om tilgang til Aa-registeret</h2>
+        <apex:outputText value="Vi viser til deres søknad {!applicationRecord.SoknadsNavn} om tilgang til Arbeidsgiver- og arbeidstakerregisteret (Aa-registeret) mottatt {!applicationRecord.SoknadLevert}. Søknaden er delvis innvilget. "
+            escape="false" style="line-height: 1.5em;" />
+
+        <h3>Formål som er godkjent</h3>
+        <apex:outputText value="De følgende formålene er godkjent for tilgang til Aa-registeret:" escape="false" style="line-height: 1.5em;"
+        />
+
+
+        <h3>Formål som er avslått</h3>
+        <apex:outputText value="Begrunnelse for avslaget: " escape="false" style="line-height: 1.5em;" />
+
+        <h3>Ansvar og vilkår ved bruk av opplysningene</h3>
+
+        <h3>Veiledning og klage</h3>
+
+        Med vennlig hilsen,
+        <br/>
+        <apex:outputText value="Saksbehandlernavn"></apex:outputText>
+        <br/>
+        <br/> NAV REGISTERFORVALTNING
+        <br/> ARBEIDS OG VELFERDSETATEN
+        <br/> www.nav.no
+    </div>
+
+</apex:page>

@@ -27,7 +27,8 @@
                 <identifier>force_highlightsPanel</identifier>
             </componentInstance>
         </itemInstances>
-        <name>header</name>
+        <name>
+        header</name>
         <type>Region</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -43,7 +44,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>pageName</name>
-                    <value>AAREG_decisionPDF</value>
+                    <value>AAREG_decisionInternalPDF</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>showLabel</name>
@@ -53,7 +54,8 @@
                 <identifier>flexipage_visualforcePage</identifier>
             </componentInstance>
         </itemInstances>
-        <name>leftcol</name>
+        <name>
+        leftcol</name>
         <type>Region</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -77,7 +79,8 @@
                 <identifier>RecordStatus_cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-98c11f0d-4f54-4b28-b53d-f065e246c788</name>
+        <name>
+        Facet-98c11f0d-4f54-4b28-b53d-f065e246c788</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -101,7 +104,8 @@
                 <identifier>RecordLastModifiedByIdField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-7a1dfcd4-264c-4815-84b1-80ae2891382a</name>
+        <name>
+        Facet-7a1dfcd4-264c-4815-84b1-80ae2891382a</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -125,7 +129,8 @@
                 <identifier>flexipage_column2</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-0216850f-fe5a-41d0-9d3f-54405209327e</name>
+        <name>
+        Facet-0216850f-fe5a-41d0-9d3f-54405209327e</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -147,7 +152,8 @@
                 <identifier>flexipage_fieldSection</identifier>
             </componentInstance>
         </itemInstances>
-        <name>rightcol</name>
+        <name>
+        rightcol</name>
         <type>Region</type>
     </flexiPageRegions>
     <masterLabel>Arbeidsforhold Vedtak Recordpage</masterLabel>
