@@ -5,8 +5,6 @@ import applicantsSection from '@salesforce/label/c.AAREG_applicant_details_secti
 import legalbasisSection from '@salesforce/label/c.AAREG_code_basis_section';
 import contactPersonSection from '@salesforce/label/c.AAREG_contac_person_section';
 
-
-
 export default class Aareg_applicationInternal extends LightningElement {
     @api recordId;
     @track application;

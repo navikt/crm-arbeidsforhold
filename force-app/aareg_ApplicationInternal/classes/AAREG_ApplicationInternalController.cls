@@ -3,6 +3,7 @@ public with sharing class AAREG_ApplicationInternalController {
   /*
    * wrapperclass
    **/
+
   public class ApplicationWrapper {
     @AuraEnabled public List<AAREG_ApplicationInternal> application{get; set;}
     @AuraEnabled public List<AAREG_BasisCodesInternal> basisCodes{get; set;}
@@ -101,6 +102,9 @@ public static ApplicationWrapper getApplicationDetails(Id recordId) {
     List<ApplicationBasisCode__c> basisCodes = [
       SELECT Id,
              Name,
+             API_Access__c,
+             Extraction_Access__c,
+             Online_Access__c,
              Application__c,
              ProcessingBasis__c,
              LegalBasisCounty__c,
@@ -127,6 +131,9 @@ public static ApplicationWrapper getApplicationDetails(Id recordId) {
         tempList.KodeverkId = code.Id;
         tempList.KodeverkNummer = code.Name;
         tempList.SoknadsId = code.Application__c;
+        tempList.APITilgang = code.API_Access__c;
+        tempList.Uttrekk = code.Extraction_Access__c;
+        tempList.WebTilgang = code.Online_Access__c;
         tempList.Behandlingsgrunnlag = code.ProcessingBasis__c;
         if(code.OrganizationType__c == 'County'){
           tempList.Hjemmel = code.LegalBasisCounty__c;

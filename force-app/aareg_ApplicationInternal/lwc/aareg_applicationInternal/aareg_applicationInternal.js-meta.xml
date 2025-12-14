@@ -3,7 +3,6 @@
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>aareg_Søknad</masterLabel>
-
     <targets>
         <target>lightning__RecordPage </target>
     </targets>

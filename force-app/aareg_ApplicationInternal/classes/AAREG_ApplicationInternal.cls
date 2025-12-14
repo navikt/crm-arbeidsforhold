@@ -21,5 +21,4 @@ public class AAREG_ApplicationInternal{
    @AuraEnabled public Boolean Vilkaar{get;set;}
    @AuraEnabled public String DatabehandlerNavn{get;set;}
    @AuraEnabled public String DatabehandlerOrganisasjonsnummer{get;set;}
-   
  }

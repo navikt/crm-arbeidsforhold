@@ -2,6 +2,7 @@ public with sharing class AAREG_BasisCodesInternal {
    /*
     * wrapperclass used by AAREG_ApplicationInternalController to send data to LWC
     **/
+
     @AuraEnabled public String KodeverkId{get;set;}
     @AuraEnabled public String KodeverkNummer{get;set;}
     @AuraEnabled public String SoknadsId{get;set;}
@@ -11,4 +12,7 @@ public with sharing class AAREG_BasisCodesInternal {
     @AuraEnabled public String Hjemmel{get;set;}
     @AuraEnabled public String Formaal{get;set;}
     @AuraEnabled public String Behandlingsgrunnlag{get;set;}
+    @AuraEnabled public Boolean APITilgang{get;set;}
+    @AuraEnabled public Boolean Uttrekk{get;set;}
+    @AuraEnabled public Boolean WebTilgang{get;set;}
 }
