@@ -21,7 +21,6 @@ const COLUMNS = [
     { label: 'Status', fieldName: 'Status', type: 'text' }
 ];
 
-
 export default class Aareg_applicationDecisionInternal extends NavigationMixin(LightningElement) {
     @api recordId;
     records;
