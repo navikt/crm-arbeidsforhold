@@ -84,16 +84,6 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>aareg_applicationDecisionInternal</componentName>
-                <identifier>c_aareg_applicationDecisionInternal</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-1f1a5c88-39d2-4dfe-b312-255a806f175b</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
                 <componentInstanceProperties>
                     <name>showClose</name>
                     <value>false</value>
@@ -140,42 +130,14 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-1f1a5c88-39d2-4dfe-b312-255a806f175b</value>
+                    <value>Facet-ce2611ff-8848-45f6-bf79-781878ee4c65</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>{!$Label.Decision}</value>
+                    <value>{!$Label.Dialog}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
-                <identifier>flexipage_tab2</identifier>
-                <visibilityRule>
-                    <booleanFilter>1 OR 2 OR 3 OR 4 OR 5</booleanFilter>
-                    <criteria>
-                        <leftValue>{!Record.Casehandler_Status__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Approved Partially</rightValue>
-                    </criteria>
-                    <criteria>
-                        <leftValue>{!Record.Casehandler_Status__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Approved</rightValue>
-                    </criteria>
-                    <criteria>
-                        <leftValue>{!Record.Casehandler_Status__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Declined</rightValue>
-                    </criteria>
-                    <criteria>
-                        <leftValue>{!Record.Casehandler_Status__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Closed</rightValue>
-                    </criteria>
-                    <criteria>
-                        <leftValue>{!Record.Status__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Suspension</rightValue>
-                    </criteria>
-                </visibilityRule>
+                <identifier>flexipage_tab3</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
