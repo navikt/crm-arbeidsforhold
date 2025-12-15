@@ -3,7 +3,6 @@
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>Arbeidsforhold vedtak</masterLabel>
-
     <targets>
         <target>lightning__RecordPage </target>
     </targets>

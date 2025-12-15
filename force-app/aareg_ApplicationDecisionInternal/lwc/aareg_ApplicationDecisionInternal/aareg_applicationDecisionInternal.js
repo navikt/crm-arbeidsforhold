@@ -31,7 +31,6 @@ export default class Aareg_applicationDecisionInternal extends NavigationMixin(L
         this.fetchDecisionData();
     }
 
-
     fetchDecisionData(){
         getDecision({ recordId: this.recordId })
             .then((result) => {
