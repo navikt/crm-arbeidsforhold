@@ -7,7 +7,6 @@
             <apex:image id="theImage" value="{!$Resource.logo}" width="115px" height="80px" alt="NAV logo" />
         </center>
 
-
         <apex:panelGrid columns="1" width="100%" id="letterhead">
             <apex:outputText value="{!applicationRecord.KonsumentNavn}"></apex:outputText>
             <apex:outputText value="{!applicationRecord.KonsumentAdresse}"></apex:outputText>
