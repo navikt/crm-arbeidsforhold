@@ -4,8 +4,5 @@
     <fields>Account__c</fields>
     <fields>Name</fields>
     <fields>ApplicationSubmittedDate__c</fields>
-    <fields>APIAccess__c</fields>
-    <fields>ExtractionAccess__c</fields>
-    <fields>OnlineAccess__c</fields>
     <label>AA_RegisterAccess</label>
 </CompactLayout>
