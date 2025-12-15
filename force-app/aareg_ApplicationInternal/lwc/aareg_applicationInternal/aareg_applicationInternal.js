@@ -16,6 +16,8 @@ export default class Aareg_applicationInternal extends LightningElement {
     @track relatedContacts = [];
     @track error;
 
+    activeSections = ['applicationSection', 'legalbasisSection', 'dataprocessorSection', 'termsSection', 'contactpersonSection'];
+
     label ={
         applicationSection,
         dataprocessorSection,
