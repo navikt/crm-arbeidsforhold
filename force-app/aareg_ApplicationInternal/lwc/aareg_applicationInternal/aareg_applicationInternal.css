@@ -1,33 +1,55 @@
 .container {
-  /* font-family: 'Source Sans Pro', Arial, sans-serif;*/
-   font-size: 0.813rem; /*13px*/
-   font-weight: 400;
-}
-.legal-basis th {
-    border-collapse: collapse;
-    border: 0.188rem solid white;
-    font-weight: 600;
-    text-align: right;
-    width: 15%;
-}
-.legal-basis td {
-    border-collapse: collapse;
-    border: 0.188rem solid white;
-}
-.legal-basis thead:nth-child(odd) {
-    background-color: #ECEEF0;
-}
-
-.related-contact th {
-    font-weight: 600;
-    text-align: left;
-}
-.related-contact td {
-    border-collapse: collapse;
-    border: 0.188rem solid white;
-}
-h2 {
-    font-size: 0.938rem; /*15px*/
-    font-weight: 600;
-    padding-bottom: 1rem;
-}
+    /* font-family: 'Source Sans Pro', Arial, sans-serif;*/
+     font-size: 0.813rem; /*13px*/
+     line-height: 1.5rem;
+     font-weight: 400;
+  }
+  .legal-basis th {
+      border-collapse: collapse;
+      border: 0.188rem solid white;
+      font-weight: 600;
+      text-align: right;
+      width: 15%;
+  }
+  .legal-basis td {
+      border-collapse: collapse;
+      border: 0.188rem solid white;
+  }
+  .legal-basis thead:nth-child(odd) {
+      background-color: #ECEEF0;
+  }
+  
+  .related-contact th {
+      font-weight: 600;
+      text-align: left;
+  }
+  .related-contact td {
+      border-collapse: collapse;
+      border: 0.188rem solid white;
+  }
+  
+  .other-sections th{
+      font-weight: 600;
+      text-align: left;
+      width: 5%;
+  }
+  .other-sections td {
+      border-collapse: collapse;
+      border: 0.188rem solid white;
+      width: 5%;
+  }
+  
+  h2 {
+      font-size: 0.938rem; /*15px*/
+      font-weight: 600;
+      line-height: 1rem;
+      padding-bottom: 1rem;
+  }
+  
+  input[type="checkbox"]:disabled:checked::after  {
+      content: '✔';/* Unicode for a checkmark */
+      font-size: 0.75rem; /* Adjust size as needed */
+      position: relative;
+      top: -0.35rem;
+      left: -0.14rem;
+  }
