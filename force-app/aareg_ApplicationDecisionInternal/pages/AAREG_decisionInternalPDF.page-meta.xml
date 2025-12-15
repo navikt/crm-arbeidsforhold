@@ -4,4 +4,5 @@
     <availableInTouch>true</availableInTouch>
     <confirmationTokenRequired>false</confirmationTokenRequired>
     <label>AAREG_decisionInternalPDF</label>
+
 </ApexPage>
