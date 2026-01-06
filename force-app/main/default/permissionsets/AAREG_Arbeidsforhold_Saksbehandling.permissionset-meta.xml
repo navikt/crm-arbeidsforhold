@@ -411,6 +411,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Application_Decision_Details__c.Letter_complaint_section__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Application_Decision_Details__c.Letter_terms_section__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Application_Decision_Details__c.Online_Access__c</field>
         <readable>true</readable>
     </fieldPermissions>
