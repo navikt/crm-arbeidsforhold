@@ -2,9 +2,9 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>Arbeidsforhold søknad internt</masterLabel>
-    <targets>
-        <target>lightning__RecordPage </target>
-    </targets>
+    <masterLabel>Arbeidsforhold vedtak internt</masterLabel>
 
+    <targets>
+        <target>lightning__RecordPage</target>
+    </targets>
 </LightningComponentBundle>
