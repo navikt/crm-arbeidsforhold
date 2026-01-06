@@ -21,6 +21,15 @@
     <actionOverrides>
         <actionName>View</actionName>
         <comment>Action override created by Lightning App Builder during activation.</comment>
+        <content>Application_decision_details_record_page</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+        <pageOrSobjectType>Application_Decision_Details__c</pageOrSobjectType>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <comment>Action override created by Lightning App Builder during activation.</comment>
         <content>Arbeidsforhold_application_record_page</content>
         <formFactor>Large</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
@@ -98,7 +107,7 @@
     <description>Application used by team arbeidsforhold.</description>
     <formFactors>Small</formFactors>
     <formFactors>Large</formFactors>
-    <isNavAutoTempTabsDisabled>true</isNavAutoTempTabsDisabled>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
     <isNavPersonalizationDisabled>true</isNavPersonalizationDisabled>
     <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
     <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
@@ -112,6 +121,7 @@
         <type>Flexipage</type>
         <profile>Admin</profile>
     </profileActionOverrides>
+    <setupExperience>all</setupExperience>
     <tabs>standard-home</tabs>
     <tabs>Application__c</tabs>
     <tabs>Agreement__c</tabs>

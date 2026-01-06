@@ -1,0 +1,21 @@
+<template>
+    <div class="slds-grid slds-grid_align-end slds-m-bottom_small">
+        <lightning-button 
+        variant="brand" 
+        label="Opprett vedtak" 
+        onclick={handleCreateDecision}>
+    </lightning-button>
+    </div>
+  
+    <lightning-card title="Vedtak">
+        <lightning-datatable
+            key-field="VedtaksId"
+            data={records}
+            columns={columns}
+            onrowaction={handleRowAction}
+            hide-checkbox-column="true"
+        >
+        </lightning-datatable>
+</lightning-card>
+
+</template>

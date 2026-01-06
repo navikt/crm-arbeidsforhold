@@ -7,4 +7,7 @@ public with sharing class AAREG_ApplicationDecision {
          @AuraEnabled public String Status{get;set;}
          @AuraEnabled public String SoknadsId{get;set;}
          @AuraEnabled public String OpprettelseDato{get;set;}
+         @AuraEnabled public String Klagetekst{get;set;}
+         @AuraEnabled public String Vilkaartekst{get;set;}
+         @AuraEnabled public String Vedtaksbegrunnelse{get;set;}
 }

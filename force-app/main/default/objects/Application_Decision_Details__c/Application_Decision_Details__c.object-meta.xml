@@ -141,8 +141,9 @@
         <type>Default</type>
     </actionOverrides>
     <allowInChatterGroups>false</allowInChatterGroups>
-    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <compactLayoutAssignment>Decision_detail_compact_layout</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
     <description>Arbeidsforhold objekt som håndterer vedtak knyttet til vedtaks objekt</description>
     <enableActivities>true</enableActivities>
     <enableBulkApi>true</enableBulkApi>

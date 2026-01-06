@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
     <labels>
+        <fullName>AAREG_complaint_description_section</fullName>
+        <categories>Arbeidsforhold decision details</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AAREG complaint description section</shortDescription>
+        <value>Dersom dere har spørsmål om vedtaket, kan dere ta kontakt med oss for
+            nærrmere opplysninger. Dette vedtaket kan påklages til Nav Klageinstans etter reglene i
+            forvaltningsloven kapittel VI. Klagen skal grunngis og fremsettes oss innen 3 uker fra
+            dere mottok vedtaket.</value>
+    </labels>
+    <labels>
+        <fullName>AAREG_complaint_section</fullName>
+        <categories>Arbeidsforhold decision details</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AAREG complaint section</shortDescription>
+        <value>Guidance and complaint</value>
+    </labels>
+    <labels>
+        <fullName>AAREG_terms_description_section</fullName>
+        <categories>Arbeidsforhold decision details</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AAREG terms description section</shortDescription>
+        <value>Vi viser til de aksepterte bruksvilkårene som dere godkjente i forbindelse med
+            innsendelse av søknaden. De finnes også via www.nav.no, se under
+            Samarbeidspartner/Arbeidsgiver- og arbeidstakerregisteret (Aa-registeret).</value>
+    </labels>
+    <labels>
+        <fullName>AAREG_terms_section</fullName>
+        <categories>Arbeidsforhold decision details</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AAREG terms section</shortDescription>
+        <value>Responsibility and terms of use of the information</value>
+    </labels>
+    <labels>
         <fullName>AAREG_applicant_details_section</fullName>
         <categories>Arbeidsforhold application</categories>
         <language>en_US</language>

@@ -2,11 +2,13 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
     public Id currentRecordId { get; set; }
     public AAREG_ApplicationDecision currentRecord { get; set; }
     public AAREG_ApplicationInternal applicationRecord { get; set; }
+    public List<AAREG_BasisCodesInternal> decisionDetailsRecords { get; set; }  
 
     public AAREG_ApplicationDecisionPDFController(ApexPages.StandardController sc) {
         this.currentRecordId = sc.getId();
         this.currentRecord = getApplicationDecisionRecord(this.currentRecordId);
         this.applicationRecord = getApplicationRecord(this.currentRecord.SoknadsId);
+        this.decisionDetailsRecords = getApplicationDecisionDetails(this.currentRecordId);
        
 
     }
@@ -55,7 +57,7 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
         AAREG_ApplicationDecision decisionWrapper = new AAREG_ApplicationDecision();
         
         List<Application_Decision__c> decisionRecords = [
-            SELECT Id, Name, CreatedDate, Application__c, Status__c 
+            SELECT Id, Name, CreatedDate, Application__c, Status__c,decision_description__c 
             FROM Application_Decision__c 
             WHERE Id = :currentRecordId 
             LIMIT 1
@@ -64,12 +66,52 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
         if (!decisionRecords.isEmpty()) {
             Application_Decision__c app = decisionRecords[0];
             decisionWrapper.VedtaksNr = app.Name;
+            decisionWrapper.Vedtaksbegrunnelse =app.Decision_description__c;
             decisionWrapper.VedtaksId = app.Id;
             decisionWrapper.Status = app.Status__c;
             decisionWrapper.SoknadsId = app.Application__c;
         }
 
         return decisionWrapper;
+    }
+
+    private List<AAREG_BasisCodesInternal> getApplicationDecisionDetails(String currentRecordId) {
+        List<AAREG_BasisCodesInternal> decisionDetailsRecords = new List<AAREG_BasisCodesInternal>();
+
+        List<Application_Decision_Details__c> detailRecords = [
+            SELECT 
+                Id, 
+                Name,
+                Application_Decision__c,
+                API_Access__c,
+                Extraction_Access__c,
+                Legal_Basis__c,
+                Online_Access__c,
+                Processing_Basis__c,
+                Purpose__c,
+                Decision_description__c,
+                Approved__c
+            FROM Application_Decision_Details__c
+            WHERE Application_Decision__c = :currentRecordId
+        ];
+
+        if(detailRecords != null && detailRecords.size() > 0){
+            for(Application_Decision_Details__c detail : detailRecords){
+                AAREG_BasisCodesInternal detailWrapper = new AAREG_BasisCodesInternal();
+                detailWrapper.VedtaksDetailId = detail.Id;
+                detailWrapper.VedtaksDetailNr = detail.Name;
+                detailWrapper.Behandlingsgrunnlag = detail.Processing_Basis__c;
+                detailWrapper.Hjemmel = detail.Legal_Basis__c;
+                detailWrapper.Formaal = detail.Purpose__c;
+                detailWrapper.APITilgang = detail.API_Access__c;
+                detailWrapper.Uttrekk = detail.Extraction_Access__c;
+                detailWrapper.WebTilgang = detail.Online_Access__c;
+                detailWrapper.Vedtaksbegrunnelse = detail.Decision_description__c;
+                detailWrapper.BehandlingsgrunnlagGodkjent = detail.Approved__c;
+                decisionDetailsRecords.add(detailWrapper);
+            }
+        }
+        return decisionDetailsRecords;
     }
 
 }
