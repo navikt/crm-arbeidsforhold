@@ -49,6 +49,22 @@
         </connector>
     </assignments>
     <assignments>
+        <name>Application_Not_Found</name>
+        <label>Application Not Found</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>ErrorMessage_fault</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Application not Found</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Orginal_Status</name>
         <label>Orginal Status</label>
         <locationX>0</locationX>
@@ -94,6 +110,43 @@
             <targetReference>updateCasehandler</targetReference>
         </connector>
     </assignments>
+    <assignments>
+        <name>Technical_Error</name>
+        <label>Technical Error</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>ErrorMessage_fault</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Update_Application_failed</name>
+        <label>Update Application failed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>Ref_Application_Rec</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>GetCurrentApplication</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>ErrorMessage_fault</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
     <collectionProcessors>
         <name>filterGroupMemberIds_caseHandlerGroup</name>
         <elementSubtype>FilterCollectionProcessor</elementSubtype>
@@ -136,6 +189,31 @@
             <targetReference>loopThroughMemberIds_RegisterForvaltning</targetReference>
         </connector>
     </collectionProcessors>
+    <decisions>
+        <name>Application_Found</name>
+        <label>Application Found</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Application_Not_Found</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not found</defaultConnectorLabel>
+        <rules>
+            <name>Yes_found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>GetCurrentApplication</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>show_list</targetReference>
+            </connector>
+            <label>Yes found</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>Casse_Handler_Changed</name>
         <label>Casse Handler Changed</label>
@@ -353,8 +431,11 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>show_list</targetReference>
+            <targetReference>Application_Found</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Technical_Error</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -549,7 +630,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <faultConnector>
-            <targetReference>Log_message</targetReference>
+            <targetReference>Update_Application_failed</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -709,11 +790,11 @@
     </start>
     <status>Active</status>
     <subflows>
-        <name>Log_message</name>
-        <label>Log message</label>
+        <name>Log_and_Display_Short_Message</name>
+        <label>Log and Display Short Message</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <flowName>AAREG_Handle_Error_Messages</flowName>
+        <flowName>AAREG_Log_And_Disp_Short_Messages</flowName>
         <inputAssignments>
             <name>category</name>
             <value>
@@ -723,7 +804,7 @@
         <inputAssignments>
             <name>error_Message</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <elementReference>ErrorMessage_fault</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -751,10 +832,16 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <name>ref_Application_record</name>
+            <name>ref_agreement_rec</name>
+        </inputAssignments>
+        <inputAssignments>
+            <name>ref_application_rec</name>
             <value>
-                <elementReference>GetCurrentApplication</elementReference>
+                <elementReference>Ref_Application_Rec</elementReference>
             </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>ref_Inqury_rec</name>
         </inputAssignments>
         <inputAssignments>
             <name>source_flow</name>
@@ -773,11 +860,26 @@
         <objectType>GroupMember</objectType>
     </variables>
     <variables>
+        <name>ErrorMessage_fault</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
         <name>recordId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>Ref_Application_Rec</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <objectType>Application__c</objectType>
     </variables>
     <variables>
         <name>var_Case_handler_Status</name>

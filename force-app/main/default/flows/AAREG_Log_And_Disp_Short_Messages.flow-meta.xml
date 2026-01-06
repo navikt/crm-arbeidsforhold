@@ -239,7 +239,7 @@
         <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!flow_Interview_Guid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!error_Message}</expression>
     </formulas>
     <interviewLabel>AAREG Handle Error Messages  Disp Short Messages {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG Log AND Disp Short Messages</label>
+    <label>AAREG Log AND Display Messages</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
