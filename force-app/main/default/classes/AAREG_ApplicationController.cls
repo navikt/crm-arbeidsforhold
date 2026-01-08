@@ -53,7 +53,7 @@ public without sharing class AAREG_ApplicationController {
     String filename
   ) {
     if (application.Status__c != ADDITIONAL_INFORMATION) {
-      application.status__c = DRAFT_APPLICATION;
+      application.Status__c = DRAFT_APPLICATION;
     }
 
     try {
@@ -156,10 +156,6 @@ public without sharing class AAREG_ApplicationController {
         Email__c,
         Status__c,
         DataProcessorName__c,
-        APIAccess__c,
-        ExtractionAccess__c,
-        OnlineAccess__c,
-        EventAccess__c,
         DataProcessorOrganizationNumber__c,
         TermsOfUse__c
       FROM Application__c
@@ -199,7 +195,10 @@ public without sharing class AAREG_ApplicationController {
         PurposeElectricitySupervision__c,
         LegalBasisElectricitySupervision__c,
         PurposePension__c,
-        LegalBasisPension__c
+        LegalBasisPension__c,
+        API_Access__c,
+        Extraction_Access__c,
+        Online_Access__c
       FROM ApplicationBasisCode__c
       WHERE Application__c = :applicationId
     ];
