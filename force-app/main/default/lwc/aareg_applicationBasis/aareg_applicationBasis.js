@@ -11,6 +11,9 @@ export default class Aareg_applicationBasis extends LightningElement {
   purposeFieldName;
   legalBasisFieldName;
   applicationBasis;
+  apiAccess;
+  extractAccess;
+  onlineAccess;
   otherLegalBasisCharUsed = 0;
   otherPurposeCharUsed = 0;
   isOtherOrganizationType = false;
@@ -27,6 +30,9 @@ export default class Aareg_applicationBasis extends LightningElement {
     this.otherLegalBasis = this.template.querySelector('[data-id="other-legal-basis"]');
     this.otherPurpose = this.template.querySelector('[data-id="other-purpose"]');
     this.processingBasis = this.template.querySelector('[data-id="processing-basis"]');
+    this.apiAccess = this.template.querySelector('[data-id="APIAccess__c"]');
+    this.extractAccess = this.template.querySelector('[data-id="ExtractionAccess__c"]');
+    this.onlineAccess = this.template.querySelector('[data-id="OnlineAccess__c"]');
   }
 
   get legalBasisValue() {
@@ -35,6 +41,18 @@ export default class Aareg_applicationBasis extends LightningElement {
 
   get purposeValue() {
     return this.applicationBasis[this.purposeFieldName];
+  }
+
+  get apiAccessValue() {
+    return this.applicationBasis.ApiAccess__c;
+  }
+  
+  get extractAccessValue() {
+    return this.applicationBasis.ExtractAccess__c;
+  }
+
+  get onlineAccessValue() { 
+    return this.applicationBasis.OnlineAccess__c;
   }
 
   get showOtherInput() {
@@ -56,6 +74,9 @@ export default class Aareg_applicationBasis extends LightningElement {
     this.applicationBasis = {
       uuid: this.record.uuid,
       Id: this.record.Id ? this.record.Id : null,
+      APIAccess__c: false,
+      ExtractionAccess__c: false,
+      OnlineAccess__c: false,
       OrganizationType__c: this.organizationType,
       LegalBasisMunicipality__c: this.record.LegalBasisMunicipality__c ? this.record.LegalBasisMunicipality__c : null,
       PurposeMunicipality__c: this.record.PurposeMunicipality__c ? this.record.PurposeMunicipality__c : null,
@@ -170,6 +191,15 @@ export default class Aareg_applicationBasis extends LightningElement {
 
   handlePurposeChange(event) {
     this.applicationBasis[this.purposeFieldName] = event.target.value;
+    this.publishChange();
+  }
+
+  handleCheckboxChange(event) {
+    const field = event.target.dataset.id; // Get the field name from data-id
+    const value = event.target.checked; // Get the checkbox value
+
+    // Update the applicationBasis object
+    this.applicationBasis[field] = value;
     this.publishChange();
   }
 

@@ -73,6 +73,21 @@ select:invalid:required {
   resize: none;
 }
 
+.form-control input[type='checkbox'] {
+  display: inline;
+  text-align: center;
+  vertical-align: middle;
+  background-color: #fff;
+  background-position: center center;
+  background-repeat: no-repeat;
+  margin: 0.5rem;
+  border: 1px solid #78706a;
+  width: 24px;
+  height: 24px;
+  left: 0;
+  top: 0;
+}
+
 .form-control.error input {
   border-color: #ba3a26;
   box-shadow: 0 0 0 1px #ba3a26;
