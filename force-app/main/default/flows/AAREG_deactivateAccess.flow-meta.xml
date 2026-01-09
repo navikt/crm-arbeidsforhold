@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>56.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>AgreementNotFound</name>
         <label>Agreement Not Found</label>
-        <locationX>578</locationX>
-        <locationY>350</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>ErrorMessage</assignToReference>
             <operator>Assign</operator>
@@ -15,14 +15,15 @@
             </value>
         </assignmentItems>
         <connector>
+            <isGoTo>true</isGoTo>
             <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>Technical_error</name>
         <label>Technical Error</label>
-        <locationX>842</locationX>
-        <locationY>242</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>ErrorMessage</assignToReference>
             <operator>Assign</operator>
@@ -38,8 +39,8 @@
     <assignments>
         <name>Update_Agreement_failed</name>
         <label>Update Agreement failed</label>
-        <locationX>314</locationX>
-        <locationY>566</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>Ref_Agreement_Rec</assignToReference>
             <operator>Assign</operator>
@@ -55,15 +56,14 @@
             </value>
         </assignmentItems>
         <connector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Technical_error</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <decisions>
         <name>Agreement_Found</name>
         <label>Agreement Found</label>
-        <locationX>314</locationX>
-        <locationY>242</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>AgreementNotFound</targetReference>
         </defaultConnector>
@@ -114,8 +114,8 @@
     <recordLookups>
         <name>getAgreement</name>
         <label>getAgreement</label>
-        <locationX>314</locationX>
-        <locationY>134</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Agreement_Found</targetReference>
@@ -138,8 +138,8 @@
     <recordUpdates>
         <name>updateAgreement</name>
         <label>updateAgreement</label>
-        <locationX>50</locationX>
-        <locationY>458</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Update_Agreement_failed</targetReference>
         </faultConnector>
@@ -192,8 +192,8 @@
     <screens>
         <name>deactivateAccess</name>
         <label>Deaktiver tilgang</label>
-        <locationX>50</locationX>
-        <locationY>350</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -275,7 +275,7 @@
         <showHeader>true</showHeader>
     </screens>
     <start>
-        <locationX>188</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getAgreement</targetReference>
@@ -285,8 +285,8 @@
     <subflows>
         <name>Log_and_Display_Short_Message</name>
         <label>Log and Display Short Message</label>
-        <locationX>578</locationX>
-        <locationY>458</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <flowName>AAREG_Log_And_Disp_Short_Messages</flowName>
         <inputAssignments>
             <name>category</name>

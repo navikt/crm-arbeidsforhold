@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>52.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>App_lication_update_failed</name>
         <label>Appålication update failed</label>
-        <locationX>314</locationX>
-        <locationY>890</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -18,7 +18,7 @@
             <assignToReference>error_message</assignToReference>
             <operator>Add</operator>
             <value>
-                <stringValue> Failed while updating deadline date</stringValue>
+                <stringValue>Application update failed while updating deadline date.</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -29,44 +29,39 @@
             </value>
         </assignmentItems>
         <connector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>Application_not_found</name>
         <label>Application not found</label>
-        <locationX>1106</locationX>
-        <locationY>350</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Application not found</stringValue>
+                <stringValue>Application not found.</stringValue>
             </value>
         </assignmentItems>
-        <connector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
-        </connector>
     </assignments>
     <assignments>
         <name>Task_creation_failed</name>
         <label>Task creation failed</label>
-        <locationX>578</locationX>
-        <locationY>782</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Creation of TASK record related to Application failed. </stringValue>
+            </value>
+        </assignmentItems>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>error_message</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <stringValue> Failed while creating related task record</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -76,15 +71,12 @@
                 <elementReference>getOwnerAndStatus</elementReference>
             </value>
         </assignmentItems>
-        <connector>
-            <targetReference>Log_Message</targetReference>
-        </connector>
     </assignments>
     <assignments>
         <name>technical_error</name>
         <label>technical error</label>
-        <locationX>1370</locationX>
-        <locationY>242</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -92,16 +84,12 @@
                 <elementReference>$Flow.FaultMessage</elementReference>
             </value>
         </assignmentItems>
-        <connector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
-        </connector>
     </assignments>
     <decisions>
         <name>Application_found</name>
         <label>Application found</label>
-        <locationX>776</locationX>
-        <locationY>242</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Application_not_found</targetReference>
         </defaultConnector>
@@ -125,8 +113,8 @@
     <decisions>
         <name>checkStatusAndOwner</name>
         <label>checkStatusAndOwner</label>
-        <locationX>446</locationX>
-        <locationY>350</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>ErrorMessage</targetReference>
         </defaultConnector>
@@ -190,8 +178,8 @@
     <recordCreates>
         <name>createTaskOnReason</name>
         <label>createTaskOnReason</label>
-        <locationX>50</locationX>
-        <locationY>674</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>updataDeadlineDate</targetReference>
         </connector>
@@ -252,8 +240,8 @@
     <recordLookups>
         <name>getOwnerAndStatus</name>
         <label>getOwnerAndStatus</label>
-        <locationX>776</locationX>
-        <locationY>134</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Application_found</targetReference>
@@ -279,8 +267,8 @@
     <recordLookups>
         <name>getRecordTypeId</name>
         <label>getRecordTypeId</label>
-        <locationX>50</locationX>
-        <locationY>566</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createTaskOnReason</targetReference>
@@ -303,8 +291,8 @@
         <description>updates deadline date</description>
         <name>updataDeadlineDate</name>
         <label>updataDeadlineDate</label>
-        <locationX>50</locationX>
-        <locationY>782</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>App_lication_update_failed</targetReference>
         </faultConnector>
@@ -327,8 +315,8 @@
     <screens>
         <name>changeDeadlineDate</name>
         <label>Change deadline date</label>
-        <locationX>50</locationX>
-        <locationY>458</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -373,8 +361,8 @@
     <screens>
         <name>ErrorMessage</name>
         <label>ErrorMessage</label>
-        <locationX>842</locationX>
-        <locationY>458</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -395,7 +383,7 @@
         <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>650</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getOwnerAndStatus</targetReference>
@@ -403,11 +391,11 @@
     </start>
     <status>Active</status>
     <subflows>
-        <name>Log_Message</name>
-        <label>Log Message</label>
-        <locationX>578</locationX>
-        <locationY>890</locationY>
-        <flowName>AAREG_Handle_Error_Messages</flowName>
+        <name>Log_and_Display_Short_Message</name>
+        <label>Log and Display Message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>AAREG_Log_And_Disp_Short_Messages</flowName>
         <inputAssignments>
             <name>category</name>
             <value>
@@ -445,7 +433,7 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <name>ref_Application_record</name>
+            <name>ref_application_rec</name>
             <value>
                 <elementReference>application_rec_ref</elementReference>
             </value>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>Application_not_found</name>
         <label>Application not found</label>
-        <locationX>842</locationX>
-        <locationY>350</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -16,14 +16,14 @@
         </assignmentItems>
         <connector>
             <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>Application_update_failed</name>
         <label>Application update failed</label>
-        <locationX>314</locationX>
-        <locationY>674</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -40,14 +40,14 @@
         </assignmentItems>
         <connector>
             <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>technical_error</name>
         <label>technical error</label>
-        <locationX>1106</locationX>
-        <locationY>242</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -56,7 +56,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <constants>
@@ -70,8 +70,8 @@
     <decisions>
         <name>Application_found</name>
         <label>Application found?</label>
-        <locationX>578</locationX>
-        <locationY>242</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Application_not_found</targetReference>
         </defaultConnector>
@@ -95,8 +95,8 @@
     <decisions>
         <name>checkComment</name>
         <label>checkComment</label>
-        <locationX>314</locationX>
-        <locationY>458</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>isEmpty</defaultConnectorLabel>
         <rules>
             <name>notEmpty</name>
@@ -156,8 +156,8 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>578</locationX>
-        <locationY>134</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Application_found</targetReference>
@@ -182,8 +182,8 @@
     <recordUpdates>
         <name>updateComment</name>
         <label>updateComment</label>
-        <locationX>50</locationX>
-        <locationY>566</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>createTaskInternalComments</targetReference>
         </connector>
@@ -209,8 +209,8 @@
     <screens>
         <name>addComment</name>
         <label>addComment</label>
-        <locationX>314</locationX>
-        <locationY>350</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -236,7 +236,7 @@
         <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>452</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getApplication</targetReference>
@@ -246,8 +246,8 @@
     <subflows>
         <name>createTaskInternalComments</name>
         <label>createTaskInternalComments</label>
-        <locationX>50</locationX>
-        <locationY>674</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <flowName>AAREG_subflowCreateTask</flowName>
         <inputAssignments>
             <name>varDescription</name>
@@ -275,11 +275,11 @@
         </inputAssignments>
     </subflows>
     <subflows>
-        <name>Log_Message</name>
-        <label>Log Message</label>
-        <locationX>1106</locationX>
-        <locationY>350</locationY>
-        <flowName>AAREG_Handle_Error_Messages</flowName>
+        <name>Log_and_Display_Short_Message</name>
+        <label>Log and Display Message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>AAREG_Log_And_Disp_Short_Messages</flowName>
         <inputAssignments>
             <name>category</name>
             <value>
@@ -317,7 +317,7 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <name>ref_Application_record</name>
+            <name>ref_application_rec</name>
             <value>
                 <elementReference>application_rec_ref</elementReference>
             </value>

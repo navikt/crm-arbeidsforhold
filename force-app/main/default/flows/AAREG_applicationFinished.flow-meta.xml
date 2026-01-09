@@ -3,8 +3,8 @@
     <actionCalls>
         <name>AccessTypeMultiSelect</name>
         <label>AccessTypeMultiSelect</label>
-        <locationX>50</locationX>
-        <locationY>1598</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>AAREG_MultiSelectFlowValues</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -21,13 +21,13 @@
         <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
-    <apiVersion>52.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>Add_County_Fields</name>
         <label>Add County Fields</label>
-        <locationX>534</locationX>
-        <locationY>2822</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -49,8 +49,8 @@
     <assignments>
         <name>Add_Electricity_Fields</name>
         <label>Add Electricity Fields</label>
-        <locationX>534</locationX>
-        <locationY>4022</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -72,8 +72,8 @@
     <assignments>
         <name>Add_Municipality_Fields</name>
         <label>Add Municipality Fields</label>
-        <locationX>534</locationX>
-        <locationY>3122</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -95,8 +95,8 @@
     <assignments>
         <name>Add_Other_Fields</name>
         <label>Add Other Fields</label>
-        <locationX>270</locationX>
-        <locationY>2714</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -118,8 +118,8 @@
     <assignments>
         <name>Add_Pension_Fields</name>
         <label>Add Pension Fields</label>
-        <locationX>534</locationX>
-        <locationY>3722</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -141,8 +141,8 @@
     <assignments>
         <name>Add_ProcessingBasis_field</name>
         <label>Add ProcessingBasis field</label>
-        <locationX>468</locationX>
-        <locationY>4298</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -157,8 +157,8 @@
     <assignments>
         <name>AddStateFields</name>
         <label>Add State Fields</label>
-        <locationX>534</locationX>
-        <locationY>3422</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varApplicationBasisFields</assignToReference>
             <operator>Add</operator>
@@ -180,25 +180,25 @@
     <assignments>
         <name>Application_not_found</name>
         <label>Application not found</label>
-        <locationX>1986</locationX>
-        <locationY>350</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Application not found</stringValue>
+                <stringValue>Application not found.</stringValue>
             </value>
         </assignmentItems>
         <connector>
             <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>applyCurrentStatus</name>
         <label>applyCurrentStatus</label>
-        <locationX>688</locationX>
-        <locationY>974</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>currCaseHandlerStatus</assignToReference>
             <operator>Assign</operator>
@@ -213,8 +213,8 @@
     <assignments>
         <name>applyOwnerId</name>
         <label>applyOwnerId</label>
-        <locationX>688</locationX>
-        <locationY>866</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varOwnerId</assignToReference>
             <operator>Assign</operator>
@@ -229,8 +229,8 @@
     <assignments>
         <name>Create_Agreement_failed</name>
         <label>Create Agreement failed</label>
-        <locationX>754</locationX>
-        <locationY>4598</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -252,16 +252,12 @@
                 <elementReference>getApplication</elementReference>
             </value>
         </assignmentItems>
-        <connector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
-        </connector>
     </assignments>
     <assignments>
         <name>setAPI</name>
         <label>setAPI</label>
-        <locationX>138</locationX>
-        <locationY>2030</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>API</assignToReference>
             <operator>Assign</operator>
@@ -276,8 +272,8 @@
     <assignments>
         <name>setDataProcessor</name>
         <label>setDataProcessor</label>
-        <locationX>50</locationX>
-        <locationY>1298</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>dataProcessorOrgNr</assignToReference>
             <operator>Assign</operator>
@@ -299,8 +295,8 @@
     <assignments>
         <name>setEvent</name>
         <label>setEvent</label>
-        <locationX>930</locationX>
-        <locationY>2030</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>Event</assignToReference>
             <operator>Assign</operator>
@@ -315,8 +311,8 @@
     <assignments>
         <name>setExtract</name>
         <label>setExtract</label>
-        <locationX>666</locationX>
-        <locationY>2030</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>Extract</assignToReference>
             <operator>Assign</operator>
@@ -331,8 +327,8 @@
     <assignments>
         <name>setOnline</name>
         <label>setOnline</label>
-        <locationX>402</locationX>
-        <locationY>2030</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>Online</assignToReference>
             <operator>Assign</operator>
@@ -347,8 +343,8 @@
     <assignments>
         <name>setSingleAcessType</name>
         <label>setSingleAcessType</label>
-        <locationX>666</locationX>
-        <locationY>1814</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varSingleAccessType</assignToReference>
             <operator>Assign</operator>
@@ -363,8 +359,8 @@
     <assignments>
         <name>technical_error</name>
         <label>technical error</label>
-        <locationX>2250</locationX>
-        <locationY>242</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -374,14 +370,14 @@
         </assignmentItems>
         <connector>
             <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>Update_Application_failed</name>
         <label>Update Application failed</label>
-        <locationX>1722</locationX>
-        <locationY>5204</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -398,14 +394,14 @@
         </assignmentItems>
         <connector>
             <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>Update_Related_Contact_failed</name>
         <label>Update Related Contact failed</label>
-        <locationX>490</locationX>
-        <locationY>4706</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -427,16 +423,12 @@
                 <elementReference>getApplication</elementReference>
             </value>
         </assignmentItems>
-        <connector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
-        </connector>
     </assignments>
     <assignments>
         <name>Update_thread_failed</name>
         <label>Update thread failed</label>
-        <locationX>1458</locationX>
-        <locationY>5312</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -459,14 +451,14 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <decisions>
         <name>Application_found</name>
         <label>Application found</label>
-        <locationX>1337</locationX>
-        <locationY>242</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Application_not_found</targetReference>
         </defaultConnector>
@@ -490,8 +482,8 @@
     <decisions>
         <name>Check_County_Fields</name>
         <label>Check County Fields</label>
-        <locationX>666</locationX>
-        <locationY>2714</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Check_Municipality_Fields</targetReference>
         </defaultConnector>
@@ -522,8 +514,8 @@
     <decisions>
         <name>Check_Municipality_Fields</name>
         <label>Check Municipality Fields</label>
-        <locationX>666</locationX>
-        <locationY>3014</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>CheckStateFields</targetReference>
         </defaultConnector>
@@ -554,8 +546,8 @@
     <decisions>
         <name>checkAccessType</name>
         <label>checkAccessType</label>
-        <locationX>182</locationX>
-        <locationY>1490</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Get_All_Application_Basis_Codes</targetReference>
         </defaultConnector>
@@ -579,8 +571,8 @@
     <decisions>
         <name>checkAccessTypes</name>
         <label>checkAccessTypes</label>
-        <locationX>666</locationX>
-        <locationY>1922</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>loopTextCollectionMultiPicklistSelect</targetReference>
         </defaultConnector>
@@ -684,8 +676,8 @@
     <decisions>
         <name>checkDataProcessor</name>
         <label>checkDataProcessor</label>
-        <locationX>182</locationX>
-        <locationY>1190</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>checkAccessType</targetReference>
         </defaultConnector>
@@ -709,8 +701,8 @@
     <decisions>
         <name>CheckElectricityFields</name>
         <label>Check Electricity Fields</label>
-        <locationX>666</locationX>
-        <locationY>3914</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Add_ProcessingBasis_field</targetReference>
         </defaultConnector>
@@ -741,8 +733,8 @@
     <decisions>
         <name>CheckOtherFields</name>
         <label>Check Other Fields</label>
-        <locationX>468</locationX>
-        <locationY>2606</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Check_County_Fields</targetReference>
         </defaultConnector>
@@ -773,8 +765,8 @@
     <decisions>
         <name>CheckPensionFields</name>
         <label>Check Pension Fields</label>
-        <locationX>666</locationX>
-        <locationY>3614</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>CheckElectricityFields</targetReference>
         </defaultConnector>
@@ -805,8 +797,8 @@
     <decisions>
         <name>CheckStateFields</name>
         <label>Check State Fields</label>
-        <locationX>666</locationX>
-        <locationY>3314</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>CheckPensionFields</targetReference>
         </defaultConnector>
@@ -837,8 +829,8 @@
     <decisions>
         <name>isApplicationDone</name>
         <label>isApplicationDone</label>
-        <locationX>688</locationX>
-        <locationY>1082</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>IsNotChecked</targetReference>
         </defaultConnector>
@@ -898,8 +890,8 @@
     <decisions>
         <name>IsStatus</name>
         <label>IsStatus</label>
-        <locationX>688</locationX>
-        <locationY>350</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>IsNotCorrectStatus</targetReference>
         </defaultConnector>
@@ -971,8 +963,8 @@
     <loops>
         <name>Loop_over_Application_Basis_Codes</name>
         <label>Loop over Application Basis Codes</label>
-        <locationX>182</locationX>
-        <locationY>2498</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <collectionReference>Get_All_Application_Basis_Codes</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -985,8 +977,8 @@
     <loops>
         <name>loopTextCollectionMultiPicklistSelect</name>
         <label>loopTextCollectionMultiPicklistSelect</label>
-        <locationX>50</locationX>
-        <locationY>1706</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <collectionReference>AccessTypeMultiSelect</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -1018,8 +1010,8 @@
     <recordCreates>
         <name>createAgreement</name>
         <label>createAgreement</label>
-        <locationX>182</locationX>
-        <locationY>4490</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignRecordIdToReference>agreementId</assignRecordIdToReference>
         <connector>
             <targetReference>updateRelatedContacts</targetReference>
@@ -1098,8 +1090,8 @@
     <recordLookups>
         <name>Get_All_Application_Basis_Codes</name>
         <label>Get All Application Basis Codes</label>
-        <locationX>182</locationX>
-        <locationY>2390</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Loop_over_Application_Basis_Codes</targetReference>
@@ -1119,8 +1111,8 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>1337</locationX>
-        <locationY>134</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Application_found</targetReference>
@@ -1155,8 +1147,8 @@
     <recordUpdates>
         <name>updateApplication</name>
         <label>updateApplication</label>
-        <locationX>688</locationX>
-        <locationY>5096</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>updateThreadToNotActive</targetReference>
         </connector>
@@ -1200,8 +1192,8 @@
     <recordUpdates>
         <name>updateRelatedContacts</name>
         <label>updateRelatedContacts</label>
-        <locationX>182</locationX>
-        <locationY>4598</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>createTaskApplicationFinished</targetReference>
         </connector>
@@ -1227,8 +1219,8 @@
     <recordUpdates>
         <name>updateThreadToNotActive</name>
         <label>updateThreadToNotActive</label>
-        <locationX>688</locationX>
-        <locationY>5204</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Update_thread_failed</targetReference>
         </faultConnector>
@@ -1252,8 +1244,8 @@
     <screens>
         <name>applicationDone</name>
         <label>Application Done</label>
-        <locationX>688</locationX>
-        <locationY>758</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -1282,8 +1274,8 @@
     <screens>
         <name>IsNotChecked</name>
         <label>IsNotChecked</label>
-        <locationX>1194</locationX>
-        <locationY>1190</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -1306,8 +1298,8 @@
     <screens>
         <name>IsNotCorrectStatus</name>
         <label>IsNotCorrectStatus</label>
-        <locationX>864</locationX>
-        <locationY>458</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -1328,7 +1320,7 @@
         <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>1211</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getApplication</targetReference>
@@ -1338,8 +1330,8 @@
     <subflows>
         <name>createTaskApplicationFinished</name>
         <label>createTaskApplicationFinished</label>
-        <locationX>688</locationX>
-        <locationY>4988</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>updateApplication</targetReference>
         </connector>
@@ -1370,11 +1362,11 @@
         </inputAssignments>
     </subflows>
     <subflows>
-        <name>Log_Message</name>
-        <label>Log Message</label>
-        <locationX>1458</locationX>
-        <locationY>5420</locationY>
-        <flowName>AAREG_Handle_Error_Messages</flowName>
+        <name>Log_and_Display_Short_Message</name>
+        <label>Log and Display Message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>AAREG_Log_And_Disp_Short_Messages</flowName>
         <inputAssignments>
             <name>category</name>
             <value>
@@ -1412,7 +1404,7 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <name>ref_Application_record</name>
+            <name>ref_application_rec</name>
             <value>
                 <elementReference>application_rec_ref</elementReference>
             </value>
