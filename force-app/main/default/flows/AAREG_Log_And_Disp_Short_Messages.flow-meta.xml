@@ -8,7 +8,7 @@
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>Fault_Screen</targetReference>
+            <targetReference>Display_This_Message</targetReference>
         </connector>
         <dataTypeMappings>
             <typeName>T__refRecord</typeName>
@@ -62,7 +62,7 @@
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>Fault_Screen</targetReference>
+            <targetReference>Display_This_Message</targetReference>
         </connector>
         <dataTypeMappings>
             <typeName>T__refRecord</typeName>
@@ -116,7 +116,7 @@
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>Fault_Screen</targetReference>
+            <targetReference>Display_This_Message</targetReference>
         </connector>
         <dataTypeMappings>
             <typeName>T__refRecord</typeName>
@@ -178,12 +178,34 @@
         </value>
     </customProperties>
     <decisions>
+        <name>Display_This_Message</name>
+        <label>Display This Message?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Display_message</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Fault_Screen</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>Object_Type</name>
         <label>Object Type</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Fault_Screen</targetReference>
+            <targetReference>Display_This_Message</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
@@ -391,6 +413,16 @@
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>Display_message</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>true</stringValue>
+        </value>
     </variables>
     <variables>
         <description>Error message</description>

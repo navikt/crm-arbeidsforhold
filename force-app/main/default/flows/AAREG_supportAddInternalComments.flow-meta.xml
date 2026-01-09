@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>addInternalComments</name>
         <label>addInternalComments</label>
-        <locationX>50</locationX>
-        <locationY>566</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varInternalCommentAdd</assignToReference>
             <operator>Add</operator>
@@ -70,37 +70,37 @@
     <assignments>
         <name>Inquiry_not_found</name>
         <label>Inquiry not found</label>
-        <locationX>1106</locationX>
-        <locationY>350</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Inquiry not Found</stringValue>
+                <stringValue>Inquiry not Found.</stringValue>
             </value>
         </assignmentItems>
         <connector>
             <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>Task_creation_failed</name>
         <label>Task creation failed</label>
-        <locationX>314</locationX>
-        <locationY>998</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <stringValue>Task record creation failed for Inquiry</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Add</operator>
             <value>
-                <stringValue> Failed while creating related task record</stringValue>
+                <elementReference>$Flow.FaultMessage</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -110,12 +110,15 @@
                 <elementReference>getInquiry</elementReference>
             </value>
         </assignmentItems>
+        <connector>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
+        </connector>
     </assignments>
     <assignments>
         <name>Technical_Error</name>
         <label>Technical Error</label>
-        <locationX>1370</locationX>
-        <locationY>242</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -124,26 +127,27 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Log_Message</targetReference>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>Update_Inquiry_failed</name>
         <label>Update Inquiry failed</label>
-        <locationX>578</locationX>
-        <locationY>782</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Failed while updating comments. </stringValue>
+            </value>
+        </assignmentItems>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>error_message</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <stringValue>Failed while updating comments.</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -155,7 +159,7 @@
         </assignmentItems>
         <connector>
             <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <constants>
@@ -169,8 +173,8 @@
     <decisions>
         <name>checkComment</name>
         <label>checkComment</label>
-        <locationX>446</locationX>
-        <locationY>458</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>isEmpty</defaultConnectorLabel>
         <rules>
             <name>notEmpty</name>
@@ -191,8 +195,8 @@
     <decisions>
         <name>Inquiry_Found</name>
         <label>Inquiry Found</label>
-        <locationX>776</locationX>
-        <locationY>242</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Inquiry_not_found</targetReference>
         </defaultConnector>
@@ -254,8 +258,8 @@
     <recordCreates>
         <name>createTask</name>
         <label>createTask</label>
-        <locationX>50</locationX>
-        <locationY>890</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Task_creation_failed</targetReference>
         </faultConnector>
@@ -313,8 +317,8 @@
     <recordLookups>
         <name>getInquiry</name>
         <label>getInquiry</label>
-        <locationX>776</locationX>
-        <locationY>134</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Inquiry_Found</targetReference>
@@ -339,8 +343,8 @@
     <recordLookups>
         <name>getRecordId</name>
         <label>getRecordId</label>
-        <locationX>50</locationX>
-        <locationY>782</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createTask</targetReference>
@@ -362,8 +366,8 @@
     <recordUpdates>
         <name>updateComment</name>
         <label>updateComment</label>
-        <locationX>50</locationX>
-        <locationY>674</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>getRecordId</targetReference>
         </connector>
@@ -395,8 +399,8 @@
     <screens>
         <name>addComment</name>
         <label>addComment</label>
-        <locationX>446</locationX>
-        <locationY>350</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -422,7 +426,7 @@
         <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>650</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getInquiry</targetReference>
@@ -430,11 +434,11 @@
     </start>
     <status>Active</status>
     <subflows>
-        <name>Log_Message</name>
-        <label>Log Message</label>
-        <locationX>1370</locationX>
-        <locationY>350</locationY>
-        <flowName>AAREG_Handle_Error_Messages</flowName>
+        <name>Log_and_Display_Short_Message</name>
+        <label>Log and Display Message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>AAREG_Log_And_Disp_Short_Messages</flowName>
         <inputAssignments>
             <name>category</name>
             <value>
@@ -472,7 +476,7 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <name>ref_Inqury_record</name>
+            <name>ref_Inqury_rec</name>
             <value>
                 <elementReference>ref_inquiry_rec</elementReference>
             </value>

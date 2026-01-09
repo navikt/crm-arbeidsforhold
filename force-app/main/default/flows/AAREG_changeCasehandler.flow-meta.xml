@@ -57,7 +57,7 @@
             <assignToReference>ErrorMessage_fault</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Application not Found</stringValue>
+                <stringValue>Application not Found.</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -146,6 +146,10 @@
                 <elementReference>$Flow.FaultMessage</elementReference>
             </value>
         </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
+        </connector>
     </assignments>
     <collectionProcessors>
         <name>filterGroupMemberIds_caseHandlerGroup</name>
@@ -791,7 +795,7 @@
     <status>Active</status>
     <subflows>
         <name>Log_and_Display_Short_Message</name>
-        <label>Log and Display Short Message</label>
+        <label>Log and Display Message</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <flowName>AAREG_Log_And_Disp_Short_Messages</flowName>

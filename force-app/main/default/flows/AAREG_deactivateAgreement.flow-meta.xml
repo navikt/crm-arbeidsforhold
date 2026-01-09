@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>Agreement_Not_Found</name>
         <label>Agreement Not Found</label>
-        <locationX>1898</locationX>
-        <locationY>350</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -15,14 +15,14 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>Agreement_update_failed</name>
         <label>Agreement update failed</label>
-        <locationX>314</locationX>
-        <locationY>782</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>ref_agreement_rec</assignToReference>
             <operator>Assign</operator>
@@ -30,16 +30,23 @@
                 <elementReference>getAgreement</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>error_message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>Task_creation_failed</name>
         <label>Task creation failed</label>
-        <locationX>1106</locationX>
-        <locationY>890</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -61,16 +68,12 @@
                 <elementReference>getAgreement</elementReference>
             </value>
         </assignmentItems>
-        <connector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
-        </connector>
     </assignments>
     <assignments>
         <name>Technical_error</name>
         <label>Technical error</label>
-        <locationX>2162</locationX>
-        <locationY>242</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>error_message</assignToReference>
             <operator>Assign</operator>
@@ -80,14 +83,14 @@
         </assignmentItems>
         <connector>
             <isGoTo>true</isGoTo>
-            <targetReference>Log_Message</targetReference>
+            <targetReference>Log_and_Display_Short_Message</targetReference>
         </connector>
     </assignments>
     <decisions>
         <name>Agreement_Found</name>
         <label>Agreement Found</label>
-        <locationX>1370</locationX>
-        <locationY>242</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Agreement_Not_Found</targetReference>
         </defaultConnector>
@@ -111,8 +114,8 @@
     <decisions>
         <name>checkDeactivationType</name>
         <label>checkDeactivationType</label>
-        <locationX>842</locationX>
-        <locationY>566</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>youHaveNotSetYesToDeactivate_0_0</targetReference>
         </defaultConnector>
@@ -212,8 +215,8 @@
     <recordCreates>
         <name>createActivityHistory</name>
         <label>createActivityHistory</label>
-        <locationX>842</locationX>
-        <locationY>782</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Task_creation_failed</targetReference>
         </faultConnector>
@@ -265,8 +268,8 @@
     <recordLookups>
         <name>getAgreement</name>
         <label>getAgreement</label>
-        <locationX>1370</locationX>
-        <locationY>134</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Agreement_Found</targetReference>
@@ -298,8 +301,8 @@
     <recordLookups>
         <name>getRecordTypeId</name>
         <label>getRecordTypeId</label>
-        <locationX>842</locationX>
-        <locationY>350</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>deactivateAgreement</targetReference>
@@ -321,8 +324,8 @@
     <recordUpdates>
         <name>updateAgreement</name>
         <label>updateAgreement</label>
-        <locationX>50</locationX>
-        <locationY>674</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Agreement_update_failed</targetReference>
         </faultConnector>
@@ -381,8 +384,8 @@
     <recordUpdates>
         <name>updateStatusOnAgreement_0_0_0</name>
         <label>updateStatusOnAgreement</label>
-        <locationX>842</locationX>
-        <locationY>674</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>createActivityHistory</targetReference>
         </connector>
@@ -427,8 +430,8 @@
     <screens>
         <name>deactivateAgreement</name>
         <label>deactivateAgreement</label>
-        <locationX>842</locationX>
-        <locationY>458</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -492,8 +495,8 @@
     <screens>
         <name>Not_active_0</name>
         <label>Not active</label>
-        <locationX>578</locationX>
-        <locationY>674</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
@@ -516,8 +519,8 @@
     <screens>
         <name>youHaveNotSetYesToDeactivate_0_0</name>
         <label>You have not choosen yes to deactivate</label>
-        <locationX>1634</locationX>
-        <locationY>674</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
@@ -538,7 +541,7 @@
         <showHeader>false</showHeader>
     </screens>
     <start>
-        <locationX>1244</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getAgreement</targetReference>
@@ -546,11 +549,11 @@
     </start>
     <status>Active</status>
     <subflows>
-        <name>Log_Message</name>
-        <label>Log Message</label>
-        <locationX>1898</locationX>
-        <locationY>458</locationY>
-        <flowName>AAREG_Handle_Error_Messages</flowName>
+        <name>Log_and_Display_Short_Message</name>
+        <label>Log and Display Message</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>AAREG_Log_And_Disp_Short_Messages</flowName>
         <inputAssignments>
             <name>category</name>
             <value>
@@ -588,9 +591,15 @@
             </value>
         </inputAssignments>
         <inputAssignments>
-            <name>reference_Agreement_record</name>
+            <name>ref_agreement_rec</name>
             <value>
                 <elementReference>ref_agreement_rec</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>source_flow</name>
+            <value>
+                <elementReference>failed_for_record</elementReference>
             </value>
         </inputAssignments>
         <storeOutputAutomatically>true</storeOutputAutomatically>
