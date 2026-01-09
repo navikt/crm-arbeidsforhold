@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_populateApplicationFieldAfterSubmit_failed</stringValue>
+                <stringValue>AAREG_populateApplicationFieldAfterSubmit</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -33,7 +33,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <stringValue>flow_interview_og_log_message</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -659,6 +659,11 @@
         </rules>
     </decisions>
     <environments>Default</environments>
+    <formulas>
+        <name>flow_interview_og_log_message</name>
+        <dataType>String</dataType>
+        <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
+    </formulas>
     <formulas>
         <name>setApplicationDeadlineDate</name>
         <dataType>Date</dataType>

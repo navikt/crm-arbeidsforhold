@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_createSupportContact_failed</stringValue>
+                <stringValue>AAREG_createSupportContact</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
