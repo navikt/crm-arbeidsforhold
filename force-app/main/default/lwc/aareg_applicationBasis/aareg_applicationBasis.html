@@ -61,7 +61,6 @@
 
     <template if:true={showOtherInput}>
       <div class="row">
-        <div class="column">
           <span class="form-control">
             <label for="annet-hjemmel">
               <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
@@ -84,7 +83,7 @@
             <small>Error Message</small>
           </span>
         </div>
-        <div class="column">
+        <div class="row">
           <span class="form-control">
             <label for="annet-formal">
               <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
@@ -105,10 +104,80 @@
             </textarea>
             <span class="character-count">{remainingOtherPurposeChar}</span>
             <small>Error Message</small>
+           
           </span>
         </div>
       </div>
     </template>
+      <div class="row">
+        <div class="column">
+          <span class="form-control">
+            <label for="typetilgang">
+                Det må krysses av for type tilgang dere har behov for knyttet til dette formålet
+            </label
+          >
+            <div class="row">
+              <span class="form-control">
+                <input
+                  type="checkbox"
+                  name="type tilgang api"
+                  id="tilgang-api"
+                  data-id="API_Access__c"
+                  disabled={isReadOnly}
+                  checked={apiAccessValue}
+                  onchange={handleCheckboxChange}
+                />
+                <label for="tilgang-api"
+                  >Integrert oppslag (API)
+                  <lightning-helptext
+                    content="«Integrert oppslag (API)» gir tilgang til maskin-til-maskin-integrasjon. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
+                    class="slds-m-left_xx-small"
+                  >
+                  </lightning-helptext>
+                </label>
+              </span>
+              <span class="form-control">
+                <input
+                  type="checkbox"
+                  name="type tilgang online"
+                  id="tilgang-online"
+                  data-id="Online_Access__c"
+                  disabled={isReadOnly}
+                  checked={onlineAccessValue}
+                  onchange={handleCheckboxChange}
+                />
+                <label for="tilgang-online"
+                  >Web-oppslag
+                  <lightning-helptext
+                    content="«Web-oppslag» gir tilgang til web-oppslag i innlogget løsning på nav.no. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
+                    class="slds-m-left_xx-small"
+                  >
+                  </lightning-helptext>
+                </label>
+              </span>
+              <span class="form-control">
+                <input
+                  type="checkbox"
+                  name="type tilgang uttrekk"
+                  id="tilgang-uttrekk"
+                  data-id="Extraction_Access__c"
+                  disabled={isReadOnly}
+                  checked={extractAccessValue}
+                  onchange={handleCheckboxChange}
+                />
+                <label for="tilgang-uttrekk"
+                  >Uttrekk
+                  <lightning-helptext
+                    content="«Uttrekk» er utlevering som ikke er på standardformat. Det må oppgis en detaljert beskrivelse i «Vedlegg til søknad - Datainnhold» (standardformat) hva som skal inngå i uttrekket og utleveringsfrekvens. NAV kan ta seg betalt for å utvikle uttrekket."
+                    class="slds-m-left_xx-small"
+                  >
+                  </lightning-helptext>
+                </label>
+              </span>
+            </div>
+          </span>
+          </div>
+      </div>
     <div class="row">
       <div class="column">
         <span class="form-control">

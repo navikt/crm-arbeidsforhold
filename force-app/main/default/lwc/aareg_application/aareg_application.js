@@ -152,9 +152,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
       Email__c: null,
       AA_changesInApplication__c: false,
       DataProcessorName__c: null,
-      APIAccess__c: false,
-      ExtractionAccess__c: false,
-      OnlineAccess__c: false,
       DataProcessorOrganizationNumber__c: null,
       TermsOfUse__c: false,
       organizationName: this.organization.Name ? this.organization.Name : null,
@@ -483,7 +480,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     this.apiAccess = this.template.querySelector('[data-id="APIAccess__c"]');
     this.onlineAccess = this.template.querySelector('[data-id="OnlineAccess__c"]');
     this.extractionAccess = this.template.querySelector('[data-id="ExtractionAccess__c"]');
-    this.accessTypes = this.template.querySelector('[data-id="access-types"]');
     this.dataElements = this.template.querySelector('[data-id="data-element"]');
     this.fileInput = this.template.querySelector('[data-id="file-input"]');
     this.termsOfUse = this.template.querySelector('[data-id="terms"]');
@@ -515,14 +511,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     if (validateEmail(this.application.Email__c)) {
       this.setErrorFor(this.email, 'E-post må være gyldig format.');
       this.email.className = 'invalid';
-    }
-    if (
-      this.application.APIAccess__c === false &&
-      this.application.ExtractionAccess__c === false &&
-      this.application.OnlineAccess__c === false
-    ) {
-      this.setErrorFor(this.accessTypes, 'Minst én type tilgang er obligatorisk');
-      this.apiAccess.className = 'invalid';
     }
     if (
       (this.fileData.base64 === null || this.fileData.filename === null) &&
