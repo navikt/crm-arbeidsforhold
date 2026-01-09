@@ -1,6 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
+        <name>Log_Agreement_CRUD_failed</name>
+        <label>Log Agreement CRUD failed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Agreement__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_applicationFinished_RT</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>ErrorMessage_fault</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Log_RelatedContact_CRUD_Failed</name>
+        <label>Log RelatedContact CRUD Failed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>RelatedContact__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_applicationFinished_RT</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>ErrorMessage_fault</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
         <name>SplitAccessTypes</name>
         <label>SplitAccessTypes</label>
         <locationX>0</locationX>
@@ -139,6 +229,52 @@
         </assignmentItems>
         <connector>
             <targetReference>AddProcessingBasisField</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Create_Agreement_Failed</name>
+        <label>Create Agreement Failed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>ErrorMessage_fault</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Create Agreement Record failed for related Application. </stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>ErrorMessage_fault</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_Agreement_CRUD_failed</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Create_Related_Contacts_Failed</name>
+        <label>Create Related Contacts Failed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>ErrorMessage_fault</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Create Related Contact Records failed for the related Application. . </stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>ErrorMessage_fault</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_RelatedContact_CRUD_Failed</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -530,6 +666,11 @@
     </decisions>
     <description>Record-triggered version of AAREG_applicationFinished</description>
     <environments>Default</environments>
+    <formulas>
+        <name>flow_interview_og_log_message</name>
+        <dataType>String</dataType>
+        <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
+    </formulas>
     <interviewLabel>AAREG_applicationFinished_RT {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_applicationFinished_RT</label>
     <loops>
@@ -588,6 +729,9 @@
         <connector>
             <targetReference>updateRelatedContacts</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Create_Agreement_Failed</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>APIAccess__c</field>
             <value>
@@ -712,6 +856,9 @@
         <connector>
             <targetReference>createTaskApplicationFinished</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Create_Related_Contacts_Failed</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Application__c</field>
@@ -738,7 +885,7 @@
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <subflows>
         <name>createTaskApplicationFinished</name>
         <label>createTaskApplicationFinished</label>
@@ -770,6 +917,13 @@
             </value>
         </inputAssignments>
     </subflows>
+    <variables>
+        <name>ErrorMessage_fault</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
     <variables>
         <name>varAgreementId</name>
         <dataType>String</dataType>

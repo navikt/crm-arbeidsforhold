@@ -3,8 +3,8 @@
     <actionCalls>
         <name>checkObjectTypeNameAndUpdate</name>
         <label>checkObjectTypeNameAndUpdate</label>
-        <locationX>717</locationX>
-        <locationY>270</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>AAREG_checkObjectTypeNameche</actionName>
         <actionType>apex</actionType>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
@@ -14,9 +14,13 @@
                 <elementReference>$Record.Id</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>AAREG_checkObjectTypeNameche</nameSegment>
+        <offset>0</offset>
     </actionCalls>
-    <apiVersion>52.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <description>Get object type name and test if it is creating thread from application, then get accountId and user</description>
+    <environments>Default</environments>
     <interviewLabel>AAREG_getObjectTypeName {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_getObjectTypeName</label>
     <processMetadataValues>
@@ -28,7 +32,7 @@
     <processMetadataValues>
         <name>CanvasMode</name>
         <value>
-            <stringValue>FREE_FORM_CANVAS</stringValue>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
         </value>
     </processMetadataValues>
     <processMetadataValues>
@@ -39,8 +43,8 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <start>
-        <locationX>214</locationX>
-        <locationY>88</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>checkObjectTypeNameAndUpdate</targetReference>
         </connector>
@@ -56,7 +60,7 @@
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>

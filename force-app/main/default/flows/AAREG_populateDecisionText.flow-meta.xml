@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Update_Application_failed</name>
         <label>Update Application failed</label>
-        <locationX>314</locationX>
-        <locationY>1355</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -33,7 +33,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <elementReference>flow_interview_og_log_message</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -51,115 +51,13 @@
         <nameSegment>LoggerUtility</nameSegment>
         <offset>0</offset>
     </actionCalls>
-    <actionCalls>
-        <name>Update_Application_failed_2</name>
-        <label>Update Application failed 2</label>
-        <locationX>842</locationX>
-        <locationY>1355</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Application__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <stringValue>AAREG_populateDecisionText_failed</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>refRecord</name>
-            <value>
-                <elementReference>$Record</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
-        <name>Update_Application_failed_3</name>
-        <label>Update Application failed 3</label>
-        <locationX>1370</locationX>
-        <locationY>1355</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Application__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <stringValue>AAREG_populateDecisionText_failed</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>refRecord</name>
-            <value>
-                <elementReference>$Record</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <apiVersion>52.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>addCodeBasisCounty</name>
         <label>addCodeBasisCounty</label>
-        <locationX>930</locationX>
-        <locationY>863</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>legalBasisList</assignToReference>
             <operator>Add</operator>
@@ -209,8 +107,8 @@
     <assignments>
         <name>addCodeBasisEL</name>
         <label>addCodeBasisEL</label>
-        <locationX>1194</locationX>
-        <locationY>863</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>legalBasisList</assignToReference>
             <operator>Add</operator>
@@ -260,8 +158,8 @@
     <assignments>
         <name>addCodeBasisMunicipality</name>
         <label>addCodeBasisMunicipality</label>
-        <locationX>1458</locationX>
-        <locationY>863</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>legalBasisList</assignToReference>
             <operator>Add</operator>
@@ -311,8 +209,8 @@
     <assignments>
         <name>addLegalBasisOther</name>
         <label>addLegalBasisOther</label>
-        <locationX>2514</locationX>
-        <locationY>863</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>legalBasisList</assignToReference>
             <operator>Add</operator>
@@ -362,8 +260,8 @@
     <assignments>
         <name>IsCodeBasisOther</name>
         <label>IsCodeBasisOther</label>
-        <locationX>2250</locationX>
-        <locationY>863</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>legalBasisList</assignToReference>
             <operator>Add</operator>
@@ -413,8 +311,8 @@
     <assignments>
         <name>IsCodeBasisPension</name>
         <label>IsCodeBasisPension</label>
-        <locationX>1722</locationX>
-        <locationY>863</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>legalBasisList</assignToReference>
             <operator>Add</operator>
@@ -464,8 +362,8 @@
     <assignments>
         <name>IsCodeBasisState</name>
         <label>IsCodeBasisState</label>
-        <locationX>1986</locationX>
-        <locationY>863</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>legalBasisList</assignToReference>
             <operator>Add</operator>
@@ -523,8 +421,8 @@
     <decisions>
         <name>applicationDecisionStatus</name>
         <label>applicationDecisionStatus</label>
-        <locationX>842</locationX>
-        <locationY>1139</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>IsApprovedParially</name>
@@ -596,8 +494,8 @@
     <decisions>
         <name>checkOrganizationType</name>
         <label>checkOrganizationType</label>
-        <locationX>1854</locationX>
-        <locationY>755</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>IsCounty</name>
@@ -770,6 +668,11 @@
     </decisions>
     <environments>Default</environments>
     <formulas>
+        <name>flow_interview_og_log_message</name>
+        <dataType>String</dataType>
+        <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
+    </formulas>
+    <formulas>
         <name>varToDaysDate</name>
         <dataType>String</dataType>
         <expression>TEXT(DAY(TODAY()))+ &quot;-&quot; +TEXT(MONTH(TODAY()) )+ &quot;-&quot;
@@ -780,8 +683,8 @@
     <loops>
         <name>loopThroughCollection</name>
         <label>loopThroughCollection</label>
-        <locationX>842</locationX>
-        <locationY>647</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <collectionReference>getCodeBasisCollection</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -813,8 +716,8 @@
     <recordLookups>
         <name>getAccountsDetail</name>
         <label>getAccountsDetail</label>
-        <locationX>842</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getCodeBasisCollection</targetReference>
@@ -840,8 +743,8 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>842</locationX>
-        <locationY>323</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getAccountsDetail</targetReference>
@@ -867,8 +770,8 @@
     <recordLookups>
         <name>getCodeBasisCollection</name>
         <label>getCodeBasisCollection</label>
-        <locationX>842</locationX>
-        <locationY>539</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>loopThroughCollection</targetReference>
@@ -903,10 +806,11 @@
     <recordUpdates>
         <name>updateApprovedText</name>
         <label>updateApprovedText</label>
-        <locationX>578</locationX>
-        <locationY>1247</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
-            <targetReference>Update_Application_failed_2</targetReference>
+            <isGoTo>true</isGoTo>
+            <targetReference>Update_Application_failed</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -927,10 +831,11 @@
     <recordUpdates>
         <name>updateDeclinedText</name>
         <label>updateDeclinedText</label>
-        <locationX>1106</locationX>
-        <locationY>1247</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
-            <targetReference>Update_Application_failed_3</targetReference>
+            <isGoTo>true</isGoTo>
+            <targetReference>Update_Application_failed</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -951,8 +856,8 @@
     <recordUpdates>
         <name>updatePartiallyText</name>
         <label>updatePartiallyText</label>
-        <locationX>50</locationX>
-        <locationY>1247</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Update_Application_failed</targetReference>
         </faultConnector>
@@ -973,7 +878,7 @@
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>716</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getApplication</targetReference>

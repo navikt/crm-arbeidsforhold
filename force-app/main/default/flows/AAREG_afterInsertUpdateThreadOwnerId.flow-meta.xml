@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Update_Thread_failed</name>
         <label>Update Thread failed</label>
-        <locationX>842</locationX>
-        <locationY>839</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_afterInsertUpdateThreadOwnerId_failed</stringValue>
+                <stringValue>AAREG_afterInsertUpdateThreadOwnerId</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -33,7 +33,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <elementReference>flow_interview_og_log_message</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -51,13 +51,13 @@
         <nameSegment>LoggerUtility</nameSegment>
         <offset>0</offset>
     </actionCalls>
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>setApplicationVariables</name>
         <label>setApplicationVariables</label>
-        <locationX>50</locationX>
-        <locationY>539</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varNameNumber</assignToReference>
             <operator>Assign</operator>
@@ -86,8 +86,8 @@
     <assignments>
         <name>setInquiryVariables</name>
         <label>setInquiryVariables</label>
-        <locationX>314</locationX>
-        <locationY>539</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varAccountId</assignToReference>
             <operator>Assign</operator>
@@ -116,8 +116,8 @@
     <decisions>
         <name>checkObjectType</name>
         <label>checkObjectType</label>
-        <locationX>314</locationX>
-        <locationY>323</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>isApplication</name>
@@ -152,6 +152,11 @@
     </decisions>
     <description>Update Thread Owner  to portal owner, if the Thread is created from NAV.</description>
     <environments>Default</environments>
+    <formulas>
+        <name>flow_interview_og_log_message</name>
+        <dataType>String</dataType>
+        <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
+    </formulas>
     <interviewLabel>AAREG_afterInsertUpdateThreadOwnerId {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_afterInsertUpdateThreadOwnerId</label>
     <processMetadataValues>
@@ -176,8 +181,8 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>50</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>setApplicationVariables</targetReference>
@@ -203,8 +208,8 @@
     <recordLookups>
         <name>getInquiry</name>
         <label>getInquiry</label>
-        <locationX>314</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>setInquiryVariables</targetReference>
@@ -229,8 +234,8 @@
     <recordUpdates>
         <name>updateThreadOwner</name>
         <label>updateThreadOwner</label>
-        <locationX>314</locationX>
-        <locationY>731</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Update_Thread_failed</targetReference>
         </faultConnector>
@@ -255,7 +260,7 @@
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>188</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>checkObjectType</targetReference>
