@@ -73,4 +73,5 @@ public class AAREG_AgreementControllerTest {
 
     System.assertEquals('Deactivated', updatedAgreement.Status__c, 'Agreement Deactivated');
   }
+
 }
