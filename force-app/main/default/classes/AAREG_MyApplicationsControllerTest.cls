@@ -2,10 +2,10 @@
 public class AAREG_MyApplicationsControllerTest {
   @TestSetup
   static void makeData() {
-    Account account = AAREG_TestDataFactory.getAccount();
+    Account account = AAREG_TestDataFactory.getAccountCounty();
     insert account;
 
-    Application__c application = AAREG_TestDataFactory.getApplication(account.Id);
+    Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
     application.OrganizationNumber__c = '123456789';
     insert application;
   }
@@ -16,11 +16,10 @@ public class AAREG_MyApplicationsControllerTest {
     user.LastUsedOrganization__c = '123456789';
     insert user;
 
-    Account account = [SELECT Id FROM Account LIMIT 1];
+    Account account = [SELECT Id,name,INT_OrganizationNumber__c,ShippingStreet,ShippingPostalCode,ShippingCity FROM Account LIMIT 1];
 
-    Application__c application = AAREG_TestDataFactory.getApplication(account.Id);
+    Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
     application.OrganizationNumber__c = '123456788';
-
     insert application;
 
     test.startTest();
@@ -35,11 +34,10 @@ public class AAREG_MyApplicationsControllerTest {
     user.LastUsedOrganization__c = '';
     insert user;
 
-    Account account = [SELECT Id FROM Account LIMIT 1];
+    Account account = [SELECT Id,name,INT_OrganizationNumber__c,ShippingStreet,ShippingPostalCode,ShippingCity FROM Account LIMIT 1];
 
-    Application__c application = AAREG_TestDataFactory.getApplication(account.Id);
+    Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
     application.OrganizationNumber__c = '123456788';
-
     insert application;
 
     test.startTest();
