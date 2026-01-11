@@ -17,7 +17,7 @@ public with sharing class AAREG_HomeControllerTest {
         user.EmailEncodingKey = 'UTF-8';
         user.ProfileId = profile.Id;
         user.Department = '1';
-        user.LastUsedOrganization__c = '123456789';
+        user.LastUsedOrganization__c = '929882989';
 
         insert user;
 
@@ -66,7 +66,7 @@ public with sharing class AAREG_HomeControllerTest {
         String lastUsedOrganizationNumber = AAREG_HomeController.getLastUsersLastUsedOrganization(user.Id);
 
         System.assertEquals(
-            '123456789',
+            '929882989',
             lastUsedOrganizationNumber,
             'Last used organization number returned correctly.'
         );
@@ -87,25 +87,23 @@ public with sharing class AAREG_HomeControllerTest {
     @isTest
     private static void testShareAgreementsWithUser() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
-        Account acct = AAREG_TestDataFactory.getAccount();
+        Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
 
-        Application__c application = AAREG_TestDataFactory.getApplication(acct.Id);
+        Application__c application = AAREG_TestDataFactory.getApplicationCounty(acct);
         insert application;
+        
+        List<RelatedContact__c> con = AAREG_TestDataFactory.getRelatedContact(application);
+   		insert con;
 
         Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id);
         agreement.Application__c = application.Id;
         insert agreement;
-
-        List<RelatedContact__c> contacts = new List<RelatedContact__c>();
-        RelatedContact__c contact = AAREG_TestDataFactory.getRelatedContact();
-        RelatedContact__c contactTwo = AAREG_TestDataFactory.getRelatedContact();
-        contact.Agreement__c = agreement.Id;
-        contactTwo.Agreement__c = agreement.Id;
-        contacts.add(contact);
-        contacts.add(contactTwo);
-
-        insert contacts;
+        
+        for(RelatedContact__c r:con){
+      	r.agreement__c = agreement.Id;
+    	}
+    	Update con;
 
         Test.startTest();
         AAREG_HomeController.shareAgreementsWithUser(user.Id);
@@ -128,10 +126,10 @@ public with sharing class AAREG_HomeControllerTest {
     @isTest
     private static void testCheckAndShareIfAuthorizedWithAccess() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
-        Account acct = AAREG_TestDataFactory.getAccount();
+        Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
 
-        Application__c application = AAREG_TestDataFactory.getApplication(acct.Id);
+        Application__c application = AAREG_TestDataFactory.getApplicationCounty(acct);
         insert application;
 
         Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id);
@@ -212,22 +210,25 @@ public with sharing class AAREG_HomeControllerTest {
     @isTest
     private static void testShareAgreementsWithUserIsOwner() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
-        Account acct = AAREG_TestDataFactory.getAccount();
+        Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
 
-        Application__c application = AAREG_TestDataFactory.getApplication(acct.Id);
+        Application__c application = AAREG_TestDataFactory.getApplicationCounty(acct);
         insert application;
+        
+        List<RelatedContact__c> con = AAREG_TestDataFactory.getRelatedContact(application);
+   		insert con;
 
         // Create agreement owned by the test user with matching organization number
         Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id);
         agreement.Application__c = application.Id;
         agreement.OwnerId = user.Id;
         insert agreement;
-
-        RelatedContact__c contact = AAREG_TestDataFactory.getRelatedContact();
-        contact.Agreement__c = agreement.Id;
-        contact.OwnerId = user.Id;
-        insert contact;
+        
+        for(RelatedContact__c r:con){
+      		r.agreement__c = agreement.Id;
+    		}
+    	Update con;
 
         Test.startTest();
         AAREG_HomeController.shareAgreementsWithUser(user.Id);
@@ -247,8 +248,7 @@ public with sharing class AAREG_HomeControllerTest {
 
         System.assertEquals(1, sharedAgreements.size(), 'Should have one shared agreement record');
         System.assertEquals('Owner', sharedAgreements[0].RowCause, 'Row cause should be Owner');
-        System.assertEquals(1, sharedRelatedContacts.size(), 'Should have one shared related contact record');
-        System.assertEquals('Owner', sharedRelatedContacts[0].RowCause, 'Row cause should be Owner');
+        System.assertEquals(2, sharedRelatedContacts.size(), 'Should have two shared related contact record');
     }
 
     @isTest

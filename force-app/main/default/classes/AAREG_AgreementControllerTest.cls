@@ -2,25 +2,23 @@
 public class AAREG_AgreementControllerTest {
   @TestSetup
   static void makeData() {
-    Account acct = AAREG_TestDataFactory.getAccount();
+    Account acct = AAREG_TestDataFactory.getAccountCounty();
     insert acct;
 
-    Application__c application = AAREG_TestDataFactory.getApplication(acct.Id);
+    Application__c application = AAREG_TestDataFactory.getApplicationCounty(acct);
     insert application;
+
+    List<RelatedContact__c> con = AAREG_TestDataFactory.getRelatedContact(application);
+    insert con;
 
     Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id);
     agreement.Application__c = application.Id;
     insert agreement;
 
-    List<RelatedContact__c> contacts = new List<RelatedContact__c>();
-    RelatedContact__c contact = AAREG_TestDataFactory.getRelatedContact();
-    RelatedContact__c contactTwo = AAREG_TestDataFactory.getRelatedContact();
-    contact.Agreement__c = agreement.Id;
-    contactTwo.Agreement__c = agreement.Id;
-    contacts.add(contact);
-    contacts.add(contactTwo);
-
-    insert contacts;
+    for(RelatedContact__c r:con){
+      r.agreement__c = agreement.Id;
+    }
+    Update con;
   }
 
   @isTest
@@ -73,5 +71,4 @@ public class AAREG_AgreementControllerTest {
 
     System.assertEquals('Deactivated', updatedAgreement.Status__c, 'Agreement Deactivated');
   }
-
 }

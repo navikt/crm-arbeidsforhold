@@ -7,8 +7,8 @@ public class AAREG_DeactivateAccessBatchTest {
 
     List<Application__c> applications = new List<Application__c>();
     List<Agreement__c> agreements = new List<Agreement__c>();
-    Application__c application = AAREG_TestDataFactory.getApplication(account.Id);
-    Application__c application2 = AAREG_TestDataFactory.getApplication(account.Id);
+    Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
+    Application__c application2 = AAREG_TestDataFactory.getApplicationCounty(account);
     insert application;
     insert application2;
     Agreement__c agreement = AAREG_TestDataFactory.getAgreement(account.id);

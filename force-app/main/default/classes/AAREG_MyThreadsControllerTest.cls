@@ -7,13 +7,14 @@ public class AAREG_MyThreadsControllerTest {
     User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
       System.runAs(thisUser){
         usr = AAREG_TestDataFactory.getStandardUser();
+        usr.LastUsedOrganization__c ='929882989';
     	insert usr;  
       }
     
-    Account acct = AAREG_TestDataFactory.getAccount();
+    Account acct = AAREG_TestDataFactory.getAccountCounty();
     insert acct;
     
-    Application__c app = AAREG_TestDataFactory.getApplication(acct.id);
+    Application__c app = AAREG_TestDataFactory.getApplicationCounty(acct);
     insert app;
 
     List<Thread__c> threads = new List<Thread__c>();
@@ -22,7 +23,6 @@ public class AAREG_MyThreadsControllerTest {
     Thread__c secondThread = new Thread__c(Name =STRING_CONST, CRM_FROM__c = usr.Id);
     threads.add(firstThread);
     threads.add(secondThread);
-
     insert threads;
 
     List<Thread__c> userThreads;
