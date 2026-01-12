@@ -100,7 +100,7 @@ public without sharing class AAREG_HomeController {
     public static void shareAgreementsWithUser(String userId) {
         String lastUsedOrganization = getLastUsersLastUsedOrganization(userId);
         if (Test.isRunningTest()) {
-            lastUsedOrganization = '123456789';
+            lastUsedOrganization = '929882989';
         }
         List<Agreement__c> agreements = [
             SELECT Id, OwnerId

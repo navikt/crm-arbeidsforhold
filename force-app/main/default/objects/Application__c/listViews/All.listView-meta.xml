@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>All</fullName>
+    <columns>NAME</columns>
+    <columns>ApplicationSubmittedDate__c</columns>
+    <columns>AA_CasehandlerDeadlineFlag__c</columns>
+    <columns>AccountName__c</columns>
+    <columns>applicationOwner__c</columns>
     <filterScope>Everything</filterScope>
     <label>All</label>
 </ListView>

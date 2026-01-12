@@ -2,9 +2,9 @@
 private class DecisionControllerTest {
   @testSetup
   static void setup() {
-    Account account = AAREG_TestDataFactory.getAccount();
+    Account account = AAREG_TestDataFactory.getAccountCounty();
     insert account;
-    Application__c application = AAREG_TestDataFactory.getApplication(account.Id);
+    Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
     application.AA_CasehandlerDecisionTemplate__c = 'test';
     insert application;
   }

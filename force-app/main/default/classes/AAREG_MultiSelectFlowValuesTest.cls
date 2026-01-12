@@ -21,6 +21,6 @@ public class AAREG_MultiSelectFlowValuesTest {
     List<List<String>> result = AAREG_MultiSelectFlowValues.checkSelectedValues(tempList);
     Test.stopTest();
 
-    System.assertEquals(null, result, 'List should be empty.');
+    System.assertEquals(0, result.size(), 'Result list should be empty.');
   }
 }
