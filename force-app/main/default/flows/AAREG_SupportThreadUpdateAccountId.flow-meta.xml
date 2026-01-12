@@ -3,8 +3,8 @@
     <actionCalls>
         <name>AAREG_SupportThreadUpdateAccountId</name>
         <label>AAREG_SupportThreadUpdateAccountId</label>
-        <locationX>314</locationX>
-        <locationY>755</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -33,7 +33,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <elementReference>flow_interview_og_log_message</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -51,13 +51,13 @@
         <nameSegment>LoggerUtility</nameSegment>
         <offset>0</offset>
     </actionCalls>
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <decisions>
         <name>checkIfAccountId</name>
         <label>checkIfAccountId</label>
-        <locationX>314</locationX>
-        <locationY>539</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>isNotAccountId</defaultConnectorLabel>
         <rules>
             <name>isAccountId</name>
@@ -77,6 +77,11 @@
     </decisions>
     <description>When thread is created and type = inquiry__c, get account id based on organization number and update thread</description>
     <environments>Default</environments>
+    <formulas>
+        <name>flow_interview_og_log_message</name>
+        <dataType>String</dataType>
+        <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
+    </formulas>
     <formulas>
         <name>varThreadName</name>
         <dataType>String</dataType>
@@ -106,8 +111,8 @@
     <recordLookups>
         <name>getAccountId</name>
         <label>getAccountId</label>
-        <locationX>314</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkIfAccountId</targetReference>
@@ -129,8 +134,8 @@
     <recordLookups>
         <name>getInquiry</name>
         <label>getInquiry</label>
-        <locationX>314</locationX>
-        <locationY>323</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getAccountId</targetReference>
@@ -152,8 +157,8 @@
     <recordUpdates>
         <name>updateThread</name>
         <label>updateThread</label>
-        <locationX>50</locationX>
-        <locationY>647</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>AAREG_SupportThreadUpdateAccountId</targetReference>
         </faultConnector>
@@ -172,7 +177,7 @@
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>188</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getInquiry</targetReference>

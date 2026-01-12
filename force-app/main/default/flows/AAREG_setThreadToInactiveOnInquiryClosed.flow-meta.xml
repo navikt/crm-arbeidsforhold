@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Create_Thread_failed</name>
         <label>Create Thread failed</label>
-        <locationX>440</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_setThreadToInactiveOnInquiryClosed_failed</stringValue>
+                <stringValue>AAREG_setThreadToInactiveOnInquiryClosed</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -33,7 +33,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <elementReference>flow_interview_og_log_message</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -45,9 +45,14 @@
         <nameSegment>LoggerUtility</nameSegment>
         <offset>0</offset>
     </actionCalls>
-    <apiVersion>56.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <environments>Default</environments>
+    <formulas>
+        <name>flow_interview_og_log_message</name>
+        <dataType>String</dataType>
+        <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
+    </formulas>
     <interviewLabel>AAREG_setThreadToInactiveOnInquiryClosed {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_setThreadToInactiveOnInquiryClosed</label>
     <processMetadataValues>
@@ -72,8 +77,8 @@
     <recordUpdates>
         <name>setThreadToInactive</name>
         <label>setThreadToInactive</label>
-        <locationX>176</locationX>
-        <locationY>323</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Create_Thread_failed</targetReference>
         </faultConnector>
@@ -94,7 +99,7 @@
         <object>Thread__c</object>
     </recordUpdates>
     <start>
-        <locationX>50</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>setThreadToInactive</targetReference>

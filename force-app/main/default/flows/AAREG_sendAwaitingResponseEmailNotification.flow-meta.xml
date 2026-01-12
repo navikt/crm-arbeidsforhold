@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Create_EmailQueue_failed</name>
         <label>Create EmailQueue failed</label>
-        <locationX>440</locationX>
-        <locationY>539</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -45,13 +45,13 @@
         <nameSegment>LoggerUtility</nameSegment>
         <offset>0</offset>
     </actionCalls>
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>setVariables</name>
         <label>setVariables</label>
-        <locationX>176</locationX>
-        <locationY>323</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varContactId</assignToReference>
             <operator>Assign</operator>
@@ -64,6 +64,11 @@
         </connector>
     </assignments>
     <environments>Default</environments>
+    <formulas>
+        <name>flow_interview_og_log_message</name>
+        <dataType>String</dataType>
+        <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
+    </formulas>
     <interviewLabel>AAREG_sendAwaitingResponseEmailNotification {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_sendAwaitingResponseEmailNotification</label>
     <processMetadataValues>
@@ -88,8 +93,8 @@
     <recordCreates>
         <name>createEmailQueue</name>
         <label>createEmailQueue</label>
-        <locationX>176</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Create_EmailQueue_failed</targetReference>
         </faultConnector>
@@ -133,7 +138,7 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <start>
-        <locationX>50</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>setVariables</targetReference>

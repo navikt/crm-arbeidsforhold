@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Update_Application_failed</name>
         <label>Update Application failed</label>
-        <locationX>440</locationX>
-        <locationY>539</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG Application- After Insert- Populate Application Fields_failed</stringValue>
+                <stringValue>AAREG Application- After Insert- Populate Application Fields</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -33,7 +33,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <elementReference>flow_interview_og_log_message</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -51,13 +51,13 @@
         <nameSegment>LoggerUtility</nameSegment>
         <offset>0</offset>
     </actionCalls>
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>AssignApplicationFields</name>
         <label>Assign Application Fields</label>
-        <locationX>176</locationX>
-        <locationY>323</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>$Record.Account__c</assignToReference>
             <operator>Assign</operator>
@@ -71,6 +71,11 @@
     </assignments>
     <description>Saksbehandling - automation to populate fields on the Application object after insert.</description>
     <environments>Default</environments>
+    <formulas>
+        <name>flow_interview_og_log_message</name>
+        <dataType>String</dataType>
+        <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
+    </formulas>
     <interviewLabel>AAREG Application- After Insert- Populate Application Fields {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG Application- After Insert- Populate Application Fields</label>
     <processMetadataValues>
@@ -95,15 +100,15 @@
     <recordUpdates>
         <name>PopulateAccountLookup</name>
         <label>Populate Account Lookup</label>
-        <locationX>176</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Update_Application_failed</targetReference>
         </faultConnector>
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>50</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>AssignApplicationFields</targetReference>
