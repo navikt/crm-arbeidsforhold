@@ -328,6 +328,28 @@
         </connector>
     </assignments>
     <decisions>
+        <name>Access_Type_Exists</name>
+        <label>Access Type Exists?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getApplication.AA_AccessTypes__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>getAccessTypes</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>checkAccessType</name>
         <label>checkAccessType</label>
         <locationX>0</locationX>
@@ -525,6 +547,7 @@
             <targetReference>loopTextCollection</targetReference>
         </connector>
         <faultConnector>
+            <isGoTo>true</isGoTo>
             <targetReference>Create_Task_DB_Failed</targetReference>
         </faultConnector>
         <inputAssignments>
@@ -694,7 +717,6 @@
             <targetReference>loopTextCollection</targetReference>
         </connector>
         <faultConnector>
-            <isGoTo>true</isGoTo>
             <targetReference>Create_Task_DB_Failed</targetReference>
         </faultConnector>
         <inputAssignments>
@@ -752,6 +774,7 @@
             <targetReference>getInquiryName</targetReference>
         </connector>
         <faultConnector>
+            <isGoTo>true</isGoTo>
             <targetReference>Create_Inquiry_Failed</targetReference>
         </faultConnector>
         <inputAssignments>
@@ -808,7 +831,6 @@
             <targetReference>getInquiryNameEvent</targetReference>
         </connector>
         <faultConnector>
-            <isGoTo>true</isGoTo>
             <targetReference>Create_Inquiry_Failed</targetReference>
         </faultConnector>
         <inputAssignments>
@@ -910,6 +932,7 @@
             <targetReference>createMessageFromNav</targetReference>
         </connector>
         <faultConnector>
+            <isGoTo>true</isGoTo>
             <targetReference>Create_Thread_Failed</targetReference>
         </faultConnector>
         <inputAssignments>
@@ -972,7 +995,6 @@
             <targetReference>createMessageFromNavEvent</targetReference>
         </connector>
         <faultConnector>
-            <isGoTo>true</isGoTo>
             <targetReference>Create_Thread_Failed</targetReference>
         </faultConnector>
         <inputAssignments>
@@ -1057,7 +1079,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>getAccessTypes</targetReference>
+            <targetReference>Access_Type_Exists</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
