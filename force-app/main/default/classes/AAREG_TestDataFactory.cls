@@ -145,8 +145,14 @@ public with sharing class AAREG_TestDataFactory {
   /** Application **/
   public static Application__c getApplicationCounty(Account acc) {
       
+      Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
+      .get('Aa_RegisterAccess')
+      .getRecordTypeId();
+      
     Application__c application = new Application__c(
       Account__c = acc.id,
+      RecordTypeId = devRecordTypeId,
+      AA_AccessTypes__c ='Access OTP',
       OrganizationStructure__c = 'County',
       TermsOfUse__c = true,
       DataProcessorName__c = 'Test Processor',
@@ -166,8 +172,14 @@ public with sharing class AAREG_TestDataFactory {
   
   public static Application__c getApplicationState(Account acc) {
       
+      Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
+      .get('Aa_RegisterAccess')
+      .getRecordTypeId();
+      
     Application__c application = new Application__c(
       Account__c = acc.id,
+      RecordTypeId = devRecordTypeId,
+      AA_AccessTypes__c = 'Access OTP',
       OrganizationStructure__c = 'State',
       TermsOfUse__c = true,
       DataProcessorName__c = 'Test Processor',
@@ -187,8 +199,14 @@ public with sharing class AAREG_TestDataFactory {
     
   public static Application__c getApplicationEL(Account acc) {
       
+       Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
+      .get('Aa_RegisterAccess')
+      .getRecordTypeId();
+      
     Application__c application = new Application__c(
       Account__c = acc.id,
+      RecordTypeId = devRecordTypeId,
+      AA_AccessTypes__c = 'Access OTP',
       OrganizationStructure__c = 'Electricity Supervision',
       TermsOfUse__c = true,
       DataProcessorName__c = 'Test Processor',
@@ -207,9 +225,14 @@ public with sharing class AAREG_TestDataFactory {
   }
     
   public static Application__c getApplicationPension(Account acc) {
+       Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
+      .get('Aa_RegisterAccess')
+      .getRecordTypeId();
       
     Application__c application = new Application__c(
       Account__c = acc.id,
+      RecordTypeId = devRecordTypeId,
+      AA_AccessTypes__c = 'Access OTP',
       OrganizationStructure__c = 'Pension',
       TermsOfUse__c = true,
       DataProcessorName__c = 'Test Processor',
@@ -229,8 +252,14 @@ public with sharing class AAREG_TestDataFactory {
     
   public static Application__c getApplicationMunicipality(Account acc) {
       
+      Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
+      .get('Aa_RegisterAccess')
+      .getRecordTypeId();
+      
     Application__c application = new Application__c(
       Account__c = acc.id,
+      RecordTypeId = devRecordTypeId,
+      AA_AccessTypes__c = 'Access OTP',
       OrganizationStructure__c = 'Municipality',
       TermsOfUse__c = true,
       DataProcessorName__c = 'Test Processor',
