@@ -143,7 +143,7 @@ public with sharing class AAREG_HomeControllerTest {
         Test.startTest();
         AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
             user.Id,
-            '123456789'
+            '929882989'
         );
         Test.stopTest();
 

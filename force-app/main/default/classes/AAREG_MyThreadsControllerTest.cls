@@ -1,6 +1,6 @@
 @isTest
 public class AAREG_MyThreadsControllerTest {
-    static final String STRING_CONST = 'Test Thread';
+    static final String STRING_CONST = 'Test Thread yes';
   @isTest
   static void getUsersThreads() {
     User usr;
