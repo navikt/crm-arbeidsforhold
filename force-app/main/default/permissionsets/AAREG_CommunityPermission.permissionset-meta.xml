@@ -151,8 +151,18 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>ApplicationBasisCode__c.API_Access__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>ApplicationBasisCode__c.Application__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ApplicationBasisCode__c.Extraction_Access__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -178,6 +188,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>ApplicationBasisCode__c.LegalBasisState__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ApplicationBasisCode__c.Online_Access__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
