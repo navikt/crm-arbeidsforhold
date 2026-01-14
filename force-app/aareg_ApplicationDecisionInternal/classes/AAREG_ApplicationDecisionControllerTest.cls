@@ -18,12 +18,10 @@ public class AAREG_ApplicationDecisionControllerTest {
         // Create test Application_Decision__c records
         List<Application_Decision__c> decisions = new List<Application_Decision__c>();
         decisions.add(new Application_Decision__c(
-            Application__c = testApplication.Id,
-            Status__c = 'Approved'
+            Application__c = testApplication.Id
         ));
         decisions.add(new Application_Decision__c(
-            Application__c = testApplication.Id,
-            Status__c = 'Approved Partially'
+            Application__c = testApplication.Id
         ));
         insert decisions;
     }
@@ -55,7 +53,8 @@ public class AAREG_ApplicationDecisionControllerTest {
         // Verify the new decision
         Application_Decision__c newDecision = [SELECT Id, Application__c, Status__c FROM Application_Decision__c WHERE Id = :newDecisionId];
         System.assertEquals(testApplication.Id, newDecision.Application__c, 'Application ID should match.');
-        System.assertEquals('Approved', newDecision.Status__c, 'Status should be Approved.');
+        System.assertEquals('Innvilget', newDecision.Status__c, 'Status should be Innvilget.');
+
 
         // Verify the related Application_Decision_Details__c records
         List<Application_Decision_Details__c> decisionDetails = [

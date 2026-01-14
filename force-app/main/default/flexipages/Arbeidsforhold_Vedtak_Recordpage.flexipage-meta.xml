@@ -78,10 +78,26 @@
                 <identifier>RecordNameField</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-98c11f0d-4f54-4b28-b53d-f065e246c788</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Approved_count__c</fieldItem>
+                <identifier>RecordApproved_count__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Total_count__c</fieldItem>
+                <identifier>RecordTotal_count__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -89,9 +105,13 @@
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Status__c</fieldItem>
-                <identifier>RecordStatus_cField</identifier>
+                <identifier>RecordApproval_status__cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <name>Facet-98c11f0d-4f54-4b28-b53d-f065e246c788</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
         <name>Facet-7a1dfcd4-264c-4815-84b1-80ae2891382a</name>
         <type>Facet</type>
     </flexiPageRegions>
