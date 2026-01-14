@@ -4,5 +4,6 @@
     <fields>Account__c</fields>
     <fields>Name</fields>
     <fields>ApplicationSubmittedDate__c</fields>
+    <fields>applicationOwner__c</fields>
     <label>AA_RegisterAccess</label>
 </CompactLayout>
