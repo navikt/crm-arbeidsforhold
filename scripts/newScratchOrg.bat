@@ -55,7 +55,7 @@ echo "Installerer crm-platform-access-control 168"
 call sf force:package:install --package 04tQC0000012rajYAA -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
-echo "Installerer crm-thread-view 0.9.0.."
+echo "Installerer crm-thread-view 0.8.0.."
 call sf force:package:install --package 04tQC0000011athYAA -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
