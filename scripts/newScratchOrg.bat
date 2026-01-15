@@ -100,7 +100,6 @@ echo "Tildeler tilatelsessett til brukeren"
 call sf org assign permset -n AAREG_Arbeidsforhold_Support
 
 //echo Inserting test data...
-//call sf force:data:tree:import -p  dummy-data/Plan.json
-//See document in folder dumy data for inserting test data
+call sf force:data:tree:import -p  dummy-data/Plan.json
 
 echo "Ferdig"

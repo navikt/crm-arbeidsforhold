@@ -1,11 +1,5 @@
 [
    {
-      "sobject": "User", 
-      "saveRefs": false,
-      "resolveRefs": true,
-      "files": ["User.json"]
-   },
-   {
        "sobject": "Account", 
        "saveRefs": true,
        "resolveRefs": false,
@@ -22,9 +16,12 @@
        "saveRefs": true,
        "resolveRefs": false,
        "files": ["CodeBase.json"]
-    }
-
-
-
+    },
+    {
+      "sobject": "RelatedContact__c", 
+      "saveRefs": true,
+      "resolveRefs": false,
+      "files": ["RelatedContact.json"]
+   }
 
 ]

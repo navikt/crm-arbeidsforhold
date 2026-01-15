@@ -7,6 +7,7 @@
             },
             "AccountName__c": "PENSJONSKASSE",
             "Account__c": "@AccountRef1",
+            "ApplicationSubmittedDate__c": "2026-01-15",
             "OrganizationNumber__c": "940415683",
             "MailingAddress__c": "Kyrkjevegen 10",
             "MailingCity__c": "ETNEDAL",
@@ -20,8 +21,7 @@
             "DataProcessorOrganizationNumber__c": "987657772",
             "Email__c": "Pensjon@test.no",
             "Casehandler_Status__c": "New",
-            "Status__c": "New",
-            "CasehandlerOwner__c": "@UserRef1"
+            "Status__c": "New"
            
         },
         {
@@ -31,6 +31,7 @@
             },
             "AccountName__c": "KRAFTNETT",
             "Account__c": "@AccountRef2",
+            "ApplicationSubmittedDate__c": "2026-01-15",
             "OrganizationNumber__c": "923934138",
             "MailingAddress__c": "Vollsveien 2A",
             "MailingCity__c": "LYSAKER",
@@ -44,8 +45,7 @@
             "DataProcessorOrganizationNumber__c": "988857772",
             "Email__c": "kraftnett@test.no",
             "Casehandler_Status__c": "New",
-            "Status__c": "New",
-            "CasehandlerOwner__c": "@UserRef1"
+            "Status__c": "New"
            
         },
         {
@@ -55,6 +55,7 @@
             },
             "AccountName__c": "KOMMUNE",
             "Account__c": "@AccountRef3",
+            "ApplicationSubmittedDate__c": "2026-01-15",
             "OrganizationNumber__c": "921133642",
             "MailingAddress__c": "Storgata 1",
             "MailingCity__c": "OSLO",
@@ -68,8 +69,7 @@
             "DataProcessorOrganizationNumber__c": "987654321",
             "Email__c": "Kommune@test.no",
             "Casehandler_Status__c": "New",
-            "Status__c": "New",
-            "CasehandlerOwner__c": "@UserRef2"
+            "Status__c": "New"
             
         },
         {
@@ -79,6 +79,7 @@
             },
             "AccountName__c": "FYLKESKOMMUNE",
             "Account__c": "@AccountRef4",
+            "ApplicationSubmittedDate__c": "2026-01-15",
             "OrganizationNumber__c": "929882989",
             "MailingAddress__c": "Ringeriksveien 158",
             "MailingCity__c": "VØYENENGA",
@@ -92,8 +93,7 @@
             "DataProcessorOrganizationNumber__c": "999957772",
             "Email__c": "fylkeskommune@test.no",
             "Casehandler_Status__c": "New",
-            "Status__c": "New",
-            "CasehandlerOwner__c": "@UserRef2"
+            "Status__c": "New"
         }
     ]
 }
