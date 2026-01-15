@@ -156,7 +156,7 @@
         <expression>&quot;Gjelder &quot; &amp; {!recordId}</expression>
     </formulas>
     <interviewLabel>AAREG_addReasonForSuspension {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_addReasonForSuspension</label>
+    <label>AAREG Application add reason for suspension</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>

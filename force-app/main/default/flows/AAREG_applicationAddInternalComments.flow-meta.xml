@@ -133,7 +133,7 @@
         <expression>&apos;Merknad lagt til &apos;&amp; TEXT({!$Flow.CurrentDate})&amp;&apos; av &apos;&amp;{!$User.FirstName}&amp;&apos; &apos;&amp;{!$User.LastName}</expression>
     </formulas>
     <interviewLabel>AAREG_applicationAddInternalComments {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_applicationAddInternalComments</label>
+    <label>AAREG Application add internal comments</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
