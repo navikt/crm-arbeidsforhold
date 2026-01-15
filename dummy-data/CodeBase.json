@@ -6,6 +6,7 @@
                 "referenceId": "ApplicationBasisCode__cRef1"
             },
             "Application__c": "@Application__cRef1",
+            "API_Access__c": true,
             "LegalBasisPension__c": "Annet - oppgi i tekstfelt under",
             "PurposePension__c": "Annet - oppgi i tekstfelt under",
             "OrganizationType__c": "Pension",
@@ -18,7 +19,20 @@
                 "type": "ApplicationBasisCode__c",
                 "referenceId": "ApplicationBasisCode__cRef2"
             },
+            "Application__c": "@Application__cRef1",
+            "Online_Access__c": true,
+            "LegalBasisPension__c": "FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 første ledd bokstav c",
+            "PurposePension__c": "Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven",
+            "OrganizationType__c": "Pension",
+            "ProcessingBasis__c": "Lov om pensjonsordning"
+        },
+        {
+            "attributes": {
+                "type": "ApplicationBasisCode__c",
+                "referenceId": "ApplicationBasisCode__cRef3"
+            },
             "Application__c": "@Application__cRef2",
+            "API_Access__c": true,
             "LegalBasisElectricitySupervision__c": "Annet - oppgi i tekstfelt under",
             "PurposeElectricitySupervision__c": "Annet - oppgi i tekstfelt under",
             "OrganizationType__c": "Electricity Supervision",
@@ -29,9 +43,22 @@
         {
             "attributes": {
                 "type": "ApplicationBasisCode__c",
-                "referenceId": "ApplicationBasisCode__cRef3"
+                "referenceId": "ApplicationBasisCode__cRef4"
+            },
+            "Application__c": "@Application__cRef2",
+            "Online_Access__c": true,
+            "LegalBasisElectricitySupervision__c": "FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f",
+            "PurposeElectricitySupervision__c": "Tilsyn med elektriske anlegg og elektrisk utstyr",
+            "OrganizationType__c": "Electricity Supervision",
+            "ProcessingBasis__c": "Eltilsynsloven."
+        },
+        {
+            "attributes": {
+                "type": "ApplicationBasisCode__c",
+                "referenceId": "ApplicationBasisCode__cRef5"
             },
             "Application__c": "@Application__cRef3",
+            "API_Access__c": true,
             "LegalBasisMunicipality__c": "FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f",
             "PurposeMunicipality__c": "Salg- og skjenkebevilling",
             "OrganizationType__c": "Municipality",
@@ -40,18 +67,20 @@
         {
             "attributes": {
                 "type": "ApplicationBasisCode__c",
-                "referenceId": "ApplicationBasisCode__cRef4"
+                "referenceId": "ApplicationBasisCode__cRef6"
             },
             "Application__c": "@Application__cRef3",
+            "API_Access__c": true,
+            "Online_Access__c": true,
             "LegalBasisMunicipality__c": "FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f",
-            "PurposeMunicipality__c": "Smittesporing",
+            "PurposeMunicipality__c": "Behandlinger av søknader om kommunal bolig",
             "OrganizationType__c": "Municipality",
-            "ProcessingBasis__c": "smittevernloven § 3-6"
+            "ProcessingBasis__c": "alkoholloven kap 4"
         },
         {
             "attributes": {
                 "type": "ApplicationBasisCode__c",
-                "referenceId": "ApplicationBasisCode__cRef5"
+                "referenceId": "ApplicationBasisCode__cRef7"
             },
             "Application__c": "@Application__cRef4",
             "LegalBasisCounty__c": "Annet - oppgi i tekstfelt under",
@@ -59,6 +88,18 @@
             "OrganizationType__c": "County",
             "OtherLegalBasis__c": "Aa-registerforskriften §10 bokstav e, andre som trenger opplysningene i forbindelse med løsning av oppgaver som nevnt i §3 nr 6",
             "OtherPurpose__c": "Oppfølgingstjenesten (OT) har en lovfestet oppgave å kartlegge aktiviteten til ungdom i målgruppen",
+            "ProcessingBasis__c": "opplæringsloven § 9-4 j.f  opplæringsforskriften §8-3 sammenholdt med opplæringsloven 25-1 første ledd"
+        },
+        {
+            "attributes": {
+                "type": "ApplicationBasisCode__c",
+                "referenceId": "ApplicationBasisCode__cRef8"
+            },
+            "Application__c": "@Application__cRef4",
+            "Online_Access__c": true,
+            "LegalBasisCounty__c": "FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f",
+            "PurposeCounty__c": "Kontroll av helsepersonell - tilsynssaker",
+            "OrganizationType__c": "County",
             "ProcessingBasis__c": "opplæringsloven § 9-4 j.f  opplæringsforskriften §8-3 sammenholdt med opplæringsloven 25-1 første ledd"
         }
     ]
