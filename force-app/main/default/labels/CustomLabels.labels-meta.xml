@@ -12,6 +12,14 @@
             dere mottok vedtaket.</value>
     </labels>
     <labels>
+        <fullName>Internal_comment</fullName>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
+        <language>no</language>
+        <protected>false</protected>
+        <shortDescription>Internal comment</shortDescription>
+        <value>Internal comment</value>
+    </labels>
+    <labels>
         <fullName>AAREG_complaint_section</fullName>
         <categories>Arbeidsforhold decision details</categories>
         <language>en_US</language>
@@ -79,7 +87,7 @@
     </labels>
     <labels>
         <fullName>Agreements</fullName>
-        <categories>Lightning App Page Label</categories>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Agreements</shortDescription>
@@ -175,7 +183,7 @@
     </labels>
     <labels>
         <fullName>Files</fullName>
-        <categories>Lightning App Page Label</categories>
+        <categories>Arbeidsforhold Lightning App Page Label</categories>
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Files</shortDescription>

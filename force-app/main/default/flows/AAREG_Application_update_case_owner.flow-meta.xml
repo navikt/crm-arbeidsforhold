@@ -263,16 +263,9 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>getPublicGroupMembers</targetReference>
+            <targetReference>Transform_public_ids_into_collection</targetReference>
         </connector>
         <filterLogic>or</filterLogic>
-        <filters>
-            <field>DeveloperName</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>group_4534</stringValue>
-            </value>
-        </filters>
         <filters>
             <field>DeveloperName</field>
             <operator>EqualTo</operator>
@@ -280,11 +273,16 @@
                 <stringValue>AAREG_Casehandling</stringValue>
             </value>
         </filters>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>group_4534</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
         <object>Group</object>
-        <outputAssignments>
-            <assignToReference>var_PublicGroupId</assignToReference>
-            <field>Id</field>
-        </outputAssignments>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
         <name>getPublicGroupMembers</name>
@@ -298,9 +296,9 @@
         <filterLogic>and</filterLogic>
         <filters>
             <field>GroupId</field>
-            <operator>EqualTo</operator>
+            <operator>In</operator>
             <value>
-                <elementReference>var_PublicGroupId</elementReference>
+                <elementReference>Transform_public_ids_into_collection</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
@@ -446,6 +444,27 @@
             </transformValueActions>
         </transformValues>
     </transforms>
+    <transforms>
+        <name>Transform_public_ids_into_collection</name>
+        <label>Transform public ids into collection</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>getPublicGroupMembers</targetReference>
+        </connector>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <scale>0</scale>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <transformValues>
+            <transformValueActions>
+                <transformType>Map</transformType>
+                <value>
+                    <elementReference>getPublicGroupIds[$EachItem].Id</elementReference>
+                </value>
+            </transformValueActions>
+        </transformValues>
+    </transforms>
     <variables>
         <name>currentItem_filterGroupMembersIds</name>
         <dataType>SObject</dataType>
@@ -475,12 +494,5 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <objectType>Application__c</objectType>
-    </variables>
-    <variables>
-        <name>var_PublicGroupId</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
     </variables>
 </Flow>
