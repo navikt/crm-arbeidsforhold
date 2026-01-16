@@ -29,8 +29,12 @@
     <name>Application</name>
   </customLabels>
   <customLabels>
-    <label>Kodeverk</label>
+    <label>Behandlingsgrunnlag</label>
     <name>ApplicationBasisCode</name>
+  </customLabels>
+  <customLabels>
+    <label>Interne merknader</label>
+    <name>Internal_comment</name>
   </customLabels>
   <customLabels>
     <label>Virksomhet</label>
