@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Create_Task_failed</name>
         <label>Create Task failed</label>
-        <locationX>440</locationX>
-        <locationY>863</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_supportRemoveCaseOwner_failed</stringValue>
+                <stringValue>AAREG_supportRemoveCaseOwner</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -33,7 +33,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <elementReference>flow_interview_og_log_message</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -48,8 +48,8 @@
     <actionCalls>
         <name>Update_Inquiry_failed</name>
         <label>Update Inquiry failed</label>
-        <locationX>704</locationX>
-        <locationY>539</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -60,7 +60,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_supportRemoveCaseOwner_failed</stringValue>
+                <stringValue>AAREG_supportRemoveCaseOwner</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -78,7 +78,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <elementReference>flow_interview_og_log_message</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -96,13 +96,13 @@
         <nameSegment>LoggerUtility</nameSegment>
         <offset>0</offset>
     </actionCalls>
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>setAfterCategory</name>
         <label>setAfterCategory</label>
-        <locationX>176</locationX>
-        <locationY>539</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varAfterCategory</assignToReference>
             <operator>Assign</operator>
@@ -117,8 +117,8 @@
     <assignments>
         <name>setBeforeCategory</name>
         <label>setBeforeCategory</label>
-        <locationX>176</locationX>
-        <locationY>323</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varBeforeCategory</assignToReference>
             <operator>Assign</operator>
@@ -132,6 +132,11 @@
     </assignments>
     <description>If support case changes inquiry type - owner removes and status set to new</description>
     <environments>Default</environments>
+    <formulas>
+        <name>flow_interview_og_log_message</name>
+        <dataType>String</dataType>
+        <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
+    </formulas>
     <formulas>
         <name>varDescription</name>
         <dataType>String</dataType>
@@ -161,8 +166,8 @@
     <recordCreates>
         <name>createTask</name>
         <label>createTask</label>
-        <locationX>176</locationX>
-        <locationY>755</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Create_Task_failed</targetReference>
         </faultConnector>
@@ -220,8 +225,8 @@
     <recordLookups>
         <name>getRecordTypeId</name>
         <label>getRecordTypeId</label>
-        <locationX>176</locationX>
-        <locationY>647</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createTask</targetReference>
@@ -243,8 +248,8 @@
     <recordUpdates>
         <name>updateInquiry</name>
         <label>updateInquiry</label>
-        <locationX>176</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>setAfterCategory</targetReference>
         </connector>
@@ -272,7 +277,7 @@
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>50</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>setBeforeCategory</targetReference>

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <decisions>
         <name>checkIfNAVUser</name>
         <label>checkIfNAVUser</label>
-        <locationX>380</locationX>
-        <locationY>551</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>isNotNavUser</defaultConnectorLabel>
         <rules>
             <name>isNavUser</name>
@@ -26,8 +27,8 @@
     <decisions>
         <name>checkSubject</name>
         <label>checkSubject</label>
-        <locationX>182</locationX>
-        <locationY>671</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnector>
             <targetReference>updateInternallyFlag_0</targetReference>
         </defaultConnector>
@@ -49,6 +50,7 @@
         </rules>
     </decisions>
     <description>Inquiry can be created by support. Internally flag will be set</description>
+    <environments>Default</environments>
     <interviewLabel>AAREG_supportSetInternallyFlag {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_supportSetInternallyFlag</label>
     <processMetadataValues>
@@ -73,8 +75,8 @@
     <recordLookups>
         <name>getInquirySubject</name>
         <label>getInquirySubject</label>
-        <locationX>380</locationX>
-        <locationY>311</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getNAVuserId</targetReference>
@@ -96,8 +98,8 @@
     <recordLookups>
         <name>getNAVuserId</name>
         <label>getNAVuserId</label>
-        <locationX>380</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkIfNAVUser</targetReference>
@@ -119,8 +121,8 @@
     <recordUpdates>
         <name>updateInternallyFlag_0</name>
         <label>updateInternallyFlag</label>
-        <locationX>314</locationX>
-        <locationY>791</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <inputAssignments>
             <field>isCreatedInternally__c</field>
             <value>
@@ -132,8 +134,8 @@
     <recordUpdates>
         <name>updateInternallyFlag_0_0</name>
         <label>updateInternallyFlag</label>
-        <locationX>50</locationX>
-        <locationY>791</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <inputAssignments>
             <field>isCreatedInternally__c</field>
             <value>
@@ -143,7 +145,7 @@
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>254</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getInquirySubject</targetReference>

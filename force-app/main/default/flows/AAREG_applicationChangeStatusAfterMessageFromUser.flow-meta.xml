@@ -3,8 +3,8 @@
     <actionCalls>
         <name>sendNotificationToUser</name>
         <label>sendNotificationToUser</label>
-        <locationX>50</locationX>
-        <locationY>1295</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>customNotificationAction</actionName>
         <actionType>customNotificationAction</actionType>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
@@ -44,8 +44,8 @@
     <actionCalls>
         <name>Update_Application_failed</name>
         <label>Update Application failed</label>
-        <locationX>842</locationX>
-        <locationY>971</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -56,7 +56,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_applicationChangeStatusAfterMessageFromUser_failed</stringValue>
+                <stringValue>AAREG_applicationChangeStatusAfterMessageFromUser</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -86,13 +86,13 @@
         <nameSegment>LoggerUtility</nameSegment>
         <offset>0</offset>
     </actionCalls>
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>setRecipient</name>
         <label>setRecipient</label>
-        <locationX>380</locationX>
-        <locationY>755</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varRecipientId</assignToReference>
             <operator>Add</operator>
@@ -107,8 +107,8 @@
     <decisions>
         <name>checkObjectType</name>
         <label>checkObjectType</label>
-        <locationX>743</locationX>
-        <locationY>647</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>isNotApplicationObjectType</defaultConnectorLabel>
         <rules>
             <name>isApplicationObjectType</name>
@@ -129,8 +129,8 @@
     <decisions>
         <name>Is_Owner_Null</name>
         <label>Is Owner Null?</label>
-        <locationX>380</locationX>
-        <locationY>971</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>Owner is null</defaultConnectorLabel>
         <rules>
             <name>Owner_not_null</name>
@@ -158,8 +158,8 @@
     <decisions>
         <name>isUserActiveCheck</name>
         <label>isUserActive</label>
-        <locationX>182</locationX>
-        <locationY>1187</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>userNotActive</defaultConnectorLabel>
         <rules>
             <name>userIsActive</name>
@@ -210,8 +210,8 @@
     <recordLookups>
         <name>getApplication</name>
         <label>getApplication</label>
-        <locationX>743</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getNotificationId</targetReference>
@@ -233,8 +233,8 @@
     <recordLookups>
         <name>getNotificationId</name>
         <label>getNotificationId</label>
-        <locationX>743</locationX>
-        <locationY>539</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>checkObjectType</targetReference>
@@ -256,8 +256,8 @@
     <recordLookups>
         <name>getThreadObjectType</name>
         <label>getThreadObjectType</label>
-        <locationX>743</locationX>
-        <locationY>323</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>getApplication</targetReference>
@@ -280,8 +280,8 @@
     <recordLookups>
         <name>getUser</name>
         <label>getUser</label>
-        <locationX>182</locationX>
-        <locationY>1079</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>isUserActiveCheck</targetReference>
@@ -301,8 +301,8 @@
     <recordUpdates>
         <name>updateApplicationStatus</name>
         <label>updateApplicationStatus</label>
-        <locationX>380</locationX>
-        <locationY>863</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>Is_Owner_Null</targetReference>
         </connector>
@@ -332,7 +332,7 @@
         <object>Application__c</object>
     </recordUpdates>
     <start>
-        <locationX>617</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getThreadObjectType</targetReference>

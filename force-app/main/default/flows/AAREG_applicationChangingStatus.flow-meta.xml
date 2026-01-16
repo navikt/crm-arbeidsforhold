@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>setStatus</name>
         <label>setStatus</label>
-        <locationX>176</locationX>
-        <locationY>335</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>varStatus</assignToReference>
             <operator>Assign</operator>
@@ -25,6 +26,7 @@
         </connector>
     </assignments>
     <description>Adds an task whenever the casehandler status changes on application</description>
+    <environments>Default</environments>
     <formulas>
         <name>varDescription</name>
         <dataType>String</dataType>
@@ -52,7 +54,7 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <start>
-        <locationX>50</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>setStatus</targetReference>
@@ -73,8 +75,8 @@
     <subflows>
         <name>createTaskChangeStatus</name>
         <label>createTaskChangeStatus</label>
-        <locationX>176</locationX>
-        <locationY>455</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <flowName>AAREG_subflowCreateTask</flowName>
         <inputAssignments>
             <name>varDescription</name>
