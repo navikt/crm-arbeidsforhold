@@ -18,7 +18,7 @@ const COLUMNS = [
         }
     },
     { label: 'Vedtak', fieldName: 'VedtaksNr' },
-    { label: 'Status', fieldName: 'Status', type: 'text' }
+    { label: 'Status på prosess', fieldName: 'StatusProsess', type: 'text' }
 ];
 
 

@@ -4,7 +4,7 @@ public with sharing class AAREG_ApplicationDecisionController {
       List<AAREG_ApplicationDecision> decisionWrapperTempList = new List<AAREG_ApplicationDecision>();
      
       List<Application_Decision__c> decision = [
-            SELECT Id, Name, CreatedDate, Application__c 
+            SELECT Id, Name, CreatedDate, Application__c,Status__c, Process_status__c, Letter_complaint_text__c, Letter_terms_text__c 
             FROM Application_Decision__c
             WHERE Application__c = :recordId
         ];
@@ -15,6 +15,8 @@ public with sharing class AAREG_ApplicationDecisionController {
                 templist.VedtaksNr = app.Name;
                 tempList.VedtaksId = app.Id;
                 tempList.SoknadsId = app.Application__c;
+                tempList.Status = app.Status__c;
+                tempList.StatusProsess = app.Process_status__c;
                 decisionWrapperTempList.add(tempList);
             }
         }
@@ -30,9 +32,9 @@ public with sharing class AAREG_ApplicationDecisionController {
         ID NewDecisionId;
 
         newDecision.Application__c = recordId; // Replace with the correct field API name
-        //newDecision.Status__c = 'Approved'; // Set default values as needed
-        //newDecision.Letter_complaint_section__c = System.Label.AAREG_complaint_description_section;
-        //newDecision.Letter_terms_section__c = System.Label.AAREG_terms_description_section;
+        newDecision.Process_status__c = 'In progress'; // Set default values as needed
+        newDecision.Letter_complaint_text__c = System.Label.AAREG_complaint_description_section;
+        newDecision.Letter_terms_text__c = System.Label.AAREG_terms_description_section;
         insert newDecision;
         NewDecisionId = newDecision.Id;
 

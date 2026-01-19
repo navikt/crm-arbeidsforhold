@@ -55,6 +55,10 @@
                 <behavior>Edit</behavior>
                 <field>Letter_terms_section__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Agreement__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns/>
         <style>TwoColumnsTopToBottom</style>
