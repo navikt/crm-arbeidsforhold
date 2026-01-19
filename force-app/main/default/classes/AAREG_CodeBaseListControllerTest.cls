@@ -9,20 +9,16 @@ public class AAREG_CodeBaseListControllerTest {
     Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
       .get('Aa_RegisterAccess')
       .getRecordTypeId();
-    Application__c app = new Application__c();
-    app.Account__c = acc.Id;
-    app.RecordTypeId = devRecordTypeId;
-    app.ApplicationSubmittedDate__c = system.today();
-    insert app;
-
-    ApplicationBasisCode__c abc = new ApplicationBasisCode__c();
-    abc.Application__c = app.Id;
-    abc.OrganizationType__c = 'State';
-    abc.LegalBasisState__c = 'LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58';
-    abc.PurposeState__c = 'Innkalling av tjenestepliktig personell';
-    abc.ProcessingBasis__c = 'ja,da...';
-    insert abc;
-
+      
+       Account testAccount = AAREG_TestDataFactory.getAccountCounty();
+        insert testAccount;
+      
+      Application__c app = AAREG_TestDataFactory.getApplicationCounty(testAccount);
+        insert app;
+      
+        List<ApplicationBasisCode__c> basisCodes = AAREG_TestDataFactory.getBasisCodeCounty(app);
+        insert basisCodes;
+  
     ContentVersion file = new ContentVersion();
     String data = 'Dette er innholdet i fila';
     file.Title = 'Dataelementer tilhørende søknad';
@@ -51,9 +47,14 @@ public class AAREG_CodeBaseListControllerTest {
 
     //Loop through fields to ensure is not null
     for (ApplicationBasisCode__c abc : baseList) {
-      System.assertNotEquals(abc.LegalBasisState__c, null, 'Legal should not be null');
-      System.assertNotEquals(abc.PurposeState__c, null, 'purpose should not be null');
-      System.assertNotEquals(abc.ProcessingBasis__c, null, 'decision should not be null');
+        if(abc.ProcessingBasis__c =='Processing Basis 1'){
+            System.assertEquals(abc.LegalBasisCounty__c,'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f','Legal should be the same');
+            System.assertEquals(abc.PurposeCounty__c,'Tildeling og kontroll av drosjeløyve','Purpose should be the same');
+        }
+        if(abc.ProcessingBasis__c=='Processing Basis 2'){
+            System.assertEquals(abc.LegalBasisCounty__c,'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f','Legal should be the same');
+            System.assertEquals(abc.PurposeCounty__c,'Kontroll av helsepersonell - tilsynssaker');
+        }
     }
   }
 

@@ -47,51 +47,51 @@ echo "Installerer crm-henvendelse-base 0.36.0.."
 call sf force:package:install --package 04tQC000000uSXtYAM -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
-echo "Installerer crm-platform-integration  165"
-call sf force:package:install --package 04tQC0000010MKvYAM -r --installation-key %1 --wait 4 --publish-wait 4
+echo "Installerer crm-platform-integration  167"
+call sf force:package:install --package 04tQC0000012rMDYAY -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
-echo "Installerer crm-platform-access-control 163"
-call sf force:package:install --package 04tQC0000010m7JYAQ -r --installation-key %1 --wait 4 --publish-wait 4
+echo "Installerer crm-platform-access-control 168"
+call sf force:package:install --package 04tQC0000012rajYAA -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
 echo "Installerer crm-thread-view 0.8.0.."
 call sf force:package:install --package 04tQC0000011athYAA -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
-echo "Installerer crm-shared-timeline 1.40.0.."
-call sf force:package:install --package 04tQC0000011mzhYAA -r --installation-key %1 --wait 4 --publish-wait 4
+echo "Installerer crm-shared-timeline 1.41.0.."
+call sf force:package:install --package 04tQC0000012tpRYAQ -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
-echo "Installerer crm-community-base 135."
-call sf force:package:install --package 04tQC0000012aDJYAY -r --installation-key %1 --wait 4 --publish-wait 4
+echo "Installerer crm-community-base 139."
+call sf force:package:install --package 04tQC0000012syDYAQ -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
 echo "Installerer crm-platform-email-scheduling 1.8.0."
 call sf force:package:install --package 04tKB000000Y5TZYA0 -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
-echo "Installerer crm-journal-utilities 0.53.0.."
-call sf force:package:install --package 04tQC0000010AhxYAE -r --installation-key %1 --wait 4 --publish-wait 4
+echo "Installerer crm-journal-utilities 0.55.0.."
+call sf force:package:install --package 04tQC0000012pVhYAI -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
-echo "Installerer crm-shared-user-notification 0.26.0"
-call sf force:package:install --package 04tQC0000012c8fYAA -r --installation-key %1 --wait 4 --publish-wait 4
+echo "Installerer crm-shared-user-notification 0.27.0"
+call sf force:package:install --package 04tQC0000012h6jYAA -r --installation-key %1 --wait 4 --publish-wait 4
 
 echo "INSTALLERER"
-echo "Installerer crm-platform-oppgave 0.65.0"
-call sf force:package:install --package 04tQC000000rfOPYAY -r --installation-key %1 --wait 5 --publish-wait 4
+echo "Installerer crm-platform-oppgave 0.67.0"
+call sf force:package:install --package 04tQC0000012qwPYAQ -r --installation-key %1 --wait 5 --publish-wait 4
 
 echo "INSTALLERER"
-echo "Installerer crm-henvendelse 0.192.0"
-call sf force:package:install --package 04tQC0000012crpYAA -r --installation-key %1 --wait 5 --publish-wait 4
+echo "Installerer crm-henvendelse 0.195.0"
+call sf force:package:install --package 04tQC0000012tUTYAY -r --installation-key %1 --wait 5 --publish-wait 4
 
 //echo "Dytter kildekoden til scratch org'en"
 //call sf project deploy start --target-org %ORG_ALIAS% --wait 10
 
 echo "INSTALLERER"
-echo "Installerer crm-arbeidsforhold 0.297.0 beta19"
-call sf force:package:install --package 04tQC0000012jV7YAI -r --installation-key %1 --wait 5 --publish-wait 4
+echo "Installerer crm-arbeidsforhold 0.297.0 beta30"
+call sf force:package:install --package 04tQC0000012uYbYAI -r --installation-key %1 --wait 5 --publish-wait 4
 
 echo "Tildeler tilatelsessett til brukeren"
 call sf org assign permset -n AAREG_Arbeidsforhold_Saksbehandling
@@ -99,7 +99,7 @@ call sf org assign permset -n AAREG_Arbeidsforhold_Saksbehandling
 echo "Tildeler tilatelsessett til brukeren"
 call sf org assign permset -n AAREG_Arbeidsforhold_Support
 
-echo Inserting test data...
+//echo Inserting test data...
 call sf force:data:tree:import -p  dummy-data/Plan.json
 
 echo "Ferdig"

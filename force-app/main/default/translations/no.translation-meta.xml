@@ -29,8 +29,12 @@
     <name>Application</name>
   </customLabels>
   <customLabels>
-    <label>Kodeverk</label>
+    <label>Behandlingsgrunnlag</label>
     <name>ApplicationBasisCode</name>
+  </customLabels>
+  <customLabels>
+    <label>Interne merknader</label>
+    <name>Internal_comment</name>
   </customLabels>
   <customLabels>
     <label>Virksomhet</label>
@@ -303,24 +307,6 @@
   <flowDefinitions>
     <flows />
     <fullName>AAREG_applicationNotificationToCasehandler</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <screens>
-        <fields>
-          <fieldText>Du har ikke valgt en bruker</fieldText>
-          <name>displayMessage</name>
-        </fields>
-        <name>ErrorMessage</name>
-      </screens>
-      <screens>
-        <fields>
-          <name>check</name>
-        </fields>
-        <name>show_list</name>
-      </screens>
-    </flows>
-    <fullName>AAREG_changeCasehandler</fullName>
   </flowDefinitions>
   <flowDefinitions>
     <flows />
