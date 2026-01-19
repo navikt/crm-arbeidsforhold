@@ -1,7 +1,8 @@
-<apex:page standardController="Application_Decision__c" extensions="AAREG_ApplicationDecisionPDFController" showHeader="false"
-    renderAs="PDF">
+<apex:page standardController="Application_Decision__c" extensions="AAREG_ApplicationDecisionPDFController" standardStylesheets="false"
+    showHeader="false" renderAs="PDF">
 
-    <div style="font-family: SansSerif !important; margin-left: 12px; margin-right: 12px; font-size: 12px">
+
+    <div style="font-family:sans-serif; font-size: 12px; line-height: 1.4;">
         <!-- NAV logo -->
         <center>
             <apex:image id="theImage" value="{!$Resource.logo}" width="115px" height="80px" alt="NAV logo" />
@@ -14,87 +15,96 @@
             <apex:outputText value="{!applicationRecord.KonsumentOrganisasjonsnummer}"></apex:outputText>
         </apex:panelGrid>
 
-        <apex:panelGrid columns="1" width="100%;" id="letterdate" style="text-align:right;">
-            <apex:outputText value="Deres referanse: {!applicationRecord.KonsumentKontaktNavn}"></apex:outputText>
+        <apex:panelGrid style="text-align: right;" columns="1" width="100%;" id="letterdate">
+            <apex:outputText value="Deres referanse: {!applicationRecord.SoknadsNavn}"></apex:outputText>
             <apex:outputText value="Søknad levert: {!applicationRecord.SoknadLevert}"></apex:outputText>
-            <apex:outputText value="Vår dato: 20-12-2025"></apex:outputText>
+            <apex:outputText value="Vedtaksdato: {!currentRecord.Vedtaksdato}"></apex:outputText>
             <apex:outputText value="Vår referanse: 0123456789"></apex:outputText>
         </apex:panelGrid>
 
         <!-- Heading -->
         <h2 style="background-color: #F1F1F1; !important;">Vedtak om tilgang til Arbeidsgiver- og arbeidstakerregisteret</h2>
-        <apex:outputText value="Vi viser til deres søknad {!applicationRecord.SoknadsNavn} om tilgang til Arbeidsgiver- og arbeidstakerregisteret (Aa-registeret) mottatt {!applicationRecord.SoknadLevert}. Søknaden er delvis innvilget. "
-            escape="false" style="line-height: 1.5em;" />
+        <apex:outputText value="Vi viser til deres søknad {!applicationRecord.SoknadsNavn} om tilgang til Arbeidsgiver- og arbeidstakerregisteret (Aa-registeret) mottatt {!applicationRecord.SoknadLevert}. Søknaden er {!LOWER(currentRecord.Status)}."
+        />
 
-
+        <h3>Begrunnelse</h3>
+        <!-- Decision details that is approved -->
         <apex:outputPanel rendered="{!decisionDetailsRecords !=0}">
-            <h3>Begrunnelse</h3>
-            <h4>Formål som er godkjent</h4>
             <apex:repeat value="{!decisionDetailsRecords}" var="detail">
                 <apex:outputPanel rendered="{!detail.BehandlingsgrunnlagGodkjent == true}">
-
+                    <h4>Formål som er innvilget</h4>
                     <table style="vertical-align: top; width: 100%; margin-bottom: 15px; border-collapse: collapse;">
                         <tr>
-                            <th style="vertical-align: top; width: 30%">Formålet som er godkjent er knyttet til:</th>
+                            <th style="vertical-align: top; width: 30%">Formålet som er innvilget er knyttet til:</th>
                             <td>
-                                <apex:outputText value="{!detail.Formaal}" style="line-height: 1.5em;"></apex:outputText>
+                                <apex:outputText value="{!detail.Formaal}"></apex:outputText>
                             </td>
                         </tr>
-
-
                         <tr>
                             <th style="vertical-align: top; width: 40%">Behandlingsgrunnlaget er:</th>
                             <td>
-                                <apex:outputText value="Begrunnelse: {!detail.Behandlingsgrunnlag}" style="line-height: 1.5em;"></apex:outputText>
+                                <apex:outputText value="{!detail.Behandlingsgrunnlag}"></apex:outputText>
                             </td>
-
                         </tr>
                         <tr>
                             <th style="vertical-align: top; width: 30%">Rett til å kreve opplysningene er regulert i:</th>
                             <td>
-                                <apex:outputText value="Hjemmel: {!detail.Hjemmel}" style="line-height: 1.5em;"></apex:outputText>
+                                <apex:outputText value="{!detail.Hjemmel}"></apex:outputText>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="vertical-align: top; width: 30%">Innvilget tilgang av typen:</th>
+                            <td>
+                                <apex:outputText rendered="{!detail.APITilgang}" value="API tilgang, "></apex:outputText>
+                                <apex:outputText rendered="{!detail.WebTilgang}" value="Web oppslag, "></apex:outputText>
+                                <apex:outputText rendered="{!detail.Uttrekk}" value="Uttrekk "></apex:outputText>
                             </td>
                         </tr>
                     </table>
-                    {!detail.Vedtaksbegrunnelse}
-                    <br/>
-                </apex:outputPanel>
-
-                <apex:outputPanel rendered="{!detail.BehandlingsgrunnlagGodkjent == false}">
-                    <h4>Formål som er avslått</h4>
-                    <table style="vertical-align: top; width: 100%; margin-bottom: 15px; border-collapse: collapse;">
-                        <tr>
-                            <th style="vertical-align: top; width: 30%">Formål:</th>
-                            <td>
-                                <apex:outputText value="{!detail.Formaal}" style="line-height: 1.5em;"></apex:outputText>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th style="vertical-align: top; width: 40%">Behandlingsgrunnlaget er:</th>
-                            <td>
-                                <apex:outputText value="Begrunnelse: {!detail.Behandlingsgrunnlag}" style="line-height: 1.5em;"></apex:outputText>
-                            </td>
-
-                        </tr>
-                        <tr>
-                            <th style="vertical-align: top; width: 30%">Rett til å kreve opplysningene er regulert i:</th>
-                            <td>
-                                <apex:outputText value="Hjemmel: {!detail.Hjemmel}" style="line-height: 1.5em;"></apex:outputText>
-                            </td>
-                        </tr>
-                    </table>
-                    {!detail.Vedtaksbegrunnelse}
+                    <apex:outputText rendered="{!detail.WebTilgang}" value=" Her må vi ha en tekst knyttet til web oppslag."></apex:outputText>
+                    <br/> {!detail.Vedtaksbegrunnelse}
                     <br/>
                 </apex:outputPanel>
             </apex:repeat>
-            <apex:outputPanel rendered="{!NOT(ISBLANK(currentRecord.Vedtaksbegrunnelse))}">
-                <h3>Vedtaksbegrunnelse</h3>
-                <apex:outputText value="{!currentRecord.Vedtaksbegrunnelse}" style="line-height: 1.5em;"></apex:outputText>
-            </apex:outputPanel>
-
         </apex:outputPanel>
 
+        <!-- Decision details that is not approved -->
+        <apex:outputPanel rendered="{!decisionDetailsRecords !=0}">
+            <apex:repeat value="{!decisionDetailsRecords}" var="detail1">
+                <apex:outputPanel rendered="{!detail1.BehandlingsgrunnlagGodkjent == false}">
+                    <h4>Formål som er avslått</h4>
+                    <table style="vertical-align: top; width: 100%; margin-bottom: 15px; border-collapse: collapse;">
+                        <tr>
+                            <th style="vertical-align: top; width: 30%">Formålet som er avslått er knyttet til:</th>
+                            <td>
+                                <apex:outputText value="{!detail1.Formaal}"></apex:outputText>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th style="vertical-align: top; width: 40%">Behandlingsgrunnlaget er:</th>
+                            <td>
+                                <apex:outputText value="{!detail1.Behandlingsgrunnlag}"></apex:outputText>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <th style="vertical-align: top; width: 30%">Rett til å kreve opplysningene er regulert i:</th>
+                            <td>
+                                <apex:outputText value="{!detail1.Hjemmel}"></apex:outputText>
+                            </td>
+                        </tr>
+                    </table>
+                    {!detail1.Vedtaksbegrunnelse}
+                    <br/>
+                </apex:outputPanel>
+            </apex:repeat>
+        </apex:outputPanel>
+
+        <h3>Vedtaksbegrunnelse</h3>
+        <div>
+            <apex:outputText value="{!currentRecord.Vedtaksbegrunnelse}" escape="false"></apex:outputText>
+        </div>
 
 
 
@@ -102,23 +112,25 @@
             Her finner dere også en del svar på eventuelle faglige og tekniske spørsmål, samt kontaktinformasjon. </p>
 
         <h3>{!$Label.AAREG_terms_section}</h3>
-        <p>Vi viser til de aksepterte bruksvilkårene som dere godkjente i forbindelse med innsendelse av søknaden. De finnes
-            også via www.nav.no, se under Samarbeidspartner/Arbeidsgiver- og arbeidstakerregisteret (Aa-registeret).
-        </p>
+        <p></p>
+        <div>
+            <apex:outputText value="{!currentRecord.Vilkaartekst}" escape="false"></apex:outputText>
+        </div>
+
 
         <h3>{!$Label.AAREG_complaint_section}</h3>
         <p></p>
-        <p>Dersom dere har spørsmål om vedtaket, kan dere ta kontakt med oss for nærmere opplysninger. Dette vedtaket kan påklages
-            til NAV Klageinstans etter reglene i forvaltningsloven kapittel VI. Klagen skal grunngis og fremsettes oss innen
-            3 uker fra dere mottok vedtaket. </p>
+        <div>
+            <apex:outputText value="{!currentRecord.Klagetekst}" escape="false"></apex:outputText>
+        </div>
+
 
         Med hilsen
         <br/>
-        <apex:outputText value="Saksbehandlernavn"></apex:outputText>
+        <apex:outputText value="{!applicationRecord.Sakseier}"></apex:outputText>
         <br/>
         <br/> NAV REGISTERFORVALTNING
         <br/> ARBEIDS OG VELFERDSETATEN
         <br/> www.nav.no
     </div>
-
 </apex:page>

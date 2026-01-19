@@ -29,7 +29,8 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
                MailingAddress__c, 
                MailingCity__c, 
                MailingPostalCode__c,
-               OrganizationNumber__c
+               OrganizationNumber__c,
+               CasehandlerOwner__r.Name
         FROM Application__c
         WHERE Id = :currentRecordId
         LIMIT 1
@@ -49,6 +50,7 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
           applicationWrapperTempList.SoknadLevert = app.ApplicationSubmittedDate__c;
           applicationWrapperTempList.DatabehandlerNavn = app.DataProcessorName__c;
           applicationWrapperTempList.DatabehandlerOrganisasjonsnummer = app.DataProcessorOrganizationNumber__c;
+          applicationWrapperTempList.Sakseier = app.CasehandlerOwner__r.Name;
     }
     return applicationWrapperTempList;
 }
@@ -57,7 +59,7 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
         AAREG_ApplicationDecision decisionWrapper = new AAREG_ApplicationDecision();
         
         List<Application_Decision__c> decisionRecords = [
-            SELECT Id, Name, CreatedDate, Application__c, Status__c,decision_description__c 
+            SELECT Id, Name, CreatedDate, Application__c, Status__c,decision_description__c,Letter_complaint_text__c, Letter_terms_text__c,Decision_date__c
             FROM Application_Decision__c 
             WHERE Id = :currentRecordId 
             LIMIT 1
@@ -66,10 +68,13 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
         if (!decisionRecords.isEmpty()) {
             Application_Decision__c app = decisionRecords[0];
             decisionWrapper.VedtaksNr = app.Name;
+            decisionWrapper.Vedtaksdato = app.Decision_date__c;
             decisionWrapper.Vedtaksbegrunnelse =app.Decision_description__c;
             decisionWrapper.VedtaksId = app.Id;
             decisionWrapper.Status = app.Status__c;
             decisionWrapper.SoknadsId = app.Application__c;
+            decisionWrapper.Klagetekst = app.Letter_complaint_text__c;
+            decisionWrapper.Vilkaartekst = app.Letter_terms_text__c;
         }
 
         return decisionWrapper;
