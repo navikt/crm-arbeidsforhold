@@ -59,7 +59,7 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
         AAREG_ApplicationDecision decisionWrapper = new AAREG_ApplicationDecision();
         
         List<Application_Decision__c> decisionRecords = [
-            SELECT Id, Name, CreatedDate, Application__c, Status__c,decision_description__c,Letter_complaint_text__c, Letter_terms_text__c,Decision_date__c
+            SELECT Id, Name, CreatedDate, Application__c, Status__c,decision_description__c,Letter_complaint_text__c, Letter_terms_text__c,Decision_date__c,Web_access_count__c, Letter_github_text__c,Letter_webaccess_text__c
             FROM Application_Decision__c 
             WHERE Id = :currentRecordId 
             LIMIT 1
@@ -75,6 +75,9 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
             decisionWrapper.SoknadsId = app.Application__c;
             decisionWrapper.Klagetekst = app.Letter_complaint_text__c;
             decisionWrapper.Vilkaartekst = app.Letter_terms_text__c;
+            decisionWrapper.WebTilgang = app.Web_access_count__c;
+            decisionWrapper.Githubtekst= app.Letter_github_text__c;
+            decisionWrapper.WebTilgangtekst= app.Letter_webaccess_text__c;
         }
 
         return decisionWrapper;

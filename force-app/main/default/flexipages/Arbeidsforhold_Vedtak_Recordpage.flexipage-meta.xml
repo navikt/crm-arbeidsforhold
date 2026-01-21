@@ -181,6 +181,26 @@
                 <identifier>RecordLetter_terms_text_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Letter_github_text__c</fieldItem>
+                <identifier>RecordLetter_github_text__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Letter_webaccess_text__c</fieldItem>
+                <identifier>RecordLetter_webaccess_text__cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-9f783296-21c0-4b32-bf00-c4da3399f1ef</name>
         <type>Facet</type>
     </flexiPageRegions>
