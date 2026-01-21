@@ -31,12 +31,5 @@
         <value><!-- Application Decision Detail --></value>
     </caseValues>
     <gender><!-- Neuter --></gender>
-    <layouts>
-        <layout>Oppsettet Application Decision</layout>
-        <sections>
-            <label><!-- Tilpassede lenker --></label>
-            <section>Tilpassede lenker</section>
-        </sections>
-    </layouts>
     <nameFieldLabel><!-- Name --></nameFieldLabel>
 </CustomObjectTranslation>
