@@ -35,6 +35,8 @@ public with sharing class AAREG_ApplicationDecisionController {
         newDecision.Process_status__c = 'In progress'; // Set default values as needed
         newDecision.Letter_complaint_text__c = System.Label.AAREG_complaint_description_section;
         newDecision.Letter_terms_text__c = System.Label.AAREG_terms_description_section;
+        newDecision.Letter_github_text__c = System.Label.AAREG_github_description_text;
+        newDecision.Letter_webaccess_text__c = System.Label.AAREG_web_access_text;
         insert newDecision;
         NewDecisionId = newDecision.Id;
 

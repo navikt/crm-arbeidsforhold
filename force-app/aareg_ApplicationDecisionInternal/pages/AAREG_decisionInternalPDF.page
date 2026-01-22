@@ -61,7 +61,6 @@
                             </td>
                         </tr>
                     </table>
-                    <apex:outputText rendered="{!detail.WebTilgang}" value=" Her må vi ha en tekst knyttet til web oppslag."></apex:outputText>
                     <br/> {!detail.Vedtaksbegrunnelse}
                     <br/>
                 </apex:outputPanel>
@@ -101,31 +100,33 @@
             </apex:repeat>
         </apex:outputPanel>
 
-        <h3>Vedtaksbegrunnelse</h3>
         <div>
             <apex:outputText value="{!currentRecord.Vedtaksbegrunnelse}" escape="false"></apex:outputText>
         </div>
 
+        <div>
+            <apex:outputText rendered="{!currentRecord.WebTilgang>0}" value="{!currentRecord.WebTilgangtekst}" escape="false"></apex:outputText>
+            <br/>
+            <br/>
+        </div>
 
+        <div>
+            <apex:outputText value="{!currentRecord.Githubtekst}" escape="false"></apex:outputText>
+        </div>
 
-        <p>Nærmere beskrivelse av tjenestene og den tekniske løsningen finner dere på våre GitHub-sider, se https://navikt.github.io/aareg/.
-            Her finner dere også en del svar på eventuelle faglige og tekniske spørsmål, samt kontaktinformasjon. </p>
 
         <h3>{!$Label.AAREG_terms_section}</h3>
-        <p></p>
         <div>
             <apex:outputText value="{!currentRecord.Vilkaartekst}" escape="false"></apex:outputText>
         </div>
 
 
         <h3>{!$Label.AAREG_complaint_section}</h3>
-        <p></p>
         <div>
             <apex:outputText value="{!currentRecord.Klagetekst}" escape="false"></apex:outputText>
         </div>
 
-
-        Med hilsen
+        <br/> Med hilsen
         <br/>
         <apex:outputText value="{!applicationRecord.Sakseier}"></apex:outputText>
         <br/>

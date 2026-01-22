@@ -1,621 +1,1742 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Translations xmlns="http://soap.sforce.com/2006/04/metadata">
-  <customApplications>
-    <label>Arbeidsforhold</label>
-    <name>Arbeidsforhold</name>
-  </customApplications>
-  <customApplications>
-    <label>Arbeidsforhold - henvendelse</label>
-    <name>Arbeidsforhold_henvendelse</name>
-  </customApplications>
-  <customApplications>
-    <label />
-    <name>Email_Scheduling</name>
-  </customApplications>
-  <customLabels>
-    <label>Tilgangstype</label>
-    <name>AccessType</name>
-  </customLabels>
-  <customLabels>
-    <label>Avtaler</label>
-    <name>Agreements</name>
-  </customLabels>
-  <customLabels>
-    <label>Søker</label>
-    <name>Applicant</name>
-  </customLabels>
-  <customLabels>
-    <label>Søknad</label>
-    <name>Application</name>
-  </customLabels>
-  <customLabels>
-    <label>Behandlingsgrunnlag</label>
-    <name>ApplicationBasisCode</name>
-  </customLabels>
-  <customLabels>
-    <label>Interne merknader</label>
-    <name>Internal_comment</name>
-  </customLabels>
-  <customLabels>
-    <label>Virksomhet</label>
-    <name>Business</name>
-  </customLabels>
-  <customLabels>
-    <label>Kodeverk</label>
-    <name>Codes</name>
-  </customLabels>
-  <customLabels>
-    <label>Kontaktperson</label>
-    <name>Contacts</name>
-  </customLabels>
-  <customLabels>
-    <label>Databehandler</label>
-    <name>DataProcessor</name>
-  </customLabels>
-  <customLabels>
-    <label>Dataelementer</label>
-    <name>Dataelement</name>
-  </customLabels>
-  <customLabels>
-    <label>Vedtak</label>
-    <name>Decision</name>
-  </customLabels>
-  <customLabels>
-    <label>Detaljer</label>
-    <name>Detail</name>
-  </customLabels>
-  <customLabels>
-    <label />
-    <name>Dialog</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- Errors_CannotFindTriggerHandlerClass -->
-    </label>
-    <name>Errors_CannotFindTriggerHandlerClass</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- Errors_DuplicateTriggerHandlerClass -->
-    </label>
-    <name>Errors_DuplicateTriggerHandlerClass</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- Errors_InvalidSettingConfiguration -->
-    </label>
-    <name>Errors_InvalidSettingConfiguration</name>
-  </customLabels>
-  <customLabels>
-    <label>Filer</label>
-    <name>Files</name>
-  </customLabels>
-  <customLabels>
-    <label>Tilknyttet kontaktpunkt</label>
-    <name>Related</name>
-  </customLabels>
-  <customLabels>
-    <label>Beskrivelse ved henleggelse</label>
-    <name>Suspension</name>
-  </customLabels>
-  <customLabels>
-    <label>Bruksvilkår</label>
-    <name>TermsOfUse</name>
-  </customLabels>
-  <customLabels>
+    <customApplications>
+        <label>Arbeidsforhold</label>
+        <name>Arbeidsforhold</name>
+    </customApplications>
+    <customApplications>
+        <label>Arbeidsforhold - admin</label>
+        <name>Arbeidsforhold_Admin</name>
+    </customApplications>
+    <customApplications>
+        <label>Arbeidsforhold - henvendelse</label>
+        <name>Arbeidsforhold_henvendelse</name>
+    </customApplications>
+    <customApplications>
+        <label><!-- Email Scheduling --></label>
+        <name>Email_Scheduling</name>
+    </customApplications>
+    <customLabels>
+        <label><!-- Applicant details section --></label>
+        <name>AAREG_applicant_details_section</name>
+    </customLabels>
+    <customLabels>
+        <label>Søknad om tilgang til Aa-register</label>
+        <name>AAREG_application_title</name>
+    </customLabels>
+    <customLabels>
+        <label>Behandlingsgrunnlag</label>
+        <name>AAREG_code_basis_section</name>
+    </customLabels>
+    <customLabels>
+        <label>Dersom dere har spørsmål om vedtaket, kan dere ta kontakt med oss for nærmere opplysninger. 
+            Dette vedtaket kan påklages til Nav Klageinstans etter reglene i forvaltningsloven kapittel VI. Klagen skal grunngis og fremsettes oss innen 3 uker fra
+            dere mottok vedtaket.</label>
+        <name>AAREG_complaint_description_section</name>
+    </customLabels>
+    <customLabels>
+        <label>Veiledning og klage</label>
+        <name>AAREG_complaint_section</name>
+    </customLabels>
+    <customLabels>
+        <label>Kontaktpunkt</label>
+        <name>AAREG_contac_person_section</name>
+    </customLabels>
+    <customLabels>
+        <label>Nærmere beskrivelse av tjenestene og den tekniske løsningen finner dere på våre GitHub-sider, se: https://navikt.github.io/aareg/ .
+            Her finner dere også en del svar på eventuelle faglige og tekniske spørsmål, samt kontaktinformasjon.
+        </label>
+        <name>AAREG_github_description_text</name>
+    </customLabels>
+    <customLabels>
+        <label>Vi viser til de aksepterte bruksvilkårene som dere godkjente i forbindelse med innsendelse av søknaden.
+            De finnes også via www.nav.no, se under Samarbeidspartner/Arbeidsgiver- og arbeidstakerregisteret (Aa-registeret).
+        </label>
+        <name>AAREG_terms_description_section</name>
+    </customLabels>
+    <customLabels>
+        <label>Ansvar og vilkår ved bruk av opplysningene</label>
+        <name>AAREG_terms_section</name>
+    </customLabels>
+    <customLabels>
+        <label>Ytterligere informasjon om tjenesten web-oppslag, se: https://www.nav.no/samarbeidspartner/web-oppslag.
+            For å logge inn i tjenesten web-oppslag Aa-registeret, se:https://aa-registeret.nav.no/.
+        </label>
+        <name>AAREG_web_access_text</name>
+    </customLabels>
+    <customLabels>
+        <label>Tilgangstype</label>
+        <name>AccessType</name>
+    </customLabels>
+    <customLabels>
+        <label>Avtaler</label>
+        <name>Agreements</name>
+    </customLabels>
+    <customLabels>
+        <label>Søker</label>
+        <name>Applicant</name>
+    </customLabels>
+    <customLabels>
+        <label>Søknad</label>
+        <name>Application</name>
+    </customLabels>
+    <customLabels>
+        <label>Behandlingsgrunnlag</label>
+        <name>ApplicationBasisCode</name>
+    </customLabels>
+    <customLabels>
+        <label>Virksomhet</label>
+        <name>Business</name>
+    </customLabels>
+    <customLabels>
+        <label>Kodeverk</label>
+        <name>Codes</name>
+    </customLabels>
+    <customLabels>
+        <label>Kontaktperson</label>
+        <name>Contacts</name>
+    </customLabels>
+    <customLabels>
+        <label>Databehandler</label>
+        <name>DataProcessor</name>
+    </customLabels>
+    <customLabels>
+        <label>Dataelementer</label>
+        <name>Dataelement</name>
+    </customLabels>
+    <customLabels>
+        <label>Vedtak</label>
+        <name>Decision</name>
+    </customLabels>
+    <customLabels>
+        <label>Detaljer</label>
+        <name>Detail</name>
+    </customLabels>
+    <customLabels>
+        <label>Dialog</label>
+        <name>Dialog</name>
+    </customLabels>
+    <customLabels>
+        <label>Filer</label>
+        <name>Files</name>
+    </customLabels>
 
-    <label>Søkers virksomhet</label>
-    <name>applicantBusiness</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- Error when selecting a cross-object fieldsset is not allowed and attempted. -->
-    </label>
-    <name>fflib_QueryFactory_crossobject_fieldsets_not_allowed_error</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- Error when selecting a field set for a different sobject type. -->
-    </label>
-    <name>fflib_QueryFactory_fieldset_wrong_sobject_error</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- Presented when attempting to nest subqueries. -->
-    </label>
-    <name>fflib_QueryFactory_recursive_subquery_error</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- Presented when attempting to create a subquery from an invalid relationship. -->
-    </label>
-    <name>fflib_QueryFactory_subquery_invalid_relationship</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- fflib_security_error_field_not_insertable -->
-    </label>
-    <name>fflib_security_error_field_not_insertable</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- fflib_security_error_field_not_readable -->
-    </label>
-    <name>fflib_security_error_field_not_readable</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- fflib_security_error_field_not_updateable -->
-    </label>
-    <name>fflib_security_error_field_not_updateable</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- fflib_security_error_object_not_deletable -->
-    </label>
-    <name>fflib_security_error_object_not_deletable</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- fflib_security_error_object_not_insertable -->
-    </label>
-    <name>fflib_security_error_object_not_insertable</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- fflib_security_error_object_not_readable -->
-    </label>
-    <name>fflib_security_error_object_not_readable</name>
-  </customLabels>
-  <customLabels>
-    <label>
-      <!-- fflib_security_error_object_not_updateable -->
-    </label>
-    <name>fflib_security_error_object_not_updateable</name>
-  </customLabels>
-  <customTabs>
-    <label />
-    <name>API_Transactions</name>
-  </customTabs>
-  <customTabs>
-    <label />
-    <name>EmailQueueErrors</name>
-  </customTabs>
-  <customTabs>
-    <label />
-    <name>EmailQueueQueued</name>
-  </customTabs>
-  <customTabs>
-    <label />
-    <name>EmailQueueSent</name>
-  </customTabs>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREGApplicationAfterInsertPopulateApplicationFields</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <screens>
-        <fields>
-          <fieldText>Nei, ikke ferdigstill henvendelse - send kun varsel</fieldText>
-          <name>notFinished</name>
-        </fields>
-        <fields>
-          <fieldText>Ja, ferdigstill henvendelse og send varsel</fieldText>
-          <name>yesFinished</name>
-        </fields>
-        <name>closeCaseSendNotification</name>
-      </screens>
-      <screens>
-        <fields>
-          <fieldText>Saken vil settes i ferdigbehandlet status og bruker vil bli varslet</fieldText>
-          <name>inquiryClosed</name>
-        </fields>
-        <name>finishedSendNotifidcation</name>
-      </screens>
-      <screens>
-        <fields>
-          <fieldText>Bruker vil bli varslet</fieldText>
-          <name>notFinishedYet</name>
-        </fields>
-        <name>notFinishedSendNotificationToUser</name>
-      </screens>
-    </flows>
-    <fullName>AAREG_SupportSendNotificationToUser</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_SupportThreadUpdateAccountId</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <screens>
-        <fields>
-          <fieldText>Du kan ikke henlegge en søknad som står i status Ny og ikke har en sakseier</fieldText>
-          <name>setOwnerAndStatus</name>
-        </fields>
-        <name>ErrorMessage</name>
-      </screens>
-      <screens>
-        <fields>
-          <fieldText>Årsak til henleggelse</fieldText>
-          <helpText>Skriv inn årsaken til henleggelse av søknad</helpText>
-          <name>suspensionText</name>
-        </fields>
-        <name>reasonForSuspension</name>
-      </screens>
-    </flows>
-    <fullName>AAREG_addReasonForSuspension</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_afterInsertUpdateThreadOwnerId</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <screens>
-        <fields>
-          <fieldText>Legg til merknad - kun for internt bruk</fieldText>
-          <name>addInternalComment</name>
-        </fields>
-        <name>addComment</name>
-      </screens>
-      <textTemplates>
-        <name>newLine</name>
-      </textTemplates>
-      <textTemplates>
-        <name>varAddTextTemplateComments</name>
-      </textTemplates>
-    </flows>
-    <fullName>AAREG_applicationAddInternalComments</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_applicationChangeStatusAfterMessageFromUser</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_applicationChangingStatus</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <screens>
-        <fields>
-          <fieldText>Du har ikke bekreftet at søknaden er ferdigbehandlet.</fieldText>
-          <name>ErrorMessage</name>
-        </fields>
-        <name>IsNotChecked</name>
-      </screens>
-      <screens>
-        <fields>
-          <fieldText>Søknaden står ikke i en status som gjør at søknaden kan settes til
+    <customLabels>
+        <label>Tilknyttet kontaktpunkt</label>
+        <name>Related</name>
+    </customLabels>
+    <customLabels>
+        <label>Beskrivelse ved henleggelse</label>
+        <name>Suspension</name>
+    </customLabels>
+    <customLabels>
+        <label>Bruksvilkår</label>
+        <name>TermsOfUse</name>
+    </customLabels>
+    <customLabels>
+        <label>Søkers virksomhet</label>
+        <name>applicantBusiness</name>
+    </customLabels>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREGApplicationAfterInsertPopulateApplicationFields</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <choices>
+                <name>var_CurrenUserChoice</name>
+            </choices>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>disabled</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>placeholder</name>
+                        <value />
+                    </inputParameters>
+                    <name>var_chooseOwner</name>
+                </fields>
+                <name>Case_owner_lookup</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_Application_update_case_owner</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>FaultText</name>
+                </fields>
+                <name>Fault_Screen</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_Handle_Error_Messages</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>Fault_Text_Detailed</name>
+                </fields>
+                <fields>
+                    <name>Fault_Text_Main</name>
+                </fields>
+                <fields>
+                    <name>Se_feilmelding</name>
+                </fields>
+                <fields>
+                    <inputParameters>
+                        <name>label</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>messageToggleActive</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>messageToggleInactive</name>
+                        <value />
+                    </inputParameters>
+                    <name>Se_mer_detaljer</name>
+                </fields>
+                <name>Fault_Screen</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_Log_And_Disp_Short_Messages</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_SupportSendNotificationToCasehandler</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <fieldText>Nei, ikke ferdigstill henvendelse - send kun varsel</fieldText>
+                    <name>notFinished</name>
+                </fields>
+                <fields>
+                    <fieldText>Ja, ferdigstill henvendelse og send varsel</fieldText>
+                    <name>yesFinished</name>
+                </fields>
+                <name>closeCaseSendNotification</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Saken vil settes i ferdigbehandlet status og bruker vil bli varslet</fieldText>
+                    <name>inquiryClosed</name>
+                </fields>
+                <name>finishedSendNotifidcation</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Bruker vil bli varslet</fieldText>
+                    <name>notFinishedYet</name>
+                </fields>
+                <name>notFinishedSendNotificationToUser</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_SupportSendNotificationToUser</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_SupportThreadUpdateAccountId</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <fieldText>Du kan ikke henlegge en søknad som står i status Ny og ikke har en sakseier</fieldText>
+                    <name>setOwnerAndStatus</name>
+                </fields>
+                <name>ErrorMessage</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Årsak til henleggelse</fieldText>
+                    <helpText>Skriv inn årsaken til henleggelse av søknad</helpText>
+                    <name>suspensionText</name>
+                </fields>
+                <name>reasonForSuspension</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_addReasonForSuspension</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_afterInsertUpdateThreadOwnerId</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <fieldText>Legg til merknad - kun for internt bruk</fieldText>
+                    <name>addInternalComment</name>
+                </fields>
+                <name>addComment</name>
+            </screens>
+            <textTemplates>
+                <name>newLine</name>
+            </textTemplates>
+            <textTemplates>
+                <name>varAddTextTemplateComments</name>
+            </textTemplates>
+        </flows>
+        <fullName>AAREG_applicationAddInternalComments</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_applicationChangeStatusAfterMessageFromUser</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_applicationChangingStatus</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <fieldText>Du har ikke bekreftet at søknaden er ferdigbehandlet.</fieldText>
+                    <name>ErrorMessage</name>
+                </fields>
+                <name>IsNotChecked</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Søknaden står ikke i en status som gjør at søknaden kan settes til
             ferdigbehandlet</fieldText>
-          <name>changeStatus</name>
-        </fields>
-        <name>IsNotCorrectStatus</name>
-      </screens>
-      <screens>
-        <fields>
-          <fieldText>Ja, saken er ferdigbehandlet</fieldText>
-          <name>applicationDoneConfirmation</name>
-        </fields>
-        <name>applicationDone</name>
-      </screens>
-    </flows>
-    <fullName>AAREG_applicationFinished</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_applicationNotificationToCasehandler</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_createDistributionAccess</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_createSupportContact</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <screens>
-        <fields>
-          <fieldText>Avtalen er allerede deaktivert</fieldText>
-          <name>notActiveMessage_0</name>
-        </fields>
-        <name>Not_active_0</name>
-      </screens>
-      <screens>
-        <fields>
-          <fieldText>Ja, deaktiver avtale, men ikke tilgang</fieldText>
-          <name>Yes_I_want_to_deactivate_agreement_not_access</name>
-        </fields>
-        <fields>
-          <name>inActiveAgreement</name>
-        </fields>
-        <fields>
-          <fieldText>Ja, deaktiver avtalen</fieldText>
-          <name>yesDeactivateAgreement</name>
-        </fields>
-        <name>deactivateAgreement</name>
-      </screens>
-      <screens>
-        <fields>
-          <fieldText>Det er ikke foretatt ett valg</fieldText>
-          <name>noneMessage_0_0</name>
-        </fields>
-        <name>youHaveNotSetYesToDeactivate_0_0</name>
-      </screens>
-    </flows>
-    <fullName>AAREG_deactivateAgreement</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_getObjectTypeName</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <textTemplates>
-        <name>containerApplication</name>
-      </textTemplates>
-      <textTemplates>
-        <name>newLine</name>
-      </textTemplates>
-    </flows>
-    <fullName>AAREG_populateApplicationFieldAfterSubmit</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <textTemplates>
-        <name>approvedDecisionText</name>
-      </textTemplates>
-      <textTemplates>
-        <name>containerApplication</name>
-      </textTemplates>
-      <textTemplates>
-        <name>declinedDecisionText</name>
-      </textTemplates>
-      <textTemplates>
-        <name>newLine</name>
-      </textTemplates>
-      <textTemplates>
-        <name>partiallyApprovedDecisionText</name>
-      </textTemplates>
-    </flows>
-    <fullName>AAREG_populateDecisionText</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_sendAwaitingResponseEmailNotification</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_sendDecisionEmailNotification</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_subflowCreateSMS</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_subflowCreateTask</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <screens>
-        <fields>
-          <fieldText>Legg til merknad - kun ment for internt bruk</fieldText>
-          <name>addInternalComment</name>
-        </fields>
-        <name>addComment</name>
-      </screens>
-      <textTemplates>
-        <name>newLine</name>
-      </textTemplates>
-    </flows>
-    <fullName>AAREG_supportAddInternalComments</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_supportRemoveCaseOwner</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_supportSendSMSOnTypeSecurity</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>AAREG_supportSetInternallyFlag</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <screens>
-        <fields>
-          <fieldText>Du kan ikke endre svarfrist dato på en søknad som står i status Ny og ikke har
+                    <name>changeStatus</name>
+                </fields>
+                <name>IsNotCorrectStatus</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Ja, saken er ferdigbehandlet</fieldText>
+                    <name>applicationDoneConfirmation</name>
+                </fields>
+                <name>applicationDone</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_applicationFinished</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_applicationFinished_RT</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_applicationNotificationToCasehandler</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_createContactSendConfirmation</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_createDistributionAccess</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_createSupportContact</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>apiAccess</name>
+                </fields>
+                <fields>
+                    <name>displayText</name>
+                </fields>
+                <fields>
+                    <name>extractAccess</name>
+                </fields>
+                <fields>
+                    <name>onlineAccess</name>
+                </fields>
+                <name>deactivateAccess</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_deactivateAccess</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <fieldText>Avtalen er allerede deaktivert</fieldText>
+                    <name>notActiveMessage_0</name>
+                </fields>
+                <name>Not_active_0</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Ja, deaktiver avtale, men ikke tilgang</fieldText>
+                    <name>Yes_I_want_to_deactivate_agreement_not_access</name>
+                </fields>
+                <fields>
+                    <name>inActiveAgreement</name>
+                </fields>
+                <fields>
+                    <fieldText>Ja, deaktiver avtalen</fieldText>
+                    <name>yesDeactivateAgreement</name>
+                </fields>
+                <name>deactivateAgreement</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Det er ikke foretatt ett valg</fieldText>
+                    <name>noneMessage_0_0</name>
+                </fields>
+                <name>youHaveNotSetYesToDeactivate_0_0</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_deactivateAgreement</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_getObjectTypeName</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <textTemplates>
+                <name>containerApplication</name>
+            </textTemplates>
+            <textTemplates>
+                <name>newLine</name>
+            </textTemplates>
+        </flows>
+        <fullName>AAREG_populateApplicationFieldAfterSubmit</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <textTemplates>
+                <name>approvedDecisionText</name>
+            </textTemplates>
+            <textTemplates>
+                <name>containerApplication</name>
+            </textTemplates>
+            <textTemplates>
+                <name>declinedDecisionText</name>
+            </textTemplates>
+            <textTemplates>
+                <name>newLine</name>
+            </textTemplates>
+            <textTemplates>
+                <name>partiallyApprovedDecisionText</name>
+            </textTemplates>
+        </flows>
+        <fullName>AAREG_populateDecisionText</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_removeAccessToDistribution</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_sendAwaitingResponseEmailNotification</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_sendDecisionEmailNotification</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_setThreadToInactiveOnInquiryClosed</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_subflowCreateSMS</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_subflowCreateTask</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_subflowCreateTask_RT</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <fieldText>Legg til merknad - kun ment for internt bruk</fieldText>
+                    <name>addInternalComment</name>
+                </fields>
+                <name>addComment</name>
+            </screens>
+            <textTemplates>
+                <name>newLine</name>
+            </textTemplates>
+        </flows>
+        <fullName>AAREG_supportAddInternalComments</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_supportRemoveCaseOwner</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_supportSendSMSOnTypeSecurity</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_supportSetInternallyFlag</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <fieldText>Du kan ikke endre svarfrist dato på en søknad som står i status Ny og ikke har
             en sakseier</fieldText>
-          <name>isNotOwnerAndStatusMessage</name>
-        </fields>
-        <name>ErrorMessage</name>
-      </screens>
-      <screens>
-        <fields>
-          <fieldText>Svarfrist dato</fieldText>
-          <name>deadlineDate</name>
-        </fields>
-        <fields>
-          <fieldText>Begrunnelse for endret svarfrist</fieldText>
-          <name>reasonForAdjustDeadline</name>
-        </fields>
-        <name>changeDeadlineDate</name>
-      </screens>
-    </flows>
-    <fullName>AAREG_updateDeadlineDate</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <textTemplates>
-        <name>ApprovedDecisionText</name>
-      </textTemplates>
-      <textTemplates>
-        <name>DeclinedDecisionText</name>
-      </textTemplates>
-      <textTemplates>
-        <name>PartiallyApprovedDecisionText</name>
-      </textTemplates>
-    </flows>
-    <fullName>AAREG_updateDecisionText</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>Agreement_Initiator</fullName>
-  </flowDefinitions>
-
-  <flowDefinitions>
-    <flows />
-    <fullName>NAVTask_Owner_Change</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows />
-    <fullName>TAG_Update_NavUnit_in_NavTask</fullName>
-  </flowDefinitions>
-  <flowDefinitions>
-    <flows>
-      <choices>
-        <name>HOT</name>
-      </choices>
-      <choices>
-        <name>NKS</name>
-      </choices>
-      <screens>
-        <fields>
-          <name>Domain</name>
-        </fields>
-        <fields>
-          <name>Melding</name>
-        </fields>
-        <fields>
-          <name>Mottaker</name>
-        </fields>
-        <name>SMS</name>
-      </screens>
-    </flows>
-    <fullName>Test_SMS_Callout</fullName>
-  </flowDefinitions>
-
-  <quickActions>
-    <label>
-      <!-- LogACall -->
-    </label>
-    <name>LogACall</name>
-  </quickActions>
-  <quickActions>
-    <label>
-      <!-- NewAccount -->
-    </label>
-    <name>NewAccount</name>
-  </quickActions>
-  <quickActions>
-    <label>
-      <!-- NewCase -->
-    </label>
-    <name>NewCase</name>
-  </quickActions>
-  <quickActions>
-    <label>
-      <!-- NewContact -->
-    </label>
-    <name>NewContact</name>
-  </quickActions>
-  <quickActions>
-    <label>
-      <!-- NewEvent -->
-    </label>
-    <name>NewEvent</name>
-  </quickActions>
-  <quickActions>
-    <label>
-      <!-- NewGroup -->
-    </label>
-    <name>NewGroup</name>
-  </quickActions>
-  <quickActions>
-    <label>
-      <!-- NewLead -->
-    </label>
-    <name>NewLead</name>
-  </quickActions>
-  <quickActions>
-    <label>
-      <!-- NewNote -->
-    </label>
-    <name>NewNote</name>
-  </quickActions>
-  <quickActions>
-    <label>
-      <!-- NewOpportunity -->
-    </label>
-    <name>NewOpportunity</name>
-  </quickActions>
-  <quickActions>
-    <label>
-      <!-- NewTask -->
-    </label>
-    <name>NewTask</name>
-  </quickActions>
-  <quickActions>
-    <label>
-      <!-- SendEmail -->
-    </label>
-    <name>SendEmail</name>
-  </quickActions>
-  <reportTypes>
-    <description>
-      <!-- Aa_reg agreement with related contacts -->
-    </description>
-    <label>
-      <!-- Aa_reg agreement with related contacts -->
-    </label>
-    <name>Aa_regAgreementWithRelatedContacts</name>
-    <sections>
-      <label>Virksomheter</label>
-      <name>Accounts</name>
-    </sections>
-    <sections>
-      <label>Avtaler</label>
-      <name>Agreements</name>
-    </sections>
-    <sections>
-      <label>Søknader</label>
-      <name>Applications</name>
-    </sections>
-    <sections>
-      <label />
-      <name>Avtaler</name>
-    </sections>
-    <sections>
-      <label>Tilknyttede kontaktpersoner</label>
-      <name>Related Contacts</name>
-    </sections>
-  </reportTypes>
-  <reportTypes>
-    <description>
-      <!-- Screen Flows -->
-    </description>
-    <label>
-      <!-- Screen Flows -->
-    </label>
-    <name>screen_flows_prebuilt_crt</name>
-    <sections>
-      <label>
-        <!-- Flow Interview Log Entries -->
-      </label>
-      <name>Flow Interview Log Entries</name>
-    </sections>
-    <sections>
-      <label>
-        <!-- Flow Interview Logs -->
-      </label>
-      <name>Flow Interview Logs</name>
-    </sections>
-  </reportTypes>
+                    <name>isNotOwnerAndStatusMessage</name>
+                </fields>
+                <name>ErrorMessage</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Svarfrist dato</fieldText>
+                    <name>deadlineDate</name>
+                </fields>
+                <fields>
+                    <fieldText>Begrunnelse for endret svarfrist</fieldText>
+                    <name>reasonForAdjustDeadline</name>
+                </fields>
+                <name>changeDeadlineDate</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_updateDeadlineDate</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <textTemplates>
+                <name>ApprovedDecisionText</name>
+            </textTemplates>
+            <textTemplates>
+                <name>DeclinedDecisionText</name>
+            </textTemplates>
+            <textTemplates>
+                <name>PartiallyApprovedDecisionText</name>
+            </textTemplates>
+        </flows>
+        <fullName>AAREG_updateDecisionText</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Agreement_Initiator</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_ConversationNote_AfterInsert</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_ConversationNote_AfterUpdate_OnIsReadSetToTrue</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_ConversationNote_BeforeInsert</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_ConversationNote_BeforeUpdate_OnAccountChange</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_ConversationNote_CreateInnboksUserNotification</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>label</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>messageToggleActive</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>messageToggleInactive</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>value</name>
+                        <value />
+                    </inputParameters>
+                    <name>ConfirmAbort</name>
+                </fields>
+                <name>Confirm_abort_redaction</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>exceptionMessage</name>
+                </fields>
+                <name>Exception_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>objectApiName</name>
+                        <value />
+                    </inputParameters>
+                    <name>NavigateToThread</name>
+                </fields>
+                <name>Go_to_thread</name>
+            </screens>
+        </flows>
+        <fullName>CRMHenvendelse_ConversationNote_Screenflow_AbortRedaction</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_Message_AfterInsert</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_Message_AfterInsert_OnInterntalMessage</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_Message_AfterUpdate_OnIsRedactedSetToTrue</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_Message_AfterUpdate_OnReadSetToTrue</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_Message_BeforeInsert</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_Thread_BeforeInsert</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_Thread_BeforeUpdate_OnAccountChange</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_Thread_BeforeUpdate_OnSetActiveToFalse</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_Thread_BeforeUpdate_OnThreadTypeChange</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>label</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>messageToggleActive</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>messageToggleInactive</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>value</name>
+                        <value />
+                    </inputParameters>
+                    <name>ConfirmAbort</name>
+                </fields>
+                <name>Confirm_Abort_Redaction</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>exceptionMessage</name>
+                </fields>
+                <name>Exception_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>objectApiName</name>
+                        <value />
+                    </inputParameters>
+                    <name>NavigateToThread</name>
+                </fields>
+                <name>Go_to_thread</name>
+            </screens>
+        </flows>
+        <fullName>CRMHenvendelse_Thread_Screenflow_AbortRedaction</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_Thread_Subflow_CreateInnboksUserNotification</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRMHenvendelse_Thread_Subflow_RecalculateMessageSummary</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Conversation_Note_Before_Update_Incorrectly_Sent_True</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Create_Thread_Event</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Henvendelse_Message_Before_Insert_On_Internal_Message_No_NAV_Unit</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Journal_CHAT_Thread</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Journal_Conversation_Note</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Journal_Entry_After_Insert_On_Thread_Journal_Initiate_Journal_Post</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Journal_Message_Thread</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Message_Content_After_Insert</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>Error_Text</name>
+                </fields>
+                <name>Error_Screen</name>
+            </screens>
+        </flows>
+        <fullName>CRM_Oppgave_Redirect</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>fieldApiName</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>label</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>objectApiName</name>
+                        <value />
+                    </inputParameters>
+                    <name>New_NAV_Unit</name>
+                </fields>
+                <name>Change_NAV_Unit</name>
+            </screens>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>refreshRecord</name>
+                        <value />
+                    </inputParameters>
+                    <name>Complete_Flow</name>
+                </fields>
+                <fields>
+                    <inputParameters>
+                        <name>closeModal</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>mode</name>
+                        <value />
+                    </inputParameters>
+                    <name>show_toast</name>
+                </fields>
+                <name>Flow_Complete_Screen</name>
+            </screens>
+            <textTemplates>
+                <name>NEWLINE</name>
+            </textTemplates>
+        </flows>
+        <fullName>CRM_Patch_NAV_Task_Change_NAV_Unit</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>Confirmation_Text</name>
+                </fields>
+                <name>Confirm_Remove_Screeen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Error_Header</name>
+                </fields>
+                <fields>
+                    <name>Error_Screen_Message</name>
+                </fields>
+                <name>Error_Screen</name>
+            </screens>
+        </flows>
+        <fullName>CRM_Patch_NAV_Task_Remove_Assignee</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>Error_Header</name>
+                </fields>
+                <fields>
+                    <name>Error_Screen_Message</name>
+                </fields>
+                <name>Error_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Task_Due_Date</name>
+                    <validationRule />
+                </fields>
+                <fields>
+                    <name>Task_Priority</name>
+                </fields>
+                <fields>
+                    <name>Task_Status</name>
+                </fields>
+                <fields>
+                    <inputParameters>
+                        <name>selectedTaskTypeId</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>showcomponent</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>theme</name>
+                        <value />
+                    </inputParameters>
+                    <name>Task_Type_Selector</name>
+                </fields>
+                <fields>
+                    <inputParameters>
+                        <name>subtheme</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>subtype</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>theme</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>themeGroup</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>variant</name>
+                        <value />
+                    </inputParameters>
+                    <name>Theme_Categorization</name>
+                </fields>
+                <fields>
+                    <inputParameters>
+                        <name>disableConditionalRendering</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>hideDelegateToSelf</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>personId</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>selectedUnitId</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>taskType</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>theme</name>
+                        <value />
+                    </inputParameters>
+                    <name>Work_Allocation</name>
+                </fields>
+                <name>NAV_Task_Input_Screen</name>
+            </screens>
+        </flows>
+        <fullName>CRM_Patch_Update_NAV_Task</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Reporting_Data_Before_Insert_Index_Category</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Retry_NAV_Task_Post</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>Error_Header</name>
+                </fields>
+                <fields>
+                    <name>Error_Screen_Message</name>
+                </fields>
+                <name>Error_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Task_Description</name>
+                </fields>
+                <fields>
+                    <name>Task_Due_Date</name>
+                </fields>
+                <fields>
+                    <name>Task_Priority</name>
+                </fields>
+                <fields>
+                    <inputParameters>
+                        <name>showcomponent</name>
+                        <value />
+                    </inputParameters>
+                    <name>Task_Type_Selector</name>
+                </fields>
+                <fields>
+                    <inputParameters>
+                        <name>subtheme</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>theme</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>themeGroup</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>variant</name>
+                        <value />
+                    </inputParameters>
+                    <name>Theme_Categorization</name>
+                </fields>
+                <fields>
+                    <inputParameters>
+                        <name>hideDelegateToSelf</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>personId</name>
+                        <value />
+                    </inputParameters>
+                    <name>Work_Allocation</name>
+                </fields>
+                <name>NAV_Task_Input_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Success_Screen_Text</name>
+                </fields>
+                <name>Success_Screen</name>
+            </screens>
+        </flows>
+        <fullName>CRM_SEND_NAV_TASK_REQUEST_TEMPLATE</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Schedule_Initiate_Conv_Note_Journal_Retry</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <textTemplates>
+                <name>Newline</name>
+            </textTemplates>
+        </flows>
+        <fullName>CRM_Send_NAV_Task_Auto</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Thread_Before_Update_Incorrectly_Sent_True</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>CRM_Thread_Create_Journal_Entry</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Common_Code_created_or_edited</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>exceptionMessage</name>
+                </fields>
+                <name>Exception_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>next</name>
+                </fields>
+                <name>Trigger_sync</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>next_0</name>
+                </fields>
+                <name>Trigger_sync_0</name>
+            </screens>
+            <textTemplates>
+                <name>Update_Conversation_Note</name>
+            </textTemplates>
+        </flows>
+        <fullName>ConversationNote_Screenflow_Complete_Redaction</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>Not_Complete</name>
+                </fields>
+                <name>Failed</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>next</name>
+                </fields>
+                <name>Trigger_sync</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>next_0</name>
+                </fields>
+                <name>Trigger_sync_0</name>
+            </screens>
+            <textTemplates>
+                <name>Update_Conversation_Note_After_Discarding</name>
+            </textTemplates>
+        </flows>
+        <fullName>ConversationNote_Screenflow_Discard_Conversation</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Conversation_Note_After_Create_Archive</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Conversation_Note_After_Update_Sensitive_Information_Set_To_True</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Conversation_Note_After_update_Archive</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Conversation_Note_Before_Update_Sensitive_Information_Set_To_True</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>closeModal</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>message</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>mode</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>title</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>variant</name>
+                        <value />
+                    </inputParameters>
+                    <name>Success_toast2</name>
+                </fields>
+                <name>Finish_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Gjelder</name>
+                </fields>
+                <fields>
+                    <name>Task_Description</name>
+                </fields>
+                <name>NAV_Task_Input_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Post_Error_Text</name>
+                </fields>
+                <name>Post_Error_Screen</name>
+            </screens>
+        </flows>
+        <fullName>Conversation_Note_Redaction_Send_NAV_Task</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <choices>
+                <name>Ikke_statlig_dialog</name>
+            </choices>
+            <choices>
+                <name>Sendt_feil_bruker</name>
+            </choices>
+            <choices>
+                <name>Sensitive_personopplysninger</name>
+            </choices>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>closeModal</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>message</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>mode</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>title</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>variant</name>
+                        <value />
+                    </inputParameters>
+                    <name>Error_toast</name>
+                </fields>
+                <name>Error_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>closeModal</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>message</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>mode</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>title</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>variant</name>
+                        <value />
+                    </inputParameters>
+                    <name>Success_toast</name>
+                </fields>
+                <name>Finish_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Screen_Message</name>
+                </fields>
+                <name>Redaction_Conversation_Note_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Cause</name>
+                </fields>
+                <fields>
+                    <inputParameters>
+                        <name>disabled</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>label</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>messageToggleActive</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>messageToggleInactive</name>
+                        <value />
+                    </inputParameters>
+                    <name>Sensitive_Toggle</name>
+                </fields>
+                <name>Set_Conversation_Note_to_redaction</name>
+            </screens>
+        </flows>
+        <fullName>Conversation_Note_Set_Redaction</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Discarding_Email_Alert</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Flow_Create_Application_Log</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Gjelder_insert_before_save</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Journal_Conversation_Note_Retry</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Kafka_Oppgave_Event_On_Insert</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Message_After_update_Update_Message_Content</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>NAVTask_Owner_Change</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>POST_JOURNAL_AUTO_TEMPLATE</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>Comment</name>
+                </fields>
+                <fields>
+                    <name>Comment_Failed_Text</name>
+                </fields>
+                <name>Add_Comment_Screen</name>
+            </screens>
+            <textTemplates>
+                <name>NEWLINE</name>
+            </textTemplates>
+        </flows>
+        <fullName>Patch_NAV_Task_Add_Comment</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>Error_message</name>
+                </fields>
+                <fields>
+                    <name>PersonIdent</name>
+                </fields>
+                <name>Select_Person_Ident</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Sharing_ok</name>
+                </fields>
+                <name>Tilgangene_er_rekalkulert</name>
+            </screens>
+        </flows>
+        <fullName>Recalculate_sharing_for_person</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>STO_Case_Set_Owner</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Set_Validation_Bypass_To_False</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Subflow_Archive_Record</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>TAG_Dialog_Post_Journal_OVERRIDABLE</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>TAG_NAVTask_Owner_Change</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>TAG_Update_NavUnit_in_NavTask</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <choices>
+                <name>HOT</name>
+            </choices>
+            <choices>
+                <name>NKS</name>
+            </choices>
+            <screens>
+                <fields>
+                    <name>Domain</name>
+                </fields>
+                <fields>
+                    <name>Melding</name>
+                </fields>
+                <fields>
+                    <name>Mottaker</name>
+                </fields>
+                <name>SMS</name>
+            </screens>
+        </flows>
+        <fullName>Test_SMS_Callout</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Thread_After_Update_Sensitive_Information_Set_To_True</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Thread_After_update_Archive</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>Thread_Before_Update_Sensitive_Information_Set_To_True</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>closeModal</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>message</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>mode</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>title</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>variant</name>
+                        <value />
+                    </inputParameters>
+                    <name>Success_toast2</name>
+                </fields>
+                <name>Finish_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Gjelder</name>
+                </fields>
+                <fields>
+                    <name>Task_Description</name>
+                </fields>
+                <name>NAV_Task_Input_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Post_Error_Text</name>
+                </fields>
+                <name>Post_Error_Screen</name>
+            </screens>
+        </flows>
+        <fullName>Thread_Redaction_Send_NAV_Task</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>exceptionMessage</name>
+                </fields>
+                <name>Exception_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>next</name>
+                </fields>
+                <name>Trigger_sync</name>
+            </screens>
+            <textTemplates>
+                <name>Redacted_Message_Notification_AG</name>
+            </textTemplates>
+            <textTemplates>
+                <name>Redacted_Message_Notification_HOT</name>
+            </textTemplates>
+            <textTemplates>
+                <name>Redacted_Message_Notification_Text</name>
+            </textTemplates>
+        </flows>
+        <fullName>Thread_Screenflow_Complete_Redaction</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <choices>
+                <name>Ikke_statlig_dialog</name>
+            </choices>
+            <choices>
+                <name>Sendt_feil_bruker</name>
+            </choices>
+            <choices>
+                <name>Sensitive_personopplysninger</name>
+            </choices>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>closeModal</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>message</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>mode</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>title</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>variant</name>
+                        <value />
+                    </inputParameters>
+                    <name>Error_toast</name>
+                </fields>
+                <name>Error_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>closeModal</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>message</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>mode</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>title</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>variant</name>
+                        <value />
+                    </inputParameters>
+                    <name>Success_toast</name>
+                </fields>
+                <name>Finish_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Screen_Message</name>
+                </fields>
+                <name>Redaction_Thread_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>Cause</name>
+                </fields>
+                <fields>
+                    <inputParameters>
+                        <name>disabled</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>label</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>messageToggleActive</name>
+                        <value />
+                    </inputParameters>
+                    <inputParameters>
+                        <name>messageToggleInactive</name>
+                        <value />
+                    </inputParameters>
+                    <name>Sensitive_Toggle</name>
+                </fields>
+                <name>Set_Thread_to_Redaction</name>
+            </screens>
+        </flows>
+        <fullName>Thread_Set_To_Redaction</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>NavigateComponent</name>
+                </fields>
+                <name>Navigate</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>NavigateComponent_0</name>
+                </fields>
+                <name>Navigate_0</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>NavigateComponent_0_0</name>
+                </fields>
+                <name>Navigate_0_0</name>
+            </screens>
+        </flows>
+        <fullName>Thread_Sub_Screenflow_Complete_Redaction</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>UN_UserNotificationCreateDoneEventFromRelatedRecordId</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>UN_UserNotification_AfterInsert</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>UN_UserNotification_AfterUpdate</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>updateApplicationStatusOnCasehandlerStatusAdditionalInformationRequired</fullName>
+    </flowDefinitions>
+    <quickActions>
+        <label><!-- LogACall --></label>
+        <name>LogACall</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewAccount --></label>
+        <name>NewAccount</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewCase --></label>
+        <name>NewCase</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewContact --></label>
+        <name>NewContact</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewEvent --></label>
+        <name>NewEvent</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewGroup --></label>
+        <name>NewGroup</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewLead --></label>
+        <name>NewLead</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewNote --></label>
+        <name>NewNote</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewOpportunity --></label>
+        <name>NewOpportunity</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- NewTask --></label>
+        <name>NewTask</name>
+    </quickActions>
+    <quickActions>
+        <label><!-- SendEmail --></label>
+        <name>SendEmail</name>
+    </quickActions>
+    <reportTypes>
+        <description><!-- Aa_reg agreement with related contacts --></description>
+        <label><!-- Aa_reg agreement with related contacts --></label>
+        <name>Aa_regAgreementWithRelatedContacts</name>
+        <sections>
+            <label>Virksomheter</label>
+            <name>Accounts</name>
+        </sections>
+        <sections>
+            <label>Avtaler</label>
+            <name>Agreements</name>
+        </sections>
+        <sections>
+            <label>Søknader</label>
+            <name>Applications</name>
+        </sections>
+        <sections>
+            <label><!-- Avtaler --></label>
+            <name>Avtaler</name>
+        </sections>
+        <sections>
+            <label>Tilknyttede kontaktpersoner</label>
+            <name>Related Contacts</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Aa_reg application with related contacts --></description>
+        <label><!-- Aa_reg application with related contacts --></label>
+        <name>Aa_reg_application_with_related_contacts</name>
+        <sections>
+            <label><!-- Accounts --></label>
+            <name>Accounts</name>
+        </sections>
+        <sections>
+            <label><!-- Applications --></label>
+            <name>Applications</name>
+        </sections>
+        <sections>
+            <label><!-- Related Contacts --></label>
+            <name>Related Contacts</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Chat Transcript --></description>
+        <label><!-- Chat Transcript --></label>
+        <name>Chat_Transcript</name>
+        <sections>
+            <label><!-- Chat Transcripts --></label>
+            <name>Chat Transcripts</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Agent Work --></description>
+        <label><!-- Agent Work --></label>
+        <name>NKS_Agent_Work</name>
+        <sections>
+            <label><!-- Agent Work --></label>
+            <name>Agent Work</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- NKS ConversationNote Report Type --></description>
+        <label><!-- NKS ConversationNote Report Type --></label>
+        <name>NKS_ConversationNote_Report_Type</name>
+        <sections>
+            <label><!-- Conversation Notes --></label>
+            <name>Conversation Notes</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- NKS Thread Report Type --></description>
+        <label><!-- NKS Thread Report Type --></label>
+        <name>NKS_Thread_Report_Type</name>
+        <sections>
+            <label><!-- Threads --></label>
+            <name>Threads</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Orchestration Run Logs Spring &apos;24 --></description>
+        <label><!-- Orchestration Run Logs Spring &apos;24 --></label>
+        <name>flow_orchestration_log_ootb_crt_two_four_eight</name>
+        <sections>
+            <label><!-- Orchestration Run Log --></label>
+            <name>Orchestration Run Log</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Orchestration Runs --></description>
+        <label><!-- Orchestration Runs --></label>
+        <name>flow_orchestration_run_crt</name>
+        <sections>
+            <label><!-- Orchestration Runs --></label>
+            <name>Orchestration Runs</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Orchestration Runs Spring &apos;24 --></description>
+        <label><!-- Orchestration Runs Spring &apos;24 --></label>
+        <name>flow_orchestration_run_ootb_crt_two_four_eight</name>
+        <sections>
+            <label><!-- Orchestration Runs --></label>
+            <name>Orchestration Runs</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Orchestration Stage Runs Spring &apos;24 --></description>
+        <label><!-- Orchestration Stage Runs Spring &apos;24 --></label>
+        <name>flow_orchestration_stage_run_ootb_crt_two_four_eight</name>
+        <sections>
+            <label><!-- Orchestration Stage Runs --></label>
+            <name>Orchestration Stage Runs</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Orchestration Step Runs Spring &apos;24 --></description>
+        <label><!-- Orchestration Step Runs Spring &apos;24 --></label>
+        <name>flow_orchestration_step_run_ootb_crt_two_four_eight</name>
+        <sections>
+            <label><!-- Orchestration Step Runs --></label>
+            <name>Orchestration Step Runs</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Orchestration Work Items Spring &apos;24 --></description>
+        <label><!-- Orchestration Work Items Spring &apos;24 --></label>
+        <name>flow_orchestration_work_item_ootb_crt_two_four_eight</name>
+        <sections>
+            <columns>
+                <label><!-- Orchestration Step Run: Label --></label>
+                <name>Orchestration Step Run: Label</name>
+            </columns>
+            <columns>
+                <label><!-- Orchestration Step Run: Name --></label>
+                <name>Orchestration Step Run: Name</name>
+            </columns>
+            <columns>
+                <label><!-- Orchestration Step Run: Status --></label>
+                <name>Orchestration Step Run: Status</name>
+            </columns>
+            <label><!-- Orchestration Step Runs --></label>
+            <name>Orchestration Step Runs</name>
+        </sections>
+        <sections>
+            <columns>
+                <label><!-- Assigned Group or Queue --></label>
+                <name>Assigned Group or Queue</name>
+            </columns>
+            <columns>
+                <label><!-- Assigned User --></label>
+                <name>Assigned User</name>
+            </columns>
+            <label><!-- Orchestration Work Items --></label>
+            <name>Orchestration Work Items</name>
+        </sections>
+    </reportTypes>
+    <reportTypes>
+        <description><!-- Screen Flows --></description>
+        <label><!-- Screen Flows --></label>
+        <name>screen_flows_prebuilt_crt</name>
+        <sections>
+            <label><!-- Flow Interview Log Entries --></label>
+            <name>Flow Interview Log Entries</name>
+        </sections>
+        <sections>
+            <label><!-- Flow Interview Logs --></label>
+            <name>Flow Interview Logs</name>
+        </sections>
+    </reportTypes>
 </Translations>
