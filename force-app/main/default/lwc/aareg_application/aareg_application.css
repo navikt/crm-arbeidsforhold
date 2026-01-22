@@ -253,6 +253,10 @@ ul:not(.browser-default) li {
   padding-bottom: 10px;
 }
 
+.fw-600{
+  font-weight: 600;
+}
+
 .breadcrumbs {
   padding-top: 1rem;
   padding-left: 30px;
