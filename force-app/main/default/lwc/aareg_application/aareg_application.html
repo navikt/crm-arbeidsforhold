@@ -96,6 +96,9 @@
                   </span>
                 </div>
               </div>
+              <p class="pl-16 pb-10">
+                For at vi skal kunne gi deg beskjed om status i søknadsprosessen eller behov for ytterligere informasjon for å kunne ferdigbehandle søknaden. Oppgi din e-postadresse.  
+              </p>
               <div class="row">
                 <div class="column">
                   <span class="form-control" style="max-width: 65%">
@@ -103,11 +106,8 @@
                       <abbr if:false={isReadOnly} class="slds-required" title="Påkrevd felt">* </abbr>
                       E-post
                     </label>
-                    <p class="pl-16 pb-10">
-                      For at vi skal kunne gi deg beskjed om status i søknadsprosessen eller behov for ytterligere informasjon for å kunne ferdigbehandle søknaden; Oppgi din e-postadresse.  
-                    </p>
                     <lightning-helptext
-                      content=" Oppgi en e-postadresse til virksomheten du representerer og som ikke er personrelatert. NAV benytter e-postadressen for å orientere virksomheten når søknaden er ferdig behandlet. "
+                      content=" Oppgi din e-postadresse som knytter deg til virksomheten. NAV benytter e-postadressen for å orientere virksomheten(søker) når søknaden er ferdig behandlet. "
                       class="slds-m-left_xx-small"
                     >
                     </lightning-helptext>
@@ -134,9 +134,9 @@
                 <li>oppgi hva dere skal bruke opplysningene til.</li>
                 <li>dokumentere at dere har lov til å bruke opplysningene til å løse oppgaver i deres virksomhet.</li>
               </ul>
-                   <p class="pl-16 pb-10">For ytterligere veiledning se «i» for hvert felt. <br>
-                Om dere skal bruke opplysningene til flere formål/oppgaver, skal dere oppgi hvert formål for seg. Benytt «legg til» knappen for å legge til flere formål.​
-              </p>               
+              <br>
+                   <p class="pl-16 pb-10 fw-600">For ytterligere veiledning se «i» for hvert felt.</p>
+                   <p class="pl-16 pb-10 fw-600">Om dere skal bruke opplysningene til flere formål/oppgaver, skal dere oppgi hvert formål for seg. Benytt «legg til» knappen for å legge til flere formål.​</p>       
               <template if:true={applicationBasisRows} for:each={applicationBasisRows} for:item="row" for:index="index">
                 <div key={row.uuid} class="app-section">
                   <c-aareg_application-basis
@@ -187,6 +187,8 @@
                 <p class="pl-16 pb-10">
                   Dersom dere benytter en databehandler som skal behandle personopplysninger på vegne av dere, må
                   organisasjonsnummer til databehandleren oppgis. Navn på databehandleren hentes fra Enhetsregisteret.
+                </p>
+                <p class="pl-16 fw-600">
                   Ikke fyll ut organisasjonsnummer i feltet, dersom dere ikke benytter databehandler.
                 </p>
               </span>
@@ -227,8 +229,9 @@
                 <span data-id="contacts"></span>
                 <h2 class="header-with-info-text">Kontaktpersoner</h2>
                 <p class="pl-16">
-                  Oppgi hvem NAV skal kontakte ved spørsmål knyttet til Avtale, Endringer i løsninger, Feilhåndtering
-                  eller Sikkerhetsbrudd. Her må alle fire bokser krysses ut av en eller flere kontaktpersoner.
+                  Oppgi hvem Nav skal kontakte ved spørsmål knyttet til Avtale, Endringer i løsninger, Feilhåndtering
+                  eller Sikkerhetsbrudd. </p>
+                <p class="pl-16 fw-600">Her må alle fire bokser krysses ut av en eller flere kontaktpersoner.</p> 
                 </p>
                 <small class="pl-16">Error Message</small>
               </span>
@@ -381,7 +384,7 @@
               </div>
             </section>
             <section if:false={isReadOnly}>
-              <p class="pl-16">
+              <p class="pl-16 fw-600">
                 Ved å trykke «SEND INN» signerer du søknaden digitalt på vegne av din virksomhet. Signaturen er juridisk
                 bindende.
               </p>

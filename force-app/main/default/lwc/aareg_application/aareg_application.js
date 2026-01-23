@@ -477,9 +477,12 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
   renderedCallback() {
     this.email = this.template.querySelector('[data-id="Email__c"]');
     this.contacts = this.template.querySelector('[data-id="contacts"]');
-    this.apiAccess = this.template.querySelector('[data-id="APIAccess__c"]');
-    this.onlineAccess = this.template.querySelector('[data-id="OnlineAccess__c"]');
-    this.extractionAccess = this.template.querySelector('[data-id="ExtractionAccess__c"]');
+    this.apiAccess = this.template.querySelector('[data-id="tilgang-api"]');
+    this.apiAccessInput = this.template.querySelector('[data-id="API_Access__c"]');
+    this.onlineAccess = this.template.querySelector('[data-id="tilgang-online"]');
+    this.onlineAccessInput = this.template.querySelector('[data-id="Online_Access__c"]');
+    this.extractionAccessInput = this.template.querySelector('[data-id="Extraction_Access__c"]');
+    this.extractionAccess = this.template.querySelector('[data-id="tilgang-uttrekk"]');
     this.dataElements = this.template.querySelector('[data-id="data-element"]');
     this.fileInput = this.template.querySelector('[data-id="file-input"]');
     this.termsOfUse = this.template.querySelector('[data-id="terms"]');
