@@ -121,6 +121,7 @@
                 "referenceId": "ApplicationBasisCode__cRef10"
             },
             "Application__c": "@Application__cRef4",
+            "Online_Access__c": true,
             "LegalBasisCounty__c": "Annet - oppgi i tekstfelt under",
             "PurposeCounty__c": "Annet - oppgi i tekstfelt under",
             "OrganizationType__c": "County",
@@ -134,6 +135,7 @@
                 "referenceId": "ApplicationBasisCode__cRef11"
             },
             "Application__c": "@Application__cRef4",
+            "Online_Access__c": true,
             "LegalBasisCounty__c": "Annet - oppgi i tekstfelt under",
             "PurposeCounty__c": "Annet - oppgi i tekstfelt under",
             "OrganizationType__c": "County",
