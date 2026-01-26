@@ -8,9 +8,8 @@ public class AAREG_accountSelectorTest {
     
         test.startTest();
         List<Account> accountIdList = AAREG_accountSelector.selectAccountByOrganizationNumber(account.INT_OrganizationNumber__c);
-        System.debug(accountIdList);
-        System.assertEquals(false, accountIdList.isEmpty(), 'Not an empty list returned');
         test.stoptest();
+          System.Assert.areEqual(false, accountIdList.isEmpty(), 'Not an empty list returned');
       }
     
     @isTest
@@ -25,9 +24,7 @@ public class AAREG_accountSelectorTest {
         
         test.startTest();
         List<Account> accountIdList = AAREG_accountSelector.selectAccountByOrganizationNumber(acct.INT_OrganizationNumber__c);
-        System.debug(accountIdList);
-        System.assertEquals(true, accountIdList.isEmpty(), 'An empty list returned');
-        test.stoptest(); 
-        
+        test.stoptest();
+        System.Assert.areEqual(true, accountIdList.isEmpty(), 'An empty list returned');     
     }
 }
