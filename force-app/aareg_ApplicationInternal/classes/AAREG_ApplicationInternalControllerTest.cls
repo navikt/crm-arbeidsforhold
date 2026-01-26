@@ -27,19 +27,19 @@ public class AAREG_ApplicationInternalControllerTest {
         Test.stopTest();
 
         // Assertions for Application
-        System.assertEquals(1, result.application.size(), 'There should be one application');
-        System.assertEquals(testApplication.Id, result.application[0].SoknadsId, 'Application ID should match');
-        System.assertEquals(testApplication.OrganizationStructure__c,'County','Organisationstructure should match');
+        System.Assert.areEqual(1, result.application.size(), 'There should be one application');
+        System.Assert.areEqual(testApplication.Id, result.application[0].SoknadsId, 'Application ID should match');
+        System.Assert.areEqual(testApplication.OrganizationStructure__c,'County','Organisationstructure should match');
 
         // Assertions for Basis Codes
-        System.assertEquals(2, result.basisCodes.size(), 'There should be two basis codes');
-        System.assertEquals('Tildeling og kontroll av drosjeløyve', result.basisCodes[0].Formaal, 'First basis code name should match');
-        System.assertEquals('Kontroll av helsepersonell - tilsynssaker', result.basisCodes[1].Formaal, 'Second basis code name should match');
+        System.Assert.areEqual(2, result.basisCodes.size(), 'There should be two basis codes');
+        System.Assert.areEqual('Tildeling og kontroll av drosjeløyve', result.basisCodes[0].Formaal, 'First basis code name should match');
+        System.Assert.areEqual('Kontroll av helsepersonell - tilsynssaker', result.basisCodes[1].Formaal, 'Second basis code name should match');
 
         // Assertions for Related Contacts
-        System.assertEquals(2, result.relatedContacts.size(), 'There should be two related contacts');
-        System.assertEquals('Kommunekontakt 1', result.relatedContacts[0].KontaktNavn, 'First contact name should match');
-        System.assertEquals('Kommunekontakt 2', result.relatedContacts[1].KontaktNavn, 'Second contact name should match');
+        System.Assert.areEqual(2, result.relatedContacts.size(), 'There should be two related contacts');
+        System.Assert.areEqual('Kommunekontakt 1', result.relatedContacts[0].KontaktNavn, 'First contact name should match');
+        System.Assert.areEqual('Kommunekontakt 2', result.relatedContacts[1].KontaktNavn, 'Second contact name should match');
     }
     
      @isTest
@@ -64,13 +64,13 @@ public class AAREG_ApplicationInternalControllerTest {
         Test.stopTest();
 
         // Assertions for Application
-        System.assertEquals(1, result.application.size(), 'There should be one application');
-        System.assertEquals(testApplication.Id, result.application[0].SoknadsId, 'Application ID should match');
-        System.assertEquals(testApplication.OrganizationStructure__c,'State','Organisationstructure should match');
+        System.Assert.areEqual(1, result.application.size(), 'There should be one application');
+        System.Assert.areEqual(testApplication.Id, result.application[0].SoknadsId, 'Application ID should match');
+        System.Assert.areEqual(testApplication.OrganizationStructure__c,'State','Organisationstructure should match');
         
          // Assertions for Basis Codes
-        System.assertEquals(1, result.basisCodes.size(), 'There should be one basis codes');
-        System.assertEquals('Kontroll av virksomheter som benytter eksplosiver.', result.basisCodes[0].Formaal, 'First basis code name should match');
+        System.Assert.areEqual(1, result.basisCodes.size(), 'There should be one basis codes');
+        System.Assert.areEqual('Kontroll av virksomheter som benytter eksplosiver.', result.basisCodes[0].Formaal, 'First basis code name should match');
 
     }
     
@@ -96,13 +96,13 @@ public class AAREG_ApplicationInternalControllerTest {
         Test.stopTest();
 
         // Assertions for Application
-        System.assertEquals(1, result.application.size(), 'There should be one application');
-        System.assertEquals(testApplication.Id, result.application[0].SoknadsId, 'Application ID should match');
-        System.assertEquals(testApplication.OrganizationStructure__c,'Electricity Supervision','Organisationstructure should match');
+        System.Assert.areEqual(1, result.application.size(), 'There should be one application');
+        System.Assert.areEqual(testApplication.Id, result.application[0].SoknadsId, 'Application ID should match');
+        System.Assert.areEqual(testApplication.OrganizationStructure__c,'Electricity Supervision','Organisationstructure should match');
         
         // Assertions for Basis Codes
-        System.assertEquals(1, result.basisCodes.size(), 'There should be one basis codes');
-        System.assertEquals('Tilsyn med elektriske anlegg og elektrisk utstyr', result.basisCodes[0].Formaal, 'First basis code name should match');
+        System.Assert.areEqual(1, result.basisCodes.size(), 'There should be one basis codes');
+        System.Assert.areEqual('Tilsyn med elektriske anlegg og elektrisk utstyr', result.basisCodes[0].Formaal, 'First basis code name should match');
     }
     
     @isTest
@@ -127,13 +127,13 @@ public class AAREG_ApplicationInternalControllerTest {
         Test.stopTest();
 
         // Assertions for Application
-        System.assertEquals(1, result.application.size(), 'There should be one application');
-        System.assertEquals(testApplication.Id, result.application[0].SoknadsId, 'Application ID should match');
-        System.assertEquals(testApplication.OrganizationStructure__c,'Pension','Organisationstructure should match');
+        System.Assert.areEqual(1, result.application.size(), 'There should be one application');
+        System.Assert.areEqual(testApplication.Id, result.application[0].SoknadsId, 'Application ID should match');
+        System.Assert.areEqual(testApplication.OrganizationStructure__c,'Pension','Organisationstructure should match');
         
          // Assertions for Basis Codes
-        System.assertEquals(1, result.basisCodes.size(), 'There should be one basis codes');
-        System.assertEquals('Arbeid med administrasjon knyttet til OU-samordningen', result.basisCodes[0].Formaal, 'First basis code name should match');
+        System.Assert.areEqual(1, result.basisCodes.size(), 'There should be one basis codes');
+        System.Assert.areEqual('Arbeid med administrasjon knyttet til OU-samordningen', result.basisCodes[0].Formaal, 'First basis code name should match');
 
     }
     
@@ -159,13 +159,13 @@ public class AAREG_ApplicationInternalControllerTest {
         Test.stopTest();
 
         // Assertions for Application
-        System.assertEquals(1, result.application.size(), 'There should be one application');
-        System.assertEquals(testApplication.Id, result.application[0].SoknadsId, 'Application ID should match');
-        System.assertEquals(testApplication.OrganizationStructure__c,'Municipality','Organisationstructure should match');
+        System.Assert.areEqual(1, result.application.size(), 'There should be one application');
+        System.Assert.areEqual(testApplication.Id, result.application[0].SoknadsId, 'Application ID should match');
+        System.Assert.areEqual(testApplication.OrganizationStructure__c,'Municipality','Organisationstructure should match');
         
          // Assertions for Basis Codes
-        System.assertEquals(1, result.basisCodes.size(), 'There should be one basis codes');
-        System.assertEquals('Behandling av startlån/boligtilskudd', result.basisCodes[0].Formaal, 'First basis code name should match');
+        System.Assert.areEqual(1, result.basisCodes.size(), 'There should be one basis codes');
+        System.Assert.areEqual('Behandling av startlån/boligtilskudd', result.basisCodes[0].Formaal, 'First basis code name should match');
 
     }
     
