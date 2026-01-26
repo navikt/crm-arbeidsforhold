@@ -37,7 +37,7 @@ public class AAREG_ApplicationDecisionControllerTest {
         Test.stopTest();
 
         // Assertions
-        System.assertEquals(2, result.size(), 'There should be two decisions.');
+        System.Assert.areEqual(2, result.size(), 'There should be two decisions.');
     }
     
     @isTest
@@ -52,8 +52,8 @@ public class AAREG_ApplicationDecisionControllerTest {
 
         // Verify the new decision
         Application_Decision__c newDecision = [SELECT Id, Application__c, Status__c FROM Application_Decision__c WHERE Id = :newDecisionId];
-        System.assertEquals(testApplication.Id, newDecision.Application__c, 'Application ID should match.');
-        System.assertEquals('Innvilget', newDecision.Status__c, 'Status should be Innvilget.');
+        System.Assert.areEqual(testApplication.Id, newDecision.Application__c, 'Application ID should match.');
+        System.Assert.areEqual('Innvilget', newDecision.Status__c, 'Status should be Innvilget.');
 
 
         // Verify the related Application_Decision_Details__c records
@@ -62,9 +62,9 @@ public class AAREG_ApplicationDecisionControllerTest {
             FROM Application_Decision_Details__c
             WHERE Application_Decision__c = :newDecisionId
         ];
-        System.assertEquals(2, decisionDetails.size(), 'There should be two decision details.');
-        System.assertEquals(true, decisionDetails[0].API_Access__c, 'First detail API_Access__c should match.');
-        System.assertEquals(false, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
+        System.Assert.areEqual(2, decisionDetails.size(), 'There should be two decision details.');
+        System.Assert.areEqual(true, decisionDetails[0].API_Access__c, 'First detail API_Access__c should match.');
+        System.Assert.areEqual(false, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
     }
     
 }
