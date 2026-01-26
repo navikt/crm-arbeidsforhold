@@ -90,14 +90,17 @@ call sf force:package:install --package 04tQC0000012tUTYAY -r --installation-key
 //call sf project deploy start --target-org %ORG_ALIAS% --wait 10
 
 echo "INSTALLERER"
-echo "Installerer crm-arbeidsforhold 0.297.0 beta30"
-call sf force:package:install --package 04tQC0000012uYbYAI -r --installation-key %1 --wait 5 --publish-wait 4
+echo "Installerer crm-arbeidsforhold 0.297.0 beta35"
+call sf force:package:install --package 04tQC0000013uLFYAY -r --installation-key %1 --wait 5 --publish-wait 4
 
 echo "Tildeler tilatelsessett til brukeren"
 call sf org assign permset -n AAREG_Arbeidsforhold_Saksbehandling
 
 echo "Tildeler tilatelsessett til brukeren"
 call sf org assign permset -n AAREG_Arbeidsforhold_Support
+
+echo "Tildeler tilatelsessett til brukeren"
+call sf org assign permset -n AAREG_CommunityPermission
 
 //echo Inserting test data...
 call sf force:data:tree:import -p  dummy-data/Plan.json

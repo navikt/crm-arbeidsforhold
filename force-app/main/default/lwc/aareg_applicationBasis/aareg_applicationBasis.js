@@ -74,9 +74,9 @@ export default class Aareg_applicationBasis extends LightningElement {
     this.applicationBasis = {
       uuid: this.record.uuid,
       Id: this.record.Id ? this.record.Id : null,
-      APIAccess__c: false,
-      ExtractionAccess__c: false,
-      OnlineAccess__c: false,
+      APIAccess__c: this.record.APIAccess__c,
+      ExtractionAccess__c: this.record.ExtractionAccess__c,
+      OnlineAccess__c: this.record.OnlineAccess__c,
       OrganizationType__c: this.organizationType,
       LegalBasisMunicipality__c: this.record.LegalBasisMunicipality__c ? this.record.LegalBasisMunicipality__c : null,
       PurposeMunicipality__c: this.record.PurposeMunicipality__c ? this.record.PurposeMunicipality__c : null,
@@ -246,6 +246,7 @@ export default class Aareg_applicationBasis extends LightningElement {
 
   @api
   validate() {
+
     this.resetErrors();
 
     if (!this.isOtherOrganizationType && this.checkNulls(this.applicationBasis[`${this.legalBasisFieldName}`])) {
@@ -280,6 +281,7 @@ export default class Aareg_applicationBasis extends LightningElement {
       this.setErrorFor(this.otherLegalBasis, 'Obligatorisk');
       this.otherLegalBasis.setCustomValidity('Obligatorisk');
     }
+  
   }
 
   @api focusInput() {
@@ -301,6 +303,10 @@ export default class Aareg_applicationBasis extends LightningElement {
   }
 
   setErrorFor(inputField, message) {
+    if (!inputField) {
+      console.error('Input field is null or undefined:', inputField);
+      return;
+    }
     this.publishError();
     let formControl = inputField.parentElement;
     let small = formControl.querySelector('small');
@@ -326,6 +332,10 @@ export default class Aareg_applicationBasis extends LightningElement {
         this.otherLegalBasis.setCustomValidity('');
         this.otherPurpose.setCustomValidity('');
       }
+
+      /*if(this.apiAccess){
+        this.apiAccess.setCustomValidity('');
+      } */
     } catch (error) {
       console.error(error);
     }

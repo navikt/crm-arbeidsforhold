@@ -5,9 +5,14 @@ public with sharing class AAREG_ApplicationDecision {
          @AuraEnabled public String VedtaksId{get;set;}
          @AuraEnabled public String VedtaksNr{get;set;}
          @AuraEnabled public String Status{get;set;}
+         @AuraEnabled public String StatusProsess{get;set;}
          @AuraEnabled public String SoknadsId{get;set;}
          @AuraEnabled public String OpprettelseDato{get;set;}
          @AuraEnabled public String Klagetekst{get;set;}
          @AuraEnabled public String Vilkaartekst{get;set;}
+         @auraEnabled public String Githubtekst{get;set;}
+         @AuraEnabled public String WebTilgangtekst{get;set;}
          @AuraEnabled public String Vedtaksbegrunnelse{get;set;}
+         @AuraEnabled public Date Vedtaksdato{get;set;}
+         @AuraEnabled public Decimal WebTilgang{get;set;}
 }

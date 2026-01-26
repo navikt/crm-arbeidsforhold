@@ -221,4 +221,22 @@
         <shortDescription>applicantBusiness</shortDescription>
         <value>Applicant&apos;s business</value>
     </labels>
+    <labels>
+        <fullName>AAREG_github_description_text</fullName>
+        <categories>Arbeidsforhold decision details</categories>
+        <language>no</language>
+        <protected>false</protected>
+        <shortDescription>AAREG github description text</shortDescription>
+        <value>A more detailed description of the services and the technical solution can be found on our GitHub pages, see: https://navikt.github.io/aareg/
+Here you will also find some answers to any professional and technical questions, as well as contact information.</value>
+    </labels>
+    <labels>
+        <fullName>AAREG_web_access_text</fullName>
+        <categories>Arbeidsforhold decision details</categories>
+        <language>no</language>
+        <protected>false</protected>
+        <shortDescription>AAREG web access text</shortDescription>
+        <value>For further information about the web lookup service, see: https://www.nav.no/samarbeidspartner/web-oppslag
+Web lookup in the Aa register - nav.no see:https://aa-registeret.nav.no/</value>
+    </labels>
 </CustomLabels>

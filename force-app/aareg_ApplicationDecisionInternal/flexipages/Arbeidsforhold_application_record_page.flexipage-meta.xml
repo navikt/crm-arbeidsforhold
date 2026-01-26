@@ -13,9 +13,6 @@
                             <value>Application__c.aaReg_UpdateDeadlineDate</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>Application__c.aaReg_ApplicationDone</value>
-                        </valueListItems>
-                        <valueListItems>
                             <value>Application__c.aaRegSuspendApplication</value>
                         </valueListItems>
                         <valueListItems>
@@ -115,16 +112,6 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.ApplicationDeadlineForReply__c</fieldItem>
                 <identifier>RecordApplicationDeadlineForReply_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.DecisionDate__c</fieldItem>
-                <identifier>RecordDecisionDate_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-d76ac792-64bc-4ea7-b5c6-242b82ebf30c</name>
