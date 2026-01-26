@@ -136,32 +136,55 @@ public static ApplicationWrapper getApplicationDetails(Id recordId) {
         tempList.WebTilgang = code.Online_Access__c;
         tempList.Behandlingsgrunnlag = code.ProcessingBasis__c;
         if(code.OrganizationType__c == 'County'){
-          tempList.Hjemmel = code.LegalBasisCounty__c;
-          tempList.Formaal = code.PurposeCounty__c;
+          if(code.LegalBasisCounty__c =='Annet - oppgi i tekstfelt under'){
+            tempList.Hjemmel = code.OtherLegalBasis__c;
+            tempList.Formaal = code.OtherPurpose__c;
+          } else {
+            tempList.Hjemmel = code.LegalBasisCounty__c;
+            tempList.Formaal = code.PurposeCounty__c;
+            }
         }
         if(code.OrganizationType__c == 'State'){
-          tempList.Hjemmel = code.LegalBasisState__c;
-          tempList.Formaal = code.PurposeState__c;
+          if(code.LegalBasisState__c =='Annet - oppgi i tekstfelt under'){
+            tempList.Hjemmel = code.OtherLegalBasis__c;
+            tempList.Formaal = code.OtherPurpose__c;
+          } else {
+            tempList.Hjemmel = code.LegalBasisState__c;
+            tempList.Formaal = code.PurposeState__c;
+          }
         }
         if(code.OrganizationType__c == 'Municipality'){
-          tempList.Hjemmel = code.LegalBasisMunicipality__c;
-          tempList.Formaal = code.PurposeMunicipality__c;
+          if(code.LegalBasisMunicipality__c =='Annet - oppgi i tekstfelt under'){
+            tempList.Hjemmel = code.OtherLegalBasis__c;
+            tempList.Formaal = code.OtherPurpose__c;
+          } else {
+            tempList.Hjemmel = code.LegalBasisMunicipality__c;
+            tempList.Formaal = code.PurposeMunicipality__c;
+          }
         }
         if(code.OrganizationType__c == 'Pension'){
-          tempList.Hjemmel = code.LegalBasisPension__c;
-          tempList.Formaal = code.PurposePension__c;
+          if(code.LegalBasisPension__c =='Annet - oppgi i tekstfelt under'){
+            tempList.Hjemmel = code.OtherLegalBasis__c;
+            tempList.Formaal = code.OtherPurpose__c;
+          } else {
+            tempList.Hjemmel = code.LegalBasisPension__c;
+            tempList.Formaal = code.PurposePension__c;
+          }
         }
         if(code.OrganizationType__c == 'Electricity Supervision'){
-          tempList.Hjemmel = code.LegalBasisElectricitySupervision__c;
-          tempList.Formaal = code.PurposeElectricitySupervision__c;
+          if(code.LegalBasisElectricitySupervision__c =='Annet - oppgi i tekstfelt under'){
+            tempList.Hjemmel = code.OtherLegalBasis__c;
+            tempList.Formaal = code.OtherPurpose__c;
+          } else {
+            tempList.Hjemmel = code.LegalBasisElectricitySupervision__c;
+            tempList.Formaal = code.PurposeElectricitySupervision__c;
+          }
         }
         if(code.OrganizationType__c == 'Other'){
           tempList.Hjemmel = code.OtherLegalBasis__c;
           tempList.Formaal = code.OtherPurpose__c;
         }
         tempList.OrganisasjonsType = translateOrganizationType(code.OrganizationType__c);
-        tempList.AndreHjemmel = code.OtherLegalBasis__c;
-        tempList.AndreFormaal = code.OtherPurpose__c;
         basisCodesWrapperTempList.add(tempList);
       }
   }
@@ -200,5 +223,4 @@ public static ApplicationWrapper getApplicationDetails(Id recordId) {
   }
 
 }
-
   
