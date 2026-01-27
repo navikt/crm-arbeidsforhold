@@ -528,6 +528,27 @@
         </outputAssignments>
     </recordLookups>
     <recordLookups>
+        <name>Get_Thread_Record_Type_Name</name>
+        <label>Get Thread Record Type Name</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>checkContact</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>QualifiedApiName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>ThreadRecordTypeName</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>AAREG_Setting__mdt</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <description>Get the AAReg Thread Record Type that will be used when we are creating the new Thread record.</description>
         <name>GetAARegThreadRecordType</name>
         <label>Get AAReg Thread Record Type</label>
@@ -539,10 +560,10 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Name</field>
+            <field>DeveloperName</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue>AAREG Thread</stringValue>
+                <elementReference>Get_Thread_Record_Type_Name.Value__c</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -588,7 +609,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>checkContact</targetReference>
+            <targetReference>Get_Thread_Record_Type_Name</targetReference>
         </connector>
         <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>

@@ -33,9 +33,9 @@ public class AAREG_ContactSupportControllerTest {
     System.assertEquals(1, threads.size(), '1 Thread created');
     System.assertEquals(1, threads[0].CRM_Number_of_unread_Messages__c, '1 unread message for the thread');
     System.assertEquals(application.Id, threads[0].CRM_Related_Object__c, 'Thread is related to the application');
-  }
+  }*/
 
-  @isTest
+  @IsTest
   static void createNewInquiry() {
     User usr;
     User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
@@ -46,19 +46,18 @@ public class AAREG_ContactSupportControllerTest {
 
     Inquiry__c inquiry = AAREG_TestDataFactory.getInquiry();
 
-    Test.startTest();
-      try{
-          AAREG_contactSupportController.createNewInquiry(String.valueOf(usr.Id), inquiry);
-      }catch(exception e){}
-    Test.stopTest();
+    System.Test.startTest();
+    AAREG_contactSupportController.createNewInquiry(String.valueOf(usr.Id), inquiry);
+    System.Test.stopTest();
 
     List<Inquiry__c> newInquires = [SELECT Id, InquiryDescription__c, Status__c, TypeOfInquiry__c FROM Inquiry__c];
 
     List<Thread__c> threads = [SELECT Id, CRM_Related_Object__c, CRM_Number_of_unread_Messages__c FROM Thread__c];
 
-    System.assertEquals(1, newInquires.size(), '1 Inquiry created');
+    System.Assert.areEqual(1, newInquires.size(), '1 Inquiry created');
     //System.assertEquals(1, threads.size(), '1 Thread created');
-    System.assertEquals(1, threads[0].CRM_Number_of_unread_Messages__c, '1 unread message for the thread');
-    System.assertEquals(newInquires[0].Id, threads[0].CRM_Related_Object__c, 'Thread is related to the Inquiry');
-  }*/
+    System.Assert.areEqual(1, threads[0].CRM_Number_of_unread_Messages__c, '1 unread message for the thread');
+    System.Assert.areEqual(newInquires[0].Id, threads[0].CRM_Related_Object__c, 'Thread is related to the Inquiry');
+
+  }
 }
