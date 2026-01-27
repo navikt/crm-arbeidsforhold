@@ -1,4 +1,5 @@
 public with sharing class AAREG_contactSupportController {
+
   @AuraEnabled
   public static Id createThreadForApplication(String userId, String relatedApplicationId, String description, String subject) {
     Id threadId;
@@ -33,11 +34,12 @@ public with sharing class AAREG_contactSupportController {
     if (sObjName == 'Inquiry__c') {
       henvendelsesId = [SELECT Name FROM Inquiry__c WHERE Id = :relatedRecordId]?.Name;
     }
-          
+
     Thread__c thread = new Thread__c(
         CRM_Related_Object__c = relatedRecordId,
         CRM_Related_Object_Type__c = sObjName,
         CRM_HenvendelseId__c = henvendelsesId,
+        RecordTypeId = AAREG_Utility.getInstance().getThreadRecordTypeId(),
         AAREG_Thread_Subject__c = subject, // Subject is set directly in aaregcontactSupportForm.html input
         CRM_Thread_Type__c = 'AAREG_EXP'
     );
