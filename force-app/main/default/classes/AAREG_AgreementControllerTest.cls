@@ -30,7 +30,7 @@ public class AAREG_AgreementControllerTest {
     contacts = AAREG_AgreementController.getAgreementContacts(agreement.Id);
     Test.stopTest();
 
-    System.assertEquals(2, contacts.size(), 'Confirm that the agreement has two related contacts.');
+    System.Assert.areEqual(2, contacts.size(), 'Confirm that the agreement has two related contacts.');
   }
 
   @isTest
@@ -54,9 +54,9 @@ public class AAREG_AgreementControllerTest {
     List<RelatedContact__c> updatedContactList = [SELECT Id, Name FROM RelatedContact__c];
     Agreement__c updatedAgreement = [SELECT Id, ExtractionAccess__c FROM Agreement__c];
 
-    System.assertEquals(1, updatedContactList.size(), 'Only 1 contact left');
-    System.assertEquals('Updated Name', updatedContactList[0].Name, 'Name updated successfully');
-    System.assertEquals(false, updatedAgreement.ExtractionAccess__c, 'Agreement Access type changed');
+    System.Assert.areEqual(1, updatedContactList.size(), 'Only 1 contact left');
+    System.Assert.areEqual('Updated Name', updatedContactList[0].Name, 'Name updated successfully');
+    System.Assert.areEqual(false, updatedAgreement.ExtractionAccess__c, 'Agreement Access type changed');
   }
 
   @isTest
@@ -69,6 +69,8 @@ public class AAREG_AgreementControllerTest {
 
     Agreement__c updatedAgreement = [SELECT Id, Status__c FROM Agreement__c];
 
-    System.assertEquals('Deactivated', updatedAgreement.Status__c, 'Agreement Deactivated');
+    System.Assert.areEqual('Deactivated', updatedAgreement.Status__c, 'Agreement Deactivated');
   }
+
+  
 }
