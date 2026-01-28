@@ -3,8 +3,8 @@
     <actionCalls>
         <name>Create_Contact_failed</name>
         <label>Create Contact failed</label>
-        <locationX>314</locationX>
-        <locationY>647</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_createContactSendConfirmation_failed</stringValue>
+                <stringValue>AAREG_createContactSendConfirmation</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -48,8 +48,8 @@
     <actionCalls>
         <name>Create_EmailQueue_failed</name>
         <label>Create EmailQueue failed</label>
-        <locationX>1546</locationX>
-        <locationY>1187</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -60,7 +60,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_createContactSendConfirmation_failed</stringValue>
+                <stringValue>AAREG_createContactSendConfirmation</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -78,7 +78,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <elementReference>flow_interview_og_log_message</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -93,8 +93,8 @@
     <actionCalls>
         <name>Create_Message_failed</name>
         <label>Create Message failed</label>
-        <locationX>1018</locationX>
-        <locationY>1511</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -105,7 +105,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_createContactSendConfirmation_failed</stringValue>
+                <stringValue>AAREG_createContactSendConfirmation</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -123,7 +123,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <elementReference>flow_interview_og_log_message</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -138,8 +138,8 @@
     <actionCalls>
         <name>Create_Thread_failed</name>
         <label>Create Thread failed</label>
-        <locationX>1282</locationX>
-        <locationY>1403</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -150,7 +150,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_createContactSendConfirmation_failed</stringValue>
+                <stringValue>AAREG_createContactSendConfirmation</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -168,7 +168,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <elementReference>flow_interview_og_log_message</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -183,8 +183,8 @@
     <actionCalls>
         <name>Update_Application_failed</name>
         <label>Update Application failed</label>
-        <locationX>1810</locationX>
-        <locationY>1079</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -195,7 +195,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_createContactSendConfirmation_failed</stringValue>
+                <stringValue>AAREG_createContactSendConfirmation</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -213,7 +213,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
+                <elementReference>flow_interview_og_log_message</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -231,13 +231,13 @@
         <nameSegment>LoggerUtility</nameSegment>
         <offset>0</offset>
     </actionCalls>
-    <apiVersion>52.0</apiVersion>
+    <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <decisions>
         <name>IsContactNull</name>
         <label>IsContactNull</label>
-        <locationX>402</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
             <name>contactDoesNotExist</name>
@@ -270,8 +270,13 @@
             <label>contactExist</label>
         </rules>
     </decisions>
-    <description>Flow check if there is a contactperson already on the account with the same email. If not a contact is created and an email confirmation is sent</description>
+    <description>Flow check if there is a contactperson already on the account with the same email. If not a contact is created and an email confirmation is sent.</description>
     <environments>Default</environments>
+    <formulas>
+        <name>flow_interview_og_log_message</name>
+        <dataType>String</dataType>
+        <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
+    </formulas>
     <formulas>
         <name>varMessagFromNav</name>
         <dataType>String</dataType>
@@ -314,8 +319,8 @@
     <recordCreates>
         <name>createContact</name>
         <label>createContact</label>
-        <locationX>50</locationX>
-        <locationY>539</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignRecordIdToReference>varContactID</assignRecordIdToReference>
         <connector>
             <targetReference>UpdateApplication</targetReference>
@@ -359,8 +364,8 @@
         <description>Create email queue for sending email</description>
         <name>CreateEmailQueue</name>
         <label>CreateEmailQueue</label>
-        <locationX>402</locationX>
-        <locationY>1079</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>GetAARegThreadRecordType</targetReference>
         </connector>
@@ -409,8 +414,8 @@
     <recordCreates>
         <name>CreateMessageFromNAV</name>
         <label>CreateMessageFromNAV</label>
-        <locationX>402</locationX>
-        <locationY>1403</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <faultConnector>
             <targetReference>Create_Message_failed</targetReference>
         </faultConnector>
@@ -432,8 +437,8 @@
     <recordCreates>
         <name>createThread</name>
         <label>createThread</label>
-        <locationX>402</locationX>
-        <locationY>1295</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignRecordIdToReference>varThreadId</assignRecordIdToReference>
         <connector>
             <targetReference>CreateMessageFromNAV</targetReference>
@@ -495,8 +500,8 @@
         <description>Check if contact email already is created on account</description>
         <name>checkContact</name>
         <label>checkContact</label>
-        <locationX>402</locationX>
-        <locationY>323</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>IsContactNull</targetReference>
@@ -523,21 +528,42 @@
         </outputAssignments>
     </recordLookups>
     <recordLookups>
+        <name>Get_Thread_Record_Type_Name</name>
+        <label>Get Thread Record Type Name</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>checkContact</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>QualifiedApiName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>ThreadRecordTypeName</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>AAREG_Setting__mdt</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <description>Get the AAReg Thread Record Type that will be used when we are creating the new Thread record.</description>
         <name>GetAARegThreadRecordType</name>
         <label>Get AAReg Thread Record Type</label>
-        <locationX>402</locationX>
-        <locationY>1187</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>createThread</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Name</field>
+            <field>DeveloperName</field>
             <operator>EqualTo</operator>
             <value>
-                <stringValue>AAREG Thread</stringValue>
+                <elementReference>Get_Thread_Record_Type_Name.Value__c</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -549,8 +575,8 @@
         <description>Update application with contactID</description>
         <name>UpdateApplication</name>
         <label>UpdateApplication</label>
-        <locationX>402</locationX>
-        <locationY>971</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <connector>
             <targetReference>CreateEmailQueue</targetReference>
         </connector>
@@ -580,10 +606,10 @@
         <object>Application__c</object>
     </recordUpdates>
     <start>
-        <locationX>276</locationX>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>checkContact</targetReference>
+            <targetReference>Get_Thread_Record_Type_Name</targetReference>
         </connector>
         <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
