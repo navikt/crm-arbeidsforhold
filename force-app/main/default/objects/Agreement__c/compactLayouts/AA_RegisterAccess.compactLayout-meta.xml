@@ -3,9 +3,7 @@
     <fullName>AA_RegisterAccess</fullName>
     <fields>Name</fields>
     <fields>account__c</fields>
+    <fields>OrganizationNumber__c</fields>
     <fields>Status__c</fields>
-    <fields>APIAccess__c</fields>
-    <fields>ExtractionAccess__c</fields>
-    <fields>OnlineAccess__c</fields>
     <label>Aa-register access</label>
 </CompactLayout>
