@@ -56,14 +56,10 @@ public without sharing class AAREG_ApplicationController {
       application.Status__c = DRAFT_APPLICATION;
     }
 
-    try {
       upsert application;
       upsertRelatedContacts(application.Id, relatedContacts);
       upsertBasisCodes(application.Id, basisCode);
       insertDocumentWithLink(application.Id, base64, filename);
-    } catch (Exception e) {
-      throw new AuraHandledException(e.getMessage());
-    }
     return application.Id;
   }
 
@@ -82,24 +78,16 @@ public without sharing class AAREG_ApplicationController {
       application.AA_ApplicationArchived__c = false;
     }
 
-    try {
       upsert application;
       upsertRelatedContacts(application.Id, relatedContacts);
       upsertBasisCodes(application.Id, basisCode);
       insertDocumentWithLink(application.Id, base64, fileName);
-    } catch (Exception e) {
-      throw new AuraHandledException(e.getMessage());
-    }
     return application.Id;
   }
 
   @AuraEnabled
   public static void deleteDraftRecord(SObject record) {
-    try {
       delete record;
-    } catch (Exception ex) {
-      throw new AuraHandledException(ex.getMessage());
-    }
   }
 
   private static void upsertRelatedContacts(Id applicationId, List<RelatedContact__c> relatedContacts) {

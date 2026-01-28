@@ -291,6 +291,18 @@ public with sharing class AAREG_TestDataFactory {
             LegalBasisCounty__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
             PurposeCounty__c = 'Tildeling og kontroll av drosjeløyve'
         ));
+      basisCodes.add(new ApplicationBasisCode__c(
+            Application__c = app.Id,
+            API_Access__c = true,
+            Extraction_Access__c = false,
+            Online_Access__c = false,
+            ProcessingBasis__c = 'Processing Basis 3',
+            OrganizationType__c = 'County',
+            OtherLegalBasis__c= 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
+            OtherPurpose__c = 'Tildeling og kontroll av drosjeløyve',
+            LegalBasisCounty__c ='Annet - oppgi i tekstfelt under' ,
+            PurposeCounty__c ='Annet - oppgi i tekstfelt under'
+        ));
       
         basisCodes.add(new ApplicationBasisCode__c(
             Application__c = app.Id,
@@ -318,6 +330,18 @@ public with sharing class AAREG_TestDataFactory {
             LegalBasisElectricitySupervision__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
             PurposeElectricitySupervision__c = 'Tilsyn med elektriske anlegg og elektrisk utstyr'
         ));
+         basisCodes.add(new ApplicationBasisCode__c(
+            Application__c = app.Id,
+            API_Access__c = false,
+            Extraction_Access__c = false,
+            Online_Access__c = true,
+            ProcessingBasis__c = 'Processing Basis 2',
+            OrganizationType__c = 'Electricity Supervision',
+            OtherLegalBasis__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
+            OtherPurpose__c = 'Tilsyn med elektriske anlegg og elektrisk utstyr',
+            LegalBasisElectricitySupervision__c ='Annet - oppgi i tekstfelt under' ,
+            PurposeElectricitySupervision__c ='Annet - oppgi i tekstfelt under'
+        ));
         return basisCodes;
     }
     
@@ -333,6 +357,18 @@ public with sharing class AAREG_TestDataFactory {
             OrganizationType__c = 'Pension',
             LegalBasisPension__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b',
             PurposePension__c = 'Arbeid med administrasjon knyttet til OU-samordningen'
+        ));
+        basisCodes.add(new ApplicationBasisCode__c(
+            Application__c = app.Id,
+            API_Access__c = false,
+            Extraction_Access__c = false,
+            Online_Access__c = true,
+            ProcessingBasis__c = 'Processing Basis 2',
+            OrganizationType__c = 'Pension',
+            OtherLegalBasis__c= 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b',
+            OtherPurpose__c = 'Arbeid med administrasjon knyttet til OU-samordningen',
+            LegalBasisPension__c ='Annet - oppgi i tekstfelt under' ,
+            PurposePension__c ='Annet - oppgi i tekstfelt under'
         ));
         return basisCodes;
     }
@@ -350,6 +386,18 @@ public with sharing class AAREG_TestDataFactory {
             LegalBasisMunicipality__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
             PurposeMunicipality__c = 'Behandling av startlån/boligtilskudd'
         ));
+         basisCodes.add(new ApplicationBasisCode__c(
+            Application__c = app.Id,
+            API_Access__c = false,
+            Extraction_Access__c = false,
+            Online_Access__c = true,
+            ProcessingBasis__c = 'Processing Basis 2',
+            OrganizationType__c = 'Pension',
+            OtherLegalBasis__c= 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
+            OtherPurpose__c = 'Behandling av startlån/boligtilskudd',
+            LegalBasisMunicipality__c ='Annet - oppgi i tekstfelt under' ,
+            PurposeMunicipality__c ='Annet - oppgi i tekstfelt under'
+        ));
         return basisCodes;
     }
     
@@ -365,6 +413,18 @@ public with sharing class AAREG_TestDataFactory {
             OrganizationType__c = 'State',
             LegalBasisState__c = 'LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33',
             PurposeState__c = 'Kontroll av virksomheter som benytter eksplosiver.'
+        ));
+        basisCodes.add(new ApplicationBasisCode__c(
+            Application__c = app.Id,
+            API_Access__c = true,
+            Extraction_Access__c = false,
+            Online_Access__c = false,
+            ProcessingBasis__c = 'Processing Basis 2',
+            OrganizationType__c = 'State',
+            OtherLegalBasis__c= 'LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33',
+            OtherPurpose__c = 'Kontroll av virksomheter som benytter eksplosiver.',
+            LegalBasisState__c ='Annet - oppgi i tekstfelt under' ,
+            PurposeState__c ='Annet - oppgi i tekstfelt under'
         ));
         return basisCodes;
     }
