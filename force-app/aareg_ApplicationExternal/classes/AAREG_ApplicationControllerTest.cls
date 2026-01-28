@@ -10,8 +10,10 @@ private class AAREG_ApplicationControllerTest {
 
     @isTest
     private static void getAccountNameByOrgNumber() {
+        Test.startTest();
         String accountName = AAREG_ApplicationController.getAccountNameByOrgNumber('929882989');
-        System.assertEquals('Fylke', accountName, 'Assert that correct account name is returned');
+        Test.stopTest();
+        System.Assert.areEqual('Fylke', accountName, 'Assert that correct account name is returned');
     }
     
     @isTest
@@ -56,11 +58,11 @@ private class AAREG_ApplicationControllerTest {
         ];
         Test.stopTest();
 
-        System.assertEquals(1, processedApplications.size(), 'Check only one application was inserted');
-        System.assertEquals(2, processedContacts.size(), 'Check that both contacts were inserted');
-        System.assertEquals(2, processedBasisCodes.size(), 'Check that both Application Basis Codes were inserted');
-        System.assertEquals('New', processedApplications[0].Casehandler_Status__c, 'Assert correct application status');
-        System.assertEquals(1, documentLink.size(), 'Assert successful documentLink');
+        System.Assert.areEqual(1, processedApplications.size(), 'Check only one application was inserted');
+        System.Assert.areEqual(2, processedContacts.size(), 'Check that both contacts were inserted');
+        System.Assert.areEqual(2, processedBasisCodes.size(), 'Check that both Application Basis Codes were inserted');
+        System.Assert.areEqual('New', processedApplications[0].Casehandler_Status__c, 'Assert correct application status');
+        System.Assert.areEqual(1, documentLink.size(), 'Assert successful documentLink');
     }
     
     @isTest
@@ -95,16 +97,16 @@ private class AAREG_ApplicationControllerTest {
         ];
         Test.stopTest();
 
-        System.assertEquals(1, processedApplications.size(), 'Check only one application was upserted');
-        System.assertEquals(2, processedContacts.size(), 'Check that both contacts were upserted');
-        System.assertEquals(2, processedBasisCodes.size(), 'Check that both Application Basis Codes were upserted');
-        System.assertEquals('In Progress', processedApplications[0].Status__c, 'Correct application status');
-        System.assertEquals(
+        System.Assert.areEqual(1, processedApplications.size(), 'Check only one application was upserted');
+        System.Assert.areEqual(2, processedContacts.size(), 'Check that both contacts were upserted');
+        System.Assert.areEqual(2, processedBasisCodes.size(), 'Check that both Application Basis Codes were upserted');
+       System.Assert.areEqual('In Progress', processedApplications[0].Status__c, 'Correct application status');
+        System.Assert.areEqual(
             'In Progress',
             processedApplications[0].Casehandler_Status__c,
             'Correct application status'
         );
-        System.assertEquals(true, documentLink.isEmpty(), 'No documentLinks created');
+        System.Assert.areEqual(true, documentLink.isEmpty(), 'No documentLinks created');
     }
     
      @isTest
@@ -131,7 +133,7 @@ private class AAREG_ApplicationControllerTest {
         Account lastUsedOrganization = AAREG_ApplicationController.getLastUsedOrganizationInformation(user.id);
         Test.stopTest();
 
-        System.assertEquals(lastUsedOrganization.name, 'Fylke', 'Assert that the correct account name is returned.');
+        System.Assert.areEqual(lastUsedOrganization.name, 'Fylke', 'Assert that the correct account name is returned.');
     }
     
      @isTest
@@ -160,9 +162,9 @@ private class AAREG_ApplicationControllerTest {
             application.Id
         );
         Test.stopTest();
-        System.assertEquals(application.Id, draft.application.Id, 'Draft application retrieved');
-        System.assertEquals(2, draft.basisCodes.size(), '2 draft basis codes retrieved');
-        System.assertEquals(2, draft.contacts.size(), '2 draft related contacts retrieved');
+        System.Assert.areEqual(application.Id, draft.application.Id, 'Draft application retrieved');
+        System.Assert.areEqual(2, draft.basisCodes.size(), '2 draft basis codes retrieved');
+        System.Assert.areEqual(2, draft.contacts.size(), '2 draft related contacts retrieved');
     }
     
      @isTest
@@ -178,7 +180,7 @@ private class AAREG_ApplicationControllerTest {
 
         List<Application__c> applications = [SELECT Id FROM Application__c];
 
-        System.assertEquals(0, applications.size(), 'No applications. Successful record deletion.');
+        System.Assert.areEqual(0, applications.size(), 'No applications. Successful record deletion.');
     }
     
      @isTest
@@ -200,6 +202,7 @@ private class AAREG_ApplicationControllerTest {
         String base64 = null;
         String fileName = null;
 
+        Test.startTest();
         AAREG_ApplicationController.saveAsDraft(application, basisCodes, contacts, base64, fileName);
         Application__c processedApplication = [SELECT Id, Status__c FROM Application__c LIMIT 1];
         List<RelatedContact__c> processedContacts = [
@@ -212,21 +215,10 @@ private class AAREG_ApplicationControllerTest {
             FROM ApplicationBasisCode__c
             WHERE Application__c = :processedApplication.Id
         ];
+        Test.stopTest();
 
-        System.assertEquals(2, processedContacts.size(), 'Check that both contacts were inserted');
-        System.assertEquals(2, processedBasisCodes.size(), 'Check that both Application Basis Codes were inserted');
-        System.assertEquals('Draft', processedApplication.Status__c, 'Assert correct application status');
+        System.Assert.areEqual(2, processedContacts.size(), 'Check that both contacts were inserted');
+        System.Assert.areEqual(2, processedBasisCodes.size(), 'Check that both Application Basis Codes were inserted');
+        System.Assert.areEqual('Draft', processedApplication.Status__c, 'Assert correct application status');
     }
-
-
-
-
-
-
-    
-    
-    
-    
- 
-
 }

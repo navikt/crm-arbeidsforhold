@@ -25,21 +25,17 @@ public with sharing class AAREG_AgreementController {
     List<RelatedContact__c> contacts,
     List<RelatedContact__c> contactsToDelete
   ) {
-    try {
-      for (RelatedContact__c con : contacts) {
+       for (RelatedContact__c con : contacts) {
         con.Agreement__c = agreement.Id;
       }
       update agreement;
       upsert contacts;
       delete contactsToDelete;
-    } catch (Exception e) {
-      throw new AuraHandledException(e.getMessage());
-    }
   }
 
   @AuraEnabled
   public static void cancelAgreement(Agreement__c agreement) {
-    try {
+
       agreement.Status__c = 'Deactivated';
       agreement.OnlineAccess__c = false;
       agreement.ExtractionAccess__c = false;
@@ -49,8 +45,5 @@ public with sharing class AAREG_AgreementController {
       agreement.isDeactivateThroughBatch__c = false;
       agreement.isNoDeactivationAccess__c = false;
       update agreement;
-    } catch (Exception e) {
-      throw new AuraHandledException(e.getMessage());
-    }
   }
 }
