@@ -1326,7 +1326,7 @@
             <targetReference>getApplication</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <subflows>
         <name>createTaskApplicationFinished</name>
         <label>createTaskApplicationFinished</label>

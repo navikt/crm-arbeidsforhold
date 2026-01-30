@@ -114,6 +114,16 @@
                 <identifier>RecordApplicationDeadlineForReply_cField</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.DecisionDate__c</fieldItem>
+                <identifier>RecordDecisionDate_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-d76ac792-64bc-4ea7-b5c6-242b82ebf30c</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -136,6 +146,16 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.AA_CasehandlerDeadlineFlag__c</fieldItem>
                 <identifier>RecordAA_CasehandlerDeadlineFlag_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Status__c</fieldItem>
+                <identifier>RecordStatus_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-bbd2449d-834e-4c56-90c4-84398d77331d</name>

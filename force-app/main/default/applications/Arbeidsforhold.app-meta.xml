@@ -125,6 +125,7 @@
     <setupExperience>all</setupExperience>
     <tabs>standard-home</tabs>
     <tabs>Application__c</tabs>
+    <tabs>Application_Decision__c</tabs>
     <tabs>Agreement__c</tabs>
     <tabs>standard-report</tabs>
     <tabs>standard-Dashboard</tabs>

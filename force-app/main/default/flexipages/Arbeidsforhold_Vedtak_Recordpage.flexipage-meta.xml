@@ -8,12 +8,33 @@
                     <valueList>
                         <valueListItems>
                             <value>Edit</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.Process_status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>In progress</rightValue>
+                                </criteria>
+                            </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Delete</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.Process_status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>In progress</rightValue>
+                                </criteria>
+                            </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value>Application_Decision__c.AAREG_Create_agreement</value>
+                            <value>Application_Decision__c.AAREG_completeDecision</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.Process_status__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>In progress</rightValue>
+                                </criteria>
+                            </visibilityRule>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
@@ -283,7 +304,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Vedtaksdetaljer</value>
+                    <value>{!$Label.AAREG_Decision_details_sections}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>flexipage_fieldSection</identifier>
@@ -301,16 +322,31 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Begrunnelse</value>
+                    <value>{!$Label.AAREG_Decision_text_section}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>flexipage_fieldSection2</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Process_status__c}</leftValue>
+                        <operator>NE</operator>
+                        <rightValue>Completed</rightValue>
+                    </criteria>
+                </visibilityRule>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>actionNames</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>Application_Decision_Details__c.AAREG_Approved</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Application_Decision_Details__c.AAREG_Declined</value>
+                        </valueListItems>
+                    </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>maxRecordsToDisplay</name>
@@ -332,9 +368,6 @@
                     <name>relatedListFieldAliases</name>
                     <valueList>
                         <valueListItems>
-                            <value>NAME</value>
-                        </valueListItems>
-                        <valueListItems>
                             <value>Legal_Basis__c</value>
                         </valueListItems>
                         <valueListItems>
@@ -346,18 +379,15 @@
                         <valueListItems>
                             <value>Approved__c</value>
                         </valueListItems>
-                        <valueListItems>
-                            <value>Decision_description__c</value>
-                        </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListLabel</name>
-                    <value>Behandlingsgrunnlaget</value>
+                    <value>{!$Label.AAREG_code_basis_section}</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>showActionBar</name>
-                    <value>false</value>
+                    <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>sortFieldAlias</name>
@@ -369,6 +399,13 @@
                 </componentInstanceProperties>
                 <componentName>lst:dynamicRelatedList</componentName>
                 <identifier>lst_dynamicRelatedList</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Process_status__c}</leftValue>
+                        <operator>NE</operator>
+                        <rightValue>Completed</rightValue>
+                    </criteria>
+                </visibilityRule>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -383,10 +420,17 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Brevtekster</value>
+                    <value>{!$Label.AAREG_Letter_text_section}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>flexipage_fieldSection4</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Process_status__c}</leftValue>
+                        <operator>NE</operator>
+                        <rightValue>Completed</rightValue>
+                    </criteria>
+                </visibilityRule>
             </componentInstance>
         </itemInstances>
         <itemInstances>

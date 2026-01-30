@@ -40,7 +40,8 @@
     </layouts>
     <nameFieldLabel><!-- Name --></nameFieldLabel>
     <quickActions>
-        <label><!-- Create agreement --></label>
-        <name>AAREG_Create_agreement</name>
+        <aspect>Master</aspect>
+        <label>Ferdigbehandle vedtak</label>
+        <name>AAREG_completeDecision</name>
     </quickActions>
 </CustomObjectTranslation>
