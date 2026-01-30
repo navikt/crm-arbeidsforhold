@@ -3,6 +3,73 @@
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
+        <name>Add_legal_and_basis</name>
+        <label>Add legal and basis</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>Var_ProcessingBasis</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Check_details_legal_and_basis.Legal_Basis__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Var_ProcessingBasis</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Check_details_legal_and_basis.Purpose__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Var_ProcessingBasis</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Check_details_legal_and_basis.Processing_Basis__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Var_ProcessingBasis</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>&lt;BR&gt;</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Check_details_legal_and_basis</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Add_values_to_application</name>
+        <label>Add values to application</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>getApplicationRecords.Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>var_DecisionStatus</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>getApplicationRecords.Casehandler_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Closed</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>getApplicationRecords.DecisionDate__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getDecisionRecord.Decision_date__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>createAgreement</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>addValuesToAgreement</name>
         <label>Add values to agreement</label>
         <locationX>0</locationX>
@@ -49,8 +116,43 @@
                 <elementReference>getApplicationRecords.Id</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_Agreement.APIAccess__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>var_APIAccess</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_Agreement.ExtractionAccess__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>var_ExtractionAccess</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_Agreement.OnlineAccess__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>var_WebAccess</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_Agreement.ApplicationBasisFields__c</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Var_ProcessingBasis</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_Agreement.accountCategory__c</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>getApplicationRecords.OrganizationStructure__c</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
-            <targetReference>createAgreement</targetReference>
+            <targetReference>Add_values_to_application</targetReference>
         </connector>
     </assignments>
     <customProperties>
@@ -85,10 +187,47 @@
             <label>isAvslaat</label>
         </rules>
     </decisions>
-    <description>Oppretter en avtale basert på vedtak, søknad og relaterte kontakter</description>
     <environments>Default</environments>
-    <interviewLabel>Application decision - {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG Decision create agreement</label>
+    <formulas>
+        <name>var_APIAccess</name>
+        <dataType>Boolean</dataType>
+        <expression>IF({!getDecisionRecord.Api_access_count__c}&gt;0,true,false)</expression>
+    </formulas>
+    <formulas>
+        <name>var_DecisionStatus</name>
+        <dataType>String</dataType>
+        <expression>CASE({!getDecisionRecord.Status__c},
+&apos;Innvilget&apos;,&apos;Approved&apos;,
+&apos;Delvis innvilget&apos;, &apos;Approved Partially&apos;,
+&apos;Completed&apos;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>var_ExtractionAccess</name>
+        <dataType>Boolean</dataType>
+        <expression>IF({!getDecisionRecord.Extract_access_count__c}&gt;0,true,false)</expression>
+    </formulas>
+    <formulas>
+        <name>var_WebAccess</name>
+        <dataType>Boolean</dataType>
+        <expression>IF({!getDecisionRecord.Web_access_count__c}&gt;0,true,false)</expression>
+    </formulas>
+    <interviewLabel>AAREG Decision Completed {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>AAREG Decision completed</label>
+    <loops>
+        <name>Check_details_legal_and_basis</name>
+        <label>Check details legal and basis</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_decision_details</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Add_legal_and_basis</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>addValuesToAgreement</targetReference>
+        </noMoreValuesConnector>
+    </loops>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -119,13 +258,34 @@
         <inputReference>rec_Agreement</inputReference>
     </recordCreates>
     <recordLookups>
+        <name>Get_decision_details</name>
+        <label>Get decision details</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Check_details_legal_and_basis</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Application_Decision__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Application_Decision_Details__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <name>getApplicationRecords</name>
         <label>Get application record</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>addValuesToAgreement</targetReference>
+            <targetReference>Get_decision_details</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -161,16 +321,63 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
+        <name>Update_application</name>
+        <label>Update application</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputReference>getApplicationRecords</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_decision</name>
+        <label>Update decision</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Update_decision_details</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Agreement__c</field>
+            <value>
+                <elementReference>rec_Agreement.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Process_status__c</field>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Application_Decision__c</object>
+    </recordUpdates>
+    <recordUpdates>
         <name>Update_decision_details</name>
         <label>Update decision details</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <connector>
+            <targetReference>Update_application</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Application_Decision__c</field>
             <operator>EqualTo</operator>
             <value>
                 <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Approved__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
             </value>
         </filters>
         <inputAssignments>
@@ -187,7 +394,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Update_decision_details</targetReference>
+            <targetReference>Update_decision</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -277,6 +484,13 @@
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>Var_ProcessingBasis</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>

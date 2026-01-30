@@ -65,6 +65,13 @@
                 <elementReference>var_chooseOwner.selectedChoiceLabels</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_ApplicationRecords.Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>In Progress</stringValue>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>updateCaseOwner</targetReference>
         </connector>

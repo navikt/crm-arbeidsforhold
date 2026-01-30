@@ -31,5 +31,22 @@
         <value><!-- Application Decision Detail --></value>
     </caseValues>
     <gender><!-- Neuter --></gender>
+    <layouts>
+        <layout>Application Decision Detail Layout</layout>
+        <sections>
+            <label><!-- Tilpassede lenker --></label>
+            <section>Tilpassede lenker</section>
+        </sections>
+    </layouts>
     <nameFieldLabel><!-- Name --></nameFieldLabel>
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Innvilge</label>
+        <name>AAREG_Approved</name>
+    </quickActions>
+    <quickActions>
+        <aspect>Master</aspect>
+        <label>Avslå</label>
+        <name>AAREG_Declined</name>
+    </quickActions>
 </CustomObjectTranslation>

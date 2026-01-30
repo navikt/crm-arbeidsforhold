@@ -5,11 +5,6 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>actionNames</name>
-                    <valueList>
-                        <valueListItems>
-                            <value>Edit</value>
-                        </valueListItems>
-                    </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>collapsed</name>
@@ -43,20 +38,10 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Approved__c</fieldItem>
-                <identifier>RecordApproved__cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Decision_description__c</fieldItem>
-                <identifier>RecordDecision_description__cField</identifier>
+                <fieldItem>Record.Processing_basis_status__c</fieldItem>
+                <identifier>RecordProcessing_basis_status_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-64d18d6e-bdba-48df-87ba-f72639305a9b</name>
@@ -81,7 +66,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Legal_Basis__c</fieldItem>
                 <identifier>RecordLegal_Basis_cField</identifier>
@@ -91,7 +76,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Purpose__c</fieldItem>
                 <identifier>RecordPurpose_cField</identifier>
@@ -101,7 +86,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Processing_Basis__c</fieldItem>
                 <identifier>RecordProcessing_Basis_cField</identifier>
@@ -115,7 +100,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.API_Access__c</fieldItem>
                 <identifier>RecordAPI_Access_cField</identifier>
@@ -125,7 +110,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Online_Access__c</fieldItem>
                 <identifier>RecordOnline_Access_cField</identifier>
@@ -135,7 +120,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Extraction_Access__c</fieldItem>
                 <identifier>RecordExtraction_Access_cField</identifier>

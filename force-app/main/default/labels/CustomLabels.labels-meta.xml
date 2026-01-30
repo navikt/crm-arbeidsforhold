@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
     <labels>
+        <fullName>AAREG_Decision_details_sections</fullName>
+        <categories>Arbeidsforhold decision details</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AAREG Decision details sections</shortDescription>
+        <value>Decision details</value>
+    </labels>
+    <labels>
+        <fullName>AAREG_Decision_text_section</fullName>
+        <categories>Arbeidsforhold decision details</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AAREG Decision text section</shortDescription>
+        <value>Decision text</value>
+    </labels>
+    <labels>
+        <fullName>AAREG_Letter_text_section</fullName>
+        <categories>Arbeidsforhold decision details</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AAREG Letter text section</shortDescription>
+        <value>Letter texts</value>
+    </labels>
+    <labels>
         <fullName>AAREG_complaint_description_section</fullName>
         <categories>Arbeidsforhold decision details</categories>
         <language>en_US</language>
@@ -14,7 +38,7 @@
     <labels>
         <fullName>Internal_comment</fullName>
         <categories>Arbeidsforhold Lightning App Page Label</categories>
-        <language>no</language>
+        <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Internal comment</shortDescription>
         <value>Internal comment</value>
@@ -104,7 +128,7 @@
     <labels>
         <fullName>Application</fullName>
         <categories>Arbeidsforhold Lightning App Page Label</categories>
-        <language>no</language>
+        <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Application</shortDescription>
         <value>Application</value>
@@ -128,7 +152,7 @@
     <labels>
         <fullName>Codes</fullName>
         <categories>Arbeidsforhold Lightning App Page Label</categories>
-        <language>no</language>
+        <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Codes</shortDescription>
         <value>Codes</value>
@@ -136,7 +160,7 @@
     <labels>
         <fullName>Contacts</fullName>
         <categories>Arbeidsforhold Lightning App Page Label</categories>
-        <language>no</language>
+        <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Contacts</shortDescription>
         <value>Contacts</value>
@@ -152,7 +176,7 @@
     <labels>
         <fullName>Dataelement</fullName>
         <categories>Arbeidsforhold Lightning App Page Label</categories>
-        <language>no</language>
+        <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Dataelement</shortDescription>
         <value>Data elements</value>
@@ -192,7 +216,7 @@
     <labels>
         <fullName>Related</fullName>
         <categories>Arbeidsforhold Lightning App Page Label</categories>
-        <language>no</language>
+        <language>en_US</language>
         <protected>false</protected>
         <shortDescription>Related</shortDescription>
         <value>Related contacts</value>
@@ -224,7 +248,7 @@
     <labels>
         <fullName>AAREG_github_description_text</fullName>
         <categories>Arbeidsforhold decision details</categories>
-        <language>no</language>
+        <language>en_US</language>
         <protected>false</protected>
         <shortDescription>AAREG github description text</shortDescription>
         <value>A more detailed description of the services and the technical solution can be found on our GitHub pages, see: https://navikt.github.io/aareg/
@@ -233,7 +257,7 @@ Here you will also find some answers to any professional and technical questions
     <labels>
         <fullName>AAREG_web_access_text</fullName>
         <categories>Arbeidsforhold decision details</categories>
-        <language>no</language>
+        <language>en_US</language>
         <protected>false</protected>
         <shortDescription>AAREG web access text</shortDescription>
         <value>For further information about the web lookup service, see: https://www.nav.no/samarbeidspartner/web-oppslag
