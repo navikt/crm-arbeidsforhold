@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fieldOverrides>
+        <field>Approved__c</field>
+        <formula>true</formula>
+    </fieldOverrides>
+    <fieldOverrides>
+        <field>Processing_basis_status__c</field>
+        <literalValue>Approved</literalValue>
+    </fieldOverrides>
+    <label>Approved</label>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
+    <quickActionLayout>
+        <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
+        <quickActionLayoutColumns/>
+        <quickActionLayoutColumns/>
+    </quickActionLayout>
+    <successMessage>Processing basis is changed to approved</successMessage>
+    <type>Update</type>
+</QuickAction>
