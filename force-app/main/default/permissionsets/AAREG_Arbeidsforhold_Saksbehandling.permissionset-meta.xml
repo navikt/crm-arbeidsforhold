@@ -545,6 +545,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Application__c.AAREG_OrganizationCategory__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Application__c.AA_AccessText__c</field>
         <readable>true</readable>
     </fieldPermissions>
