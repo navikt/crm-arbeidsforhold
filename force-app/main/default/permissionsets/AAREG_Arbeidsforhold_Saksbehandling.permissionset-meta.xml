@@ -1005,6 +1005,10 @@
         <viewAllFields>false</viewAllFields>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
+    <pageAccesses>
+        <apexPage>AAREG_decisionInternalPDF</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
     <recordTypeVisibilities>
         <recordType>Account.Employer</recordType>
         <visible>true</visible>
