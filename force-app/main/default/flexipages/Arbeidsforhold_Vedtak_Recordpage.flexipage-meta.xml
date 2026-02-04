@@ -353,13 +353,6 @@
                 </componentInstanceProperties>
                 <componentName>crmAlertBanner</componentName>
                 <identifier>c_crmAlertBanner</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.isDetailStatusFilled__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>false</rightValue>
-                    </criteria>
-                </visibilityRule>
             </componentInstance>
         </itemInstances>
         <itemInstances>
