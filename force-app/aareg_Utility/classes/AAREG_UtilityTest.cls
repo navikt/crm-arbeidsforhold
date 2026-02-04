@@ -1,12 +1,14 @@
 /**
  * This is the test class for the AAREG_Utility utility class.
  * <br><br>
- * @author Ashish Misra (ashish.misra@nav.com), NAV
- * @since 0.1.0, Februar 2026
+ * @author Ashish Misra
+ * @since Februar 2026
  * @group AAREG Utility
  */
 @isTest
+@SuppressWarnings('PMD.MethodNamingConventions')
 public class AAREG_UtilityTest {
+
     /**
      * Verifies that the singleton instance is created successfully.
      * Asserts that the instance is not null.
@@ -14,7 +16,6 @@ public class AAREG_UtilityTest {
     @isTest
     static void when_Invoked_InstanceCreated() {
         System.Test.startTest();
-        resetSingleton();
         AAREG_Utility instance1 = AAREG_Utility.getInstance();
         System.Test.stopTest();
 
@@ -32,7 +33,6 @@ public class AAREG_UtilityTest {
         mockMetadataWithValue('AAREG_Thread');
 
         System.Test.startTest();
-        resetSingleton();
         AAREG_Utility aaregConstructor = new AAREG_Utility();
         String threadRTId = aaregConstructor.getThreadRecordTypeId();
         System.Test.stopTest();
@@ -57,7 +57,6 @@ public class AAREG_UtilityTest {
         mockMetadataWithValue('Non_Existing_RecordType');
 
         System.Test.startTest();
-        resetSingleton();
         AAREG_Utility aaregConstructor = new AAREG_Utility();
         String threadRTId = aaregConstructor.getThreadRecordTypeId();
         System.Test.stopTest();
@@ -82,7 +81,6 @@ public class AAREG_UtilityTest {
         mockMetadataWithMultipleValues('Non_Existing_RecordType1', 'Non_Existing_RecordType2', 'AAREG_Thread');
 
         System.Test.startTest();
-        resetSingleton();
         AAREG_Utility aaregConstructor = new AAREG_Utility();
         String threadRTId = aaregConstructor.getThreadRecordTypeId();
         System.Test.stopTest();
@@ -106,7 +104,6 @@ public class AAREG_UtilityTest {
         mockMetadataWithMultipleValues('AAREG_Thread', 'Non_Existing_RecordType1', 'Non_Existing_RecordType2');
 
         System.Test.startTest();
-        resetSingleton();
         AAREG_Utility aaregConstructor = new AAREG_Utility();
         String threadRTId = aaregConstructor.getThreadRecordTypeId();
         System.Test.stopTest();
@@ -127,7 +124,6 @@ public class AAREG_UtilityTest {
         mockEmptyMetadata();
 
         System.Test.startTest();
-        resetSingleton();
         AAREG_Utility aaregConstructor = new AAREG_Utility();
         System.Test.stopTest();
 
@@ -141,7 +137,6 @@ public class AAREG_UtilityTest {
     @isTest
     static void when_InvokedMulitpleTimes_ReturnsTheSameInstanceOfClass_isSingleton() {
         System.Test.startTest();
-        resetSingleton();
         AAREG_Utility util1 = AAREG_Utility.getInstance();
         AAREG_Utility util2 = AAREG_Utility.getInstance();
         System.Test.stopTest();
@@ -158,7 +153,6 @@ public class AAREG_UtilityTest {
     @isTest
     static void when_ClassInvoked_AndEverythingOK_ThreadRecordTypeIdIsReturned() {
         System.Test.startTest();
-        resetSingleton();
         AAREG_Utility util = AAREG_Utility.getInstance();
         String threadRTId = util.getThreadRecordTypeId();
         System.Test.stopTest();
@@ -170,12 +164,9 @@ public class AAREG_UtilityTest {
      * Helper Methods for setting up test data and mocking dependencies
      *********************************************************************/
 
-    // Helper method to reset the singleton instance for testing
-    private static void resetSingleton() {
-        AAREG_Utility.instance = null;
-    }
-
-    // Helper method to mock custom metadata
+    /**
+     * Helper method to mock custom metadata
+     */
     private static void mockMetadataWithValue(String value) {
         CustomMetadataDAOTest.setMetadata(
             'SELECT Value__c FROM AAREG_Setting__mdt WHERE DeveloperName = \'ThreadRecordTypeName\'',
@@ -186,7 +177,9 @@ public class AAREG_UtilityTest {
         );
     }
 
-    // Helper method to mock custom metadata with multiple values
+    /**
+     * Helper method to mock custom metadata with multiple values
+     */
     private static void mockMetadataWithMultipleValues(String value1, String value2, String value3) {
         CustomMetadataDAOTest.setMetadata(
             'SELECT Value__c FROM AAREG_Setting__mdt WHERE DeveloperName = \'ThreadRecordTypeName\'',
@@ -208,7 +201,9 @@ public class AAREG_UtilityTest {
         );
     }
 
-    // Helper method to mock empty custom metadata
+    /**
+     * Helper method to mock empty custom metadata
+     */
     private static void mockEmptyMetadata() {
         CustomMetadataDAOTest.setMetadata(
             'SELECT Value__c FROM AAREG_Setting__mdt WHERE DeveloperName = \'ThreadRecordTypeName\'',
