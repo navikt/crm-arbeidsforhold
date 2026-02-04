@@ -11,6 +11,7 @@
  * @group AAREG Utility
  */
 public with sharing class AAREG_Utility {
+    @TestVisible
     private static AAREG_Utility instance;
     @TestVisible
     private String threadRecordTypeId;
