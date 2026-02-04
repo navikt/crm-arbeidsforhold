@@ -1,5 +1,5 @@
 /**
- * @description This is a utility class for Arbeidsforhold related functionality. It implements
+ * This is a utility class for Arbeidsforhold related functionality. It implements
  * the Singleton design pattern to ensure that only one instance of the utility class
  * exists throughout the transaction. This is particularly useful for managing various
  * configurations and settings related to Arbeidsforhold, such as retrieving the RecordTypeId for threads. Inspired by
@@ -17,7 +17,7 @@ public with sharing class AAREG_Utility {
     private String threadRecordTypeId;
 
     /**
-     * @description Is used to initialize the AAREG_Utility singleton instance. 
+     * Is used to initialize the AAREG_Utility singleton instance. 
      * The method retrieves the RecordType for threads based on custom metadata configuration 
      * and then RecordTypeId from RecordType object based on record type in custom meta data.
      *
@@ -43,7 +43,7 @@ public with sharing class AAREG_Utility {
     }
 
     /**
-     * @description Is used to initialize the AAREG_Utility singleton instance. 
+     * Is used to initialize the AAREG_Utility singleton instance. 
      * If the instance is null, it creates a new instance; otherwise, it returns the existing instance.
      * In this way, it ensures that only one instance of the utility class exists throughout the transaction.
      * In addition, it provides a centralized point of access to the utility methods and properties.
@@ -60,7 +60,7 @@ public with sharing class AAREG_Utility {
     }
 
     /**
-     * @description Is used to return `Thread`  RecordType Id. 
+     * Is used to return `Thread`  RecordType Id. 
      *
      * @author Ashish Misra (ashish.misra@nav.com), NAV
      * @since 0.1.0, Februar 2026
