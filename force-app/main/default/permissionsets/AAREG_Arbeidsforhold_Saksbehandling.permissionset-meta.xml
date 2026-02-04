@@ -57,6 +57,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>AAREG_Utility</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>AAREG_checkObjectTypeNameche</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -541,6 +545,16 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Application_Decision__c.Web_access_count__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Application_Decision__c.isDetailStatusFilled__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Application_Decision__c.isNotNull__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
