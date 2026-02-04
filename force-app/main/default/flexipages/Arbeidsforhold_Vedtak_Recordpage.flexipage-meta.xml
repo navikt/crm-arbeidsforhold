@@ -29,10 +29,16 @@
                         <valueListItems>
                             <value>Application_Decision__c.AAREG_completeDecision</value>
                             <visibilityRule>
+                                <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Process_status__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>In progress</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.isDetailStatusFilled__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -338,6 +344,27 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>message</name>
+                    <value>Det må gjøres en vurdering pr behandlingsgrunnlag. Grunnlaget må innvilges eller avslås via knappene.</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>type</name>
+                    <value>Warning</value>
+                </componentInstanceProperties>
+                <componentName>crmAlertBanner</componentName>
+                <identifier>c_crmAlertBanner</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.isDetailStatusFilled__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>false</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
@@ -377,7 +404,7 @@
                             <value>Processing_Basis__c</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>Approved__c</value>
+                            <value>Processing_basis_status__c</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
