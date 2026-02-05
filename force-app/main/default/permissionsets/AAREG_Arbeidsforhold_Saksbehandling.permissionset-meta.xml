@@ -433,7 +433,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Application_Decision_Details__c.Agreement__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -465,11 +465,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Application_Decision_Details__c.Processing_Basis__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Application_Decision_Details__c.Processing_basis_status__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -528,7 +523,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Application_Decision__c.Process_status__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -545,16 +540,6 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Application_Decision__c.Web_access_count__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Application_Decision__c.isDetailStatusFilled__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Application_Decision__c.isNotNull__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

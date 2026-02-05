@@ -7,15 +7,15 @@
         <translation><!-- Annet - oppgi i tekstfelt under --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Kontroll av drosjeløyve</masterLabel>
-        <translation><!-- Kontroll av drosjeløyve --></translation>
-    </picklistValues>
-    <picklistValues>
         <masterLabel>Kontroll av helsepersonell - tilsynssaker</masterLabel>
         <translation><!-- Kontroll av helsepersonell - tilsynssaker --></translation>
     </picklistValues>
     <picklistValues>
         <masterLabel>Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser</masterLabel>
         <translation><!-- Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Tildeling og kontroll av drosjeløyve</masterLabel>
+        <translation><!-- Tildeling og kontroll av drosjeløyve --></translation>
     </picklistValues>
 </CustomFieldTranslation>
