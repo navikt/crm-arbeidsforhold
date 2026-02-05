@@ -25,6 +25,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>AAREG_ApplicationDecisionPDFFileService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>AAREG_ApplicationInternal</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -485,6 +489,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Application_Decision__c.Approved_count__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Application_Decision__c.ContentdocumentId__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
