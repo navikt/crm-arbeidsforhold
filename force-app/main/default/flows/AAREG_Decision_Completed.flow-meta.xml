@@ -684,7 +684,7 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <stringValue>Avslag</stringValue>
+            <stringValue>Avslått</stringValue>
         </value>
     </variables>
 </Flow>
