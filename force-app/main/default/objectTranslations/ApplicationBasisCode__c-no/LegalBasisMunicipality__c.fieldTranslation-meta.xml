@@ -3,15 +3,15 @@
     <label><!-- Legal Basis Municipality --></label>
     <name>LegalBasisMunicipality__c</name>
     <picklistValues>
-        <masterLabel>Aa-registerforskriften § 10 bokstav e</masterLabel>
-        <translation><!-- Aa-registerforskriften § 10 bokstav e --></translation>
-    </picklistValues>
-    <picklistValues>
-        <masterLabel>Aa-registerforskriften § 9 bokstav f</masterLabel>
-        <translation><!-- Aa-registerforskriften § 9 bokstav f --></translation>
-    </picklistValues>
-    <picklistValues>
         <masterLabel>Annet - oppgi i tekstfelt under</masterLabel>
         <translation><!-- Annet - oppgi i tekstfelt under --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</masterLabel>
+        <translation><!-- FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 9 bokstav f</masterLabel>
+        <translation><!-- FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 9 bokstav f --></translation>
     </picklistValues>
 </CustomFieldTranslation>

@@ -29,16 +29,10 @@
                         <valueListItems>
                             <value>Application_Decision__c.AAREG_completeDecision</value>
                             <visibilityRule>
-                                <booleanFilter>1 AND 2</booleanFilter>
                                 <criteria>
                                     <leftValue>{!Record.Process_status__c}</leftValue>
                                     <operator>EQUAL</operator>
                                     <rightValue>In progress</rightValue>
-                                </criteria>
-                                <criteria>
-                                    <leftValue>{!Record.isDetailStatusFilled__c}</leftValue>
-                                    <operator>EQUAL</operator>
-                                    <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
                         </valueListItems>
@@ -335,8 +329,8 @@
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.Process_status__c}</leftValue>
-                        <operator>NE</operator>
-                        <rightValue>Completed</rightValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>In progress</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>
@@ -353,6 +347,13 @@
                 </componentInstanceProperties>
                 <componentName>crmAlertBanner</componentName>
                 <identifier>c_crmAlertBanner</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Process_status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>In progress</rightValue>
+                    </criteria>
+                </visibilityRule>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -367,6 +368,9 @@
                             <value>Application_Decision_Details__c.AAREG_Declined</value>
                         </valueListItems>
                     </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>adminFilters</name>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>maxRecordsToDisplay</name>
@@ -397,7 +401,16 @@
                             <value>Processing_Basis__c</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>Processing_basis_status__c</value>
+                            <value>Approved__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>API_Access__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Online_Access__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Extraction_Access__c</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
@@ -422,8 +435,8 @@
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.Process_status__c}</leftValue>
-                        <operator>NE</operator>
-                        <rightValue>Completed</rightValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>In progress</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>
@@ -447,8 +460,8 @@
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.Process_status__c}</leftValue>
-                        <operator>NE</operator>
-                        <rightValue>Completed</rightValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>In progress</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>

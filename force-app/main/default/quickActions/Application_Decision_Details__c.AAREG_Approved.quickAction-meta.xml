@@ -4,15 +4,17 @@
         <field>Approved__c</field>
         <formula>true</formula>
     </fieldOverrides>
-    <fieldOverrides>
-        <field>Processing_basis_status__c</field>
-        <literalValue>Approved</literalValue>
-    </fieldOverrides>
     <label>Approved</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
         <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
-        <quickActionLayoutColumns/>
+        <quickActionLayoutColumns>
+            <quickActionLayoutItems>
+                <emptySpace>false</emptySpace>
+                <field>Application_Decision__c</field>
+                <uiBehavior>Required</uiBehavior>
+            </quickActionLayoutItems>
+        </quickActionLayoutColumns>
         <quickActionLayoutColumns/>
     </quickActionLayout>
     <successMessage>Processing basis is changed to approved</successMessage>

@@ -16,10 +16,6 @@
                 <behavior>Required</behavior>
                 <field>Application_Decision__c</field>
             </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Processing_basis_status__c</field>
-            </layoutItems>
         </layoutColumns>
         <layoutColumns/>
         <style>TwoColumnsTopToBottom</style>

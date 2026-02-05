@@ -54,7 +54,7 @@ public class AAREG_ApplicationDecisionControllerTest {
         // Verify the new decision
         Application_Decision__c newDecision = [SELECT Id, Application__c, Status__c FROM Application_Decision__c WHERE Id = :newDecisionId];
         System.Assert.areEqual(testApplication.Id, newDecision.Application__c, 'Application ID should match.');
-        System.Assert.areEqual('Avslått', newDecision.Status__c, 'Status should be Avslått.');
+        System.Assert.areEqual('Avslag', newDecision.Status__c, 'Status should be Avslag.');
 
 
         // Verify the related Application_Decision_Details__c records

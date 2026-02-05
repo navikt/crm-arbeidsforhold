@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Status__c</fullName>
+    <deprecated>false</deprecated>
     <externalId>false</externalId>
     <formula>IF(
     Approved_count__c = Total_count__c,
@@ -8,7 +9,7 @@
     IF(
         Approved_count__c &gt; 0,
         &quot;Delvis innvilget&quot;,
-        &quot;Avslått&quot;
+        &quot;Avslag&quot;
     )
 )</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
