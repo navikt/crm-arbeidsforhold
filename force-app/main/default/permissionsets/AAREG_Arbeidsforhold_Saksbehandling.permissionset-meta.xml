@@ -473,7 +473,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Application_Decision__c.Agreement__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -593,8 +593,18 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
+        <field>Application__c.AA_changeApplicationText__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Application__c.AA_changesInApplication__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Application__c.AA_isPortalUserEditable__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -618,12 +628,12 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Application__c.AccountId__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Application__c.AccountName__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -705,6 +715,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Application__c.IsCasehandlerOwner__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Application__c.IsConfirmationEmailSent__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
