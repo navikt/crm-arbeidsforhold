@@ -259,13 +259,50 @@
         </itemInstances>
         <itemInstances>
             <componentInstance>
-                <componentName>aareg_applicationInternalDecision</componentName>
-                <identifier>c_aareg_applicationInternalDecision</identifier>
+                <componentInstanceProperties>
+                    <name>message</name>
+                    <value>Sett deg som sakseier for å få tilgang til å opprette vedtak.</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>type</name>
+                    <value>Info</value>
+                </componentInstanceProperties>
+                <componentName>crmAlertBanner</componentName>
+                <identifier>c_crmAlertBanner</identifier>
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.Status__c}</leftValue>
-                        <operator>NE</operator>
-                        <rightValue>Suspension</rightValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>New</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentName>aareg_applicationInternalDecision</componentName>
+                <identifier>c_aareg_applicationInternalDecision</identifier>
+                <visibilityRule>
+                    <booleanFilter>1 OR 2 OR 3 OR 4</booleanFilter>
+                    <criteria>
+                        <leftValue>{!Record.Status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>In Progress</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.Status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Approved Partially</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.Status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Approved</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.Status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Declined</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>
