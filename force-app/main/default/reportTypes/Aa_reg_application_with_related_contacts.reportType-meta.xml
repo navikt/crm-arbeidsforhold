@@ -757,6 +757,11 @@
             <field>EventAccess__c</field>
             <table>Account.Applications__r</table>
         </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>AAREG_OrganizationCategory__c</field>
+            <table>Account.Applications__r</table>
+        </columns>
         <masterLabel>Applications</masterLabel>
     </sections>
     <sections>

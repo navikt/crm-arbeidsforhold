@@ -19,7 +19,10 @@ public with sharing class AAREG_CodeBaseListController {
         PurposeElectricitySupervision__c,
         PurposeMunicipality__c,
         PurposePension__c,
-        PurposeState__c
+        PurposeState__c,
+        Extraction_Access__c,
+        Online_Access__c,
+        API_Access__c
       FROM ApplicationBasisCode__c
       WHERE Application__c = :recordId
     ];
