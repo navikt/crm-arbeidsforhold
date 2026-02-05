@@ -9,7 +9,7 @@
     IF(
         Approved_count__c &gt; 0,
         &quot;Delvis innvilget&quot;,
-        &quot;Avslag&quot;
+        &quot;Avslått&quot;
     )
 )</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
