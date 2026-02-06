@@ -4,7 +4,13 @@
         <field>Account.Applications__r$Name</field>
     </columns>
     <columns>
+        <field>Account$Name</field>
+    </columns>
+    <columns>
         <field>Account.Applications__r$Status__c</field>
+    </columns>
+    <columns>
+        <field>Account$INT_OrganizationNumber__c</field>
     </columns>
     <columns>
         <field>Account.Applications__r$OrganizationNumber__c</field>
@@ -39,29 +45,29 @@
         <aggregateTypes>Sum</aggregateTypes>
         <field>Account.Applications__r.Application_Decisions__r.Application_Decision_Details__r$Online_Access__c</field>
     </columns>
+    <filter>
+        <criteriaItems>
+            <column>Account.Applications__r.Application_Decisions__r.Application_Decision_Details__r$API_Access__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>1</value>
+        </criteriaItems>
+        <language>en_US</language>
+    </filter>
     <format>Summary</format>
-    <groupingsDown>
-        <dateGranularity>Day</dateGranularity>
-        <field>Account$INT_OrganizationNumber__c</field>
-        <sortOrder>Asc</sortOrder>
-    </groupingsDown>
-    <groupingsDown>
-        <dateGranularity>Day</dateGranularity>
-        <field>Account$Name</field>
-        <sortOrder>Asc</sortOrder>
-    </groupingsDown>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>
         <field>Account.Applications__r$AAREG_OrganizationCategory__c</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
-    <name>Oversikt over søknader og behandlingrl</name>
+    <name>DASH | API Access by Category</name>
     <params>
         <name>co</name>
-        <value>0</value>
+        <value>1</value>
     </params>
     <reportType>AAREG_Accounts_with_Applications_Decisions_Decision_Details__c</reportType>
-    <scope>user</scope>
+    <scope>organization</scope>
     <showDetails>true</showDetails>
     <showGrandTotal>false</showGrandTotal>
     <showSubTotals>false</showSubTotals>

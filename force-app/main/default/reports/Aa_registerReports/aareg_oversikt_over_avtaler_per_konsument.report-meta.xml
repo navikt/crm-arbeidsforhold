@@ -4,6 +4,12 @@
         <field>FK_$Application__c.OrganizationStructure__c</field>
     </columns>
     <columns>
+        <field>Agreement__c.OrganizationNumber__c</field>
+    </columns>
+    <columns>
+        <field>Agreement__c.AccountName__c</field>
+    </columns>
+    <columns>
         <field>CUST_CREATED_DATE</field>
     </columns>
     <columns>
@@ -18,18 +24,10 @@
         <aggregateTypes>Sum</aggregateTypes>
         <field>Agreement__c.OnlineAccess__c</field>
     </columns>
-    <columns>
-        <field>Agreement__c.Status__c</field>
-    </columns>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>
-        <field>Agreement__c.OrganizationNumber__c</field>
-        <sortOrder>Asc</sortOrder>
-    </groupingsDown>
-    <groupingsDown>
-        <dateGranularity>Day</dateGranularity>
-        <field>Agreement__c.AccountName__c</field>
+        <field>Agreement__c.Status__c</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
     <name>Oversikt over avtaler per konsument</name>
@@ -38,10 +36,10 @@
         <value>1</value>
     </params>
     <reportType>CustomEntity$Agreement__c@Agreement__c.Application__c</reportType>
-    <scope>user</scope>
+    <scope>organization</scope>
     <showDetails>true</showDetails>
-    <showGrandTotal>true</showGrandTotal>
-    <showSubTotals>true</showSubTotals>
+    <showGrandTotal>false</showGrandTotal>
+    <showSubTotals>false</showSubTotals>
     <timeFrameFilter>
         <dateColumn>Agreement__c.AA_ConfirmedAgreementCancellationDate__c</dateColumn>
         <interval>INTERVAL_CUSTOM</interval>
