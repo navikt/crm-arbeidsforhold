@@ -1,5 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <description>Oppretter en fil knyttet til vedtaksobjektet. Skal brukes til nedlasting i experience cloud</description>
+        <name>AAREG_Create_content_version</name>
+        <label>Create content version</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>AAREG_ApplicationDecisionPDFFileService</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Assing_contentdocumentId</targetReference>
+        </connector>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>applicationRecordId</name>
+            <value>
+                <elementReference>getDecisionRecord.Application__r.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>decisionFileTitle</name>
+            <value>
+                <stringValue>Vedtak til søknad om tilgang til Arbeidsgiver- og arbeidstaker registeret</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>decisionRecordId</name>
+            <value>
+                <elementReference>getDecisionRecord.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>AAREG_ApplicationDecisionPDFFileService</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
@@ -67,6 +101,45 @@
         </assignmentItems>
         <connector>
             <targetReference>createAgreement</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Add_values_to_decision</name>
+        <label>Add values to decision</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>getDecisionRecord.Agreement__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rec_Agreement.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>getDecisionRecord.Process_status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>update_other_decision_on_applications</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Add_values_to_decision1</name>
+        <label>Add values to decision</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>getDecisionRecord.Process_status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>update_other_decision_on_applications</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -153,6 +226,22 @@
         </assignmentItems>
         <connector>
             <targetReference>Add_values_to_application</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assing_contentdocumentId</name>
+        <label>Assing contentdocumentId</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>getDecisionRecord.ContentdocumentId__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>AAREG_Create_content_version.contentDocumentId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_decision</targetReference>
         </connector>
     </assignments>
     <customProperties>
@@ -326,7 +415,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>update_other_decision_on_applications</targetReference>
+            <targetReference>Add_values_to_decision</targetReference>
         </connector>
         <inputReference>getApplicationRecords</inputReference>
     </recordUpdates>
@@ -335,30 +424,7 @@
         <label>Update decision</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <connector>
-            <targetReference>Update_decision_details</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>recordId</elementReference>
-            </value>
-        </filters>
-        <inputAssignments>
-            <field>Agreement__c</field>
-            <value>
-                <elementReference>rec_Agreement.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Process_status__c</field>
-            <value>
-                <stringValue>Completed</stringValue>
-            </value>
-        </inputAssignments>
-        <object>Application_Decision__c</object>
+        <inputReference>getDecisionRecord</inputReference>
     </recordUpdates>
     <recordUpdates>
         <name>Update_decision_details</name>
@@ -396,6 +462,9 @@
         <label>update other decision on applications</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <connector>
+            <targetReference>AAREG_Create_content_version</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Application__c</field>
@@ -425,7 +494,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Update_decision</targetReference>
+            <targetReference>Update_decision_details</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -602,7 +671,7 @@
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>update_other_decision_on_applications</targetReference>
+            <targetReference>Add_values_to_decision1</targetReference>
         </connector>
         <fields>
             <name>Copy_1_of_isFinishedText</name>
