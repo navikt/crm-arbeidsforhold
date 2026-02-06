@@ -5,21 +5,24 @@
  * configurations and settings related to Arbeidsforhold, such as retrieving the RecordTypeId for threads. Inspired by
  * the need to access custom metadata configs efficiently and consistently across different parts of the application.
  * <br><br>
+ * @example
+ * {@code
+ * AAREG_Utility util = AAREG_Utility.getInstance();
+ * Id threadRTId = util.getThreadRecordTypeId();
+ * }
  *
  * @author Ashish Misra
  * @since Februar 2026
  * @group AAREG Utility
  */
 public with sharing class AAREG_Utility {
-
-    
     /**
      * The singleton instance of the AAREG_Utility class.
      */
     @TestVisible
     private static AAREG_Utility instance;
     /**
-     * Holds the RecordType Id for `Thread` records.    
+     * Holds the RecordType Id for `Thread` records.
      */
     @TestVisible
     private Id threadRecordTypeId;
@@ -46,7 +49,7 @@ public with sharing class AAREG_Utility {
             name = valueCMList[0];
         }
 
-        if (Schema.sObjectType.RecordType.isAccessible() && name != null) {
+        if (name != null) {
             threadRecordTypeId = [SELECT Id FROM RecordType WHERE developerName = :name?.Value__c]?.Id;
         }
     }
