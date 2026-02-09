@@ -13,6 +13,7 @@ export default class Aareg_home extends LightningElement {
   lastUsedOrganization;
   currentUser = Id;
   showError = false;
+  messages = 'Avtaler er for øyeblikket ikke tilgjengelig. Send inn en brukerstøtte sak, hvis tilgang til avtale haster.';
 
   noAccessOrgForms = [
     'AAFY',

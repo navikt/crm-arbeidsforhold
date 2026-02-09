@@ -16,10 +16,10 @@
         </apex:panelGrid>
 
         <apex:panelGrid style="text-align: right;" columns="1" width="100%;" id="letterdate">
-            <apex:outputText value="Deres referanse: {!applicationRecord.SoknadsNavn}"></apex:outputText>
-            <apex:outputText value="Søknad levert: {!applicationRecord.SoknadLevert}"></apex:outputText>
+            <!--<apex:outputText value="Deres referanse: {!applicationRecord.SoknadsNavn}"></apex:outputText> -->
+            <apex:outputText value="Søknad mottatt: {!applicationRecord.SoknadLevert}"></apex:outputText>
             <apex:outputText value="Vedtaksdato: {!currentRecord.Vedtaksdato}"></apex:outputText>
-            <apex:outputText value="Vår referanse: 0123456789"></apex:outputText>
+            <!-- <apex:outputText value="Vår referanse: 0123456789"></apex:outputText> -->
         </apex:panelGrid>
 
         <!-- Heading -->
@@ -126,12 +126,12 @@
             <apex:outputText value="{!currentRecord.Klagetekst}" escape="false"></apex:outputText>
         </div>
 
-        <br/> Med hilsen
+        <br/> Med vennlig hilsen
         <br/>
         <apex:outputText value="{!applicationRecord.Sakseier}"></apex:outputText>
         <br/>
-        <br/> NAV REGISTERFORVALTNING
-        <br/> ARBEIDS OG VELFERDSETATEN
+        <br/> Nav registerforvaltning
+        <br/> Arbeids- og velferdsetaten
         <br/> www.nav.no
     </div>
 </apex:page>

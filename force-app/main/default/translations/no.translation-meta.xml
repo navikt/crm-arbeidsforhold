@@ -21,6 +21,18 @@
         <name>AAREG_applicant_details_section</name>
     </customLabels>
     <customLabels>
+        <label>Vedtaksdetaljer</label>
+        <name>AAREG_Decision_text_section</name>
+    </customLabels>
+    <customLabels>
+        <label>Begrunnelse</label>
+        <name>AAREG_Decision_details_sections</name>
+    </customLabels>
+    <customLabels>
+        <label>Brevtekster</label>
+        <name>AAREG_Letter_text_section</name>
+    </customLabels>
+    <customLabels>
         <label>Søknad om tilgang til Aa-register</label>
         <name>AAREG_application_title</name>
     </customLabels>

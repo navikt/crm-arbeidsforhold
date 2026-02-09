@@ -38,10 +38,10 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>readonly</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Processing_basis_status__c</fieldItem>
-                <identifier>RecordProcessing_basis_status_cField</identifier>
+                <fieldItem>Record.Approved__c</fieldItem>
+                <identifier>RecordApproved_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-64d18d6e-bdba-48df-87ba-f72639305a9b</name>

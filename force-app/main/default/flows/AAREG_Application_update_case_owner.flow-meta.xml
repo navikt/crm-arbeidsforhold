@@ -324,6 +324,7 @@
         </faultConnector>
         <inputReference>var_ApplicationRecords</inputReference>
     </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
     <screens>
         <name>Case_owner_lookup</name>
         <label>Case owner lookup</label>
