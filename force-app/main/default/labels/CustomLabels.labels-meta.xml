@@ -30,10 +30,8 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>AAREG complaint description section</shortDescription>
-        <value>Dersom dere har spørsmål om vedtaket, kan dere ta kontakt med oss for
-            nærrmere opplysninger. Dette vedtaket kan påklages til Nav Klageinstans etter reglene i
-            forvaltningsloven kapittel VI. Klagen skal grunngis og fremsettes oss innen 3 uker fra
-            dere mottok vedtaket.</value>
+        <value>If you believe the decision is wrong, you can appeal within three weeks from the date you received the decision.
+The decision can be appealed according to the rules in Chapter VI of the Public Administration Act. The appeal must be in writing and sent to Nav Register Management, P.O. Box 4330, 2308 Hamar.</value>
     </labels>
     <labels>
         <fullName>Internal_comment</fullName>
@@ -57,9 +55,7 @@
         <language>en_US</language>
         <protected>false</protected>
         <shortDescription>AAREG terms description section</shortDescription>
-        <value>Vi viser til de aksepterte bruksvilkårene som dere godkjente i forbindelse med
-            innsendelse av søknaden. De finnes også via www.nav.no, se under
-            Samarbeidspartner/Arbeidsgiver- og arbeidstakerregisteret (Aa-registeret).</value>
+        <value>We refer to the accepted terms of use that you agreed to in connection with the submission of the application. They can also be found at www.nav.no, under: Samarbeidspartner/Arbeidsgiver- og arbeidstakerregisteret (Aa-registeret).</value>
     </labels>
     <labels>
         <fullName>AAREG_terms_section</fullName>
@@ -252,7 +248,9 @@
         <protected>false</protected>
         <shortDescription>AAREG github description text</shortDescription>
         <value>A more detailed description of the services and the technical solution can be found on our GitHub pages, see: https://navikt.github.io/aareg/
-Here you will also find some answers to any professional and technical questions, as well as contact information.</value>
+Here you will also find some answers to any professional and technical questions, as well as contact information.
+
+If you have further questions, or questions about the decision, you can contact us via NAV&apos;s user support service for the Aa-register, see: https://www.nav.no/samarbeidspartner/brukerstotte-aa-registeret</value>
     </labels>
     <labels>
         <fullName>AAREG_web_access_text</fullName>
@@ -262,5 +260,13 @@ Here you will also find some answers to any professional and technical questions
         <shortDescription>AAREG web access text</shortDescription>
         <value>For further information about the web lookup service, see: https://www.nav.no/samarbeidspartner/web-oppslag
 Web lookup in the Aa register - nav.no see:https://aa-registeret.nav.no/</value>
+    </labels>
+    <labels>
+        <fullName>AAREG_information_section</fullName>
+        <categories>Arbeidsforhold decision details</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Information section</shortDescription>
+        <value>Information and guidance.</value>
     </labels>
 </CustomLabels>

@@ -183,6 +183,11 @@
         <valueField>Id</valueField>
     </dynamicChoiceSets>
     <environments>Default</environments>
+    <formulas>
+        <name>var_taskText</name>
+        <dataType>String</dataType>
+        <expression>&apos;Ny saksier: &apos; + {!var_ApplicationRecords.applicationOwner__c}</expression>
+    </formulas>
     <interviewLabel>AAREG Application update case owner {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG Application update case owner</label>
     <processMetadataValues>
@@ -319,6 +324,9 @@
         <label>Update case owner</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <connector>
+            <targetReference>AAREG_createActivityHistory</targetReference>
+        </connector>
         <faultConnector>
             <targetReference>technicalError</targetReference>
         </faultConnector>
@@ -381,6 +389,37 @@
         </connector>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>AAREG_createActivityHistory</name>
+        <label>Create activity history</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varDescription</name>
+            <value>
+                <elementReference>var_taskText</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRelatedToId</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSubject</name>
+            <value>
+                <elementReference>var_taskSubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varTypeOfTask</name>
+            <value>
+                <stringValue>Sakseier</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
     <subflows>
         <name>logAndDisplayShortMessage</name>
         <label>Log and display message</label>
@@ -502,5 +541,15 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <objectType>Application__c</objectType>
+    </variables>
+    <variables>
+        <name>var_taskSubject</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Sakseier endret</stringValue>
+        </value>
     </variables>
 </Flow>

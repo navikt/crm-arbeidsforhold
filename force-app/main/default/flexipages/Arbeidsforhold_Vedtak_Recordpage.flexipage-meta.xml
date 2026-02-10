@@ -188,8 +188,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Letter_complaint_text__c</fieldItem>
-                <identifier>RecordLetter_complaint_text_cField</identifier>
+                <fieldItem>Record.Letter_terms_text__c</fieldItem>
+                <identifier>RecordLetter_terms_text_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -198,8 +198,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Letter_terms_text__c</fieldItem>
-                <identifier>RecordLetter_terms_text_cField</identifier>
+                <fieldItem>Record.Letter_complaint_text__c</fieldItem>
+                <identifier>RecordLetter_complaint_text_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -304,7 +304,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>{!$Label.AAREG_Decision_details_sections}</value>
+                    <value>{!$Label.AAREG_Decision_text_section}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>flexipage_fieldSection</identifier>
@@ -322,7 +322,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>{!$Label.AAREG_Decision_text_section}</value>
+                    <value>{!$Label.AAREG_Decision_details_sections}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>flexipage_fieldSection2</identifier>
@@ -411,6 +411,9 @@
                         </valueListItems>
                         <valueListItems>
                             <value>Extraction_Access__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>NAME</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>

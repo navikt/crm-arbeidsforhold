@@ -41,13 +41,14 @@
         <name>AAREG_code_basis_section</name>
     </customLabels>
     <customLabels>
-        <label>Dersom dere har spørsmål om vedtaket, kan dere ta kontakt med oss for nærmere opplysninger. 
-            Dette vedtaket kan påklages til Nav Klageinstans etter reglene i forvaltningsloven kapittel VI. Klagen skal grunngis og fremsettes oss innen 3 uker fra
-            dere mottok vedtaket.</label>
+        <label>
+            Hvis dere mener vedtaket er feil, kan dere klage innen tre uker fra den datoen dere mottok vedtaket.
+            Vedtaket kan påklages etter reglene i forvaltningsloven kapittel VI. Klagen skal være skriftlig og sendes til Nav registerforvaltning, postboks 4330, 2308 Hamar.
+        </label>
         <name>AAREG_complaint_description_section</name>
     </customLabels>
     <customLabels>
-        <label>Veiledning og klage</label>
+        <label>Dere har rett til å klage.</label>
         <name>AAREG_complaint_section</name>
     </customLabels>
     <customLabels>
@@ -57,17 +58,23 @@
     <customLabels>
         <label>Nærmere beskrivelse av tjenestene og den tekniske løsningen finner dere på våre GitHub-sider, se: https://navikt.github.io/aareg/ .
             Her finner dere også en del svar på eventuelle faglige og tekniske spørsmål, samt kontaktinformasjon.
+            Dersom dere har ytterligere spørsmål, eller spørsmål om vedtaket, kan dere kontakte oss via Navs brukerstøttetjeneste for Aa-registeret, se: https://www.nav.no/samarbeidspartner/brukerstotte-aa-registeret
         </label>
         <name>AAREG_github_description_text</name>
     </customLabels>
     <customLabels>
-        <label>Vi viser til de aksepterte bruksvilkårene som dere godkjente i forbindelse med innsendelse av søknaden.
+        <label>Informasjon og veiledning.</label>
+        <name>AAREG_information_section</name>
+    </customLabels>
+    <customLabels>
+        <label>
+            Vi viser til de aksepterte bruksvilkårene som dere godkjente i forbindelse med innsendelse av søknaden.
             De finnes også via www.nav.no, se under Samarbeidspartner/Arbeidsgiver- og arbeidstakerregisteret (Aa-registeret).
         </label>
         <name>AAREG_terms_description_section</name>
     </customLabels>
     <customLabels>
-        <label>Ansvar og vilkår ved bruk av opplysningene</label>
+        <label>Ansvar og vilkår for bruk av tjenestene.</label>
         <name>AAREG_terms_section</name>
     </customLabels>
     <customLabels>

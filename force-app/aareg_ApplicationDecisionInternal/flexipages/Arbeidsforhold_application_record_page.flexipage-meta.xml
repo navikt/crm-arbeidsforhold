@@ -11,9 +11,21 @@
                         </valueListItems>
                         <valueListItems>
                             <value>Application__c.aaReg_UpdateDeadlineDate</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.applicationOwner__c}</leftValue>
+                                    <operator>NE</operator>
+                                </criteria>
+                            </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Application__c.aaRegSuspendApplication</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.applicationOwner__c}</leftValue>
+                                    <operator>NE</operator>
+                                </criteria>
+                            </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>Application__c.AAREG_addAppInternalComment</value>
