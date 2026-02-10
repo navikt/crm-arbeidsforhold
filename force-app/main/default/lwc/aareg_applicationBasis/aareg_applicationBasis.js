@@ -196,11 +196,23 @@ export default class Aareg_applicationBasis extends LightningElement {
   }
 
   handleCheckboxChange(event) {
-    const field = event.target.dataset.id; // Get the field name from data-id
-    const value = event.target.checked; // Get the checkbox value
+    const selectedField = event.target.dataset.id; // Get the field name from data-id
+    const isChecked = event.target.checked; // Get the checkbox value
+
+    // Uncheck other checkboxes in the same group
+    if (isChecked) {
+      const group = event.target.dataset.group; // Get the group name
+      const checkboxes = this.template.querySelectorAll(`input[data-group="${group}"]`);
+      checkboxes.forEach(checkbox => {
+          if (checkbox.dataset.id !== selectedField) {
+              checkbox.checked = false; // Uncheck other checkboxes
+              this.applicationBasis[checkbox.dataset.id] = false; // Update applicationBasis
+          }
+      });
+  }
 
     // Update the applicationBasis object
-    this.applicationBasis[field] = value;
+    this.applicationBasis[selectedField] = isChecked;
     this.publishChange();
   }
 
