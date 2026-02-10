@@ -4,9 +4,9 @@
 
     <div style="font-family:sans-serif; font-size: 12px; line-height: 1.4;">
         <!-- NAV logo -->
-        <center>
+        <div style=" text-align: left; ">
             <apex:image id="theImage" value="{!$Resource.logo}" width="115px" height="80px" alt="NAV logo" />
-        </center>
+        </div>
 
         <apex:panelGrid columns="1" width="100%" id="letterhead">
             <apex:outputText value="{!applicationRecord.KonsumentNavn}"></apex:outputText>
@@ -104,26 +104,25 @@
             <apex:outputText value="{!currentRecord.Vedtaksbegrunnelse}" escape="false"></apex:outputText>
         </div>
 
-        <div>
-            <apex:outputText rendered="{!currentRecord.WebTilgang>0}" value="{!currentRecord.WebTilgangtekst}" escape="false"></apex:outputText>
-            <br/>
-            <br/>
-        </div>
-
-        <div>
-            <apex:outputText value="{!currentRecord.Githubtekst}" escape="false"></apex:outputText>
-        </div>
-
-
         <h3>{!$Label.AAREG_terms_section}</h3>
         <div>
             <apex:outputText value="{!currentRecord.Vilkaartekst}" escape="false"></apex:outputText>
         </div>
 
-
         <h3>{!$Label.AAREG_complaint_section}</h3>
         <div>
             <apex:outputText value="{!currentRecord.Klagetekst}" escape="false"></apex:outputText>
+        </div>
+
+        <h3>{!$Label.AAREG_information_section}</h3>
+        <div>
+            <apex:outputText value="{!currentRecord.Githubtekst}" escape="false"></apex:outputText>
+        </div>
+        <div>
+            <br/>
+            <apex:outputText rendered="{!currentRecord.WebTilgang>0}" value="{!currentRecord.WebTilgangtekst}" escape="false"></apex:outputText>
+            <br/>
+            <br/>
         </div>
 
         <br/> Med vennlig hilsen
