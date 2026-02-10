@@ -123,7 +123,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>update_other_decision_on_applications</targetReference>
+            <targetReference>AAREG_Create_content_version</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -139,7 +139,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>update_other_decision_on_applications</targetReference>
+            <targetReference>AAREG_Create_content_version</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -251,6 +251,38 @@
         </value>
     </customProperties>
     <decisions>
+        <name>Check_decision</name>
+        <label>Check decision</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>AAREG_CheckList</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>isFilled</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getDecisionRecord.Decision_date__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getDecisionRecord.Decision_description__c</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>CheckList1</targetReference>
+            </connector>
+            <label>isFilled</label>
+        </rules>
+    </decisions>
+    <decisions>
         <description>Check status for decision. If decision is Avslått it should not create an agreement, but close the decision and archive in public 360 when its in place</description>
         <name>checkStatus</name>
         <label>Check status</label>
@@ -281,6 +313,11 @@
         <name>var_APIAccess</name>
         <dataType>Boolean</dataType>
         <expression>IF({!getDecisionRecord.Api_access_count__c}&gt;0,true,false)</expression>
+    </formulas>
+    <formulas>
+        <name>var_changeStatusText</name>
+        <dataType>String</dataType>
+        <expression>&apos;Søknaden er ferdigbehandlet av: &apos;+ {!$User.FirstName}+&apos; &apos;+{!$User.LastName}</expression>
     </formulas>
     <formulas>
         <name>var_DecisionStatus</name>
@@ -353,7 +390,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>AAREG_CheckList</targetReference>
+            <targetReference>Check_decision</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -424,6 +461,9 @@
         <label>Update decision</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <connector>
+            <targetReference>AAREG_create_activity_history_change_status</targetReference>
+        </connector>
         <inputReference>getDecisionRecord</inputReference>
     </recordUpdates>
     <recordUpdates>
@@ -458,37 +498,6 @@
         <object>Application_Decision_Details__c</object>
     </recordUpdates>
     <recordUpdates>
-        <name>update_other_decision_on_applications</name>
-        <label>update other decision on applications</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <targetReference>AAREG_Create_content_version</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Application__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>getApplicationRecords.Id</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>Process_status__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>In progress</stringValue>
-            </value>
-        </filters>
-        <inputAssignments>
-            <field>Process_status__c</field>
-            <value>
-                <stringValue>Closed</stringValue>
-            </value>
-        </inputAssignments>
-        <object>Application_Decision__c</object>
-    </recordUpdates>
-    <recordUpdates>
         <name>Update_related_contacts</name>
         <label>Update related contacts</label>
         <locationX>0</locationX>
@@ -517,12 +526,9 @@
         <label>CheckList</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <allowBack>true</allowBack>
+        <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>checkStatus</targetReference>
-        </connector>
+        <allowPause>false</allowPause>
         <fields>
             <name>checkList</name>
             <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Sjekkliste&lt;/strong&gt;&lt;/p&gt;</fieldText>
@@ -538,7 +544,7 @@
         </fields>
         <fields>
             <name>checkDecisionDate</name>
-            <fieldText>&lt;p&gt;Vedtaksdato er ikke satt&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(211, 39, 39);&quot;&gt;Vedtaksdato er ikke utfylt&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -549,16 +555,19 @@
                 </width>
             </styleProperties>
             <visibilityRule>
-                <conditionLogic>or</conditionLogic>
+                <conditionLogic>and</conditionLogic>
                 <conditions>
                     <leftValueReference>getDecisionRecord.Decision_date__c</leftValueReference>
                     <operator>IsNull</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
                 </conditions>
             </visibilityRule>
         </fields>
         <fields>
             <name>checkDecisionText</name>
-            <fieldText>&lt;p&gt;Begrunnelse for vedtaket er tomt.&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(211, 39, 39);&quot;&gt;Begrunnelse for vedtaket er ikke utfylt&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -573,11 +582,41 @@
                 <conditions>
                     <leftValueReference>getDecisionRecord.Decision_description__c</leftValueReference>
                     <operator>IsNull</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
                 </conditions>
             </visibilityRule>
         </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>CheckList1</name>
+        <label>CheckList</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>checkStatus</targetReference>
+        </connector>
         <fields>
-            <name>AAREG_decisionText</name>
+            <name>checkListFilled</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Sjekkliste&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>Copy_1_of_AAREG_decisionText</name>
             <fieldText>&lt;p&gt;&lt;strong&gt;Viser oversikt over behandlinggrunnlaget.&lt;/strong&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
@@ -590,7 +629,20 @@
             </styleProperties>
         </fields>
         <fields>
-            <name>checkDecisionDetails</name>
+            <name>decisionDateFilled</name>
+            <fieldText>&lt;h6&gt;Vedtaksdato er utfylt.&lt;/h6&gt;&lt;h6&gt;Vedtakstekst er utfylt.&lt;/h6&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>Copy_1_of_checkDecisionDetails</name>
             <dataTypeMappings>
                 <typeName>T</typeName>
                 <typeValue>Application_Decision_Details__c</typeValue>
@@ -637,13 +689,13 @@
             <inputParameters>
                 <name>columns</name>
                 <value>
-                    <stringValue>[{&quot;apiName&quot;:&quot;Approved__c&quot;,&quot;guid&quot;:&quot;column-c361&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Innvilget&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:0,&quot;label&quot;:&quot;Approved&quot;,&quot;type&quot;:&quot;boolean&quot;},{&quot;apiName&quot;:&quot;Legal_Basis__c&quot;,&quot;guid&quot;:&quot;column-b2dc&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Hjemmel&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:1,&quot;label&quot;:&quot;Legal Basis&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Purpose__c&quot;,&quot;guid&quot;:&quot;column-91cd&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Formål&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:2,&quot;label&quot;:&quot;Purpose&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Processing_Basis__c&quot;,&quot;guid&quot;:&quot;column-0d5e&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Grunnlag&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:3,&quot;label&quot;:&quot;Processing Basis&quot;,&quot;type&quot;:&quot;text&quot;}]</stringValue>
+                    <stringValue>[{&quot;apiName&quot;:&quot;Approved__c&quot;,&quot;guid&quot;:&quot;column-c361&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Innvilget&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:0,&quot;label&quot;:&quot;Approved&quot;,&quot;type&quot;:&quot;boolean&quot;},{&quot;apiName&quot;:&quot;Legal_Basis__c&quot;,&quot;guid&quot;:&quot;column-b2dc&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Hjemmel&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:1,&quot;label&quot;:&quot;Legal Basis&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Purpose__c&quot;,&quot;guid&quot;:&quot;column-91cd&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Formål&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:2,&quot;label&quot;:&quot;Purpose&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Processing_Basis__c&quot;,&quot;guid&quot;:&quot;column-0d5e&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Grunnlag&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:3,&quot;label&quot;:&quot;Processing Basis&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;API_Access__c&quot;,&quot;guid&quot;:&quot;column-22f5&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;API tilgang&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:4,&quot;label&quot;:&quot;API Access&quot;,&quot;type&quot;:&quot;boolean&quot;},{&quot;apiName&quot;:&quot;Online_Access__c&quot;,&quot;guid&quot;:&quot;column-7262&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Web tilgang&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:5,&quot;label&quot;:&quot;Online Access&quot;,&quot;type&quot;:&quot;boolean&quot;},{&quot;apiName&quot;:&quot;&quot;,&quot;guid&quot;:&quot;column-9c36&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:5}]</stringValue>
                 </value>
             </inputParameters>
             <inputParameters>
                 <name>columnReferences</name>
                 <value>
-                    <complexValue>{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;Application_Decision_Details__c&quot;,&quot;fieldReferences&quot;:[&quot;Approved__c&quot;,&quot;Legal_Basis__c&quot;,&quot;Purpose__c&quot;,&quot;Processing_Basis__c&quot;],&quot;elementReference&quot;:&quot;Get_decision_details&quot;}</complexValue>
+                    <complexValue>{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;Application_Decision_Details__c&quot;,&quot;fieldReferences&quot;:[&quot;Approved__c&quot;,&quot;Legal_Basis__c&quot;,&quot;Purpose__c&quot;,&quot;Processing_Basis__c&quot;,&quot;API_Access__c&quot;,&quot;Online_Access__c&quot;],&quot;elementReference&quot;:&quot;Get_decision_details&quot;}</complexValue>
                     <complexValueType>ComplexObjectFieldDetails</complexValueType>
                 </value>
             </inputParameters>
@@ -724,6 +776,38 @@
         </connector>
     </start>
     <status>Active</status>
+    <subflows>
+        <description>Oppretter en oppgave/historikk på endring av status</description>
+        <name>AAREG_create_activity_history_change_status</name>
+        <label>Create activity history - change status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varDescription</name>
+            <value>
+                <elementReference>var_changeStatusText</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRelatedToId</name>
+            <value>
+                <elementReference>getApplicationRecords.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSubject</name>
+            <value>
+                <elementReference>var_taskSubject</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varTypeOfTask</name>
+            <value>
+                <stringValue>Ferdigbehandlet</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
     <variables>
         <name>rec_Agreement</name>
         <dataType>SObject</dataType>
@@ -740,6 +824,16 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <name>var_changeStatus</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Endring av status</stringValue>
+        </value>
+    </variables>
+    <variables>
         <name>Var_ProcessingBasis</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
@@ -754,6 +848,16 @@
         <isOutput>false</isOutput>
         <value>
             <stringValue>Avslått</stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>var_taskSubject</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Søknaden er ferdigbehandlet</stringValue>
         </value>
     </variables>
 </Flow>
