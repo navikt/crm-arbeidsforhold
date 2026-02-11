@@ -188,8 +188,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Letter_complaint_text__c</fieldItem>
-                <identifier>RecordLetter_complaint_text_cField</identifier>
+                <fieldItem>Record.Letter_terms_text__c</fieldItem>
+                <identifier>RecordLetter_terms_text_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -198,8 +198,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Letter_terms_text__c</fieldItem>
-                <identifier>RecordLetter_terms_text_cField</identifier>
+                <fieldItem>Record.Letter_complaint_text__c</fieldItem>
+                <identifier>RecordLetter_complaint_text_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -304,7 +304,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>{!$Label.AAREG_Decision_details_sections}</value>
+                    <value>{!$Label.AAREG_Decision_text_section}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>flexipage_fieldSection</identifier>
@@ -322,15 +322,36 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>{!$Label.AAREG_Decision_text_section}</value>
+                    <value>{!$Label.AAREG_Decision_details_sections}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>flexipage_fieldSection2</identifier>
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.Process_status__c}</leftValue>
-                        <operator>NE</operator>
-                        <rightValue>Completed</rightValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>In progress</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>message</name>
+                    <value>Det må gjøres en vurdering pr behandlingsgrunnlag. Grunnlaget må innvilges eller avslås via knappene.</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>type</name>
+                    <value>Warning</value>
+                </componentInstanceProperties>
+                <componentName>crmAlertBanner</componentName>
+                <identifier>c_crmAlertBanner</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Process_status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>In progress</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>
@@ -347,6 +368,9 @@
                             <value>Application_Decision_Details__c.AAREG_Declined</value>
                         </valueListItems>
                     </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>adminFilters</name>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>maxRecordsToDisplay</name>
@@ -379,6 +403,18 @@
                         <valueListItems>
                             <value>Approved__c</value>
                         </valueListItems>
+                        <valueListItems>
+                            <value>API_Access__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Online_Access__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Extraction_Access__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>NAME</value>
+                        </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -402,8 +438,8 @@
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.Process_status__c}</leftValue>
-                        <operator>NE</operator>
-                        <rightValue>Completed</rightValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>In progress</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>
@@ -427,10 +463,36 @@
                 <visibilityRule>
                     <criteria>
                         <leftValue>{!Record.Process_status__c}</leftValue>
-                        <operator>NE</operator>
-                        <rightValue>Completed</rightValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>In progress</rightValue>
                     </criteria>
                 </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Application_Decision__c.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>AttachedContentDocuments</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListComponentOverride</name>
+                    <value>CARD</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>rowsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>

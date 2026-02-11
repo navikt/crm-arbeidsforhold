@@ -3,7 +3,31 @@
     <label><!-- Purpose Pension --></label>
     <name>PurposePension__c</name>
     <picklistValues>
+        <masterLabel>AFP kommunal sektor for arbeidstakere født i 1963 eller senere</masterLabel>
+        <translation><!-- AFP kommunal sektor for arbeidstakere født i 1963 eller senere --></translation>
+    </picklistValues>
+    <picklistValues>
         <masterLabel>Annet - oppgi i tekstfelt under</masterLabel>
         <translation><!-- Annet - oppgi i tekstfelt under --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Arbeid med administrasjon knyttet til OU-samordningen</masterLabel>
+        <translation><!-- Arbeid med administrasjon knyttet til OU-samordningen --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Arbeid med administrasjon knyttet til sliterordningene</masterLabel>
+        <translation><!-- Arbeid med administrasjon knyttet til sliterordningene --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Arbeid med administrasjon knyttet til sluttvederlagsordningen</masterLabel>
+        <translation><!-- Arbeid med administrasjon knyttet til sluttvederlagsordningen --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Arbeid med avtalefestet pensjon i privat sektor</masterLabel>
+        <translation><!-- Arbeid med avtalefestet pensjon i privat sektor --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven</masterLabel>
+        <translation><!-- Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven --></translation>
     </picklistValues>
 </CustomFieldTranslation>

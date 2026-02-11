@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Status__c</fullName>
-    <deprecated>false</deprecated>
+    <fullName>AAREG_OrganizationCategory__c</fullName>
     <externalId>false</externalId>
-    <formula>IF(
-    Approved_count__c = Total_count__c,
-    &quot;Innvilget&quot;,
-    IF(
-        Approved_count__c &gt; 0,
-        &quot;Delvis innvilget&quot;,
-        &quot;Avslått&quot;
-    )
-)</formula>
+    <formula>Account__r.AAREG_OrganizationCategory__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <label>Status</label>
+    <label>Organization Category</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

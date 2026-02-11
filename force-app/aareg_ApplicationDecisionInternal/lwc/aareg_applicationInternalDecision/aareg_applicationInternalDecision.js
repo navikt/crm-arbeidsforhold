@@ -1,4 +1,4 @@
-import { LightningElement,api } from 'lwc';
+import { LightningElement,api,track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import getDecision from '@salesforce/apex/AAREG_ApplicationDecisionController.getApplicationDecision';
 import createDecision from '@salesforce/apex/AAREG_ApplicationDecisionController.createApplicationDecision';
@@ -24,6 +24,7 @@ const COLUMNS = [
 
 export default class Aareg_applicationInternalDecision extends NavigationMixin(LightningElement) {
     @api recordId;
+    @track isRowCreated = false; 
     decisionId;
     records;
     error;
@@ -39,6 +40,10 @@ export default class Aareg_applicationInternalDecision extends NavigationMixin(L
             .then((result) => {
                 this.records = result;
                 this.error = undefined;
+                this.isRowCreated = true; 
+                if (!this.records || this.records.length === 0) {
+                    this.isRowCreated = false;
+                }
             })
             .catch((error) => {
                 this.error = error;
@@ -68,10 +73,11 @@ export default class Aareg_applicationInternalDecision extends NavigationMixin(L
                         actionName: 'view'
                     }
                 });
-                this.fetchDecisionData(); // Refresh the data
+                this.fetchDecisionData();
+                // Refresh the data
             })
             .catch((error) => {
-                this.showToast('Error', 'Det skjer noe her feil ved oppretting av vedtak', 'error');
+                this.showToast('Error', 'Det skjedde en uventet feil.', 'error');
                 console.error(error);
             });
     }

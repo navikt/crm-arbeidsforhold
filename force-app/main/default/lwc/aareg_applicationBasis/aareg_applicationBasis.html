@@ -64,8 +64,8 @@
           <span class="form-control">
             <label for="annet-hjemmel">
               <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
-              Oppgi hjemmel for utlevering</label
-            >
+              Oppgi hjemmel for utlevering
+            </label>
             <textarea
               name="annet hjemmel"
               id="annet-hjemmel"
@@ -82,8 +82,8 @@
             <span class="character-count">{remainingOtherLegalBasisChar}</span>
             <small>Error Message</small>
           </span>
-        </div>
-        <div class="row">
+      </div>
+      <div class="row">
           <span class="form-control">
             <label for="annet-formal">
               <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
@@ -104,9 +104,7 @@
             </textarea>
             <span class="character-count">{remainingOtherPurposeChar}</span>
             <small>Error Message</small>
-           
           </span>
-        </div>
       </div>
     </template>
     <div class="row">
@@ -114,8 +112,8 @@
         <span class="form-control">
           <label for="behandlingsgrunnlag">
             <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
-            Behandlingsgrunnlag</label
-          >
+            Behandlingsgrunnlag
+          </label>
           <lightning-helptext
             content="Her skal du oppgi hvilken lov eller forskrift som regulerer oppgaven/formålet dere skal bruke opplysningene til. Om virksomheten du representerer ikke er offentlig myndighet, så kan behandlingsgrunnlaget også være en avtale eller en annen rettslig forpliktelse.<br>
             Eksempel: dersom formålet er innfordring av kommunale avgifter utenom særnamsfunksjonen, er det tvangsfullbyrdelsesloven § 7-1 og dekningsloven § 2-7 som regulerer kommunens rett til å utføre disse oppgavene."
@@ -140,72 +138,76 @@
     <div class="row">
       <div class="column">
         <span class="form-control">
-          <label for="typetilgang">
-            <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
-              Det må krysses av for type tilgang dere har behov for knyttet til dette formålet.
-          </label
-        >
-          <div class="row">
-            <span class="form-control">
-              <input
-                type="checkbox"
-                name="type tilgang api"
-                id="tilgang-api"
-                data-id="API_Access__c"
-                disabled={isReadOnly}
-                checked={apiAccessValue}
-                onchange={handleCheckboxChange}
-              />
-              <label for="tilgang-api"
-                >Integrert oppslag (API)
-                <lightning-helptext
-                  content="«Integrert oppslag (API)» gir tilgang til maskin-til-maskin-integrasjon. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
-                  class="slds-m-left_xx-small"
-                >
-                </lightning-helptext>
-              </label>
-            </span>
-            <span class="form-control">
-              <input
-                type="checkbox"
-                name="type tilgang online"
-                id="tilgang-online"
-                data-id="Online_Access__c"
-                disabled={isReadOnly}
-                checked={onlineAccessValue}
-                onchange={handleCheckboxChange}
-              />
-              <label for="tilgang-online"
-                >Web-oppslag
-                <lightning-helptext
-                  content="«Web-oppslag» gir tilgang til web-oppslag i innlogget løsning på nav.no. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
-                  class="slds-m-left_xx-small"
-                >
-                </lightning-helptext>
-              </label>
-            </span>
-            <span class="form-control">
-              <input
-                type="checkbox"
-                name="type tilgang uttrekk"
-                id="tilgang-uttrekk"
-                data-id="Extraction_Access__c"
-                disabled={isReadOnly}
-                checked={extractAccessValue}
-                onchange={handleCheckboxChange}
-              />
-              <label for="tilgang-uttrekk"
-                >Uttrekk
-                <lightning-helptext
-                  content="«Uttrekk» er utlevering som ikke er på standardformat. Det må oppgis en detaljert beskrivelse i «Vedlegg til søknad - Datainnhold» (standardformat) hva som skal inngå i uttrekket og utleveringsfrekvens. NAV kan ta seg betalt for å utvikle uttrekket."
-                  class="slds-m-left_xx-small"
-                >
-                </lightning-helptext>
-              </label>
-            </span>
-          </div>
+          <span data-id="type-tilgang-group"></span>
+            <label for="typetilgang">
+              <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
+                Det må krysses av for type tilgang dere har behov for knyttet til dette formålet.
+            </label>
+            <small>Error Message</small>
+            <div class="row">
+              <span class="form-control">
+                <input
+                  type="checkbox"
+                  name="type tilgang api"
+                  id="tilgang-api"
+                  data-id="API_Access__c"
+                  data-group="accessType"
+                  disabled={isReadOnly}
+                  checked={apiAccessValue}
+                  onchange={handleCheckboxChange}
+                />
+                <label for="tilgang-api"
+                  >Integrert oppslag (API)
+                  <lightning-helptext
+                    content="«Integrert oppslag (API)» gir tilgang til maskin-til-maskin-integrasjon. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
+                    class="slds-m-left_xx-small"
+                  >
+                  </lightning-helptext>
+                </label>
+              </span>
+              <span class="form-control">
+                <input
+                  type="checkbox"
+                  name="type tilgang online"
+                  id="tilgang-online"
+                  data-id="Online_Access__c"
+                  data-group="accessType"
+                  disabled={isReadOnly}
+                  checked={onlineAccessValue}
+                  onchange={handleCheckboxChange}
+                />
+                <label for="tilgang-online"
+                  >Web-oppslag
+                  <lightning-helptext
+                    content="«Web-oppslag» gir tilgang til web-oppslag i innlogget løsning på nav.no. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
+                    class="slds-m-left_xx-small"
+                  >
+                  </lightning-helptext>
+                </label>
+              </span>
+              <span class="form-control">
+                <input
+                  type="checkbox"
+                  name="type tilgang uttrekk"
+                  id="tilgang-uttrekk"
+                  data-id="Extraction_Access__c"
+                  data-group="accessType"
+                  disabled={isReadOnly}
+                  checked={extractAccessValue}
+                  onchange={handleCheckboxChange}
+                />
+                <label for="tilgang-uttrekk"
+                  >Uttrekk
+                  <lightning-helptext
+                    content="«Uttrekk» er utlevering som ikke er på standardformat. Det må oppgis en detaljert beskrivelse i «Vedlegg til søknad - Datainnhold» (standardformat) hva som skal inngå i uttrekket og utleveringsfrekvens. NAV kan ta seg betalt for å utvikle uttrekket."
+                    class="slds-m-left_xx-small"
+                  >
+                  </lightning-helptext>
+                </label>
+              </span>
+            </div>
         </span>
-        </div>
+      </div>
     </div>
-  </div>
+    </div>
 </template>

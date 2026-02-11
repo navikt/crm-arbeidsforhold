@@ -7,8 +7,12 @@
         <translation>Arkivert</translation>
     </picklistValues>
     <picklistValues>
+        <masterLabel>Closed</masterLabel>
+        <translation>Lukket</translation>
+    </picklistValues>
+    <picklistValues>
         <masterLabel>Completed</masterLabel>
-        <translation>Fullført</translation>
+        <translation>Ferdigbehandlet</translation>
     </picklistValues>
     <picklistValues>
         <masterLabel>In progress</masterLabel>

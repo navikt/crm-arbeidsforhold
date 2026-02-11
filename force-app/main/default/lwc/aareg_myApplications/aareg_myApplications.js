@@ -19,7 +19,7 @@ const COLUMNS = [
       variant: 'Brand Outline'
     }
   },
-  {
+  /*{
     type: 'button',
     fixedWidth: 190,
     typeAttributes: {
@@ -32,7 +32,7 @@ const COLUMNS = [
       iconPosition: 'right',
       iconAlternativeText: 'Last ned',
     }
-  }
+  }*/
 ];  
 
 export default class Aareg_myApplications extends NavigationMixin(LightningElement) {
@@ -109,6 +109,7 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     } else { // Prod
       this.siteURL = siteOrigin + '/apex/AAREG_decisionPDF?Id=' + row.Id;
     }
+    window.open = ('url', '_blank');
     window.open(this.siteURL);
   }
 }

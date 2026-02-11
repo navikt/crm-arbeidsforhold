@@ -195,6 +195,11 @@
             <field>OnlineAccess__c</field>
             <table>Application__c</table>
         </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>AAREG_OrganizationCategory__c</field>
+            <table>Application__c</table>
+        </columns>
         <masterLabel>Applications</masterLabel>
     </sections>
     <sections>

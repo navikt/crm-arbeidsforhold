@@ -31,8 +31,8 @@
         <translation><!-- BeredtC19 (midlertidig register for å gi løpende oversikt og kunnskap om utbredelse, årsakssammenhenger og konsekvenser av covid-19) --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. </masterLabel>
-        <translation><!-- Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer.  --></translation>
+        <masterLabel>Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer.</masterLabel>
+        <translation><!-- Bruk av grunnlagsdata til digitale verktøy som skal benyttes i utdannings- og karriereveiledning og dimensjonering av utdanningstilbudet på ulike utdanningsnivåer. --></translation>
     </picklistValues>
     <picklistValues>
         <masterLabel>Bruk i Riksrevisjonens kontrollarbeid</masterLabel>
@@ -157,6 +157,10 @@
     <picklistValues>
         <masterLabel>Kontroll med kjøre- og hviletid</masterLabel>
         <translation><!-- Kontroll med kjøre- og hviletid --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene.</masterLabel>
+        <translation><!-- Kontrollere at deltakere i Kompetansepluss-prosjektene er ansatt i etterspørrerbedriftene. --></translation>
     </picklistValues>
     <picklistValues>
         <masterLabel>Kvalitetssikre at håndverkmestere som knytter sin mestertittel opp mot et firma er ansatt i firmaet.</masterLabel>

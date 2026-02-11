@@ -55,7 +55,7 @@
         <field>Account.Applications__r$AAREG_OrganizationCategory__c</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
-    <name>Oversikt over søknader og behandlingrl</name>
+    <name>DASH | Applications with API/Extraction/</name>
     <params>
         <name>co</name>
         <value>0</value>

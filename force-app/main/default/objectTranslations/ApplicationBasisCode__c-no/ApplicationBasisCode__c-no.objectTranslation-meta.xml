@@ -34,7 +34,7 @@
     <layouts>
         <layout>Code Layout</layout>
         <sections>
-            <label><!-- County --></label>
+            <label>Fylke</label>
             <section>County</section>
         </sections>
         <sections>
@@ -46,19 +46,19 @@
             <section>EL</section>
         </sections>
         <sections>
-            <label><!-- Municipality --></label>
+            <label>Kommune</label>
             <section>Municipality</section>
         </sections>
         <sections>
-            <label><!-- Other --></label>
+            <label>Andre</label>
             <section>Other</section>
         </sections>
         <sections>
-            <label><!-- Pension --></label>
+            <label>Pensjon</label>
             <section>Pension</section>
         </sections>
         <sections>
-            <label><!-- State --></label>
+            <label>Stat</label>
             <section>State</section>
         </sections>
     </layouts>

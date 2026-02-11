@@ -3,15 +3,23 @@
     <label><!-- Legal Basis Pension --></label>
     <name>LegalBasisPension__c</name>
     <picklistValues>
-        <masterLabel>AFP-tilskottsloven § 29 (2), Aa-registerforskriften § 10 bokstav b</masterLabel>
-        <translation><!-- AFP-tilskottsloven § 29 (2), Aa-registerforskriften § 10 bokstav b --></translation>
-    </picklistValues>
-    <picklistValues>
-        <masterLabel>Aa-registerforskriften §10, 1. ledd bokstav C</masterLabel>
-        <translation><!-- Aa-registerforskriften §10, 1. ledd bokstav C --></translation>
-    </picklistValues>
-    <picklistValues>
         <masterLabel>Annet - oppgi i tekstfelt under</masterLabel>
         <translation><!-- Annet - oppgi i tekstfelt under --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b</masterLabel>
+        <translation><!-- FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav d</masterLabel>
+        <translation><!-- FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav d --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 første ledd bokstav c</masterLabel>
+        <translation><!-- FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 første ledd bokstav c --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>LOV-2010-02-19-5 AFP-tilskottsloven § 29 annet ledd</masterLabel>
+        <translation><!-- LOV-2010-02-19-5 AFP-tilskottsloven § 29 annet ledd --></translation>
     </picklistValues>
 </CustomFieldTranslation>

@@ -19,32 +19,28 @@
         <translation><!-- Behandlinger av søknader om kommunal bolig --></translation>
     </picklistValues>
     <picklistValues>
+        <masterLabel>Innfordring av kommunale krav (utenom særnamsfunksjonen)</masterLabel>
+        <translation><!-- Innfordring av kommunale krav (utenom særnamsfunksjonen) --></translation>
+    </picklistValues>
+    <picklistValues>
         <masterLabel>Innkalling til bystyremøter (Oslo)</masterLabel>
         <translation><!-- Innkalling til bystyremøter (Oslo) --></translation>
-    </picklistValues>
-    <picklistValues>
-        <masterLabel>Klarering for norske statsborgere i samferdselssektoren</masterLabel>
-        <translation><!-- Klarering for norske statsborgere i samferdselssektoren --></translation>
-    </picklistValues>
-    <picklistValues>
-        <masterLabel>Kontroll av drosjeløyve</masterLabel>
-        <translation><!-- Kontroll av drosjeløyve --></translation>
     </picklistValues>
     <picklistValues>
         <masterLabel>Kontroll av folkevalgtes refusjonskrav</masterLabel>
         <translation><!-- Kontroll av folkevalgtes refusjonskrav --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Kontroll av helsepersonell - tilsynssaker</masterLabel>
-        <translation><!-- Kontroll av helsepersonell - tilsynssaker --></translation>
-    </picklistValues>
-    <picklistValues>
         <masterLabel>Kontroll av private barnehager (krav til bemanning og økonomi)</masterLabel>
         <translation><!-- Kontroll av private barnehager (krav til bemanning og økonomi) --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Kontroll av seriøsitetskrav (kun behov for antall ansatte)</masterLabel>
-        <translation><!-- Kontroll av seriøsitetskrav (kun behov for antall ansatte) --></translation>
+        <masterLabel>Kontroll og verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage</masterLabel>
+        <translation><!-- Kontroll og verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontroll og verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, skolefritidsordning (SFO)</masterLabel>
+        <translation><!-- Kontroll og verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, skolefritidsordning (SFO) --></translation>
     </picklistValues>
     <picklistValues>
         <masterLabel>Kontroll/verifisering av opplysning i forbindelse med søknader om redusert foreldrebetaling, barnehage/sfo</masterLabel>
@@ -55,16 +51,12 @@
         <translation><!-- Oppfølging av låneportefølje, sosiale lån --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Planleggingsarbeid - infrastruktur</masterLabel>
-        <translation><!-- Planleggingsarbeid - infrastruktur --></translation>
-    </picklistValues>
-    <picklistValues>
         <masterLabel>Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser</masterLabel>
         <translation><!-- Planleggingsarbeid - infrastruktur/kollektivtrasport/kartlegging av arbeidsreiser --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Skjenkebevilling</masterLabel>
-        <translation><!-- Skjenkebevilling --></translation>
+        <masterLabel>Salg- og skjenkebevilling</masterLabel>
+        <translation><!-- Salg- og skjenkebevilling --></translation>
     </picklistValues>
     <picklistValues>
         <masterLabel>Smittesporing</masterLabel>

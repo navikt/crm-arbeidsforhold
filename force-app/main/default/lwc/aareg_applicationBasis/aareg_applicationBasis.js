@@ -30,9 +30,10 @@ export default class Aareg_applicationBasis extends LightningElement {
     this.otherLegalBasis = this.template.querySelector('[data-id="other-legal-basis"]');
     this.otherPurpose = this.template.querySelector('[data-id="other-purpose"]');
     this.processingBasis = this.template.querySelector('[data-id="processing-basis"]');
-    this.apiAccess = this.template.querySelector('[data-id="APIAccess__c"]');
-    this.extractAccess = this.template.querySelector('[data-id="ExtractionAccess__c"]');
-    this.onlineAccess = this.template.querySelector('[data-id="OnlineAccess__c"]');
+    this.apiAccess = this.template.querySelector('[data-id="API_Access__c"]');
+    this.extractAccess = this.template.querySelector('[data-id="Extraction_Access__c"]');
+    this.onlineAccess = this.template.querySelector('[data-id="Online_Access__c"]');
+    this.typetilgangGroup = this.template.querySelector('[data-id="type-tilgang-group"]');
   }
 
   get legalBasisValue() {
@@ -44,15 +45,15 @@ export default class Aareg_applicationBasis extends LightningElement {
   }
 
   get apiAccessValue() {
-    return this.applicationBasis.ApiAccess__c;
+    return this.applicationBasis.API_Access__c;
   }
   
   get extractAccessValue() {
-    return this.applicationBasis.ExtractAccess__c;
+    return this.applicationBasis.Extraction_Access__c;
   }
 
   get onlineAccessValue() { 
-    return this.applicationBasis.OnlineAccess__c;
+    return this.applicationBasis.Online_Access__c;
   }
 
   get showOtherInput() {
@@ -74,9 +75,9 @@ export default class Aareg_applicationBasis extends LightningElement {
     this.applicationBasis = {
       uuid: this.record.uuid,
       Id: this.record.Id ? this.record.Id : null,
-      APIAccess__c: this.record.APIAccess__c,
-      ExtractionAccess__c: this.record.ExtractionAccess__c,
-      OnlineAccess__c: this.record.OnlineAccess__c,
+      API_Access__c: this.record.API_Access__c? this.record.API_Access__c : false,
+      Extraction_Access__c: this.record.Extraction_Access__c ? this.record.Extraction_Access__c : false,
+      Online_Access__c: this.record.Online_Access__c ? this.record.Online_Access__c : false,
       OrganizationType__c: this.organizationType,
       LegalBasisMunicipality__c: this.record.LegalBasisMunicipality__c ? this.record.LegalBasisMunicipality__c : null,
       PurposeMunicipality__c: this.record.PurposeMunicipality__c ? this.record.PurposeMunicipality__c : null,
@@ -195,11 +196,23 @@ export default class Aareg_applicationBasis extends LightningElement {
   }
 
   handleCheckboxChange(event) {
-    const field = event.target.dataset.id; // Get the field name from data-id
-    const value = event.target.checked; // Get the checkbox value
+    const selectedField = event.target.dataset.id; // Get the field name from data-id
+    const isChecked = event.target.checked; // Get the checkbox value
+
+    // Uncheck other checkboxes in the same group
+    if (isChecked) {
+      const group = event.target.dataset.group; // Get the group name
+      const checkboxes = this.template.querySelectorAll(`input[data-group="${group}"]`);
+      checkboxes.forEach(checkbox => {
+          if (checkbox.dataset.id !== selectedField) {
+              checkbox.checked = false; // Uncheck other checkboxes
+              this.applicationBasis[checkbox.dataset.id] = false; // Update applicationBasis
+          }
+      });
+  }
 
     // Update the applicationBasis object
-    this.applicationBasis[field] = value;
+    this.applicationBasis[selectedField] = isChecked;
     this.publishChange();
   }
 
@@ -281,6 +294,11 @@ export default class Aareg_applicationBasis extends LightningElement {
       this.setErrorFor(this.otherLegalBasis, 'Obligatorisk');
       this.otherLegalBasis.setCustomValidity('Obligatorisk');
     }
+
+    if(this.applicationBasis.API_Access__c === false && this.applicationBasis.Online_Access__c === false && this.applicationBasis.Extraction_Access__c === false) {
+      const errorMessage = 'Minst én tilgangstype må velges';
+      this.setErrorFor(this.typetilgangGroup , errorMessage);
+    }
   
   }
 
@@ -333,9 +351,6 @@ export default class Aareg_applicationBasis extends LightningElement {
         this.otherPurpose.setCustomValidity('');
       }
 
-      /*if(this.apiAccess){
-        this.apiAccess.setCustomValidity('');
-      } */
     } catch (error) {
       console.error(error);
     }
