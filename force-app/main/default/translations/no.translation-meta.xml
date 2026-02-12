@@ -21,10 +21,6 @@
         <name>AAREG_Decision_text_section</name>
     </customLabels>
     <customLabels>
-        <label>Brevtekster</label>
-        <name>AAREG_Letter_text_section</name>
-    </customLabels>
-    <customLabels>
         <label><!-- Applicant details section --></label>
         <name>AAREG_applicant_details_section</name>
     </customLabels>
