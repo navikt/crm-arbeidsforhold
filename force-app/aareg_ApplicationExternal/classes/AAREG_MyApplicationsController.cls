@@ -25,38 +25,49 @@ public with sharing class AAREG_MyApplicationsController {
         ];'*/
             
        // Query the ContentDocumentLink associated with the Application_Decision__c
-       ContentDocumentLink contentDocumentLink = [
-        SELECT ContentDocumentId
-        FROM ContentDocumentLink
-        //WHERE LinkedEntityId = :applicationDecision.Id
-        WHERE LinkedEntityId = :applicationId
-        LIMIT 1
-    ];
+       List<ContentDocumentLink> contentDocumentLinks = [
+          SELECT ContentDocumentId
+          FROM ContentDocumentLink
+          //WHERE LinkedEntityId = :applicationDecision.Id
+          WHERE LinkedEntityId = :applicationId
+        ];
 
-    // Query the latest ContentVersion for the ContentDocument
-    ContentVersion contentVersion = [
-        SELECT Id, ContentDocumentId
-        FROM ContentVersion
-        WHERE ContentDocumentId = :contentDocumentLink.ContentDocumentId
-        AND Title LIKE 'Vedtak til søknad %'
-        ORDER BY VersionNumber DESC
-        LIMIT 1
-    ];
+   // Loop through ContentDocumentLinks to find the correct ContentVersion
+   ContentVersion selectedContentVersion;
+   for (ContentDocumentLink contentDocumentLink : contentDocumentLinks) {
+       List<ContentVersion> contentVersions = [
+           SELECT Id, ContentDocumentId
+           FROM ContentVersion
+           WHERE ContentDocumentId = :contentDocumentLink.ContentDocumentId
+           AND Title LIKE 'Vedtak til søknad %'
+           ORDER BY VersionNumber DESC
+           LIMIT 1
+       ];
+
+       if (!contentVersions.isEmpty()) {
+           selectedContentVersion = contentVersions[0];
+           break; // Exit the loop once the correct ContentVersion is found
+       }
+   }
+
+    // If no matching ContentVersion is found, throw an error
+    if (selectedContentVersion == null) {
+      throw new AuraHandledException('No matching file found for the given Application Decision.');
+    }
 
     // Check if a ContentDocumentLink already exists for the current user
     List<ContentDocumentLink> existingLinks = [
       SELECT Id
       FROM ContentDocumentLink
-      WHERE ContentDocumentId = :contentVersion.ContentDocumentId
+      WHERE ContentDocumentId = :selectedContentVersion.ContentDocumentId
       AND LinkedEntityId = :UserInfo.getUserId()
       LIMIT 1
   ];
 
-    // Create a ContentDocumentLink to share the file with the current user
     if (existingLinks.isEmpty()) {
       // Create a ContentDocumentLink to share the file with the current user
       ContentDocumentLink newLink = new ContentDocumentLink(
-          ContentDocumentId = contentVersion.ContentDocumentId,
+          ContentDocumentId = selectedContentVersion.ContentDocumentId,
           LinkedEntityId = UserInfo.getUserId(), // Link to the current user
           ShareType = 'I', // Inferred access for user
           Visibility = 'AllUsers' // Make it visible to the user
@@ -68,7 +79,7 @@ public with sharing class AAREG_MyApplicationsController {
   }
 
         // Return the download URL for the ContentVersion
-        return '/sfc/servlet.shepherd/document/download/' + contentVersion.ContentDocumentId;
+        return '/sfc/servlet.shepherd/document/download/' + selectedContentVersion.ContentDocumentId;
     } catch (Exception e) {
         throw new AuraHandledException('Error retrieving the PDF: ' + e.getMessage());
     }
