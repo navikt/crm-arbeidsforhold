@@ -38,6 +38,7 @@ public with sharing class AAREG_MyApplicationsController {
         SELECT Id, ContentDocumentId
         FROM ContentVersion
         WHERE ContentDocumentId = :contentDocumentLink.ContentDocumentId
+        AND Title LIKE 'Vedtak til søknad %'
         ORDER BY VersionNumber DESC
         LIMIT 1
     ];

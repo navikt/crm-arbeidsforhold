@@ -60,7 +60,7 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>hideUpdateButton</name>
-                    <value>true</value>
+                    <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>variant</name>
@@ -166,8 +166,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Status__c</fieldItem>
-                <identifier>RecordStatus_cField</identifier>
+                <fieldItem>Record.Casehandler_Status__c</fieldItem>
+                <identifier>RecordCasehandler_Status_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-bbd2449d-834e-4c56-90c4-84398d77331d</name>
