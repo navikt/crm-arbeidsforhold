@@ -111,15 +111,16 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
         .then((url) => {
           console.log('Retrieved URL:', url);
           if (url) {
-            // Prepend the domain to the URL
+
+            /* Prepend the domain to the URL
             const siteOrigin = window.location.origin;
             if (siteOrigin === 'https://navdialog--sit2.sandbox.my.site.com') {
               this.siteURL = siteOrigin + '/aaregisteret' + url;
             } else { // Prod
               this.siteURL = siteOrigin + url;
-            }
-            //const fullUrl = window.location.origin + url;
-            //console.log('Full URL:', fullUrl);
+            }*/
+            const fullUrl = window.location.origin + url;
+            console.log('Full URL:', fullUrl);
 
             // Use NavigationMixin to navigate to the URL
             this[NavigationMixin.Navigate]({
