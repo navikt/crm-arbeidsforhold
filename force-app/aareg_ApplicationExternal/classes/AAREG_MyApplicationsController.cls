@@ -11,6 +11,68 @@ public with sharing class AAREG_MyApplicationsController {
     }
   }
 
+  @AuraEnabled
+  public static String getDecisionPDF(Id applicationId) {
+    try {
+
+        /* Query the Application_Decision__c record
+        Application_Decision__c applicationDecision = [
+            SELECT Id
+            FROM Application_Decision__c
+            WHERE Application__c = :applicationId 
+            AND Process_status__c = 'Completed'
+            LIMIT 1
+        ];'*/
+            
+       // Query the ContentDocumentLink associated with the Application_Decision__c
+       ContentDocumentLink contentDocumentLink = [
+        SELECT ContentDocumentId
+        FROM ContentDocumentLink
+        //WHERE LinkedEntityId = :applicationDecision.Id
+        WHERE LinkedEntityId = :applicationId
+        LIMIT 1
+    ];
+
+    // Query the latest ContentVersion for the ContentDocument
+    ContentVersion contentVersion = [
+        SELECT Id, ContentDocumentId
+        FROM ContentVersion
+        WHERE ContentDocumentId = :contentDocumentLink.ContentDocumentId
+        ORDER BY VersionNumber DESC
+        LIMIT 1
+    ];
+
+    // Check if a ContentDocumentLink already exists for the current user
+    List<ContentDocumentLink> existingLinks = [
+      SELECT Id
+      FROM ContentDocumentLink
+      WHERE ContentDocumentId = :contentVersion.ContentDocumentId
+      AND LinkedEntityId = :UserInfo.getUserId()
+      LIMIT 1
+  ];
+
+    // Create a ContentDocumentLink to share the file with the current user
+    if (existingLinks.isEmpty()) {
+      // Create a ContentDocumentLink to share the file with the current user
+      ContentDocumentLink newLink = new ContentDocumentLink(
+          ContentDocumentId = contentVersion.ContentDocumentId,
+          LinkedEntityId = UserInfo.getUserId(), // Link to the current user
+          ShareType = 'I', // Inferred access for user
+          Visibility = 'AllUsers' // Make it visible to the user
+      );
+      insert newLink;
+      System.debug('New ContentDocumentLink created for user.');
+  } else {
+      System.debug('ContentDocumentLink already exists for the user.');
+  }
+
+        // Return the download URL for the ContentVersion
+        return '/sfc/servlet.shepherd/document/download/' + contentVersion.ContentDocumentId;
+    } catch (Exception e) {
+        throw new AuraHandledException('Error retrieving the PDF: ' + e.getMessage());
+    }
+}
+
   private static List<Application__c> getApplications(String lastUsedOrganization) {
     List<Application__c> applications = new List<Application__c>();
     List<Application__c> applicationstemp = new List<Application__c>(

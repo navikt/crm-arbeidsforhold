@@ -3,6 +3,7 @@ import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import navLogo from '@salesforce/resourceUrl/logo';
 import getUsersApplications from '@salesforce/apex/AAREG_MyApplicationsController.getUsersApplications';
+import getDecisionPDF from '@salesforce/apex/AAREG_MyApplicationsController.getDecisionPDF';
 
 const COLUMNS = [
   { label: 'Søknadsnummer', fieldName: 'Name', type: 'text', hideDefaultActions: true },
@@ -19,7 +20,7 @@ const COLUMNS = [
       variant: 'Brand Outline'
     }
   },
-  /*{
+  {
     type: 'button',
     fixedWidth: 190,
     typeAttributes: {
@@ -32,7 +33,7 @@ const COLUMNS = [
       iconPosition: 'right',
       iconAlternativeText: 'Last ned',
     }
-  }*/
+  }
 ];  
 
 export default class Aareg_myApplications extends NavigationMixin(LightningElement) {
@@ -100,7 +101,37 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     });
   }
 
-  siteURL = '';
+  downloadDecision(event) {
+    const row = event.detail.row;
+    const applicationId = row.Id; //
+    console.log('Application ID:', applicationId); 
+
+    // Call the Apex method to get the PDF download URL
+    getDecisionPDF({ applicationId })
+        .then((url) => {
+          console.log('Retrieved URL:', url);
+          if (url) {
+            // Prepend the domain to the URL
+            const fullUrl = window.location.origin + url;
+            console.log('Full URL:', fullUrl);
+
+            // Use NavigationMixin to navigate to the URL
+            this[NavigationMixin.Navigate]({
+                type: 'standard__webPage',
+                attributes: {
+                    url: fullUrl
+                }
+            });
+        } else {
+            console.error('No PDF found for the given Application Decision.');
+        }
+        })
+        .catch((error) => {
+            console.error('Error retrieving the PDF:', error);
+        });
+}
+
+  /*siteURL = '';
   downloadDecision(event) {
     const row = event.detail.row;
     const siteOrigin = window.location.origin;
@@ -111,5 +142,5 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     }
     window.open = ('url', '_blank');
     window.open(this.siteURL);
-  }
+  }*/
 }

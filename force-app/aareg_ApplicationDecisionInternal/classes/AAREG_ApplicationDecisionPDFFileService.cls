@@ -35,7 +35,7 @@ public with sharing class AAREG_ApplicationDecisionPDFFileService {
        
       ContentDocumentLink contentLink = new ContentDocumentLink();
       contentLink.ContentDocumentId = cv.ContentDocumentId;
-      contentLink.LinkedEntityId = decisionId;
+      contentLink.LinkedEntityId = applicationId;
       contentLink.ShareType = 'V'; // Viewer access
       contentLink.Visibility = 'AllUsers';
       insert contentLink;
