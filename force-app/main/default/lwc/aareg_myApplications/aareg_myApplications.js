@@ -108,19 +108,15 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
    
     getDecisionPDF({ applicationId })
     .then((url) => {
-      console.log('Retrieved URL:', url);
       let fullUrl='';
       if (url) {
           // Prepend the domain to the URL
           const siteOrigin = window.location.origin;
-          console.log('siteOrigin: ',siteOrigin);
           if(siteOrigin === 'https://navdialog--sit2.sandbox.my.site.com') {
-              fullUrl = siteOrigin + '/aaregisteret' + url +'?operationContext=S1';
+              fullUrl = siteOrigin + '/aaregisteret' + url;
           }else{
-            fullUrl = siteOrigin + url + '?operationContext=S1';
+            fullUrl = siteOrigin + url;
           }
-          //const fullUrl = window.location.origin + url;
-          console.log('Full URL:', fullUrl);
 
           // Use NavigationMixin to navigate to the URL
           this[NavigationMixin.Navigate]({
@@ -136,18 +132,5 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   .catch((error) => {
       console.error('Error retrieving the PDF:', error);
   });
-
-  /*siteURL = '';
-  downloadDecision(event) {
-    const row = event.detail.row;
-    const siteOrigin = window.location.origin;
-    if (siteOrigin === 'https://navdialog--preprod.sandbox.my.site.com') { // Preprod
-      this.siteURL = siteOrigin + '/aaregisteret' + '/apex/AAREG_decisionPDF?Id=' + row.Id;
-    } else { // Prod
-      this.siteURL = siteOrigin + '/apex/AAREG_decisionPDF?Id=' + row.Id;
-    }
-    window.open = ('url', '_blank');
-    window.open(this.siteURL);
-  }*/
   }
 }
