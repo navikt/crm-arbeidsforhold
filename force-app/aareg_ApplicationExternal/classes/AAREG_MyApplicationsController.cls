@@ -56,6 +56,7 @@ public with sharing class AAREG_MyApplicationsController {
     }
 
     // Check if a ContentDocumentLink already exists for the current user
+    /*
     List<ContentDocumentLink> existingLinks = [
       SELECT Id
       FROM ContentDocumentLink
@@ -77,9 +78,10 @@ public with sharing class AAREG_MyApplicationsController {
   } else {
       System.debug('ContentDocumentLink already exists for the user.');
   }
+      */
 
         // Return the download URL for the ContentVersion
-        return '/sfc/servlet.shepherd/document/download/' + selectedContentVersion.ContentDocumentId;
+        return '/sfc/servlet.shepherd/document/download/' + selectedContentVersion.ContentDocumentId +'?operationContext=S1';
     } catch (Exception e) {
         throw new AuraHandledException('Error retrieving the PDF: ' + e.getMessage());
     }
