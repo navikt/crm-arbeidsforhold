@@ -1,5 +1,6 @@
 import { LightningElement, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
+import { generateUrl } from 'lightning/fileDownload';
 import Id from '@salesforce/user/Id';
 import navLogo from '@salesforce/resourceUrl/logo';
 import getUsersApplications from '@salesforce/apex/AAREG_MyApplicationsController.getUsersApplications';
@@ -103,40 +104,38 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
 
   downloadDecision(event) {
     const row = event.detail.row;
-    const applicationId = row.Id; //
-    console.log('Application ID:', applicationId); 
-
-    // Call the Apex method to get the PDF download URL
+    const applicationId = row.Id; 
+   
     getDecisionPDF({ applicationId })
-        .then((url) => {
-          console.log('Retrieved URL:', url);
-          if (url) {
+    .then((url) => {
+      console.log('Retrieved URL:', url);
+      let fullUrl='';
+      if (url) {
+          // Prepend the domain to the URL
+          const siteOrigin = window.location.origin;
+          console.log('siteOrigin: ',siteOrigin);
+          if(siteOrigin === 'https://navdialog--sit2.sandbox.my.site.com') {
+              fullUrl = siteOrigin + '/aaregisteret' + url;
+          }else{
+            fullUrl = siteOrigin + url;
+          }
+          //const fullUrl = window.location.origin + url;
+          console.log('Full URL:', fullUrl);
 
-            /* Prepend the domain to the URL
-            const siteOrigin = window.location.origin;
-            if (siteOrigin === 'https://navdialog--sit2.sandbox.my.site.com') {
-              this.siteURL = siteOrigin + '/aaregisteret' + url;
-            } else { // Prod
-              this.siteURL = siteOrigin + url;
-            }*/
-            const fullUrl = window.location.origin + url;
-            console.log('Full URL:', fullUrl);
-
-            // Use NavigationMixin to navigate to the URL
-            this[NavigationMixin.Navigate]({
-                type: 'standard__webPage',
-                attributes: {
-                    url: fullUrl
-                }
-            });
-        } else {
-            console.error('No PDF found for the given Application Decision.');
-        }
-        })
-        .catch((error) => {
-            console.error('Error retrieving the PDF:', error);
-        });
-}
+          // Use NavigationMixin to navigate to the URL
+          this[NavigationMixin.Navigate]({
+              type: 'standard__webPage',
+              attributes: {
+                  url: fullUrl
+              }
+          });
+      } else {
+          console.error('No PDF found for the given Application Decision.');
+      }
+  })
+  .catch((error) => {
+      console.error('Error retrieving the PDF:', error);
+  });
 
   /*siteURL = '';
   downloadDecision(event) {
@@ -150,4 +149,5 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     window.open = ('url', '_blank');
     window.open(this.siteURL);
   }*/
+  }
 }

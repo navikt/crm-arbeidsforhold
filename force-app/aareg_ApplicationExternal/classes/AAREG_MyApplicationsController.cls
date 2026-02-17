@@ -69,7 +69,7 @@ public with sharing class AAREG_MyApplicationsController {
       ContentDocumentLink newLink = new ContentDocumentLink(
           ContentDocumentId = selectedContentVersion.ContentDocumentId,
           LinkedEntityId = UserInfo.getUserId(), // Link to the current user
-          ShareType = 'I', // Inferred access for user
+          ShareType = 'I', 
           Visibility = 'AllUsers' // Make it visible to the user
       );
       insert newLink;
