@@ -115,9 +115,9 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
           const siteOrigin = window.location.origin;
           console.log('siteOrigin: ',siteOrigin);
           if(siteOrigin === 'https://navdialog--sit2.sandbox.my.site.com') {
-              fullUrl = siteOrigin + '/aaregisteret' + url;
+              fullUrl = siteOrigin + '/aaregisteret' + url +'?operationContext=S1';
           }else{
-            fullUrl = siteOrigin + url;
+            fullUrl = siteOrigin + url + '?operationContext=S1';
           }
           //const fullUrl = window.location.origin + url;
           console.log('Full URL:', fullUrl);
