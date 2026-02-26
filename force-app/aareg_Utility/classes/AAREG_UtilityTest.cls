@@ -130,6 +130,7 @@ public class AAREG_UtilityTest {
         System.Assert.isNull(aaregConstructor.getThreadRecordTypeId(), 'The thread RecordType Id should be null');
     }
 
+
     /**
      * Verifies that multiple invocations of getInstance method
      * return the same instance. (Singleton pattern).
