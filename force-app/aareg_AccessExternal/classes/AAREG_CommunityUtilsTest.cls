@@ -3,6 +3,7 @@
 private class AAREG_CommunityUtilsTest {
     public static final String DEFAULT_ORGANIZATION_NUMBER = '123456789';
     public static final String DEFAULT_ALTINN_SUPPORT_RESOURCE = 'nav_arbeidsforhold_aa-registeret-brukerstotte';
+    public static final String DEFAULT_ALTINN_APPLICATION_RESOURCE ='nav_arbeidsforhold_aa-registeret-sok-tilgang';
     @TestSetup
     private static void makeData() {
         Profile profile = [SELECT Id, UserLicense.Name FROM Profile WHERE Name = 'Standard User' LIMIT 1];
@@ -37,10 +38,7 @@ private class AAREG_CommunityUtilsTest {
 
         insert settings;
 
-        List<User> users = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
-        if (!users.isEmpty()) {
-            User user = users[0];
-        }
+        User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
         String body = '{"response":[{"decision":"Permit","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[{"id":"urn:altinn:obligation:authenticationLevel1","attributeAssignment":[{"attributeId":"urn:altinn:obligation1-assignment1","value":"4","category":"urn:altinn:minimum-authenticationlevel","dataType":"http://www.w3.org/2001/XMLSchema#integer","issuer":null}]}],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
 
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', body, new Map<String, String>());
@@ -50,7 +48,7 @@ private class AAREG_CommunityUtilsTest {
         AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(
             user.Id,
             DEFAULT_ORGANIZATION_NUMBER,
-            'nav_arbeidsforhold_aa-registeret-sok-tilgang'
+            DEFAULT_ALTINN_APPLICATION_RESOURCE
         );
         System.Test.stopTest();
 
@@ -58,7 +56,7 @@ private class AAREG_CommunityUtilsTest {
         System.Assert.areEqual(true, response.success, 'Expect success');
         System.Assert.areEqual(null, response.errorMessage, 'Expect no error message');
         System.Assert.areEqual(1, response.rights.size(), 'Expect 1 right');
-        System.Assert.areEqual('nav_arbeidsforhold_aa-registeret-sok-tilgang', response.rights[0].Resource);
+        System.Assert.areEqual(DEFAULT_ALTINN_APPLICATION_RESOURCE, response.rights[0].Resource);
     }
 
     @IsTest
@@ -73,10 +71,7 @@ private class AAREG_CommunityUtilsTest {
 
         insert settings;
 
-        List<User> users = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
-        if (!users.isEmpty()) {
-            User user = users[0];
-        }
+        User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
         String body = '{"response":[{"decision":"Permit","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[{"id":"urn:altinn:obligation:authenticationLevel1","attributeAssignment":[{"attributeId":"urn:altinn:obligation1-assignment1","value":"4","category":"urn:altinn:minimum-authenticationlevel","dataType":"http://www.w3.org/2001/XMLSchema#integer","issuer":null}]}],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
 
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', body, new Map<String, String>());
