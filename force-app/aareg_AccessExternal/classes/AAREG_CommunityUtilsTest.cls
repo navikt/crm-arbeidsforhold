@@ -1,6 +1,9 @@
 @SuppressWarnings('PMD')
 @IsTest
 private class AAREG_CommunityUtilsTest {
+    public static final String DEFAULT_ORGANIZATION_NUMBER = '123456789';
+    public static final String DEFAULT_ALTINN_SUPPORT_RESOURCE = 'nav_arbeidsforhold_aa-registeret-brukerstotte';
+    public static final String DEFAULT_ALTINN_APPLICATION_RESOURCE ='nav_arbeidsforhold_aa-registeret-sok-tilgang';
     @TestSetup
     private static void makeData() {
         Profile profile = [SELECT Id, UserLicense.Name FROM Profile WHERE Name = 'Standard User' LIMIT 1];
@@ -17,7 +20,7 @@ private class AAREG_CommunityUtilsTest {
         user.EmailEncodingKey = 'UTF-8';
         user.ProfileId = profile.Id;
         user.Department = '1';
-        user.LastUsedOrganization__c = '123456789';
+        user.LastUsedOrganization__c = DEFAULT_ORGANIZATION_NUMBER;
 
         insert user;
         BaseTestFactory.insertEncryptionKey();
@@ -44,8 +47,8 @@ private class AAREG_CommunityUtilsTest {
         System.Test.startTest();
         AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(
             user.Id,
-            '123456789',
-            'nav_arbeidsforhold_aa-registeret-sok-tilgang'
+            DEFAULT_ORGANIZATION_NUMBER,
+            DEFAULT_ALTINN_APPLICATION_RESOURCE
         );
         System.Test.stopTest();
 
@@ -53,7 +56,7 @@ private class AAREG_CommunityUtilsTest {
         System.Assert.areEqual(true, response.success, 'Expect success');
         System.Assert.areEqual(null, response.errorMessage, 'Expect no error message');
         System.Assert.areEqual(1, response.rights.size(), 'Expect 1 right');
-        System.Assert.areEqual('nav_arbeidsforhold_aa-registeret-sok-tilgang', response.rights[0].Resource);
+        System.Assert.areEqual(DEFAULT_ALTINN_APPLICATION_RESOURCE, response.rights[0].Resource);
     }
 
     @IsTest
@@ -77,8 +80,8 @@ private class AAREG_CommunityUtilsTest {
         System.Test.startTest();
         AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(
             user.Id,
-            '123456789',
-            'nav_arbeidsforhold_aa-registeret-brukerstotte'
+            DEFAULT_ORGANIZATION_NUMBER,
+            DEFAULT_ALTINN_SUPPORT_RESOURCE
         );
         System.Test.stopTest();
 
@@ -86,6 +89,6 @@ private class AAREG_CommunityUtilsTest {
         System.Assert.areEqual(true, response.success, 'Expect success');
         System.Assert.areEqual(null, response.errorMessage, 'Expect no error message');
         System.Assert.areEqual(1, response.rights.size(), 'Expect 1 right');
-        System.Assert.areEqual('nav_arbeidsforhold_aa-registeret-brukerstotte', response.rights[0].Resource);
+        System.Assert.areEqual(DEFAULT_ALTINN_SUPPORT_RESOURCE, response.rights[0].Resource);
     }
 }

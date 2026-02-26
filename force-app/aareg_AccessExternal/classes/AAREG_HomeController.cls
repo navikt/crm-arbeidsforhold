@@ -1,5 +1,6 @@
 @SuppressWarnings('PMD')
 public without sharing class AAREG_HomeController {
+    public static final String DEFAULT_ORGANIZATION_NUMBER = '929882989';
     public class AccessResponse {
         @AuraEnabled
         public Boolean hasAccess { get; set; }
@@ -100,7 +101,7 @@ public without sharing class AAREG_HomeController {
     public static void shareAgreementsWithUser(String userId) {
         String lastUsedOrganization = getLastUsersLastUsedOrganization(userId);
         if (Test.isRunningTest()) {
-            lastUsedOrganization = '929882989';
+            lastUsedOrganization = DEFAULT_ORGANIZATION_NUMBER;
         }
         List<Agreement__c> agreements = [
             SELECT Id, OwnerId
