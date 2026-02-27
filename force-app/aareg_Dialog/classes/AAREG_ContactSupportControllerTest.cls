@@ -9,7 +9,6 @@ public class AAREG_ContactSupportControllerTest {
       System.runAs(thisUser){
         usr = AAREG_TestDataFactory.getStandardUser();
     	insert usr; 
-          system.debug(usr);
       }
 
     // Create test Account
@@ -34,6 +33,51 @@ public class AAREG_ContactSupportControllerTest {
     System.assertEquals(1, threads[0].CRM_Number_of_unread_Messages__c, '1 unread message for the thread');
     System.assertEquals(testApplication.Id, threads[0].CRM_Related_Object__c, 'Thread is related to the application');
   }
+    
+    @isTest
+    static void testCheckObjectTypeName_PositiveScenario() {
+        
+        User testUser;
+        User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
+        System.runAs(thisUser){
+            testUser = AAREG_TestDataFactory.getStandardUser();
+            insert testUser;
+        }
+            
+            // Create test Account
+            Account testAccount = AAREG_TestDataFactory.getAccount();
+            insert testAccount;
+            
+            // Create test Application
+            Application__c testApplication = AAREG_TestDataFactory.getApplicationCounty(testAccount);
+            insert testApplication;
+            
+            // Call the method
+            Test.startTest();
+        	AAREG_contactSupportController.createThreadForApplication(testUser.Id, testApplication.Id, 'Test Description','Endringsbehov');
+        	// Retrieve the test Thread__c record
+            Thread__c testThread = [SELECT Id FROM Thread__c LIMIT 1];
+            AAREG_checkObjectTypeNameche.CheckObjectTypeName(new List<Id>{testThread.Id});
+            Test.stopTest();
+            
+            // Verify the results
+            Thread__c updatedThread = [SELECT OwnerId, CRM_Account__c FROM Thread__c WHERE Id = :testThread.Id];
+            System.Assert.isNotNull(updatedThread.OwnerId, 'OwnerId should be updated.');
+            System.Assert.isNotNull(updatedThread.CRM_Account__c, 'CRM_Account__c should be updated.');
+        }
+    
+    @isTest
+    static void testCheckObjectTypeName_EmptyList() {
+        // Call the method with an empty list
+        Test.startTest();
+        AAREG_checkObjectTypeNameche.CheckObjectTypeName(new List<Id>());
+        Test.stopTest();
+
+        // Verify that no exceptions were thrown
+        System.assert(true, 'Method should handle empty lists without throwing exceptions.');
+    }
+    
+   
 
   @isTest
   static void createNewInquiry() {
