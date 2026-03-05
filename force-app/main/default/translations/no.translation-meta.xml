@@ -378,37 +378,6 @@
         <fullName>AAREG_applicationChangingStatus</fullName>
     </flowDefinitions>
     <flowDefinitions>
-        <flows>
-            <screens>
-                <fields>
-                    <fieldText>Du har ikke bekreftet at søknaden er ferdigbehandlet.</fieldText>
-                    <name>ErrorMessage</name>
-                </fields>
-                <name>IsNotChecked</name>
-            </screens>
-            <screens>
-                <fields>
-                    <fieldText>Søknaden står ikke i en status som gjør at søknaden kan settes til
-            ferdigbehandlet</fieldText>
-                    <name>changeStatus</name>
-                </fields>
-                <name>IsNotCorrectStatus</name>
-            </screens>
-            <screens>
-                <fields>
-                    <fieldText>Ja, saken er ferdigbehandlet</fieldText>
-                    <name>applicationDoneConfirmation</name>
-                </fields>
-                <name>applicationDone</name>
-            </screens>
-        </flows>
-        <fullName>AAREG_applicationFinished</fullName>
-    </flowDefinitions>
-    <flowDefinitions>
-        <flows/>
-        <fullName>AAREG_applicationFinished_RT</fullName>
-    </flowDefinitions>
-    <flowDefinitions>
         <flows/>
         <fullName>AAREG_applicationNotificationToCasehandler</fullName>
     </flowDefinitions>
