@@ -658,6 +658,10 @@
             <label>IsLegalBasisOther</label>
         </rules>
     </decisions>
+    <description>Populerer felter når konsument sender inn søknad, Status = Ny
+Feltet AA_register_application_text__c blir populert med data fra søknaden for å bruke dette til å sende til arkivet. 
+Vurdere over tid om denne skal gjenbrukes inn i public 360 eller fjernes.
+Setter også svarfristdato</description>
     <environments>Default</environments>
     <formulas>
         <name>setApplicationDeadlineDate</name>
@@ -665,7 +669,7 @@
         <expression>{!$Record.ApplicationSubmittedDate__c}+ ( 365 / 12 )</expression>
     </formulas>
     <interviewLabel>AAREG_populateApplicationFieldAfterSubmitt {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_populateApplicationFieldAfterSubmit</label>
+    <label>AAREG Application populate field after submit</label>
     <loops>
         <name>loopThroughCollection</name>
         <label>loopThroughCollection</label>
@@ -820,13 +824,6 @@
             <operator>EqualTo</operator>
             <value>
                 <stringValue>New</stringValue>
-            </value>
-        </filters>
-        <filters>
-            <field>IsAppSentToWebsak__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>false</booleanValue>
             </value>
         </filters>
         <object>Application__c</object>
