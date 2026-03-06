@@ -1,0 +1,34 @@
+   sequenceDiagram
+    participant Søker
+    participant Saksbehandler
+    participant Vedtak
+    participant Avtale
+
+    Søker->>Saksbehandler: Sender inn søknad
+    activate Saksbehandler
+    Saksbehandler-->>Søker: Epost mottatt søknad
+    deactivate Saksbehandler
+
+    loop Behandling av søknad
+        Saksbehandler->>Saksbehandler: Under behandling
+    end
+    loop
+
+    Saksbehandler->>Søker: Dialog
+    activate Saksbehandler
+    Saksbehandler -->>Søker: Epost om mer informasjon
+    Søker-->>Saksbehandler: Svar på dialog
+    deactivate Saksbehandler
+    end
+
+    Saksbehandler->>Søker: Henlegger søknad
+    activate Saksbehandler
+    Saksbehandler-->>Søker: Epost om henleggelse
+    deactivate Saksbehandler
+
+    Saksbehandler->>Vedtak: Fatter vedtak
+    activate Saksbehandler 
+    Saksbehandler->>Avtale: Oppretter avtale
+    Note right of Avtale: Vedtak og avtale blir tilgjengelig i portalen
+    Saksbehandler-->>Søker: Epost om vedtak
+    deactivate Saksbehandler
