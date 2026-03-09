@@ -3,7 +3,7 @@
     <baseObject>Account</baseObject>
     <category>admin</category>
     <deployed>false</deployed>
-    <description>Report type for rapportering av søknader til direktoratet</description>
+    <description>Rapporttype - Søknader fra konsument med kontaktpersoner som kommer via søknad.</description>
     <join>
         <join>
             <outerJoin>false</outerJoin>
@@ -12,7 +12,7 @@
         <outerJoin>false</outerJoin>
         <relationship>Applications__r</relationship>
     </join>
-    <label>Aa_reg application with related contacts</label>
+    <label>Arbeidsforhold - søknad fra konsument med kontaktpersoner</label>
     <sections>
         <columns>
             <checkedByDefault>false</checkedByDefault>
@@ -750,11 +750,6 @@
         <columns>
             <checkedByDefault>false</checkedByDefault>
             <field>reasonForSuspension__c</field>
-            <table>Account.Applications__r</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>EventAccess__c</field>
             <table>Account.Applications__r</table>
         </columns>
         <columns>

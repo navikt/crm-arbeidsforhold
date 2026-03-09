@@ -1,0 +1,56 @@
+erDiagram
+    USER ||--o{ APPLICATION : submits
+    AAREG_CASE ||--o{ APPLICATION : contains  
+    APPLICATION ||--|{ RELATED_CONTACTS : contains
+    APPLICATION ||--|{ BASIS_CODE : contains
+    AAREG_CASE ||--|{ ACCOUNT : contains
+    AAREG_CASE ||--|{ CONTACT : contains
+    AAREG_CASE ||--|{ APPLICATION_DECISION : contains
+    APPLICATION_DECISION ||--|{ APPLICATION_DETAIL : contains
+    AAREG_CASE ||--|{  AGREEMENT : contains
+   
+    AGREEMENT ||--o{ RELATED_CONTACTS : contains
+    AGREEMENT ||--o{ ACCOUNT : contains
+    ACCOUNT ||--o{ APPLICATION_DECISION : contains
+    ACCOUNT ||--o{ CONTACT : contains
+    
+    AAREG_CASE{
+        string publicId
+        
+    }
+    ACCOUNT {
+        string id
+        string businessname
+    }
+    CONTACT{
+        string accountId
+        string name
+        string email
+    }
+    APPLICATION {
+        string id
+        string accountId
+        string contactId
+    }
+    APPLICATION_DECISION {
+        string applicationId
+        string agreementId
+        number approvedCount(rollup_summary)
+        number totalCount(rollup_summary)
+    }
+    APPLICATION_DETAIL {
+        string applicationDecisionId
+        string agreementId
+    }
+    RELATED_CONTACTS {
+        string applicationId
+        string agreementId
+    }
+    BASIS_CODE{
+        string applicationId
+    }
+    AGREEMENT {
+        string id
+        string accountId
+        string applicationId
+    }

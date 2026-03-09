@@ -197,11 +197,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Agreement__c.EventAccess__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Agreement__c.ExtractionAccess__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -363,11 +358,6 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Application__c.Email__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Application__c.EventAccess__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_removeAccessToDistribution</stringValue>
+                <stringValue>AAREG_removeAccessToDistribution_failed</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -33,7 +33,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>ErrorMessage_fault</elementReference>
+                <elementReference>$Flow.FaultMessage</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -78,7 +78,52 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>ErrorMessage_fault</elementReference>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Create_Inquiry_failed_2</name>
+        <label>Create Inquiry failed 2</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Inquiry__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_removeAccessToDistribution_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -105,7 +150,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_removeAccessToDistribution</stringValue>
+                <stringValue>AAREG_removeAccessToDistribution_failed</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -123,7 +168,52 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>ErrorMessage_fault</elementReference>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>source</name>
+            <value>
+                <elementReference>$Flow.CurrentRecord</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>LoggerUtility</nameSegment>
+        <offset>0</offset>
+    </actionCalls>
+    <actionCalls>
+        <name>Create_Task_failed_2</name>
+        <label>Create Task failed 2</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>LoggerUtility</actionName>
+        <actionType>apex</actionType>
+        <dataTypeMappings>
+            <typeName>T__refRecord</typeName>
+            <typeValue>Task</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>category</name>
+            <value>
+                <stringValue>AAREG_removeAccessToDistribution_failed</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>domain</name>
+            <value>
+                <stringValue>AAREG</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logLevel</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>logMessage</name>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -150,7 +240,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_removeAccessToDistribution</stringValue>
+                <stringValue>AAREG_removeAccessToDistribution_failed</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -168,7 +258,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>ErrorMessage_fault</elementReference>
+                <elementReference>$Flow.FaultMessage</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -255,7 +345,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_removeAccessToDistribution</stringValue>
+                <stringValue>AAREG_removeAccessToDistribution_failed</stringValue>
             </value>
         </inputParameters>
         <inputParameters>
@@ -273,7 +363,7 @@
         <inputParameters>
             <name>logMessage</name>
             <value>
-                <elementReference>flow_interview_og_log_message</elementReference>
+                <elementReference>$Flow.FaultMessage</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -294,52 +384,6 @@
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <name>Inquiry_creation_failed</name>
-        <label>Inquiry creation failed</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>ErrorMessage_fault</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Create Inquiry Record failed for related Agreement.  </stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>ErrorMessage_fault</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>flow_interview_og_log_message</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Create_Inquiry_failed</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Message_creation_failed</name>
-        <label>Message creation failed</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>ErrorMessage_fault</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Create Message Record failed for related Agreement. </stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>ErrorMessage_fault</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>flow_interview_og_log_message</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Create_Message_failed</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
         <name>setSingleAccessTypes</name>
         <label>setSingleAccessTypes</label>
         <locationX>0</locationX>
@@ -353,52 +397,6 @@
         </assignmentItems>
         <connector>
             <targetReference>checkValidAccessTypes</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Task_creation_failed</name>
-        <label>Task creation failed</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>ErrorMessage_fault</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Create Task Record failed for related Agreement. </stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>ErrorMessage_fault</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>flow_interview_og_log_message</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Create_Activity_failed</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Thread_creation_failed</name>
-        <label>Thread creation failed</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>ErrorMessage_fault</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Create Thread Record failed for related Agreement. </stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>ErrorMessage_fault</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>flow_interview_og_log_message</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Create_Thread_failed</targetReference>
         </connector>
     </assignments>
     <constants>
@@ -612,17 +610,12 @@
             <label>isExtract</label>
         </rules>
     </decisions>
-    <description>If casehandler or user is deactivating the agreement a cancellation callout is sent to distribution through the integration..</description>
+    <description>If casehandler or user is deactivating the agreement a cancellation callout is sent to distribution through the integration.</description>
     <environments>Default</environments>
     <formulas>
         <name>convertAccessTextForuser</name>
         <dataType>String</dataType>
         <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;Tilgang til API&quot;, &quot;Access API with dataprocessor&quot; , &quot;Tilgang til API med databehandler&quot; , &quot;Access OTP&quot; , &quot;Tilgang til OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;Tilgang til OTP med databehandler&quot; , &quot;Access Online&quot; , &quot;Tilgang til Web-oppslag&quot; ,  &quot;Event&quot;, &quot;Tilgang til Hendelser&quot;, &quot;Event with dataprocessor&quot;, &quot;Tilgang til Hendelser med databehandler&quot;, &quot;Extract&quot;, &quot;Tilgang til Uttrekk&quot;, &quot;Ingen tilgang&quot;)</expression>
-    </formulas>
-    <formulas>
-        <name>flow_interview_og_log_message</name>
-        <dataType>String</dataType>
-        <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
     </formulas>
     <formulas>
         <name>varConvertAccessType</name>
@@ -684,7 +677,7 @@
         <expression>&apos;Tilgang: &apos; + {!varConvertAccessType} + &apos; er deaktivert&apos;</expression>
     </formulas>
     <interviewLabel>AAREG_removeAccessToDistribution {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_removeAccessToDistribution</label>
+    <label>AAREG Agreement remove access to distribution</label>
     <loops>
         <name>loopTextCollection</name>
         <label>loopTextCollection</label>
@@ -727,7 +720,7 @@
             <targetReference>loopTextCollection</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Task_creation_failed</targetReference>
+            <targetReference>Create_Activity_failed</targetReference>
         </faultConnector>
         <inputAssignments>
             <field>ActivityDate</field>
@@ -783,8 +776,7 @@
             <targetReference>updateFlowFieldOnAgreementToFalse</targetReference>
         </connector>
         <faultConnector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Task_creation_failed</targetReference>
+            <targetReference>Create_Task_failed_2</targetReference>
         </faultConnector>
         <inputAssignments>
             <field>ActivityDate</field>
@@ -841,8 +833,7 @@
             <targetReference>getInquiryName</targetReference>
         </connector>
         <faultConnector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Inquiry_creation_failed</targetReference>
+            <targetReference>Create_Inquiry_failed_2</targetReference>
         </faultConnector>
         <inputAssignments>
             <field>AccountId__c</field>
@@ -891,7 +882,7 @@
             <targetReference>checkDeactivationType</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Inquiry_creation_failed</targetReference>
+            <targetReference>Create_Inquiry_failed</targetReference>
         </faultConnector>
         <inputAssignments>
             <field>AccountId__c</field>
@@ -941,7 +932,7 @@
             <targetReference>createActivityHistory</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Message_creation_failed</targetReference>
+            <targetReference>Create_Message_failed</targetReference>
         </faultConnector>
         <inputAssignments>
             <field>CRM_Message_Text__c</field>
@@ -967,7 +958,7 @@
             <targetReference>createMessageFromNAV</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Thread_creation_failed</targetReference>
+            <targetReference>Create_Thread_failed</targetReference>
         </faultConnector>
         <inputAssignments>
             <field>AAREG_Thread_Subject__c</field>
@@ -1017,57 +1008,9 @@
                 <elementReference>getApplication.OwnerId</elementReference>
             </value>
         </inputAssignments>
-        <inputAssignments>
-            <field>RecordTypeId</field>
-            <value>
-                <elementReference>Get_AAReg_Thread_Record_Type.Id</elementReference>
-            </value>
-        </inputAssignments>
         <object>Thread__c</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
-    <recordLookups>
-        <name>Get_AAReg_Thread_Record_Type</name>
-        <label>Get AAReg Thread Record Type</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>getAccessTypes</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>DeveloperName</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Get_Thread_Record_Type_Name.Value__c</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>RecordType</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Get_Thread_Record_Type_Name</name>
-        <label>Get Thread Record Type Name</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_AAReg_Thread_Record_Type</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>QualifiedApiName</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>ThreadRecordTypeName</stringValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>AAREG_Setting__mdt</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
     <recordLookups>
         <name>getAgreement</name>
         <label>getAgreement</label>
@@ -1154,7 +1097,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Thread_Record_Type_Name</targetReference>
+            <targetReference>getAccessTypes</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -1192,7 +1135,7 @@
         <connector>
             <targetReference>getAgreement</targetReference>
         </connector>
-        <filterLogic>4 AND 7 AND (1 OR 2 OR 3 OR 5 OR 6)</filterLogic>
+        <filterLogic>4 AND 6 AND (1 OR 2 OR 3 OR 5 )</filterLogic>
         <filters>
             <field>Status__c</field>
             <operator>EqualTo</operator>
@@ -1222,13 +1165,6 @@
             </value>
         </filters>
         <filters>
-            <field>EventAccess__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </filters>
-        <filters>
             <field>ExtractionAccess__c</field>
             <operator>EqualTo</operator>
             <value>
@@ -1246,14 +1182,7 @@
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Obsolete</status>
-    <variables>
-        <name>ErrorMessage_fault</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>true</isOutput>
-    </variables>
+    <status>Active</status>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
