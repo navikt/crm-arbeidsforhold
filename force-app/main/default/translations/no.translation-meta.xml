@@ -462,26 +462,6 @@
         <fullName>AAREG_populateApplicationFieldAfterSubmit</fullName>
     </flowDefinitions>
     <flowDefinitions>
-        <flows>
-            <textTemplates>
-                <name>approvedDecisionText</name>
-            </textTemplates>
-            <textTemplates>
-                <name>containerApplication</name>
-            </textTemplates>
-            <textTemplates>
-                <name>declinedDecisionText</name>
-            </textTemplates>
-            <textTemplates>
-                <name>newLine</name>
-            </textTemplates>
-            <textTemplates>
-                <name>partiallyApprovedDecisionText</name>
-            </textTemplates>
-        </flows>
-        <fullName>AAREG_populateDecisionText</fullName>
-    </flowDefinitions>
-    <flowDefinitions>
         <flows/>
         <fullName>AAREG_removeAccessToDistribution</fullName>
     </flowDefinitions>
@@ -559,20 +539,6 @@
             </screens>
         </flows>
         <fullName>AAREG_updateDeadlineDate</fullName>
-    </flowDefinitions>
-    <flowDefinitions>
-        <flows>
-            <textTemplates>
-                <name>ApprovedDecisionText</name>
-            </textTemplates>
-            <textTemplates>
-                <name>DeclinedDecisionText</name>
-            </textTemplates>
-            <textTemplates>
-                <name>PartiallyApprovedDecisionText</name>
-            </textTemplates>
-        </flows>
-        <fullName>AAREG_updateDecisionText</fullName>
     </flowDefinitions>
     <flowDefinitions>
         <flows/>
