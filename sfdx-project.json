@@ -4,7 +4,6 @@
             "path": "force-app",
             "default": true,
             "package": "crm-arbeidsforhold",
-            "versionName": "ver 0.1",
             "versionNumber": "0.299.0.NEXT",
             "dependencies": [
                 {
