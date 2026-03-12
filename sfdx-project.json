@@ -1,9 +1,13 @@
 {
     "packageDirectories": [
         {
-            "path": "force-app",
+            "path": "src-temp",
             "default": true,
+        },
+        {
+            "path": "force-app",
             "package": "crm-arbeidsforhold",
+            "versionName": "ver 0.1",
             "versionNumber": "0.299.0.NEXT",
             "dependencies": [
                 {
