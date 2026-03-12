@@ -3,7 +3,6 @@
         {
             "path": "src-temp",
             "default": true,
-            "versionNumber": "null.1"
         },
         {
             "path": "force-app",
