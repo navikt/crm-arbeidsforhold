@@ -12,7 +12,7 @@
             "dependencies": [
                 {
                     "package": "platform-data-model",
-                    "versionNumber": "0.1.2.LATEST"
+                    "versionNumber": "0.1.41.LATEST"
                 },
                 {
                     "package": "custom-metadata-dao",
@@ -76,7 +76,7 @@
                 },
                 {
                     "package": "crm-platform-oppgave",
-                    "versionNumber": "0.70.0.LATEST"
+                    "versionNumber": "0.72.0.LATEST"
                 },
                 {
                     "package": "crm-henvendelse",
