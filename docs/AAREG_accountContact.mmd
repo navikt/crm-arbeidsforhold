@@ -1,0 +1,16 @@
+---
+title: Account Contact
+config:
+    look: classic
+    layout: dagre
+    theme: forest
+    flowchart:
+        curve: basis
+
+---
+graph LR
+    A[Contact login] --> B[Submit application]
+    B --> C[Create application]
+    C --> D{Does contact exist?}
+    D -- YES --> E[Use existing contact]
+    D -- NO --> F[Create new contact]
