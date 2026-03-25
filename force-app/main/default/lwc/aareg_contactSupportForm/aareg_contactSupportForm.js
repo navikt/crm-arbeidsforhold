@@ -1,25 +1,47 @@
+// Import core LWC modules and Salesforce utilities
 import { LightningElement, track, wire } from 'lwc';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
+
+// Import metadata APIs for object and picklist handling
 import { getObjectInfo, getPicklistValues } from 'lightning/uiObjectInfoApi';
+
+// Import schema definitions
 import INQUIRY_OBJECT from '@salesforce/schema/Inquiry__c';
 import TYPE_FIELD from '@salesforce/schema/Inquiry__c.TypeOfInquiry__c';
+
+// Get current logged-in user Id
 import Id from '@salesforce/user/Id';
+
+// Import Apex methods for server-side operations
 import getUsersApplications from '@salesforce/apex/AAREG_MyApplicationsController.getUsersApplications';
 import createThreadForApplication from '@salesforce/apex/AAREG_contactSupportController.createThreadForApplication';
 import createNewInquiry from '@salesforce/apex/AAREG_contactSupportController.createNewInquiry';
 import { validateEmail } from 'c/aareg_helperClass';
 
 export default class Aareg_contactSupportForm extends NavigationMixin(LightningElement) {
+  // Reactive state for inquiry form
   @track inquiry;
+  // Reactive state for picklist options and user interactions
   @track inquiryTypeOptions;
+
+  // Selected application ID for linking inquiries to existing applications, if applicable
   selectedApplicationId;
+
+  // UI state management
   isSubmitted;
   isReadingFiles = false;
+
+  // Store existing applications to determine if user has open applications and to link inquiries to them
   existingApplications = [];
   isLoading = false;
+
+  // Current Logged-in User ID for associating inquiries and threads with the correct user/contact
   currentUser = Id;
-  // File upload state (mirrors aareg_application)
+
+  // Store pending files to be uploaded with the inquiry. Each file will have a unique ID, name, and base64 content for processing before submission.
   pendingFiles = [];
+
+  // Breadcrumbs for navigation, dynamically updated based on the user's navigation path to provide context and easy navigation back to relevant pages
   breadcrumbs = [
     {
       label: 'Min side',
@@ -31,15 +53,18 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     }
   ];
 
+  // Get the current page reference to determine navigation context and adjust breadcrumbs accordingly, enhancing user experience by 
+  // providing relevant navigation options based on how they accessed the form
   @wire(CurrentPageReference)
     currentPageReference;
 
+  // Lifecycle hook to initialize component state and set up breadcrumbs based on navigation context
   connectedCallback() {
     this.inquiry = {
       TypeOfInquiry__c: null,
       InquiryDescription__c: null
     };
-    if (this.currentPageReference.state.c__fromPage === 'myThreads') {
+    if (this.currentPageReference?.state?.c__fromPage === 'myThreads') {
       this.breadcrumbs = [
         {
           label: 'Min side',
@@ -57,6 +82,10 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     }
   }
 
+  // Fetch the user's applications to determine if they have any open applications that can be linked to the inquiry. 
+  // This allows users to easily associate their support requests with relevant applications, providing context for support agents 
+  // and streamlining the support process. The data is filtered to exclude draft applications, ensuring that only active or 
+  // submitted applications are available for linking.
   @wire(getUsersApplications, { userId: '$currentUser' })
   applications(result) {
     if (result.data) {
@@ -72,9 +101,12 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     }
   }
 
+  // Fetch object metadata to get the default record type ID, then fetch picklist values for the 
+  // TypeOfInquiry__c field to populate the inquiry type options in the form.
   @wire(getObjectInfo, { objectApiName: INQUIRY_OBJECT })
   inquiryObjectInfo;
 
+  // Fetch picklist values for the TypeOfInquiry__c field based on the default record type ID obtained from the object metadata.
   @wire(getPicklistValues, { recordTypeId: '$inquiryObjectInfo.data.defaultRecordTypeId', fieldApiName: TYPE_FIELD })
   typePicklistValues({ data, error }) {
     if (data) {
@@ -84,23 +116,32 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     }
   }
 
+  // Handle input changes for form fields and update the inquiry state accordingly. This method uses the data-id attribute on 
+  // input fields to determine which field is being updated, allowing for a generic handler that can 
+  // manage multiple fields without needing separate handlers for each one.
   handleInputChange(event) {
     this.inquiry[event.target.dataset.id] = event.target.value;
   }
 
+  // Handle changes to the related application selection, updating the selectedApplicationId state. This allows the form to 
+  // keep track of which application, if any, the user has chosen to link their inquiry to, providing context for support 
+  // agents when they review the inquiry.
   handleRelatedApplicationChange(event) {
     this.selectedApplicationId = event.target.value;
   }
 
+  // Handle form submission, including form and files validation, file processing, and calling the appropriate 
+  // Apex methods to create threads or inquiries.
   handleSubmit(event) {
-//    console.log('🚀 SUBMIT pendingFiles:', JSON.stringify(this.pendingFiles));
     if (this.isReadingFiles) {
-    console.warn('⏳ Files are still loading, please wait');
-    this.isLoading = false;
-    return;
-  }
+      console.warn('⏳ Files are still loading, please wait');
+      this.isLoading = false;
+      return;
+    }
     event.preventDefault();
     this.isLoading = true;
+
+    // Reset any previous error states before validating the form to ensure that users receive accurate feedback based on their current input.
     this.resetErrors();
 
     const form = this.template.querySelector('form');
@@ -110,23 +151,27 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
       invalidInputs.forEach((element) => {
         this.setErrorFor(element, 'Obligatorisk');
       });
-      // Email validation
+      // If email field is invalid, set specific error message for email format. This provides users with clear guidance on how to correct 
+      // their input, improving the user experience and increasing the likelihood of successful form submission.
       const emailInput = this.template.querySelector('input[data-id="Email__c"]');
-      if (emailInput && validateEmail(emailInput.value)) {
+      if (emailInput && !validateEmail(emailInput.value)) {
         this.setErrorFor(emailInput, 'E-post må være gyldig format.');
       }
       this.isLoading = false;
       return;
     }
+
+    // Scroll to top of the page to ensure that users see any validation errors or success messages that are displayed after form submission, 
+    // improving the user experience by providing immediate feedback in a visible area of the page.
     window.scrollTo(0, 0);
 
+    // Validate that all pending files have been fully processed and contain base64 content before allowing form submission to proceed.
     if (this.pendingFiles.some(f => !f.base64)) {
       console.error('❌ Some files missing base64:', this.pendingFiles);
       this.isLoading = false;
       return;
     }
 
-    console.log('pendingFiles which will be sent:', JSON.stringify(this.pendingFiles));
     // Prepare files for submission
     const filesToSend = this.pendingFiles.map(f => ({
       base64: f.base64,
@@ -141,6 +186,12 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
         filesCount: filesToSend.length
       });
 
+      // If the inquiry is regarding an application in process, create a new thread linked to that application. This allows users to 
+      // easily associate their support requests with relevant applications, providing context for support agents and streamlining the support process. 
+      // The method also handles file attachments by sending the base64 content and filenames to the server, where they can be processed and linked to the appropriate records.
+      // Conditional submission:
+      //   - If related to application → create thread
+      //   - Else → create new inquiry
       createThreadForApplication({
         userId: this.currentUser,
         relatedApplicationId: this.selectedApplicationId,
@@ -159,32 +210,21 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
           this.isLoading = false;
         });
     } else {
-      console.log('FilesToSend which will be sent:', JSON.stringify(filesToSend));
-
-      // Logging for debugging - can be removed later
-      console.log('Making API Call 1', {
-        userId: this.currentUser,
-        inquiry: this.inquiry,
-        files: filesToSend
-      });
-
-      createNewInquiry({
-        userId: this.currentUser,
-        inquiry: this.inquiry,
-        files: filesToSend
-      })
-        .then(() => {
+        try {
+          createNewInquiry({userId: this.currentUser, inquiry: this.inquiry, files: filesToSend})
           this.isSubmitted = true;
-        })
-        .catch((error) => {
+        } catch (error) {
           console.error(error);
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
+        } finally {
+            this.isLoading = false;
+        }
     }
-  }
+  } 
 
+  /**
+   * Displays error message under input field
+   */
+  /*
   setErrorFor(inputField, message) {
     this.hasErrors = true;
     let formControl = inputField.parentElement;
@@ -192,7 +232,11 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     small.innerText = message;
     formControl.className = 'form-control error';
   }
+  */
 
+  /**
+   * Clears all error styles from form
+   */
   resetErrors() {
     let formControl = this.template.querySelectorAll('.form-control');
     formControl.forEach((element) => {
@@ -200,78 +244,93 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     });
   }
 
+  // Getter to determine if the inquiry is regarding an application that is currently in process, based on the selected inquiry type. This allows the form to
+  // conditionally render certain fields or adjust the submission logic based on whether the inquiry is related to an active application, providing a more 
+  // tailored user experience and ensuring that inquiries are properly categorized and linked to relevant records in the system.
   get regardingApplicationInProcess() {
     return this.inquiry.TypeOfInquiry__c === 'Søknad under behandling';
   }
 
   // Accept standard formats and common document types, but exclude executables for security reasons
+  // TODO: Consider adding or deleting  formats based on user feedback, but always balance with security implications
   get acceptedFileFormats() {
     return ['.pdf', '.docx', '.xlsx', '.pptx', '.png', '.jpg', '.jpeg', '.txt', '.csv', '.zip'];
   }
 
+  /**
+  * Handles file uploads:
+  * - Validates size and count
+  * - Converts files to base64
+  */
   onFileUpload(event) {
-    const files = Array.from(event.target.files || []);
+  const files = Array.from(event.target.files || []);
 
-    if (files.length === 0) {
-      return;
-    }
+  if (files.length === 0) {
+    return;
+  }
 
-    // Validate total size (max 25MB) and count (max 5)
-    const totalSize = files.reduce((sum, f) => sum + (f.size || 0), 0);
-    if (totalSize > 25 * 1024 * 1024) {
-      this.setErrorFor(this.template.querySelector('[data-id="file-upload"]'), 'Total størrelse på filer kan ikke overstige 25 MB.');
-      return;
-    }
-    if (files.length > 5) {
-      this.setErrorFor(this.template.querySelector('[data-id="file-upload"]'), 'Du kan maks laste opp 5 filer.');
-      return;
-    }
+  // Validate total size (max 2.5MB) and count (max 10). APEX has limits on heap size (which is 4 MB), so we need to ensure we don't exceed those with large file uploads.
+  // After testing it is concluded that the limit is 2.5MB total size.
+  // TODO: Consider changing limits based on user feedback and system performance, but ensure users can upload necessary documentation without overwhelming the system
+  const totalSize = files.reduce((sum, f) => sum + (f.size || 0), 0);
+  if (totalSize > 2.5 * 1024 * 1024) {
+    this.setErrorFor(this.template.querySelector('[data-id="file-upload"]'), 'Total størrelse på filer kan ikke overstige 2,5 MB.');
+    return;
+  }
+  // Validate file count (max 10)
+  if (files.length > 10) {
+    this.setErrorFor(this.template.querySelector('[data-id="file-upload"]'), 'Du kan maks laste opp 10 filer.');
+    return;
+  }
 
-    this.isReadingFiles = true;
+  this.isReadingFiles = true;
 
-    const filePromises = files.map(file => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
+  const filePromises = files.map(file => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
 
-        reader.onload = () => {
-          const result = reader.result;
+      reader.onload = () => {
+        const result = reader.result;
 
-          if (!result || !result.includes(',')) {
-            reject('Invalid file data');
-            return;
-          }
+        if (!result || !result.includes(',')) {
+          reject('Invalid file data');
+          return;
+        }
 
-          const base64 = result.split(',')[1];
+        const base64 = result.split(',')[1];
 
-          resolve({
-            id: Date.now() + Math.random(),
-            name: file.name,
-            base64: base64
-          });
-        };
+        resolve({
+          id: crypto.randomUUID(),
+          name: file.name,
+          base64: base64
+        });
+      };
 
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
     });
+  });
 
-    Promise.all(filePromises)
-      .then(results => {
-        this.pendingFiles = [...this.pendingFiles, ...results];
+  Promise.all(filePromises)
+    .then(results => {
+      this.pendingFiles = [...this.pendingFiles, ...results];
 
-        console.debug('✅ Files fully loaded:', this.pendingFiles);
-      })
-      .catch(error => {
-        console.error('❌ File read error:', error);
-      })
-      .finally(() => {
-        this.isReadingFiles = false;
-      });
+      console.debug('✅ Files fully loaded:', this.pendingFiles);
+    })
+    .catch(error => {
+      console.error('❌ File read error:', error);
+    })
+    .finally(() => {
+      this.isReadingFiles = false;
+    });
 
     // Clear the input so same file can be selected again
     event.target.value = '';
   }
 
+  // Remove a pending file from the list based on its unique ID. This allows users to manage their file attachments before submitting the form, 
+  // giving them control over which files are included with their inquiry and ensuring that they can easily correct any mistakes or changes 
+  // in their file selection.
   removePendingFile(event) {
     const fileId = event.currentTarget.name;
     this.pendingFiles = this.pendingFiles.filter(f => f.id != fileId);
@@ -284,6 +343,10 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   get inquirySubmitted() {
     return this.isSubmitted;
   }
+
+  /**
+  * Navigate to "My Messages" page
+  */
 
   navigateToMyMessages() {
     this[NavigationMixin.Navigate]({

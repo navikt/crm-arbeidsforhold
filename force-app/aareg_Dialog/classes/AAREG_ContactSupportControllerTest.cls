@@ -1,8 +1,21 @@
+/**
+ * This is a test class for the AAREG_contactSupportController, which handles the creation of support threads and 
+ * inquiries in the AAREG Dialog application. The test class includes methods to verify the correct creation of 
+ * threads and inquiries, as well as the handling of file attachments and the association of threads with the correct records.
+ * <br><br>
+ * 
+ * @since Februar 2026
+ * @group AAREG Utility
+ */
 @isTest
 public class AAREG_ContactSupportControllerTest {
   
+  /** Test method to verify the creation of a thread for a given application and the correct association of 
+   * the thread with the application. It also checks that the initial message is created and that the 
+   * thread has the correct number of unread messages.
+   */
   @isTest
-  static void createThreadForApplication() {
+  static void whenApplicationIsProvided_ThenThreadIsCreatedForApplication() {
       
     User usr;
     User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
@@ -34,8 +47,13 @@ public class AAREG_ContactSupportControllerTest {
     System.assertEquals(1, threads[0].CRM_Number_of_unread_Messages__c, '1 unread message for the thread');
     System.assertEquals(testApplication.Id, threads[0].CRM_Related_Object__c, 'Thread is related to the application');
   }
+
+  /** Test method to verify that a thread is created with the correct subject and description 
+   * when a new inquiry is created without file attachments. It checks that the thread is associated with the 
+   * created inquiry and that the initial message content matches the inquiry description.
+   */
   @isTest
-  static void testCheckObjectTypeName_PositiveScenario() {
+  static void whenApplicationIsProvided_ThenThreadIsCreatedWithCRMAccount() {
       
       User testUser;
       User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
@@ -66,8 +84,11 @@ public class AAREG_ContactSupportControllerTest {
       System.Assert.isNotNull(updatedThread.CRM_Account__c, 'CRM_Account__c should be updated.');
   }
   
+  /** Test method to verify that the getThreadRecordTypeId method in the AAREG_Utility class returns a valid 
+   * RecordType Id when the custom metadata is properly set up. 
+   * It mocks the custom metadata to return a specific RecordType name and checks that the returned Id is not null. */ 
   @isTest
-  static void testCheckObjectTypeName_EmptyList() {
+  static void WhenMethodcheckObjectTypeNameche_CalledWithEmptyList_ThenNoExceptionThrown() {
       // Call the method with an empty list
       System.Test.startTest();
       AAREG_checkObjectTypeNameche.CheckObjectTypeName(new List<Id>());
@@ -76,9 +97,16 @@ public class AAREG_ContactSupportControllerTest {
       // Verify that no exceptions were thrown
       System.assert(true, 'Method should handle empty lists without throwing exceptions.');
   }
-    
+  
+  /**
+   * Test method to verify that when a new inquiry is created without file attachments, a thread is created with the correct 
+   * association to the inquiry and that the initial message content matches the inquiry description. It checks that the 
+   * thread has the correct number of unread messages and that it is related to the created inquiry.
+   * This test ensures that the core functionality of creating a thread for an inquiry works as expected when no files are 
+   * involved, which is important for backward compatibility and for users who may not need to attach files to their inquiries.
+   */
   @isTest
-  static void createNewInquiryWithoutFiles() {
+  static void When_NewInquiryIsCreatedWithoutFiles_ThenThreadIsCreated() {
     User usr;
     User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
       System.runAs(thisUser){
@@ -105,8 +133,13 @@ public class AAREG_ContactSupportControllerTest {
 
   }
 
+  /** Test method to verify that when a new inquiry is created with a file attachment, the file is correctly linked to the created Inquiry. 
+   * It checks that a ContentDocumentLink record is created linking the uploaded file to the associatedinquiry. 
+   * This test ensures that the file attachment functionality works as expected and that users can successfully attach files to their inquiries, 
+   * which is crucial for providing necessary documentation or evidence related to their support requests.
+   */
   @isTest
-  static void createNewInquiryWithOneFile() {
+  static void When_NewInquiryIsCreatedWithFile_ThenFileIsLinkedToInquiry() {
     User usr;
     User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
       System.runAs(thisUser){
@@ -129,8 +162,13 @@ public class AAREG_ContactSupportControllerTest {
     System.assertEquals(1, cdls.size(), 'One file should be linked to the inquiry when file provided');
   }
 
+  /** Test method to verify that when a new inquiry is created with a file attachment, the file is correctly linked to the created Inquiry. 
+   * It checks that a ContentDocumentLink record is created linking the uploaded file to the associatedinquiry. 
+   * This test ensures that the file attachment functionality works as expected and that users can successfully attach files to their inquiries, 
+   * which is crucial for providing necessary documentation or evidence related to their support requests.
+   */
   @isTest
-  static void createNewInquiryWithMultipleFiles() {
+  static void When_NewInquiryIsCreatedWithMultipleFiles_ThenFilesAreLinkedToInquiry() {
     User usr;
     User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
       System.runAs(thisUser){
