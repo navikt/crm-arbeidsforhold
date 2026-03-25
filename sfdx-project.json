@@ -12,23 +12,23 @@
             "dependencies": [
                 {
                     "package": "platform-data-model",
-                    "versionNumber": "0.1.2.LATEST"
+                    "versionNumber": "0.1.41.LATEST"
                 },
                 {
                     "package": "custom-metadata-dao",
-                    "versionNumber": "0.1.2.LATEST"
+                    "versionNumber": "0.1.41.LATEST"
                 },
                 {
                     "package": "custom-permission-helper",
-                    "versionNumber": "0.1.2.LATEST"
+                    "versionNumber": "0.1.41.LATEST"
                 },
                 {
                     "package": "feature-toggle",
-                    "versionNumber": "0.1.3.LATEST"
+                    "versionNumber": "0.1.42.LATEST"
                 },
                 {
                     "package": "crm-platform-base",
-                    "versionNumber": "0.295.0.LATEST"
+                    "versionNumber": "0.300.0.LATEST"
                 },
                 {
                     "package": "crm-platform-reporting",
@@ -44,11 +44,11 @@
                 },
                 {
                     "package": "crm-platform-integration",
-                    "versionNumber": "0.167.0.LATEST"
+                    "versionNumber": "0.171.0.LATEST"
                 },
                 {
                     "package": "crm-platform-access-control",
-                    "versionNumber": "0.168.0.LATEST"
+                    "versionNumber": "0.177.0.LATEST"
                 },
                 {
                     "package": "crm-thread-view",
@@ -56,11 +56,11 @@
                 },
                 {
                     "package": "crm-shared-timeline",
-                    "versionNumber": "1.41.0.LATEST"
+                    "versionNumber": "1.44.0.LATEST"
                 },
                 {
                     "package": "crm-community-base",
-                    "versionNumber": "0.139.0.LATEST"
+                    "versionNumber": "0.140.0.LATEST"
                 },
                 {
                     "package": "crm-platform-email-scheduling",
@@ -76,11 +76,11 @@
                 },
                 {
                     "package": "crm-platform-oppgave",
-                    "versionNumber": "0.67.0.LATEST"
+                    "versionNumber": "0.72.0.LATEST"
                 },
                 {
                     "package": "crm-henvendelse",
-                    "versionNumber": "0.195.0.LATEST"
+                    "versionNumber": "0.201.0.LATEST"
                 }
             ]
         }
