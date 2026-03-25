@@ -192,8 +192,8 @@ public class AAREG_ContactSupportControllerTest {
       AAREG_contactSupportController.createNewInquiry(String.valueOf(usr.Id), inquiryWithMultipleFiles, new List<AAREG_contactSupportController.FileData>{file1, file2});
     System.Test.stopTest();
 
-    Thread__c inquiryThreadWithMultipleFiles = [SELECT Id FROM Thread__c WHERE CRM_Related_Object__c = :inquiryWithMultipleFiles.Id LIMIT 1];
-    List<ContentDocumentLink> cdlsMulti = [SELECT Id, LinkedEntityId FROM ContentDocumentLink WHERE LinkedEntityId = :inquiryThreadWithMultipleFiles.Id];
+    Inquiry__c inquiryWithFilesFromDB = [SELECT Id FROM Inquiry__c WHERE Id = :inquiryWithMultipleFiles.Id LIMIT 1];
+    List<ContentDocumentLink> cdlsMulti = [SELECT Id, LinkedEntityId FROM ContentDocumentLink WHERE LinkedEntityId = :inquiryWithFilesFromDB.Id];
     System.assertEquals(2, cdlsMulti.size(), 'Two files should be linked to the inquiry thread when multiple files provided');
   }
 
