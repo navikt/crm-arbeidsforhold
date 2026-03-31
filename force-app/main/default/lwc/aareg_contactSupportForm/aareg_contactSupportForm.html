@@ -125,14 +125,44 @@
                 <small class="pl-16">Error</small>
               </span>
 
-              <!-- SLDS file selector pattern: hidden input + styled label trigger -->
+              <!-- New: Use lightning-file-upload to attach files to a draft Inquiry__c pre-submit -->
+              <lightning-file-upload
+                label="Laste opp filer"
+                name="contactSupportFiles"
+                record-id={draftRecordId}
+                accepted-formats={acceptedFileFormatsArray}
+                multiple
+                onuploadfinished={handleFilesUploaded}>
+              </lightning-file-upload>
+
+              <!-- Show uploaded files returned by lightning-file-upload -->
+              <div if:true={uploadedFiles.length} class="slds-m-top_small">
+                <template for:each={uploadedFiles} for:item="file">
+                  <div key={file.documentId} class="slds-chip slds-m-around_x-small">
+                    <span class="slds-chip__label">{file.name}</span>
+                    <!-- Unlink from draft Inquiry__c -->
+                    <lightning-button-icon
+                      icon-name="utility:delete"
+                      alternative-text="Fjern fil"
+                      title="Fjern fil"
+                      variant="border-filled"
+                      size="small"
+                      class="slds-m-left_x-small"
+                      onclick={handleRemoveUploadedFile}
+                      data-docid={file.documentId}>
+                    </lightning-button-icon>
+                  </div>
+                </template>
+              </div>
+
+              <!-- Legacy custom uploader (commented out for rollback) -->
+              <!--
               <div class="data-element-container">
                 <div class="file-container">
                   <div class="slds-form-element">
                     <div class="slds-form-element__control">
                       <div class="slds-file-selector slds-file-selector_files">
                         <div>
-                          <!-- Hidden native file input; validated and parsed in onFileUpload -->
                           <input
                             type="file"
                             onchange={onFileUpload}
@@ -144,13 +174,11 @@
                             aria-labelledby="file-selector-primary-label file-selector-secondary-label"
                             multiple
                           />
-                          <!-- Visible control bound to input via for/id -->
                           <label
                             class="slds-file-selector__body"
                             for="file-upload-input-contactsupport-01"
                             id="file-selector-secondary-label"
                           >
-                            <!-- Decorative upload icon; inherits text color -->
                             <span class="button button-standard">
                               <svg
                                 width="1em"
@@ -169,7 +197,6 @@
                               </svg>
                               Laste opp filer
                             </span>
-                            <!-- Drag-and-drop hint for medium+ screens -->
                             <span class="slds-file-selector__text slds-medium-show dropzone-label"
                               >Eller slipp filene her</span
                             >
@@ -178,12 +205,10 @@
                       </div>
                     </div>
                   </div>
-                  <!-- Render pending file "chips" with delete action per item -->
                   <div if:true={pendingFiles.length} class="slds-m-top_small">
                     <template for:each={pendingFiles} for:item="file">
                       <div key={file.id} class="slds-chip slds-m-around_x-small">
                         <span class="slds-chip__label">{file.name}</span>
-                        <!-- RemovePendingFile receives file id via name attribute -->
                         <lightning-button-icon
                           icon-name="utility:delete"
                           alternative-text="Fjern fil"
@@ -199,6 +224,7 @@
                   </div>
                 </div>
               </div>
+              -->
             </div>
 
             <!-- Submit action; disabled while files are being read -->

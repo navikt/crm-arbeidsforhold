@@ -5,7 +5,7 @@
  * <br><br>
  * 
  * @since Februar 2026
- * @group AAREG Utility
+ * @group AAREG DIALOG
  */
 @isTest
 public class AAREG_ContactSupportControllerTest {

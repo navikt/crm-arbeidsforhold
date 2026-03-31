@@ -12,6 +12,178 @@ public with sharing class AAREG_contactSupportController {
   }
 
   /**
+   * Initialize a draft Inquiry__c to host lightning-file-upload attachments pre-submit.
+   * Returns the Id of the created draft record.
+   */
+  @AuraEnabled
+  public static Id initDraftRecord() {
+    Inquiry__c draft = new Inquiry__c();
+    // Set minimal draft defaults; adjust fields as needed in your org
+    draft.Subject__c = 'Draft - File Uploads';
+    // Set a status field to indicate this is a draft record
+    // If you have a Status field, set Draft here, e.g. draft.Status__c = 'Draft';
+    // Try to set a status field if it exists
+    if (Schema.sObjectType.Inquiry__c.fields.Status__c != null) {
+        draft.Status__c = 'Draft';
+    }
+    Database.SaveResult sr = Database.insert(draft, AccessLevel.USER_MODE);
+    if (!sr.isSuccess()) {
+      throw new AuraHandledException('Could not initialize draft Inquiry__c');
+    }
+    return sr.getId();
+  }
+
+  /**
+   * Completes the final Inquiry__c using an existing draft and metadata from the client.
+   * Returns the final Inquiry__c Id (same as draft if updating in place).
+   */
+  @AuraEnabled
+  public static Id createFinalInquiry(Id draftId, String metadataJson) {
+    if (draftId == null) {
+      throw new AuraHandledException('Missing draftId');
+    }
+    Map<String, Object> meta = (Map<String, Object>) JSON.deserializeUntyped(metadataJson);
+    Inquiry__c rec = [
+      SELECT Id, Subject__c, InquiryDescription__c, Email__c, TypeOfInquiry__c
+      FROM Inquiry__c
+      WHERE Id = :draftId
+      WITH USER_MODE
+      LIMIT 1
+    ];
+
+    // Map provided fields cautiously with limits
+    String subj = (String) meta.get('Subject__c');
+    if (String.isNotBlank(subj)) rec.Subject__c = subj.left(255);
+    String descVal = (String) meta.get('InquiryDescription__c');
+    if (String.isNotBlank(descVal)) rec.InquiryDescription__c = descVal.left(32000);
+    String email = (String) meta.get('Email__c');
+    if (String.isNotBlank(email)) rec.Email__c = email.left(255);
+    String typeOfInquiry = (String) meta.get('TypeOfInquiry__c');
+    if (String.isNotBlank(typeOfInquiry)) rec.TypeOfInquiry__c = typeOfInquiry;
+
+    Database.update(rec, AccessLevel.USER_MODE);
+    return rec.Id;
+  }
+
+  /**
+   * Add ContentDocumentLink from a set of ContentDocuments to a new parent,
+   * and optionally remove links from the old parent.
+   */
+  @AuraEnabled
+  public static void relinkFilesToParent(List<Id> documentIds, Id fromParentId, Id toParentId) {
+    if (toParentId == null || documentIds == null || documentIds.isEmpty() || fromParentId == toParentId) return;
+
+    List<ContentDocumentLink> toInsert = new List<ContentDocumentLink>();
+    for (Id docId : documentIds) {
+      toInsert.add(new ContentDocumentLink(
+        ContentDocumentId = docId,
+        LinkedEntityId = toParentId,
+        ShareType = 'V',
+        Visibility = 'AllUsers'
+      ));
+    }
+    if (!toInsert.isEmpty()) {
+      Database.insert(toInsert, AccessLevel.USER_MODE);
+    }
+
+    if (fromParentId != null) {
+      List<ContentDocumentLink> toDelete = [
+        SELECT Id
+        FROM ContentDocumentLink
+        WHERE ContentDocumentId IN :documentIds AND LinkedEntityId = :fromParentId
+        WITH USER_MODE
+      ];
+      if (!toDelete.isEmpty()) {
+        Database.delete(toDelete, AccessLevel.USER_MODE);
+      }
+    }
+  }
+
+  /**
+   * Update latest ContentVersion Title/Description for given ContentDocuments,
+   * and ensure a link exists to the specified parent.
+   * metadataJson expects keys: subject, description
+   */
+  @AuraEnabled
+  public static void enrichUploadedFiles(List<Id> documentIds, Id recordId, String metadataJson) {
+    if (documentIds == null || documentIds.isEmpty() || recordId == null) return;
+
+    Map<String, Object> meta = (Map<String, Object>) JSON.deserializeUntyped(metadataJson);
+
+    Map<Id, ContentVersion> latestByDocId = new Map<Id, ContentVersion>();
+    for (ContentVersion cv : [
+      SELECT Id, ContentDocumentId, Title, Description
+      FROM ContentVersion
+      WHERE ContentDocumentId IN :documentIds AND IsLatest = true
+      WITH USER_MODE
+    ]) {
+      latestByDocId.put(cv.ContentDocumentId, cv);
+    }
+    /*
+    List<ContentVersion> toUpdate = new List<ContentVersion>();
+    for (Id docId : documentIds) {
+      ContentVersion cv = latestByDocId.get(docId);
+      if (cv == null) continue;
+      String newTitle = (String) meta.get('subject');
+      if (String.isNotBlank(newTitle)) cv.Title = newTitle.left(80);
+      String descVal = (String) meta.get('description');
+      if (String.isNotBlank(descVal)) cv.Description = descVal.left(255);
+      toUpdate.add(cv);
+    }
+    if (!toUpdate.isEmpty()) {
+      // Strip inaccessible fields before DML to avoid FLS errors
+      SObjectAccessDecision dec = Security.stripInaccessible(AccessType.UPDATABLE, toUpdate);
+      List<SObject> sanitized = dec.getRecords();
+      if (!sanitized.isEmpty()) {
+        Database.update((List<ContentVersion>)((List<SObject>)sanitized), AccessLevel.USER_MODE);
+      }
+    }
+    */
+
+    // Ensure link to target parent exists
+    Set<Id> alreadyLinked = new Set<Id>();
+    for (ContentDocumentLink cdl : [
+      SELECT Id, ContentDocumentId
+      FROM ContentDocumentLink
+      WHERE ContentDocumentId IN :documentIds AND LinkedEntityId = :recordId
+      WITH USER_MODE
+    ]) {
+      alreadyLinked.add(cdl.ContentDocumentId);
+    }
+    List<ContentDocumentLink> links = new List<ContentDocumentLink>();
+    for (Id docId : documentIds) {
+      if (!alreadyLinked.contains(docId)) {
+        links.add(new ContentDocumentLink(
+          ContentDocumentId = docId,
+          LinkedEntityId = recordId,
+          ShareType = 'V',
+          Visibility = 'AllUsers'
+        ));
+      }
+    }
+    if (!links.isEmpty()) {
+      Database.insert(links, AccessLevel.USER_MODE);
+    }
+  }
+
+  /**
+   * Unlink a ContentDocument from a parent record (does not delete the document).
+   */
+  @AuraEnabled
+  public static void removeFileLink(Id documentId, Id parentId) {
+    if (documentId == null || parentId == null) return;
+    List<ContentDocumentLink> links = [
+      SELECT Id
+      FROM ContentDocumentLink
+      WHERE ContentDocumentId = :documentId AND LinkedEntityId = :parentId
+      WITH USER_MODE
+    ];
+    if (!links.isEmpty()) {
+      Database.delete(links, AccessLevel.USER_MODE);
+    }
+  }
+
+  /**
    * Creates a new thread for a given application and posts an initial message based on the provided description and subject.
    * This method is designed to be called from the AAREG contact support form when a user submits an inquiry related to a specific application.
    *
@@ -137,10 +309,36 @@ public with sharing class AAREG_contactSupportController {
   private static ContentVersion generateContentVersion(String base64, String filename) {
     ContentVersion cv = new ContentVersion();
     cv.VersionData = EncodingUtil.base64Decode(base64);
-    cv.Title = filename;
-    cv.PathOnClient = filename;
-    insert cv;
-    return cv;
+    // Guard lengths per platform limits
+    String safeName = String.isBlank(filename) ? 'file' : filename;
+    cv.Title = safeName.left(80);
+    cv.PathOnClient = safeName.left(260);
+    // Strip inaccessible fields before insert to respect FLS in addition to USER_MODE
+    List<ContentVersion> toInsert = new List<ContentVersion>{ cv };
+    SObjectAccessDecision dec = Security.stripInaccessible(AccessType.CREATABLE, toInsert);
+    List<SObject> sanitized = dec.getRecords();
+    ContentVersion sanitizedCv = (ContentVersion) sanitized[0];
+
+    // Insert in USER MODE to respect FLS/sharing and avoid inaccessible field DML
+    Database.SaveResult sr = Database.insert(sanitizedCv, AccessLevel.USER_MODE);
+    if (!sr.isSuccess()) {
+      // Surface first error in a handled way for the caller
+      Database.Error err = sr.getErrors().isEmpty() ? null : sr.getErrors()[0];
+      String msg = (err == null) ? 'Failed to insert file' : err.getMessage();
+      throw new AuraHandledException('File upload failed: ' + msg);
+    }
+    // Ensure we return a ContentVersion with Id populated
+    if (sanitizedCv.Id == null) {
+      ContentVersion reloaded = [
+        SELECT Id
+        FROM ContentVersion
+        WHERE Id = :sr.getId()
+        WITH USER_MODE
+        LIMIT 1
+      ];
+      return reloaded;
+    }
+    return sanitizedCv;
   }
 
   /**
@@ -149,13 +347,19 @@ public with sharing class AAREG_contactSupportController {
    * @param contentVersionId The ID of the ContentVersion record that contains the document to be linked.
    */
   private static void generateContentDocumentLink(Id parentId, Id contentVersionId) {
-    ContentVersion version = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :contentVersionId];
+    ContentVersion version = [
+      SELECT ContentDocumentId
+      FROM ContentVersion
+      WHERE Id = :contentVersionId
+      WITH USER_MODE
+      LIMIT 1
+    ];
     ContentDocumentLink cdl = new ContentDocumentLink(
       LinkedEntityId = parentId,
       ContentDocumentId = version.ContentDocumentId,
       ShareType = 'I'
     );
-    insert cdl;
+    Database.insert(cdl, AccessLevel.USER_MODE);
   }
 
   /**
@@ -164,6 +368,6 @@ public with sharing class AAREG_contactSupportController {
    * @return String The ContactId of the current user, or null if the user does not have an associated contact.
    */
   public static string getUserContactId() {
-      return [SELECT Id, ContactId FROM User WHERE Id = :UserInfo.getUserId()]?.ContactId;
+      return [SELECT Id, ContactId FROM User WHERE Id = :UserInfo.getUserId() WITH USER_MODE LIMIT 1]?.ContactId;
   }
 }
