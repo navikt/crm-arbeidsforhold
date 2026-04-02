@@ -1,0 +1,29 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "AccessRequest__c",
+                "referenceId": "AccessRequest__cRef1"
+            }
+        },
+        {
+            "attributes": {
+                "type": "AccessRequest__c",
+                "referenceId": "AccessRequest__cRef2"
+            }
+        },
+        {
+            "attributes": {
+                "type": "AccessRequest__c",
+                "referenceId": "AccessRequest__cRef3"
+            }
+
+        },
+        {
+            "attributes": {
+                "type": "AccessRequest__c",
+                "referenceId": "AccessRequest__cRef4"
+            }
+        }
+    ]
+}

@@ -6,6 +6,7 @@
                 "referenceId": "Application__cRef1"
             },
             "AccountName__c": "PENSJONSKASSE",
+            "Access_Request__c": "@AccessRequest__cRef1",
             "Account__c": "@AccountRef1",
             "ApplicationSubmittedDate__c": "2026-01-15",
             "OrganizationNumber__c": "940415683",
@@ -27,6 +28,7 @@
                 "referenceId": "Application__cRef2"
             },
             "AccountName__c": "KRAFTNETT",
+            "Access_Request__c":"@AccessRequest__cRef2",
             "Account__c": "@AccountRef2",
             "ApplicationSubmittedDate__c": "2026-01-15",
             "OrganizationNumber__c": "923934138",
@@ -49,6 +51,7 @@
             },
             "AccountName__c": "KOMMUNE",
             "Account__c": "@AccountRef3",
+            "Access_Request__c": "@AccessRequest__cRef3",
             "ApplicationSubmittedDate__c": "2026-01-15",
             "OrganizationNumber__c": "921133642",
             "MailingAddress__c": "Storgata 1",
@@ -69,6 +72,7 @@
                 "referenceId": "Application__cRef4"
             },
             "AccountName__c": "FYLKESKOMMUNE",
+            "Access_Request__c": "@AccessRequest__cRef4",
             "Account__c": "@AccountRef4",
             "ApplicationSubmittedDate__c": "2026-01-15",
             "OrganizationNumber__c": "929882989",
