@@ -6,7 +6,7 @@
        "files": ["Account.json"]
     },
     {
-      "sobject": "AccessRequest__c", 
+      "sobject": "Access_Request__c", 
       "saveRefs": true,
       "resolveRefs": false,
       "files": ["AccessRequest.json"]

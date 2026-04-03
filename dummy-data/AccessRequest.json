@@ -2,27 +2,27 @@
     "records": [
         {
             "attributes": {
-                "type": "AccessRequest__c",
-                "referenceId": "AccessRequest__cRef1"
+                "type": "Access_Request__c",
+                "referenceId": "Access_Request__cRef1"
             }
         },
         {
             "attributes": {
-                "type": "AccessRequest__c",
-                "referenceId": "AccessRequest__cRef2"
+                "type": "Access_Request__c",
+                "referenceId": "Access_Request__cRef2"
             }
         },
         {
             "attributes": {
-                "type": "AccessRequest__c",
-                "referenceId": "AccessRequest__cRef3"
+                "type": "Access_Request__c",
+                "referenceId": "Access_Request__cRef3"
             }
 
         },
         {
             "attributes": {
-                "type": "AccessRequest__c",
-                "referenceId": "AccessRequest__cRef4"
+                "type": "Access_Request__c",
+                "referenceId": "Access_Request__cRef4"
             }
         }
     ]
