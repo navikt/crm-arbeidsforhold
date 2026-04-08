@@ -270,4 +270,3 @@ jobs:
     secrets:
       SIT_AUTH_URL: ${{ secrets.SIT_AUTH_URL }}
       PACKAGE_KEY: ${{ secrets.PACKAGE_KEY }}
-
