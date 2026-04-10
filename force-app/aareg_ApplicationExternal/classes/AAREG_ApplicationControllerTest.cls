@@ -10,9 +10,9 @@ private class AAREG_ApplicationControllerTest {
 
     @isTest
     private static void getAccountNameByOrgNumber() {
-        Test.startTest();
+        System.Test.startTest();
         String accountName = AAREG_ApplicationController.getAccountNameByOrgNumber('929882989');
-        Test.stopTest();
+        System.Test.stopTest();
         System.Assert.areEqual('Fylke', accountName, 'Assert that correct account name is returned');
     }
     
@@ -35,7 +35,7 @@ private class AAREG_ApplicationControllerTest {
         String base64 = 'sdkldsfjlcm';
         String fileName = 'Test file name';
         
-        Test.startTest();
+        System.Test.startTest();
         Id processedApplicationId = AAREG_ApplicationController.processApplication(
             application,
             basisCodes,
@@ -56,7 +56,7 @@ private class AAREG_ApplicationControllerTest {
             FROM ContentDocumentLink
             WHERE LinkedEntityId = :processedApplications[0].Id
         ];
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.Assert.areEqual(1, processedApplications.size(), 'Check only one application was inserted');
         System.Assert.areEqual(2, processedContacts.size(), 'Check that both contacts were inserted');
@@ -85,7 +85,7 @@ private class AAREG_ApplicationControllerTest {
         String base64 = null;
         String fileName = null;
         
-        Test.startTest();
+        System.Test.startTest();
         AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
         List<Application__c> processedApplications = [SELECT Id, Status__c, Casehandler_Status__c FROM Application__c];
         List<RelatedContact__c> processedContacts = [SELECT Id, Name, Application__c FROM RelatedContact__c];
@@ -95,12 +95,12 @@ private class AAREG_ApplicationControllerTest {
             FROM ContentDocumentLink
             WHERE LinkedEntityId = :processedApplications[0].Id
         ];
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.Assert.areEqual(1, processedApplications.size(), 'Check only one application was upserted');
         System.Assert.areEqual(2, processedContacts.size(), 'Check that both contacts were upserted');
         System.Assert.areEqual(2, processedBasisCodes.size(), 'Check that both Application Basis Codes were upserted');
-       System.Assert.areEqual('In Progress', processedApplications[0].Status__c, 'Correct application status');
+        System.Assert.areEqual('In Progress', processedApplications[0].Status__c, 'Correct application status');
         System.Assert.areEqual(
             'In Progress',
             processedApplications[0].Casehandler_Status__c,
@@ -129,9 +129,9 @@ private class AAREG_ApplicationControllerTest {
 
         insert user;
 
-        Test.startTest();
+        System.Test.startTest();
         Account lastUsedOrganization = AAREG_ApplicationController.getLastUsedOrganizationInformation(user.id);
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.Assert.areEqual(lastUsedOrganization.name, 'Fylke', 'Assert that the correct account name is returned.');
     }
@@ -157,11 +157,11 @@ private class AAREG_ApplicationControllerTest {
         basisCodes.add(new ApplicationBasisCode__c(application__c = application.Id));
         insert basisCodes;
 
-        Test.startTest();
+        System.Test.startTest();
         AAREG_ApplicationController.DraftApplication draft = AAREG_ApplicationController.getDraftApplication(
             application.Id
         );
-        Test.stopTest();
+        System.Test.stopTest();
         System.Assert.areEqual(application.Id, draft.application.Id, 'Draft application retrieved');
         System.Assert.areEqual(2, draft.basisCodes.size(), '2 draft basis codes retrieved');
         System.Assert.areEqual(2, draft.contacts.size(), '2 draft related contacts retrieved');
@@ -174,9 +174,9 @@ private class AAREG_ApplicationControllerTest {
         Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
         insert application;
 
-        Test.startTest();
+        System.Test.startTest();
         AAREG_ApplicationController.deleteDraftRecord(application);
-        Test.stopTest();
+        System.Test.stopTest();
 
         List<Application__c> applications = [SELECT Id FROM Application__c];
 
@@ -202,7 +202,7 @@ private class AAREG_ApplicationControllerTest {
         String base64 = null;
         String fileName = null;
 
-        Test.startTest();
+        System.Test.startTest();
         AAREG_ApplicationController.saveAsDraft(application, basisCodes, contacts, base64, fileName);
         Application__c processedApplication = [SELECT Id, Status__c FROM Application__c LIMIT 1];
         List<RelatedContact__c> processedContacts = [
@@ -215,7 +215,7 @@ private class AAREG_ApplicationControllerTest {
             FROM ApplicationBasisCode__c
             WHERE Application__c = :processedApplication.Id
         ];
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.Assert.areEqual(2, processedContacts.size(), 'Check that both contacts were inserted');
         System.Assert.areEqual(2, processedBasisCodes.size(), 'Check that both Application Basis Codes were inserted');

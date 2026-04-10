@@ -41,7 +41,22 @@ public without sharing class AAREG_ApplicationController {
 
   @AuraEnabled
   public static DraftApplication getDraftApplication(String recordId) {
-    return new DraftApplication(getApplication(recordId), getBasisCodes(recordId), getRelatedContacts(recordId));
+    return new DraftApplication(
+      getApplication(recordId),
+      getAccessRequest(recordId),
+      getBasisCodes(recordId),
+      getRelatedContacts(recordId)
+    );
+  }
+
+  private static Access_Request__c getAccessRequest(Id applicationId) {
+    Application__c app = [
+      SELECT Access_Request__c FROM Application__c WHERE Id = :applicationId LIMIT 1
+    ];
+    if (app.Access_Request__c != null) {
+      return [SELECT Id FROM Access_Request__c WHERE Id = :app.Access_Request__c LIMIT 1];
+    }
+    return null;
   }
 
   @AuraEnabled
@@ -56,6 +71,19 @@ public without sharing class AAREG_ApplicationController {
       application.Status__c = DRAFT_APPLICATION;
     }
 
+      // If application already exists, check for existing Access Request
+      if (application.Id != null && application.Access_Request__c == null) {
+        Application__c existing = [
+          SELECT Access_Request__c 
+          FROM Application__c 
+          WHERE Id = :application.Id 
+          LIMIT 1
+        ];
+        application.Access_Request__c = existing.Access_Request__c;
+      }
+
+      Id accessRequestId = upsertAccessRequest(application.Access_Request__c);
+      application.Access_Request__c = accessRequestId;
       upsert application;
       upsertRelatedContacts(application.Id, relatedContacts);
       upsertBasisCodes(application.Id, basisCode);
@@ -78,6 +106,19 @@ public without sharing class AAREG_ApplicationController {
       application.AA_ApplicationArchived__c = false;
     }
 
+      // If application already exists, check for existing Access Request
+      if (application.Id != null && application.Access_Request__c == null) {
+        Application__c existing = [
+          SELECT Access_Request__c 
+          FROM Application__c 
+          WHERE Id = :application.Id 
+          LIMIT 1
+        ];
+        application.Access_Request__c = existing.Access_Request__c;
+      }
+
+      Id accessRequestId = upsertAccessRequest(application.Access_Request__c);
+      application.Access_Request__c = accessRequestId;
       upsert application;
       upsertRelatedContacts(application.Id, relatedContacts);
       upsertBasisCodes(application.Id, basisCode);
@@ -88,6 +129,17 @@ public without sharing class AAREG_ApplicationController {
   @AuraEnabled
   public static void deleteDraftRecord(SObject record) {
       delete record;
+  }
+
+  private static Id upsertAccessRequest(Id accessRequestId) {
+    Access_Request__c accessRequest;
+    if (accessRequestId != null) {
+      accessRequest = [SELECT Id FROM Access_Request__c WHERE Id = :accessRequestId];
+    } else {
+      accessRequest = new Access_Request__c();
+    }
+    upsert accessRequest;
+    return accessRequest.Id;
   }
 
   private static void upsertRelatedContacts(Id applicationId, List<RelatedContact__c> relatedContacts) {
@@ -141,6 +193,7 @@ public without sharing class AAREG_ApplicationController {
         AA_changesInApplication__c, 
         AA_changeApplicationText__c,
         AA_isPortalUserEditable__c,
+        Access_Request__c,
         Email__c,
         Status__c,
         DataProcessorName__c,
@@ -194,6 +247,8 @@ public without sharing class AAREG_ApplicationController {
 
   public class DraftApplication {
     @AuraEnabled
+    public Access_Request__c accessRequest;
+    @AuraEnabled
     public Application__c application;
     @AuraEnabled
     public List<ApplicationBasisCode__c> basisCodes;
@@ -202,10 +257,12 @@ public without sharing class AAREG_ApplicationController {
 
     public DraftApplication(
       Application__c application,
+      Access_Request__c accessRequest,
       List<ApplicationBasisCode__c> basisCodes,
       List<RelatedContact__c> contacts
     ) {
       this.application = application;
+      this.accessRequest = accessRequest;
       this.basisCodes = basisCodes;
       this.contacts = contacts;
     }

@@ -6,6 +6,12 @@
        "files": ["Account.json"]
     },
     {
+      "sobject": "Access_Request__c", 
+      "saveRefs": true,
+      "resolveRefs": false,
+      "files": ["AccessRequest.json"]
+    },
+    {
        "sobject": "Application__c", 
        "saveRefs": true,
        "resolveRefs": false,
