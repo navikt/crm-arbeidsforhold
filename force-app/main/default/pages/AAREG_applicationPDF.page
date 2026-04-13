@@ -1,0 +1,94 @@
+<apex:page controller="AAREG_ApplicationPDFFileService"
+           renderAs="pdf"
+           applyBodyTag="false"
+           showHeader="false"
+           standardStylesheets="false">
+    <head>
+        <style>
+            body { font-family: Arial, sans-serif; font-size: 12px; }
+            h1 { font-size: 18px; border-bottom: 2px solid #333; padding-bottom: 5px; }
+            h2 { font-size: 14px; background-color: #f0f0f0; padding: 5px; margin-top: 15px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+            th { text-align: left; padding: 5px; width: 30%; vertical-align: top; color: #555; }
+            td { padding: 5px; }
+            .contact-table th, .contact-table td { border: 1px solid #ddd; text-align: center; width: auto; }
+            .contact-table th { background-color: #f0f0f0; color: #333; }
+            .checkbox { font-size: 14px; }
+
+            /* Header/logo positioning for PDF */
+            .page-header { position: relative; height: 60px; margin-bottom: 8px; }
+            .nav-logo { position: absolute; top: 0; right: 0; width: 120px; height: auto; }
+        </style>
+    </head>
+    <body>
+        <div class="page-header">
+            <apex:image url="{!$Resource.logo}" styleClass="nav-logo" alt="NAV" />
+        </div>
+        <apex:repeat value="{!application}" var="app">
+            <h1>Søknad - {!app.SoknadsNavn}</h1>
+
+            <h2>Søker</h2>
+            <table>
+                <tr><th>Søker</th><td>{!app.KonsumentNavn}</td></tr>
+                <tr><th>Adresse</th><td>{!app.KonsumentAdresse}</td></tr>
+                <tr><th>Postnummer</th><td>{!app.KonsumentPostnummer}</td></tr>
+                <tr><th>Poststed</th><td>{!app.KonsumentPoststed}</td></tr>
+                <tr><th>Organisasjonsnummer</th><td>{!app.KonsumentOrganisasjonsnummer}</td></tr>
+                <tr><th>E-post</th><td>{!app.KonsumentEpost}</td></tr>
+                <tr><th>Organisasjonstype</th><td>{!app.OrganisasjonsType}</td></tr>
+            </table>
+
+            <h2>Behandlingsgrunnlag</h2>
+            <apex:repeat value="{!basisCodes}" var="code">
+                <table>
+                    <tr><th>Hjemmel</th><td>{!code.Hjemmel}</td></tr>
+                    <tr><th>Formål</th><td>{!code.Formaal}</td></tr>
+                    <tr><th>Behandlingsgrunnlag</th><td>{!code.Behandlingsgrunnlag}</td></tr>
+                    <tr><th>API</th><td><apex:outputText value="{!IF(code.APITilgang, '☑', '☐')}" styleClass="checkbox"/></td></tr>
+                    <tr><th>Uttrekk</th><td><apex:outputText value="{!IF(code.Uttrekk, '☑', '☐')}" styleClass="checkbox"/></td></tr>
+                    <tr><th>Web</th><td><apex:outputText value="{!IF(code.WebTilgang, '☑', '☐')}" styleClass="checkbox"/></td></tr>
+                </table>
+            </apex:repeat>
+
+
+            <h2>Databehandler</h2>
+            <table>
+                <tr><th>Databehandler</th><td>{!app.DatabehandlerNavn}</td></tr>
+                <tr><th>Organisasjonsnummer</th><td>{!app.DatabehandlerOrganisasjonsnummer}</td></tr>
+            </table>
+
+            <h2>Bruksvilkår</h2>
+            <table>
+                <tr><th>Bruksvilkår</th><td><apex:outputText value="{!IF(app.Vilkaar, '☑', '☐')}" styleClass="checkbox"/></td></tr>
+            </table>
+        </apex:repeat>
+
+        <h2>Kontaktpersoner</h2>
+        <table class="contact-table">
+            <thead>
+                <tr>
+                    <th>Navn</th>
+                    <th>E-post</th>
+                    <th>Telefon</th>
+                    <th>Avtale</th>
+                    <th>Endringer</th>
+                    <th>Feil</th>
+                    <th>Sikkerhet</th>
+                </tr>
+            </thead>
+            <tbody>
+                <apex:repeat value="{!relatedContacts}" var="contact">
+                    <tr>
+                        <td>{!contact.KontaktNavn}</td>
+                        <td>{!contact.KontaktEpost}</td>
+                        <td>{!contact.KontaktTelefon}</td>
+                        <td><apex:outputText value="{!IF(contact.AvtaleVarsel, '☑', '☐')}" styleClass="checkbox"/></td>
+                        <td><apex:outputText value="{!IF(contact.EndringsVarsel, '☑', '☐')}" styleClass="checkbox"/></td>
+                        <td><apex:outputText value="{!IF(contact.FeilmeldingsVarsel, '☑', '☐')}" styleClass="checkbox"/></td>
+                        <td><apex:outputText value="{!IF(contact.SikkerhetsVarsel, '☑', '☐')}" styleClass="checkbox"/></td>
+                    </tr>
+                </apex:repeat>
+            </tbody>
+        </table>
+    </body>
+</apex:page>
