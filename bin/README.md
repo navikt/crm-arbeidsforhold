@@ -4,7 +4,10 @@ Windows system
 - Open CMD(Command Prompt) or use terminal in visual studio code
 - Go to your folder where you have your project
 - Run node bin\check-sfdx-versions.js
-- Update sfdx-project.json manually according to latest released version
+- Update sfdx-project.json automatic by pressing YES
+- Backup is saved to sfdx-project.json.backup
+
+![alt text](image.png)
 
 ### Useful CMD(Command Prompt) commands
 
