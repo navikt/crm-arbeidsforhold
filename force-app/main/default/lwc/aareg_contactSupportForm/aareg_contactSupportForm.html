@@ -120,7 +120,7 @@
                 </p>
                 <!-- Display constraints to set expectations -->
                 <p class="pl-16 helper-text">
-                    (Maks 10 filer, totalt maks 2,5 MB. Tillatte filtyper: .pdf, .docx, .xlsx, .pptx, .png, .jpg, .jpeg, .txt, .csv, .zip)
+                    (Totalt maks 2 GB. Tillatte filtyper: .pdf, .docx, .xlsx, .png, .jpg, .jpeg)
                 </p>
                 <small class="pl-16">Error</small>
               </span>
@@ -154,77 +154,6 @@
                   </div>
                 </template>
               </div>
-
-              <!-- Legacy custom uploader (commented out for rollback) -->
-              <!--
-              <div class="data-element-container">
-                <div class="file-container">
-                  <div class="slds-form-element">
-                    <div class="slds-form-element__control">
-                      <div class="slds-file-selector slds-file-selector_files">
-                        <div>
-                          <input
-                            type="file"
-                            onchange={onFileUpload}
-                            name="uploadFile"
-                            accept={acceptedFileFormats}
-                            data-id="file-input"
-                            class="slds-file-selector__input slds-assistive-text"
-                            id="file-upload-input-contactsupport-01"
-                            aria-labelledby="file-selector-primary-label file-selector-secondary-label"
-                            multiple
-                          />
-                          <label
-                            class="slds-file-selector__body"
-                            for="file-upload-input-contactsupport-01"
-                            id="file-selector-secondary-label"
-                          >
-                            <span class="button button-standard">
-                              <svg
-                                width="1em"
-                                height="1em"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                                aria-hidden="true"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  clip-rule="evenodd"
-                                  d="M12 0l7 6.625h-5V16h-4V6.625H5L12 0zm9 18h2v2a4 4 0 01-4 4H5a4 4 0 01-4-4v-2h20z"
-                                  fill="currentColor"
-                                ></path>
-                              </svg>
-                              Laste opp filer
-                            </span>
-                            <span class="slds-file-selector__text slds-medium-show dropzone-label"
-                              >Eller slipp filene her</span
-                            >
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div if:true={pendingFiles.length} class="slds-m-top_small">
-                    <template for:each={pendingFiles} for:item="file">
-                      <div key={file.id} class="slds-chip slds-m-around_x-small">
-                        <span class="slds-chip__label">{file.name}</span>
-                        <lightning-button-icon
-                          icon-name="utility:delete"
-                          alternative-text="Fjern fil"
-                          title="Fjern fil"
-                          variant="border-filled"
-                          size="small"
-                          class="slds-m-left_x-small"
-                          onclick={removePendingFile}
-                          name={file.id}>
-                        </lightning-button-icon>
-                      </div>
-                    </template>
-                  </div>
-                </div>
-              </div>
-              -->
             </div>
 
             <!-- Submit action; disabled while files are being read -->

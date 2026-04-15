@@ -59,7 +59,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   draftRecordId; // Temporary Inquiry__c to host uploads pre-submit
   finalRecordId;
   uploadedFiles = []; // [{ documentId, name }]
-  acceptedFileFormatsArray = ['.pdf', '.docx', '.xlsx', '.pptx', '.png', '.jpg', '.jpeg', '.txt', '.csv', '.zip'];
+  acceptedFileFormatsArray = ['.pdf', '.docx', '.xlsx', '.png', '.jpg', '.jpeg'];
 
   // Breadcrumbs for navigation, dynamically updated based on the user's navigation path to provide context and easy navigation back to relevant pages
   breadcrumbs = [
@@ -171,7 +171,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   // Handle completion of lightning-file-upload; capture file metadata
   async handleFilesUploaded(event) {
     const files = event?.detail?.files || [];
-    
+
     // Initialize draft record if not already done
     if (!this.draftRecordId) {
       await this.initializeDraftInquiry();
@@ -362,78 +362,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   // TODO: Consider adding or deleting  formats based on user feedback, but always balance with security implications
   get acceptedFileFormats() {
     // Kept for legacy uploader; lightning-file-upload uses acceptedFileFormatsArray
-    return ['.pdf', '.docx', '.xlsx', '.pptx', '.png', '.jpg', '.jpeg', '.txt', '.csv', '.zip'];
-  }
-
-  /**
-  * Handles file uploads:
-  * - Validates size and count
-  * - Converts files to base64
-  */
-  onFileUpload(event) {
-  const files = Array.from(event.target.files || []);
-
-  if (files.length === 0) {
-    return;
-  }
-
-  // Validate total size (max 2.5MB) and count (max 10). APEX has limits on heap size (which is 4 MB), so we need to ensure we don't exceed those with large file uploads.
-  // After testing it is concluded that the limit is 2.5MB total size.
-  // TODO: Consider changing limits based on user feedback and system performance, but ensure users can upload necessary documentation without overwhelming the system
-  const totalSize = files.reduce((sum, f) => sum + (f.size || 0), 0);
-  if (totalSize > 2.5 * 1024 * 1024) {
-    this.setErrorFor(this.template.querySelector('[data-id="file-upload"]'), 'Total størrelse på filer kan ikke overstige 2,5 MB.');
-    return;
-  }
-  // Validate file count (max 10)
-  if (files.length > 10) {
-    this.setErrorFor(this.template.querySelector('[data-id="file-upload"]'), 'Du kan maks laste opp 10 filer.');
-    return;
-  }
-
-  this.isReadingFiles = true;
-
-  const filePromises = files.map(file => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const result = reader.result;
-
-        if (!result || !result.includes(',')) {
-          reject('Invalid file data');
-          return;
-        }
-
-        const base64 = result.split(',')[1];
-
-        resolve({
-          id: crypto.randomUUID(),
-          name: file.name,
-          base64: base64
-        });
-      };
-
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  });
-
-  Promise.all(filePromises)
-    .then(results => {
-      this.pendingFiles = [...this.pendingFiles, ...results];
-
-      console.debug('✅ Files fully loaded:', this.pendingFiles);
-    })
-    .catch(error => {
-      console.error('❌ File read error:', error);
-    })
-    .finally(() => {
-      this.isReadingFiles = false;
-    });
-
-    // Clear the input so same file can be selected again
-    event.target.value = '';
+    return ['.pdf', '.docx', '.xlsx', '.png', '.jpg', '.jpeg'];
   }
 
   // Remove a pending file from the list based on its unique ID. This allows users to manage their file attachments before submitting the form, 
