@@ -108,38 +108,6 @@ public with sharing class AAREG_contactSupportController {
   public static void enrichUploadedFiles(List<Id> documentIds, Id recordId, String metadataJson) {
     if (documentIds == null || documentIds.isEmpty() || recordId == null) return;
 
-    Map<String, Object> meta = (Map<String, Object>) JSON.deserializeUntyped(metadataJson);
-
-    Map<Id, ContentVersion> latestByDocId = new Map<Id, ContentVersion>();
-    for (ContentVersion cv : [
-      SELECT Id, ContentDocumentId, Title, Description
-      FROM ContentVersion
-      WHERE ContentDocumentId IN :documentIds AND IsLatest = true
-      WITH USER_MODE
-    ]) {
-      latestByDocId.put(cv.ContentDocumentId, cv);
-    }
-    /*
-    List<ContentVersion> toUpdate = new List<ContentVersion>();
-    for (Id docId : documentIds) {
-      ContentVersion cv = latestByDocId.get(docId);
-      if (cv == null) continue;
-      String newTitle = (String) meta.get('subject');
-      if (String.isNotBlank(newTitle)) cv.Title = newTitle.left(80);
-      String descVal = (String) meta.get('description');
-      if (String.isNotBlank(descVal)) cv.Description = descVal.left(255);
-      toUpdate.add(cv);
-    }
-    if (!toUpdate.isEmpty()) {
-      // Strip inaccessible fields before DML to avoid FLS errors
-      SObjectAccessDecision dec = Security.stripInaccessible(AccessType.UPDATABLE, toUpdate);
-      List<SObject> sanitized = dec.getRecords();
-      if (!sanitized.isEmpty()) {
-        Database.update((List<ContentVersion>)((List<SObject>)sanitized), AccessLevel.USER_MODE);
-      }
-    }
-    */
-
     // Ensure link to target parent exists
     Set<Id> alreadyLinked = new Set<Id>();
     for (ContentDocumentLink cdl : [
