@@ -1,9 +1,6 @@
 {
     "packageDirectories": [
-        {
-            "path": "src-temp",
-            "default": true
-        },
+       
         {
             "path": "force-app",
             "package": "crm-arbeidsforhold",
@@ -83,6 +80,10 @@
                     "versionNumber": "0.202.0.LATEST"
                 }
             ]
+        },
+        {
+            "path": "src-temp",
+            "default": true
         }
     ],
     "namespace": "",
