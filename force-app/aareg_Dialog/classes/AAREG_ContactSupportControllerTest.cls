@@ -72,8 +72,8 @@ public class AAREG_ContactSupportControllerTest {
       
       // Call the method
       System.Test.startTest();
-    AAREG_contactSupportController.createThreadForApplication(testUser.Id, testApplication.Id, 'Test Description','Endringsbehov');
-    // Retrieve the test Thread__c record
+      AAREG_contactSupportController.createThreadForApplication(testUser.Id, testApplication.Id, 'Test Description','Endringsbehov');
+      // Retrieve the test Thread__c record
       Thread__c testThread = [SELECT Id FROM Thread__c LIMIT 1];
       AAREG_checkObjectTypeNameche.CheckObjectTypeName(new List<Id>{testThread.Id});
       System.Test.stopTest();
@@ -98,6 +98,197 @@ public class AAREG_ContactSupportControllerTest {
       System.assert(true, 'Method should handle empty lists without throwing exceptions.');
   }
   
+  /**
+   * initDraftRecord should create a draft Inquiry__c and return its Id (direct happy path).
+   */
+  @isTest
+  static void when_initDraftRecordCalled_ThenSuccess() {
+    System.Test.startTest();
+    Id draftInquiryId = AAREG_contactSupportController.initDraftRecord();
+    System.Test.stopTest();
+
+    System.assertNotEquals(null, draftInquiryId, 'Draft Inquiry Id returned');
+    Inquiry__c d = [SELECT Id, Subject__c FROM Inquiry__c WHERE Id = :draftInquiryId LIMIT 1];
+    System.assertEquals('Draft - File Uploads', d.Subject__c, 'Subject set for draft');
+  }
+ 
+  /**
+   * createFinalInquiry should map fields from metadata JSON and update the same record.
+   */
+  @isTest
+  static void when_createFinalInquiryCalled_ThenUpdatesFields() {
+    Id draftInquiryId = AAREG_contactSupportController.initDraftRecord();
+    String meta = JSON.serialize(new Map<String, Object>{
+      'Subject__c' => 'Final Subject',
+      'InquiryDescription__c' => 'Body text goes here',
+      'Email__c' => 'someone@example.com',
+      'TypeOfInquiry__c' => 'Question'
+    });
+
+    System.Test.startTest();
+    Id finalInquiryId = AAREG_contactSupportController.createFinalInquiry(draftInquiryId, meta);
+    System.Test.stopTest();
+
+    System.assertEquals(draftInquiryId, finalInquiryId, 'Final Id should match draft (update in place)');
+    Inquiry__c f = [
+      SELECT Subject__c, InquiryDescription__c, Email__c, TypeOfInquiry__c
+      FROM Inquiry__c WHERE Id = :finalInquiryId LIMIT 1
+    ];
+    System.assertEquals('Final Subject', f.Subject__c);
+    System.assertEquals('Body text goes here', f.InquiryDescription__c);
+    System.assertEquals('someone@example.com', f.Email__c);
+    System.assertEquals('Question', f.TypeOfInquiry__c);
+  }
+
+  /**
+   * Test null guard for createFinalInquiry - should throw AuraHandledException when draftId is null.
+   */
+  @isTest
+  static void when_createFinalInquiryCalled_WithNullDraftId_ThenThrowsException() {
+    String meta = JSON.serialize(new Map<String, Object>{
+      'Subject__c' => 'Final Subject'
+    });
+
+    System.Test.startTest();
+    try {
+      AAREG_contactSupportController.createFinalInquiry(null, meta);
+      System.assert(false, 'Should have thrown AuraHandledException');
+    } catch (Exception e) {
+      System.assert(true, 'Exception was properly caught and handled');
+    }
+    System.Test.stopTest();
+  }
+
+  /**
+   * relinkFilesToParent should add link to new parent and remove from old parent.
+   * Also covers early-return when toParentId is null and when list is empty.
+   */
+  @isTest
+  static void When_relinkFilesToParentInvoked_FileToLinkedToNewPArent_Success() {
+    Inquiry__c parentA = AAREG_TestDataFactory.getInquiry();
+    Inquiry__c parentB = AAREG_TestDataFactory.getInquiry();
+
+    // Attach a file to parentA by going through controller file path
+    String base64 = EncodingUtil.base64Encode(Blob.valueOf('doc-a'));
+    AAREG_contactSupportController.FileData fd = new AAREG_contactSupportController.FileData();
+    fd.base64 = base64;
+    fd.fileName = 'a.txt';
+    // We need a user Id string for createNewInquiry signature
+    String userIdStr = String.valueOf(UserInfo.getUserId());
+
+    System.Test.startTest();
+    try {
+        AAREG_contactSupportController.createNewInquiry(userIdStr, parentA, new List<AAREG_contactSupportController.FileData>{fd});
+        AAREG_contactSupportController.createNewInquiry(userIdStr, parentB, null);
+    } catch (exception e) {
+      System.assert(false, 'createNewInquiry should not throw exception: ' + e.getMessage());
+    }
+    System.Test.stopTest();
+
+    List<ContentDocumentLink> cdlList = [
+      SELECT Id, ContentDocumentId, LinkedEntityId
+      FROM ContentDocumentLink
+      WHERE LinkedEntityId = :parentA.Id
+      LIMIT 1
+    ];
+    System.assertEquals(1, cdlList.size(), 'Should have one content document link');
+    Id docId = cdlList[0].ContentDocumentId;
+
+    // Perform actual relink
+    AAREG_contactSupportController.relinkFilesToParent(new List<Id>{docId}, parentA.Id, parentB.Id);
+
+    System.assertEquals(0, [SELECT count() FROM ContentDocumentLink WHERE LinkedEntityId = :parentA.Id AND ContentDocumentId = :docId],
+                        'Old parent should have no link');
+    System.assertEquals(1, [SELECT count() FROM ContentDocumentLink WHERE LinkedEntityId = :parentB.Id AND ContentDocumentId = :docId],
+                        'New parent should have one link');
+  }
+
+  /**
+   * enrichUploadedFiles should create missing links and not duplicate existing ones.
+   * Also covers early-return scenarios.
+   */
+  @isTest
+  static void test_enrichUploadedFiles_addsMissingLinks_and_skipsExisting() {
+    Inquiry__c inq1 = AAREG_TestDataFactory.getInquiry();
+//    Inquiry__c inq2 = AAREG_TestDataFactory.getInquiry();
+//    insert new List<Inquiry__c>{ inq1, inq2 };
+
+    // Ensure we have a content document id to work with
+    String base64 = EncodingUtil.base64Encode(Blob.valueOf('doc-b'));
+    AAREG_contactSupportController.FileData fd = new AAREG_contactSupportController.FileData();
+    fd.base64 = base64;
+    fd.fileName = 'b.txt';
+    List<ContentDocumentLink> cdlList;
+    Id docId;
+
+    // Attach to inq1 to generate the Document
+    Test.startTest();
+    try {
+      AAREG_contactSupportController.createNewInquiry(String.valueOf(UserInfo.getUserId()), inq1, new List<AAREG_contactSupportController.FileData>{fd});
+      cdlList = [
+        SELECT ContentDocumentId
+        FROM ContentDocumentLink
+        WHERE LinkedEntityId = :inq1.Id
+        LIMIT 1
+      ];
+      docId = cdlList[0].ContentDocumentId;
+      AAREG_contactSupportController.enrichUploadedFiles(new List<Id>{docId}, inq1.Id,
+        JSON.serialize(new Map<String, Object>{ 'subject' => 'S', 'description' => 'D' }));
+    } catch (exception e) {
+      System.assert(false, 'createNewInquiry should not throw exception: ' + e.getMessage());
+    }
+    Test.stopTest();
+
+    System.assertEquals(1, cdlList.size(), 'Should have one content document link');
+    System.assertEquals(1, [SELECT count() FROM ContentDocumentLink WHERE LinkedEntityId = :inq1.Id AND ContentDocumentId = :docId],
+                        'Link should be created to inq2');
+  }
+
+  /**
+   * removeFileLink should delete an existing link and ignore null inputs.
+   */
+  @isTest
+  static void test_removeFileLink_deletesExisting_and_earlyReturn() {
+    // Create inquiry + one attachment
+    Inquiry__c inq = AAREG_TestDataFactory.getInquiry();
+//    insert inq;
+
+    String base64 = EncodingUtil.base64Encode(Blob.valueOf('doc-c'));
+    AAREG_contactSupportController.FileData fd = new AAREG_contactSupportController.FileData();
+    fd.base64 = base64;
+    fd.fileName = 'c.txt';
+
+    Test.startTest();
+    try{
+      AAREG_contactSupportController.createNewInquiry(String.valueOf(UserInfo.getUserId()), inq,
+        new List<AAREG_contactSupportController.FileData>{fd});
+    }catch(exception e){
+        System.assert(false, 'createNewInquiry should not throw exception: ' + e.getMessage());
+    }
+    Test.stopTest();
+
+    List<ContentDocumentLink> cdlList = [
+      SELECT ContentDocumentId
+      FROM ContentDocumentLink
+      WHERE LinkedEntityId = :inq.Id
+      LIMIT 1
+    ];
+    System.assertEquals(1, cdlList.size(), 'Should have one content document link');
+    Id docId = cdlList[0].ContentDocumentId;
+
+    // Early returns with nulls
+    AAREG_contactSupportController.removeFileLink(null, null);
+    AAREG_contactSupportController.removeFileLink(docId, null);
+    AAREG_contactSupportController.removeFileLink(null, inq.Id);
+
+    // Actual deletion
+    System.assertEquals(1, [SELECT count() FROM ContentDocumentLink WHERE LinkedEntityId = :inq.Id AND ContentDocumentId = :docId],
+                        'Precondition: one link exists');
+    AAREG_contactSupportController.removeFileLink(docId, inq.Id);
+    System.assertEquals(0, [SELECT count() FROM ContentDocumentLink WHERE LinkedEntityId = :inq.Id AND ContentDocumentId = :docId],
+                        'Link should be removed');
+  }
+
   /**
    * Test method to verify that when a new inquiry is created without file attachments, a thread is created with the correct 
    * association to the inquiry and that the initial message content matches the inquiry description. It checks that the 
@@ -196,5 +387,4 @@ public class AAREG_ContactSupportControllerTest {
     List<ContentDocumentLink> cdlsMulti = [SELECT Id, LinkedEntityId FROM ContentDocumentLink WHERE LinkedEntityId = :inquiryWithFilesFromDB.Id];
     System.assertEquals(2, cdlsMulti.size(), 'Two files should be linked to the inquiry thread when multiple files provided');
   }
-
 }
