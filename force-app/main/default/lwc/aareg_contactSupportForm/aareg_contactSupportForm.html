@@ -1,111 +1,195 @@
 <template>
+  <!-- Page banner with static heading for the support form -->
   <c-aareg_main-banner>Aa-registeret - Melding til brukerstøtte</c-aareg_main-banner>
+
   <div class="container">
     <div class="inner-container">
+      <!-- Breadcrumb navigation fed by url-list={breadcrumbs} -->
       <div class="breadcrumbs">
         <c-breadcrumbs url-list={breadcrumbs}></c-breadcrumbs>
       </div>
-    <form if:false={inquirySubmitted}>
-      <div if:true={inquiryTypeOptions} class="slds-m-vertical_xx-large">
-        <div class="slds-grid slds-grid_vertical support-form">
-          <div class="slds-col slds-align_absolute-center slds-m-top_x-small">
-            <h1>Ny henvendelse vedrørende Aa-registeret</h1>
-          </div>
-          <p class="pl-20" style="text-align: left;">
-            For at vi skal kunne gi deg raskest mulig svar, må du oppgi hvilken type henvendelse du sender oss. <br>
-            Gå til ofte stilte spørsmål om du lurer på bruk av tjenesten. <br>
-            Lenke videre <a href="https://www.nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/brukerstotte-for-samarbeidspartnere#chapter-3"> Ofte stilte spørsmål </a> <br>
-            NB! Denne brukerstøtten gjelder kun spørsmål knyttet til Aa-registeret (Arbeidsgiver- og arbeidstakerregisteret)
-          </p>         
-          <div class="slds-col slds-m-top_small">
-            <span class="form-control">
-              <label>
-                <abbr class="slds-required" title="Påkrevd felt">* </abbr>
-                Hva gjelder dette?
-              </label>
-              <select onchange={handleInputChange} data-id="TypeOfInquiry__c" required>
-                <option value="">Velg</option>
-                <template for:each={inquiryTypeOptions} for:item="option">
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                </template>
-              </select>
-              <small>Error</small>
-            </span>
-          </div>
-          <div class="slds-col slds-m-top_x-small" if:false={regardingApplicationInProcess}>  
-            <span class="form-control">
-              <label>
-                <abbr class="slds-required" title="Påkrevd felt">* </abbr>
-                Kontakt epost<br>
-              </label>
-              <lightning-helptext
-                      content=" Oppgi en e-postadresse som NAV kan kontakte deg på."
-                      class="slds-m-left_xx-small"
-                    >
-                  </lightning-helptext>
-                  <input
-                      type="email"
-                      data-id="Email__c"
-                      onchange={handleInputChange}
-                      maxlength ="255"
-                      required
-                    />
-              <small>Error</small>
-            </span>
-          </div>
-          <div class="slds-col slds-m-top_x-small">  
-            <span class="form-control">
-              <label>
-                <abbr class="slds-required" title="Påkrevd felt">* </abbr>
-                Emne<br>
-              </label>
-              <lightning-helptext
+
+      <!-- Render form until a successful submission occurs -->
+      <form if:false={inquirySubmitted}>
+        <!-- Only render form content when options are available -->
+        <div if:true={inquiryTypeOptions} class="slds-m-vertical_xx-large">
+          <!-- Vertical layout grid using SLDS utilities -->
+          <div class="slds-grid slds-grid_vertical support-form">
+            <div class="slds-col slds-align_absolute-center slds-m-top_x-small">
+              <!-- Page-level heading for new Aa-registeret inquiry -->
+              <h1>Ny henvendelse vedrørende Aa-registeret</h1>
+            </div>
+
+            <!-- User guidance and link to FAQs (external) -->
+            <p class="pl-20" style="text-align: left;">
+              For at vi skal kunne gi deg raskest mulig svar, må du oppgi hvilken type henvendelse du sender oss. <br>
+              Gå til ofte stilte spørsmål om du lurer på bruk av tjenesten. <br>
+              Lenke videre <a href="https://www.nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/brukerstotte-for-samarbeidspartnere#chapter-3"> Ofte stilte spørsmål </a> <br>
+              NB! Denne brukerstøtten gjelder kun spørsmål knyttet til Aa-registeret (Arbeidsgiver- og arbeidstakerregisteret)
+            </p>
+
+            <!-- Required category selector; data-id maps to field API name -->
+            <div class="slds-col slds-m-top_small">
+              <span class="form-control">
+                <label>
+                  <abbr class="slds-required" title="Påkrevd felt">* </abbr>
+                  Hva gjelder dette?
+                </label>
+                <!-- Options sourced from inquiryTypeOptions; on-change updates JS state -->
+                <select onchange={handleInputChange} data-id="TypeOfInquiry__c" required>
+                  <option value="">Velg</option>
+                  <!-- Iterate over provided options -->
+                  <template for:each={inquiryTypeOptions} for:item="option">
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  </template>
+                </select>
+                <!-- Placeholder for inline validation message -->
+                <small>Error</small>
+              </span>
+            </div>
+
+            <!-- Hide email input when inquiry concerns an application in process -->
+            <div class="slds-col slds-m-top_x-small" if:false={regardingApplicationInProcess}>
+              <span class="form-control">
+                <label>
+                  <abbr class="slds-required" title="Påkrevd felt">* </abbr>
+                  Kontakt epost<br>
+                </label>
+                <!-- Helptext explains purpose of collecting email -->
+                <lightning-helptext
+                  content=" Oppgi en e-postadresse som NAV kan kontakte deg på."
+                  class="slds-m-left_xx-small">
+                </lightning-helptext>
+                <!-- Native email input; value handled via onchange handler -->
+                <input
+                  type="email"
+                  data-id="Email__c"
+                  onchange={handleInputChange}
+                  maxlength="255"
+                  required
+                />
+                <small>Error</small>
+              </span>
+            </div>
+
+            <!-- Required short subject for the inquiry -->
+            <div class="slds-col slds-m-top_x-small">
+              <span class="form-control">
+                <label>
+                  <abbr class="slds-required" title="Påkrevd felt">* </abbr>
+                  Emne<br>
+                </label>
+                <!-- Brief helper text for concise subject -->
+                <lightning-helptext
                   content="Kort beskrivelse på saken."
-                  class="slds-m-left_xx-small"
-                >
-              </lightning-helptext>
-              <input
+                  class="slds-m-left_xx-small">
+                </lightning-helptext>
+                <input
                   type="text"
                   data-id="Subject__c"
                   onchange={handleInputChange}
-                  maxlength ="255"
+                  maxlength="255"
                   required
                 />
-              <small>Error</small>
-            </span>
-          </div>
-          <div class="slds-col slds-m-top_x-small" >
-            <span class="form-control">
-              <label>
-                <abbr class="slds-required" title="Påkrevd felt">* </abbr>
-                Beskrivelse
-              </label>
-              <textarea onchange={handleInputChange} data-id="InquiryDescription__c" rows="20" cols="100" maxlength="32768" required></textarea>
-              <small>Error</small>
-            </span>
-          </div>
-          <div class="slds-col slds-align_absolute-center slds-m-vertical_small">
-            <button type="submit" name="Send inn" class="button button-main" onclick={handleSubmit}>Send inn</button>
+                <small>Error</small>
+              </span>
+            </div>
+
+            <!-- Detailed description; large max length to capture sufficient details -->
+            <div class="slds-col slds-m-top_x-small" >
+              <span class="form-control">
+                <label>
+                  <abbr class="slds-required" title="Påkrevd felt">* </abbr>
+                  Beskrivelse
+                </label>
+                <!-- Textarea bound by data-id; validation handled in JS -->
+                <textarea onchange={handleInputChange} data-id="InquiryDescription__c" rows="20" cols="100" maxlength="32768" required></textarea>
+                <small>Error</small>
+              </span>
+            </div>
+
+            <!-- Vedlegg (Attachments) section: guidance and constraints (count, total size, allowed types) -->
+            <div class="slds-col slds-m-top_x-small" >
+              <span class="form-control">
+                <!-- Optional hook if programmatic injection is needed -->
+                <span data-id="file-upload"></span>
+                <label>Vedlegg</label>
+                <!-- Instructions shown to help users supply relevant attachments -->
+                <p class="pl-16">
+                    Last opp eventuelle vedlegg som kan hjelpe oss å behandle henvendelsen raskere.
+                </p>
+                <!-- Display constraints to set expectations -->
+                <p class="pl-16 helper-text">
+                    (Totalt maks 2 GB. Tillatte filtyper: .pdf, .docx, .xlsx, .png, .jpg, .jpeg)
+                </p>
+                <small class="pl-16">Error</small>
+              </span>
+
+              <!-- New: Use lightning-file-upload to attach files to a draft Inquiry__c pre-submit -->
+              <lightning-file-upload
+                label="Laste opp filer"
+                name="contactSupportFiles"
+                record-id={draftRecordId}
+                accepted-formats={acceptedFileFormatsArray}
+                multiple
+                onuploadfinished={handleFilesUploaded}>
+              </lightning-file-upload>
+
+              <!-- Show uploaded files returned by lightning-file-upload -->
+              <div if:true={uploadedFiles.length} class="slds-m-top_small">
+                <template for:each={uploadedFiles} for:item="file">
+                  <div key={file.documentId} class="slds-chip slds-m-around_x-small">
+                    <span class="slds-chip__label">{file.name}</span>
+                    <!-- Unlink from draft Inquiry__c -->
+                    <lightning-button-icon
+                      icon-name="utility:delete"
+                      alternative-text="Fjern fil"
+                      title="Fjern fil"
+                      variant="border-filled"
+                      size="small"
+                      class="slds-m-left_x-small"
+                      onclick={handleRemoveUploadedFile}
+                      data-docid={file.documentId}>
+                    </lightning-button-icon>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Submit action; disabled while files are being read -->
+            <div class="slds-col slds-align_absolute-center slds-m-vertical_small">
+              <button 
+                type="button"
+                class="button button-main"
+                onclick={handleSubmit}
+                disabled={isReadingFiles}>
+                Send inn
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </form>
-    <template if:true={inquirySubmitted}>
-      <div class="submission-success">
-        <h2 class="submission-success-h2">
-          Takk for din henvendelse. Vi svarer deg så fort vi kan.<br> 
-          Gå til mine meldinger for å se din melding og svar tilbake. 
-        </h2>
-        <c-button
-          button-label="Gå til Mine meldinger"
-          button-styling="secondary"
-          onbuttonclick={navigateToMyMessages}>
-        </c-button>
-      </div>
-    </template>
-    <template if:true={isLoading}>
-      <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
-    </template>
+      </form>
+
+      <!-- Success message and navigation CTA displayed after form submission -->
+      <template if:true={inquirySubmitted}>
+        <div class="submission-success">
+          <h2 class="submission-success-h2">
+            Takk for din henvendelse. Vi svarer deg så fort vi kan.<br> 
+            Gå til mine meldinger for å se din melding og svar tilbake. 
+          </h2>
+          <!-- Navigate to user's message threads -->
+          <c-button
+            button-label="Gå til Mine meldinger"
+            button-styling="secondary"
+            onbuttonclick={navigateToMyMessages}>
+          </c-button>
+        </div>
+      </template>
+
+      <!-- Global spinner during async operations (e.g., submit/upload) -->
+      <template if:true={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+      </template>
+    </div>
   </div>
-</div>
 </template>
