@@ -125,7 +125,7 @@ jobs:
         shell: bash
         env:
           SCRATCH_ORG_DEF_FILE: ${{ inputs.scratch-org-def-file }}
-          WAIT: ${{ inputs.wait }}
+          WAIT: ${{ inputs.wait || 120 }}
           CREATE_ALPHA_PACKAGE: ${{ inputs.create-alpha-package }}
           INSTALLATION_KEY_BYPASS: ${{ inputs.installation-key-bypass }}
           BRANCH_NAME: ${{ github.ref_name }}
@@ -397,6 +397,8 @@ jobs:
       if: ${{ github.ref_name == (github.event.repository.default_branch || 'main') }}
       name: Validate install in SIT Sandbox
       needs: [create-package, create-release]
+      permissions:
+        contents: read
       uses: navikt/crm-workflows-base/.github/workflows/deployPackage.yml@master
       with:
         packageId: ${{ needs.create-package.outputs.packageId }}
