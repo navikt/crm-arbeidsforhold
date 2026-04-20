@@ -77,8 +77,16 @@ REM ============================================================
     echo [3/6] Installing packages from %SFDX_PROJECT%...
     echo       Resolving latest package versions (this may take a moment)...
 
+    set "PKGFILE=%TEMP%\resolved_packages_%RANDOM%.txt"
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0resolve_packages.ps1" -ProjectFile "%~dp0..\%SFDX_PROJECT%" -OutputFile "!PKGFILE!"
+    if errorlevel 1 (
+        echo       ERROR: Package resolution failed.
+        del "!PKGFILE!" 2>NUL
+        exit /b 1
+    )
+
     set "PKG_INDEX=0"
-    for /f "usebackq delims=" %%P in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0resolve_packages.ps1" -ProjectFile "%SFDX_PROJECT%"`) do (
+    for /f "usebackq delims=" %%P in ("!PKGFILE!") do (
         set /a PKG_INDEX+=1
         for /f "tokens=1,2,3 delims=|" %%A in ("%%P") do (
             echo.
@@ -102,11 +110,14 @@ REM ============================================================
             )
             if errorlevel 1 (
                 echo       ERROR: Failed to install %%A.
+                del "!PKGFILE!" 2>NUL
                 exit /b 1
             )
             echo       %%A installed successfully.
         )
     )
+
+    del "!PKGFILE!" 2>NUL
 
     if !PKG_INDEX!==0 (
         echo       No dependency packages found in %SFDX_PROJECT%.

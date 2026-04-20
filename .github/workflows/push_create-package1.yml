@@ -1,14 +1,14 @@
 name: "Create Package"
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       create-alpha-package:
-        description: "Whether to create an alpha package (skip validation)"
+        description: "Create alpha package (skip code coverage validation)"
         required: false
         type: boolean
         default: false
       installation-key-bypass:
-        description: "Whether to bypass the installation key for the package"
+        description: "Bypass the installation key for the package"
         required: false
         type: boolean
         default: false
@@ -18,9 +18,10 @@ on:
         type: string
         default: config/project-scratch-def.json
       metadata-path:
-        description: "Path to metadata to deploy after package installation"
+        description: "Path to metadata to deploy after package install"
         required: false
         type: string
+        default: ./force-app/unpackagable-with-auto-deploy
       version-description:
         description: "Description for the package version"
         required: false
@@ -30,243 +31,378 @@ on:
         required: false
         type: number
         default: 120
-    secrets:
-      DEV_HUB_AUTH_URL:
-        required: true
-      SIT_AUTH_URL:
-        required: true
-      PACKAGE_KEY:
+      SFDX_ENV:
+        description: "Environment variables to be set for sf commands"
         required: false
+        type: string
+  workflow_call:
+    inputs:
+      create-alpha-package:
+        description: "Create alpha package (skip code coverage validation)"
+        required: false
+        type: boolean
+        default: false
+      installation-key-bypass:
+        description: "Bypass the installation key for the package"
+        required: false
+        type: boolean
+        default: false
+      scratch-org-def-file:
+        description: "Path to scratch org definition file"
+        required: false
+        type: string
+        default: config/project-scratch-def.json
+      metadata-path:
+        description: "Path to metadata to deploy after package install (e.g. unpackagable-with-auto-deploy)"
+        required: false
+        type: string
+        default: ./force-app/unpackagable-with-auto-deploy
+      version-description:
+        description: "Description for the package version"
+        required: false
+        type: string
+      wait:
+        description: "Wait time for package creation (minutes)"
+        required: false
+        type: number
+        default: 120
+      SFDX_ENV:
+        description: "Environment variables to be set for sf commands"
+        required: false
+        type: string
+    outputs:
+      packageId:
+        description: "The created package version Id (04t...)"
+        value: ${{ jobs.create-package.outputs.packageId }}
+
 concurrency:
   group: create-package-version-${{ github.ref_name }}
   cancel-in-progress: false
+
 permissions: {}
+
 jobs:
+  # ───────────────────────────────────────────────────────────────
+  # 1. CREATE PACKAGE
+  # ───────────────────────────────────────────────────────────────
   create-package:
-    name: Create Package Version
+    name: Create Package
     runs-on: ubuntu-latest
+    timeout-minutes: 180
     permissions:
       contents: read
     outputs:
-      package-id: ${{ steps.package-version-create.outputs.package-id }}
-      version-number: ${{ steps.package-version-create.outputs.version-number }}
-      code-coverage: ${{ steps.package-version-create.outputs.code-coverage }}
-    env:
-      DEV_HUB_ALIAS: devhub
+      packageId: ${{ steps.package-version-create.outputs.packageId }}
+      betaVersionNumber: ${{ steps.package-version-create.outputs.betaVersionNumber }}
+      versionNumber: ${{ steps.package-version-create.outputs.versionNumber }}
+      codeCoverage: ${{ steps.package-version-create.outputs.codeCoverage }}
     steps:
-      # Checkout source code
       - name: Checkout source code
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           persist-credentials: false
 
-      # Install SF
       - name: Install SF
-        uses: navikt/sf-gha-install-sf-cli@3f1abbc990b03fb544e80169920fea2e94946d1a
+        uses: navikt/crm-workflows-base/.github/actions/installSF@master
 
-      # Authorize Dev Hub
-      - name: Authorize PROD
-        uses: navikt/sf-gha-authenticateOrg@da2f995ee865e05111574719abfc5ba12b459f0c
+      - name: Authorize Dev Hub (PROD)
+        uses: navikt/crm-workflows-base/.github/actions/authenticateOrg@master
         with:
-          auth-url: ${{ secrets.DEV_HUB_AUTH_URL }}
-          alias: ${{ env.DEV_HUB_ALIAS }}
+          auth-url: ${{ secrets.CRM_PROD_SFDX_URL }}
+          alias: prod
           setDefaultUsername: true
           setDefaultDevhubUsername: true
 
-      # Delete unpackagable and scratch-org folder
-      - name: Delete unpackagable
+      - name: Delete unpackagable and scratch-org folders
         run: |
           rm -rf ./force-app/unpackagable
           rm -rf ./force-app/unpackagable-with-auto-deploy
           rm -rf ./force-app/scratch-org
-      # Create package version
+
       - name: Create package version
         id: package-version-create
+        shell: bash
         env:
           SCRATCH_ORG_DEF_FILE: ${{ inputs.scratch-org-def-file }}
-          WAIT: ${{ inputs.wait }}
+          WAIT: ${{ inputs.wait || 120 }}
           CREATE_ALPHA_PACKAGE: ${{ inputs.create-alpha-package }}
           INSTALLATION_KEY_BYPASS: ${{ inputs.installation-key-bypass }}
           BRANCH_NAME: ${{ github.ref_name }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch || 'main' }}
           PACKAGE_VERSION_DESCRIPTION: ${{ inputs.version-description }}
-          PACKAGE_KEY: ${{ secrets.PACKAGE_KEY }}
+          PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
         run: |
           set -euo pipefail
 
-          packageName=$(jq -r '[.packageDirectories[] | select(.package != null)][0].package' sfdx-project.json)
+          # ── Helper: sanitise SF CLI JSON (strip ANSI, BOM, leading garbage) ──
+          clean_json() {
+            sed -r 's/\x1B\[[0-9;]*[A-Za-z]//g' \
+            | sed '1s/^\xEF\xBB\xBF//' \
+            | awk '
+                BEGIN { buf=""; depth=0; found=0 }
+                {
+                  if (!found) {
+                    i = index($0, "{"); if (i == 0) next
+                    line = substr($0, i); found = 1
+                  } else { line = $0 }
+                  for (j = 1; j <= length(line); j++) {
+                    c = substr(line, j, 1); buf = buf c
+                    if (c == "{") depth++
+                    else if (c == "}") depth--
+                  }
+                  if (found && depth == 0) { print buf; exit }
+                }
+                END { if (found && depth == 0) exit 0; else exit 1 }
+              '
+          }
 
-          if [ -z "$packageName" ] || [ "$packageName" = "null" ]; then
-            echo "::error title=No package found.::Could not find a packageDirectory with a 'package' field in sfdx-project.json"
+          # ── Resolve package alias (supports both sfdx-project.json layouts) ──
+          PKG_ALIAS=$(
+            jq -r '[ .packageDirectories[]? | select(.package != null) | .package ][0] // empty' sfdx-project.json
+          )
+
+          if [[ -z "$PKG_ALIAS" ]]; then
+            echo "::error title=No package alias found::No entry with a \"package\" field in packageDirectories."
+            jq -r '.packageDirectories' sfdx-project.json || true
             exit 1
           fi
 
-          command=("sf" "package" "version" "create" \
-            "--target-dev-hub" "$DEV_HUB_ALIAS" \
-            "--definition-file" "$SCRATCH_ORG_DEF_FILE" \
-            "--package" "$packageName" \
-            "--wait" "$WAIT" \
-            "--verbose" \
-            "--json" )
+          echo "📦 Package alias: $PKG_ALIAS"
 
-          if [ "$BRANCH_NAME" != "$DEFAULT_BRANCH" ]; then
+          # ── Build command ──
+          command=("sf" "package" "version" "create" \
+            "--target-dev-hub" "prod" \
+            "--definition-file" "$SCRATCH_ORG_DEF_FILE" \
+            "--package" "$PKG_ALIAS" \
+            "--wait" "$WAIT" \
+            "--json")
+
+          # Branch tagging (feature branches)
+          if [[ "$BRANCH_NAME" != "$DEFAULT_BRANCH" ]]; then
             command+=("--branch" "$BRANCH_NAME")
           fi
 
-          if [ "$CREATE_ALPHA_PACKAGE" = true ]; then
+          # Alpha vs Beta
+          if [[ "$CREATE_ALPHA_PACKAGE" == "true" ]]; then
             command+=("--skip-validation")
           else
             command+=("--code-coverage")
           fi
 
-          if [ -n "$PACKAGE_VERSION_DESCRIPTION" ]; then
+          # Version description
+          if [[ -n "${PACKAGE_VERSION_DESCRIPTION:-}" ]]; then
             command+=("--version-description" "$PACKAGE_VERSION_DESCRIPTION")
           fi
 
-          if [ "$INSTALLATION_KEY_BYPASS" = true ]; then
+          # Installation key
+          if [[ "$INSTALLATION_KEY_BYPASS" == "true" ]]; then
             command+=("--installation-key-bypass")
           else
-            if [ -z "$PACKAGE_KEY" ]; then
-              echo "::error title=Missing PACKAGE_KEY secret.::PACKAGE_KEY secret is required when installation key bypass is not enabled.";
-              exit 1;
+            if [[ -z "${PACKAGE_KEY:-}" ]]; then
+              echo "::error title=Missing secret::CRM_PACKAGE_KEY (or PACKAGE_KEY) is required when installation-key-bypass is false."
+              exit 1
             fi
-            command+=( "--installation-key" "$PACKAGE_KEY" )
+            command+=("--installation-key" "$PACKAGE_KEY")
           fi
 
-          # Log command safely (mask secret if added)
-          if [ "$INSTALLATION_KEY_BYPASS" = true ]; then
-            echo "Command to execute: ${command[*]}"
+          # Log command (mask secret)
+          if [[ "$INSTALLATION_KEY_BYPASS" == "true" ]]; then
+            echo "Command: ${command[*]}"
           else
-            # Replace the last element (the key) with a placeholder for logging
-            logged_command=("${command[@]}")
-            logged_command[-1]="***SECRET***"
-            echo "Command to execute: ${logged_command[*]}"
+            logged=("${command[@]}")
+            logged[-1]="***"
+            echo "Command: ${logged[*]}"
           fi
 
-          "${command[@]}" 1> output.json 2> stderr.log || {
-            MESSAGE=$(jq -r '.message // "Unknown error"' output.json 2>/dev/null || echo "Unknown error")
-            echo "::error title=Package version creation failed.::$MESSAGE"
+          # ── Execute ──
+          "${command[@]}" 1> raw_create_stdout.log 2> create_warn.log || true
+
+          # ── Parse JSON safely ──
+          if ! clean_json < raw_create_stdout.log > output.json; then
+            echo "::error title=No JSON from sf::sf did not emit valid JSON on stdout."
+            echo "::group::sf stdout (first 200 lines)"
+            head -200 raw_create_stdout.log || true
+            echo "::endgroup::"
+            echo "::group::sf stderr/warnings"
+            head -200 create_warn.log || true
+            echo "::endgroup::"
             exit 1
-          }
+          fi
+
+          STATUS=$(jq -r '.status' output.json)
+          if [[ "$STATUS" != "0" ]]; then
+            echo "::error title=Package version create failed::$(jq -r '.message // .name // "Unknown error"' output.json)"
+            echo "::group::output.json"
+            cat output.json
+            echo "::endgroup::"
+            echo "::group::sf stderr/warnings"
+            head -200 create_warn.log || true
+            echo "::endgroup::"
+            exit 125
+          fi
 
           echo "✅ Package version created successfully."
 
-          packageId=$(jq -r '.result.SubscriberPackageVersionId' output.json)
-          versionNumber=$(jq -r '.result.VersionNumber' output.json)
+          # ── Extract outputs ──
+          packageId=$(jq -r '.result.SubscriberPackageVersionId // empty' output.json)
+          versionNumber=$(jq -r '.result.VersionNumber // empty' output.json)
+          betaVersionNumber=$(jq -r '(.result.VersionNumber | split(".")[3]) // empty' output.json)
 
-          if [ "$CREATE_ALPHA_PACKAGE" = true ]; then
-            codeCoverage="N/A"
-          else
-            codeCoverage=$(jq -r '.result.CodeCoverage // empty' output.json)
-            if [ -z "$codeCoverage" ]; then
-              codeCoverage="0"
-            fi
-            codeCoverage="${codeCoverage}%"
+          if [[ -z "$packageId" || -z "$versionNumber" ]]; then
+            echo "::error title=Missing fields::No packageId/versionNumber in output.json"
+            echo "::group::output.json"
+            cat output.json
+            echo "::endgroup::"
+            exit 1
           fi
 
-          echo "package-id=$packageId" >> $GITHUB_OUTPUT
-          echo "version-number=$versionNumber" >> $GITHUB_OUTPUT
-          echo "code-coverage=$codeCoverage" >> $GITHUB_OUTPUT
+          # ── Code coverage ──
+          if [[ "$CREATE_ALPHA_PACKAGE" == "true" ]]; then
+            codeCoverage="N/A"
+          else
+            # Try from create output first, fall back to version report
+            codeCoverage=$(jq -r '.result.CodeCoverage.apexCodeCoveragePercentage // empty' output.json)
+            if [[ -z "$codeCoverage" ]]; then
+              sf package version report --package "$packageId" --json \
+                1> raw_report_stdout.log 2> report_warn.log || true
+              codeCoverage=$(
+                clean_json < raw_report_stdout.log \
+                | jq -r '.result.CodeCoverage.apexCodeCoveragePercentage // empty'
+              ) || true
+            fi
+            codeCoverage="${codeCoverage:-0}"
+          fi
+
+          # ── Set outputs ──
+          {
+            echo "packageId=$packageId"
+            echo "betaVersionNumber=$betaVersionNumber"
+            echo "versionNumber=$versionNumber"
+            echo "codeCoverage=$codeCoverage"
+          } >> "$GITHUB_OUTPUT"
+
+          echo ""
+          echo "📦 Package ID:   $packageId"
+          echo "📋 Version:      $versionNumber (build: $betaVersionNumber)"
+          echo "📊 Code Coverage: ${codeCoverage}%"
 
       - name: Upload diagnostics
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
-          name: create-package-version-diagnostics
+          name: package-create-diagnostics
           path: |
-            stderr.log
+            raw_create_stdout.log
+            create_warn.log
+            raw_report_stdout.log
+            report_warn.log
             output.json
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 14
 
+  # ───────────────────────────────────────────────────────────────
+  # 2. CREATE GITHUB RELEASE
+  # ───────────────────────────────────────────────────────────────
   create-release:
-    name: Create release
+    name: Create GitHub Release
     needs: [create-package]
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Needed to create releases
+      contents: write
     steps:
-      # Checkout source code
       - name: Checkout source code
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: true
 
       - name: Generate changelog
-        continue-on-error: true
         id: changelog
-        uses: metcalfc/changelog-generator@0440d0932f9a0dd1cc9ecd8412830761351323bd
+        continue-on-error: true
+        uses: metcalfc/changelog-generator@v4.1.0
         with:
           mytoken: ${{ secrets.GITHUB_TOKEN }}
 
-      # set release variables
       - name: Set release variables
-        id: release-variables
+        id: release-fields
         env:
-          VERSION_NUMBER: ${{ needs.create-package.outputs.version-number }}
+          VERSION_NUMBER: ${{ needs.create-package.outputs.versionNumber }}
           CREATE_ALPHA_PACKAGE: ${{ inputs.create-alpha-package }}
           BRANCH_NAME: ${{ github.ref_name }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          PACKAGE_ID: ${{ needs.create-package.outputs.package-id }}
-          CODE_COVERAGE: ${{ needs.create-package.outputs.code-coverage }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch || 'main' }}
+          PACKAGE_ID: ${{ needs.create-package.outputs.packageId }}
+          CODE_COVERAGE: ${{ needs.create-package.outputs.codeCoverage }}
           AUTHOR: ${{ github.actor }}
           CHANGE_LOG: ${{ steps.changelog.outputs.changelog }}
           VERSION_DESCRIPTION: ${{ inputs.version-description }}
         run: |
           set -euo pipefail
 
+          # Parse M.m.p from full VersionNumber (M.m.p.build)
           IFS='.' read -r major minor patch build <<< "$VERSION_NUMBER"
+          semver="${major}.${minor}.${patch}"
 
-          versionNumber="$major.$minor.$patch"
+          if [[ -z "$build" ]]; then
+            echo "::error title=Invalid version::VERSION_NUMBER '$VERSION_NUMBER' does not have 4 segments (M.m.p.build)"
+            exit 1
+          fi
+
+          # Determine prerelease tag
           prereleaseTag="beta"
-
-          if [ "$CREATE_ALPHA_PACKAGE" = true ]; then
+          if [[ "$CREATE_ALPHA_PACKAGE" == "true" ]]; then
             prereleaseTag="alpha"
           fi
 
-          version="${versionNumber}-${prereleaseTag}.${build}"
+          releaseName="${semver}-${prereleaseTag}.${build}"
+          tagName="v${releaseName}"
 
-          if [ "$BRANCH_NAME" != "$DEFAULT_BRANCH" ]; then
-            version+="+${BRANCH_NAME}"
+          # Append branch suffix for non-default branches
+          if [[ "$BRANCH_NAME" != "$DEFAULT_BRANCH" ]]; then
+            releaseName="${releaseName}+${BRANCH_NAME}"
+            tagName="v${releaseName}"
           fi
 
-          echo "release-name=$version" >> $GITHUB_OUTPUT
+          echo "tagName=$tagName" >> "$GITHUB_OUTPUT"
+          echo "releaseName=$releaseName" >> "$GITHUB_OUTPUT"
 
-          echo "release-body<<EOF" >> $GITHUB_OUTPUT
-          if [ -n "$VERSION_DESCRIPTION" ]; then
-            printf "$VERSION_DESCRIPTION\n" >> $GITHUB_OUTPUT
-          fi
-          printf "Version: %s\nPackage ID: %s\nCode Coverage: %s\nAuthor: %s\n\n## Changelog\n%s\n" \
-            "$VERSION_NUMBER" \
-            "$PACKAGE_ID" \
-            "$CODE_COVERAGE" \
-            "$AUTHOR" \
-            "$CHANGE_LOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          # Build release body
+          {
+            echo "releaseBody<<EOF"
+            if [[ -n "${VERSION_DESCRIPTION:-}" ]]; then
+              printf "%s\n\n" "$VERSION_DESCRIPTION"
+            fi
+            printf "**Version**: %s\n" "$VERSION_NUMBER"
+            printf "**Package ID**: %s\n" "$PACKAGE_ID"
+            printf "**Code Coverage**: %s%%\n" "$CODE_COVERAGE"
+            printf "**Author**: %s\n" "$AUTHOR"
+            printf "\n## Changelog\n%s\n" "${CHANGE_LOG:-_No changelog available_}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Create Release
-        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe
+        uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ (inputs.create-alpha-package || github.ref_name != github.event.repository.default_branch) && steps.release-variables.outputs.release-name || needs.create-package.outputs.version-number }}
-          name: ${{ steps.release-variables.outputs.release-name }}
-          body: ${{ steps.release-variables.outputs.release-body }}
+          tag_name: ${{ steps.release-fields.outputs.tagName }}
+          name: ${{ steps.release-fields.outputs.releaseName }}
+          body: ${{ steps.release-fields.outputs.releaseBody }}
           draft: false
           prerelease: true
 
+
+  # ───────────────────────────────────────────────────────────────
+  # 3. VALIDATE IN SIT (only on default branch, non-blocking)
+  # ───────────────────────────────────────────────────────────────
   validate-in-sit:
-    if: ${{ github.ref_name == github.event.repository.default_branch }}
-    name: Install in SIT Sandbox
-    needs: [create-package, create-release]
-    uses: navikt/crm-workflows-base/.github/workflows/deploy.yml@main
-    with:
-      package-id: ${{ needs.create-package.outputs.package-id }}
-      org: sit
-      metadata-path: ${{ inputs.metadata-path }}
-    permissions:
-      contents: read
-    secrets:
-      SIT_AUTH_URL: ${{ secrets.SIT_AUTH_URL }}
-      PACKAGE_KEY: ${{ secrets.PACKAGE_KEY }}
+      if: ${{ github.ref_name == (github.event.repository.default_branch || 'main') }}
+      name: Validate install in SIT Sandbox
+      needs: [create-package, create-release]
+      permissions:
+        contents: read
+      uses: navikt/crm-workflows-base/.github/workflows/deployPackage.yml@master
+      with:
+        packageId: ${{ needs.create-package.outputs.packageId }}
+        org: sit
+        unpackagable: ${{ inputs.metadata-path }}
+        SFDX_ENV: ${{ inputs.SFDX_ENV }}
+      secrets: inherit

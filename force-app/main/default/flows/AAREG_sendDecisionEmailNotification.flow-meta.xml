@@ -64,6 +64,22 @@
         </connector>
     </assignments>
     <assignments>
+        <name>setTemplateNameDeclined</name>
+        <label>setTemplateNameDeclined</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varTemplateName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>aaRegApplicationDecisionConfirmation</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>CreateEmailQueue</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>setTemplateNameSuspension</name>
         <label>setTemplateNameSuspension</label>
         <locationX>0</locationX>
@@ -136,10 +152,33 @@
             </connector>
             <label>isSuspended</label>
         </rules>
+        <rules>
+            <name>isDeclined</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>getApplication.Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Declined</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>getApplication.Casehandler_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Closed</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>setTemplateNameDeclined</targetReference>
+            </connector>
+            <label>isDeclined</label>
+        </rules>
     </decisions>
+    <description>Arbeidsforhold - Utsendelse av epost til søker når vedtak foreligger. Sender også ved henleggelse</description>
     <environments>Default</environments>
     <interviewLabel>AAREG_sendDecisionEmailNotification {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_sendDecisionEmailNotification</label>
+    <label>AAREG Application notification decision email</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>

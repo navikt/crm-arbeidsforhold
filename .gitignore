@@ -192,6 +192,9 @@ env.json
 src-temp/**
 !src-temp/README.md
 
+# Backup file when running check-sfdx-versions.js
+sfdx-project.json.backup
+
 
 
 bin/install-temp.sh
