@@ -59,7 +59,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   draftRecordId; // Temporary Inquiry__c to host uploads pre-submit
   finalRecordId;
   uploadedFiles = []; // [{ documentId, name }]
-  acceptedFileFormatsArray = ['.pdf', '.docx', '.xlsx', '.png', '.jpg', '.jpeg'];
+  acceptedFileFormats = ['.pdf', '.docx', '.xlsx', '.png', '.jpg', '.jpeg'];
 
   // Breadcrumbs for navigation, dynamically updated based on the user's navigation path to provide context and easy navigation back to relevant pages
   breadcrumbs = [
@@ -169,16 +169,38 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   }
 
   // Handle completion of lightning-file-upload; capture file metadata
+  // if multiple files uploaded at once, slice to max allowed and show error if over limit. This method ensures that users can only upload a maximum of 10 files, 
+  // preventing excessive attachments that could impact system performance or exceed storage limits. 
+  // If users attempt to upload more than the allowed number of files, they receive a clear error message, guiding them to adjust their file selection accordingly. 
+  // The method also ensures that a draft Inquiry__c is initialized to associate the uploaded files with, maintaining the integrity of the file attachments and ensuring they are properly linked to the user's inquiry.
+  // Note: lightning-file-upload does not support a maxFiles attribute, so we handle this manually by slicing the input and showing an error if the user attempts to exceed the limit.
   async handleFilesUploaded(event) {
     const files = event?.detail?.files || [];
 
-    // Initialize draft record if not already done
     if (!this.draftRecordId) {
       await this.initializeDraftInquiry();
     }
-    
-    const mapped = files.map(f => ({ documentId: f.documentId, name: f.name }));
-    this.uploadedFiles = [...this.uploadedFiles, ...mapped];
+
+    const currentCount = Array.isArray(this.uploadedFiles) ? this.uploadedFiles.length : 0;
+    const newCount = Array.isArray(files) ? files.length : 0;
+    const totalFiles = currentCount + newCount;
+    const remainingSlots = 10 - currentCount;
+
+    const filesToAdd = files.slice(0, remainingSlots);
+    const mapped = filesToAdd.map(f => ({documentId: f.documentId,name: f.name}));
+    this.uploadedFiles = [...(this.uploadedFiles || []), ...mapped];
+
+    if (totalFiles > 10) {
+      this.setErrorFor(this.template.querySelector('[data-id="file-upload"]'), 'Du kan maks laste opp 10 filer.');
+      return;
+    }
+  }
+
+  // If the user has uploaded 10 files, disable the file upload component to prevent further uploads. 
+  // This getter checks the number of files currently uploaded and returns true if the limit has been reached, 
+  // allowing the UI to conditionally disable the upload functionality and provide feedback to the user about the maximum file limit.
+  get isUploadDisabled() {
+    return (this.uploadedFiles?.length || 0) >= 10;
   }
 
   // Allow removing a file uploaded to the draft Inquiry__c by unlinking
@@ -356,13 +378,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   // tailored user experience and ensuring that inquiries are properly categorized and linked to relevant records in the system.
   get regardingApplicationInProcess() {
     return this.inquiry.TypeOfInquiry__c === 'Søknad under behandling';
-  }
-
-  // Accept standard formats and common document types, but exclude executables for security reasons
-  // TODO: Consider adding or deleting  formats based on user feedback, but always balance with security implications
-  get acceptedFileFormats() {
-    // Kept for legacy uploader; lightning-file-upload uses acceptedFileFormatsArray
-    return ['.pdf', '.docx', '.xlsx', '.png', '.jpg', '.jpeg'];
   }
 
   // Remove a pending file from the list based on its unique ID. This allows users to manage their file attachments before submitting the form, 

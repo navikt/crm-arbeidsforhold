@@ -120,7 +120,7 @@
                 </p>
                 <!-- Display constraints to set expectations -->
                 <p class="pl-16 helper-text">
-                    (Totalt maks 2 GB. Tillatte filtyper: .pdf, .docx, .xlsx, .png, .jpg, .jpeg)
+                    (Maks filer 10 og filstørrelse 10 MB per fil. Tillatte filtyper: .pdf, .docx, .xlsx, .png, .jpg, .jpeg)
                 </p>
                 <small class="pl-16">Error</small>
               </span>
@@ -130,9 +130,10 @@
                 label="Laste opp filer"
                 name="contactSupportFiles"
                 record-id={draftRecordId}
-                accepted-formats={acceptedFileFormatsArray}
+                accept={acceptedFileFormats}
                 multiple
-                onuploadfinished={handleFilesUploaded}>
+                onuploadfinished={handleFilesUploaded}
+                disabled={isUploadDisabled}>
               </lightning-file-upload>
 
               <!-- Show uploaded files returned by lightning-file-upload -->
