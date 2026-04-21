@@ -112,7 +112,7 @@ jobs:
 
           codeCoverage="N/A"
           if [[ "$ALPHA" != "true" ]]; then
-            codeCoverage=$(jq -r '.result.CodeCoverage.apexCodeCoveragePercentage // 0' result.json)
+            codeCoverage=$(jq -r 'if (.result.CodeCoverage | type) == "number" then .result.CodeCoverage else .result.CodeCoverage.apexCodeCoveragePercentage // 0 end' result.json)
           fi
 
           echo "packageId=$packageId" >> "$GITHUB_OUTPUT"
