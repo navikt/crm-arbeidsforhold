@@ -103,8 +103,20 @@ public class AAREG_ContactSupportControllerTest {
    */
   @isTest
   static void when_initDraftRecordCalled_ThenSuccess() {
+    User testUser;
+    User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
+    System.runAs(thisUser){
+        testUser = AAREG_TestDataFactory.getStandardUser();
+        insert testUser;
+    }
+
+    AAREG_TestDataFactory.assignPermissionSet(testUser.Id, 'AAREG_Arbeidsforhold_Support');
+
+    Id draftInquiryId ;
     System.Test.startTest();
-    Id draftInquiryId = AAREG_contactSupportController.initDraftRecord();
+    System.runAs(thisUser){
+      draftInquiryId = AAREG_contactSupportController.initDraftRecord();
+    }
     System.Test.stopTest();
 
     System.assertNotEquals(null, draftInquiryId, 'Draft Inquiry Id returned');
@@ -117,7 +129,17 @@ public class AAREG_ContactSupportControllerTest {
    */
   @isTest
   static void when_createFinalInquiryCalled_ThenUpdatesFields() {
-    Id draftInquiryId = AAREG_contactSupportController.initDraftRecord();
+    User testUser;
+    User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
+    System.runAs(thisUser){
+        testUser = AAREG_TestDataFactory.getStandardUser();
+        insert testUser;
+    }
+    AAREG_TestDataFactory.assignPermissionSet(testUser.Id, 'AAREG_Arbeidsforhold_Support');
+    Id draftInquiryId;
+    System.runAs(thisUser){
+      draftInquiryId = AAREG_contactSupportController.initDraftRecord();
+    }
     String meta = JSON.serialize(new Map<String, Object>{
       'Subject__c' => 'Final Subject',
       'InquiryDescription__c' => 'Body text goes here',
@@ -126,7 +148,11 @@ public class AAREG_ContactSupportControllerTest {
     });
 
     System.Test.startTest();
-    Id finalInquiryId = AAREG_contactSupportController.createFinalInquiry(draftInquiryId, meta);
+    Id finalInquiryId;
+    
+    System.runAs(thisUser){
+      finalInquiryId = AAREG_contactSupportController.createFinalInquiry(draftInquiryId, meta);
+    }
     System.Test.stopTest();
 
     System.assertEquals(draftInquiryId, finalInquiryId, 'Final Id should match draft (update in place)');
