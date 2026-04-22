@@ -114,7 +114,7 @@ public class AAREG_ContactSupportControllerTest {
 
     Id draftInquiryId ;
     System.Test.startTest();
-    System.runAs(thisUser){
+    System.runAs(testUser){
       draftInquiryId = AAREG_contactSupportController.initDraftRecord();
     }
     System.Test.stopTest();
@@ -137,7 +137,7 @@ public class AAREG_ContactSupportControllerTest {
     }
     AAREG_TestDataFactory.assignPermissionSet(testUser.Id, 'AAREG_Arbeidsforhold_Support');
     Id draftInquiryId;
-    System.runAs(thisUser){
+    System.runAs(testUser){
       draftInquiryId = AAREG_contactSupportController.initDraftRecord();
     }
     String meta = JSON.serialize(new Map<String, Object>{
@@ -150,7 +150,7 @@ public class AAREG_ContactSupportControllerTest {
     System.Test.startTest();
     Id finalInquiryId;
     
-    System.runAs(thisUser){
+    System.runAs(testUser){
       finalInquiryId = AAREG_contactSupportController.createFinalInquiry(draftInquiryId, meta);
     }
     System.Test.stopTest();
