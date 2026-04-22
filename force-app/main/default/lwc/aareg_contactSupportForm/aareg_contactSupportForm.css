@@ -155,6 +155,11 @@ ul:not(.browser-default) li {
   padding-left: 1rem;
 }
 
+.helper-text {
+    font-size: 0.8rem; /* smaller font */
+    color: #666;       /* optional: lighter tone */
+}
+
 abbr {
   border-bottom: none !important;
   cursor: inherit !important;

@@ -541,4 +541,16 @@ public with sharing class AAREG_TestDataFactory {
 
     return getContentDocumentLink(version.ContentDocumentId, linkedEntity);
   }
+  
+  private without sharing class PermSetAssigner {
+    public void assign(Id userId, String permSetName) {
+      PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = :permSetName LIMIT 1];
+      insert new PermissionSetAssignment(AssigneeId = userId, PermissionSetId = ps.Id);
+    }
+  }
+
+  public static void assignPermissionSet(Id userId, String permSetName) {
+    new PermSetAssigner().assign(userId, permSetName);
+  } 
+
 }
