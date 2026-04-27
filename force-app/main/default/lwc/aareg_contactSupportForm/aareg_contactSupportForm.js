@@ -26,9 +26,9 @@ import initDraftRecord from '@salesforce/apex/AAREG_contactSupportController.ini
 import createFinalInquiry from '@salesforce/apex/AAREG_contactSupportController.createFinalInquiry';
 import relinkFilesToParent from '@salesforce/apex/AAREG_contactSupportController.relinkFilesToParent';
 import enrichUploadedFiles from '@salesforce/apex/AAREG_contactSupportController.enrichUploadedFiles';
-import removeFileLink from '@salesforce/apex/AAREG_contactSupportController.removeFileLink';
 
 import { validateEmail } from 'c/aareg_helperClass';
+import deleteFiles from '@salesforce/apex/AAREG_contactSupportController.deleteFiles';
 
 export default class Aareg_contactSupportForm extends NavigationMixin(LightningElement) {
   // Reactive state for inquiry form
@@ -168,6 +168,27 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     }
   }
 
+  // Update draft Inquiry__c with current form field values to make it visible with real data
+  async updateDraftWithFormData() {
+    if (!this.draftRecordId) return;
+
+    try {
+      const metadata = {
+        TypeOfInquiry__c: this.inquiry.TypeOfInquiry__c,
+        Subject__c: this.inquiry.Subject__c,
+        Email__c: this.inquiry.Email__c,
+        InquiryDescription__c: this.inquiry.InquiryDescription__c
+      };
+
+      await createFinalInquiry({
+        draftId: this.draftRecordId,
+        metadataJson: JSON.stringify(metadata)
+      });
+    } catch (e) {
+      console.error('Error updating draft with form data:', e);
+    }
+  }
+
   // Handle completion of lightning-file-upload; capture file metadata
   // if multiple files uploaded at once, slice to max allowed and show error if over limit. This method ensures that users can only upload a maximum of 10 files, 
   // preventing excessive attachments that could impact system performance or exceed storage limits. 
@@ -179,6 +200,8 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
 
     if (!this.draftRecordId) {
       await this.initializeDraftInquiry();
+      // Immediately populate the draft with current form values to make it visible
+      await this.updateDraftWithFormData();
     }
 
     const currentCount = Array.isArray(this.uploadedFiles) ? this.uploadedFiles.length : 0;
@@ -190,6 +213,18 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     const mapped = filesToAdd.map(f => ({documentId: f.documentId,name: f.name}));
     this.uploadedFiles = [...(this.uploadedFiles || []), ...mapped];
 
+    // delete excess files that exceed the limit of 10 and show error message if user attempts to upload 
+    // more than 10 files in total. This ensures that users receive immediate feedback about the file upload 
+    // limits and prevents them from attaching more files than allowed, maintaining system performance and storage constraints.
+    if (totalFiles > 10) {
+      const excessFiles = files.slice(remainingSlots);
+      const excessDocumentIds = excessFiles.map(f => f.documentId); 
+      try {
+        await deleteFiles({ documentIds: excessDocumentIds});
+      } catch (e) {
+        console.error('Error removing excess file links:', e);
+      }
+    } 
     if (totalFiles > 10) {
       this.setErrorFor(this.template.querySelector('[data-id="file-upload"]'), 'Du kan maks laste opp 10 filer.');
       return;
@@ -209,7 +244,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     if (!documentId || !this.draftRecordId) return;
 
     try {
-      await removeFileLink({ documentId, parentId: this.draftRecordId });
+      await deleteFiles({ documentIds: [documentId] });
       this.uploadedFiles = this.uploadedFiles.filter(f => f.documentId !== documentId);
     } catch (e) {
       // console.error(e);
@@ -326,7 +361,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
               toParentId: this.finalRecordId
             });
 
-            
             await enrichUploadedFiles({
               documentIds,
               recordId: this.finalRecordId,
@@ -421,6 +455,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     setTimeout(() => {
       small.innerText = '';
       formControl.classList.remove('error');
-    }, 3000);
+    }, 6000);
   }
 }

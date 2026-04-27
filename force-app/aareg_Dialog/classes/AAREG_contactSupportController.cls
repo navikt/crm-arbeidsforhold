@@ -135,19 +135,22 @@ public with sharing class AAREG_contactSupportController {
   }
 
   /**
-   * Unlink a ContentDocument from a parent record (does not delete the document).
+   * Delete multiple ContentDocuments (and all associated links and versions).
+   * This is a bulk version that handles multiple document IDs at once.
+   * 
+   * @param documentIds List of ContentDocument IDs to delete
    */
   @AuraEnabled
-  public static void removeFileLink(Id documentId, Id parentId) {
-    if (documentId == null || parentId == null) return;
-    List<ContentDocumentLink> links = [
+  public static void deleteFiles(List<Id> documentIds) {
+    if (documentIds == null || documentIds.isEmpty()) return;
+    List<ContentDocument> documents = [
       SELECT Id
-      FROM ContentDocumentLink
-      WHERE ContentDocumentId = :documentId AND LinkedEntityId = :parentId
+      FROM ContentDocument
+      WHERE Id IN :documentIds
       WITH USER_MODE
     ];
-    if (!links.isEmpty()) {
-      Database.delete(links, AccessLevel.USER_MODE);
+    if (!documents.isEmpty()) {
+      Database.delete(documents, AccessLevel.USER_MODE);
     }
   }
 
