@@ -26,10 +26,9 @@ import initDraftRecord from '@salesforce/apex/AAREG_contactSupportController.ini
 import createFinalInquiry from '@salesforce/apex/AAREG_contactSupportController.createFinalInquiry';
 import relinkFilesToParent from '@salesforce/apex/AAREG_contactSupportController.relinkFilesToParent';
 import enrichUploadedFiles from '@salesforce/apex/AAREG_contactSupportController.enrichUploadedFiles';
-import removeFileLink from '@salesforce/apex/AAREG_contactSupportController.removeFileLink';
 
 import { validateEmail } from 'c/aareg_helperClass';
-import removeFileLinks from '@salesforce/apex/AAREG_contactSupportController.removeFileLinks';
+import deleteFiles from '@salesforce/apex/AAREG_contactSupportController.deleteFiles';
 
 export default class Aareg_contactSupportForm extends NavigationMixin(LightningElement) {
   // Reactive state for inquiry form
@@ -214,12 +213,14 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     const mapped = filesToAdd.map(f => ({documentId: f.documentId,name: f.name}));
     this.uploadedFiles = [...(this.uploadedFiles || []), ...mapped];
 
-    //remove remaining file links from files map to prevent orphaned files linked to draft record
+    // delete excess files that exceed the limit of 10 and show error message if user attempts to upload 
+    // more than 10 files in total. This ensures that users receive immediate feedback about the file upload 
+    // limits and prevents them from attaching more files than allowed, maintaining system performance and storage constraints.
     if (totalFiles > 10) {
       const excessFiles = files.slice(remainingSlots);
       const excessDocumentIds = excessFiles.map(f => f.documentId); 
       try {
-        await removeFileLinks({ documentIds: excessDocumentIds, parentId: this.draftRecordId });
+        await deleteFiles({ documentIds: excessDocumentIds});
       } catch (e) {
         console.error('Error removing excess file links:', e);
       }
@@ -243,7 +244,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     if (!documentId || !this.draftRecordId) return;
 
     try {
-      await removeFileLink({ documentId, parentId: this.draftRecordId });
+      await deleteFiles({ documentIds: [documentId] });
       this.uploadedFiles = this.uploadedFiles.filter(f => f.documentId !== documentId);
     } catch (e) {
       // console.error(e);

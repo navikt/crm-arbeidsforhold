@@ -271,10 +271,10 @@ public class AAREG_ContactSupportControllerTest {
   }
 
   /**
-   * removeFileLink should delete an existing link and ignore null inputs.
+   * deleteFiles should delete existing documents and ignore null inputs.
    */
   @isTest
-  static void test_removeFileLink_deletesExisting_and_earlyReturn() {
+  static void test_deleteFiles_deletesExisting_and_earlyReturn() {
     // Create inquiry + one attachment
     Inquiry__c inq = AAREG_TestDataFactory.getInquiry();
 //    insert inq;
@@ -303,16 +303,15 @@ public class AAREG_ContactSupportControllerTest {
     Id docId = cdlList[0].ContentDocumentId;
 
     // Early returns with nulls
-    AAREG_contactSupportController.removeFileLink(null, null);
-    AAREG_contactSupportController.removeFileLink(docId, null);
-    AAREG_contactSupportController.removeFileLink(null, inq.Id);
+    AAREG_contactSupportController.deleteFiles(null);
+    AAREG_contactSupportController.deleteFiles(new List<Id>());
 
     // Actual deletion
-    System.assertEquals(1, [SELECT count() FROM ContentDocumentLink WHERE LinkedEntityId = :inq.Id AND ContentDocumentId = :docId],
-                        'Precondition: one link exists');
-    AAREG_contactSupportController.removeFileLink(docId, inq.Id);
-    System.assertEquals(0, [SELECT count() FROM ContentDocumentLink WHERE LinkedEntityId = :inq.Id AND ContentDocumentId = :docId],
-                        'Link should be removed');
+    System.assertEquals(1, [SELECT count() FROM ContentDocument WHERE Id = :docId],
+                        'Precondition: one document exists');
+    AAREG_contactSupportController.deleteFiles(new List<Id>{docId});
+    System.assertEquals(0, [SELECT count() FROM ContentDocument WHERE Id = :docId],
+                        'Document should be deleted');
   }
 
   /**
