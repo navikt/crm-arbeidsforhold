@@ -152,6 +152,27 @@ public with sharing class AAREG_contactSupportController {
   }
 
   /**
+   * Unlink multiple ContentDocuments from a parent record (does not delete the documents).
+   * This is a bulk version of removeFileLink() that handles multiple document IDs at once.
+   * 
+   * @param documentIds List of ContentDocument IDs to unlink from the parent record
+   * @param parentId The ID of the parent record from which to unlink the documents
+   */
+  @AuraEnabled
+  public static void removeFileLinks(List<Id> documentIds, Id parentId) {
+    if (documentIds == null || documentIds.isEmpty() || parentId == null) return;
+    List<ContentDocumentLink> links = [
+      SELECT Id
+      FROM ContentDocumentLink
+      WHERE ContentDocumentId IN :documentIds AND LinkedEntityId = :parentId
+      WITH USER_MODE
+    ];
+    if (!links.isEmpty()) {
+      Database.delete(links, AccessLevel.USER_MODE);
+    }
+  }
+
+  /**
    * Creates a new thread for a given application and posts an initial message based on the provided description and subject.
    * This method is designed to be called from the AAREG contact support form when a user submits an inquiry related to a specific application.
    *
