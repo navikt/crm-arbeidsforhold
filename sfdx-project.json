@@ -1,10 +1,11 @@
 {
     "packageDirectories": [
+       
         {
             "path": "force-app",
             "package": "crm-arbeidsforhold",
             "versionName": "ver 0.300",
-            "versionNumber": "0.301.0.NEXT",
+            "versionNumber": "0.300.0.NEXT",
             "dependencies": [
                 {
                     "package": "platform-data-model",
@@ -23,8 +24,12 @@
                     "versionNumber": "0.1.48.LATEST"
                 },
                 {
+                    "package": "record-type-cache",
+                    "versionNumber": "0.1.2.LATEST"
+                },
+                {
                     "package": "crm-platform-base",
-                    "versionNumber": "0.304.0.LATEST"
+                    "versionNumber": "0.301.0.LATEST"
                 },
                 {
                     "package": "crm-platform-reporting",
@@ -52,7 +57,7 @@
                 },
                 {
                     "package": "crm-shared-timeline",
-                    "versionNumber": "1.45.0.LATEST"
+                    "versionNumber": "1.44.0.LATEST"
                 },
                 {
                     "package": "crm-community-base",
@@ -107,12 +112,14 @@
         "platform-data-model": "0HoKB00000000010AA",
         "custom-metadata-dao": "0HoKB000000000B0AQ",
         "custom-permission-helper": "0HoKB000000000f0AA",
-        "feature-toggle": "0HoKB000000000V0AQ"
+        "feature-toggle": "0HoKB000000000V0AQ",
+        "record-type-cache": "0HoQC000000063p0AA"
     },
     "packageKeyConfig": {
         "platform-data-model": false,
         "custom-metadata-dao": false,
         "custom-permission-helper": false,
-        "feature-toggle": false
+        "feature-toggle": false,
+        "record-type-cache": false
     }
 }
