@@ -217,6 +217,7 @@
             <label>Yes Found</label>
         </rules>
     </decisions>
+    <description>Arbeidsforhold - brukerstøtte, legge til intern kommentar + bruker og tid/dato</description>
     <environments>Default</environments>
     <formulas>
         <name>failed_for_Record</name>
@@ -235,7 +236,7 @@
 {!addInternalComment}</expression>
     </formulas>
     <interviewLabel>AAREG_supportAddInternalComments {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_supportAddInternalComments</label>
+    <label>AAREG Support add internal comments</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
