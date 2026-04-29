@@ -9,6 +9,14 @@
         <value>Decision details</value>
     </labels>
     <labels>
+        <fullName>AAREG_Inquiry_description</fullName>
+        <categories>Arbeidsforhold inquiry</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Inquiry description</shortDescription>
+        <value>Description of inquiry</value>
+    </labels>
+    <labels>
         <fullName>AAREG_Decision_text_section</fullName>
         <categories>Arbeidsforhold decision details</categories>
         <language>en_US</language>
