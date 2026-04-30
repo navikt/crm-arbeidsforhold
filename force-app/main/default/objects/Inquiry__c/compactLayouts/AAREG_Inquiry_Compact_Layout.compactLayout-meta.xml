@@ -5,5 +5,6 @@
     <fields>AccountId__c</fields>
     <fields>TypeOfInquiry__c</fields>
     <fields>Status__c</fields>
+    <fields>InquiryOwnerName__c</fields>
     <label>AAREG Inquiry Compact Layout</label>
 </CompactLayout>
