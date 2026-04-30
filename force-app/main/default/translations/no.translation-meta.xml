@@ -17,10 +17,6 @@
         <name>Email_Scheduling</name>
     </customApplications>
     <customLabels>
-        <label>Beskrivelse av henvendelse</label>
-        <name>AAREG_Inquiry_description</name>
-    </customLabels>
-    <customLabels>
         <label>Begrunnelse</label>
         <name>AAREG_Decision_details_sections</name>
     </customLabels>
