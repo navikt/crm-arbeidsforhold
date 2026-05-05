@@ -53,13 +53,16 @@ jobs:
     name: Create Package
     runs-on: ubuntu-latest
     timeout-minutes: 180
-    permissions: { contents: read }
+    permissions: { contents: write }
     outputs:
       packageId: ${{ steps.create.outputs.packageId }}
       versionNumber: ${{ steps.create.outputs.versionNumber }}
       codeCoverage: ${{ steps.create.outputs.codeCoverage }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}   # default; explicit for clarity
+          persist-credentials: true
       - uses: navikt/crm-workflows-base/.github/actions/installSF@master
       - uses: navikt/crm-workflows-base/.github/actions/authenticateOrg@master
         with:
@@ -67,6 +70,65 @@ jobs:
           alias: prod
           setDefaultUsername: true
           setDefaultDevhubUsername: true
+
+      - name: Auto-bump versionNumber above latest released
+        run: |
+          set -euo pipefail
+
+          PKG=$(jq -r '[.packageDirectories[]? | select(.package) | .package][0] // empty' sfdx-project.json)
+          [[ -z "$PKG" ]] && { echo "::error::No package found in sfdx-project.json"; exit 1; }
+
+          LOCAL=$(jq -r '[.packageDirectories[]? | select(.package) | .versionNumber][0]' sfdx-project.json)
+          IFS='.' read -r lM lm lp lb <<< "$LOCAL"
+          echo "Local versionNumber: $LOCAL"
+
+          RELEASED=$(sf package version list --released --packages "$PKG" --target-dev-hub prod --json \
+            | jq -r '[.result[]?.Version // empty]
+                     | map(split(".") | map(tonumber))
+                     | sort
+                     | last
+                     | if . == null then "0.0.0.0" else (map(tostring) | join(".")) end')
+          echo "Latest released:    $RELEASED"
+
+          IFS='.' read -r rM rm rp rb <<< "$RELEASED"
+
+          needs_bump=false
+          if   (( lM <  rM )); then needs_bump=true
+          elif (( lM == rM && lm <  rm )); then needs_bump=true
+          elif (( lM == rM && lm == rm && lp <= rp )); then needs_bump=true
+          fi
+
+          if [[ "$needs_bump" == "true" ]]; then
+            newMinor=$(( rm + 1 ))
+            NEW="${rM}.${newMinor}.0.NEXT"
+            echo "::notice::Bumping versionNumber from $LOCAL to $NEW (released: $RELEASED)"
+            tmp=$(mktemp)
+            jq --arg new "$NEW" '
+              .packageDirectories |= map(
+                if .package then .versionNumber = $new else . end
+              )
+            ' sfdx-project.json > "$tmp" && mv "$tmp" sfdx-project.json
+          else
+            echo "versionNumber $LOCAL is already greater than released $RELEASED — no bump needed."
+          fi
+
+          jq '.packageDirectories' sfdx-project.json
+      - name: Commit bumped versionNumber back to repo
+        if: github.ref_name == (github.event.repository.default_branch || 'main')
+        run: |
+            set -euo pipefail
+            if git diff --quiet -- sfdx-project.json; then
+              echo "No change to sfdx-project.json — nothing to commit."
+              exit 0
+            fi
+            NEW=$(jq -r '[.packageDirectories[]? | select(.package) | .versionNumber][0]' sfdx-project.json)
+            git config user.name  "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add sfdx-project.json
+            git commit -m "chore: bump versionNumber to ${NEW} [skip ci]"
+            # rebase-pull in case main moved while we were creating the package version
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
 
       - name: Remove unpackagable metadata
         run: rm -rf ./force-app/unpackagable ./force-app/unpackagable-with-auto-deploy ./force-app/scratch-org
