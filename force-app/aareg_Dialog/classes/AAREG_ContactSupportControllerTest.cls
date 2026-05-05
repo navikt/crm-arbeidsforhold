@@ -258,8 +258,7 @@ public class AAREG_ContactSupportControllerTest {
         LIMIT 1
       ];
       docId = cdlList[0].ContentDocumentId;
-      AAREG_contactSupportController.enrichUploadedFiles(new List<Id>{docId}, inq1.Id,
-        JSON.serialize(new Map<String, Object>{ 'subject' => 'S', 'description' => 'D' }));
+      AAREG_contactSupportController.enrichUploadedFiles(new List<Id>{docId}, inq1.Id);
     } catch (exception e) {
       System.assert(false, 'createNewInquiry should not throw exception: ' + e.getMessage());
     }

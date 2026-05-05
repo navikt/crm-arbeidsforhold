@@ -24,6 +24,7 @@ import createNewInquiry from '@salesforce/apex/AAREG_contactSupportController.cr
 // New Apex endpoints for lightning-file-upload flow
 import initDraftRecord from '@salesforce/apex/AAREG_contactSupportController.initDraftRecord';
 import createFinalInquiry from '@salesforce/apex/AAREG_contactSupportController.createFinalInquiry';
+import updateDraftRecord from '@salesforce/apex/AAREG_contactSupportController.updateDraftRecord';
 import relinkFilesToParent from '@salesforce/apex/AAREG_contactSupportController.relinkFilesToParent';
 import enrichUploadedFiles from '@salesforce/apex/AAREG_contactSupportController.enrichUploadedFiles';
 
@@ -44,6 +45,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   isReadingFiles = false;
   isInitializingDraft = false;
   isRelinking = false;
+  isUploadEnabled = false; // Enable upload only after user fills any form field
 
   // Store existing applications to determine if user has open applications and to link inquiries to them
   existingApplications = [];
@@ -106,6 +108,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     }
   }
 
+
   // Fetch the user's applications to determine if they have any open applications that can be linked to the inquiry. 
   // This allows users to easily associate their support requests with relevant applications, providing context for support agents 
   // and streamlining the support process. The data is filtered to exclude draft applications, ensuring that only active or 
@@ -143,8 +146,17 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   // Handle input changes for form fields and update the inquiry state accordingly. This method uses the data-id attribute on 
   // input fields to determine which field is being updated, allowing for a generic handler that can 
   // manage multiple fields without needing separate handlers for each one.
-  handleInputChange(event) {
+  async handleInputChange(event) {
     this.inquiry[event.target.dataset.id] = event.target.value;
+    
+    // Enable upload and create draft on first form field change
+    if (!this.isUploadEnabled) {
+      this.isUploadEnabled = true;
+      await this.ensureDraftRecordExists();
+    } else if (this.draftRecordId) {
+      // Update draft with subsequent changes
+      await this.updateDraftWithFormData();
+    }
   }
 
   // Handle changes to the related application selection, updating the selectedApplicationId state. This allows the form to 
@@ -156,10 +168,13 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
 
   // Initialize a draft Inquiry__c to use as record-id for lightning-file-upload
   async initializeDraftInquiry() {
+    if (this.draftRecordId) return;
+    console.log('Initializing draft Inquiry__c for file uploads...');
     try {
       this.isInitializingDraft = true;
       // Server initializes minimal Inquiry__c (e.g., Status = Draft)
       this.draftRecordId = await initDraftRecord();
+      console.log('Draft Inquiry__c initialized with Id:', this.draftRecordId);
     } catch (e) {
       // Surface error to user if needed
       // console.error(e);
@@ -172,6 +187,8 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   async updateDraftWithFormData() {
     if (!this.draftRecordId) return;
 
+    console.log('Updating draft Inquiry__c with current form data before file upload...');
+
     try {
       const metadata = {
         TypeOfInquiry__c: this.inquiry.TypeOfInquiry__c,
@@ -180,13 +197,24 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
         InquiryDescription__c: this.inquiry.InquiryDescription__c
       };
 
-      await createFinalInquiry({
+      console.log('Updating draft record with metadata:', metadata);
+      console.log("draftRcordId: ", this.draftRecordId);
+
+      await updateDraftRecord({
         draftId: this.draftRecordId,
         metadataJson: JSON.stringify(metadata)
       });
     } catch (e) {
       console.error('Error updating draft with form data:', e);
     }
+  }
+
+  // Ensure draft record exists and update with current form data
+  async ensureDraftRecordExists() {
+    if (!this.draftRecordId) {
+      await this.initializeDraftInquiry();
+    }
+    await this.updateDraftWithFormData();
   }
 
   // Handle completion of lightning-file-upload; capture file metadata
@@ -196,13 +224,10 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   // The method also ensures that a draft Inquiry__c is initialized to associate the uploaded files with, maintaining the integrity of the file attachments and ensuring they are properly linked to the user's inquiry.
   // Note: lightning-file-upload does not support a maxFiles attribute, so we handle this manually by slicing the input and showing an error if the user attempts to exceed the limit.
   async handleFilesUploaded(event) {
-    const files = event?.detail?.files || [];
 
-    if (!this.draftRecordId) {
-      await this.initializeDraftInquiry();
-      // Immediately populate the draft with current form values to make it visible
-      await this.updateDraftWithFormData();
-    }
+    console.log('Files uploaded event received:', event || 'No event data');
+
+    const files = event?.detail?.files || [];
 
     const currentCount = Array.isArray(this.uploadedFiles) ? this.uploadedFiles.length : 0;
     const newCount = Array.isArray(files) ? files.length : 0;
@@ -231,11 +256,9 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     }
   }
 
-  // If the user has uploaded 10 files, disable the file upload component to prevent further uploads. 
-  // This getter checks the number of files currently uploaded and returns true if the limit has been reached, 
-  // allowing the UI to conditionally disable the upload functionality and provide feedback to the user about the maximum file limit.
-  get isUploadDisabled() {
-    return (this.uploadedFiles?.length || 0) >= 10;
+  // Disable file upload until user fills any form field (ensures draft record exists before upload)
+  get isUploadDisabledUntilFormFilled() {
+    return !this.isUploadEnabled || (this.uploadedFiles?.length || 0) >= 10;
   }
 
   // Allow removing a file uploaded to the draft Inquiry__c by unlinking
@@ -355,20 +378,14 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
           if (hasUploadedDocs) {
             this.isRelinking = true;
 
-            await relinkFilesToParent({
-              documentIds,
-              fromParentId: this.draftRecordId,
-              toParentId: this.finalRecordId
-            });
+            console.log('Final record created with Id:', this.finalRecordId);
+            console.log('currentUser Id:', this.currentUser);
+            console.log('Document IDs:', documentIds.toString() || 'No documents to relink');
 
-            await enrichUploadedFiles({
-              documentIds,
-              recordId: this.finalRecordId,
-              metadataJson: JSON.stringify({
-                subject: this.inquiry.Subject__c,
-                description: this.inquiry.InquiryDescription__c
-              })
-            });
+            // await relinkFilesToParent({ documentIds, fromParentId: this.currentUser, toParentId: this.finalRecordId });
+
+            // await enrichUploadedFiles({ documentIds, recordId: this.finalRecordId, metadataJson: JSON.stringify({ subject: this.inquiry.Subject__c, description: this.inquiry.InquiryDescription__c }) });
+            await enrichUploadedFiles({ documentIds, recordId: this.finalRecordId});
             
           }
 
