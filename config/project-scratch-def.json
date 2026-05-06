@@ -1,6 +1,6 @@
 {
     "orgName": "crm-arbeidsforhold",
-    "edition": "enterprise",
+    "edition": "Enterprise",
     "adminEmail": "fakeemail@nav.no.scratchorg",
     "features": [
         "AddCustomApps:30",
