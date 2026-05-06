@@ -169,12 +169,10 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   // Initialize a draft Inquiry__c to use as record-id for lightning-file-upload
   async initializeDraftInquiry() {
     if (this.draftRecordId) return;
-    console.log('Initializing draft Inquiry__c for file uploads...');
     try {
       this.isInitializingDraft = true;
       // Server initializes minimal Inquiry__c (e.g., Status = Draft)
       this.draftRecordId = await initDraftRecord();
-      console.log('Draft Inquiry__c initialized with Id:', this.draftRecordId);
     } catch (e) {
       // Surface error to user if needed
       // console.error(e);
@@ -187,8 +185,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   async updateDraftWithFormData() {
     if (!this.draftRecordId) return;
 
-    console.log('Updating draft Inquiry__c with current form data before file upload...');
-
     try {
       const metadata = {
         TypeOfInquiry__c: this.inquiry.TypeOfInquiry__c,
@@ -196,9 +192,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
         Email__c: this.inquiry.Email__c,
         InquiryDescription__c: this.inquiry.InquiryDescription__c
       };
-
-      console.log('Updating draft record with metadata:', metadata);
-      console.log("draftRcordId: ", this.draftRecordId);
 
       await updateDraftRecord({
         draftId: this.draftRecordId,
@@ -224,8 +217,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   // The method also ensures that a draft Inquiry__c is initialized to associate the uploaded files with, maintaining the integrity of the file attachments and ensuring they are properly linked to the user's inquiry.
   // Note: lightning-file-upload does not support a maxFiles attribute, so we handle this manually by slicing the input and showing an error if the user attempts to exceed the limit.
   async handleFilesUploaded(event) {
-
-    console.log('Files uploaded event received:', event || 'No event data');
 
     const files = event?.detail?.files || [];
 
@@ -317,12 +308,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     }
 
     if (this.regardingApplicationInProcess) {
-      console.log('Calling createThreadForApplication with:', {
-        userId: this.currentUser,
-        applicationId: this.selectedApplicationId,
-        inquiryType: this.inquiry.TypeOfInquiry__c,
-        filesCount: filesToSend.length
-      });
 
       // If the inquiry is regarding an application in process, create a new thread linked to that application. This allows users to 
       // easily associate their support requests with relevant applications, providing context for support agents and streamlining the support process. 
@@ -377,16 +362,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
           // If files uploaded via lightning-file-upload, relink and enrich
           if (hasUploadedDocs) {
             this.isRelinking = true;
-
-            console.log('Final record created with Id:', this.finalRecordId);
-            console.log('currentUser Id:', this.currentUser);
-            console.log('Document IDs:', documentIds.toString() || 'No documents to relink');
-
-            // await relinkFilesToParent({ documentIds, fromParentId: this.currentUser, toParentId: this.finalRecordId });
-
-            // await enrichUploadedFiles({ documentIds, recordId: this.finalRecordId, metadataJson: JSON.stringify({ subject: this.inquiry.Subject__c, description: this.inquiry.InquiryDescription__c }) });
             await enrichUploadedFiles({ documentIds, recordId: this.finalRecordId});
-            
           }
 
           // Mark submitted and show success UI

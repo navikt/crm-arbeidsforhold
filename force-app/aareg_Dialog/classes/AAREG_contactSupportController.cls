@@ -79,7 +79,7 @@ public with sharing class AAREG_contactSupportController {
       SELECT Id, Subject__c, InquiryDescription__c, Email__c, TypeOfInquiry__c
       FROM Inquiry__c
       WHERE Id = :draftId
-      WITH USER_MODE
+      WITH USER_MODE  
       LIMIT 1
     ];
 
@@ -92,6 +92,8 @@ public with sharing class AAREG_contactSupportController {
     if (String.isNotBlank(email)) rec.Email__c = email.left(255);
     String typeOfInquiry = (String) meta.get('TypeOfInquiry__c');
     if (String.isNotBlank(typeOfInquiry)) rec.TypeOfInquiry__c = typeOfInquiry;
+    // Set final status to indicate submission
+    rec.Status__c = 'New';
 
     Database.update(rec, AccessLevel.USER_MODE);
     return rec.Id;
