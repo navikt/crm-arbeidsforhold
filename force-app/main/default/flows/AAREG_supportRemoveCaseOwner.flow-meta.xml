@@ -277,7 +277,7 @@
         <connector>
             <targetReference>setBeforeCategory</targetReference>
         </connector>
-        <filterLogic>1 AND ( 2 OR 3)</filterLogic>
+        <filterLogic>1 AND ( 2 OR 3) AND 4</filterLogic>
         <filters>
             <field>TypeOfInquiry__c</field>
             <operator>IsChanged</operator>
@@ -297,6 +297,13 @@
             <operator>NotEqualTo</operator>
             <value>
                 <stringValue>New</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Draft</stringValue>
             </value>
         </filters>
         <object>Inquiry__c</object>

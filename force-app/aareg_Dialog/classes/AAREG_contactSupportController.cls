@@ -34,11 +34,11 @@ public with sharing class AAREG_contactSupportController {
   }
 
   /**
-   * Completes the final Inquiry__c using an existing draft and metadata from the client.
+   * Update draft Inquiry__c using an existing draft and metadata from the client.
    * Returns the final Inquiry__c Id (same as draft if updating in place).
    */
   @AuraEnabled
-  public static Id createFinalInquiry(Id draftId, String metadataJson) {
+  public static Id updateDraftRecord(Id draftId, String metadataJson) {
     if (draftId == null) {
       throw new AuraHandledException('Missing draftId');
     }
@@ -60,6 +60,40 @@ public with sharing class AAREG_contactSupportController {
     if (String.isNotBlank(email)) rec.Email__c = email.left(255);
     String typeOfInquiry = (String) meta.get('TypeOfInquiry__c');
     if (String.isNotBlank(typeOfInquiry)) rec.TypeOfInquiry__c = typeOfInquiry;
+
+    Database.update(rec, AccessLevel.USER_MODE);
+    return rec.Id;
+  }
+
+  /**
+   * Completes the final Inquiry__c using an existing draft and metadata from the client.
+   * Returns the final Inquiry__c Id (same as draft if updating in place).
+   */
+  @AuraEnabled
+  public static Id createFinalInquiry(Id draftId, String metadataJson) {
+    if (draftId == null) {
+      throw new AuraHandledException('Missing draftId');
+    }
+    Map<String, Object> meta = (Map<String, Object>) JSON.deserializeUntyped(metadataJson);
+    Inquiry__c rec = [
+      SELECT Id, Subject__c, InquiryDescription__c, Email__c, TypeOfInquiry__c
+      FROM Inquiry__c
+      WHERE Id = :draftId
+      WITH USER_MODE  
+      LIMIT 1
+    ];
+
+    // Map provided fields cautiously with limits
+    String subj = (String) meta.get('Subject__c');
+    if (String.isNotBlank(subj)) rec.Subject__c = subj.left(255);
+    String descVal = (String) meta.get('InquiryDescription__c');
+    if (String.isNotBlank(descVal)) rec.InquiryDescription__c = descVal.left(32000);
+    String email = (String) meta.get('Email__c');
+    if (String.isNotBlank(email)) rec.Email__c = email.left(255);
+    String typeOfInquiry = (String) meta.get('TypeOfInquiry__c');
+    if (String.isNotBlank(typeOfInquiry)) rec.TypeOfInquiry__c = typeOfInquiry;
+    // Set final status to indicate submission
+    rec.Status__c = 'New';
 
     Database.update(rec, AccessLevel.USER_MODE);
     return rec.Id;
@@ -105,7 +139,7 @@ public with sharing class AAREG_contactSupportController {
    * metadataJson expects keys: subject, description
    */
   @AuraEnabled
-  public static void enrichUploadedFiles(List<Id> documentIds, Id recordId, String metadataJson) {
+  public static void enrichUploadedFiles(List<Id> documentIds, Id recordId) {
     if (documentIds == null || documentIds.isEmpty() || recordId == null) return;
 
     // Ensure link to target parent exists

@@ -126,14 +126,16 @@
               </span>
 
               <!-- New: Use lightning-file-upload to attach files to a draft Inquiry__c pre-submit -->
+              <!-- Disabled until user fills any form field to ensure draft record exists -->
               <lightning-file-upload
-                label="Laste opp filer"
-                name="contactSupportFiles"
-                record-id={draftRecordId}
-                accept={acceptedFileFormats}
-                multiple
-                onuploadfinished={handleFilesUploaded}
-                disabled={isUploadDisabled}>
+                  label="Last opp dokumentasjon"
+                  name="fileUploader"
+                  accept={acceptedFileFormats}
+                  record-id={draftRecordId}
+                  onuploadfinished={handleFilesUploaded}
+                  disabled={isUploadDisabledUntilFormFilled}
+                  multiple
+              >
               </lightning-file-upload>
 
               <!-- Show uploaded files returned by lightning-file-upload -->
