@@ -285,7 +285,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Inquiry__c.Email__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -320,7 +320,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Inquiry__c.Subject__c</field>
         <readable>true</readable>
     </fieldPermissions>
