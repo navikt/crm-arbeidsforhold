@@ -172,7 +172,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     try {
       this.isInitializingDraft = true;
       // Server initializes minimal Inquiry__c (e.g., Status = Draft)
-      this.draftRecordId = await initDraftRecord();
+      this.draftRecordId = await initDraftRecord(this.currentUser);
     } catch (e) {
       // Surface error to user if needed
       // console.error(e);

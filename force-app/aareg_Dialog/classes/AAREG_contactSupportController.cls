@@ -16,7 +16,8 @@ public with sharing class AAREG_contactSupportController {
    * Returns the Id of the created draft record.
    */
   @AuraEnabled
-  public static Id initDraftRecord() {
+  public static Id initDraftRecord(String userId) {
+
     Inquiry__c draft = new Inquiry__c();
     // Set minimal draft defaults; adjust fields as needed in your org
     draft.Subject__c = 'Draft - File Uploads';
@@ -26,9 +27,14 @@ public with sharing class AAREG_contactSupportController {
     if (Schema.sObjectType.Inquiry__c.fields.Status__c != null) {
         draft.Status__c = 'Draft';
     }
-    Database.SaveResult sr = Database.insert(draft, AccessLevel.USER_MODE);
-    if (!sr.isSuccess()) {
-      throw new AuraHandledException('Could not initialize draft Inquiry__c');
+    Database.SaveResult sr;
+    try {
+
+      String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId] ?.LastUsedOrganization__c;
+      draft.CreatedByOrganizationNumber__c = lastUsedOrganizationNumber;
+      sr = Database.insert(draft, AccessLevel.USER_MODE);
+    } catch (Exception e) {
+      throw new AuraHandledException('Could not initialize draft Inquiry__c' + ' - ' + e.getMessage());
     }
     return sr.getId();
   }
