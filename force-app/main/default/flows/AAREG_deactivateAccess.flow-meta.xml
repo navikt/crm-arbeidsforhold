@@ -221,7 +221,6 @@
             </defaultValue>
             <fieldText>Web-oppslag</fieldText>
             <fieldType>InputField</fieldType>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
@@ -240,7 +239,6 @@
             </defaultValue>
             <fieldText>Uttrekk</fieldText>
             <fieldType>InputField</fieldType>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
@@ -259,7 +257,6 @@
             </defaultValue>
             <fieldText>API</fieldText>
             <fieldType>InputField</fieldType>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
@@ -281,7 +278,7 @@
             <targetReference>getAgreement</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
     <subflows>
         <name>Log_and_Display_Short_Message</name>
         <label>Log and Display Short Message</label>
