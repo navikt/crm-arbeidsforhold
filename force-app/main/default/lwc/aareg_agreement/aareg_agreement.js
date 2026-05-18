@@ -24,7 +24,6 @@ const AGREEMENT_FIELDS = [
   API_ACCESS,
   ACCOUNT_NAME,
   ONLINE_ACCESS,
-  EVENT_ACCESS,
   EXTRACTION_ACCESS,
   DATA_PROCESSOR_NAME,
   ORGANIZATION_NUMBER,
@@ -68,11 +67,17 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
     if (data) {
       this.initialAgreement = data;
       this.agreement = JSON.parse(JSON.stringify(this.initialAgreement));
-      // Remove image from decision (can't be loaded - violates the Content Security Policy)
-      let decisionString = JSON.stringify(this.agreement.fields.Decision__c);
-      let subStr1 = decisionString.substring(0, decisionString.indexOf('<img'));
-      let subStr2 = decisionString.substring(decisionString.indexOf('</img>')+6, decisionString.length);
-      this.agreement.fields.Decision__c = JSON.parse(subStr1 + subStr2);
+      // Remove <img ...> tags from Decision__c (can't be loaded - violates CSP)
+    const decisionField = this.agreement.fields.Decision__c;
+    if (decisionField && typeof decisionField.value === 'string') {
+      // Strip both self-closing and paired img tags
+      decisionField.value = decisionField.value
+        .replace(/<img\b[^>]*>(?:[\s\S]*?<\/img>)?/gi, '');
+    }
+    if (decisionField && typeof decisionField.displayValue === 'string') {
+      decisionField.displayValue = decisionField.displayValue
+        .replace(/<img\b[^>]*>(?:[\s\S]*?<\/img>)?/gi, '');
+    }
     } else if (error) {
       console.error(error);
     }
@@ -103,7 +108,8 @@ export default class Aareg_agreement extends NavigationMixin(LightningElement) {
           this.readOnly = true;
         })
         .catch((error) => {
-          console.error(error);
+          console.error('message:', error?.body?.message);
+  console.error('stack:', error?.body?.stackTrace);
         })
         .finally(() => {
           this.isLoading = false;
