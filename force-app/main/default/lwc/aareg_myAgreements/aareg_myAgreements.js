@@ -16,19 +16,6 @@ const COLUMNS = [
       name: 'Avtale',
       variant: 'Brand Outline'
     }
-  },
-  {
-    type: 'button',
-    fixedWidth: 190,
-    typeAttributes: {
-      label: 'Last ned vedtak',
-      title: 'Last ned vedtak',
-      name: 'Last ned',
-      variant: 'Brand',
-      iconName: 'utility:download',
-      iconPosition: 'right',
-      iconAlternativeText: 'Last ned',
-    }
   }
 ];
 
