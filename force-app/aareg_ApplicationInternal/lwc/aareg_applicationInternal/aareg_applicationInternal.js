@@ -48,4 +48,11 @@ export default class Aareg_applicationInternal extends LightningElement {
                 this.relatedContacts = [];
             });
     }
+
+    get hasAccessTypes() {
+
+        return this.application.some(
+            (a) => a.APITilgang || a.Uttrekk || a.WebTilgang
+        );
+    }
 }

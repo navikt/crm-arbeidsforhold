@@ -41,7 +41,7 @@
                         </template>
                     </table>
                 </lightning-accordion-section>
-
+                <template if:true={hasAccessTypes}>
                 <lightning-accordion-section name="accesstypesSection" label={label.accessTypesSection}>
                 <table class="other-sections">
                     <template for:each={application} for:item="medium">
@@ -60,6 +60,7 @@
                     </template>
                 </table>
                 </lightning-accordion-section>
+            </template>
 
                 <lightning-accordion-section name="legalbasisSection" label={label.legalbasisSection}>
                     <template if:true={basisCodes}>
