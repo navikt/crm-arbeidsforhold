@@ -3,6 +3,57 @@
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
+        <name>Add_reason_for_suspension</name>
+        <label>Add reason for suspension</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>getOwnerAndStatus.AA_DecisionArchiveText__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>suspensionText</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>getOwnerAndStatus.Casehandler_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Closed</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>getOwnerAndStatus.DecisionDate__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>getOwnerAndStatus.Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Suspension</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>getOwnerAndStatus.reasonForSuspension__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>suspensionText</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>getOwnerAndStatus.IsFlowRunning__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>updateReason</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Application_Not_Found</name>
         <label>Application Not Found</label>
         <locationX>0</locationX>
@@ -47,6 +98,22 @@
         </assignmentItems>
         <connector>
             <targetReference>Log_and_Display_Short_Message</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Remove_run_as_flow_checkbox</name>
+        <label>Remove run as flow checkbox</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>getOwnerAndStatus.IsFlowRunning__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_is_flow_running_checkbox</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -155,6 +222,11 @@
         <dataType>String</dataType>
         <expression>&quot;Gjelder &quot; &amp; {!recordId}</expression>
     </formulas>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_addReasonForSuspension&apos;, 32)</expression>
+    </formulas>
     <interviewLabel>AAREG_addReasonForSuspension {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG Application add reason for suspension</label>
     <processMetadataValues>
@@ -201,58 +273,31 @@
         <queriedFields>Id</queriedFields>
         <queriedFields>Casehandler_Status__c</queriedFields>
         <queriedFields>CasehandlerOwner__c</queriedFields>
+        <queriedFields>IsFlowRunning__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordUpdates>
+        <name>Update_is_flow_running_checkbox</name>
+        <label>Update is flow running checkbox</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>updateThreadCrmIsActive</targetReference>
+        </connector>
+        <inputReference>getOwnerAndStatus</inputReference>
+    </recordUpdates>
     <recordUpdates>
         <name>updateReason</name>
         <label>updateReason</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>updateThreadCrmIsActive</targetReference>
+            <targetReference>Remove_run_as_flow_checkbox</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Update_Application_failed</targetReference>
         </faultConnector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>recordId</elementReference>
-            </value>
-        </filters>
-        <inputAssignments>
-            <field>AA_DecisionArchiveText__c</field>
-            <value>
-                <elementReference>suspensionText</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Casehandler_Status__c</field>
-            <value>
-                <stringValue>Closed</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>DecisionDate__c</field>
-            <value>
-                <elementReference>$Flow.CurrentDate</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status__c</field>
-            <value>
-                <stringValue>Suspension</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>reasonForSuspension__c</field>
-            <value>
-                <elementReference>suspensionText</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Application__c</object>
+        <inputReference>getOwnerAndStatus</inputReference>
     </recordUpdates>
     <recordUpdates>
         <name>updateThreadCrmIsActive</name>
@@ -314,7 +359,7 @@
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>updateReason</targetReference>
+            <targetReference>Add_reason_for_suspension</targetReference>
         </connector>
         <fields>
             <name>suspensionText</name>
@@ -322,7 +367,6 @@
             <fieldText>Reason for suspension</fieldText>
             <fieldType>InputField</fieldType>
             <helpText>&lt;p&gt;Enter the reason for closing the application.&lt;/p&gt;</helpText>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
@@ -384,7 +428,7 @@
         <inputAssignments>
             <name>category</name>
             <value>
-                <stringValue>AAREG_addReasonForSuspension</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
