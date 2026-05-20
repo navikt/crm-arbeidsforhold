@@ -32,7 +32,8 @@ public with sharing class AAREG_ApplicationDecisionController {
         ID NewDecisionId;
 
         newDecision.Application__c = recordId; // Replace with the correct field API name
-        newDecision.Process_status__c = 'In progress'; // Set default values as needed
+        newDecision.Process_status__c = 'In progress';
+        newDecision.Decision_date__c = System.today(); // Set default values as needed
         newDecision.Letter_complaint_text__c = System.Label.AAREG_complaint_description_section;
         newDecision.Letter_terms_text__c = System.Label.AAREG_terms_description_section;
         newDecision.Letter_github_text__c = System.Label.AAREG_github_description_text;
@@ -72,34 +73,57 @@ public with sharing class AAREG_ApplicationDecisionController {
         newDecisionDetails.Extraction_Access__c =app.Extraction_Access__c;
         newDecisionDetails.Online_Access__c =app.Online_Access__c;
         newDecisionDetails.Processing_Basis__c =app.ProcessingBasis__c;
-        if(app.OrganizationType__c == 'Other'){
-            newDecisionDetails.Legal_Basis__c =app.OtherLegalBasis__c;
-            newDecisionDetails.Purpose__c =app.OtherPurpose__c;
-        }
-        if(app.OrganizationType__c == 'State'){
-            newDecisionDetails.Legal_Basis__c =app.LegalBasisState__c;
-            newDecisionDetails.Purpose__c =app.PurposeState__c;
-        }
-        if(app.OrganizationType__c == 'Municipality'){
-            newDecisionDetails.Legal_Basis__c =app.LegalBasisMunicipality__c;
-            newDecisionDetails.Purpose__c =app.PurposeMunicipality__c;
-        }
-        if(app.OrganizationType__c == 'Pension'){
-            newDecisionDetails.Legal_Basis__c =app.LegalBasisPension__c;
-            newDecisionDetails.Purpose__c =app.PurposePension__c;
-        }
-        if(app.OrganizationType__c == 'Electricity Supervision'){
-            newDecisionDetails.Legal_Basis__c =app.LegalBasisElectricitySupervision__c;
-            newDecisionDetails.Purpose__c =app.PurposeElectricitySupervision__c;
-        }
-        if(app.OrganizationType__c == 'County'){
-          newDecisionDetails.Legal_Basis__c =app.LegalBasisCounty__c;
-          newDecisionDetails.Purpose__c =app.PurposeCounty__c;
-        }
-        if(app.OtherLegalBasis__c != null && app.OtherPurpose__c != null){ 
-          newDecisionDetails.Legal_Basis__c =app.OtherLegalBasis__c;
-          newDecisionDetails.Purpose__c =app.OtherPurpose__c;
-        }
+        switch on app.OrganizationType__c {
+          when 'State' {
+              if (app.LegalBasisState__c == 'Annet - oppgi i tekstfelt under') {
+                  newDecisionDetails.Legal_Basis__c = app.OtherLegalBasis__c;
+                  newDecisionDetails.Purpose__c     = app.OtherPurpose__c;
+              } else {
+                  newDecisionDetails.Legal_Basis__c = app.LegalBasisState__c;
+                  newDecisionDetails.Purpose__c     = app.PurposeState__c;
+              }
+          }
+          when 'Municipality' {
+              if (app.LegalBasisMunicipality__c == 'Annet - oppgi i tekstfelt under') {
+                  newDecisionDetails.Legal_Basis__c = app.OtherLegalBasis__c;
+                  newDecisionDetails.Purpose__c     = app.OtherPurpose__c;
+              } else {
+                  newDecisionDetails.Legal_Basis__c = app.LegalBasisMunicipality__c;
+                  newDecisionDetails.Purpose__c     = app.PurposeMunicipality__c;
+              }
+          }
+          when 'Pension' {
+              if (app.LegalBasisPension__c == 'Annet - oppgi i tekstfelt under') {
+                  newDecisionDetails.Legal_Basis__c = app.OtherLegalBasis__c;
+                  newDecisionDetails.Purpose__c     = app.OtherPurpose__c;
+              } else {
+                  newDecisionDetails.Legal_Basis__c = app.LegalBasisPension__c;
+                  newDecisionDetails.Purpose__c     = app.PurposePension__c;
+              }
+          }
+          when 'Electricity Supervision' {
+              if (app.LegalBasisElectricitySupervision__c == 'Annet - oppgi i tekstfelt under') {
+                  newDecisionDetails.Legal_Basis__c = app.OtherLegalBasis__c;
+                  newDecisionDetails.Purpose__c     = app.OtherPurpose__c;
+              } else {
+                  newDecisionDetails.Legal_Basis__c = app.LegalBasisElectricitySupervision__c;
+                  newDecisionDetails.Purpose__c     = app.PurposeElectricitySupervision__c;
+              }
+          }
+          when 'County' {
+              if (app.LegalBasisCounty__c == 'Annet - oppgi i tekstfelt under') {
+                  newDecisionDetails.Legal_Basis__c = app.OtherLegalBasis__c;
+                  newDecisionDetails.Purpose__c     = app.OtherPurpose__c;
+              } else {
+                  newDecisionDetails.Legal_Basis__c = app.LegalBasisCounty__c;
+                  newDecisionDetails.Purpose__c     = app.PurposeCounty__c;
+              }
+          }
+          when 'Other' {
+              newDecisionDetails.Legal_Basis__c = app.OtherLegalBasis__c;
+              newDecisionDetails.Purpose__c     = app.OtherPurpose__c;
+          }
+      }
         codeBaseList.add(newDecisionDetails);
       }
       insert codeBaseList;

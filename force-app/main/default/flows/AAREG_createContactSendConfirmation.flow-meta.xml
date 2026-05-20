@@ -15,7 +15,8 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_createContactSendConfirmation</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
         <inputParameters>
@@ -60,7 +61,8 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_createContactSendConfirmation</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
         <inputParameters>
@@ -105,7 +107,8 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_createContactSendConfirmation</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
         <inputParameters>
@@ -150,7 +153,8 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_createContactSendConfirmation</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
         <inputParameters>
@@ -195,12 +199,14 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_createContactSendConfirmation</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
         <inputParameters>
             <name>domain</name>
             <value>
+                <inputConfiguratorMode>Custom</inputConfiguratorMode>
                 <stringValue>AAREG</stringValue>
             </value>
         </inputParameters>
@@ -278,6 +284,11 @@
         <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
     </formulas>
     <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_createContactSendConfirmation&apos;, 32)</expression>
+    </formulas>
+    <formulas>
         <name>varMessagFromNav</name>
         <dataType>String</dataType>
         <expression>&apos;Hei,&apos;&amp;BR() &amp;
@@ -296,7 +307,7 @@
         <expression>{!$Record.Name} &amp;&apos; - Søknad om tilgang til Aa-registeret&apos;</expression>
     </formulas>
     <interviewLabel>AAREG_createContactSendConfirmation {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_createContactSendConfirmation</label>
+    <label>AAREG Application create contact send confirmation</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>

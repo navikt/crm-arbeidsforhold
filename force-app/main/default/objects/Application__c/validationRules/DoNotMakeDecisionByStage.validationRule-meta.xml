@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DoNotMakeDecisionByStage</fullName>
+    <active>true</active>
+    <description>Saksbehandler får en feilmelding ved å bruke banen i disse statuser. Disse settes automatisk.</description>
+    <errorConditionFormula>AND(
+ ISCHANGED( Casehandler_Status__c),
+ IsFlowRunning__c = false,
+
+ OR(
+  ISPICKVAL(Casehandler_Status__c, &quot;Approved&quot;),
+  ISPICKVAL(Casehandler_Status__c, &quot;Approved Partially&quot;),
+  ISPICKVAL(Casehandler_Status__c, &quot;Declined&quot;),
+  ISPICKVAL(Casehandler_Status__c, &quot;Closed&quot;)
+  )  
+)</errorConditionFormula>
+    <errorMessage>Denne status settes automatisk. 
+For å behandle søknaden, må det gjøres ett vedtak eller henlegge søknaden.</errorMessage>
+</ValidationRule>

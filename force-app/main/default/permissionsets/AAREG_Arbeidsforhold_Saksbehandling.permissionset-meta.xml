@@ -733,6 +733,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Application__c.IsFlowRunning__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Application__c.MailingAddress__c</field>
         <readable>true</readable>
     </fieldPermissions>

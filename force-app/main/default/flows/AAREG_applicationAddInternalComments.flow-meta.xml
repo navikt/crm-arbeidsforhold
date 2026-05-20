@@ -128,6 +128,11 @@
         <expression>&quot;Gjelder : &quot; &amp; {!recordId}</expression>
     </formulas>
     <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_applicationAddInternalComments&apos;, 32)</expression>
+    </formulas>
+    <formulas>
         <name>varDateTimeUser</name>
         <dataType>String</dataType>
         <expression>&apos;Merknad lagt til &apos;&amp; TEXT({!$Flow.CurrentDate})&amp;&apos; av &apos;&amp;{!$User.FirstName}&amp;&apos; &apos;&amp;{!$User.LastName}</expression>
@@ -221,7 +226,6 @@
             <name>addInternalComment</name>
             <fieldText>Add comments - only for internal use</fieldText>
             <fieldType>LargeTextArea</fieldType>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
@@ -283,7 +287,7 @@
         <inputAssignments>
             <name>category</name>
             <value>
-                <stringValue>AAREG_applicationAddInternalComments</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>

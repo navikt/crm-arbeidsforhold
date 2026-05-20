@@ -99,8 +99,52 @@
                 <elementReference>getDecisionRecord.Decision_date__c</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>getApplicationRecords.IsFlowRunning__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>createAgreement</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Add_values_to_application1</name>
+        <label>Add values to application</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>getApplicationRecords.Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>var_DecisionStatus</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>getApplicationRecords.Casehandler_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Closed</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>getApplicationRecords.DecisionDate__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>getDecisionRecord.Decision_date__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>getApplicationRecords.IsFlowRunning__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>AAREG_Create_content_version</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -139,7 +183,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>AAREG_Create_content_version</targetReference>
+            <targetReference>Add_values_to_application1</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -244,6 +288,22 @@
             <targetReference>Update_decision</targetReference>
         </connector>
     </assignments>
+    <assignments>
+        <name>Set_is_flow_running_to_false</name>
+        <label>Set is flow running to false</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>getApplicationRecords.IsFlowRunning__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_is_flow_running_checkbox</targetReference>
+        </connector>
+    </assignments>
     <customProperties>
         <name>ScreenProgressIndicator</name>
         <value>
@@ -325,6 +385,7 @@
         <expression>CASE({!getDecisionRecord.Status__c},
 &apos;Innvilget&apos;,&apos;Approved&apos;,
 &apos;Delvis innvilget&apos;, &apos;Approved Partially&apos;,
+&apos;Avslått&apos;,&apos;Declined&apos;,
 &apos;Completed&apos;
 )</expression>
     </formulas>
@@ -411,7 +472,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Check_details_legal_and_basis</targetReference>
+            <targetReference>checkStatus</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -452,7 +513,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Add_values_to_decision</targetReference>
+            <targetReference>Set_is_flow_running_to_false</targetReference>
         </connector>
         <inputReference>getApplicationRecords</inputReference>
     </recordUpdates>
@@ -462,7 +523,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>AAREG_create_activity_history_change_status</targetReference>
+            <targetReference>Update_application</targetReference>
         </connector>
         <inputReference>getDecisionRecord</inputReference>
     </recordUpdates>
@@ -472,7 +533,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Update_application</targetReference>
+            <targetReference>Add_values_to_decision</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -496,6 +557,16 @@
             </value>
         </inputAssignments>
         <object>Application_Decision_Details__c</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_is_flow_running_checkbox</name>
+        <label>Update is flow running checkbox</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>AAREG_create_activity_history_change_status</targetReference>
+        </connector>
+        <inputReference>getApplicationRecords</inputReference>
     </recordUpdates>
     <recordUpdates>
         <name>Update_related_contacts</name>
@@ -600,7 +671,7 @@
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
         <connector>
-            <targetReference>checkStatus</targetReference>
+            <targetReference>getApplicationRecords</targetReference>
         </connector>
         <fields>
             <name>checkListFilled</name>
@@ -750,7 +821,7 @@
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>getApplicationRecords</targetReference>
+            <targetReference>Check_details_legal_and_basis</targetReference>
         </connector>
         <fields>
             <name>isFinishedText</name>
