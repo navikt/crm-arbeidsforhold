@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Arbeidsforhold - e-post-varsling til felles postkasser ved nye henvendelser og ved nye søknader.</description>
+    <label>AAREG email notification</label>
+    <pluralLabel>AAREG email notifications</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>
