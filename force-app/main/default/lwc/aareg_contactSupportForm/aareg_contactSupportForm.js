@@ -19,13 +19,11 @@ import Id from '@salesforce/user/Id';
  */
 import getUsersApplications from '@salesforce/apex/AAREG_MyApplicationsController.getUsersApplications';
 import createThreadForApplication from '@salesforce/apex/AAREG_contactSupportController.createThreadForApplication';
-import createNewInquiry from '@salesforce/apex/AAREG_contactSupportController.createNewInquiry';
 
 // New Apex endpoints for lightning-file-upload flow
 import initDraftRecord from '@salesforce/apex/AAREG_contactSupportController.initDraftRecord';
 import createFinalInquiry from '@salesforce/apex/AAREG_contactSupportController.createFinalInquiry';
 import updateDraftRecord from '@salesforce/apex/AAREG_contactSupportController.updateDraftRecord';
-import relinkFilesToParent from '@salesforce/apex/AAREG_contactSupportController.relinkFilesToParent';
 import enrichUploadedFiles from '@salesforce/apex/AAREG_contactSupportController.enrichUploadedFiles';
 
 import { validateEmail } from 'c/aareg_helperClass';
@@ -172,9 +170,11 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     try {
       this.isInitializingDraft = true;
       // Server initializes minimal Inquiry__c (e.g., Status = Draft)
-      this.draftRecordId = await initDraftRecord({userId: this.currentUser});
+      this.draftRecordId = await initDraftRecord({ userId: this.currentUser });
     } catch (e) {
-      
+        console.error('Error initializing draft Inquiry__c:', e);
+      // Surface error to user if needed
+      // console.error(e);
     } finally {
       this.isInitializingDraft = false;
     }
@@ -301,6 +301,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     // For lightning-file-upload flow we no longer read base64 in browser.
     // Keep legacy guard only if pendingFiles are used via the commented uploader.
     if (this.pendingFiles?.length && this.pendingFiles.some(f => !f.base64)) {
+      // console.error('❌ Some legacy files missing base64:', this.pendingFiles);
       this.isLoading = false;
       return;
     }
@@ -351,16 +352,9 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
 
       (async () => {
         try {
-          // 🔒 Ensure a draft Inquiry__c exists before completing it
-          if (!this.draftRecordId) {
-            this.draftRecordId = await initDraftRecord({ userId: this.currentUser });
-          }
-          if (!this.draftRecordId) {
-            throw new Error('Kunne ikke opprette utkast for henvendelse.');
-          }
-
           // Create/complete final Inquiry__c (server will update draft Inquiry__c fields and return its Id)
           this.finalRecordId = await createFinalInquiry({
+            userId: this.currentUser,
             draftId: this.draftRecordId,
             metadataJson: JSON.stringify(metadata)
           });

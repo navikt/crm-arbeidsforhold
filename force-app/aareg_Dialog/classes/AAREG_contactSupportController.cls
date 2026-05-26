@@ -76,10 +76,11 @@ public with sharing class AAREG_contactSupportController {
    * Returns the final Inquiry__c Id (same as draft if updating in place).
    */
   @AuraEnabled
-  public static Id createFinalInquiry(Id draftId, String metadataJson) {
+  public static Id createFinalInquiry(String userId, Id draftId, String metadataJson) {
     if (draftId == null) {
       throw new AuraHandledException('Missing draftId');
     }
+
     Map<String, Object> meta = (Map<String, Object>) JSON.deserializeUntyped(metadataJson);
     Inquiry__c rec = [
       SELECT Id, Subject__c, InquiryDescription__c, Email__c, TypeOfInquiry__c
@@ -101,42 +102,11 @@ public with sharing class AAREG_contactSupportController {
     // Set final status to indicate submission
     rec.Status__c = 'New';
 
+    //  create associated thread with initial message based on inquiry details
+    createThreadWithMessage(userId, draftId, rec.InquiryDescription__c, rec.Subject__c );
+
     Database.update(rec, AccessLevel.USER_MODE);
     return rec.Id;
-  }
-
-  /**
-   * Add ContentDocumentLink from a set of ContentDocuments to a new parent,
-   * and optionally remove links from the old parent.
-   */
-  @AuraEnabled
-  public static void relinkFilesToParent(List<Id> documentIds, Id fromParentId, Id toParentId) {
-    if (toParentId == null || documentIds == null || documentIds.isEmpty() || fromParentId == toParentId) return;
-
-    List<ContentDocumentLink> toInsert = new List<ContentDocumentLink>();
-    for (Id docId : documentIds) {
-      toInsert.add(new ContentDocumentLink(
-        ContentDocumentId = docId,
-        LinkedEntityId = toParentId,
-        ShareType = 'V',
-        Visibility = 'AllUsers'
-      ));
-    }
-    if (!toInsert.isEmpty()) {
-      Database.insert(toInsert, AccessLevel.USER_MODE);
-    }
-
-    if (fromParentId != null) {
-      List<ContentDocumentLink> toDelete = [
-        SELECT Id
-        FROM ContentDocumentLink
-        WHERE ContentDocumentId IN :documentIds AND LinkedEntityId = :fromParentId
-        WITH USER_MODE
-      ];
-      if (!toDelete.isEmpty()) {
-        Database.delete(toDelete, AccessLevel.USER_MODE);
-      }
-    }
   }
 
   /**
