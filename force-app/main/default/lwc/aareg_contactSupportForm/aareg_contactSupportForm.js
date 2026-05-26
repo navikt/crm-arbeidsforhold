@@ -172,10 +172,9 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     try {
       this.isInitializingDraft = true;
       // Server initializes minimal Inquiry__c (e.g., Status = Draft)
-      this.draftRecordId = await initDraftRecord(this.currentUser);
+      this.draftRecordId = await initDraftRecord({userId: this.currentUser});
     } catch (e) {
-      // Surface error to user if needed
-      // console.error(e);
+      
     } finally {
       this.isInitializingDraft = false;
     }
@@ -302,7 +301,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     // For lightning-file-upload flow we no longer read base64 in browser.
     // Keep legacy guard only if pendingFiles are used via the commented uploader.
     if (this.pendingFiles?.length && this.pendingFiles.some(f => !f.base64)) {
-      // console.error('❌ Some legacy files missing base64:', this.pendingFiles);
       this.isLoading = false;
       return;
     }
@@ -353,6 +351,14 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
 
       (async () => {
         try {
+          // 🔒 Ensure a draft Inquiry__c exists before completing it
+          if (!this.draftRecordId) {
+            this.draftRecordId = await initDraftRecord({ userId: this.currentUser });
+          }
+          if (!this.draftRecordId) {
+            throw new Error('Kunne ikke opprette utkast for henvendelse.');
+          }
+
           // Create/complete final Inquiry__c (server will update draft Inquiry__c fields and return its Id)
           this.finalRecordId = await createFinalInquiry({
             draftId: this.draftRecordId,
