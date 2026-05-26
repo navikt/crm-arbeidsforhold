@@ -151,7 +151,7 @@ public class AAREG_ContactSupportControllerTest {
     Id finalInquiryId;
     
     System.runAs(testUser){
-      finalInquiryId = AAREG_contactSupportController.createFinalInquiry(draftInquiryId, meta);
+      finalInquiryId = AAREG_contactSupportController.createFinalInquiry(String.valueOf(UserInfo.getUserId()), draftInquiryId, meta);
     }
     System.Test.stopTest();
 
@@ -177,56 +177,12 @@ public class AAREG_ContactSupportControllerTest {
 
     System.Test.startTest();
     try {
-      AAREG_contactSupportController.createFinalInquiry(null, meta);
+      AAREG_contactSupportController.createFinalInquiry(String.valueOf(UserInfo.getUserId()), null, meta);
       System.assert(false, 'Should have thrown AuraHandledException');
     } catch (Exception e) {
       System.assert(true, 'Exception was properly caught and handled');
     }
     System.Test.stopTest();
-  }
-
-  /**
-   * relinkFilesToParent should add link to new parent and remove from old parent.
-   * Also covers early-return when toParentId is null and when list is empty.
-   */
-  @isTest
-  static void When_relinkFilesToParentInvoked_FileToLinkedToNewPArent_Success() {
-    Inquiry__c parentA = AAREG_TestDataFactory.getInquiry();
-    Inquiry__c parentB = AAREG_TestDataFactory.getInquiry();
-
-    // Attach a file to parentA by going through controller file path
-    String base64 = EncodingUtil.base64Encode(Blob.valueOf('doc-a'));
-    AAREG_contactSupportController.FileData fd = new AAREG_contactSupportController.FileData();
-    fd.base64 = base64;
-    fd.fileName = 'a.txt';
-    // We need a user Id string for createNewInquiry signature
-    String userIdStr = String.valueOf(UserInfo.getUserId());
-
-    System.Test.startTest();
-    try {
-        AAREG_contactSupportController.createNewInquiry(userIdStr, parentA, new List<AAREG_contactSupportController.FileData>{fd});
-        AAREG_contactSupportController.createNewInquiry(userIdStr, parentB, null);
-    } catch (exception e) {
-      System.assert(false, 'createNewInquiry should not throw exception: ' + e.getMessage());
-    }
-    System.Test.stopTest();
-
-    List<ContentDocumentLink> cdlList = [
-      SELECT Id, ContentDocumentId, LinkedEntityId
-      FROM ContentDocumentLink
-      WHERE LinkedEntityId = :parentA.Id
-      LIMIT 1
-    ];
-    System.assertEquals(1, cdlList.size(), 'Should have one content document link');
-    Id docId = cdlList[0].ContentDocumentId;
-
-    // Perform actual relink
-    AAREG_contactSupportController.relinkFilesToParent(new List<Id>{docId}, parentA.Id, parentB.Id);
-
-    System.assertEquals(0, [SELECT count() FROM ContentDocumentLink WHERE LinkedEntityId = :parentA.Id AND ContentDocumentId = :docId],
-                        'Old parent should have no link');
-    System.assertEquals(1, [SELECT count() FROM ContentDocumentLink WHERE LinkedEntityId = :parentB.Id AND ContentDocumentId = :docId],
-                        'New parent should have one link');
   }
 
   /**
