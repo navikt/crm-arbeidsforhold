@@ -56,7 +56,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_applicationChangeStatusAfterMessageFromUser_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -186,6 +186,11 @@
     </decisions>
     <description>Saksbehandling - when an application is in status &quot;awaiting answer&quot; - the user answer back in a message, the application status sets to &quot;in progress&quot;</description>
     <environments>Default</environments>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_applicationChangeStatusAfterMessageFromUser&apos;, 32)</expression>
+    </formulas>
     <interviewLabel>AAREG_applicationChangeStatusAferMessageFromUser {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_applicationChangeStatusAfterMessageFromUser</label>
     <processMetadataValues>

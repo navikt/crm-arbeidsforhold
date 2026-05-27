@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_supportRemoveCaseOwner_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -60,7 +60,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_supportRemoveCaseOwner_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -132,6 +132,11 @@
     </assignments>
     <description>If support case changes inquiry type - owner removes and status set to new</description>
     <environments>Default</environments>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_supportRemoveCaseOwner&apos;, 32)</expression>
+    </formulas>
     <formulas>
         <name>varDescription</name>
         <dataType>String</dataType>

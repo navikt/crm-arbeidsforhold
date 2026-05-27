@@ -184,6 +184,11 @@
     </dynamicChoiceSets>
     <environments>Default</environments>
     <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_applicationUpdateCaseOwner&apos;, 32)</expression>
+    </formulas>
+    <formulas>
         <name>var_taskText</name>
         <dataType>String</dataType>
         <expression>&apos;Ny saksier: &apos; + {!var_ApplicationRecords.applicationOwner__c}</expression>
@@ -429,7 +434,7 @@
         <inputAssignments>
             <name>category</name>
             <value>
-                <stringValue>AAREG Appliction update case owner</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>

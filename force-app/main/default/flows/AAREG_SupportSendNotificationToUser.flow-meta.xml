@@ -158,6 +158,11 @@
         <dataType>String</dataType>
         <expression>&quot;Gjelder &quot; &amp; {!recordId}</expression>
     </formulas>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_SupportSendNotificationToUser&apos;, 32)</expression>
+    </formulas>
     <interviewLabel>AAREG_SupportSendNotificationToUser {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_SupportSendNotificationToUser</label>
     <processMetadataValues>
@@ -405,7 +410,7 @@
         <inputAssignments>
             <name>category</name>
             <value>
-                <stringValue>AAREG_SupportSendNotificationToUser</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
