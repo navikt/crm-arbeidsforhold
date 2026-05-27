@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_removeAccessToDistribution_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -60,7 +60,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_removeAccessToDistribution</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -105,7 +105,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_removeAccessToDistribution_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -150,7 +150,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_removeAccessToDistribution_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -195,7 +195,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_removeAccessToDistribution_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -240,7 +240,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_removeAccessToDistribution_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -345,7 +345,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_removeAccessToDistribution_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -616,6 +616,11 @@
         <name>convertAccessTextForuser</name>
         <dataType>String</dataType>
         <expression>CASE( {!varSingleAccessType}, &quot;Access API&quot;  , &quot;Tilgang til API&quot;, &quot;Access API with dataprocessor&quot; , &quot;Tilgang til API med databehandler&quot; , &quot;Access OTP&quot; , &quot;Tilgang til OTP&quot; , &quot;Access OTP with dataprocessor&quot;  , &quot;Tilgang til OTP med databehandler&quot; , &quot;Access Online&quot; , &quot;Tilgang til Web-oppslag&quot; ,  &quot;Event&quot;, &quot;Tilgang til Hendelser&quot;, &quot;Event with dataprocessor&quot;, &quot;Tilgang til Hendelser med databehandler&quot;, &quot;Extract&quot;, &quot;Tilgang til Uttrekk&quot;, &quot;Ingen tilgang&quot;)</expression>
+    </formulas>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_removeAccessToDistribution&apos;, 32)</expression>
     </formulas>
     <formulas>
         <name>varConvertAccessType</name>
@@ -1182,7 +1187,7 @@
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>

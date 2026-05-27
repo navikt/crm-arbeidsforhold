@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_subflowCreateTask_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -48,6 +48,11 @@
     <apiVersion>53.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <environments>Default</environments>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_subflowCreateTask&apos;, 32)</expression>
+    </formulas>
     <interviewLabel>AAREG_subflowCreateTask {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_subflowCreateTask</label>
     <processMetadataValues>

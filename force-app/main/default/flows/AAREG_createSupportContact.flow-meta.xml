@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_createSupportContact_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -283,6 +283,11 @@
     </decisions>
     <description>Check contactperson and add account/contact to inquiry</description>
     <environments>Default</environments>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_createSupportContact&apos;, 32)</expression>
+    </formulas>
     <formulas>
         <name>varContactName</name>
         <dataType>String</dataType>

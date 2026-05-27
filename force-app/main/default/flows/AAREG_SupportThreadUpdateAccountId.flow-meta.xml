@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_SupportThreadUpdateAccountId_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -77,6 +77,11 @@
     </decisions>
     <description>When thread is created and type = inquiry__c, get account id based on organization number and update thread</description>
     <environments>Default</environments>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_SupportThreadUpdateAccountId&apos;, 32)</expression>
+    </formulas>
     <formulas>
         <name>varThreadName</name>
         <dataType>String</dataType>
