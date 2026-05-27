@@ -1,8 +1,9 @@
 .unread-cell {
-  display: inline-block;
-  border: 2px solid #ba0517;
-  border-radius: 0.75rem;
-  padding: 0.1rem 0.55rem;
-  color: #ba0517;
-  font-weight: 700;
+  .unread-cell {
+    display: block;
+    width: fit-content;
+  margin: 0 auto;
+    border: 0.25rem solid #ba0517;
+    border-radius: 1.563rem;
+   }
 }
