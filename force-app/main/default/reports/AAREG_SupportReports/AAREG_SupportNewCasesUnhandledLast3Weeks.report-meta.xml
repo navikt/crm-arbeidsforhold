@@ -25,6 +25,9 @@
         <titleSize>18</titleSize>
     </chart>
     <columns>
+        <field>Inquiry__c.InquiryOwner__c</field>
+    </columns>
+    <columns>
         <field>CUST_NAME</field>
     </columns>
     <filter>
@@ -33,7 +36,21 @@
             <columnToColumn>false</columnToColumn>
             <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
-            <value>Closed</value>
+            <value>New</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>Inquiry__c.InquiryOwner__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value></value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>CUST_CREATED_DATE</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>lessThan</operator>
+            <value>N_WEEKS_AGO:3</value>
         </criteriaItems>
         <language>en_US</language>
     </filter>
@@ -43,12 +60,7 @@
         <field>Inquiry__c.TypeOfInquiry__c</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
-    <groupingsDown>
-        <dateGranularity>Day</dateGranularity>
-        <field>Inquiry__c.InquiryOwner__c</field>
-        <sortOrder>Asc</sortOrder>
-    </groupingsDown>
-    <name>AAREG Support Total Closed cases</name>
+    <name>AAREG Unhandled Inquiries Older than 3w</name>
     <params>
         <name>co</name>
         <value>1</value>

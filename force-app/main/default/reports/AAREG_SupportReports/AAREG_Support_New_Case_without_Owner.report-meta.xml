@@ -7,7 +7,7 @@
         <chartSummaries>
             <axisBinding>y</axisBinding>
             <column>RowCount</column>
-        </chartSummaries>
+        </chartSummaries> 
         <chartType>HorizontalBar</chartType>
         <enableHoverLabels>false</enableHoverLabels>
         <expandOthers>true</expandOthers>
