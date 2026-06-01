@@ -1,0 +1,9 @@
+.unread-cell {
+  .unread-cell {
+    display: block;
+    width: fit-content;
+  margin: 0 auto;
+    border: 0.25rem solid #ba0517;
+    border-radius: 1.563rem;
+   }
+}

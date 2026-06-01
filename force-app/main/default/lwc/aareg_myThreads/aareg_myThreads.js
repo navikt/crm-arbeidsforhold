@@ -3,6 +3,8 @@ import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreads';
 import { refreshApex } from '@salesforce/apex';
+import unreadCellStyles from '@salesforce/resourceUrl/AAREG_styles';
+import { loadStyle } from 'lightning/platformResourceLoader';
 
 const COLUMNS = [
   { 
@@ -27,10 +29,14 @@ const COLUMNS = [
     hideDefaultActions: true },
     
   {
-    label: 'Antall uleste meldinger',
+    label: 'Uleste meldinger',
     fieldName: 'CRM_Number_of_unread_Messages__c',
     type: 'text',
-    hideDefaultActions: true
+    hideDefaultActions: true,
+    cellAttributes: {
+      class: { fieldName: 'unreadClass' },
+      alignment: 'center'
+    }
   },
   {
     type: 'button',
@@ -46,9 +52,11 @@ const COLUMNS = [
 
 export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
   @track threads;
+  wiredThreadsResult;
   columns = COLUMNS;
   currentUser = Id;
   error;
+  stylesLoaded = false;
   breadcrumbs = [
     {
       label: 'Min side',
@@ -64,24 +72,35 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
     return window.screen.width < 576;
   }
 
-  renderedCallback() {
-    refreshApex(this.threads);
+ renderedCallback() {
+  if (this.stylesLoaded) return;
+  this.stylesLoaded = true;
+  loadStyle(this, unreadCellStyles).catch(err =>
+    console.error('Failed to load styles', err)
+  );
   }
 
   @wire(getUsersThreads, { userId: '$currentUser' })
-  threads(result) {
+  wiredThreads(result) {
+    this.wiredThreadsResult = result;
     if (result.data) {
-      if (result.data.length > 0) {
-        this.threads = result.data;
-      }
+      const rows = result.data.map(r => ({
+        ...r,
+        unreadClass:
+          (r.CRM_Number_of_unread_Messages__c || 0) > 0
+            ? 'unread-cell'
+            : ''
+      }));
+      this.threads = rows.length > 0 ? rows : undefined;
       this.error = undefined;
     } else if (result.error) {
-      console.error(error);
-      this.error = error;
+      console.error(result.error);
+      this.error = result.error;
+      this.threads = undefined;
     }
   }
 
-  viewThread(event) {
+ async viewThread(event) {
     const row = event.detail.row;
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',
@@ -90,6 +109,7 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
         actionName: 'view'
       }
     });
+    await refreshApex(this.wiredThreadsResult);
   }
 
   navigateToPage(event) {

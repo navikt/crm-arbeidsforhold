@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_sendAwaitingResponseEmailNotification_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -64,6 +64,11 @@
         </connector>
     </assignments>
     <environments>Default</environments>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_sendAwaitingResponseEmailNotification&apos;, 32)</expression>
+    </formulas>
     <interviewLabel>AAREG_sendAwaitingResponseEmailNotification {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_sendAwaitingResponseEmailNotification</label>
     <processMetadataValues>

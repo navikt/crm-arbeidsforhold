@@ -187,6 +187,11 @@
         <expression>&quot;Gjelder &quot; &amp; {!recordId}</expression>
     </formulas>
     <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_deactivateAgreement&apos;, 32)</expression>
+    </formulas>
+    <formulas>
         <name>varTaskDescriptionKeepAccess</name>
         <dataType>String</dataType>
         <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har deaktivert avtalen.&apos;</expression>
@@ -459,6 +464,7 @@
             </defaultValue>
             <fieldText>Yes, I want to deactivate the agreement and access</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
@@ -477,6 +483,7 @@
             </defaultValue>
             <fieldText>Yes, I want to deactivate agreement, not access</fieldText>
             <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
@@ -545,7 +552,7 @@
             <targetReference>getAgreement</targetReference>
         </connector>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <subflows>
         <name>Log_and_Display_Short_Message</name>
         <label>Log and Display Message</label>
@@ -555,7 +562,7 @@
         <inputAssignments>
             <name>category</name>
             <value>
-                <stringValue>AAREG_deactivateAgreement</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>

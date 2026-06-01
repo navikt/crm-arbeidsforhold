@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG Application- After Insert- Populate Application Fields_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -71,6 +71,11 @@
     </assignments>
     <description>Saksbehandling - automation to populate fields on the Application object after insert.</description>
     <environments>Default</environments>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREGApplicationAfterInsertPopulateApplicationFields&apos;, 32)</expression>
+    </formulas>
     <interviewLabel>AAREG Application- After Insert- Populate Application Fields {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG Application- After Insert- Populate Application Fields</label>
     <processMetadataValues>

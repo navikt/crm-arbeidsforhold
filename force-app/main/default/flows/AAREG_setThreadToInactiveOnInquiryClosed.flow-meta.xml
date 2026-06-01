@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_setThreadToInactiveOnInquiryClosed_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -48,6 +48,11 @@
     <apiVersion>56.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <environments>Default</environments>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_setThreadToInactiveOnInquiryClosed&apos;, 32)</expression>
+    </formulas>
     <interviewLabel>AAREG_setThreadToInactiveOnInquiryClosed {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG_setThreadToInactiveOnInquiryClosed</label>
     <processMetadataValues>

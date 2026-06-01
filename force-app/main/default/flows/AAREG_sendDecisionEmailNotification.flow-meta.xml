@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_sendDecisionEmailNotification_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -177,6 +177,11 @@
     </decisions>
     <description>Arbeidsforhold - Utsendelse av epost til søker når vedtak foreligger. Sender også ved henleggelse</description>
     <environments>Default</environments>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_sendDecisionEmailNotification&apos;, 32)</expression>
+    </formulas>
     <interviewLabel>AAREG_sendDecisionEmailNotification {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG Application notification decision email</label>
     <processMetadataValues>

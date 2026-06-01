@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <stringValue>AAREG_populateApplicationFieldAfterSubmit_failed</stringValue>
+                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -667,6 +667,11 @@ Setter også svarfristdato</description>
         <name>setApplicationDeadlineDate</name>
         <dataType>Date</dataType>
         <expression>{!$Record.ApplicationSubmittedDate__c}+ ( 365 / 12 )</expression>
+    </formulas>
+    <formulas>
+        <name>var_FlowNameNoLongerThan32Char</name>
+        <dataType>String</dataType>
+        <expression>LEFT(&apos;AAREG_applicationPopulateFieldAfterSubmit&apos;, 32)</expression>
     </formulas>
     <interviewLabel>AAREG_populateApplicationFieldAfterSubmitt {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG Application populate field after submit</label>
