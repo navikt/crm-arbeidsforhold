@@ -3,9 +3,9 @@
     <backgroundEndColor>#FFFFFF</backgroundEndColor>
     <backgroundFadeDirection>Diagonal</backgroundFadeDirection>
     <backgroundStartColor>#FFFFFF</backgroundStartColor>
-    <chartTheme>light</chartTheme>
+    <chartTheme>dark</chartTheme>
     <colorPalette>unity</colorPalette>
-    <dashboardChartTheme>light</dashboardChartTheme>
+    <dashboardChartTheme>dark</dashboardChartTheme>
     <dashboardColorPalette>unity</dashboardColorPalette>
     <dashboardGridLayout>
         <dashboardGridComponents>
@@ -13,7 +13,6 @@
             <columnIndex>3</columnIndex>
             <dashboardComponent>
                 <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
-                <componentChartTheme>dark</componentChartTheme>
                 <componentType>FlexTable</componentType>
                 <flexComponentProperties>
                     <decimalPrecision>-1</decimalPrecision>
@@ -56,7 +55,7 @@
                 </flexComponentProperties>
                 <groupingSortProperties/>
                 <header>Antall nye feil</header>
-                <report>Aa_registerReports/AAREG_ALTINN_Errors_last_week</report>
+                <report>AAREG_SupportReports/AAREG_ALTINN_Errors_last_week</report>
                 <title>Siste uke (aareg og altinn)</title>
             </dashboardComponent>
             <rowIndex>0</rowIndex>
@@ -81,36 +80,23 @@
             <columnIndex>3</columnIndex>
             <dashboardComponent>
                 <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
-                <chartAxisRange>Auto</chartAxisRange>
                 <chartSummary>
                     <axisBinding>y</axisBinding>
                     <column>RowCount</column>
                 </chartSummary>
-                <componentChartTheme>dark</componentChartTheme>
-                <componentType>Bar</componentType>
+                <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <drillEnabled>false</drillEnabled>
-                <drillToDetailEnabled>false</drillToDetailEnabled>
-                <enableHover>false</enableHover>
-                <expandOthers>false</expandOthers>
-                <groupingColumn>Inquiry__c.TypeOfInquiry__c</groupingColumn>
-                <groupingSortProperties>
-                    <groupingSorts>
-                        <groupingLevel>g1</groupingLevel>
-                        <sortOrder>a</sortOrder>
-                    </groupingSorts>
-                </groupingSortProperties>
+                <groupingSortProperties/>
                 <header>Antall nye henvendelser</header>
-                <legendPosition>Bottom</legendPosition>
+                <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
+                <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
+                <indicatorHighColor>#00716B</indicatorHighColor>
+                <indicatorLowColor>#C23934</indicatorLowColor>
+                <indicatorMiddleColor>#CA8501</indicatorMiddleColor>
+                <metricLabel>4 uker</metricLabel>
                 <report>AAREG_SupportReports/AAREG_SupportNewCasesUnhandledLast3Weeks</report>
-                <showPercentage>false</showPercentage>
-                <showPicturesOnCharts>false</showPicturesOnCharts>
-                <showValues>true</showValues>
-                <sortBy>RowLabelAscending</sortBy>
-                <sortLegendValues>true</sortLegendValues>
-                <title>4 uker</title>
-                <useReportChart>false</useReportChart>
+                <showRange>false</showRange>
             </dashboardComponent>
             <rowIndex>5</rowIndex>
             <rowSpan>5</rowSpan>
@@ -120,36 +106,23 @@
             <columnIndex>3</columnIndex>
             <dashboardComponent>
                 <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
-                <chartAxisRange>Auto</chartAxisRange>
                 <chartSummary>
                     <axisBinding>y</axisBinding>
                     <column>RowCount</column>
                 </chartSummary>
-                <componentChartTheme>dark</componentChartTheme>
-                <componentType>Bar</componentType>
+                <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <drillEnabled>false</drillEnabled>
-                <drillToDetailEnabled>false</drillToDetailEnabled>
-                <enableHover>false</enableHover>
-                <expandOthers>false</expandOthers>
-                <groupingColumn>Application__c.Casehandler_Status__c</groupingColumn>
-                <groupingSortProperties>
-                    <groupingSorts>
-                        <groupingLevel>g1</groupingLevel>
-                        <sortOrder>a</sortOrder>
-                    </groupingSorts>
-                </groupingSortProperties>
+                <groupingSortProperties/>
                 <header>Antall nye Søknader</header>
-                <legendPosition>Bottom</legendPosition>
+                <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
+                <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
+                <indicatorHighColor>#00716B</indicatorHighColor>
+                <indicatorLowColor>#C23934</indicatorLowColor>
+                <indicatorMiddleColor>#CA8501</indicatorMiddleColor>
+                <metricLabel>4 uker og eldre</metricLabel>
                 <report>Aa_registerReports/Aa_regNewFourthAndOlder</report>
-                <showPercentage>false</showPercentage>
-                <showPicturesOnCharts>false</showPicturesOnCharts>
-                <showValues>true</showValues>
-                <sortBy>RowLabelAscending</sortBy>
-                <sortLegendValues>true</sortLegendValues>
-                <title>4 uker og eldre</title>
-                <useReportChart>false</useReportChart>
+                <showRange>false</showRange>
             </dashboardComponent>
             <rowIndex>10</rowIndex>
             <rowSpan>5</rowSpan>
@@ -159,8 +132,8 @@
     </dashboardGridLayout>
     <dashboardType>SpecifiedUser</dashboardType>
     <isGridLayout>true</isGridLayout>
-    <owner>test-jv4glswbsecf@example.com</owner>
-    <runningUser>test-jv4glswbsecf@example.com</runningUser>
+    <owner>test-9kvk7k2zotbg@example.com</owner>
+    <runningUser>test-9kvk7k2zotbg@example.com</runningUser>
     <textColor>#000000</textColor>
     <title>Aareg-Admin dashboard</title>
     <titleColor>#000000</titleColor>
