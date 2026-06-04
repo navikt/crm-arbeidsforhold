@@ -1,7 +1,12 @@
-@isTest
+@IsTest
 public with sharing class AAREG_TestDataFactory {
 
     /** Account **/
+    /**
+     * Creates and returns a new Account instance for testing purposes.
+     * 
+     * @return Account - A newly created Account instance.
+     */
     public static Account getAccount() {
     Account acct = new Account(
       Name = 'Test',
@@ -14,6 +19,12 @@ public with sharing class AAREG_TestDataFactory {
     return acct;
   }
     
+    /**
+     * Creates and returns a new Account instance representing a municipality (KOMM)
+     * for testing purposes.
+     *
+     * @return Account - A newly created municipality Account instance.
+     */
   public static Account getAccountMuncipiality() {
     Account acct = new Account(
       Name = 'KOMMUNE',
@@ -28,7 +39,13 @@ public with sharing class AAREG_TestDataFactory {
     );
     return acct;
   }
-    
+  
+  /**
+     * Creates and returns a new Account instance representing a pension organization
+     * for testing purposes.
+     *
+     * @return Account - A newly created pension Account instance.
+     */
   public static Account getAccountPension() {
     Account acct = new Account(
       Name = 'PENSJON',
@@ -44,6 +61,12 @@ public with sharing class AAREG_TestDataFactory {
     return acct;
   }
 
+  /**
+     * Creates and returns a new Account instance representing an electricity supervision
+     * organization (AS) for testing purposes.
+     *
+     * @return Account - A newly created electricity-supervision Account instance.
+     */
     public static Account getAccountEL() {
         Account acct = new Account(
             Name = 'EL',
@@ -59,6 +82,12 @@ public with sharing class AAREG_TestDataFactory {
         return acct;
     }
     
+    /**
+     * Creates and returns a new Account instance representing a county (FYLK)
+     * for testing purposes.
+     *
+     * @return Account - A newly created county Account instance.
+     */
     public static Account getAccountCounty() {
         Account acct = new Account(
           Name = 'Fylke',
@@ -74,6 +103,12 @@ public with sharing class AAREG_TestDataFactory {
         return acct;
     }
         
+    /**
+     * Creates and returns a new Account instance representing a state organization
+     * for testing purposes.
+     *
+     * @return Account - A newly created state Account instance.
+     */
     public static Account getAccountState() {
         Account acct = new Account(
           Name = 'Fylke',
@@ -89,7 +124,12 @@ public with sharing class AAREG_TestDataFactory {
         return acct;
     } 
   
-  /** opprettelse av bedrift flere typer**/  
+  /**
+     * Creates and returns a list of Account instances covering all supported
+     * organization types (Municipality, Pension, Electricity, County) for testing.
+     *
+     * @return List<Account> - A list of newly created Account instances.
+     */ 
   public static List<Account> getAccountAll() {
     List<Account> accList = new List<Account>();
         accList.add(new Account(
@@ -142,7 +182,12 @@ public with sharing class AAREG_TestDataFactory {
     return accList;
   }
   
-  /** Application **/
+  /**
+     * Creates and returns a new County Application__c record linked to the given Account.
+     *
+     * @param acc The Account to associate with the Application.
+     * @return Application__c - A newly created County Application record.
+     */
   public static Application__c getApplicationCounty(Account acc) {
       
       Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
@@ -170,6 +215,12 @@ public with sharing class AAREG_TestDataFactory {
     return application;
   }
   
+   /**
+     * Creates and returns a new State Application__c record linked to the given Account.
+     *
+     * @param acc The Account to associate with the Application.
+     * @return Application__c - A newly created State Application record.
+     */
   public static Application__c getApplicationState(Account acc) {
       
       Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
@@ -196,7 +247,14 @@ public with sharing class AAREG_TestDataFactory {
     );
     return application;
   }
-    
+  
+  /**
+     * Creates and returns a new Electricity-Supervision Application__c record
+     * linked to the given Account.
+     *
+     * @param acc The Account to associate with the Application.
+     * @return Application__c - A newly created Electricity Supervision Application record.
+     */
   public static Application__c getApplicationEL(Account acc) {
       
        Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
@@ -223,7 +281,13 @@ public with sharing class AAREG_TestDataFactory {
     );
     return application;
   }
-    
+   
+  /**
+     * Creates and returns a new Pension Application__c record linked to the given Account.
+     *
+     * @param acc The Account to associate with the Application.
+     * @return Application__c - A newly created Pension Application record.
+     */
   public static Application__c getApplicationPension(Account acc) {
        Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
       .get('Aa_RegisterAccess')
@@ -249,7 +313,13 @@ public with sharing class AAREG_TestDataFactory {
     );
     return application;
   }
-    
+  
+  /**
+     * Creates and returns a new Municipality Application__c record linked to the given Account.
+     *
+     * @param acc The Account to associate with the Application.
+     * @return Application__c - A newly created Municipality Application record.
+     */
   public static Application__c getApplicationMunicipality(Account acc) {
       
       Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
@@ -277,7 +347,13 @@ public with sharing class AAREG_TestDataFactory {
     return application;
   }
   
-  /** Application Basis Code **/   
+  /**
+     * Creates and returns a list of County ApplicationBasisCode__c records
+     * linked to the given Application.
+     *
+     * @param app The Application to associate with the basis codes.
+     * @return List<ApplicationBasisCode__c> - A list of County basis-code records.
+     */ 
   public static List<ApplicationBasisCode__c> getBasisCodeCounty(Application__c app){
         
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
@@ -317,6 +393,13 @@ public with sharing class AAREG_TestDataFactory {
         return basisCodes;
     }
     
+    /**
+     * Creates and returns a list of Electricity-Supervision ApplicationBasisCode__c
+     * records linked to the given Application.
+     *
+     * @param app The Application to associate with the basis codes.
+     * @return List<ApplicationBasisCode__c> - A list of Electricity-Supervision basis-code records.
+     */
      public static List<ApplicationBasisCode__c> getBasisCodeEL(Application__c app){
         
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
@@ -345,6 +428,13 @@ public with sharing class AAREG_TestDataFactory {
         return basisCodes;
     }
     
+    /**
+     * Creates and returns a list of Pension ApplicationBasisCode__c records
+     * linked to the given Application.
+     *
+     * @param app The Application to associate with the basis codes.
+     * @return List<ApplicationBasisCode__c> - A list of Pension basis-code records.
+     */
     public static List<ApplicationBasisCode__c> getBasisCodePension(Application__c app){
         
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
@@ -373,6 +463,13 @@ public with sharing class AAREG_TestDataFactory {
         return basisCodes;
     }
     
+    /**
+     * Creates and returns a list of Municipality ApplicationBasisCode__c records
+     * linked to the given Application.
+     *
+     * @param app The Application to associate with the basis codes.
+     * @return List<ApplicationBasisCode__c> - A list of Municipality basis-code records.
+     */
      public static List<ApplicationBasisCode__c> getBasisCodeMunicipality(Application__c app){
         
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
@@ -401,6 +498,13 @@ public with sharing class AAREG_TestDataFactory {
         return basisCodes;
     }
     
+     /**
+     * Creates and returns a list of State ApplicationBasisCode__c records
+     * linked to the given Application.
+     *
+     * @param app The Application to associate with the basis codes.
+     * @return List<ApplicationBasisCode__c> - A list of State basis-code records.
+     */
     public static List<ApplicationBasisCode__c> getBasisCodeState(Application__c app){
         
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
@@ -429,7 +533,13 @@ public with sharing class AAREG_TestDataFactory {
         return basisCodes;
     }
     
-  /** opprettelse av kontaktpersoner knyttet til søknad **/
+  /**
+     * Creates and returns a list of RelatedContact__c records linked to the given Application,
+     * representing contact persons associated with the application.
+     *
+     * @param app The Application to associate with the related contacts.
+     * @return List<RelatedContact__c> - A list of newly created related-contact records.
+     */
     public static List<RelatedContact__c> getRelatedContact(Application__c app) {
         List<RelatedContact__c> relatedContacts = new List<RelatedContact__c>();
         relatedContacts.add(new RelatedContact__c(
@@ -455,12 +565,18 @@ public with sharing class AAREG_TestDataFactory {
     return relatedContacts;
   }
 
-  public static Agreement__c getAgreement(Id accountId) {
+  /**
+   * Creates and returns a new Agreement__c record associated with the specified Account.
+   *
+   * @param accountId The ID of the Account to associate with the Agreement__c record.
+   * @return A new Agreement__c record linked to the provided Account ID.
+   */
+  public static Agreement__c getAgreement(Id accountId, Id appId) {
     Agreement__c agreement = new Agreement__c(
       Account__c = accountId,
+      Application__c = appId,
       Status__c = 'Active',
       APIAccess__c = true,
-      OnlineAccess__c = true,
       ExtractionAccess__c = true
     );
     return agreement;
@@ -468,6 +584,11 @@ public with sharing class AAREG_TestDataFactory {
 
   
 
+  /**
+   * Generates and returns a sample Inquiry__c record for testing purposes.
+   *
+   * @return Inquiry__c - A sample Inquiry__c record.
+   */
   public static Inquiry__c getInquiry() {
     Inquiry__c inquiry = new Inquiry__c(
       InquiryDescription__c = 'Test Description',
@@ -480,6 +601,12 @@ public with sharing class AAREG_TestDataFactory {
 
  
 
+  /**
+   * Retrieves a deleted Account record for testing purposes.
+   * This method is typically used to simulate scenarios involving deleted records.
+   *
+   * @return Account - A deleted Account record.
+   */
   public static Account getDeletedAccount() {
     Account acct = new Account(
       Name = 'Test',
@@ -494,13 +621,20 @@ public with sharing class AAREG_TestDataFactory {
     return acct;
   }
 
+  /**
+   * Retrieves a standard User record for testing purposes.
+   * This method can be used to create or fetch a User with default attributes
+   * suitable for standard test scenarios.
+   *
+   * @return User - A User record with standard attributes.
+   */
   public static User getStandardUser() {
     Profile profile = [SELECT Id, UserLicense.Name FROM Profile WHERE Name = 'Standard User' LIMIT 1];
     User user = new User(
       FirstName = 'John',
       LastName = 'Doe',
       Email = 'John.Doe@nav.no',
-      Username = 'John.Doe@nav.no',
+      Username = 'testuser@example.com.' + System.currentTimeMillis(),
       Alias = 'j.doe',
       LanguageLocaleKey = 'no',
       LocaleSidKey = 'no_NO',
@@ -508,12 +642,17 @@ public with sharing class AAREG_TestDataFactory {
       EmailEncodingKey = 'UTF-8',
       ProfileId = profile.Id,
       Department = '1',
-      LastUsedOrganization__c = '123456789',
+      LastUsedOrganization__c = '929882989',
       CRM_NAV_Ident__c = 'test123'
     );
     return user;
   }
 
+  /**
+     * Creates and returns a new ContentVersion record with sample data for testing purposes.
+     *
+     * @return ContentVersion - A newly created ContentVersion record.
+     */
   public static ContentVersion getContentVersion() {
     String data = 'Test Data';
     ContentVersion contentVersion = new ContentVersion(
@@ -524,6 +663,14 @@ public with sharing class AAREG_TestDataFactory {
     return contentVersion;
   }
 
+  /**
+     * Creates and returns a ContentDocumentLink record linking an existing ContentDocument
+     * to a given entity.
+     *
+     * @param contentDocumentId The ID of the ContentDocument to link.
+     * @param linkedEntity      The ID of the entity (record) to link the document to.
+     * @return ContentDocumentLink - A newly created ContentDocumentLink record.
+     */
   public static ContentDocumentLink getContentDocumentLink(Id contentDocumentId, Id linkedEntity) {
     ContentDocumentLink documentLink = new ContentDocumentLink(
       LinkedEntityId = linkedEntity,
@@ -533,6 +680,13 @@ public with sharing class AAREG_TestDataFactory {
     return documentLink;
   }
 
+  /**
+     * Creates a new ContentVersion, retrieves its ContentDocumentId, and returns
+     * a ContentDocumentLink linking it to the provided entity.
+     *
+     * @param linkedEntity The ID of the entity (record) to link the document to.
+     * @return ContentDocumentLink - A newly created ContentDocumentLink record.
+     */
   public static ContentDocumentLink getContentDocumentLink(Id linkedEntity) {
     ContentVersion content = getContentVersion();
     insert content;
@@ -542,13 +696,31 @@ public with sharing class AAREG_TestDataFactory {
     return getContentDocumentLink(version.ContentDocumentId, linkedEntity);
   }
   
+  /**
+     * Inner helper class running in `without sharing` context to allow assignment
+     * of permission sets regardless of the calling context's sharing rules.
+     */
   private without sharing class PermSetAssigner {
-    public void assign(Id userId, String permSetName) {
+    /**
+     * Assigns a permission set to a user.
+     *
+     * @param userId The ID of the user to whom the permission set will be assigned.
+     * @param permSetName The name of the permission set to assign.
+     */
+    private void assign(Id userId, String permSetName) {
       PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = :permSetName LIMIT 1];
       insert new PermissionSetAssignment(AssigneeId = userId, PermissionSetId = ps.Id);
     }
   }
 
+  /**
+     * Assigns a permission set to a user by delegating to the without-sharing
+     * inner helper class. Useful in tests where the running user lacks rights
+     * to insert PermissionSetAssignment directly.
+     *
+     * @param userId      The ID of the user to receive the permission set.
+     * @param permSetName The API name of the permission set to assign.
+     */
   public static void assignPermissionSet(Id userId, String permSetName) {
     new PermSetAssigner().assign(userId, permSetName);
   } 

@@ -1,94 +1,97 @@
-@isTest
+@IsTest
 public class AAREG_MyAgreementsControllerTest {
+    private static final String ORG_NUMBER = '929882989';
+
 @TestSetup
     static void setupTestData() {
-        // Create a test User with a lastUsedOrganization__c value
-        User testUser = new User(
-            FirstName = 'Test',
-            LastName = 'User',
-            Email = 'testuser@example.com',
-            Username = 'testuser@example.com.' + System.currentTimeMillis(),
-            Alias = 'tuser',
-            TimeZoneSidKey = 'Europe/Paris',
-            LocaleSidKey = 'en_US',
-            EmailEncodingKey = 'UTF-8',
-            LanguageLocaleKey = 'en_US',
-            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1].Id,
-            LastUsedOrganization__c = '929882989'
-        );
-        insert testUser;
-        
+
         // Create test Account
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
-
+        
         // Create test Application
         Application__c testApplication = AAREG_TestDataFactory.getApplicationCounty(testAccount);
         insert testApplication;
-
-        // Create a test Agreement__c record linked to the lastUsedOrganization__c
-        Agreement__c testAgreement = new Agreement__c(
-            Status__c = 'Active',
-            Application__c = testApplication.Id
-        );
+        
+        User testUser = AAREG_TestDataFactory.getStandardUser();
+        testUser.LastUsedOrganization__c = ORG_NUMBER;
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            insert testUser;
+            AAREG_TestDataFactory.assignPermissionSet(testUser.Id, 'AAREG_Arbeidsforhold_Saksbehandling');
+        }
+        // Create test agreement 
+        Agreement__c testAgreement = AAREG_TestDataFactory.getAgreement(testAccount.Id,testApplication.Id);
         insert testAgreement;
-
-        // Create another test User without a lastUsedOrganization__c value
-        User testUserNoOrg = new User(
-            FirstName = 'NoOrg',
-            LastName = 'User',
-            Email = 'noorguser@example.com',
-            Username = 'noorguser@example.com.' + System.currentTimeMillis(),
-            Alias = 'nuser',
-            TimeZoneSidKey = 'Europe/Paris',
-            LocaleSidKey = 'en_US',
-            EmailEncodingKey = 'UTF-8',
-            LanguageLocaleKey = 'en_US',
-            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1].Id
-        );
-        insert testUserNoOrg;
     }
 
-    @isTest
-    static void testGetUsersAgreements_WithLastUsedOrganization() {
-        // Retrieve the test User with a lastUsedOrganization__c value
-        User testUser = [SELECT Id FROM User WHERE LastUsedOrganization__c != null LIMIT 1];
+    @IsTest
+    static void testGetUsersAgreementsWithLastUsedOrganization() {
+    User testUser = [SELECT Id FROM User WHERE LastUsedOrganization__c = :ORG_NUMBER LIMIT 1];
+    Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
 
-        // Call the method
-        Test.startTest();
-        List<Agreement__c> agreements = AAREG_MyAgreementsController.getUsersAgreements(testUser.Id);
-        Test.stopTest();
+    List<AAREG_Agreement> agreements;
+    System.Test.startTest();
+        agreements = AAREG_MyAgreementsController.getUsersAgreements(testUser.Id);
+    System.Test.stopTest();
 
-        // Assertions
-        System.Assert.isNotNull(agreements, 'Agreements list should not be null.');
-        System.assertEquals(1, agreements.size(), 'There should be 1 agreement returned.');
+    System.Assert.isNotNull(agreements, 'Agreements list should not be null.');
+        System.Assert.areEqual(1, agreements.size(), 'No agreements should be returned for an unknown organization number.');
     }
 
-    @isTest
-    static void testGetUsersAgreements_WithoutLastUsedOrganization() {
-        // Retrieve the test User without a lastUsedOrganization__c value
-        User testUserNoOrg = [SELECT Id FROM User WHERE LastUsedOrganization__c = null LIMIT 1];
-
-        // Call the method
-        Test.startTest();
-        List<Agreement__c> agreements = AAREG_MyAgreementsController.getUsersAgreements(testUserNoOrg.Id);
-        Test.stopTest();
-
-        // Assertions
-        System.Assert.isNotNull(agreements, 'Agreements list should not be null.');
-        System.assertEquals(0, agreements.size(), 'There should be no agreements returned.');
-    }
-
-    @isTest
-    static void testGetUsersAgreements_InvalidUserId() {
+    @IsTest
+    static void testGetUsersAgreementsInvalidUserId() {
         // Call the method with an invalid userId
-        Test.startTest();
+        System.Test.startTest();
         try {
             AAREG_MyAgreementsController.getUsersAgreements(null);
-            System.assert(true, 'Expected an exception to be thrown for null userId.');
+            System.Assert(true, 'Expected an exception to be thrown for null userId.');
         } catch (Exception e) {
-            System.assert(true, 'Exception was thrown as expected.');
+            System.Assert(true, 'Exception was thrown as expected.');
         }
-        Test.stopTest();
+        System.Test.stopTest();
     }
+
+@IsTest
+static void testGetUsersAgreementsWithoutLastUsedOrganization() {
+  User userWithoutOrg;
+  System.runAs(new User(Id = UserInfo.getUserId())) {
+    userWithoutOrg = AAREG_TestDataFactory.getStandardUser();
+    userWithoutOrg.LastUsedOrganization__c = null;
+    userWithoutOrg.Username = 'noorg.' + System.currentTimeMillis() + '@aareg.test.invalid';
+    insert userWithoutOrg;
+    AAREG_TestDataFactory.assignPermissionSet(userWithoutOrg.Id, 'AAREG_Arbeidsforhold_Saksbehandling');
+  }
+
+  List<AAREG_Agreement> agreements;
+  Test.startTest();
+  System.runAs(userWithoutOrg) {
+    agreements = AAREG_MyAgreementsController.getUsersAgreements(userWithoutOrg.Id);
+  }
+  Test.stopTest();
+
+  System.Assert.isNotNull(agreements, 'Agreements list should not be null.');
+  System.Assert.areEqual(0, agreements.size(), 'No agreements should be returned when LastUsedOrganization is empty.');
+}
+
+@IsTest
+static void testGetUsersAgreementsWithUnknownOrganization() {
+  User testUser;
+  System.runAs(new User(Id = UserInfo.getUserId())) {
+    testUser = AAREG_TestDataFactory.getStandardUser();
+    testUser.LastUsedOrganization__c = '000000000';
+    testUser.Username = 'unknownorg.' + System.currentTimeMillis() + '@aareg.test.invalid';
+    insert testUser;
+    AAREG_TestDataFactory.assignPermissionSet(testUser.Id, 'AAREG_Arbeidsforhold_Saksbehandling');
+  }
+
+  List<AAREG_Agreement> agreements;
+  Test.startTest();
+  System.runAs(testUser) {
+    agreements = AAREG_MyAgreementsController.getUsersAgreements(testUser.Id);
+  }
+  Test.stopTest();
+
+  System.Assert.isNotNull(agreements, 'Agreements list should not be null.');
+  System.Assert.areEqual(0, agreements.size(), 'No agreements should be returned for an unknown organization number.');
+}
 }
