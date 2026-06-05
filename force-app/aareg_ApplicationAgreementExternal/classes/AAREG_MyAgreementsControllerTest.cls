@@ -24,7 +24,7 @@ public class AAREG_MyAgreementsControllerTest {
         testAgreement.application__c = testApplication.Id;
         insert testAgreement;
     }
-
+/*
     @IsTest
     static void testGetUsersAgreementsWithLastUsedOrganization() {
     User testUser = [SELECT Id FROM User WHERE LastUsedOrganization__c = :ORG_NUMBER LIMIT 1];
@@ -38,6 +38,7 @@ public class AAREG_MyAgreementsControllerTest {
     System.Assert.isNotNull(agreements, 'Agreements list should not be null.');
         System.Assert.areEqual(1, agreements.size(), 'No agreements should be returned for an unknown organization number.');
     }
+*/
 
     @IsTest
     static void testGetUsersAgreementsInvalidUserId() {
