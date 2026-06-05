@@ -64,7 +64,7 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
       this.initialApplications = result.data;
       this.applications = JSON.parse(JSON.stringify(this.initialApplications));
       this.applications.forEach(application => {
-        application.disableButton = application.Status__c !== 'Innvilget' && application.Status__c !== 'Delvis Innvilget' && application.Status__c !== 'Avslag';
+        application.disableButton = application.Status__c !== 'Avslag';
       });
     } else if (result.error) {
       console.error(result.error);

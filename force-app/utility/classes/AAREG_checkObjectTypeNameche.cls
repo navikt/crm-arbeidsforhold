@@ -1,12 +1,22 @@
-global class AAREG_checkObjectTypeNameche{
+/**
+ * @description This class checks the object type name and updates the thread record accordingly.
+ * @author Your Name
+ * @date 2023-10-15
+ */
+public with sharing class AAREG_checkObjectTypeNameche {
     //Testclass is done by AAREG_ContactSupportControllerTest.apxc
     @InvocableMethod
-     public static void CheckObjectTypeName(List<Id> values) {         
+    /**
+     * Checks the object type name for the provided list of IDs.
+     *
+     * @param values A list of IDs to check the object type name for.
+     */
+     public static void checkObjectTypeName(List<Id> values) {         
          if(!(values.isEmpty())){
              //Current record Id from flow
             Id currentRecord = values[0];
              
-             Thread__c threadRec = [SELECT CRM_Related_Object__c, CreatedById FROM Thread__c WHERE id= :currentRecord];
+             Thread__c threadRec = [SELECT CRM_Related_Object__c, CreatedById FROM Thread__c WHERE id= :currentRecord WITH USER_MODE];
             
              //get the related objects id and object name
              String tempStr = threadRec?.CRM_Related_Object__c;
@@ -16,7 +26,7 @@ global class AAREG_checkObjectTypeNameche{
              
              //get user id and profile name
              String userId = threadRec?.CreatedById;
-             String profileId =[SELECT profile.UserLicense.name FROM user WHERE IsActive=true and id=:userId]?.profile.UserLicense.name;
+             String profileId =[SELECT profile.UserLicense.name FROM user WHERE IsActive=true and id=:userId WITH UWER_MODE]?.profile.UserLicense.name;
            
              if(relatedRecordObjectName=='Application__c' && profileId == 'Salesforce Platform'){
                  Application__c appl = [SELECT Account__c, CreatedById FROM Application__c WHERE Id = :tempStr];

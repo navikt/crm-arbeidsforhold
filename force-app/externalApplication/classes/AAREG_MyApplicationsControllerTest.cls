@@ -1,4 +1,4 @@
-@isTest
+@IsTest
 public class AAREG_MyApplicationsControllerTest {
   @TestSetup
   static void makeData() {
@@ -10,7 +10,7 @@ public class AAREG_MyApplicationsControllerTest {
     insert application;
   }
 
-  @isTest
+  @IsTest
   static void getUsersApplications() {
     User user = AAREG_TestDataFactory.getStandardUser();
     user.LastUsedOrganization__c = '123456789';
@@ -22,13 +22,13 @@ public class AAREG_MyApplicationsControllerTest {
     application.OrganizationNumber__c = '123456788';
     insert application;
 
-    test.startTest();
+    System.test.startTest();
     List<Application__c> applications = AAREG_MyApplicationsController.getUsersApplications(user.Id);
     System.assertEquals(1, applications.size(), 'Only on application returned');
-    test.stoptest();
+    System.test.stoptest();
   }
 
-  @isTest
+  @IsTest
   static void noLastUsedOrganization() {
     User user = AAREG_TestDataFactory.getStandardUser();
     user.LastUsedOrganization__c = '';
@@ -40,10 +40,10 @@ public class AAREG_MyApplicationsControllerTest {
     application.OrganizationNumber__c = '123456788';
     insert application;
 
-    test.startTest();
+    System.test.startTest();
     List<Application__c> applications = AAREG_MyApplicationsController.getUsersApplications(user.Id);
     System.debug(applications);
     System.assertEquals(true, applications.isEmpty(), 'Empty list returned');
-    test.stoptest();
+    System.test.stoptest();
   }
 }

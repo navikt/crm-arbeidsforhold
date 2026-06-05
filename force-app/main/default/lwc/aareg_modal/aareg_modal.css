@@ -1,0 +1,17 @@
+.slds-backdrop {
+    z-index: 9000 !important;
+  }
+  
+  .slds-modal {
+    z-index: 9001 !important;
+    position: fixed !important;
+    inset: 0 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .slds-modal__container {
+    position: relative !important;
+    z-index: 9002 !important;
+  }
