@@ -1,4 +1,4 @@
-@isTest
+@IsTest
 public class AAREG_AgreementControllerTest {
   @TestSetup
   static void makeData() {
@@ -12,7 +12,7 @@ public class AAREG_AgreementControllerTest {
     insert con;
 
     Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id);
-    agreement.Application__c = application.Id;
+    agreement.application__c = application.Id;
     insert agreement;
 
     for(RelatedContact__c r:con){
@@ -21,7 +21,7 @@ public class AAREG_AgreementControllerTest {
     Update con;
   }
 
-  @isTest
+  @IsTest
   static void getAgreementContacts() {
     Agreement__c agreement = [SELECT Id FROM Agreement__c];
     List<RelatedContact__c> contacts;
@@ -33,7 +33,7 @@ public class AAREG_AgreementControllerTest {
     System.Assert.areEqual(2, contacts.size(), 'Confirm that the agreement has two related contacts.');
   }
 
-  @isTest
+  @IsTest
   static void updateAgreement() {
     Agreement__c agreement = [SELECT Id, ExtractionAccess__c FROM Agreement__c];
     agreement.ExtractionAccess__c = false;
@@ -59,7 +59,7 @@ public class AAREG_AgreementControllerTest {
     System.Assert.areEqual(false, updatedAgreement.ExtractionAccess__c, 'Agreement Access type changed');
   }
 
-  @isTest
+  @IsTest
   static void cancelAgreement() {
     Agreement__c agreement = [SELECT Id, Status__c FROM Agreement__c];
 
