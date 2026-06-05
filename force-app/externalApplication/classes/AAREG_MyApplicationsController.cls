@@ -14,7 +14,7 @@ public with sharing class AAREG_MyApplicationsController {
    * @return A list of Application__c records associated with the given user.
    */
   public static List<Application__c> getUsersApplications(String userId) {
-    String lastUsedOrganization = [SELECT Id, lastUsedOrganization__c FROM User WHERE ID = :userid WITH USER_MODE]
+    String lastUsedOrganization = [SELECT Id, lastUsedOrganization__c FROM User WHERE ID = :userid ]
     ?.LastUsedOrganization__c;
 
     if (lastUsedOrganization != null) {
@@ -44,8 +44,7 @@ public with sharing class AAREG_MyApplicationsController {
        List<ContentDocumentLink> contentDocumentLinks = [
           SELECT ContentDocumentId
           FROM ContentDocumentLink
-          //WHERE LinkedEntityId = :applicationDecision.Id
-          WHERE LinkedEntityId = :applicationId WITH USER_MODE
+          WHERE LinkedEntityId = :applicationId
         ];
 
         // Collect all ContentDocumentIds from ContentDocumentLinks
@@ -62,7 +61,6 @@ public with sharing class AAREG_MyApplicationsController {
                 WHERE ContentDocumentId IN :contentDocumentIds
                 AND Title LIKE :documentTitle
                 ORDER BY VersionNumber DESC
-                WITH USER_MODE
             ]
         );
 
@@ -89,16 +87,28 @@ public with sharing class AAREG_MyApplicationsController {
 
   private static List<Application__c> getApplications(String lastUsedOrganization) {
     List<Application__c> applications = new List<Application__c>();
-    List<Application__c> applicationstemp = new List<Application__c>(
-      [
-        SELECT Id, Name, CreatedDate, Casehandler_Status__c,Status__c, ApplicationSubmittedDate__c,ApplicationDeadlineForReply__c, AA_CasehandlerDecisionTemplate__c
-        FROM Application__c
-        WHERE OrganizationNumber__c = :lastUsedOrganization
-        AND  Status__c IN ('In Progress', 'Draft', 'New', 'Additional Information Required', 'Declined')
-        ORDER BY ApplicationSubmittedDate__c DESC NULLS LAST
-      ]
-    );
-    for (Application__c app : applicationstemp) {
+    if (Schema.sObjectType.Application__c.isAccessible()) {
+      List<Application__c> applicationstemp = new List<Application__c>(
+        [
+          SELECT Id, Name, CreatedDate, Casehandler_Status__c,Status__c, ApplicationSubmittedDate__c,ApplicationDeadlineForReply__c, AA_CasehandlerDecisionTemplate__c
+          FROM Application__c
+          WHERE OrganizationNumber__c = :lastUsedOrganization
+          AND  Status__c IN ('In Progress', 'Draft', 'New', 'Additional Information Required', 'Declined')
+          ORDER BY ApplicationSubmittedDate__c DESC NULLS LAST
+        ]
+      );
+      for (Application__c app : applicationstemp) {
+        app.Status__c = translateStatus(app.Status__c);
+        applications.add(app);
+      }
+    } else {
+      throw new AuraHandledException('Insufficient permissions to access Application__c records.');
+    }
+    for (Application__c app : [SELECT Id, Name, CreatedDate, Casehandler_Status__c, Status__c, ApplicationSubmittedDate__c, ApplicationDeadlineForReply__c, AA_CasehandlerDecisionTemplate__c 
+                  FROM Application__c 
+                  WHERE OrganizationNumber__c = :lastUsedOrganization 
+                  AND Status__c IN ('In Progress', 'Draft', 'New', 'Additional Information Required', 'Declined') 
+                  ORDER BY ApplicationSubmittedDate__c DESC NULLS LAST WITH USER_MODE]) {
       app.Status__c = translateStatus(app.Status__c);
       applications.add(app);
     }
