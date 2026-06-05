@@ -1,4 +1,4 @@
-@isTest
+@IsTest
 public class AAREG_DeactivateAccessBatchTest {
   @TestSetup
   static void makeData() {
@@ -12,14 +12,14 @@ public class AAREG_DeactivateAccessBatchTest {
     insert application;
     insert application2;
     Agreement__c agreement = AAREG_TestDataFactory.getAgreement(account.id);
-    agreement.Application__c = application.Id;
+    agreement.application__c = application.Id;
     Agreement__c agreement2 = AAREG_TestDataFactory.getAgreement(account.id);
-    agreement2.Application__c = application2.Id;
+    agreement2.application__c = application2.Id;
     insert agreement;
     insert agreement2;
   }
 
-  @isTest
+  @IsTest
   static void testBatch() {
     Account account = [SELECT Id FROM Account WHERE EmployerDeletedDate__c = TODAY AND IsDeletedEmployer__c = TRUE LIMIT 1];
     List<Agreement__c> agreements = [
@@ -35,10 +35,10 @@ public class AAREG_DeactivateAccessBatchTest {
         AND Account__r.IsDeletedEmployer__c = true
     ];
 
-    Test.startTest();
+    System.Test.startTest();
       AAREG_DeactivateAccessOnDeletedOrgsBatch batch = new AAREG_DeactivateAccessOnDeletedOrgsBatch();
       Database.executeBatch(batch);
-    Test.stopTest();
+    System.Test.stopTest();
 
     List<Inquiry__c> inquiries = [
       SELECT
@@ -73,16 +73,16 @@ public class AAREG_DeactivateAccessBatchTest {
     }
   }
 
-  @isTest
+  @IsTest
   static void schedulableTest() {
-    String cron_exp = '0 0 0 3 9 ? *';
-    Test.startTest();
+    String cronExp = '0 0 0 3 9 ? *';
+    System.Test.startTest();
     String jobId = System.schedule(
         'AAREG_DeactivateAccessOnDeletedOrgsBatch',
         cron_exp,
         new AAREG_DeactivateAccessOnDeletedOrgsBatch()
     );
-    Test.stopTest();
-    System.assert(jobId != null);
+    System.Test.stopTest();
+    System.assert(jobId != null, 'Job ID should not be null after scheduling the batch.');
   }
 }

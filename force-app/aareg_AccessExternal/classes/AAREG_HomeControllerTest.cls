@@ -1,5 +1,5 @@
 @SuppressWarnings('PMD')
-@isTest
+@IsTest
 public with sharing class AAREG_HomeControllerTest {
     @TestSetup
     static void makeData() {
@@ -32,7 +32,7 @@ public with sharing class AAREG_HomeControllerTest {
         insert settings;
     }
 
-    @isTest
+    @IsTest
     private static void testGetOrganizationsWithRoles() {
         List<Feature_Flag__mdt> featureFlags = new List<Feature_Flag__mdt>();
         featureFlags.add(
@@ -48,18 +48,18 @@ public with sharing class AAREG_HomeControllerTest {
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
         ApiMock.setTestMock('GET_ALTINN_ORGANIZATIONS', 200, 'OK');
 
-        Test.startTest();
+        Sysem.Test.startTest();
         AltinnCalloutService.AltinnOrganizationsResponse response = AAREG_HomeController.getOrganizationsWithRoles(
             user.Id
         );
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(true, response.success, 'Expect success');
         System.assertEquals(null, response.errorMessage, 'Expect no error message');
         System.assertEquals(18, response.organizations.size(), 'Expect 18 organaizations');
     }
 
-    @isTest
+    @IsTest
     private static void testGetLastUsedOrganizationNumber() {
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
 
@@ -72,7 +72,7 @@ public with sharing class AAREG_HomeControllerTest {
         );
     }
 
-    @isTest
+    @IsTest
     private static void testUpdateLastUsedOrganization() {
         String orgNumber = '999999999';
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
@@ -84,7 +84,7 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(orgNumber, updatedUser.LastUsedOrganization__c, 'Last used organization number updated.');
     }
 
-    @isTest
+    @IsTest
     private static void testShareAgreementsWithUser() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
         Account acct = AAREG_TestDataFactory.getAccountCounty();
@@ -96,8 +96,7 @@ public with sharing class AAREG_HomeControllerTest {
         List<RelatedContact__c> con = AAREG_TestDataFactory.getRelatedContact(application);
    		insert con;
 
-        Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id);
-        agreement.Application__c = application.Id;
+        Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id,application.Id);
         insert agreement;
         
         for(RelatedContact__c r:con){
@@ -105,9 +104,9 @@ public with sharing class AAREG_HomeControllerTest {
     	}
     	Update con;
 
-        Test.startTest();
+        System.Test.startTest();
         AAREG_HomeController.shareAgreementsWithUser(user.Id);
-        Test.stopTest();
+        System.Test.stopTest();
 
         List<Agreement__Share> sharedAgreements = [
             SELECT Id
@@ -123,7 +122,7 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(2, sharedRelatedContacts.size(), '2 Shared related contact records not created.');
     }
 
-    @isTest
+    @IsTest
     private static void testCheckAndShareIfAuthorizedWithAccess() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
         Account acct = AAREG_TestDataFactory.getAccountCounty();
@@ -132,20 +131,19 @@ public with sharing class AAREG_HomeControllerTest {
         Application__c application = AAREG_TestDataFactory.getApplicationCounty(acct);
         insert application;
 
-        Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id);
-        agreement.Application__c = application.Id;
+        Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id,application.Id);
         insert agreement;
 
         // Mock response with Permit decision and Access action
         String body = '{"response":[{"decision":"Permit","action":"Access","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[{"id":"urn:altinn:obligation:authenticationLevel1","attributeAssignment":[{"attributeId":"urn:altinn:obligation1-assignment1","value":"4","category":"urn:altinn:minimum-authenticationlevel","dataType":"http://www.w3.org/2001/XMLSchema#integer","issuer":null}]}],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', body, new Map<String, String>());
-        Test.setMock(HttpCalloutMock.class, mock);
-        Test.startTest();
+        System.Test.setMock(HttpCalloutMock.class, mock);
+        System.Test.startTest();
         AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
             user.Id,
             '929882989'
         );
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(true, response.hasAccess, 'User should have access with Access action and Permit decision');
         System.assertEquals(true, response.hasApplicationAccess, 'User should have application access');
@@ -158,7 +156,7 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(1, sharedAgreements.size(), 'Agreement should be shared with user');
     }
 
-    @isTest
+    @IsTest
     private static void testCheckAndShareIfAuthorizedNoAccess() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
 
@@ -168,20 +166,20 @@ public with sharing class AAREG_HomeControllerTest {
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', bodyDeny, new Map<String, String>());
         Test.setMock(HttpCalloutMock.class, mock);
 
-        Test.startTest();
+        System.Test.startTest();
         AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
             user.Id,
             '123456789'
         );
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(false, response.hasAccess, 'User should not have access with Deny decision');
         System.assertEquals(false, response.hasApplicationAccess, 'User should not have application access');
     }
 
-    @isTest
+    @IsTest
     private static void testCheckAndShareIfAuthorizedInvalidParameters() {
-        Test.startTest();
+        System.Test.startTest();
 
         // Test with null userId - should throw an exception
         Boolean exceptionThrown = false;
@@ -204,10 +202,10 @@ public with sharing class AAREG_HomeControllerTest {
         }
         System.assert(exceptionThrown, 'Exception should be thrown when orgNumber is empty');
 
-        Test.stopTest();
+        System.Test.stopTest();
     }
 
-    @isTest
+    @IsTest
     private static void testShareAgreementsWithUserIsOwner() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
         Account acct = AAREG_TestDataFactory.getAccountCounty();
@@ -230,9 +228,9 @@ public with sharing class AAREG_HomeControllerTest {
     		}
     	Update con;
 
-        Test.startTest();
+        System.Test.startTest();
         AAREG_HomeController.shareAgreementsWithUser(user.Id);
-        Test.stopTest();
+        System.Test.stopTest();
 
         // Should not create share records when user is already owner
         List<Agreement__Share> sharedAgreements = [
@@ -251,10 +249,10 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(2, sharedRelatedContacts.size(), 'Should have two shared related contact record');
     }
 
-    @isTest
+    @IsTest
     private static void testUpdateLastUsedOrganizationException() {
         // Create a scenario that would cause an exception - using invalid user ID format
-        Test.startTest();
+        System.Test.startTest();
         try {
             AAREG_HomeController.updateLastUsedOrganization('999999999', 'invalid_user_id');
             // If no exception is thrown, the test passes (exception handling is working)
@@ -262,17 +260,17 @@ public with sharing class AAREG_HomeControllerTest {
             // Exception is expected and handled
             System.assert(true, 'Exception was properly caught and handled');
         }
-        Test.stopTest();
+        System.Test.stopTest();
     }
 
-    @isTest
+    @IsTest
     private static void testShareAgreementsWithUserNoAgreements() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
 
         // No agreements exist for the organization
-        Test.startTest();
+        System.Test.startTest();
         AAREG_HomeController.shareAgreementsWithUser(user.Id);
-        Test.stopTest();
+        System.Test.stopTest();
 
         List<Agreement__Share> sharedAgreements = [
             SELECT Id
@@ -282,21 +280,21 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(0, sharedAgreements.size(), 'No agreements to share');
     }
 
-    @isTest
+    @IsTest
     private static void testCheckAndShareIfAuthorizedNullRightsResponse() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
 
         // Mock response with null rights
         String bodyNullRights = '{"response":[]}';
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', bodyNullRights, new Map<String, String>());
-        Test.setMock(HttpCalloutMock.class, mock);
+        System.Test.setMock(HttpCalloutMock.class, mock);
 
-        Test.startTest();
+        System.Test.startTest();
         AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
             user.Id,
             '123456789'
         );
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(false, response.hasAccess, 'Should return false when rights response is null');
         System.assertEquals(

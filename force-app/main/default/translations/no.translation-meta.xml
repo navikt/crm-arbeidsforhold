@@ -867,10 +867,6 @@
     </flowDefinitions>
     <flowDefinitions>
         <flows />
-        <fullName>Agreement_Initiator</fullName>
-    </flowDefinitions>
-    <flowDefinitions>
-        <flows />
         <fullName>CRMHenvendelse_ConversationNote_AfterInsert</fullName>
     </flowDefinitions>
     <flowDefinitions>

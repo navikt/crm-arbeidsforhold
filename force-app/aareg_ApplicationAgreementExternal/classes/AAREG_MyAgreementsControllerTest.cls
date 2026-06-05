@@ -20,7 +20,8 @@ public class AAREG_MyAgreementsControllerTest {
             AAREG_TestDataFactory.assignPermissionSet(testUser.Id, 'AAREG_Arbeidsforhold_Saksbehandling');
         }
         // Create test agreement 
-        Agreement__c testAgreement = AAREG_TestDataFactory.getAgreement(testAccount.Id,testApplication.Id);
+        Agreement__c testAgreement = AAREG_TestDataFactory.getAgreement(testAccount.Id);
+        testAgreement.application__c = testApplication.Id;
         insert testAgreement;
     }
 
