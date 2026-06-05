@@ -571,10 +571,9 @@ public with sharing class AAREG_TestDataFactory {
    * @param accountId The ID of the Account to associate with the Agreement__c record.
    * @return A new Agreement__c record linked to the provided Account ID.
    */
-  public static Agreement__c getAgreement(Id accountId, Id appId) {
+  public static Agreement__c getAgreement(Id accountId) {
     Agreement__c agreement = new Agreement__c(
       Account__c = accountId,
-      Application__c = appId,
       Status__c = 'Active',
       APIAccess__c = true,
       ExtractionAccess__c = true
