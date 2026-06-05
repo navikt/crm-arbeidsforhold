@@ -79,7 +79,7 @@ public class AAREG_DeactivateAccessBatchTest {
     System.Test.startTest();
     String jobId = System.schedule(
         'AAREG_DeactivateAccessOnDeletedOrgsBatch',
-        cron_exp,
+        cronExp,
         new AAREG_DeactivateAccessOnDeletedOrgsBatch()
     );
     System.Test.stopTest();

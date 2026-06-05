@@ -96,7 +96,8 @@ public with sharing class AAREG_HomeControllerTest {
         List<RelatedContact__c> con = AAREG_TestDataFactory.getRelatedContact(application);
    		insert con;
 
-        Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id,application.Id);
+        Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id);
+        agreement.Application__c = application.Id;
         insert agreement;
         
         for(RelatedContact__c r:con){
@@ -131,7 +132,8 @@ public with sharing class AAREG_HomeControllerTest {
         Application__c application = AAREG_TestDataFactory.getApplicationCounty(acct);
         insert application;
 
-        Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id,application.Id);
+        Agreement__c agreement = AAREG_TestDataFactory.getAgreement(acct.id);
+        agreement.Application__c = application.Id;
         insert agreement;
 
         // Mock response with Permit decision and Access action
