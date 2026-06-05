@@ -48,7 +48,7 @@ public with sharing class AAREG_HomeControllerTest {
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
         ApiMock.setTestMock('GET_ALTINN_ORGANIZATIONS', 200, 'OK');
 
-        Sysem.Test.startTest();
+        System.Test.startTest();
         AltinnCalloutService.AltinnOrganizationsResponse response = AAREG_HomeController.getOrganizationsWithRoles(
             user.Id
         );
