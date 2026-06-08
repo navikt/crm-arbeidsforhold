@@ -26,7 +26,7 @@ public with sharing class AAREG_checkObjectTypeNameche {
              
              //get user id and profile name
              String userId = threadRec?.CreatedById;
-             String profileId =[SELECT profile.UserLicense.name FROM user WHERE IsActive=true and id=:userId WITH UWER_MODE]?.profile.UserLicense.name;
+             String profileId =[SELECT profile.UserLicense.name FROM user WHERE IsActive=true and id=:userId WITH USER_MODE]?.profile.UserLicense.name;
            
              if(relatedRecordObjectName=='Application__c' && profileId == 'Salesforce Platform'){
                  Application__c appl = [SELECT Account__c, CreatedById FROM Application__c WHERE Id = :tempStr];

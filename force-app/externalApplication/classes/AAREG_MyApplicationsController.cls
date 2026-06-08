@@ -95,6 +95,7 @@ public with sharing class AAREG_MyApplicationsController {
           WHERE OrganizationNumber__c = :lastUsedOrganization
           AND  Status__c IN ('In Progress', 'Draft', 'New', 'Additional Information Required', 'Declined')
           ORDER BY ApplicationSubmittedDate__c DESC NULLS LAST
+          WITH USER_MODE
         ]
       );
       for (Application__c app : applicationstemp) {
@@ -108,7 +109,8 @@ public with sharing class AAREG_MyApplicationsController {
                   FROM Application__c 
                   WHERE OrganizationNumber__c = :lastUsedOrganization 
                   AND Status__c IN ('In Progress', 'Draft', 'New', 'Additional Information Required', 'Declined') 
-                  ORDER BY ApplicationSubmittedDate__c DESC NULLS LAST WITH USER_MODE]) {
+                  ORDER BY ApplicationSubmittedDate__c DESC NULLS LAST
+                  WITH USER_MODE]) {
       app.Status__c = translateStatus(app.Status__c);
       applications.add(app);
     }
