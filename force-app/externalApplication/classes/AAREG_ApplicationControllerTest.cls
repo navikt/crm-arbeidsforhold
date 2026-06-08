@@ -8,7 +8,7 @@ private class AAREG_ApplicationControllerTest {
               
     }
 
-    @isTest
+    @IsTest
     private static void getAccountNameByOrgNumber() {
         System.Test.startTest();
         String accountName = AAREG_ApplicationController.getAccountNameByOrgNumber('929882989');
@@ -16,7 +16,7 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.areEqual('Fylke', accountName, 'Assert that correct account name is returned');
     }
     
-    @isTest
+    @IsTest
     private static void processNewApplication() {
         Account account = [SELECT Id, Name FROM Account LIMIT 1];
         
@@ -65,7 +65,7 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.areEqual(1, documentLink.size(), 'Assert successful documentLink');
     }
     
-    @isTest
+    @IsTest
     private static void processAdditionalInformationApplication() {
         Account account = [SELECT Id, Name FROM Account LIMIT 1];
 
@@ -109,7 +109,7 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.areEqual(true, documentLink.isEmpty(), 'No documentLinks created');
     }
     
-     @isTest
+     @IsTest
     private static void getLastUsedOrganizationInformation() {
         Profile profile = [SELECT Id, UserLicense.Name FROM Profile WHERE Name = 'Standard User' LIMIT 1];
         User user = new User();
@@ -136,7 +136,7 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.areEqual(lastUsedOrganization.name, 'Fylke', 'Assert that the correct account name is returned.');
     }
     
-     @isTest
+     @IsTest
     private static void getDraftApplication() {
         Profile profile = [SELECT Id, UserLicense.Name FROM Profile WHERE Name = 'Standard User' LIMIT 1];
         User user = AAREG_TestDataFactory.getStandardUser();
@@ -167,7 +167,7 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.areEqual(2, draft.contacts.size(), '2 draft related contacts retrieved');
     }
     
-     @isTest
+     @IsTest
     private static void deleteDraftRecord() {
          Account account = [SELECT Id, Name,INT_OrganizationNumber__c,ShippingStreet,ShippingCity,ShippingPostalCode FROM Account LIMIT 1];
 
@@ -183,7 +183,7 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.areEqual(0, applications.size(), 'No applications. Successful record deletion.');
     }
     
-     @isTest
+     @IsTest
     private static void saveAsDraft() {
         Account account = [SELECT Id, Name,INT_OrganizationNumber__c,ShippingStreet,ShippingCity,ShippingPostalCode FROM Account LIMIT 1];
 

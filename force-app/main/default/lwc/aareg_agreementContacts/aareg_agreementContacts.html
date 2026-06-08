@@ -1,0 +1,30 @@
+<template>
+  <c-aareg_main-banner></c-aareg_main-banner>
+
+  <div class="container">
+    <div class="inner-container">
+      <c-aareg_breadcrumbs items={breadcrumbs}></c-aareg_breadcrumbs>
+
+      <h1 class="slds-text-heading_large slds-m-bottom_small">
+        Kontaktpersoner {agreementLabel}
+      </h1>
+
+      <lightning-button
+        label="← Tilbake til mine avtaler"
+        variant="base"
+        onclick={goBack}
+        class="slds-m-bottom_medium">
+      </lightning-button>
+
+      <template if:true={agreementId}>
+        <c-aareg_agreement-contacts
+          agreement-id={agreementId}>
+        </c-aareg_agreement-contacts>
+      </template>
+
+      <template if:false={agreementId}>
+        <p>Mangler avtale-ID i URL.</p>
+      </template>
+    </div>
+  </div>
+</template>

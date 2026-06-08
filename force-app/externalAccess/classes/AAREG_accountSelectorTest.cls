@@ -1,18 +1,18 @@
-@isTest
+@IsTest
 public class AAREG_accountSelectorTest {
     
-    @isTest
+    @IsTest
       static void getAccountIds() {
         Account account = AAREG_TestDataFactory.getAccount();
         insert account;
     
-        test.startTest();
+        System.test.startTest();
         List<Account> accountIdList = AAREG_accountSelector.selectAccountByOrganizationNumber(account.INT_OrganizationNumber__c);
-        test.stoptest();
+        System.test.stoptest();
           System.Assert.areEqual(false, accountIdList.isEmpty(), 'Not an empty list returned');
       }
     
-    @isTest
+    @IsTest
     static void noneOrganizationNumber(){
       Account acct = new Account(
           Name = 'Test',
@@ -22,9 +22,9 @@ public class AAREG_accountSelectorTest {
           ShippingCity = 'Oslo');
         insert acct;
         
-        test.startTest();
+        System.test.startTest();
         List<Account> accountIdList = AAREG_accountSelector.selectAccountByOrganizationNumber(acct.INT_OrganizationNumber__c);
-        test.stoptest();
+        System.test.stoptest();
         System.Assert.areEqual(true, accountIdList.isEmpty(), 'An empty list returned');     
     }
 }

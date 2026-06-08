@@ -1,3 +1,8 @@
+/**
+ * Controller class for handling application-specific logic related to AAREG.
+ * This class is defined without sharing, meaning it does not enforce the sharing rules
+ * of the current user context.
+ */
 public without sharing class AAREG_ApplicationController {
   private static final String ADDITIONAL_INFORMATION = 'Additional Information Required';
   private static final String DRAFT_APPLICATION = 'Draft';
@@ -7,6 +12,12 @@ public without sharing class AAREG_ApplicationController {
    
 
   @AuraEnabled
+  /**
+   * Retrieves the last used organization information for a given user.
+   *
+   * @param userId The ID of the user for whom the last used organization information is to be retrieved.
+   * @return An Account object containing the last used organization information.
+   */
   public static Account getLastUsedOrganizationInformation(String userId) {
     User currentUser = [SELECT Id, LastUsedOrganization__c FROM USER WHERE Id = :userId];
     Account lastUsedOrganization = [
@@ -27,6 +38,12 @@ public without sharing class AAREG_ApplicationController {
   }
 
   @AuraEnabled
+  /**
+   * Retrieves the name of an account based on the provided organization number.
+   *
+   * @param orgNumber The organization number used to look up the account name.
+   * @return The name of the account associated with the given organization number.
+   */
   public static string getAccountNameByOrgNumber(String orgNumber) {
     String accountName = [
       SELECT Id, Name, INT_OrganizationNumber__c
@@ -40,6 +57,12 @@ public without sharing class AAREG_ApplicationController {
   }
 
   @AuraEnabled
+  /**
+   * Retrieves the draft application associated with the given record ID.
+   *
+   * @param recordId The ID of the record for which the draft application is to be retrieved.
+   * @return The draft application corresponding to the provided record ID.
+   */
   public static DraftApplication getDraftApplication(String recordId) {
     return new DraftApplication(
       getApplication(recordId),
@@ -92,6 +115,12 @@ public without sharing class AAREG_ApplicationController {
   }
 
   @AuraEnabled
+   /**
+   * Processes the application by updating its status, saving related data, and linking documents.
+   *
+   * @param applicationData A wrapper object containing application data, basis codes, related contacts, and file details.
+   * @return The ID of the processed application.
+   */
   public static Id processApplication(Application__c application, List<ApplicationBasisCode__c> basisCode,
     List<RelatedContact__c> relatedContacts, String base64, String fileName) {
 
@@ -127,6 +156,11 @@ public without sharing class AAREG_ApplicationController {
   }
 
   @AuraEnabled
+  /**
+   * Deletes a draft record from the database.
+   *
+   * @param record The SObject record to be deleted. It is expected to be a draft record.
+   */
   public static void deleteDraftRecord(SObject record) {
       delete record;
   }
@@ -245,6 +279,10 @@ public without sharing class AAREG_ApplicationController {
     ];
   }
 
+  /**
+   * Represents a draft application within the AAREG Application Controller.
+   * This class is used to manage and handle draft application data.
+   */
   public class DraftApplication {
     @AuraEnabled
     public Access_Request__c accessRequest;
