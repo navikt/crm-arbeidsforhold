@@ -94,8 +94,8 @@ public with sharing class AAREG_MyApplicationsController {
           FROM Application__c
           WHERE OrganizationNumber__c = :lastUsedOrganization
           AND  Status__c IN ('In Progress', 'Draft', 'New', 'Additional Information Required', 'Declined')
-          ORDER BY ApplicationSubmittedDate__c DESC NULLS LAST
           WITH USER_MODE
+          ORDER BY ApplicationSubmittedDate__c DESC NULLS LAST
         ]
       );
       for (Application__c app : applicationstemp) {
@@ -104,15 +104,6 @@ public with sharing class AAREG_MyApplicationsController {
       }
     } else {
       throw new AuraHandledException('Insufficient permissions to access Application__c records.');
-    }
-    for (Application__c app : [SELECT Id, Name, CreatedDate, Casehandler_Status__c, Status__c, ApplicationSubmittedDate__c, ApplicationDeadlineForReply__c, AA_CasehandlerDecisionTemplate__c 
-                  FROM Application__c 
-                  WHERE OrganizationNumber__c = :lastUsedOrganization 
-                  AND Status__c IN ('In Progress', 'Draft', 'New', 'Additional Information Required', 'Declined') 
-                  ORDER BY ApplicationSubmittedDate__c DESC NULLS LAST
-                  WITH USER_MODE]) {
-      app.Status__c = translateStatus(app.Status__c);
-      applications.add(app);
     }
     return applications;
   }
