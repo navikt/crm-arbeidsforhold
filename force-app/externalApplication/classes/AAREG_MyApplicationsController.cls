@@ -90,7 +90,7 @@ public with sharing class AAREG_MyApplicationsController {
     if (Schema.sObjectType.Application__c.isAccessible()) {
       List<Application__c> applicationstemp = new List<Application__c>(
         [
-          SELECT Id, Name, CreatedDate, Casehandler_Status__c,Status__c, ApplicationSubmittedDate__c,ApplicationDeadlineForReply__c, AA_CasehandlerDecisionTemplate__c
+          SELECT Id, Name, CreatedDate,Status__c, ApplicationSubmittedDate__c,ApplicationDeadlineForReply__c, AA_CasehandlerDecisionTemplate__c
           FROM Application__c
           WHERE OrganizationNumber__c = :lastUsedOrganization
           AND  Status__c IN ('In Progress', 'Draft', 'New', 'Additional Information Required', 'Declined')
