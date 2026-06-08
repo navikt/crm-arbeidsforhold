@@ -52,6 +52,56 @@ public with sharing class AAREG_MyAgreementsController {
   }
 
   /**
+   * @description Upserts the contact list for an application (used by the "Se kontaktpersoner" modal).
+   * @param currentRecordId Id of the Agreement the contacts belong to.
+   * @param contacts List of RelatedContact__c records to upsert.
+   */
+  @AuraEnabled
+  public static void saveAgreementContacts(Id currentRecordId, List<RelatedContact__c> contacts) {
+    if (contacts == null || contacts.isEmpty()) {
+      return;
+    }
+    for (RelatedContact__c c : contacts) {
+      c.Agreement__c = currentRecordId;
+    }
+    if (Schema.sObjectType.RelatedContact__c.isCreateable() && Schema.sObjectType.RelatedContact__c.isUpdateable()) {
+        upsert contacts;
+    } else {
+        throw new AuraHandledException('Insufficient permissions to modify RelatedContact__c records.');
+    }
+  }
+
+  /**
+   * @description Deletes a single related contact.
+   * @param contactId Id of the RelatedContact__c to delete.
+   */
+  @AuraEnabled
+  public static void deleteAgreementContact(Id contactId) {
+    if (contactId == null) {
+      return;
+    }
+    delete [SELECT Id FROM RelatedContact__c WHERE Id = :contactId];
+  }
+
+   /**
+   * @description Returns all related contacts for the agreement.
+   * @param currentRecordId Id of the Agreement record.
+   * @return List of RelatedContact__c records with all fields used by the contact LWC.
+   */
+  @AuraEnabled(cacheable=true)
+  public static List<RelatedContact__c> getAgreementContacts(Id currentRecordId) {
+    return [
+      SELECT Id, Name, Phone__c, Email__c,
+             AgreementNotifications__c, ChangeNotifications__c,
+             ErrorMessageNotifications__c, SecurityNotifications__c,
+             Agreement__c
+      FROM RelatedContact__c
+      WHERE Agreement__c = :currentRecordId
+      WITH USER_MODE
+    ];
+  }
+
+  /**
    * @description Translates an agreement status code into a Norwegian display label.
    * @param status Status value from the Agreement__c record.
    * @return Localized status label, or 'Ukjent status' when the value is not recognized.
