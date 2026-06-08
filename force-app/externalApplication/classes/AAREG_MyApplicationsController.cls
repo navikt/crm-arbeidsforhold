@@ -94,7 +94,6 @@ public with sharing class AAREG_MyApplicationsController {
           FROM Application__c
           WHERE OrganizationNumber__c = :lastUsedOrganization
           AND  Status__c IN ('In Progress', 'Draft', 'New', 'Additional Information Required', 'Declined')
-          WITH USER_MODE
           ORDER BY ApplicationSubmittedDate__c DESC NULLS LAST
         ]
       );
