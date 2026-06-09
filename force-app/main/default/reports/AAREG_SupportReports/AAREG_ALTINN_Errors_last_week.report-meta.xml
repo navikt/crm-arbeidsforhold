@@ -4,9 +4,6 @@
         <field>CUST_CREATED_DATE</field>
     </columns>
     <columns>
-        <field>Application_Log__c.Log_Level__c</field>
-    </columns>
-    <columns>
         <field>Application_Log__c.Application_Domain__c</field>
     </columns>
     <columns>
@@ -59,7 +56,12 @@
         </criteriaItems>
         <language>en_US</language>
     </filter>
-    <format>Tabular</format>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Application_Log__c.Log_Level__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
     <name>AAREG and ALTINN Errors last week</name>
     <params>
         <name>co</name>
