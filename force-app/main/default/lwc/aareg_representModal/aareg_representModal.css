@@ -1,0 +1,16 @@
+.modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #181818;
+}
+
+.description-text {
+    font-size: 0.875rem;
+    color: #3e3e3c;
+    line-height: 1.5;
+}
+
+.slds-radio .slds-form-element__label {
+    font-size: 1rem;
+    font-weight: 500;
+}

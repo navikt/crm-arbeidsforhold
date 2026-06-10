@@ -1,0 +1,48 @@
+<template>
+    <lightning-modal-header label="Hei, for å logge inn i tjenesten må du velge hvem du ønsker å representere."></lightning-modal-header>
+    <lightning-modal-body>
+        <p class="description-text">
+            Velg "Virksomhet" dersom du skal representere en virksomhet, for eksempel som arbeidsgiver. Velg "Meg selv" dersom du skal representere deg selv, for eksempel som privatperson.
+        </p>
+        <fieldset class="slds-form-element">
+            <legend class="slds-assistive-text">Hvem ønsker du å representere?</legend>
+            <div class="slds-form-element__control">
+                <div class="slds-radio slds-m-bottom_x-small">
+                    <input
+                        type="radio"
+                        name="representChoice"
+                        id="virksomhet"
+                        value="virksomhet"
+                        checked
+                        onchange={handleRadioChange}
+                    />
+                    <label class="slds-radio__label" for="virksomhet">
+                        <span class="slds-radio_faux"></span>
+                        <span class="slds-form-element__label">Virksomhet</span>
+                    </label>
+                </div>
+                <div class="slds-radio">
+                    <input
+                        type="radio"
+                        name="representChoice"
+                        id="megSelv"
+                        value="megSelv"
+                        onchange={handleRadioChange}
+                    />
+                    <label class="slds-radio__label" for="megSelv">
+                        <span class="slds-radio_faux"></span>
+                        <span class="slds-form-element__label">Meg selv</span>
+                    </label>
+                </div>
+            </div>
+        </fieldset>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <lightning-button
+            label="Neste"
+            variant="brand"
+            onclick={handleNeste}
+            disabled={isNesteDisabled}
+        ></lightning-button>
+    </lightning-modal-footer>
+</template>
