@@ -257,6 +257,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Agreement__c.Access_Request__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Agreement__c.AccountName__c</field>
         <readable>true</readable>
@@ -472,6 +477,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Application_Decision__c.Account_name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Application_Decision__c.Agreement__c</field>
         <readable>true</readable>
@@ -489,6 +499,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Application_Decision__c.ContentdocumentId__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Application_Decision__c.Data_elements__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

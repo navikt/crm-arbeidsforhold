@@ -4,10 +4,10 @@
     <deprecated>false</deprecated>
     <externalId>false</externalId>
     <formula>IF(
-    Approved_count__c = Total_count__c,
+    (Approved_count__c = Total_count__c &amp;&amp; Data_elements__c = true) ,
     &quot;Innvilget&quot;,
     IF(
-        Approved_count__c &gt; 0,
+        (Approved_count__c &gt; 0 || Data_elements__c = false) ,
         &quot;Delvis innvilget&quot;,
         &quot;Avslått&quot;
     )

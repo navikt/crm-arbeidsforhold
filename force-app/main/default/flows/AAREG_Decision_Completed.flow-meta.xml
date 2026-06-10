@@ -15,7 +15,7 @@
         <inputParameters>
             <name>applicationRecordId</name>
             <value>
-                <elementReference>getDecisionRecord.Application__r.Id</elementReference>
+                <elementReference>getDecisionRecord.Application__r.Access_Request__r.Id</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -266,6 +266,13 @@
             <operator>Add</operator>
             <value>
                 <elementReference>getApplicationRecords.OrganizationStructure__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rec_Agreement.Access_Request__c</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>getApplicationRecords.Access_Request__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
