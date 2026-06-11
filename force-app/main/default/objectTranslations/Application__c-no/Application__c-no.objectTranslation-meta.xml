@@ -49,6 +49,10 @@
         <name>AAREG_addAppInternalComment</name>
     </quickActions>
     <quickActions>
+        <label><!-- Update Application Owner --></label>
+        <name>AA_UpdateCasehandlerOwner</name>
+    </quickActions>
+    <quickActions>
         <aspect>Master</aspect>
         <label>Sett sakseier</label>
         <name>aaRegAssignOtherUser</name>
@@ -68,4 +72,11 @@
         <label><!-- Aa-register access --></label>
         <name>Aa_RegisterAccess</name>
     </recordTypes>
+    <validationRules>
+        <errorMessage>
+            <!-- Denne status settes automatisk. 
+For å behandle søknaden, må det gjøres ett vedtak eller henlegge søknaden. -->
+        </errorMessage>
+        <name>DoNotMakeDecisionByStage</name>
+    </validationRules>
 </CustomObjectTranslation>
