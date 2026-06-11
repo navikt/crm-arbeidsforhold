@@ -3,15 +3,52 @@
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <name>Start_or_stopp_revisjon</name>
-        <label>Start or stopp revisjon</label>
+        <name>AAREG_startRevisionAssignment</name>
+        <label>Start revisjon</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>var_isRevision</assignToReference>
+            <assignToReference>AAREG_getAgreement.isRevision__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>startRevision.value</elementReference>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>AAREG_getAgreement.lastRevisionDate__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>AAREG_getAgreement.Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Under review</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>AAREG_updateAgreementStart</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>AAREG_stopRevisionAssignment</name>
+        <label>Stopp revisjon</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>AAREG_getAgreement.isRevision__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>AAREG_getAgreement.Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Active</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -24,8 +61,51 @@
             <stringValue>{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
         </value>
     </customProperties>
+    <decisions>
+        <name>AAREG_startOrStopRevision</name>
+        <label>Start eller stopp på revisjon</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>nothing</defaultConnectorLabel>
+        <rules>
+            <name>isRevision</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>AAREG_getAgreement.isRevision__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Start_revision</targetReference>
+            </connector>
+            <label>isRevision</label>
+        </rules>
+        <rules>
+            <name>notRevision</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>AAREG_getAgreement.isRevision__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>AAREG_revisionAgreementScreenStart</targetReference>
+            </connector>
+            <label>notRevision</label>
+        </rules>
+    </decisions>
     <description>Arbeidsforhold - starter en revisjon av avtalen</description>
     <environments>Default</environments>
+    <formulas>
+        <name>var_descriptionStop</name>
+        <dataType>String</dataType>
+        <expression>(&apos;Revision er avlsuttet av &apos;)&amp;{!$User.FirstName}&amp; &apos; &apos;&amp;{!$User.LastName}&amp;
+{!AAREG_commentResultStop}</expression>
+    </formulas>
     <interviewLabel>AAREG Agreement revision {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG Agreement revision</label>
     <processMetadataValues>
@@ -47,11 +127,15 @@
         </value>
     </processMetadataValues>
     <processType>Flow</processType>
-    <recordUpdates>
-        <name>Update_agreement</name>
-        <label>Update agreement</label>
+    <recordLookups>
+        <name>AAREG_getAgreement</name>
+        <label>Hent avtale</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>AAREG_startOrStopRevision</targetReference>
+        </connector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -60,45 +144,64 @@
                 <elementReference>recordId</elementReference>
             </value>
         </filters>
-        <inputAssignments>
-            <field>isRevision__c</field>
-            <value>
-                <elementReference>var_isRevision</elementReference>
-            </value>
-        </inputAssignments>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Agreement__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <description>Oppdaterer avtalen med flagget som sier om avtalepartner er under revison eller ikke</description>
+        <name>AAREG_updateAgreementStart</name>
+        <label>Update agreement</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>AAREG_createActivityOnAgreement1</targetReference>
+        </connector>
+        <inputReference>AAREG_getAgreement</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Oppdaterer avtalen med flagget som sier om avtalepartner er under revison eller ikke</description>
+        <name>Update_agreement</name>
+        <label>Update agreement</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>AAREG_createActivityOnAgreement</targetReference>
+        </connector>
+        <inputReference>AAREG_getAgreement</inputReference>
     </recordUpdates>
     <screens>
         <description>Starte en revisjon av avtalen</description>
-        <name>Start_revision</name>
-        <label>Start revision</label>
+        <name>AAREG_revisionAgreementScreenStart</name>
+        <label>Revisjon på avtalepartner</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>Start_or_stopp_revisjon</targetReference>
+            <targetReference>AAREG_startRevisionAssignment</targetReference>
         </connector>
         <fields>
-            <name>startRevision</name>
-            <extensionName>flowruntime:toggle</extensionName>
-            <fieldType>ComponentInstance</fieldType>
-            <inputParameters>
-                <name>messageToggleActive</name>
-                <value>
-                    <stringValue>Start revisjon</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>messageToggleInactive</name>
-                <value>
-                    <stringValue>Stopp revisjon</stringValue>
-                </value>
-            </inputParameters>
+            <name>displayMessageStart</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Revisjon av avtalepartner starter.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Det logges en aktivitet og kommentaren legges til i aktivitet.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>AAREG_commentResultStart</name>
+            <dataType>String</dataType>
+            <fieldText>Gi en beskrivelse av kommende revisjon</fieldText>
+            <fieldType>InputField</fieldType>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>true</isRequired>
-            <storeOutputAutomatically>true</storeOutputAutomatically>
+            <isRequired>false</isRequired>
             <styleProperties>
                 <verticalAlignment>
                     <stringValue>top</stringValue>
@@ -109,16 +212,145 @@
             </styleProperties>
         </fields>
         <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>Starte en revisjon av avtalen</description>
+        <name>Start_revision</name>
+        <label>Revisjon på avtalepartner</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>AAREG_stopRevisionAssignment</targetReference>
+        </connector>
+        <fields>
+            <name>displayMessageStop</name>
+            <fieldText>&lt;p&gt;&lt;strong&gt;Revisjon av avtalepartner avsluttes.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Det logges en aktivitet og kommentaren legges til i aktivitet.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>AAREG_commentResultStop</name>
+            <dataType>String</dataType>
+            <fieldText>Gi en beskrivelse av sluttresultat</fieldText>
+            <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>false</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
     </screens>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Start_revision</targetReference>
+            <targetReference>AAREG_getAgreement</targetReference>
         </connector>
     </start>
     <status>Active</status>
+    <subflows>
+        <description>Oppretter en aktivitet på avtalen ved stopp av en revisjon</description>
+        <name>AAREG_createActivityOnAgreement</name>
+        <label>Opprett en aktivitet på avtale</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varAccessRequest</name>
+            <value>
+                <elementReference>AAREG_getAgreement.Access_Request__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varDescription</name>
+            <value>
+                <elementReference>AAREG_commentResultStop</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRelatedToId</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSubject</name>
+            <value>
+                <elementReference>var_subjectStop</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varTypeOfTask</name>
+            <value>
+                <stringValue>Revisjon</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <description>Oppretter en aktivitet på avtalen ved start  av en revisjon</description>
+        <name>AAREG_createActivityOnAgreement1</name>
+        <label>Opprett en aktivitet på avtale</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varDescription</name>
+            <value>
+                <elementReference>AAREG_commentResultStart</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRelatedToId</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSubject</name>
+            <value>
+                <elementReference>var_subjectStart</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varTypeOfTask</name>
+            <value>
+                <stringValue>Revisjon</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <textTemplates>
+        <name>line_break</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>{!EmptyString}</text>
+    </textTemplates>
+    <variables>
+        <name>EmptyString</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue></stringValue>
+        </value>
+    </variables>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
@@ -127,13 +359,23 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <name>var_isRevision</name>
-        <dataType>Boolean</dataType>
+        <name>var_subjectStart</name>
+        <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <value>
-            <booleanValue>false</booleanValue>
+            <stringValue>Avtalepartneren er under revisjon</stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>var_subjectStop</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Revisjon av avtalepartner er avsluttet</stringValue>
         </value>
     </variables>
 </Flow>
