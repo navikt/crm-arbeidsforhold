@@ -1,0 +1,35 @@
+<template>
+    <lightning-card title={cardTitle} icon-name="standard:task">
+        <span slot="title" class="slds-badge slds-m-left_x-small">
+            {taskCount}
+        </span>
+
+        <div class="slds-p-horizontal_small slds-p-bottom_small">
+            <template lwc:if={isLoading}>
+                <lightning-spinner alternative-text="Laster..." size="small"></lightning-spinner>
+            </template>
+
+            <template lwc:elseif={hasTasks}>
+                <lightning-datatable
+                    key-field="id"
+                    data={tasks}
+                    columns={columns}
+                    hide-checkbox-column
+                    resize-column-disabled>
+                </lightning-datatable>
+            </template>
+
+            <template lwc:elseif={error}>
+                <p class="slds-text-color_error slds-p-around_small">
+                    Feil ved henting av revisjonsoppgaver.
+                </p>
+            </template>
+
+            <template lwc:else>
+                <p class="slds-text-align_center slds-p-around_medium slds-text-color_weak">
+                    Ingen revisjonsoppgaver funnet.
+                </p>
+            </template>
+        </div>
+    </lightning-card>
+</template>

@@ -487,6 +487,20 @@
                 <identifier>flexipage_fieldSection5</identifier>
             </componentInstance>
         </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>cardTitle</name>
+                    <value>Loggført aktivitet under revisjon</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>taskType</name>
+                    <value>Revisjon</value>
+                </componentInstanceProperties>
+                <componentName>aareg_agreementRevision</componentName>
+                <identifier>c_aareg_agreementRevision</identifier>
+            </componentInstance>
+        </itemInstances>
         <name>Facet-b64d58d3-2994-4e66-b57f-edffe2d3ece7</name>
         <type>Facet</type>
     </flexiPageRegions>
