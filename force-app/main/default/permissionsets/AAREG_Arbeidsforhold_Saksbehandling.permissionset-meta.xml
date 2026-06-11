@@ -337,6 +337,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Agreement__c.isRevision__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>ApplicationBasisCode__c.API_Access__c</field>
         <readable>true</readable>

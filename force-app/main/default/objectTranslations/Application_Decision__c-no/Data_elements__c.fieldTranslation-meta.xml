@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Fjern avhuking hvis ikke alle dataelement er godkjent. Status på vedtaket vil da få delvis innvilget, selv om alle behandlingsgrunnlag er innvilget. --></help>
+    <label>Dataelementer godkjent</label>
+    <name>Data_elements__c</name>
+</CustomFieldTranslation>
