@@ -811,10 +811,6 @@
         <fullName>AAREG_subflowCreateTask</fullName>
     </flowDefinitions>
     <flowDefinitions>
-        <flows />
-        <fullName>AAREG_subflowCreateTask_RT</fullName>
-    </flowDefinitions>
-    <flowDefinitions>
         <flows>
             <screens>
                 <fields>
