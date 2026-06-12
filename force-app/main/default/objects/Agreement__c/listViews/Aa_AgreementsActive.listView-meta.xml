@@ -4,6 +4,7 @@
     <columns>NAME</columns>
     <columns>account__c</columns>
     <columns>CREATED_DATE</columns>
+    <columns>isRevision__c</columns>
     <columns>APIAccess__c</columns>
     <columns>ExtractionAccess__c</columns>
     <columns>OnlineAccess__c</columns>
