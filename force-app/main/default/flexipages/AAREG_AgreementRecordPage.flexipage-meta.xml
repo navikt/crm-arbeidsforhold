@@ -10,10 +10,37 @@
                             <value>Agreement__c.AAREG_removeAccess</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>Agreement__c.AAREG_deactivateAgreement</value>
+                            <value>Agreement__c.AAREG_startRevision</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.isRevision__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>false</rightValue>
+                                </criteria>
+                            </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value>Agreement__c.AAREG_startRevision</value>
+                            <value>Agreement__c.AAREG_stopRevision</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.isRevision__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Agreement__c.AAREG_loggRevisionComment</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.isRevision__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>true</rightValue>
+                                </criteria>
+                            </visibilityRule>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Agreement__c.AAREG_deactivateAgreement</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
@@ -45,7 +72,7 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>hideUpdateButton</name>
-                    <value>false</value>
+                    <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>variant</name>
@@ -257,28 +284,6 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>columns</name>
-                    <value>Facet-6df6e34d-01c8-4293-a1c9-edb047af13f1</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>horizontalAlignment</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>{!$Label.DataProcessor}</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:fieldSection</componentName>
-                <identifier>flexipage_fieldSection3</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-1105a040-3e2d-4b07-b616-d096bb9a042c</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
                     <name>actionNames</name>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -343,7 +348,25 @@
                 <identifier>lst_dynamicRelatedList2</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-5ce6ac28-b9dd-43d8-92ab-3a9e3936206c</name>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
+                    <value>Facet-6df6e34d-01c8-4293-a1c9-edb047af13f1</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>{!$Label.DataProcessor}</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection3</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-1105a040-3e2d-4b07-b616-d096bb9a042c</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -424,35 +447,11 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Access_Request__c</fieldItem>
-                <identifier>RecordAccess_Request_cField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Application__c</fieldItem>
-                <identifier>RecordApplication_cField2</identifier>
+                <fieldItem>Record.lastRevisionDate__c</fieldItem>
+                <identifier>RecordlastRevisionDate_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-443dbdef-9f5e-4aef-b078-0bc6fd934d65</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Name</fieldItem>
-                <identifier>RecordNameField</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-a22ed39b-98be-4530-836a-54712195dd7d</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -464,16 +463,6 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
                 <identifier>flexipage_column6</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-a22ed39b-98be-4530-836a-54712195dd7d</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:column</componentName>
-                <identifier>flexipage_column7</identifier>
             </componentInstance>
         </itemInstances>
         <name>Facet-dc68e36f-69de-4291-a2f5-bb76705b7cf3</name>
@@ -492,10 +481,24 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Section</value>
+                    <value>{!$Label.Detail}</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>flexipage_fieldSection5</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>cardTitle</name>
+                    <value>Loggført aktivitet under revisjon</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>taskType</name>
+                    <value>Revisjon</value>
+                </componentInstanceProperties>
+                <componentName>aareg_agreementRevision</componentName>
+                <identifier>c_aareg_agreementRevision</identifier>
             </componentInstance>
         </itemInstances>
         <name>Facet-b64d58d3-2994-4e66-b57f-edffe2d3ece7</name>
@@ -568,20 +571,6 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>flexipage_tab</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-5ce6ac28-b9dd-43d8-92ab-3a9e3936206c</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>{!$Label.ApplicationBasisCode}</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>flexipage_tab2</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>

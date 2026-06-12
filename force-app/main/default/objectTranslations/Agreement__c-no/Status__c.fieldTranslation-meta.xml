@@ -10,4 +10,8 @@
         <masterLabel>Deactivated</masterLabel>
         <translation>Inaktiv</translation>
     </picklistValues>
+    <picklistValues>
+        <masterLabel>Under review</masterLabel>
+        <translation><!-- Under review --></translation>
+    </picklistValues>
 </CustomFieldTranslation>

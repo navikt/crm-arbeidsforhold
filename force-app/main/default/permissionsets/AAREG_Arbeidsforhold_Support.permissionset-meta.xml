@@ -240,6 +240,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Event.AAREG_AccessRequest__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Event.CRM_Unit__c</field>
         <readable>true</readable>
@@ -342,6 +347,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>NavUnit__c.MarketRegion__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Task.AAREG_AccessRequest__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
