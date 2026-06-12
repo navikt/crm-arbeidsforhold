@@ -54,7 +54,7 @@
         <pageOrSobjectType>standard-home</pageOrSobjectType>
     </actionOverrides>
     <brand>
-        <headerColor>#C90C0F</headerColor>
+        <headerColor>#E82573</headerColor>
         <logo>NavLogoRd</logo>
         <logoVersion>1</logoVersion>
         <shouldOverrideOrgTheme>true</shouldOverrideOrgTheme>
@@ -66,7 +66,7 @@
     <isNavPersonalizationDisabled>true</isNavPersonalizationDisabled>
     <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
     <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
-    <label>Arbeidsforhold - henvendelse</label>
+    <label>Aa-registeret – Brukerstøtte</label>
     <navType>Console</navType>
     <setupExperience>all</setupExperience>
     <tabs>standard-home</tabs>
