@@ -102,10 +102,8 @@
         <numberOfColumns>12</numberOfColumns>
         <rowHeight>36</rowHeight>
     </dashboardGridLayout>
-    <dashboardType>SpecifiedUser</dashboardType>
+    <dashboardType>LoggedInUser</dashboardType>
     <isGridLayout>true</isGridLayout>
-    <owner>test-dh2yrzqvcwua@example.com</owner>
-    <runningUser>test-dh2yrzqvcwua@example.com</runningUser>
     <textColor>#000000</textColor>
     <title>Aareg-Admin dashboard</title>
     <titleColor>#000000</titleColor>
