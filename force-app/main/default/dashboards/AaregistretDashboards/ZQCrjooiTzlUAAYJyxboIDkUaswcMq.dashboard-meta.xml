@@ -13,22 +13,50 @@
             <columnIndex>3</columnIndex>
             <dashboardComponent>
                 <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
-                <chartSummary>
-                    <column>RowCount</column>
-                </chartSummary>
-                <componentType>Metric</componentType>
-                <decimalPrecision>-1</decimalPrecision>
-                <displayUnits>Auto</displayUnits>
-                <groupingSortProperties/>
+                <componentType>FlexTable</componentType>
+                <flexComponentProperties>
+                    <decimalPrecision>-1</decimalPrecision>
+                    <flexTableColumn>
+                        <reportColumn>CUST_CREATED_DATE</reportColumn>
+                        <showSubTotal>false</showSubTotal>
+                        <showTotal>false</showTotal>
+                        <type>detail</type>
+                    </flexTableColumn>
+                    <flexTableColumn>
+                        <reportColumn>Application_Log__c.Log_Level__c</reportColumn>
+                        <showSubTotal>false</showSubTotal>
+                        <showTotal>false</showTotal>
+                        <type>detail</type>
+                    </flexTableColumn>
+                    <flexTableColumn>
+                        <reportColumn>Application_Log__c.Application_Domain__c</reportColumn>
+                        <showSubTotal>false</showSubTotal>
+                        <showTotal>false</showTotal>
+                        <type>detail</type>
+                    </flexTableColumn>
+                    <flexTableColumn>
+                        <reportColumn>Application_Log__c.Category__c</reportColumn>
+                        <showSubTotal>false</showSubTotal>
+                        <showTotal>false</showTotal>
+                        <type>detail</type>
+                    </flexTableColumn>
+                    <flexTableColumn>
+                        <reportColumn>Application_Log__c.Log_Message__c</reportColumn>
+                        <showSubTotal>false</showSubTotal>
+                        <showTotal>false</showTotal>
+                        <type>detail</type>
+                    </flexTableColumn>
+                    <flexTableSortInfo>
+                        <sortColumn>CUST_CREATED_DATE</sortColumn>
+                        <sortOrder>1</sortOrder>
+                    </flexTableSortInfo>
+                    <hideChatterPhotos>true</hideChatterPhotos>
+                    <useReportTableSetting>false</useReportTableSetting>
+                </flexComponentProperties>
+                <groupingSortProperties />
                 <header>Antall nye feil</header>
-                <indicatorBreakpoint1>5.0</indicatorBreakpoint1>
-                <indicatorBreakpoint2>15.0</indicatorBreakpoint2>
-                <indicatorHighColor>#700000</indicatorHighColor>
-                <indicatorLowColor>#33C1AA</indicatorLowColor>
-                <indicatorMiddleColor>#CA8501</indicatorMiddleColor>
-                <metricLabel>Siste uken</metricLabel>
                 <report>AAREG_SupportReports/AAREG_ALTINN_Errors_last_week</report>
-                <showRange>false</showRange>
+                <title>Siste uke (aareg og altinn)</title>
             </dashboardComponent>
             <rowIndex>0</rowIndex>
             <rowSpan>5</rowSpan>
@@ -42,7 +70,7 @@
                 <dashboardComponentContents>
                     <richTextContent>[{\&amp;quot;attributes\&amp;quot;:{\&amp;quot;italic\&amp;quot;:true,\&amp;quot;bold\&amp;quot;:true,\&amp;quot;size\&amp;quot;:\&amp;quot;16px\&amp;quot;,\&amp;quot;link\&amp;quot;:\&amp;quot;https:\/\/metabase.ansatt.nav.no\/dashboard\/1020-innsikt-salesforce?community=Aa-registeret&amp;amp;feature=&amp;amp;ident_type=&amp;amp;last_login_bucket=&amp;amp;licensename=&amp;amp;licensetype=&amp;amp;login_status=&amp;amp;metricsdate=&amp;amp;org.0=&amp;amp;org.1=&amp;amp;org.2=&amp;amp;org.3=&amp;amp;profilename=&amp;amp;sektor=&amp;amp;tab=990-community\&amp;quot;},\&amp;quot;insert\&amp;quot;:\&amp;quot;App usage\&amp;quot;},{\&amp;quot;attributes\&amp;quot;:{\&amp;quot;align\&amp;quot;:\&amp;quot;left\&amp;quot;},\&amp;quot;insert\&amp;quot;:\&amp;quot;\\n\&amp;quot;}]</richTextContent>
                 </dashboardComponentContents>
-                <groupingSortProperties/>
+                <groupingSortProperties />
             </dashboardComponent>
             <rowIndex>0</rowIndex>
             <rowSpan>2</rowSpan>
@@ -59,14 +87,14 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Antall nye henvendelser</header>
-                <indicatorBreakpoint1>5.0</indicatorBreakpoint1>
-                <indicatorBreakpoint2>15.0</indicatorBreakpoint2>
-                <indicatorHighColor>#700011</indicatorHighColor>
-                <indicatorLowColor>#33C19E</indicatorLowColor>
+                <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
+                <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
+                <indicatorHighColor>#00716B</indicatorHighColor>
+                <indicatorLowColor>#C23934</indicatorLowColor>
                 <indicatorMiddleColor>#CA8501</indicatorMiddleColor>
-                <metricLabel>3 uker og eldre</metricLabel>
+                <metricLabel>4 uker</metricLabel>
                 <report>AAREG_SupportReports/AAREG_SupportNewCasesUnhandledLast3Weeks</report>
                 <showRange>false</showRange>
             </dashboardComponent>
@@ -85,12 +113,12 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Antall nye Søknader</header>
-                <indicatorBreakpoint1>3.0</indicatorBreakpoint1>
-                <indicatorBreakpoint2>12.0</indicatorBreakpoint2>
-                <indicatorHighColor>#700000</indicatorHighColor>
-                <indicatorLowColor>#33C1AA</indicatorLowColor>
+                <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
+                <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
+                <indicatorHighColor>#00716B</indicatorHighColor>
+                <indicatorLowColor>#C23934</indicatorLowColor>
                 <indicatorMiddleColor>#CA8501</indicatorMiddleColor>
                 <metricLabel>4 uker og eldre</metricLabel>
                 <report>Aa_registerReports/Aa_regNewFourthAndOlder</report>
@@ -102,8 +130,9 @@
         <numberOfColumns>12</numberOfColumns>
         <rowHeight>36</rowHeight>
     </dashboardGridLayout>
-    <dashboardType>LoggedInUser</dashboardType>
+    <dashboardType>SpecifiedUser</dashboardType>
     <isGridLayout>true</isGridLayout>
+    <runningUser>geir.vesterdal@nav.no</runningUser>
     <textColor>#000000</textColor>
     <title>Aareg-Admin dashboard</title>
     <titleColor>#000000</titleColor>
