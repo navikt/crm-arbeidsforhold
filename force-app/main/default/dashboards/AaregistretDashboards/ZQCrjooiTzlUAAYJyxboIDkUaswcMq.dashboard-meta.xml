@@ -53,7 +53,7 @@
                     <hideChatterPhotos>true</hideChatterPhotos>
                     <useReportTableSetting>false</useReportTableSetting>
                 </flexComponentProperties>
-                <groupingSortProperties />
+                <groupingSortProperties/>
                 <header>Antall nye feil</header>
                 <report>AAREG_SupportReports/AAREG_ALTINN_Errors_last_week</report>
                 <title>Siste uke (aareg og altinn)</title>
@@ -70,7 +70,7 @@
                 <dashboardComponentContents>
                     <richTextContent>[{\&amp;quot;attributes\&amp;quot;:{\&amp;quot;italic\&amp;quot;:true,\&amp;quot;bold\&amp;quot;:true,\&amp;quot;size\&amp;quot;:\&amp;quot;16px\&amp;quot;,\&amp;quot;link\&amp;quot;:\&amp;quot;https:\/\/metabase.ansatt.nav.no\/dashboard\/1020-innsikt-salesforce?community=Aa-registeret&amp;amp;feature=&amp;amp;ident_type=&amp;amp;last_login_bucket=&amp;amp;licensename=&amp;amp;licensetype=&amp;amp;login_status=&amp;amp;metricsdate=&amp;amp;org.0=&amp;amp;org.1=&amp;amp;org.2=&amp;amp;org.3=&amp;amp;profilename=&amp;amp;sektor=&amp;amp;tab=990-community\&amp;quot;},\&amp;quot;insert\&amp;quot;:\&amp;quot;App usage\&amp;quot;},{\&amp;quot;attributes\&amp;quot;:{\&amp;quot;align\&amp;quot;:\&amp;quot;left\&amp;quot;},\&amp;quot;insert\&amp;quot;:\&amp;quot;\\n\&amp;quot;}]</richTextContent>
                 </dashboardComponentContents>
-                <groupingSortProperties />
+                <groupingSortProperties/>
             </dashboardComponent>
             <rowIndex>0</rowIndex>
             <rowSpan>2</rowSpan>
@@ -87,7 +87,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <groupingSortProperties />
+                <groupingSortProperties/>
                 <header>Antall nye henvendelser</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -101,38 +101,13 @@
             <rowIndex>5</rowIndex>
             <rowSpan>5</rowSpan>
         </dashboardGridComponents>
-        <dashboardGridComponents>
-            <colSpan>4</colSpan>
-            <columnIndex>3</columnIndex>
-            <dashboardComponent>
-                <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
-                <chartSummary>
-                    <axisBinding>y</axisBinding>
-                    <column>RowCount</column>
-                </chartSummary>
-                <componentType>Metric</componentType>
-                <decimalPrecision>-1</decimalPrecision>
-                <displayUnits>Auto</displayUnits>
-                <groupingSortProperties />
-                <header>Antall nye Søknader</header>
-                <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
-                <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
-                <indicatorHighColor>#00716B</indicatorHighColor>
-                <indicatorLowColor>#C23934</indicatorLowColor>
-                <indicatorMiddleColor>#CA8501</indicatorMiddleColor>
-                <metricLabel>4 uker og eldre</metricLabel>
-                <report>Aa_registerReports/Aa_regNewFourthAndOlder</report>
-                <showRange>false</showRange>
-            </dashboardComponent>
-            <rowIndex>10</rowIndex>
-            <rowSpan>5</rowSpan>
-        </dashboardGridComponents>
         <numberOfColumns>12</numberOfColumns>
         <rowHeight>36</rowHeight>
     </dashboardGridLayout>
     <dashboardType>SpecifiedUser</dashboardType>
     <isGridLayout>true</isGridLayout>
-    <runningUser>geir.vesterdal@nav.no</runningUser>
+    <owner>test-p0o2anhur5im@example.com</owner>
+    <runningUser>test-p0o2anhur5im@example.com</runningUser>
     <textColor>#000000</textColor>
     <title>Aareg-Admin dashboard</title>
     <titleColor>#000000</titleColor>

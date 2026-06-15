@@ -61,6 +61,10 @@
                     <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
+                    <name>hideSlackAction</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>numVisibleActions</name>
                     <value>3</value>
                 </componentInstanceProperties>
@@ -125,6 +129,16 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.accountCategory__c</fieldItem>
                 <identifier>RecordaccountCategory_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Public_360_id__c</fieldItem>
+                <identifier>RecordPublic_360_id__cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-c2c75666-073e-4df7-8066-a2703e629fc2</name>
@@ -449,6 +463,16 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.lastRevisionDate__c</fieldItem>
                 <identifier>RecordlastRevisionDate_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Public_360_id__c</fieldItem>
+                <identifier>RecordPublic_360_id_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-443dbdef-9f5e-4aef-b078-0bc6fd934d65</name>

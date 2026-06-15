@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <help><!-- Legg til saksid fra arkivet/public 360 --></help>
+    <label>Saksid</label>
+    <name>Public_360_id__c</name>
+</CustomFieldTranslation>
