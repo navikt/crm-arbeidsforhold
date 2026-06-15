@@ -84,8 +84,8 @@
             <rowSpan>7</rowSpan>
         </dashboardGridComponents>
         <dashboardGridComponents>
-            <colSpan>8</colSpan>
-            <columnIndex>2</columnIndex>
+            <colSpan>5</colSpan>
+            <columnIndex>0</columnIndex>
             <dashboardComponent>
                 <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
                 <componentType>FlexTable</componentType>
@@ -99,6 +99,26 @@
                 <groupingSortProperties/>
                 <header>Antall søknader fordelt på status</header>
                 <report>Aa_registerReports/AAREG_totalPrStatus</report>
+            </dashboardComponent>
+            <rowIndex>7</rowIndex>
+            <rowSpan>8</rowSpan>
+        </dashboardGridComponents>
+        <dashboardGridComponents>
+            <colSpan>5</colSpan>
+            <columnIndex>7</columnIndex>
+            <dashboardComponent>
+                <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
+                <componentType>FlexTable</componentType>
+                <flexComponentProperties>
+                    <flexTableSortInfo>
+                        <sortOrder>1</sortOrder>
+                    </flexTableSortInfo>
+                    <hideChatterPhotos>true</hideChatterPhotos>
+                    <useReportTableSetting>true</useReportTableSetting>
+                </flexComponentProperties>
+                <groupingSortProperties/>
+                <header>Avtalepartnere under/vært i revisjon</header>
+                <report>Aa_registerReports/AAREG_agreementRevision</report>
             </dashboardComponent>
             <rowIndex>7</rowIndex>
             <rowSpan>8</rowSpan>
