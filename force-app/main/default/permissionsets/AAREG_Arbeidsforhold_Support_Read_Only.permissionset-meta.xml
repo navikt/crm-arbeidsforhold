@@ -223,6 +223,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Agreement__c.Public_360_id__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Agreement__c.Status__c</field>
         <readable>true</readable>
     </fieldPermissions>

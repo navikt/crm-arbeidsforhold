@@ -554,6 +554,11 @@
             <field>accountCategory__c</field>
             <table>Account.Applications__r.Agreements__r</table>
         </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>Public_360_id__c</field>
+            <table>Account.Applications__r.Agreements__r</table>
+        </columns>
         <masterLabel>Agreements</masterLabel>
     </sections>
     <sections>
@@ -648,6 +653,21 @@
         <columns>
             <checkedByDefault>false</checkedByDefault>
             <field>AA_ConfirmedAgreementCancellationDate__c</field>
+            <table>Account.Applications__r.Agreements__r</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>Access_Request__c</field>
+            <table>Account.Applications__r.Agreements__r</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>isRevision__c</field>
+            <table>Account.Applications__r.Agreements__r</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>lastRevisionDate__c</field>
             <table>Account.Applications__r.Agreements__r</table>
         </columns>
         <masterLabel>Avtaler</masterLabel>

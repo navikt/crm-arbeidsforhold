@@ -20,6 +20,10 @@
                 <behavior>Edit</behavior>
                 <field>Access_Request__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Public_360_id__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

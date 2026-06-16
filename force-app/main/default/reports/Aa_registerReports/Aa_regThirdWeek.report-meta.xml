@@ -9,27 +9,24 @@
     <filter>
         <criteriaItems>
             <column>CUST_RECORDTYPE</column>
+            <columnToColumn>false</columnToColumn>
             <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>Application__c.Aa_RegisterAccess</value>
         </criteriaItems>
         <criteriaItems>
             <column>Application__c.DaysSinceSubmitted__c</column>
+            <columnToColumn>false</columnToColumn>
             <isUnlocked>true</isUnlocked>
             <operator>greaterThan</operator>
             <value>14</value>
         </criteriaItems>
         <criteriaItems>
             <column>Application__c.Casehandler_Status__c</column>
+            <columnToColumn>false</columnToColumn>
             <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>New</value>
-        </criteriaItems>
-        <criteriaItems>
-            <column>Application__c.DaysSinceSubmitted__c</column>
-            <isUnlocked>true</isUnlocked>
-            <operator>lessThan</operator>
-            <value>22</value>
         </criteriaItems>
         <language>no</language>
     </filter>
