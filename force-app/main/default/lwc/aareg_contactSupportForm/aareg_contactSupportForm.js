@@ -11,6 +11,7 @@ import TYPE_FIELD from '@salesforce/schema/Inquiry__c.TypeOfInquiry__c';
 
 // Get current logged-in user Id
 import Id from '@salesforce/user/Id';
+import getCacheValue from '@salesforce/apex/CacheController.getCacheValue';
 
 /**
  * Apex methods for server-side operations
@@ -169,8 +170,12 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     if (this.draftRecordId) return;
     try {
       this.isInitializingDraft = true;
+      // Server initializes based on cachedValue for user; if none, creates a new draft Inquiry__c with minimal required fields (e.g., Status = Draft) 
+      // and returns its Id. This ensures that there is a valid record to associate file uploads with, allowing users to upload files before submitting 
+      // the form and ensuring that those files are properly linked to the inquiry when it is finalized.   
+      const representingPerson = await getCacheValue({ key: `${this.currentUser}_representingPerson` });
       // Server initializes minimal Inquiry__c (e.g., Status = Draft)
-      this.draftRecordId = await initDraftRecord({ userId: this.currentUser });
+      this.draftRecordId = await initDraftRecord({ userId: this.currentUser, representingPerson: representingPerson === 'false' });
     } catch (e) {
         console.error('Error initializing draft Inquiry__c:', e);
       // Surface error to user if needed
@@ -376,19 +381,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
       })();
     }
   } 
-
-  /**
-   * Displays error message under input field
-   */
-  /*
-  setErrorFor(inputField, message) {
-    this.hasErrors = true;
-    let formControl = inputField.parentElement;
-    let small = formControl.querySelector('small');
-    small.innerText = message;
-    formControl.className = 'form-control error';
-  }
-  */
 
   /**
    * Clears all error styles from form

@@ -1,5 +1,6 @@
 import { LightningElement, track } from 'lwc';
 import Id from '@salesforce/user/Id';
+import setCacheValue from '@salesforce/apex/CacheController.setCacheValue';
 import getLastUsersLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganization';
 import getOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.getOrganizationsWithRoles';
 import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.updateLastUsedOrganization';
@@ -66,19 +67,26 @@ export default class Aareg_home extends LightningElement {
         this.representChoice = result;
         if (this.representChoice === 'megSelv') {
             console.log('User chose to represent themselves, skipping organization fetch and access check. # 1');
-            // TODO: navigate to Mine_meldinger_component (not implemented yet)
+            // set a cache value to be used in the MyThreads component to filter on Person threads
+            try {
+                await setCacheValue({ key: `${this.currentUser}_representingPerson`, value: 'true' });
+            } catch (error) {
+                console.error('Failed to set cache value', error);
+            }
             return;
+        } else {
+            // set a cache value to be used in the MyThreads component to filter on Person threads
+            try {
+                await setCacheValue({ key: `${this.currentUser}_representingPerson`, value: 'false' });
+            } catch (error) {
+                console.error('Failed to set cache value', error);
+            }
         }
         this.init();
     }
 
     async init() {
         console.log('Initializing with representChoice:', this.representChoice);
-        if (this.representChoice === 'megSelv') {
-            console.log('User chose to represent themselves, skipping organization fetch and access check. # 2');
-            //this.isLoaded = true;
-            return;
-        }
         try {
             const orgResult = await getOrganizationsWithRoles({ userId: this.currentUser });
             if (orgResult.success) {

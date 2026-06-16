@@ -16,7 +16,7 @@ public with sharing class AAREG_contactSupportController {
    * Returns the Id of the created draft record.
    */
   @AuraEnabled
-  public static Id initDraftRecord(String userId) {
+  public static Id initDraftRecord(String userId, Boolean representingPerson) {
 
     Inquiry__c draft = new Inquiry__c();
     // Set minimal draft defaults; adjust fields as needed in your org
@@ -29,9 +29,10 @@ public with sharing class AAREG_contactSupportController {
     }
     Database.SaveResult sr;
     try {
-
-      String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId] ?.LastUsedOrganization__c;
-      draft.CreatedByOrganizationNumber__c = lastUsedOrganizationNumber;
+      if (!representingPerson) {
+        String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId] ?.LastUsedOrganization__c;
+        draft.CreatedByOrganizationNumber__c = lastUsedOrganizationNumber;
+      }
       sr = Database.insert(draft, AccessLevel.USER_MODE);
     } catch (Exception e) {
       throw new AuraHandledException('Could not initialize draft Inquiry__c' + ' - ' + e.getMessage());
@@ -76,7 +77,7 @@ public with sharing class AAREG_contactSupportController {
    * Returns the final Inquiry__c Id (same as draft if updating in place).
    */
   @AuraEnabled
-  public static Id createFinalInquiry(String userId, Id draftId, String metadataJson) {
+  public static Id createFinalInquiry(String userId, Id draftId, String metadataJson, Boolean representingPerson) {
     if (draftId == null) {
       throw new AuraHandledException('Missing draftId');
     }
@@ -103,7 +104,7 @@ public with sharing class AAREG_contactSupportController {
     rec.Status__c = 'New';
 
     //  create associated thread with initial message based on inquiry details
-    createThreadWithMessage(userId, draftId, rec.InquiryDescription__c, rec.Subject__c );
+    createThreadWithMessage(userId, draftId, rec.InquiryDescription__c, rec.Subject__c, representingPerson);
 
     Database.update(rec, AccessLevel.USER_MODE);
     return rec.Id;
@@ -182,7 +183,7 @@ public with sharing class AAREG_contactSupportController {
   public static Id createThreadForApplication(String userId, String relatedApplicationId, String description, String subject) {
     Id threadId;
     try {
-      threadId = createThreadWithMessage(userId, relatedApplicationId, description,subject);
+      threadId = createThreadWithMessage(userId, relatedApplicationId, description,subject, false);
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
     }
@@ -216,7 +217,7 @@ public with sharing class AAREG_contactSupportController {
       inquiry.CreatedByOrganizationNumber__c = lastUsedOrganizationNumber;
       insert inquiry;
 
-      createThreadWithMessage(userId, inquiry.Id, inquiry.InquiryDescription__c, inquiry.Subject__c );
+      createThreadWithMessage(userId, inquiry.Id, inquiry.InquiryDescription__c, inquiry.Subject__c, false);
 
       // Optionally attach files to the created Thread
       if (files != null && !files.isEmpty()) {
@@ -239,7 +240,7 @@ public with sharing class AAREG_contactSupportController {
    * @param subject The subject of the thread.
    * @return Id The ID of the created thread.
    */
-  private static Id createThreadWithMessage(String userId, String relatedRecordId, String description, String subject) {
+  private static Id createThreadWithMessage(String userId, String relatedRecordId, String description, String subject, Boolean representingPerson) {
     Id relatedObjectId = Id.valueOf(relatedRecordId);
     String sObjName = relatedObjectId.getSObjectType().getDescribe().getName();
       
@@ -247,12 +248,19 @@ public with sharing class AAREG_contactSupportController {
     if (sObjName == 'Inquiry__c') {
       henvendelsesId = [SELECT Name FROM Inquiry__c WHERE Id = :relatedRecordId]?.Name;
     }
+
+    // new record type for person threads if needed, otherwise use default thread record type; 
+    // utility method will return correct RTId based on representingPerson flag
+    Id recordTypeId = AAREG_Utility.getInstance().getThreadRecordTypeId();
+    if (representingPerson) {
+      recordTypeId = AAREG_Utility.getInstance().getPersonThreadRecordTypeId();
+    }
           
     Thread__c thread = new Thread__c(
         CRM_Related_Object__c = relatedRecordId,
         CRM_Related_Object_Type__c = sObjName,
         CRM_HenvendelseId__c = henvendelsesId,
-        RecordTypeId = AAREG_Utility.getInstance().getThreadRecordTypeId(),
+        RecordTypeId = recordTypeId,
         AAREG_Thread_Subject__c = subject, // Subject is set directly in aaregcontactSupportForm.html input
         CRM_Thread_Type__c = 'AAREG_EXP'
     );

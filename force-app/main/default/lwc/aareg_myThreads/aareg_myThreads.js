@@ -1,7 +1,9 @@
 import { LightningElement, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
-import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreads';
+import getCacheValue from '@salesforce/apex/CacheController.getCacheValue';
+import getUsersThreadsForOrganization from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreadsForOrganization';
+import getUsersThreadsForPerson from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreadsForPerson'; 
 import { refreshApex } from '@salesforce/apex';
 import unreadCellStyles from '@salesforce/resourceUrl/AAREG_styles';
 import { loadStyle } from 'lightning/platformResourceLoader';
@@ -80,7 +82,16 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
   );
   }
 
-  @wire(getUsersThreads, { userId: '$currentUser' })
+  async connectedCallback() {
+    const representingPerson = await getCacheValue({ key: `${this.currentUser}_representingPerson` });
+    if (representingPerson === 'true') {
+      this.wiredThreads = getUsersThreadsForPerson({ userId: this.currentUser });
+    } else {
+      this.wiredThreads = getUsersThreadsForOrganization({ userId: this.currentUser });
+    }
+  }
+
+  //@wire(getUsersThreadsForOrganization, { userId: '$currentUser' })
   wiredThreads(result) {
     this.wiredThreadsResult = result;
     if (result.data) {
