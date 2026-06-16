@@ -5,7 +5,7 @@
 * The getCacheValue method retrieves the value associated with the specified key from the cache.      
 * @author Ashish Misra   
  */
-public with sharing class CacheController {
+public with sharing class AAREG_CacheController {
 
     @AuraEnabled
     public static void setCacheValue(String key, String value) {
