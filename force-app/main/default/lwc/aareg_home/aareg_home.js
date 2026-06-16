@@ -1,6 +1,6 @@
 import { LightningElement, track } from 'lwc';
 import Id from '@salesforce/user/Id';
-import setCacheValue from '@salesforce/apex/CacheController.setCacheValue';
+import setCacheValue from '@salesforce/apex/AAREG_CacheController.setCacheValue';
 import getLastUsersLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganization';
 import getOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.getOrganizationsWithRoles';
 import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.updateLastUsedOrganization';

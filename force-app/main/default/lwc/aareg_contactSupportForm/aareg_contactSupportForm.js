@@ -11,7 +11,7 @@ import TYPE_FIELD from '@salesforce/schema/Inquiry__c.TypeOfInquiry__c';
 
 // Get current logged-in user Id
 import Id from '@salesforce/user/Id';
-import getCacheValue from '@salesforce/apex/CacheController.getCacheValue';
+import getCacheValue from '@salesforce/apex/AAREG_CacheController.getCacheValue';
 
 /**
  * Apex methods for server-side operations

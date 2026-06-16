@@ -1,7 +1,7 @@
 import { LightningElement, wire, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
-import getCacheValue from '@salesforce/apex/CacheController.getCacheValue';
+import getCacheValue from '@salesforce/apex/AAREG_CacheController.getCacheValue';
 import getUsersThreadsForOrganization from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreadsForOrganization';
 import getUsersThreadsForPerson from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreadsForPerson'; 
 import { refreshApex } from '@salesforce/apex';
