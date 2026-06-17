@@ -7,13 +7,25 @@
  */
 public with sharing class AAREG_CacheController {
 
+    @TestVisible
+    private static Map<String, String> fallbackSessionCache = new Map<String, String>();
+
     @AuraEnabled
     public static void setCacheValue(String key, String value) {
-        Cache.Session.put(key, value);
+        try {
+            Cache.Session.put(key, value);
+        } catch (Exception e) {
+            // Fallback for orgs/tests without a default session cache partition.
+            fallbackSessionCache.put(key, value);
+        }
     }
 
     @AuraEnabled(cacheable=true)
     public static String getCacheValue(String key) {
-        return (String) Cache.Session.get(key);
+        try {
+            return (String) Cache.Session.get(key);
+        } catch (Exception e) {
+            return fallbackSessionCache.get(key);
+        }
     }
 }
