@@ -1,4 +1,5 @@
 import { LightningElement, track } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import setCacheValue from '@salesforce/apex/AAREG_CacheController.setCacheValue';
 import getLastUsersLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganization';
@@ -7,7 +8,7 @@ import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.up
 import checkAndShareIfAuthorized from '@salesforce/apex/AAREG_HomeController.checkAndShareIfAuthorized';
 import AaregRepresentModal from 'c/aareg_representModal';
 
-export default class Aareg_home extends LightningElement {
+export default class Aareg_home extends NavigationMixin(LightningElement) {
     @track organizations;
     isLoaded = false;
     hasApplicationAccess = false;
@@ -70,6 +71,15 @@ export default class Aareg_home extends LightningElement {
             // set a cache value to be used in the MyThreads component to filter on Person threads
             try {
                 await setCacheValue({ key: `${this.currentUser}_representingPerson`, value: 'true' });
+                this[NavigationMixin.Navigate](
+                    {
+                        type: 'standard__navItemPage',
+                        attributes: {
+                            apiName: 'Mine_Meldinger_c'
+                        }
+                    },
+                    true
+                );
             } catch (error) {
                 console.error('Failed to set cache value', error);
             }

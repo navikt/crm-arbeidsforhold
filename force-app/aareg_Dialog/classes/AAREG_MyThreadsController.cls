@@ -1,4 +1,5 @@
 public with sharing class AAREG_MyThreadsController {
+
   @AuraEnabled(cacheable=true)
   public static List<Thread__c> getUsersThreadsForOrganization(String userId) {
     List<Thread__c> threads;
@@ -39,6 +40,7 @@ public with sharing class AAREG_MyThreadsController {
     }
     return threads;
   }
+  @AuraEnabled(cacheable=true)
   public static List<Thread__c> getUsersThreadsForPerson(String userId) {
     List<Thread__c> threads;
     try {
