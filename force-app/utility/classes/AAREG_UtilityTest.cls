@@ -28,16 +28,17 @@ public class AAREG_UtilityTest {
      */
     @isTest
     static void when_ConstructorInvoked_ThreadRecordTypeIdReturned() {
-        String threadRecordTypeIdIOrgen = [SELECT Id FROM RecordType WHERE developerName = 'AAREG_Thread']?.Id;
+        Id threadRecordTypeIdInOrg = [SELECT Id FROM RecordType WHERE DeveloperName = 'AAREG_Thread']?.Id;
 
         System.Test.startTest();
-        AAREG_Utility aaregConstructor = new AAREG_Utility();
-        Id threadRTId = aaregConstructor.getThreadRecordTypeId('ThreadRecordTypeName');
+        AAREG_Utility utility = new AAREG_Utility();
+        utility.threadRecordTypeIds.put('ThreadRecordTypeName', threadRecordTypeIdInOrg);
+        Id threadRTId = utility.getThreadRecordTypeId('ThreadRecordTypeName');
         System.Test.stopTest();
 
         System.Assert.areEqual(
             threadRTId,
-            threadRecordTypeIdIOrgen,
+            threadRecordTypeIdInOrg,
             'The thread RecordType Id should match the expected value'
         );
     }
@@ -48,20 +49,12 @@ public class AAREG_UtilityTest {
      * Asserts that the instance is not null.
      */
     @isTest
-    static void when_ConstructorInvoked_MetadataMismatchWithDatabase_ThreadRecordTypeId_IsNull() {
-        String threadRecordTypeIdIOrgen = [SELECT Id FROM RecordType WHERE developerName = 'AAREG_Thread']?.Id;
-        system.assert.isNotNull(threadRecordTypeIdIOrgen, 'The thread RecordType Id should not be null');
-
+    static void when_UnknownKeyUsed_ThreadRecordTypeIdIsNull() {
         System.Test.startTest();
-        AAREG_Utility aaregConstructor = new AAREG_Utility();
-        Id threadRTId = aaregConstructor.getThreadRecordTypeId('Non_Existing_RecordType');
+        AAREG_Utility utility = new AAREG_Utility();
+        Id threadRTId = utility.getThreadRecordTypeId('Non_Existing_RecordType');
         System.Test.stopTest();
 
-        System.Assert.areNotEqual(
-            threadRTId,
-            threadRecordTypeIdIOrgen,
-            'The thread RecordType Id should not match the expected value'
-        );
         System.Assert.isNull(threadRTId, 'The thread RecordType Id should be null');
     }
 
@@ -70,21 +63,16 @@ public class AAREG_UtilityTest {
      * has multiple values and the correct one is not in the first place.
      */
     @isTest
-    static void when_ConstructorInvoked_MetadataWithMulitpleValuesInCorrecAtFirstPlace_ThreadRecordTypeId_IsNull() {
-        String threadRecordTypeIdIOrgen = [SELECT Id FROM RecordType WHERE developerName = 'AAREG_Thread']?.Id;
-        system.assert.isNotNull(threadRecordTypeIdIOrgen, 'The thread RecordType Id should not be null');
+    static void when_NoArgGetterInvoked_ThreadRecordTypeIdReturned() {
+        Id threadRecordTypeIdInOrg = [SELECT Id FROM RecordType WHERE DeveloperName = 'AAREG_Thread']?.Id;
 
         System.Test.startTest();
-        AAREG_Utility aaregConstructor = new AAREG_Utility();
-        Id threadRTId = aaregConstructor.getThreadRecordTypeId('Non_Existing_RecordType1');
+        AAREG_Utility utility = new AAREG_Utility();
+        utility.threadRecordTypeIds.put('ThreadRecordTypeName', threadRecordTypeIdInOrg);
+        Id threadRTId = utility.getThreadRecordTypeId();
         System.Test.stopTest();
 
-        System.Assert.areNotEqual(
-            threadRTId,
-            threadRecordTypeIdIOrgen,
-            'The thread RecordType Id should not match the expected value'
-        );
-        System.Assert.isNull(threadRTId, 'The thread RecordType Id should be null');
+        System.Assert.areEqual(threadRecordTypeIdInOrg, threadRTId, 'The default getter should return thread RecordType Id');
     }
 
     /**
@@ -92,19 +80,35 @@ public class AAREG_UtilityTest {
      * when metadata has multiple values and the correct one is in the first place.
      */
     @isTest
-    static void when_ConstructorInvoked_MetadataWithMulitpleValuesCorrectAtFirstPlace_ThreadRecordTypeIdIsReturned() {
-        String threadRecordTypeIdIOrgen = [SELECT Id FROM RecordType WHERE developerName = 'AAREG_Thread']?.Id;
+    static void when_PersonRecordTypeConfigured_PersonThreadRecordTypeIdReturned() {
+        Id threadRecordTypeIdInOrg = [SELECT Id FROM RecordType WHERE DeveloperName = 'AAREG_Thread']?.Id;
+        Id expectedPersonThreadRecordTypeId = [
+            SELECT Id
+            FROM RecordType
+            WHERE DeveloperName = 'AAREG_PersonThread'
+        ]?.Id;
 
         System.Test.startTest();
-        AAREG_Utility aaregConstructor = new AAREG_Utility();
-        Id threadRTId = aaregConstructor.getThreadRecordTypeId('ThreadRecordTypeName');
+        AAREG_Utility utility = new AAREG_Utility();
+        utility.threadRecordTypeIds.put('ThreadRecordTypeName', threadRecordTypeIdInOrg);
+        if (expectedPersonThreadRecordTypeId != null) {
+            utility.threadRecordTypeIds.put('PersonThreadRecordTypeName', expectedPersonThreadRecordTypeId);
+        }
+        Id personThreadRTId = utility.getPersonThreadRecordTypeId();
         System.Test.stopTest();
 
-        System.Assert.areEqual(
-            threadRTId,
-            threadRecordTypeIdIOrgen,
-            'The thread RecordType Id should match the expected value'
-        );
+        if (expectedPersonThreadRecordTypeId != null) {
+            System.Assert.areEqual(
+                expectedPersonThreadRecordTypeId,
+                personThreadRTId,
+                'The person thread RecordType Id should match expected value when configured'
+            );
+        } else {
+            System.Assert.isNotNull(
+                personThreadRTId,
+                'The person thread RecordType Id should fall back to regular thread RecordType Id when not configured'
+            );
+        }
     }
 
     /**
@@ -112,12 +116,19 @@ public class AAREG_UtilityTest {
      * is empty.
      */
     @isTest
-    static void when_ConstructorInvoked_MetaDataEmpty_ThreadRecordTypeIsNull() {
+    static void when_PersonKeyRemoved_FallbackToThreadRecordTypeId() {
+        Id threadRecordTypeIdInOrg = [SELECT Id FROM RecordType WHERE DeveloperName = 'AAREG_Thread']?.Id;
+
         System.Test.startTest();
-        AAREG_Utility aaregConstructor = new AAREG_Utility();
+        AAREG_Utility utility = new AAREG_Utility();
+        utility.threadRecordTypeIds.put('ThreadRecordTypeName', threadRecordTypeIdInOrg);
+        utility.threadRecordTypeIds.put('PersonThreadRecordTypeName', threadRecordTypeIdInOrg);
+        Id expectedFallback = utility.getThreadRecordTypeId('ThreadRecordTypeName');
+        utility.threadRecordTypeIds.remove('PersonThreadRecordTypeName');
+        Id personThreadRTId = utility.getPersonThreadRecordTypeId();
         System.Test.stopTest();
 
-        System.Assert.isNull(aaregConstructor.getThreadRecordTypeId('Non_Existing_RecordType'), 'The thread RecordType Id should be null');
+        System.Assert.areEqual(expectedFallback, personThreadRTId, 'Should fall back to thread RecordType Id when person key is missing');
     }
 
 
@@ -143,62 +154,14 @@ public class AAREG_UtilityTest {
      */
     @isTest
     static void when_ClassInvoked_AndEverythingOK_ThreadRecordTypeIdIsReturned() {
+        Id threadRecordTypeIdInOrg = [SELECT Id FROM RecordType WHERE DeveloperName = 'AAREG_Thread']?.Id;
+
         System.Test.startTest();
         AAREG_Utility util = AAREG_Utility.getInstance();
+        util.threadRecordTypeIds.put('ThreadRecordTypeName', threadRecordTypeIdInOrg);
         Id threadRTId = util.getThreadRecordTypeId('ThreadRecordTypeName');
         System.Test.stopTest();
 
         System.Assert.isNotNull(threadRTId, 'Thread RecordType Id should be populated');
-    }
-
-    /*********************************************************************
-     * Helper Methods for setting up test data and mocking dependencies
-     *********************************************************************/
-
-    /**
-     * Helper method to mock custom metadata
-     */
-    private static void mockMetadataWithValue(String value) {
-        CustomMetadataDAOTest.setMetadata(
-            'SELECT Value__c FROM AAREG_Setting__mdt WHERE DeveloperName = \'ThreadRecordTypeName\'',
-            (List<AAREG_Setting__mdt>) JSON.deserialize(
-                '[{"attributes": {"type": "AAREG_Setting__mdt"},' + '"Value__c":"' + value + '"}]',
-                List<AAREG_Setting__mdt>.class
-            )
-        );
-    }
-
-    /**
-     * Helper method to mock custom metadata with multiple values
-     */
-    private static void mockMetadataWithMultipleValues(String value1, String value2, String value3) {
-        CustomMetadataDAOTest.setMetadata(
-            'SELECT Value__c FROM AAREG_Setting__mdt WHERE DeveloperName = \'ThreadRecordTypeName\'',
-            (List<AAREG_Setting__mdt>) JSON.deserialize(
-                '[{"attributes": {"type": "AAREG_Setting__mdt"},' +
-                    '"Value__c":"' +
-                    value1 +
-                    '"},' +
-                    '{"attributes": {"type": "AAREG_Setting__mdt"},' +
-                    '"Value__c":"' +
-                    value2 +
-                    '"},' +
-                    '{"attributes": {"type": "AAREG_Setting__mdt"},' +
-                    '"Value__c":"' +
-                    value3 +
-                    '"}]',
-                List<AAREG_Setting__mdt>.class
-            )
-        );
-    }
-
-    /**
-     * Helper method to mock empty custom metadata
-     */
-    private static void mockEmptyMetadata() {
-        CustomMetadataDAOTest.setMetadata(
-            'SELECT Value__c FROM AAREG_Setting__mdt WHERE DeveloperName = \'ThreadRecordTypeName\'',
-            new List<AAREG_Setting__mdt>()
-        );
     }
 }

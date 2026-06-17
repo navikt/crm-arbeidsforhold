@@ -29,7 +29,7 @@ public with sharing class AAREG_Utility {
         List<AAREG_Setting__mdt> settings = [
             SELECT DeveloperName, Value__c
             FROM AAREG_Setting__mdt
-            WHERE DeveloperName LIKE '%ThreadRT'
+            WHERE DeveloperName IN ('ThreadRecordTypeName', 'PersonThreadRecordTypeName')
         ];
 
         Set<String> developerNames = new Set<String>();
