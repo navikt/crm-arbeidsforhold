@@ -20,7 +20,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Integer</displayUnits>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Antall nye søknader - siste 2 uker</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -45,7 +45,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Integer</displayUnits>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Antall nye søknader - i sin 3 uke eller eldre</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -158,7 +158,7 @@
                     <hideChatterPhotos>true</hideChatterPhotos>
                     <useReportTableSetting>true</useReportTableSetting>
                 </flexComponentProperties>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Avtalepartnere under/vært i revisjon</header>
                 <report>Aa_registerReports/AAREG_agreementRevision</report>
             </dashboardComponent>
@@ -178,7 +178,7 @@
                     <hideChatterPhotos>true</hideChatterPhotos>
                     <useReportTableSetting>true</useReportTableSetting>
                 </flexComponentProperties>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Avtale med kontaktperson detaljer</header>
                 <report>Aa_registerReports/AAREG_agreementWithContacts</report>
             </dashboardComponent>
@@ -188,7 +188,7 @@
         <numberOfColumns>12</numberOfColumns>
         <rowHeight>36</rowHeight>
     </dashboardGridLayout>
-    <dashboardType>LoggedInUser</dashboardType>
+    <dashboardType>SpecifiedUser</dashboardType>
     <description>Dashboard for arbeidsforhold app</description>
     <isGridLayout>true</isGridLayout>
     <owner>test-p0o2anhur5im@example.com</owner>
