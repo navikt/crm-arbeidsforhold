@@ -1,10 +1,9 @@
-import { LightningElement, wire, track } from 'lwc';
+import { LightningElement, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import getCacheValue from '@salesforce/apex/AAREG_CacheController.getCacheValue';
 import getUsersThreadsForOrganization from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreadsForOrganization';
 import getUsersThreadsForPerson from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreadsForPerson'; 
-import { refreshApex } from '@salesforce/apex';
 import unreadCellStyles from '@salesforce/resourceUrl/AAREG_styles';
 import { loadStyle } from 'lightning/platformResourceLoader';
 
@@ -54,7 +53,6 @@ const COLUMNS = [
 
 export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
   @track threads;
-  wiredThreadsResult;
   columns = COLUMNS;
   currentUser = Id;
   error;
@@ -83,19 +81,24 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
   }
 
   async connectedCallback() {
-    const representingPerson = await getCacheValue({ key: `${this.currentUser}_representingPerson` });
-    if (representingPerson === 'true') {
-      this.wiredThreads = getUsersThreadsForPerson({ userId: this.currentUser });
-    } else {
-      this.wiredThreads = getUsersThreadsForOrganization({ userId: this.currentUser });
+    try {
+      const representingPerson = await getCacheValue({ key: `${this.currentUser}_representingPerson` });
+      console.log('Cache key:', `${this.currentUser}_representingPerson`, 'Cache value:', representingPerson);
+      await this.loadThreads(representingPerson === 'true');
+    } catch (error) {
+      console.error(error);
+      this.error = error;
+      this.threads = undefined;
     }
   }
 
-  //@wire(getUsersThreadsForOrganization, { userId: '$currentUser' })
-  wiredThreads(result) {
-    this.wiredThreadsResult = result;
-    if (result.data) {
-      const rows = result.data.map(r => ({
+  async loadThreads(isPerson) {
+    try {
+      const data = isPerson
+        ? await getUsersThreadsForPerson({ userId: this.currentUser })
+        : await getUsersThreadsForOrganization({ userId: this.currentUser });
+
+      const rows = data.map(r => ({
         ...r,
         unreadClass:
           (r.CRM_Number_of_unread_Messages__c || 0) > 0
@@ -104,9 +107,9 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
       }));
       this.threads = rows.length > 0 ? rows : undefined;
       this.error = undefined;
-    } else if (result.error) {
-      console.error(result.error);
-      this.error = result.error;
+    } catch (resultError) {
+      console.error(resultError);
+      this.error = resultError;
       this.threads = undefined;
     }
   }
@@ -120,7 +123,15 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
         actionName: 'view'
       }
     });
-    await refreshApex(this.wiredThreadsResult);
+
+    try {
+      const representingPerson = await getCacheValue({ key: `${this.currentUser}_representingPerson` });
+      await this.loadThreads(representingPerson === 'true');
+    } catch (error) {
+      console.error(error);
+      this.error = error;
+      this.threads = undefined;
+    }
   }
 
   navigateToPage(event) {

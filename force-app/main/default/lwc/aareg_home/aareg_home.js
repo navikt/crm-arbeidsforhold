@@ -2,6 +2,7 @@ import { LightningElement, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import setCacheValue from '@salesforce/apex/AAREG_CacheController.setCacheValue';
+import getCacheValue from '@salesforce/apex/AAREG_CacheController.getCacheValue';
 import getLastUsersLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganization';
 import getOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.getOrganizationsWithRoles';
 import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.updateLastUsedOrganization';
@@ -70,7 +71,12 @@ export default class Aareg_home extends NavigationMixin(LightningElement) {
             console.log('User chose to represent themselves, skipping organization fetch and access check. # 1');
             // set a cache value to be used in the MyThreads component to filter on Person threads
             try {
+                console.log('Setting cache value for representingPerson to true for user Id:', this.currentUser);
+                console.log('Cache key:', `${this.currentUser}_representingPerson`, 'Cache value: true');
                 await setCacheValue({ key: `${this.currentUser}_representingPerson`, value: 'true' });
+                // read cache value to verify it was set correctly
+                const cacheValue = await getCacheValue({ key: `${this.currentUser}_representingPerson` });
+                console.log('Cache key:', `${this.currentUser}_representingPerson`, 'Cache value after setting:', cacheValue);   
                 this[NavigationMixin.Navigate](
                     {
                         type: 'standard__navItemPage',
@@ -87,7 +93,12 @@ export default class Aareg_home extends NavigationMixin(LightningElement) {
         } else {
             // set a cache value to be used in the MyThreads component to filter on Person threads
             try {
+                console.log('Setting cache value for representingPerson to false for user Id:', this.currentUser);
+                console.log('Cache key:', `${this.currentUser}_representingPerson`, 'Cache value: false');
                 await setCacheValue({ key: `${this.currentUser}_representingPerson`, value: 'false' });
+                // read cache value to verify it was set correctly
+                const cacheValue = await getCacheValue({ key: `${this.currentUser}_representingPerson` });
+                console.log('Cache key:', `${this.currentUser}_representingPerson`, 'Cache value after setting:', cacheValue);   
             } catch (error) {
                 console.error('Failed to set cache value', error);
             }
