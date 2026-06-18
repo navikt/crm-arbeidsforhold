@@ -16,47 +16,56 @@
  * @group AAREG Utility
  */
 public with sharing class AAREG_Utility {
-
+    /**
+     * The singleton instance of the AAREG_Utility class.
+     */
     @TestVisible
     private static AAREG_Utility instance;
-
+    /**
+     * Holds the RecordType Id for `Thread` records.
+     */
     @TestVisible
-    private Map<String, Id> threadRecordTypeIds = new Map<String, Id>();
+    private Id threadRecordTypeId;
 
+    /**
+     * Is used to initialize the AAREG_Utility singleton instance.
+     * The method retrieves the RecordType for threads based on custom metadata configuration
+     * and then RecordTypeId from RecordType object based on record type in custom meta data.
+     * @return void
+     * @example
+     * {@code
+     * AAREG_Utility aaregConstructor = new AAREG_Utility();
+     * }
+     */
     @TestVisible
     private AAREG_Utility() {
-
-        List<AAREG_Setting__mdt> settings = [
-            SELECT DeveloperName, Value__c
-            FROM AAREG_Setting__mdt
-            WHERE DeveloperName IN ('ThreadRecordTypeName', 'PersonThreadRecordTypeName')
-        ];
-
-        Set<String> developerNames = new Set<String>();
-
-        for (AAREG_Setting__mdt setting : settings) {
-            developerNames.add(setting.Value__c);
-        }
-
-        Map<String, Id> rtMap = new Map<String, Id>();
-
-        for (RecordType rt : [
-            SELECT Id, DeveloperName
-            FROM RecordType
-            WHERE SObjectType = 'Thread'
-            AND DeveloperName IN :developerNames
-        ]) {
-            rtMap.put(rt.DeveloperName, rt.Id);
-        }
-
-        for (AAREG_Setting__mdt setting : settings) {
-            threadRecordTypeIds.put(
-                setting.DeveloperName,
-                rtMap.get(setting.Value__c)
+        List<AAREG_Setting__mdt> valueCMList = (List<AAREG_Setting__mdt>) new CustomMetadataDAO()
+            .getCustomMetadataRecords(
+                'SELECT Value__c FROM AAREG_Setting__mdt WHERE DeveloperName = \'ThreadRecordTypeName\''
             );
+
+        AAREG_Setting__mdt name;
+        if (valueCMList.size() > 0) {
+            name = valueCMList[0];
+        }
+
+        if (name != null) {
+            threadRecordTypeId = [SELECT Id FROM RecordType WHERE developerName = :name?.Value__c]?.Id;
         }
     }
 
+    /**
+     * Is used to initialize the AAREG_Utility singleton instance.
+     * If the instance is null, it creates a new instance; otherwise, it returns the existing instance.
+     * In this way, it ensures that only one instance of the utility class exists throughout the transaction.
+     * In addition, it provides a centralized point of access to the utility methods and properties.
+     * Which is particularly useful for managing various configurations and settings related to Arbeidsforhold.
+     * @return AAREG_Utility - The singleton instance of the AAREG_Utility class.
+     * @example
+     * {@code
+     * AAREG_Utility util = AAREG_Utility.getInstance();
+     * }
+     */
     public static AAREG_Utility getInstance() {
         if (instance == null) {
             instance = new AAREG_Utility();
@@ -64,16 +73,15 @@ public with sharing class AAREG_Utility {
         return instance;
     }
 
+    /**
+     * Is used to return `Thread`  RecordType Id.
+     * @return Id - The RecordType Id for `Thread`.
+     * @example
+     * {@code
+     * Id threadRTId = AAREG_Utility.getInstance().getThreadRecordTypeId();
+     * }
+     */
     public Id getThreadRecordTypeId() {
-        return getThreadRecordTypeId('ThreadRecordTypeName');
-    }
-
-    public Id getPersonThreadRecordTypeId() {
-        Id personThreadRecordTypeId = getThreadRecordTypeId('PersonThreadRecordTypeName');
-        return personThreadRecordTypeId != null ? personThreadRecordTypeId : getThreadRecordTypeId('ThreadRecordTypeName');
-    }
-
-    public Id getThreadRecordTypeId(String key) {
-        return threadRecordTypeIds.get(key);
+        return threadRecordTypeId;
     }
 }
