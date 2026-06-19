@@ -26,4 +26,8 @@
         <masterLabel>Tekniske spørsmål</masterLabel>
         <translation><!-- Tekniske spørsmål --></translation>
     </picklistValues>
+    <picklistValues>
+        <masterLabel>Tips om uriktige eller manglende opplysninger i registeret</masterLabel>
+        <translation><!-- Tips om uriktige eller manglende opplysninger i registeret --></translation>
+    </picklistValues>
 </CustomFieldTranslation>
