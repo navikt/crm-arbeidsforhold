@@ -208,6 +208,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Agreement__c.Decision__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Agreement__c.ExtractionAccess__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -239,6 +244,16 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Agreement__c.account__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Agreement__c.isNoDeactivationAccess__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Agreement__c.isRevision__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
