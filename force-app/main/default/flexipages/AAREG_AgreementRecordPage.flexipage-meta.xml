@@ -7,9 +7,6 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>Agreement__c.AAREG_removeAccess</value>
-                        </valueListItems>
-                        <valueListItems>
                             <value>Agreement__c.AAREG_startRevision</value>
                             <visibilityRule>
                                 <criteria>
@@ -38,9 +35,6 @@
                                     <rightValue>true</rightValue>
                                 </criteria>
                             </visibilityRule>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>Agreement__c.AAREG_deactivateAgreement</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
