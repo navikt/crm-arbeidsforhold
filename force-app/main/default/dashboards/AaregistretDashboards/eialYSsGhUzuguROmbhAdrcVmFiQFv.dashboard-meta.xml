@@ -9,7 +9,7 @@
     <dashboardColorPalette>unity</dashboardColorPalette>
     <dashboardGridLayout>
         <dashboardGridComponents>
-            <colSpan>6</colSpan>
+            <colSpan>5</colSpan>
             <columnIndex>0</columnIndex>
             <dashboardComponent>
                 <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
@@ -20,7 +20,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Integer</displayUnits>
-                <groupingSortProperties />
+                <groupingSortProperties/>
                 <header>Antall nye søknader - siste 2 uker</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -36,31 +36,6 @@
         <dashboardGridComponents>
             <colSpan>6</colSpan>
             <columnIndex>6</columnIndex>
-            <dashboardComponent>
-                <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
-                <chartSummary>
-                    <column>RowCount</column>
-                </chartSummary>
-                <componentChartTheme>dark</componentChartTheme>
-                <componentType>Metric</componentType>
-                <decimalPrecision>-1</decimalPrecision>
-                <displayUnits>Integer</displayUnits>
-                <groupingSortProperties />
-                <header>Antall nye søknader - i sin 3 uke eller eldre</header>
-                <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
-                <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
-                <indicatorHighColor>#00716B</indicatorHighColor>
-                <indicatorLowColor>#C23934</indicatorLowColor>
-                <indicatorMiddleColor>#CA8501</indicatorMiddleColor>
-                <report>Aa_registerReports/Aa_regThirdWeek</report>
-                <showRange>false</showRange>
-            </dashboardComponent>
-            <rowIndex>0</rowIndex>
-            <rowSpan>7</rowSpan>
-        </dashboardGridComponents>
-        <dashboardGridComponents>
-            <colSpan>6</colSpan>
-            <columnIndex>0</columnIndex>
             <dashboardComponent>
                 <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
                 <chartAxisRange>Auto</chartAxisRange>
@@ -94,12 +69,57 @@
                 <sortLegendValues>true</sortLegendValues>
                 <useReportChart>false</useReportChart>
             </dashboardComponent>
-            <rowIndex>7</rowIndex>
+            <rowIndex>0</rowIndex>
             <rowSpan>8</rowSpan>
+        </dashboardGridComponents>
+        <dashboardGridComponents>
+            <colSpan>5</colSpan>
+            <columnIndex>0</columnIndex>
+            <dashboardComponent>
+                <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
+                <chartSummary>
+                    <column>RowCount</column>
+                </chartSummary>
+                <componentChartTheme>dark</componentChartTheme>
+                <componentType>Metric</componentType>
+                <decimalPrecision>-1</decimalPrecision>
+                <displayUnits>Integer</displayUnits>
+                <groupingSortProperties/>
+                <header>Antall nye søknader - i sin 3 uke eller eldre</header>
+                <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
+                <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
+                <indicatorHighColor>#00716B</indicatorHighColor>
+                <indicatorLowColor>#C23934</indicatorLowColor>
+                <indicatorMiddleColor>#CA8501</indicatorMiddleColor>
+                <report>Aa_registerReports/Aa_regThirdWeek</report>
+                <showRange>false</showRange>
+            </dashboardComponent>
+            <rowIndex>7</rowIndex>
+            <rowSpan>7</rowSpan>
         </dashboardGridComponents>
         <dashboardGridComponents>
             <colSpan>6</colSpan>
             <columnIndex>6</columnIndex>
+            <dashboardComponent>
+                <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
+                <componentType>FlexTable</componentType>
+                <flexComponentProperties>
+                    <flexTableSortInfo>
+                        <sortOrder>1</sortOrder>
+                    </flexTableSortInfo>
+                    <hideChatterPhotos>true</hideChatterPhotos>
+                    <useReportTableSetting>true</useReportTableSetting>
+                </flexComponentProperties>
+                <groupingSortProperties/>
+                <header>Avtalepartnere under/vært i revisjon</header>
+                <report>Aa_registerReports/AAREG_agreementRevision</report>
+            </dashboardComponent>
+            <rowIndex>8</rowIndex>
+            <rowSpan>8</rowSpan>
+        </dashboardGridComponents>
+        <dashboardGridComponents>
+            <colSpan>5</colSpan>
+            <columnIndex>0</columnIndex>
             <dashboardComponent>
                 <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
                 <componentType>FlexTable</componentType>
@@ -142,27 +162,7 @@
                 <header>Aa-registeret - antall pr status</header>
                 <report>Aa_registerReports/AAREG_totalPrStatus</report>
             </dashboardComponent>
-            <rowIndex>7</rowIndex>
-            <rowSpan>8</rowSpan>
-        </dashboardGridComponents>
-        <dashboardGridComponents>
-            <colSpan>5</colSpan>
-            <columnIndex>0</columnIndex>
-            <dashboardComponent>
-                <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
-                <componentType>FlexTable</componentType>
-                <flexComponentProperties>
-                    <flexTableSortInfo>
-                        <sortOrder>1</sortOrder>
-                    </flexTableSortInfo>
-                    <hideChatterPhotos>true</hideChatterPhotos>
-                    <useReportTableSetting>true</useReportTableSetting>
-                </flexComponentProperties>
-                <groupingSortProperties />
-                <header>Avtalepartnere under/vært i revisjon</header>
-                <report>Aa_registerReports/AAREG_agreementRevision</report>
-            </dashboardComponent>
-            <rowIndex>15</rowIndex>
+            <rowIndex>14</rowIndex>
             <rowSpan>8</rowSpan>
         </dashboardGridComponents>
         <dashboardGridComponents>
@@ -178,23 +178,23 @@
                     <hideChatterPhotos>true</hideChatterPhotos>
                     <useReportTableSetting>true</useReportTableSetting>
                 </flexComponentProperties>
-                <groupingSortProperties />
+                <groupingSortProperties/>
                 <header>Avtale med kontaktperson detaljer</header>
                 <report>Aa_registerReports/AAREG_agreementWithContacts</report>
             </dashboardComponent>
-            <rowIndex>23</rowIndex>
+            <rowIndex>22</rowIndex>
             <rowSpan>8</rowSpan>
         </dashboardGridComponents>
         <numberOfColumns>12</numberOfColumns>
         <rowHeight>36</rowHeight>
     </dashboardGridLayout>
-    <dashboardType>SpecifiedUser</dashboardType>
+    <dashboardType>LoggedInUser</dashboardType>
     <description>Dashboard for arbeidsforhold app</description>
     <isGridLayout>true</isGridLayout>
     <owner>test-p0o2anhur5im@example.com</owner>
     <runningUser>test-p0o2anhur5im@example.com</runningUser>
     <textColor>#000000</textColor>
-    <title>Aa-registeret søknad oversikt</title>
+    <title>Aa-registeret søknad oversikt - HUSK Å OPPDATERE</title>
     <titleColor>#000000</titleColor>
     <titleSize>12</titleSize>
 </Dashboard>

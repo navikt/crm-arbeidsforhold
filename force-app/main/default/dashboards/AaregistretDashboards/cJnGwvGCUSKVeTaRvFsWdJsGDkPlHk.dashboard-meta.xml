@@ -171,7 +171,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Antall saker i Ny eller under behandling</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -234,7 +234,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Antall ferdigbehandlede saker</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -253,8 +253,8 @@
     <dashboardType>SpecifiedUser</dashboardType>
     <description>Dashboard for arbeidsforhold - henvendelse app</description>
     <isGridLayout>true</isGridLayout>
-    <owner>test-p0o2anhur5im@example.com</owner>
-    <runningUser>test-p0o2anhur5im@example.com</runningUser>
+    <owner>Geir.Vesterdal@nav.no</owner>
+    <runningUser>Geir.Vesterdal@nav.no</runningUser>
     <textColor>#000000</textColor>
     <title>AAREG Henvendelse Dashboard</title>
     <titleColor>#000000</titleColor>
