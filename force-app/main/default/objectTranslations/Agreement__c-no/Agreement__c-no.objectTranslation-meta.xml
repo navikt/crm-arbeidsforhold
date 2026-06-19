@@ -57,7 +57,8 @@
         <name>AAREG_deactivateAgreement</name>
     </quickActions>
     <quickActions>
-        <label><!-- Logg revision comment --></label>
+        <aspect>Master</aspect>
+        <label>Logg aktivitet under revisjon</label>
         <name>AAREG_loggRevisionComment</name>
     </quickActions>
     <quickActions>
@@ -71,7 +72,8 @@
         <name>AAREG_startRevision</name>
     </quickActions>
     <quickActions>
-        <label><!-- Revision stop --></label>
+        <aspect>Master</aspect>
+        <label>Avslutt revisjon</label>
         <name>AAREG_stopRevision</name>
     </quickActions>
 </CustomObjectTranslation>

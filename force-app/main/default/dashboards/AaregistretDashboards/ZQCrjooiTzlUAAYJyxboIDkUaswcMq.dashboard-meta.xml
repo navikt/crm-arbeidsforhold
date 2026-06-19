@@ -53,7 +53,7 @@
                     <hideChatterPhotos>true</hideChatterPhotos>
                     <useReportTableSetting>false</useReportTableSetting>
                 </flexComponentProperties>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Antall nye feil</header>
                 <report>AAREG_SupportReports/AAREG_ALTINN_Errors_last_week</report>
                 <title>Siste uke (aareg og altinn)</title>
@@ -70,7 +70,7 @@
                 <dashboardComponentContents>
                     <richTextContent>[{\&amp;quot;attributes\&amp;quot;:{\&amp;quot;italic\&amp;quot;:true,\&amp;quot;bold\&amp;quot;:true,\&amp;quot;size\&amp;quot;:\&amp;quot;16px\&amp;quot;,\&amp;quot;link\&amp;quot;:\&amp;quot;https:\/\/metabase.ansatt.nav.no\/dashboard\/1020-innsikt-salesforce?community=Aa-registeret&amp;amp;feature=&amp;amp;ident_type=&amp;amp;last_login_bucket=&amp;amp;licensename=&amp;amp;licensetype=&amp;amp;login_status=&amp;amp;metricsdate=&amp;amp;org.0=&amp;amp;org.1=&amp;amp;org.2=&amp;amp;org.3=&amp;amp;profilename=&amp;amp;sektor=&amp;amp;tab=990-community\&amp;quot;},\&amp;quot;insert\&amp;quot;:\&amp;quot;App usage\&amp;quot;},{\&amp;quot;attributes\&amp;quot;:{\&amp;quot;align\&amp;quot;:\&amp;quot;left\&amp;quot;},\&amp;quot;insert\&amp;quot;:\&amp;quot;\\n\&amp;quot;}]</richTextContent>
                 </dashboardComponentContents>
-                <groupingSortProperties/>
+                <groupingSortProperties />
             </dashboardComponent>
             <rowIndex>0</rowIndex>
             <rowSpan>2</rowSpan>
@@ -87,7 +87,7 @@
                 <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
-                <groupingSortProperties/>
+                <groupingSortProperties />
                 <header>Antall nye henvendelser</header>
                 <indicatorBreakpoint1>33.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>67.0</indicatorBreakpoint2>
@@ -106,8 +106,8 @@
     </dashboardGridLayout>
     <dashboardType>SpecifiedUser</dashboardType>
     <isGridLayout>true</isGridLayout>
-    <owner>test-p0o2anhur5im@example.com</owner>
-    <runningUser>test-p0o2anhur5im@example.com</runningUser>
+    <owner>Geir.Vesterdal@nav.no</owner>
+    <runningUser>Geir.Vesterdal@nav.no</runningUser>
     <textColor>#000000</textColor>
     <title>Aareg-Admin dashboard</title>
     <titleColor>#000000</titleColor>
