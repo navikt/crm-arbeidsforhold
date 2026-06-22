@@ -29,7 +29,7 @@ public without sharing class AAREG_accountSelector{
    public static list<Account> selectPersonAccountByUserId(String userId){
        list<Account> accList = new list<Account>();
        if(userId!=null){
-          accList = Database.query('SELECT id FROM Account WHERE AccountOwnerId =:userId AND IsPersonAccount = true LIMIT 1');	
+          accList = Database.query('SELECT id FROM Account WHERE ownerId =:userId AND IsPersonAccount = true LIMIT 1');	
        }
        return accList; 
    }

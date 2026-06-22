@@ -66,21 +66,15 @@ export default class Aareg_home extends NavigationMixin(LightningElement) {
 
         this.representChoice = result;
         if (this.representChoice === 'megSelv') {
-            console.log('User chose to represent themselves, skipping organization fetch and access check. # 1');
             // set a cache value to be used in the MyThreads component to filter on Person threads
             try {
-                console.log('Setting cache value for representingPerson to true for user Id:', this.currentUser);
-                console.log('Cache key:', `${this.currentUser}_representingPerson`, 'Expected Cache value: true');
                 sessionStorage.setItem(`${this.currentUser}_representingPerson`, 'true');
-                //await setCacheValue({ key: `${this.currentUser}_representingPerson`, value: 'true' });
-                // read session storage value to verify it was set correctly
-                const representingPerson = sessionStorage.getItem(`${this.currentUser}_representingPerson`);
-                console.log('Cache key:', `${this.currentUser}_representingPerson`, 'Cache value after setting after change:', representingPerson);   
+                console.log('Cache key set when mySelv is chosen:', `${this.currentUser}_representingPerson`, 'Cache value set to: true');
                 this[NavigationMixin.Navigate](
                     {
-                        type: 'standard__navItemPage',
+                        type: 'comm__namedPage',
                         attributes: {
-                            apiName: 'Mine_Meldinger_c'
+                            name: 'Mine_Meldinger__c'
                         }
                     },
                     true
@@ -92,13 +86,8 @@ export default class Aareg_home extends NavigationMixin(LightningElement) {
         } else {
             // set a cache value to be used in the MyThreads component to filter on Person threads
             try {
-                console.log('Setting cache value for representingPerson to false for user Id:', this.currentUser);
-                console.log('Cache key:', `${this.currentUser}_representingPerson`, 'Cache value: false');
                 sessionStorage.setItem(`${this.currentUser}_representingPerson`, 'false');
-                //await setCacheValue({ key: `${this.currentUser}_representingPerson`, value: 'false' });
-                // read session storage value to verify it was set correctly
-                const representingPerson = sessionStorage.getItem(`${this.currentUser}_representingPerson`);
-                console.log('Cache key:', `${this.currentUser}_representingPerson`, 'Cache value after setting:', representingPerson);   
+                console.log('Cache key set when representing a business is chosen:', `${this.currentUser}_representingPerson`, 'Cache value set to: false');
             } catch (error) {
                 console.error('Failed to set cache value', error);
             }
