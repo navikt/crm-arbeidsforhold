@@ -63,6 +63,7 @@
             <targetReference>createEmailQueue</targetReference>
         </connector>
     </assignments>
+    <description>Arbeidsforhold - Sender ut epost til konsument sin kontaktperson</description>
     <environments>Default</environments>
     <formulas>
         <name>var_FlowNameNoLongerThan32Char</name>
@@ -70,7 +71,7 @@
         <expression>LEFT(&apos;AAREG_sendAwaitingResponseEmailNotification&apos;, 32)</expression>
     </formulas>
     <interviewLabel>AAREG_sendAwaitingResponseEmailNotification {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_sendAwaitingResponseEmailNotification</label>
+    <label>AAREG Application notification awaiting response email</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>

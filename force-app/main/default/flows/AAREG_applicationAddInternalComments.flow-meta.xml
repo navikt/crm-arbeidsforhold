@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>Application_not_found</name>
@@ -114,7 +114,7 @@
             <label>notEmpty</label>
         </rules>
     </decisions>
-    <description>Saksbehandling - add an internal comment + user and time/date</description>
+    <description>Arbeidsforhold søknad - legger til kommentar pluss dato og bruker</description>
     <environments>Default</environments>
     <formulas>
         <name>addDescription</name>
@@ -182,6 +182,7 @@
         <object>Application__c</object>
         <queriedFields>Id</queriedFields>
         <queriedFields>DecisionDescription__c</queriedFields>
+        <queriedFields>Access_Request__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
@@ -226,6 +227,7 @@
             <name>addInternalComment</name>
             <fieldText>Add comments - only for internal use</fieldText>
             <fieldType>LargeTextArea</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
@@ -253,6 +255,12 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varAccessRequest</name>
+            <value>
+                <elementReference>getApplication.Access_Request__r.Id</elementReference>
+            </value>
+        </inputAssignments>
         <inputAssignments>
             <name>varDescription</name>
             <value>

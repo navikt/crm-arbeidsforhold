@@ -4,7 +4,7 @@
         <name>sendNotificationToCasehandler</name>
         <label>sendNotificationToCasehandler</label>
         <locationX>50</locationX>
-        <locationY>815</locationY>
+        <locationY>863</locationY>
         <actionName>customNotificationAction</actionName>
         <actionType>customNotificationAction</actionType>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
@@ -38,13 +38,16 @@
                 <elementReference>$Record.Id</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>customNotificationAction</nameSegment>
+        <offset>0</offset>
     </actionCalls>
     <apiVersion>53.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>setApplicationVariables</name>
-        <label>setApplicationVariables</label>
-        <locationX>182</locationX>
-        <locationY>455</locationY>
+        <label>Set application variables</label>
+        <locationX>380</locationX>
+        <locationY>431</locationY>
         <assignmentItems>
             <assignToReference>varLastModUser</assignToReference>
             <operator>Assign</operator>
@@ -86,9 +89,9 @@
     </assignments>
     <assignments>
         <name>setRecipient</name>
-        <label>setRecipient</label>
+        <label>Set recipient</label>
         <locationX>50</locationX>
-        <locationY>695</locationY>
+        <locationY>755</locationY>
         <assignmentItems>
             <assignToReference>RecipientID</assignToReference>
             <operator>Add</operator>
@@ -101,20 +104,45 @@
         </connector>
     </assignments>
     <decisions>
-        <description>If an application goes from additional information to required, and the lastmoduser on application is the application owner and notification is sent to casehandler</description>
-        <name>checkPriorStatus</name>
-        <label>checkPriorStatus</label>
+        <name>AAREG_checkIfApplicationHaveCasehandler</name>
+        <label>Check if application have a casehandler</label>
         <locationX>182</locationX>
-        <locationY>575</locationY>
+        <locationY>647</locationY>
+        <defaultConnector>
+            <targetReference>Get_template_id</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>hasCasehandler</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.CasehandlerOwner__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>setRecipient</targetReference>
+            </connector>
+            <label>hasCasehandler</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>If an application goes from additional information to required, and the lastmoduser on application is the application owner then a notification is sent to casehandler</description>
+        <name>checkPriorStatus</name>
+        <label>Check prior status</label>
+        <locationX>380</locationX>
+        <locationY>539</locationY>
         <defaultConnectorLabel>isNot</defaultConnectorLabel>
         <rules>
             <name>isPriorWaiting</name>
-            <conditionLogic>and</conditionLogic>
+            <conditionLogic>1 AND 2 AND (3 OR 4)</conditionLogic>
             <conditions>
-                <leftValueReference>varPriorStatus</leftValueReference>
+                <leftValueReference>varLastModUser</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>Additional Information Required</stringValue>
+                    <elementReference>varOwnerId</elementReference>
                 </rightValue>
             </conditions>
             <conditions>
@@ -125,33 +153,34 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>varCaseOwner</leftValueReference>
-                <operator>IsNull</operator>
+                <leftValueReference>varPriorStatus</leftValueReference>
+                <operator>EqualTo</operator>
                 <rightValue>
-                    <booleanValue>false</booleanValue>
+                    <stringValue>New</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>varLastModUser</leftValueReference>
+                <leftValueReference>varPriorStatus</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <elementReference>varOwnerId</elementReference>
+                    <stringValue>Additional Information Required</stringValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>setRecipient</targetReference>
+                <targetReference>AAREG_checkIfApplicationHaveCasehandler</targetReference>
             </connector>
             <label>isPriorWaiting</label>
         </rules>
     </decisions>
-    <description>When a user is altering an application and submits - status is changing an an notification is sendt to casehandler</description>
+    <description>Arbeidsforhold - Når konsument endrer en søknad og sender inn, vil en notifikasjon sendes sakseier og status endres til Under arbeid.</description>
+    <environments>Default</environments>
     <formulas>
         <name>varApplicationBody</name>
         <dataType>String</dataType>
         <expression>&apos;Søker knyttet til søknadsnummer: &apos;&amp;{!$Record.Name}&amp;&apos; har oppdatert søknad&apos;</expression>
     </formulas>
     <interviewLabel>AAREG_applicationNotificationToCasehandler {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>AAREG_applicationNotificationToCasehandler</label>
+    <label>AAREG Application notification to casehandler</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -171,11 +200,78 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>Send_email</name>
+        <label>Send email</label>
+        <locationX>314</locationX>
+        <locationY>863</locationY>
+        <inputAssignments>
+            <field>Priority__c</field>
+            <value>
+                <stringValue>2</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>SaveAsActivity__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status__c</field>
+            <value>
+                <stringValue>Queued</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>TargetObjectId__c</field>
+            <value>
+                <elementReference>var_ContactId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>TemplateId__c</field>
+            <value>
+                <elementReference>var_templateId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>EmailQueue__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordLookups>
+        <name>Get_template_id</name>
+        <label>Get template id</label>
+        <locationX>314</locationX>
+        <locationY>755</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Send_email</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Name</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>aaRegApplicationNoCasehandler</stringValue>
+            </value>
+        </filters>
+        <object>EmailTemplate</object>
+        <outputAssignments>
+            <assignToReference>var_templateId</assignToReference>
+            <field>Id</field>
+        </outputAssignments>
+    </recordLookups>
     <recordLookups>
         <name>getNotificationId_0</name>
-        <label>getNotificationId</label>
-        <locationX>182</locationX>
-        <locationY>335</locationY>
+        <label>Get notification id</label>
+        <locationX>380</locationX>
+        <locationY>323</locationY>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>setApplicationVariables</targetReference>
@@ -195,7 +291,7 @@
         </outputAssignments>
     </recordLookups>
     <start>
-        <locationX>56</locationX>
+        <locationX>254</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>getNotificationId_0</targetReference>
@@ -214,10 +310,32 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <textTemplates>
+        <name>testinghtml</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;p&gt;Her er det noe text&lt;/p&gt;</text>
+    </textTemplates>
     <variables>
         <name>RecipientID</name>
         <dataType>String</dataType>
         <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>var_ContactId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>003QI00000kGjzaYAC</stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>var_templateId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
     </variables>
