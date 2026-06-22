@@ -14,6 +14,8 @@ COMMUNITY_NAME="${COMMUNITY_NAME:-Aa-registret}"
 DUMMY_DATA_PLAN="${DUMMY_DATA_PLAN:-dummy-data/plan.json}"
 PACKAGE_WAIT_MINUTES="${PACKAGE_WAIT_MINUTES:-10}"
 PACKAGE_INSTALL_KEY="${PACKAGE_INSTALL_KEY:-}"
+PACKAGE_INSTALL_KEY_SERVICE_NAME="${PACKAGE_INSTALL_KEY_SERVICE_NAME:-nav-sf-package-key}"
+PACKAGE_KEY_SOURCE=""
 
 RUN_ORG_CREATE="${RUN_ORG_CREATE:-true}"
 RUN_PACKAGES="${RUN_PACKAGES:-true}"
@@ -187,6 +189,26 @@ print_run_summary() {
     echo "- $updated_label:                    ${#PACKAGES_UPDATED[@]}"
     echo "- Skipped, already correct:   ${#PACKAGES_SKIPPED[@]}"
     echo "- Higher than target:         ${#PACKAGES_HIGHER_THAN_TARGET[@]}"
+
+    echo ""
+    echo "Package install key source:"
+    if [[ -z "$PACKAGE_KEY_SOURCE" ]]; then
+        echo "- Not used"
+    elif [[ "$PACKAGE_KEY_SOURCE" == "keychain" ]]; then
+        echo "- ${GREEN}macOS Keychain${RESET}"
+    elif [[ "$PACKAGE_KEY_SOURCE" == "env-var" ]]; then
+        echo "- ${YELLOW}Environment variable PACKAGE_INSTALL_KEY${RESET}"
+    elif [[ "$PACKAGE_KEY_SOURCE" == "interactive" ]]; then
+        echo "- ${YELLOW}Interactive prompt${RESET}"
+    else
+        echo "- $PACKAGE_KEY_SOURCE"
+    fi
+
+    if [[ "$PACKAGE_KEY_SOURCE" == "env-var" || "$PACKAGE_KEY_SOURCE" == "interactive" ]]; then
+        echo ""
+        echo "${YELLOW}Tip: use Keychain as the default secure method:${RESET}"
+        echo "security add-generic-password -a \"\$USER\" -s \"$PACKAGE_INSTALL_KEY_SERVICE_NAME\" -w \"<your-package-key>\""
+    fi
 
     print_array_items "Packages missing before install:" "${PACKAGES_MISSING[@]}"
     print_array_items "Packages installed:" "${PACKAGES_INSTALLED[@]}"
@@ -413,6 +435,25 @@ package_requires_key() {
     return 0
 }
 
+resolve_package_install_key() {
+    if [[ -n "$PACKAGE_INSTALL_KEY" ]]; then
+        PACKAGE_KEY_SOURCE="env-var"
+        return 0
+    fi
+
+    if ! command -v security >/dev/null 2>&1; then
+        return 0
+    fi
+
+    local keychain_key=""
+    keychain_key="$({ security find-generic-password -a "$USER" -s "$PACKAGE_INSTALL_KEY_SERVICE_NAME" -w 2>/dev/null || true; } | tr -d '\r')"
+
+    if [[ -n "$keychain_key" ]]; then
+        PACKAGE_INSTALL_KEY="$keychain_key"
+        PACKAGE_KEY_SOURCE="keychain"
+    fi
+}
+
 check_if_package_install_key_is_required() {
     local install_key_required=false
 
@@ -423,6 +464,8 @@ check_if_package_install_key_is_required() {
     if [[ "$RUN_PACKAGES" != "true" && "$UPDATE_PACKAGES_ONLY" != "true" ]]; then
         return 0
     fi
+
+    resolve_package_install_key
 
     while IFS=$'\t' read -r package_name requested_version; do
         [[ -z "$package_name" ]] && continue
@@ -435,12 +478,17 @@ check_if_package_install_key_is_required() {
 
     if [[ "$install_key_required" == "true" && -z "$PACKAGE_INSTALL_KEY" ]]; then
         echo ""
+        echo "Package install key was not found in:"
+        echo "- macOS Keychain service: $PACKAGE_INSTALL_KEY_SERVICE_NAME"
+        echo "- PACKAGE_INSTALL_KEY environment variable"
         read -rsp "Package install key: " PACKAGE_INSTALL_KEY
         echo ""
 
         if [[ -z "$PACKAGE_INSTALL_KEY" ]]; then
             error 1 "Package install key is required because one or more packages require it."
         fi
+
+        PACKAGE_KEY_SOURCE="interactive"
     fi
 }
 
