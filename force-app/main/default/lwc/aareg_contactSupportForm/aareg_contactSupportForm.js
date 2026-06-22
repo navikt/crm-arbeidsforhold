@@ -11,7 +11,6 @@ import TYPE_FIELD from '@salesforce/schema/Inquiry__c.TypeOfInquiry__c';
 
 // Get current logged-in user Id
 import Id from '@salesforce/user/Id';
-import getCacheValue from '@salesforce/apex/AAREG_CacheController.getCacheValue';
 
 /**
  * Apex methods for server-side operations
@@ -35,6 +34,8 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   @track inquiry;
   // Reactive state for picklist options and user interactions
   @track inquiryTypeOptions;
+  @track isRepresentingPerson = false;
+  @track recordTypeIdForPicklist;
 
   // Selected application ID for linking inquiries to existing applications, if applicable
   selectedApplicationId;
@@ -105,6 +106,11 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
         }
       ];
     }
+
+    const representingPerson = sessionStorage.getItem(`${this.currentUser}_representingPerson`);
+    this.isRepresentingPerson = representingPerson === 'true';
+    this._updateRecordTypeId();
+
   }
 
 
@@ -130,10 +136,27 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   // Fetch object metadata to get the default record type ID, then fetch picklist values for the 
   // TypeOfInquiry__c field to populate the inquiry type options in the form.
   @wire(getObjectInfo, { objectApiName: INQUIRY_OBJECT })
-  inquiryObjectInfo;
+  wiredInquiryObjectInfo(result) {
+    this.inquiryObjectInfo = result;
+    this._updateRecordTypeId();
+  }
 
-  // Fetch picklist values for the TypeOfInquiry__c field based on the default record type ID obtained from the object metadata.
-  @wire(getPicklistValues, { recordTypeId: '$inquiryObjectInfo.data.defaultRecordTypeId', fieldApiName: TYPE_FIELD })
+  _updateRecordTypeId() {
+    if (!this.inquiryObjectInfo?.data) return;
+    if (this.isRepresentingPerson) {
+      const rtInfos = this.inquiryObjectInfo.data.recordTypeInfos;
+      const personalRt = Object.values(rtInfos).find(
+        rt => rt.developerName === 'Personal_Inquiries'
+      );
+      this.recordTypeIdForPicklist = personalRt?.recordTypeId
+        ?? this.inquiryObjectInfo.data.defaultRecordTypeId;
+    } else {
+      this.recordTypeIdForPicklist = this.inquiryObjectInfo.data.defaultRecordTypeId;
+    }
+  }
+
+  // Fetch picklist values for the TypeOfInquiry__c field based on the record type ID for the current user context.
+  @wire(getPicklistValues, { recordTypeId: '$recordTypeIdForPicklist', fieldApiName: TYPE_FIELD })
   typePicklistValues({ data, error }) {
     if (data) {
       this.inquiryTypeOptions = data.values.map((arr) => ({ ...arr }));
@@ -173,9 +196,8 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
       // Server initializes based on cachedValue for user; if none, creates a new draft Inquiry__c with minimal required fields (e.g., Status = Draft) 
       // and returns its Id. This ensures that there is a valid record to associate file uploads with, allowing users to upload files before submitting 
       // the form and ensuring that those files are properly linked to the inquiry when it is finalized.   
-      const representingPerson = await getCacheValue({ key: `${this.currentUser}_representingPerson` });
       // Server initializes minimal Inquiry__c (e.g., Status = Draft)
-      this.draftRecordId = await initDraftRecord({ userId: this.currentUser, representingPerson: representingPerson === 'false' });
+      this.draftRecordId = await initDraftRecord({ userId: this.currentUser, representingPerson: !this.isRepresentingPerson });
     } catch (e) {
         console.error('Error initializing draft Inquiry__c:', e);
       // Surface error to user if needed

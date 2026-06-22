@@ -1,7 +1,6 @@
 import { LightningElement, track } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
-import getCacheValue from '@salesforce/apex/AAREG_CacheController.getCacheValue';
 import getUsersThreadsForOrganization from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreadsForOrganization';
 import getUsersThreadsForPerson from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreadsForPerson'; 
 import unreadCellStyles from '@salesforce/resourceUrl/AAREG_styles';
@@ -82,8 +81,7 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
 
   async connectedCallback() {
     try {
-      const representingPerson = await getCacheValue({ key: `${this.currentUser}_representingPerson` });
-      console.log('Cache key:', `${this.currentUser}_representingPerson`, 'Cache value:', representingPerson);
+      const representingPerson = sessionStorage.getItem(`${this.currentUser}_representingPerson`);
       await this.loadThreads(representingPerson === 'true');
     } catch (error) {
       console.error(error);
@@ -125,7 +123,7 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
     });
 
     try {
-      const representingPerson = await getCacheValue({ key: `${this.currentUser}_representingPerson` });
+      const representingPerson = sessionStorage.getItem(`${this.currentUser}_representingPerson`);
       await this.loadThreads(representingPerson === 'true');
     } catch (error) {
       console.error(error);
