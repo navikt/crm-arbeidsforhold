@@ -222,11 +222,6 @@
         <dataType>String</dataType>
         <expression>&quot;Gjelder &quot; &amp; {!recordId}</expression>
     </formulas>
-    <formulas>
-        <name>var_FlowNameNoLongerThan32Char</name>
-        <dataType>String</dataType>
-        <expression>LEFT(&apos;AAREG_addReasonForSuspension&apos;, 32)</expression>
-    </formulas>
     <interviewLabel>AAREG_addReasonForSuspension {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG Application add reason for suspension</label>
     <processMetadataValues>
@@ -436,7 +431,7 @@
         <inputAssignments>
             <name>category</name>
             <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <elementReference>var_Category</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -518,6 +513,16 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <objectType>Application__c</objectType>
+    </variables>
+    <variables>
+        <name>var_Category</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Application</stringValue>
+        </value>
     </variables>
     <variables>
         <name>varTaslSubject</name>
