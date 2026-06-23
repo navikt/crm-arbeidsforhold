@@ -56,7 +56,8 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <elementReference>var_Category</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
         <inputParameters>
@@ -356,6 +357,16 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <variables>
+        <name>var_Category</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Application</stringValue>
+        </value>
+    </variables>
     <variables>
         <name>varCasehandlerOwner</name>
         <dataType>String</dataType>

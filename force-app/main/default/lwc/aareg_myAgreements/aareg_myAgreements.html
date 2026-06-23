@@ -29,36 +29,12 @@
       </div>
     </div>
   </div>
-  
-  <!-- Modal: Kontaktpersoner -->
-  <c-aareg_modal class="contact-persons-modal">
-    <h2 class="slds-text-heading_medium slds-m-bottom_small">
-      Kontaktpersoner for avtale {selectedAgreement.avtaleNummer}
-    </h2>
-  
-    <template if:true={selectedAgreement.avtaleId}>
-      <c-aareg_agreement-contacts
-        agreement-id={selectedAgreement.avtaleId}
-        onsaved={closeContactPersonsModal}>
-      </c-aareg_agreement-contacts>
-    </template>
-  
-    <div class="slds-grid slds-grid_align-end slds-m-top_medium">
-      <lightning-button
-        variant="neutral"
-        label="Lukk"
-        onclick={closeContactPersonsModal}>
-      </lightning-button>
-    </div>
-  </c-aareg_modal>    
-  
 
   <!-- Modal: Avslutt avtale -->
 <c-aareg_modal class="end-agreement-modal">
   <h2 class="slds-text-heading_medium slds-m-bottom_small">Avslutt avtale</h2>
   <p class="slds-m-bottom_medium">
-    Er du sikker på at du vil avslutte avtale
-    <strong>{selectedAgreement.avtaleNummer}</strong>?
+    Er du sikker på at du vil avslutte avtale <strong>{selectedAgreement.avtaleNummer}</strong>?
     Handlingen kan ikke angres.
   </p>
 

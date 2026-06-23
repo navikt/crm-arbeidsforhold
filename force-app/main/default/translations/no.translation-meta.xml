@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Translations xmlns="http://soap.sforce.com/2006/04/metadata">
     <customApplications>
-        <label>Arbeidsforhold</label>
-        <name>Arbeidsforhold</name>
+        <label>Aa-registeret – Søknad</label>
+        <name>AAREG_application</name>
     </customApplications>
     <customApplications>
         <label>Arbeidsforhold - admin</label>
         <name>Arbeidsforhold_Admin</name>
     </customApplications>
     <customApplications>
-        <label>Arbeidsforhold - henvendelse</label>
-        <name>Arbeidsforhold_henvendelse</name>
+        <label>Aa-registeret – Brukerstøtte</label>
+        <name>AAREG_support</name>
     </customApplications>
     <customApplications>
         <label><!-- Email Scheduling --></label>

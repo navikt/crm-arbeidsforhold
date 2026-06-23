@@ -15,7 +15,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <elementReference>var_Category</elementReference>
                 <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
@@ -61,7 +61,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <elementReference>var_Category</elementReference>
                 <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
@@ -107,7 +107,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <elementReference>var_Category</elementReference>
                 <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
@@ -153,7 +153,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <elementReference>var_Category</elementReference>
                 <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
@@ -199,7 +199,7 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <elementReference>var_Category</elementReference>
                 <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
@@ -276,17 +276,12 @@
             <label>contactExist</label>
         </rules>
     </decisions>
-    <description>Flow check if there is a contactperson already on the account with the same email. If not a contact is created and an email confirmation is sent.</description>
+    <description>Arbeidsforhold søknad - Flow check if there is a contactperson already on the account with the same email. If not a contact is created and an email confirmation is sent.</description>
     <environments>Default</environments>
     <formulas>
         <name>flow_interview_og_log_message</name>
         <dataType>String</dataType>
         <expression>&quot;Flow Interview Guid &lt;&quot; &amp; {!$Flow.InterviewGuid} &amp; &quot;&gt;og Feil melding : &quot; &amp; {!$Flow.FaultMessage}</expression>
-    </formulas>
-    <formulas>
-        <name>var_FlowNameNoLongerThan32Char</name>
-        <dataType>String</dataType>
-        <expression>LEFT(&apos;AAREG_createContactSendConfirmation&apos;, 32)</expression>
     </formulas>
     <formulas>
         <name>varMessagFromNav</name>
@@ -656,6 +651,16 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>var_Category</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Application</stringValue>
+        </value>
     </variables>
     <variables>
         <name>varApplicationID</name>

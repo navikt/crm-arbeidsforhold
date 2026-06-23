@@ -2,6 +2,8 @@ import { LightningElement, track, wire } from 'lwc';
 import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import getUsersAgreements from '@salesforce/apex/AAREG_MyAgreementsController.getUsersAgreements';
+import endAgreement from '@salesforce/apex/AAREG_MyAgreementsController.endAgreement';
+
 import { refreshApex } from '@salesforce/apex';
 
 const COLUMNS = [
@@ -56,7 +58,8 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
 
   breadcrumbs = [
     { label: 'Min side', href: '' },
-    { label: 'Mine avtaler', href: 'mine-avtaler' }
+    { label: 'Mine avtaler', href: 'mine-avtaler' },
+    { label: 'Kontaktpersoner', href: 'kontaktpersoner' }
   ];
 
   get isMobile() {
@@ -104,7 +107,14 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
 
     switch (actionName) {
       case 'Kontaktpersoner':
-        this.openContactPersonsModal();
+        this[NavigationMixin.Navigate]({
+          type: 'comm__namedPage',
+          attributes: { name: 'kontaktpersoner__c' },
+          state: {
+            agreementId: this.selectedAgreement.avtaleId,
+            agreementNumber: this.selectedAgreement.avtaleNummer
+          }
+        });
         break;
       case 'LastNedVedtak':
         this.downloadFile(this.selectedAgreement);
@@ -117,15 +127,8 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
     }
   }
 
+
   /* ----------------- Modal helpers ----------------- */
-  openContactPersonsModal() {
-    this.template.querySelector('c-aareg_modal.contact-persons-modal')?.toggle();
-  }
-
-  closeContactPersonsModal() {
-    this.template.querySelector('c-aareg_modal.contact-persons-modal')?.toggle();
-  }
-
   openEndAgreementModal() {
     this.template.querySelector('c-aareg_modal.end-agreement-modal')?.toggle();
   }
@@ -134,25 +137,28 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
     this.template.querySelector('c-aareg_modal.end-agreement-modal')?.toggle();
   }
 
-  /* Bekreft "Avslutt avtale" – plasshold for Apex-kall */
-  async handleConfirmEndAgreement() {
+   /* Avslutt avtale */
+   async handleConfirmEndAgreement() {
+    if (!this.selectedAgreement || !this.selectedAgreement.avtaleId) {
+      return;
+    }
+
     try {
-      // TODO: kall Apex (f.eks. endAgreement({ avtaleId: this.selectedAgreement.avtaleId }))
+      await endAgreement({ agreementId: this.selectedAgreement.avtaleId });
       await refreshApex(this.wiredResult);
       this.closeEndAgreementModal();
     } catch (err) {
-      console.error(err);
+      console.error('Kunne ikke avslutte avtale:', err);
     }
   }
 
   /* ----------------- Last ned vedtak (PDF) ----------------- */
   downloadFile(row) {
-    const siteOrigin = window.location.origin;
-    if (siteOrigin === 'https://navdialog--preprod.sandbox.my.site.com') {
-      this.siteURL = `${siteOrigin}/aaregisteret/apex/AAREG_decisionPDF?Id=${row.soknadsNummer}`;
-    } else {
-      this.siteURL = `${siteOrigin}/apex/AAREG_decisionPDF?Id=${row.soknadsNummer}`;
+    if (!row || !row.soknadsNummer) {
+      return;
     }
-    window.open(this.siteURL);
+    const siteOrigin = window.location.origin;
+   
+
   }
 }

@@ -51,36 +51,74 @@ public with sharing class AAREG_MyAgreementsController {
     return agreementWrapperTempList;
   }
 
-  /**
-   * @description Upserts the contact list for an application (used by the "Se kontaktpersoner" modal).
-   * @param currentRecordId Id of the Agreement the contacts belong to.
-   * @param contacts List of RelatedContact__c records to upsert.
-   */
   @AuraEnabled
-  public static void saveAgreementContacts(Id currentRecordId, List<RelatedContact__c> contacts) {
+public static List<RelatedContact__c> saveAgreementContacts(
+    Id currentRecordId,
+    List<RelatedContact__c> contacts
+) {
+    if (currentRecordId == null) {
+        throw new AuraHandledException('Avtale-id mangler.');
+    }
     if (contacts == null || contacts.isEmpty()) {
-      return;
+        return getAgreementContacts(currentRecordId);
     }
-    for (RelatedContact__c c : contacts) {
-      c.Agreement__c = currentRecordId;
+
+    // Sørg for at alle peker på avtalen
+    for (RelatedContact__c rc : contacts) {
+        rc.Agreement__c = currentRecordId;
     }
-    if (Schema.sObjectType.RelatedContact__c.isCreateable() && Schema.sObjectType.RelatedContact__c.isUpdateable()) {
-        upsert contacts;
+
+    upsert contacts;
+    return getAgreementContacts(currentRecordId);
+}
+
+@AuraEnabled
+public static void deleteAgreementContact(Id contactId) {
+    if (contactId == null) {
+        throw new AuraHandledException('Kontaktperson-id mangler.');
+    }
+
+    RelatedContact__c rc = [
+        SELECT Id, Application__c
+        FROM RelatedContact__c
+        WHERE Id = :contactId
+        WITH USER_MODE
+        LIMIT 1
+    ];
+
+    if (rc.Application__c != null) {
+        // Har lookup til Application – ikke slett, bare fjern avtale-koblingen
+        rc.Agreement__c = null;
+        update rc;
     } else {
-        throw new AuraHandledException('Insufficient permissions to modify RelatedContact__c records.');
+        delete rc;
     }
-  }
+}
 
   /**
-   * @description Deletes a single related contact.
-   * @param contactId Id of the RelatedContact__c to delete.
+   * @description Sets the agreement status to inactive/Avsluttet without deleting it.
+   * @param agreementId Id of the Agreement__c record to deactivate.
    */
   @AuraEnabled
-  public static void deleteAgreementContact(Id contactId) {
-    if (contactId == null) {
-      return;
+  public static void endAgreement(Id agreementId) {
+    if (agreementId == null) {
+      throw new AuraHandledException('AvtaleId mangler.');
     }
-    delete [SELECT Id FROM RelatedContact__c WHERE Id = :contactId];
+
+    if (!Schema.sObjectType.Agreement__c.isUpdateable()) {
+      throw new AuraHandledException('Ingen tilgang til å oppdatere avtalen.');
+    }
+
+    Agreement__c agreement = [
+      SELECT Id, Status__c
+      FROM Agreement__c
+      WHERE Id = :agreementId
+      WITH USER_MODE
+      LIMIT 1
+    ];
+
+    agreement.Status__c = 'Deactivated';
+    update agreement;
   }
 
    /**
@@ -91,15 +129,72 @@ public with sharing class AAREG_MyAgreementsController {
   @AuraEnabled(cacheable=true)
   public static List<RelatedContact__c> getAgreementContacts(Id currentRecordId) {
     return [
-      SELECT Id, Name, Phone__c, Email__c,
-             AgreementNotifications__c, ChangeNotifications__c,
-             ErrorMessageNotifications__c, SecurityNotifications__c,
-             Agreement__c
+      SELECT Id, Name, Email__c, Phone__c, Application__c, Agreement__c,
+      ChangeNotifications__c, SecurityNotifications__c,
+      ErrorMessageNotifications__c, AgreementNotifications__c
       FROM RelatedContact__c
       WHERE Agreement__c = :currentRecordId
       WITH USER_MODE
     ];
   }
+
+  @AuraEnabled
+public static List<RelatedContact__c> addContactToAgreement(
+    Id agreementId,
+    String name,
+    String email,
+    String phone,
+    Boolean changeNotifications,
+    Boolean securityNotifications,
+    Boolean errorMessageNotifications,
+    Boolean agreementNotifications
+) {
+    if (agreementId == null || String.isBlank(name)) {
+        throw new AuraHandledException('Avtale og navn er påkrevd.');
+    }
+
+    RelatedContact__c rc = new RelatedContact__c(
+        Name = name,
+        Email__c = email,
+        Phone__c = phone,
+        Agreement__c = agreementId,
+        ChangeNotifications__c = changeNotifications == true,
+        SecurityNotifications__c = securityNotifications == true,
+        ErrorMessageNotifications__c = errorMessageNotifications == true,
+        AgreementNotifications__c = agreementNotifications == true
+    );
+    insert rc;
+
+    return getAgreementContacts(agreementId);
+}
+
+@AuraEnabled
+public static List<RelatedContact__c> removeContactFromAgreement(
+    Id relatedContactId,
+    Id agreementId
+) {
+    if (relatedContactId == null) {
+        throw new AuraHandledException('Kontaktperson-id mangler.');
+    }
+
+    RelatedContact__c rc = [
+        SELECT Id, Application__c, Agreement__c
+        FROM RelatedContact__c
+        WHERE Id = :relatedContactId
+        LIMIT 1
+    ];
+
+    if (rc.Application__c != null) {
+        // Har lookup til Application -> bare fjern koblingen til Agreement
+        rc.Agreement__c = null;
+        update rc;
+    } else {
+        // Ingen Application-kobling -> slett posten
+        delete rc;
+    }
+
+    return getAgreementContacts(agreementId);
+}
 
   /**
    * @description Translates an agreement status code into a Norwegian display label.
@@ -109,7 +204,8 @@ public with sharing class AAREG_MyAgreementsController {
   private static String translateStatus(String status) {
     Map<String, String> statusLabels = new Map<String, String>{
       'Active' => 'Aktiv',
-      'Deactivated' => 'Avsluttet'
+      'Deactivated' => 'Avsluttet',
+      'Under review' => 'Revisjon av avtalepart'
     };
     return statusLabels.containsKey(status) ? statusLabels.get(status) : 'Ukjent status';
   }

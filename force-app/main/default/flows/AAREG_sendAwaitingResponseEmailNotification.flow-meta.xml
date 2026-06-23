@@ -15,7 +15,8 @@
         <inputParameters>
             <name>category</name>
             <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <elementReference>var_Category</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
         <inputParameters>
@@ -63,7 +64,7 @@
             <targetReference>createEmailQueue</targetReference>
         </connector>
     </assignments>
-    <description>Arbeidsforhold - Sender ut epost til konsument sin kontaktperson</description>
+    <description>Arbeidsforhold søknad - Sender ut epost til konsument sin kontaktperson</description>
     <environments>Default</environments>
     <formulas>
         <name>var_FlowNameNoLongerThan32Char</name>
@@ -158,6 +159,16 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <variables>
+        <name>var_Category</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Application</stringValue>
+        </value>
+    </variables>
     <variables>
         <name>varContactId</name>
         <dataType>String</dataType>

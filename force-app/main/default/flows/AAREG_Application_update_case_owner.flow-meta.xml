@@ -28,6 +28,13 @@
                 <elementReference>var_chooseOwner.selectedChoiceLabels</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_ApplicationRecords.Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_current_application.Casehandler_Status__c</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>updateCaseOwner</targetReference>
         </connector>
@@ -168,6 +175,7 @@
             <label>isStatusNew</label>
         </rules>
     </decisions>
+    <description>Arbeidsforhold søknad - setter sakseier på søknad</description>
     <dynamicChoiceSets>
         <name>ccs_ActiveUserNameIN</name>
         <collectionReference>getActiveUsers1</collectionReference>
@@ -177,11 +185,6 @@
         <valueField>Id</valueField>
     </dynamicChoiceSets>
     <environments>Default</environments>
-    <formulas>
-        <name>var_FlowNameNoLongerThan32Char</name>
-        <dataType>String</dataType>
-        <expression>LEFT(&apos;AAREG_applicationUpdateCaseOwner&apos;, 32)</expression>
-    </formulas>
     <formulas>
         <name>var_taskText</name>
         <dataType>String</dataType>
@@ -434,7 +437,7 @@
         <inputAssignments>
             <name>category</name>
             <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
+                <elementReference>var_Category</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -546,6 +549,16 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <objectType>Application__c</objectType>
+    </variables>
+    <variables>
+        <name>var_Category</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Application</stringValue>
+        </value>
     </variables>
     <variables>
         <name>var_taskSubject</name>
