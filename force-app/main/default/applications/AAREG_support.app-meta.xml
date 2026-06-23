@@ -68,7 +68,7 @@
         <logoVersion>1</logoVersion>
         <shouldOverrideOrgTheme>true</shouldOverrideOrgTheme>
     </brand>
-    <description>Application used by team arbeidsforhold support</description>
+    <description>Arbeidsforhold - brukerstøtte og henvendelser fra konsument</description>
     <formFactors>Small</formFactors>
     <formFactors>Large</formFactors>
     <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
