@@ -145,12 +145,14 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     if (!this.inquiryObjectInfo?.data) return;
     if (this.isRepresentingPerson) {
       const rtInfos = this.inquiryObjectInfo.data.recordTypeInfos;
+      //log record type infos for debugging purposes; this should include the record type for personal inquiries
       const personalRt = Object.values(rtInfos).find(
-        rt => rt.developerName === 'Personal_Inquiries'
+        rt => rt.name === 'Personal Inquiries'
       );
       this.recordTypeIdForPicklist = personalRt?.recordTypeId
         ?? this.inquiryObjectInfo.data.defaultRecordTypeId;
     } else {
+      // log default record type ID for debugging purposes; this should be the one used for non-representing users
       this.recordTypeIdForPicklist = this.inquiryObjectInfo.data.defaultRecordTypeId;
     }
   }
