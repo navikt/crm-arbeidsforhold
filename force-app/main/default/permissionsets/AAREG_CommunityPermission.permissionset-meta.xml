@@ -120,6 +120,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Agreement__c.Access_Request__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Agreement__c.AccountName__c</field>
         <readable>true</readable>
@@ -167,6 +172,16 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Agreement__c.account__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Agreement__c.isRevision__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Agreement__c.lastRevisionDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
