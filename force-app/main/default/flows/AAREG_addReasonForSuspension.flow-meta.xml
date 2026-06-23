@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>Add_reason_for_suspension</name>
@@ -215,7 +215,7 @@
             <label>IsOwnerAndStatus</label>
         </rules>
     </decisions>
-    <description>Saksbehandling - when casehandler suspend an application, a reason must be given. Adds the reason and create a task</description>
+    <description>Arbeidsforhold søknad - when casehandler suspend an application, a reason must be given. Adds the reason and create a task</description>
     <environments>Default</environments>
     <formulas>
         <name>FailedforRecord</name>
@@ -274,6 +274,7 @@
         <queriedFields>Casehandler_Status__c</queriedFields>
         <queriedFields>CasehandlerOwner__c</queriedFields>
         <queriedFields>IsFlowRunning__c</queriedFields>
+        <queriedFields>Access_Request__c</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
@@ -367,6 +368,7 @@
             <fieldText>Reason for suspension</fieldText>
             <fieldType>InputField</fieldType>
             <helpText>&lt;p&gt;Enter the reason for closing the application.&lt;/p&gt;</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
@@ -394,6 +396,12 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varAccessRequest</name>
+            <value>
+                <elementReference>getOwnerAndStatus.Access_Request__c</elementReference>
+            </value>
+        </inputAssignments>
         <inputAssignments>
             <name>varDescription</name>
             <value>

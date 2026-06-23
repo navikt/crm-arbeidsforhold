@@ -1,36 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>53.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <name>setStatus</name>
-        <label>setStatus</label>
-        <locationX>176</locationX>
-        <locationY>323</locationY>
+        <name>AAREG_setStatus</name>
+        <label>Set status - venter på svar</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>varStatus</assignToReference>
+            <assignToReference>$Record.Status__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>$Record.Casehandler_Status__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varPriorStatus</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>$Record__Prior.Casehandler_Status__c</elementReference>
+                <stringValue>Additional Information Required</stringValue>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>createTaskChangeStatus</targetReference>
+            <targetReference>AAREG_updateStatus</targetReference>
         </connector>
     </assignments>
-    <description>Legger til en aktivitet på record ved hver status endring.</description>
+    <decisions>
+        <name>AAREG_isWaiting</name>
+        <label>Is awaiting response</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>createTaskChangeStatus</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Standardutfall</defaultConnectorLabel>
+        <rules>
+            <name>isWaiting</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Casehandler_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Additional Information Required</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>AAREG_setStatus</targetReference>
+            </connector>
+            <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+            <label>isWaiting</label>
+        </rules>
+    </decisions>
+    <description>Arbeidsforhold - Legger til en aktivitet på record ved hver status endring.</description>
     <environments>Default</environments>
+    <formulas>
+        <name>var_PriorStatus</name>
+        <dataType>String</dataType>
+        <expression>CASE({!$Record__Prior.Casehandler_Status__c}, 
+&apos; &apos;, &apos;Utkast&apos;,
+&apos;New&apos;, &apos;Ny&apos;,
+&apos;In Progress&apos;, &apos;Under arbeid&apos;,
+&apos;Declined&apos;,&apos;Avslag&apos;, 
+&apos;Approved Partially&apos;,&apos;Delvis innvilget&apos;,
+&apos;Approved&apos;, &apos;Innvilget&apos;,
+&apos;Additional Information Required&apos;, &apos;Venter på svar&apos;,
+&apos;Ingen status&apos;)</expression>
+    </formulas>
+    <formulas>
+        <name>var_Status</name>
+        <dataType>String</dataType>
+        <expression>CASE({!$Record.Casehandler_Status__c}, 
+&apos; &apos;, &apos;Utkast&apos;,
+&apos;New&apos;, &apos;Ny&apos;,
+&apos;In Progress&apos;, &apos;Under arbeid&apos;,
+&apos;Declined&apos;,&apos;Avslag&apos;, 
+&apos;Approved Partially&apos;,&apos;Delvis innvilget&apos;,
+&apos;Approved&apos;, &apos;Innvilget&apos;,
+&apos;Additional Information Required&apos;, &apos;Venter på svar&apos;,
+&apos;Ingen status&apos;)</expression>
+    </formulas>
     <formulas>
         <name>varDescription</name>
         <dataType>String</dataType>
-        <expression>&apos;Status har endret status fra: &apos;&amp;{!varPriorStatus} &amp;&apos; til: &apos;&amp;{!varStatus}</expression>
+        <expression>&apos;Status har endret status fra: &apos;&amp;{!var_PriorStatus} &amp;&apos; til: &apos;&amp;{!var_Status}</expression>
     </formulas>
     <interviewLabel>AAREG_applicationChangingStatus {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG Application changing status activity</label>
@@ -53,11 +98,21 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
-    <start>
-        <locationX>50</locationX>
+    <recordUpdates>
+        <name>AAREG_updateStatus</name>
+        <label>Update status</label>
+        <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>setStatus</targetReference>
+            <targetReference>createTaskChangeStatus</targetReference>
+        </connector>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>AAREG_isWaiting</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -75,8 +130,8 @@
     <subflows>
         <name>createTaskChangeStatus</name>
         <label>createTaskChangeStatus</label>
-        <locationX>176</locationX>
-        <locationY>431</locationY>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
         <flowName>AAREG_subflowCreateTask</flowName>
         <inputAssignments>
             <name>varAccessRequest</name>
@@ -109,20 +164,6 @@
             </value>
         </inputAssignments>
     </subflows>
-    <variables>
-        <name>varPriorStatus</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <name>varStatus</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
     <variables>
         <name>varTaskSubject</name>
         <dataType>String</dataType>

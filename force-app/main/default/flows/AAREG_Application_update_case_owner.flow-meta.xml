@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>setCaseOwner</name>
@@ -121,12 +121,6 @@
             <targetReference>Transform_ids_into_collection</targetReference>
         </connector>
     </collectionProcessors>
-    <customProperties>
-        <name>ScreenProgressIndicator</name>
-        <value>
-            <stringValue>{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
-        </value>
-    </customProperties>
     <decisions>
         <name>checkOwnerCheck</name>
         <label>Check owner change</label>
@@ -400,6 +394,12 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varAccessRequest</name>
+            <value>
+                <elementReference>Get_current_application.Access_Request__c</elementReference>
+            </value>
+        </inputAssignments>
         <inputAssignments>
             <name>varDescription</name>
             <value>

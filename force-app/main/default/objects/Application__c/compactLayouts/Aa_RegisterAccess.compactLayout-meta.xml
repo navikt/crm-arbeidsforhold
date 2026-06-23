@@ -3,6 +3,7 @@
     <fullName>Aa_RegisterAccess</fullName>
     <fields>Account__c</fields>
     <fields>Access_Request__c</fields>
+    <fields>Name</fields>
     <fields>ApplicationSubmittedDate__c</fields>
     <fields>applicationOwner__c</fields>
     <label>AA_RegisterAccess</label>
