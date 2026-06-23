@@ -1,0 +1,15 @@
+.container {
+    padding: 1rem;
+  }
+  
+  .inner-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .contact-row {
+    background-color: #ffffff;
+    border: 1px solid #d8dde6;
+    border-radius: 0.25rem;
+    padding: 1rem;
+  }

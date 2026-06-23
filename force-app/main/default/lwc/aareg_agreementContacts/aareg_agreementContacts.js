@@ -1,6 +1,8 @@
-import { LightningElement, api, track, wire } from 'lwc';
+import { LightningElement, track, wire } from 'lwc';
+import { CurrentPageReference, NavigationMixin } from 'lightning/navigation';
 import { refreshApex } from '@salesforce/apex';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
 import getAgreementContacts from '@salesforce/apex/AAREG_MyAgreementsController.getAgreementContacts';
 import saveAgreementContacts from '@salesforce/apex/AAREG_MyAgreementsController.saveAgreementContacts';
 import deleteAgreementContact from '@salesforce/apex/AAREG_MyAgreementsController.deleteAgreementContact';
@@ -17,41 +19,45 @@ const newRow = () => ({
   SecurityNotifications__c: false
 });
 
-export default class Aareg_agreementContacts extends LightningElement {
-  @api agreementId;
-  @api readOnly = false;
-  hasFocused = false;
+export default class Aareg_agreementContacts extends NavigationMixin(LightningElement) {
+  agreementId;
+  agreementLabel = '';
   @track contactRows = [];
   wiredResult;
   isSaving = false;
   error;
+  hasFocused = false;
 
-  renderedCallback() {
-    console.log('renderedCallback, hasFocused=', this.hasFocused, 'rows=', this.contactRows.length);
-    if (this.hasFocused || this.contactRows.length === 0) return;
-    const firstInput = this.template.querySelector('lightning-input[data-first="true"]');
-    if (firstInput) {
-      this.hasFocused = true;
-      Promise.resolve().then(() => firstInput.focus());
+  breadcrumbs = [
+    { label: 'Min side', href: '' },
+    { label: 'Mine avtaler', href: 'mine-avtaler' },
+    { label: 'Kontaktpersoner', href: 'kontaktpersoner' }
+  ];
+
+  /* ----------------- URL-parameter ----------------- */
+  @wire(CurrentPageReference)
+  setPageRef(pageRef) {
+    if (pageRef?.state?.agreementId) {
+      this.agreementId = pageRef.state.agreementId;
+    }
+    if (pageRef?.state?.agreementNumber) {
+      this.agreementLabel = `for avtale ${pageRef.state.agreementNumber}`;
     }
   }
 
-  connectedCallback() {
-    this.template.addEventListener('click', (e) => {
-      console.log('CLICK target:', e.target.tagName, e.target.className);
-      setTimeout(() => {
-        console.log('activeElement:', document.activeElement?.tagName, document.activeElement);
-      }, 0);
-    }, true);
-  }
-
+  /* ----------------- Hent kontakter ----------------- */
   @wire(getAgreementContacts, { currentRecordId: '$agreementId' })
   wiredContacts(result) {
     this.wiredResult = result;
     if (result.data) {
-      this.contactRows = result.data.length
+      this.contactRows = (result.data.length
         ? result.data.map((c) => ({ ...c, uuid: c.Id }))
-        : [newRow()];
+        : [newRow()]
+      ).map((r, i) => ({
+        ...r,
+        _indexLabel: i + 1,
+        _isFirst: i === 0 ? 'true' : null
+      }));
       this.error = undefined;
     } else if (result.error) {
       this.error = result.error;
@@ -59,75 +65,15 @@ export default class Aareg_agreementContacts extends LightningElement {
     }
   }
 
+  get errorMessage() {
+    return this.error?.body?.message ?? 'Kunne ikke hente kontaktpersoner.';
+  }
+
   get showContactRemove() {
-    return !this.readOnly && this.contactRows.length > 1;
+    return this.contactRows.length > 1;
   }
 
-  // Reset når modalen lukkes (kall fra parent via @api hvis ønskelig)
-    @api
-    resetFocus() {
-    this.hasFocused = false;
-    }
-
-  /* ----------------- Row helpers ----------------- */
-  contactChange(event) {
-    const updated = event.detail; // { uuid, field, value } – avhenger av c-aareg_application-contact
-    this.contactRows = this.contactRows.map((row) =>
-      row.uuid === updated.uuid ? { ...row, ...updated.record ?? updated } : row
-    );
-  }
-
-  addContactRow() {
-    this.contactRows = [...this.contactRows, newRow()];
-    Promise.resolve().then(() => {
-    const firsts = this.template.querySelectorAll('lightning-input[data-first="true"]');
-    firsts[firsts.length - 1]?.focus();
-  });
-  }
-
-  async removeContactRow(event) {
-    const index = parseInt(event.target.value, 10);
-    const row = this.contactRows[index];
-
-    if (row?.Id) {
-      try {
-        await deleteAgreementContact({ contactId: row.Id });
-      } catch (err) {
-        this.toast('Feil', 'Kunne ikke slette kontaktperson.', 'error');
-        return;
-      }
-    }
-    this.contactRows = this.contactRows.filter((_, i) => i !== index);
-    if (this.contactRows.length === 0) this.contactRows = [newRow()];
-  }
-
-  processError(event) {
-    console.warn('Validation error from contact row:', event.detail);
-  }
-
-  /* ----------------- Save ----------------- */
-  async handleSave() {
-    this.isSaving = true;
-    try {
-      const toSave = this.contactRows.map(({ uuid, ...rest }) => {
-        const clean = { ...rest };
-        if (!clean.Id) delete clean.Id;
-        return clean;
-      });
-
-      await saveAgreementContacts({currentRecordId: this.agreementId, contacts: toSave });
-      await refreshApex(this.wiredResult);
-      this.toast('Lagret', 'Kontaktpersoner er oppdatert.', 'success');
-      this.dispatchEvent(new CustomEvent('saved'));
-    } catch (err) {
-      console.error(err);
-      this.toast('Feil', err?.body?.message ?? 'Kunne ikke lagre.', 'error');
-    } finally {
-      this.isSaving = false;
-    }
-  }
-
-  /* ----------------- Field change ----------------- */
+  /* ----------------- Felt-endringer ----------------- */
   handleFieldChange(event) {
     const { uuid, field } = event.target.dataset;
     const value =
@@ -136,6 +82,77 @@ export default class Aareg_agreementContacts extends LightningElement {
     this.contactRows = this.contactRows.map((row) =>
       row.uuid === uuid ? { ...row, [field]: value } : row
     );
+  }
+
+  /* ----------------- Legg til rad ----------------- */
+  addContactRow() {
+    this.contactRows = [...this.contactRows, newRow()].map((r, i) => ({
+      ...r,
+      _indexLabel: i + 1,
+      _isFirst: i === 0 ? 'true' : null
+    }));
+  }
+
+  /* ----------------- Fjern rad ----------------- */
+  async removeContactRow(event) {
+    const index = parseInt(event.target.value, 10);
+    const row = this.contactRows[index];
+
+    if (row?.Id) {
+      try {
+        await deleteAgreementContact({ contactId: row.Id });
+        this.toast('Fjernet', 'Kontaktperson er fjernet.', 'success');
+      } catch (err) {
+        this.toast('Feil', err?.body?.message ?? 'Kunne ikke fjerne kontaktperson.', 'error');
+        return;
+      }
+    }
+
+    const remaining = this.contactRows.filter((_, i) => i !== index);
+    this.contactRows = (remaining.length ? remaining : [newRow()]).map((r, i) => ({
+      ...r,
+      _indexLabel: i + 1,
+      _isFirst: i === 0 ? 'true' : null
+    }));
+  }
+
+  /* ----------------- Lagre ----------------- */
+  async handleSave() {
+    // Enkel validering: alle rader må ha Navn
+    const invalid = this.contactRows.find((r) => !r.Name || !r.Name.trim());
+    if (invalid) {
+      this.toast('Mangler navn', 'Alle kontaktpersoner må ha et navn.', 'warning');
+      return;
+    }
+
+    this.isSaving = true;
+    try {
+      const toSave = this.contactRows.map(({ uuid, _indexLabel, _isFirst, ...rest }) => {
+        const clean = { ...rest };
+        if (!clean.Id) delete clean.Id;
+        return clean;
+      });
+
+      await saveAgreementContacts({
+        currentRecordId: this.agreementId,
+        contacts: toSave
+      });
+      await refreshApex(this.wiredResult);
+      this.toast('Lagret', 'Kontaktpersoner er oppdatert.', 'success');
+    } catch (err) {
+      console.error(err);
+      this.toast('Feil', err?.body?.message ?? 'Kunne ikke lagre.', 'error');
+    } finally {
+      this.isSaving = false;
+    }
+  }
+
+  /* ----------------- Naviger tilbake ----------------- */
+  goBack() {
+    this[NavigationMixin.Navigate]({
+      type: 'comm__namedPage',
+      attributes: { name: 'mine-avtaler' }
+    });
   }
 
   toast(title, message, variant) {

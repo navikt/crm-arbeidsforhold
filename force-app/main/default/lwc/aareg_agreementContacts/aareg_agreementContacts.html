@@ -1,25 +1,126 @@
 <template>
-  <c-aareg_main-banner></c-aareg_main-banner>
+  <c-aareg_main-banner>Aa-registeret - Kontaktpersoner</c-aareg_main-banner>
 
   <div class="container">
     <div class="inner-container">
-      <c-aareg_breadcrumbs items={breadcrumbs}></c-aareg_breadcrumbs>
+      <c-breadcrumbs url-list={breadcrumbs}></c-breadcrumbs>
 
       <h1 class="slds-text-heading_large slds-m-bottom_small">
         Kontaktpersoner {agreementLabel}
       </h1>
 
-      <lightning-button
-        label="← Tilbake til mine avtaler"
-        variant="base"
-        onclick={goBack}
-        class="slds-m-bottom_medium">
-      </lightning-button>
+      <!-- Feilmelding -->
+      <template if:true={error}>
+        <div class="slds-text-color_error slds-m-bottom_small">{errorMessage}</div>
+      </template>
+
+      <!-- Spinner ved lagring -->
+      <template if:true={isSaving}>
+        <lightning-spinner alternative-text="Lagrer..." size="small"></lightning-spinner>
+      </template>
 
       <template if:true={agreementId}>
-        <c-aareg_agreement-contacts
-          agreement-id={agreementId}>
-        </c-aareg_agreement-contacts>
+        <!-- Kontaktrader -->
+        <template for:each={contactRows} for:item="row" for:index="index">
+          <div key={row.uuid} class="contact-row slds-box slds-m-bottom_small">
+
+            <div class="slds-grid slds-grid_align-spread slds-m-bottom_small">
+              <h3 class="slds-text-heading_small">Kontaktperson {row._indexLabel}</h3>
+              <template if:true={showContactRemove}>
+                <lightning-button-icon
+                  icon-name="utility:delete"
+                  alternative-text="Fjern kontaktperson"
+                  title="Fjern kontaktperson"
+                  variant="bare"
+                  value={index}
+                  onclick={removeContactRow}>
+                </lightning-button-icon>
+              </template>
+            </div>
+
+            <lightning-input
+              data-first={row._isFirst}
+              data-uuid={row.uuid}
+              data-field="Name"
+              label="Navn"
+              value={row.Name}
+              required
+              onchange={handleFieldChange}>
+            </lightning-input>
+
+            <lightning-input
+              data-uuid={row.uuid}
+              data-field="Email__c"
+              type="email"
+              label="E-post"
+              value={row.Email__c}
+              onchange={handleFieldChange}>
+            </lightning-input>
+
+            <lightning-input
+              data-uuid={row.uuid}
+              data-field="Phone__c"
+              type="tel"
+              label="Telefon"
+              value={row.Phone__c}
+              onchange={handleFieldChange}>
+            </lightning-input>
+
+            <fieldset class="slds-form-element slds-m-top_small">
+              <legend class="slds-form-element__legend slds-form-element__label">
+                Varslinger
+              </legend>
+              <lightning-input
+                type="checkbox"
+                data-uuid={row.uuid}
+                data-field="ChangeNotifications__c"
+                label="Endringsvarsler"
+                checked={row.ChangeNotifications__c}
+                onchange={handleFieldChange}>
+              </lightning-input>
+              <lightning-input
+                type="checkbox"
+                data-uuid={row.uuid}
+                data-field="SecurityNotifications__c"
+                label="Sikkerhetsvarsler"
+                checked={row.SecurityNotifications__c}
+                onchange={handleFieldChange}>
+              </lightning-input>
+              <lightning-input
+                type="checkbox"
+                data-uuid={row.uuid}
+                data-field="ErrorMessageNotifications__c"
+                label="Feilmeldingsvarsler"
+                checked={row.ErrorMessageNotifications__c}
+                onchange={handleFieldChange}>
+              </lightning-input>
+              <lightning-input
+                type="checkbox"
+                data-uuid={row.uuid}
+                data-field="AgreementNotifications__c"
+                label="Avtalevarsler"
+                checked={row.AgreementNotifications__c}
+                onchange={handleFieldChange}>
+              </lightning-input>
+            </fieldset>
+          </div>
+        </template>
+
+        <!-- Handlinger -->
+        <div class="slds-grid slds-grid_align-spread slds-m-top_medium">
+          <lightning-button
+            label="+ Legg til kontaktperson"
+            variant="neutral"
+            onclick={addContactRow}>
+          </lightning-button>
+
+          <lightning-button
+            label="Lagre endringer"
+            variant="brand"
+            disabled={isSaving}
+            onclick={handleSave}>
+          </lightning-button>
+        </div>
       </template>
 
       <template if:false={agreementId}>
