@@ -116,7 +116,7 @@
                 <label>Vedlegg</label>
                 <!-- Instructions shown to help users supply relevant attachments -->
                 <p class="pl-16">
-                    Last opp eventuelle vedlegg som kan hjelpe oss å behandle henvendelsen raskere.
+                    Her kan du laste opp vedlegg som kan være nyttig for å beskrive/belyse henvendelsen.
                 </p>
                 <!-- Display constraints to set expectations -->
                 <p class="pl-16 helper-text">
@@ -128,7 +128,7 @@
               <!-- New: Use lightning-file-upload to attach files to a draft Inquiry__c pre-submit -->
               <!-- Disabled until user fills any form field to ensure draft record exists -->
               <lightning-file-upload
-                  label="Last opp dokumentasjon"
+                  label="Last opp filer"
                   name="fileUploader"
                   accept={acceptedFileFormats}
                   record-id={draftRecordId}
