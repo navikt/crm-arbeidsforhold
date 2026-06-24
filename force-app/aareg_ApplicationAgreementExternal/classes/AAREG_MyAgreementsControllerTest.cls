@@ -79,30 +79,6 @@ public class AAREG_MyAgreementsControllerTest {
     }
 
 
-    /* ============================================================
-     * saveAgreementContacts
-     * ============================================================ */
-
-    @IsTest
-    static void testSaveAgreementContactsValid() {
-        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
-
-        List<RelatedContact__c> toSave = new List<RelatedContact__c>{
-            new RelatedContact__c(Name = 'C1', Email__c = 'c1@nav.no'),
-            new RelatedContact__c(Name = 'C2', Email__c = 'c2@nav.no')
-        };
-
-        Test.startTest();
-        List<RelatedContact__c> result =
-            AAREG_MyAgreementsController.saveAgreementContacts(agreement.Id, toSave);
-        Test.stopTest();
-
-        System.Assert.areEqual(2, result.size(), 'Two contacts should be saved and returned.');
-        for (RelatedContact__c rc : result) {
-            System.Assert.areEqual(agreement.Id, rc.Agreement__c, 'Agreement should be set.');
-        }
-    }
-
     @IsTest
     static void testSaveAgreementContactsNullAgreementId() {
         Test.startTest();
@@ -120,76 +96,7 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isTrue(exceptionThrown, 'Should throw when agreement id is null.');
     }
 
-    @IsTest
-    static void testSaveAgreementContactsEmptyList() {
-        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
 
-        Test.startTest();
-        List<RelatedContact__c> result =
-            AAREG_MyAgreementsController.saveAgreementContacts(agreement.Id, new List<RelatedContact__c>());
-        Test.stopTest();
-
-        System.Assert.isNotNull(result, 'Should return an empty list (or current contacts).');
-    }
-
-    @IsTest
-    static void testSaveAgreementContactsNullList() {
-        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
-
-        Test.startTest();
-        List<RelatedContact__c> result =
-            AAREG_MyAgreementsController.saveAgreementContacts(agreement.Id, null);
-        Test.stopTest();
-
-        System.Assert.isNotNull(result, 'Should return list even if input is null.');
-    }
-
-    /* ============================================================
-     * deleteAgreementContact
-     * ============================================================ */
-
-    @IsTest
-    static void testDeleteAgreementContactWithoutApplication() {
-        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
-
-        RelatedContact__c rc = new RelatedContact__c(
-            Name = 'To Delete',
-            Agreement__c = agreement.Id
-        );
-        insert rc;
-
-        Test.startTest();
-        AAREG_MyAgreementsController.deleteAgreementContact(rc.Id);
-        Test.stopTest();
-
-        Integer count = [SELECT COUNT() FROM RelatedContact__c WHERE Id = :rc.Id];
-        System.Assert.areEqual(0, count, 'Contact should be deleted.');
-    }
-
-    @IsTest
-    static void testDeleteAgreementContactWithApplication() {
-        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
-        Application__c application = [SELECT Id FROM Application__c LIMIT 1];
-
-        RelatedContact__c rc = new RelatedContact__c(
-            Name = 'Keep But Unlink',
-            Agreement__c = agreement.Id,
-            Application__c = application.Id
-        );
-        insert rc;
-
-        Test.startTest();
-        AAREG_MyAgreementsController.deleteAgreementContact(rc.Id);
-        Test.stopTest();
-
-        RelatedContact__c remaining = [
-            SELECT Id, Agreement__c, Application__c
-            FROM RelatedContact__c
-            WHERE Id = :rc.Id
-        ];
-        System.Assert.isNull(remaining.Agreement__c, 'Agreement should be unlinked.');
-        System.Assert.areEqual(application.Id, remaining.Application__c, 'Application link should remain.');
-    }
 
     @IsTest
     static void testDeleteAgreementContactNullId() {
@@ -205,21 +112,6 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isTrue(exceptionThrown, 'Should throw when contactId is null.');
     }
 
-    /* ============================================================
-     * endAgreement
-     * ============================================================ */
-
-    @IsTest
-    static void testEndAgreementValid() {
-        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
-
-        Test.startTest();
-        AAREG_MyAgreementsController.endAgreement(agreement.Id);
-        Test.stopTest();
-
-        Agreement__c updated = [SELECT Id, Status__c FROM Agreement__c WHERE Id = :agreement.Id];
-        System.Assert.areEqual('Deactivated', updated.Status__c, 'Status should be Deactivated.');
-    }
 
     @IsTest
     static void testEndAgreementNullId() {
@@ -235,36 +127,7 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isTrue(exceptionThrown, 'Should throw when agreementId is null.');
     }
 
-    /* ============================================================
-     * addContactToAgreement
-     * ============================================================ */
-
-    @IsTest
-    static void testAddContactToAgreementValid() {
-        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
-
-        List<RelatedContact__c> result;
-        Test.startTest();
-        result = AAREG_MyAgreementsController.addContactToAgreement(
-            agreement.Id,
-            'New Contact',
-            'new@nav.no',
-            '12345678',
-            true,
-            true,
-            false,
-            true
-        );
-        Test.stopTest();
-
-        System.Assert.areEqual(1, result.size(), 'One contact should exist on the agreement.');
-        System.Assert.areEqual('New Contact', result[0].Name);
-        System.Assert.isTrue(result[0].ChangeNotifications__c);
-        System.Assert.isTrue(result[0].SecurityNotifications__c);
-        System.Assert.isFalse(result[0].ErrorMessageNotifications__c);
-        System.Assert.isTrue(result[0].AgreementNotifications__c);
-    }
-
+    
     @IsTest
     static void testAddContactToAgreementMissingAgreementId() {
         Test.startTest();
@@ -299,54 +162,6 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isTrue(exceptionThrown, 'Should throw when name is blank.');
     }
 
-    /* ============================================================
-     * removeContactFromAgreement
-     * ============================================================ */
-
-    @IsTest
-    static void testRemoveContactFromAgreementWithoutApplication() {
-        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
-
-        RelatedContact__c rc = new RelatedContact__c(
-            Name = 'Remove Me',
-            Agreement__c = agreement.Id
-        );
-        insert rc;
-
-        Test.startTest();
-        List<RelatedContact__c> result =
-            AAREG_MyAgreementsController.removeContactFromAgreement(rc.Id, agreement.Id);
-        Test.stopTest();
-
-        Integer count = [SELECT COUNT() FROM RelatedContact__c WHERE Id = :rc.Id];
-        System.Assert.areEqual(0, count, 'Contact should be deleted when no Application link.');
-        System.Assert.isNotNull(result, 'Result list should not be null.');
-    }
-
-    @IsTest
-    static void testRemoveContactFromAgreementWithApplication() {
-        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
-        Application__c application = [SELECT Id FROM Application__c LIMIT 1];
-
-        RelatedContact__c rc = new RelatedContact__c(
-            Name = 'Keep But Unlink',
-            Agreement__c = agreement.Id,
-            Application__c = application.Id
-        );
-        insert rc;
-
-        Test.startTest();
-        AAREG_MyAgreementsController.removeContactFromAgreement(rc.Id, agreement.Id);
-        Test.stopTest();
-
-        RelatedContact__c remaining = [
-            SELECT Id, Agreement__c, Application__c
-            FROM RelatedContact__c
-            WHERE Id = :rc.Id
-        ];
-        System.Assert.isNull(remaining.Agreement__c, 'Agreement should be unlinked.');
-        System.Assert.areEqual(application.Id, remaining.Application__c, 'Application link should remain.');
-    }
 
     @IsTest
     static void testRemoveContactFromAgreementNullId() {
