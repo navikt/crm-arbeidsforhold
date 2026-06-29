@@ -13,9 +13,24 @@
         </connector>
         <flowTransactionModel>Automatic</flowTransactionModel>
         <inputParameters>
+            <name>accessRequestRecordId</name>
+            <value>
+                <elementReference>getApplicationRecords.Access_Request__r.Id</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>agreementRecordId</name>
+            <value>
+                <elementReference>var_agreementId</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
+            </value>
+        </inputParameters>
+        <inputParameters>
             <name>applicationRecordId</name>
             <value>
-                <elementReference>getDecisionRecord.Application__r.Access_Request__r.Id</elementReference>
+                <elementReference>getApplicationRecords.Id</elementReference>
+                <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
         <inputParameters>
@@ -34,7 +49,7 @@
         <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
-    <apiVersion>65.0</apiVersion>
+    <apiVersion>67.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>Add_legal_and_basis</name>
@@ -164,6 +179,13 @@
             <operator>Assign</operator>
             <value>
                 <stringValue>Completed</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_agreementId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rec_Agreement.Id</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -311,12 +333,6 @@
             <targetReference>Update_is_flow_running_checkbox</targetReference>
         </connector>
     </assignments>
-    <customProperties>
-        <name>ScreenProgressIndicator</name>
-        <value>
-            <stringValue>{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
-        </value>
-    </customProperties>
     <decisions>
         <name>Check_decision</name>
         <label>Check decision</label>
@@ -344,7 +360,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>CheckList1</targetReference>
+                <targetReference>getApplicationRecords</targetReference>
             </connector>
             <label>isFilled</label>
         </rules>
@@ -375,6 +391,7 @@
             <label>isAvslaat</label>
         </rules>
     </decisions>
+    <description>Arbeidsforhold vedtak - ferdigbehandler vedtak, setter status og oppretter filer, avtaler.</description>
     <environments>Default</environments>
     <formulas>
         <name>var_APIAccess</name>
@@ -608,19 +625,6 @@
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <fields>
-            <name>checkList</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Sjekkliste&lt;/strong&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <fields>
             <name>checkDecisionDate</name>
             <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(211, 39, 39);&quot;&gt;Vedtaksdato er ikke utfylt&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
@@ -670,129 +674,6 @@
         <showHeader>false</showHeader>
     </screens>
     <screens>
-        <name>CheckList1</name>
-        <label>CheckList</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>true</allowPause>
-        <connector>
-            <targetReference>getApplicationRecords</targetReference>
-        </connector>
-        <fields>
-            <name>checkListFilled</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Sjekkliste&lt;/strong&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <fields>
-            <name>Copy_1_of_AAREG_decisionText</name>
-            <fieldText>&lt;p&gt;&lt;strong&gt;Viser oversikt over behandlinggrunnlaget.&lt;/strong&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <fields>
-            <name>decisionDateFilled</name>
-            <fieldText>&lt;h6&gt;Vedtaksdato er utfylt.&lt;/h6&gt;&lt;h6&gt;Vedtakstekst er utfylt.&lt;/h6&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <fields>
-            <name>Copy_1_of_checkDecisionDetails</name>
-            <dataTypeMappings>
-                <typeName>T</typeName>
-                <typeValue>Application_Decision_Details__c</typeValue>
-            </dataTypeMappings>
-            <extensionName>flowruntime:datatable</extensionName>
-            <fieldType>ComponentInstance</fieldType>
-            <inputParameters>
-                <name>label</name>
-                <value>
-                    <stringValue>Behandlingsgrunnlag</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>selectionMode</name>
-                <value>
-                    <stringValue>MULTI_SELECT</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>minRowSelection</name>
-                <value>
-                    <numberValue>0.0</numberValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>shouldDisplayLabel</name>
-                <value>
-                    <booleanValue>true</booleanValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>tableData</name>
-                <value>
-                    <elementReference>Get_decision_details</elementReference>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>keyField</name>
-                <value>
-                    <complexValue>{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;Application_Decision_Details__c&quot;,&quot;fieldReferences&quot;:[&quot;Id&quot;],&quot;elementReference&quot;:&quot;Get_decision_details&quot;}</complexValue>
-                    <complexValueType>ComplexObjectFieldDetails</complexValueType>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>columns</name>
-                <value>
-                    <stringValue>[{&quot;apiName&quot;:&quot;Approved__c&quot;,&quot;guid&quot;:&quot;column-c361&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Innvilget&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:0,&quot;label&quot;:&quot;Approved&quot;,&quot;type&quot;:&quot;boolean&quot;},{&quot;apiName&quot;:&quot;Legal_Basis__c&quot;,&quot;guid&quot;:&quot;column-b2dc&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Hjemmel&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:1,&quot;label&quot;:&quot;Legal Basis&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Purpose__c&quot;,&quot;guid&quot;:&quot;column-91cd&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Formål&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:2,&quot;label&quot;:&quot;Purpose&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Processing_Basis__c&quot;,&quot;guid&quot;:&quot;column-0d5e&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Grunnlag&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:3,&quot;label&quot;:&quot;Processing Basis&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;API_Access__c&quot;,&quot;guid&quot;:&quot;column-22f5&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;API tilgang&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:4,&quot;label&quot;:&quot;API Access&quot;,&quot;type&quot;:&quot;boolean&quot;},{&quot;apiName&quot;:&quot;Online_Access__c&quot;,&quot;guid&quot;:&quot;column-7262&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:true,&quot;customHeaderLabel&quot;:&quot;Web tilgang&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:5,&quot;label&quot;:&quot;Online Access&quot;,&quot;type&quot;:&quot;boolean&quot;},{&quot;apiName&quot;:&quot;&quot;,&quot;guid&quot;:&quot;column-9c36&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:5}]</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>columnReferences</name>
-                <value>
-                    <complexValue>{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;Application_Decision_Details__c&quot;,&quot;fieldReferences&quot;:[&quot;Approved__c&quot;,&quot;Legal_Basis__c&quot;,&quot;Purpose__c&quot;,&quot;Processing_Basis__c&quot;,&quot;API_Access__c&quot;,&quot;Online_Access__c&quot;],&quot;elementReference&quot;:&quot;Get_decision_details&quot;}</complexValue>
-                    <complexValueType>ComplexObjectFieldDetails</complexValueType>
-                </value>
-            </inputParameters>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>true</isRequired>
-            <storeOutputAutomatically>true</storeOutputAutomatically>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>false</showHeader>
-    </screens>
-    <screens>
         <name>decision_finished1</name>
         <label>decision finished</label>
         <locationX>0</locationX>
@@ -805,7 +686,7 @@
         </connector>
         <fields>
             <name>Copy_1_of_isFinishedText</name>
-            <fieldText>&lt;p&gt;You are about to finish the decision&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;You are about to finish the decision&lt;/strong&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -832,7 +713,7 @@
         </connector>
         <fields>
             <name>isFinishedText</name>
-            <fieldText>&lt;p&gt;You are about to finish the decision and create an agreement&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;You are about to finish the decision and create an agreement&lt;/strong&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -861,6 +742,12 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varAccessRequest</name>
+            <value>
+                <elementReference>getApplicationRecords.Access_Request__r.Id</elementReference>
+            </value>
+        </inputAssignments>
         <inputAssignments>
             <name>varDescription</name>
             <value>
@@ -899,6 +786,13 @@
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>var_agreementId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
