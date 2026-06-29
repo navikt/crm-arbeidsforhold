@@ -507,55 +507,6 @@
         <flows>
             <screens>
                 <fields>
-                    <fieldText>Vedtaksdato er ikke utfylt</fieldText>
-                    <name>checkDecisionDate</name>
-                </fields>
-                <fields>
-                    <name>checkDecisionText</name>
-                </fields>
-                <fields>
-                    <fieldText>Sjekkliste</fieldText>
-                    <name>checkList</name>
-                </fields>
-                <name>AAREG_CheckList</name>
-            </screens>
-            <screens>
-                <fields>
-                    <name>Copy_1_of_AAREG_decisionText</name>
-                </fields>
-                <fields>
-                    <inputParameters>
-                        <name>columns</name>
-                        <value />
-                    </inputParameters>
-                    <inputParameters>
-                        <name>label</name>
-                        <value />
-                    </inputParameters>
-                    <inputParameters>
-                        <name>minRowSelection</name>
-                        <value />
-                    </inputParameters>
-                    <inputParameters>
-                        <name>selectionMode</name>
-                        <value />
-                    </inputParameters>
-                    <inputParameters>
-                        <name>shouldDisplayLabel</name>
-                        <value />
-                    </inputParameters>
-                    <name>Copy_1_of_checkDecisionDetails</name>
-                </fields>
-                <fields>
-                    <name>checkListFilled</name>
-                </fields>
-                <fields>
-                    <name>decisionDateFilled</name>
-                </fields>
-                <name>CheckList1</name>
-            </screens>
-            <screens>
-                <fields>
                     <fieldText>Du fullfører nå vedtak som er avslått</fieldText>
                     <name>Copy_1_of_isFinishedText</name>
                 </fields>

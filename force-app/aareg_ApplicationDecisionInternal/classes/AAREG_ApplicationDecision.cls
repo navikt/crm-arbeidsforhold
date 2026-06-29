@@ -1,18 +1,27 @@
+/**
+ * @description Wrapper-klasse brukt av AAREG_ApplicationDecisionController 
+ *              for å sende vedtaksdata til LWC.
+ * @group AAREG
+ */
+
 public with sharing class AAREG_ApplicationDecision {
-        /*
-         * wrapperclass used by AAREG_ApplicationDecisionController to send data to LWC
-         **/
-         @AuraEnabled public String VedtaksId{get;set;}
-         @AuraEnabled public String VedtaksNr{get;set;}
-         @AuraEnabled public String Status{get;set;}
-         @AuraEnabled public String StatusProsess{get;set;}
-         @AuraEnabled public String SoknadsId{get;set;}
-         @AuraEnabled public String OpprettelseDato{get;set;}
-         @AuraEnabled public String Klagetekst{get;set;}
-         @AuraEnabled public String Vilkaartekst{get;set;}
-         @auraEnabled public String Githubtekst{get;set;}
-         @AuraEnabled public String WebTilgangtekst{get;set;}
-         @AuraEnabled public String Vedtaksbegrunnelse{get;set;}
-         @AuraEnabled public Date Vedtaksdato{get;set;}
-         @AuraEnabled public Decimal WebTilgang{get;set;}
+
+        @AuraEnabled public String vedtaksId { get; set; }
+        @AuraEnabled public String vedtaksNr { get; set; }
+        @AuraEnabled public String status { get; set; }
+        @AuraEnabled public String statusProsess { get; set; }
+        @AuraEnabled public String soknadsId { get; set; }
+        @AuraEnabled public String opprettelseDato { get; set; }      
+        @AuraEnabled public String klagetekst { get; set; }
+        @AuraEnabled public String vilkaartekst { get; set; }
+        @AuraEnabled public String githubtekst { get; set; } 
+        @AuraEnabled public String webTilgangtekst { get; set; }
+        @AuraEnabled public String vedtaksbegrunnelse { get; set; }
+        @AuraEnabled public Date vedtaksdato { get; set; }
+        @AuraEnabled public Decimal webTilgang { get; set; }
+
+        /**
+     * @description Tom konstruktør for enkel instansiering.
+     */
+    public AAREG_ApplicationDecision() {}
 }
