@@ -17,9 +17,9 @@ const COLUMNS = [
             iconName: 'utility:preview'
         }
     },
-    { label: 'Vedtak', fieldName: 'VedtaksNr' },
-    { label: 'Status på prosess', fieldName: 'StatusProsess', type: 'text' },
-    { label: 'Status på vedtak', fieldName: 'Status', type: 'text' }
+    { label: 'Vedtak', fieldName: 'vedtaksNr' },
+    { label: 'Status på prosess', fieldName: 'statusProsess', type: 'text' },
+    { label: 'Status på vedtak', fieldName: 'status', type: 'text' }
 ];
 
 
@@ -57,7 +57,7 @@ export default class Aareg_applicationInternalDecision extends NavigationMixin(L
         this[NavigationMixin.Navigate]({
             type: 'standard__recordPage',
             attributes: {
-                recordId: row.VedtaksId,
+                recordId: row.vedtaksId,
                 actionName: 'view'
             }
         });

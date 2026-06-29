@@ -1,48 +1,98 @@
 public with sharing class AAREG_ApplicationDecisionController {
-    @AuraEnabled
+    private static final String STATUS_IN_PROGRESS  = 'In progress';
+    private static final String OTHER_LEGAL_BASIS   = 'Annet - oppgi i tekstfelt under';
+    private static final String ORG_TYPE_STATE      = 'State';
+    private static final String ORG_TYPE_MUNICIPAL  = 'Municipality';
+    private static final String ORG_TYPE_PENSION    = 'Pension';
+    private static final String ORG_TYPE_ELECTRIC   = 'Electricity Supervision';
+    private static final String ORG_TYPE_COUNTY     = 'County';
+    private static final String ORG_TYPE_OTHER      = 'Other';
+
+    /**
+     * @description Henter vedtaksdata for en gitt søknad.
+     * @param recordId Id til Application__c
+     * @return Liste med AAREG_ApplicationDecision wrappere
+     */
+    @AuraEnabled(cacheable=true)
     public static List<AAREG_ApplicationDecision> getApplicationDecision(Id recordId) {
-      List<AAREG_ApplicationDecision> decisionWrapperTempList = new List<AAREG_ApplicationDecision>();
-     
-      List<Application_Decision__c> decision = [
-            SELECT Id, Name, CreatedDate, Application__c,Status__c, Process_status__c, Letter_complaint_text__c, Letter_terms_text__c 
+        List<AAREG_ApplicationDecision> decisionWrappers = new List<AAREG_ApplicationDecision>();
+
+        List<Application_Decision__c> decisions = [
+            SELECT Id, Name, Application__c, Status__c, Process_status__c
             FROM Application_Decision__c
             WHERE Application__c = :recordId
         ];
-    
-        if (decision != null) {
-            for(Application_Decision__c app : decision){
-                AAREG_ApplicationDecision tempList = new AAREG_ApplicationDecision();
-                templist.VedtaksNr = app.Name;
-                tempList.VedtaksId = app.Id;
-                tempList.SoknadsId = app.Application__c;
-                tempList.Status = app.Status__c;
-                tempList.StatusProsess = app.Process_status__c;
-                decisionWrapperTempList.add(tempList);
-            }
+
+        for (Application_Decision__c app : decisions) {
+            AAREG_ApplicationDecision wrapper = new AAREG_ApplicationDecision();
+            wrapper.vedtaksId         = app.Id;
+            wrapper.vedtaksNr         = app.Name;
+            wrapper.soknadsId         = app.Application__c;
+            wrapper.status            = app.Status__c;
+            wrapper.statusProsess     = app.Process_status__c;
+            decisionWrappers.add(wrapper);
         }
-    
-       
-      return decisionWrapperTempList;
-      }
 
-      @AuraEnabled
-      public static ID createApplicationDecision(Id recordId) {
-        Application_Decision__c newDecision = new Application_Decision__c();
-        List<Application_Decision_Details__c> codeBaseList = new List<Application_Decision_Details__c>();
-        ID NewDecisionId;
+        return decisionWrappers;
+    }
 
-        newDecision.Application__c = recordId; // Replace with the correct field API name
-        newDecision.Process_status__c = 'In progress';
-        newDecision.Decision_date__c = System.today(); // Set default values as needed
-        newDecision.Letter_complaint_text__c = System.Label.AAREG_complaint_description_section;
-        newDecision.Letter_terms_text__c = System.Label.AAREG_terms_description_section;
-        newDecision.Letter_github_text__c = System.Label.AAREG_github_description_text;
-        newDecision.Letter_webaccess_text__c = System.Label.AAREG_web_access_text;
-        insert newDecision;
-        NewDecisionId = newDecision.Id;
+     /**
+     * @description Oppretter et nytt vedtak basert på søknad, og kopierer 
+     *              behandlingsgrunnlag til Application_Decision_Details__c.
+     * @param recordId Id til Application__c
+     * @return Id til det opprettede Application_Decision__c
+     */
 
-      List<ApplicationBasisCode__c> basisCodes = [
-        SELECT Id,
+     @AuraEnabled
+     public static Id createApplicationDecision(Id recordId) {
+         try {
+             Application_Decision__c newDecision = buildNewDecision(recordId);
+             insert newDecision;
+ 
+             List<ApplicationBasisCode__c> basisCodes = getBasisCodes(recordId);
+             List<Application_Decision_Details__c> details =
+                 buildDecisionDetails(newDecision.Id, basisCodes);
+ 
+             if (!details.isEmpty()) {
+                 insert details;
+             }
+ 
+             return newDecision.Id;
+            } catch (DmlException e) {
+                LoggerUtility logger = new LoggerUtility();
+                logger.error('DML-feil ved opprettelse av vedtak: ' + e.getMessage(), null);
+                logger.publish();
+                throw new AuraHandledException('Kunne ikke opprette vedtak: ' + e.getMessage());
+        
+            } catch (Exception e) {
+                LoggerUtility logger = new LoggerUtility();
+                logger.error('Uventet feil ved opprettelse av vedtak: ' + e.getMessage(), null);
+                logger.publish();
+                throw new AuraHandledException('En uventet feil oppstod: ' + e.getMessage());
+            }
+     }
+
+     /**
+     * @description Bygger nytt Application_Decision__c-objekt med default-verdier.
+     */
+    private static Application_Decision__c buildNewDecision(Id applicationId) {
+        return new Application_Decision__c(
+            Application__c           = applicationId,
+            Process_status__c        = STATUS_IN_PROGRESS,
+            Decision_date__c         = System.today(),
+            Letter_complaint_text__c = System.Label.AAREG_complaint_description_section,
+            Letter_terms_text__c     = System.Label.AAREG_terms_description_section,
+            Letter_github_text__c    = System.Label.AAREG_github_description_text,
+            Letter_webaccess_text__c = System.Label.AAREG_web_access_text
+        );
+    }
+
+    /**
+     * @description Henter behandlingsgrunnlag knyttet til søknaden.
+     */
+    private static List<ApplicationBasisCode__c> getBasisCodes(Id applicationId) {
+        return [
+            SELECT Id,
               Name,
               API_Access__c,
               Extraction_Access__c,
@@ -63,70 +113,78 @@ public with sharing class AAREG_ApplicationDecisionController {
               PurposePension__c,
               PurposeState__c
         FROM ApplicationBasisCode__c
-        WHERE Application__c = :recordId
-      ];
+        WHERE Application__c = :applicationId
+        ];
+    }
 
-      for(ApplicationBasisCode__c app : basisCodes){
-        Application_Decision_Details__c newDecisionDetails = new Application_Decision_Details__c(); 
-        newDecisionDetails.Application_Decision__c = newDecision.Id;
-        newDecisionDetails.API_Access__c =app.API_Access__c;
-        newDecisionDetails.Extraction_Access__c =app.Extraction_Access__c;
-        newDecisionDetails.Online_Access__c =app.Online_Access__c;
-        newDecisionDetails.Processing_Basis__c =app.ProcessingBasis__c;
-        switch on app.OrganizationType__c {
-          when 'State' {
-              if (app.LegalBasisState__c == 'Annet - oppgi i tekstfelt under') {
-                  newDecisionDetails.Legal_Basis__c = app.OtherLegalBasis__c;
-                  newDecisionDetails.Purpose__c     = app.OtherPurpose__c;
-              } else {
-                  newDecisionDetails.Legal_Basis__c = app.LegalBasisState__c;
-                  newDecisionDetails.Purpose__c     = app.PurposeState__c;
-              }
-          }
-          when 'Municipality' {
-              if (app.LegalBasisMunicipality__c == 'Annet - oppgi i tekstfelt under') {
-                  newDecisionDetails.Legal_Basis__c = app.OtherLegalBasis__c;
-                  newDecisionDetails.Purpose__c     = app.OtherPurpose__c;
-              } else {
-                  newDecisionDetails.Legal_Basis__c = app.LegalBasisMunicipality__c;
-                  newDecisionDetails.Purpose__c     = app.PurposeMunicipality__c;
-              }
-          }
-          when 'Pension' {
-              if (app.LegalBasisPension__c == 'Annet - oppgi i tekstfelt under') {
-                  newDecisionDetails.Legal_Basis__c = app.OtherLegalBasis__c;
-                  newDecisionDetails.Purpose__c     = app.OtherPurpose__c;
-              } else {
-                  newDecisionDetails.Legal_Basis__c = app.LegalBasisPension__c;
-                  newDecisionDetails.Purpose__c     = app.PurposePension__c;
-              }
-          }
-          when 'Electricity Supervision' {
-              if (app.LegalBasisElectricitySupervision__c == 'Annet - oppgi i tekstfelt under') {
-                  newDecisionDetails.Legal_Basis__c = app.OtherLegalBasis__c;
-                  newDecisionDetails.Purpose__c     = app.OtherPurpose__c;
-              } else {
-                  newDecisionDetails.Legal_Basis__c = app.LegalBasisElectricitySupervision__c;
-                  newDecisionDetails.Purpose__c     = app.PurposeElectricitySupervision__c;
-              }
-          }
-          when 'County' {
-              if (app.LegalBasisCounty__c == 'Annet - oppgi i tekstfelt under') {
-                  newDecisionDetails.Legal_Basis__c = app.OtherLegalBasis__c;
-                  newDecisionDetails.Purpose__c     = app.OtherPurpose__c;
-              } else {
-                  newDecisionDetails.Legal_Basis__c = app.LegalBasisCounty__c;
-                  newDecisionDetails.Purpose__c     = app.PurposeCounty__c;
-              }
-          }
-          when 'Other' {
-              newDecisionDetails.Legal_Basis__c = app.OtherLegalBasis__c;
-              newDecisionDetails.Purpose__c     = app.OtherPurpose__c;
-          }
-      }
-        codeBaseList.add(newDecisionDetails);
-      }
-      insert codeBaseList;
-      return NewDecisionId;
+    /**
+     * @description Bygger detaljposter (Application_Decision_Details__c) basert på 
+     *              behandlingsgrunnlag.
+     */
+    private static List<Application_Decision_Details__c> buildDecisionDetails(
+        Id decisionId,
+        List<ApplicationBasisCode__c> basisCodes
+    ) {
+        List<Application_Decision_Details__c> details = new List<Application_Decision_Details__c>();
+
+        for (ApplicationBasisCode__c basis : basisCodes) {
+            Application_Decision_Details__c detail = new Application_Decision_Details__c(
+                Application_Decision__c = decisionId,
+                API_Access__c           = basis.API_Access__c,
+                Extraction_Access__c    = basis.Extraction_Access__c,
+                Online_Access__c        = basis.Online_Access__c,
+                Processing_Basis__c     = basis.ProcessingBasis__c
+            );
+
+            assignLegalBasisAndPurpose(detail, basis);
+            details.add(detail);
+        }
+        return details;
+    }
+
+     /**
+     * @description Setter Legal_Basis__c og Purpose__c basert på OrganizationType.
+     *              Hvis "Annet" er valgt, eller orgtype er "Other", brukes fritekstfeltene.
+     */
+    private static void assignLegalBasisAndPurpose(
+        Application_Decision_Details__c detail,
+        ApplicationBasisCode__c basis
+    ) {
+        String legalBasis;
+        String purpose;
+
+        switch on basis.OrganizationType__c {
+            when 'State' {
+                legalBasis = basis.LegalBasisState__c;
+                purpose    = basis.PurposeState__c;
+            }
+            when 'Municipality' {
+                legalBasis = basis.LegalBasisMunicipality__c;
+                purpose    = basis.PurposeMunicipality__c;
+            }
+            when 'Pension' {
+                legalBasis = basis.LegalBasisPension__c;
+                purpose    = basis.PurposePension__c;
+            }
+            when 'Electricity Supervision' {
+                legalBasis = basis.LegalBasisElectricitySupervision__c;
+                purpose    = basis.PurposeElectricitySupervision__c;
+            }
+            when 'County' {
+                legalBasis = basis.LegalBasisCounty__c;
+                purpose    = basis.PurposeCounty__c;
+            }
+        }
+        Boolean isOtherOrgType = basis.OrganizationType__c == ORG_TYPE_OTHER;
+        Boolean isOtherLegalBasis = legalBasis == OTHER_LEGAL_BASIS;
+        Boolean useOtherFields = isOtherOrgType || isOtherLegalBasis;
+
+        if (useOtherFields) {
+            detail.Legal_Basis__c = basis.OtherLegalBasis__c;
+            detail.Purpose__c     = basis.OtherPurpose__c;
+        } else {
+            detail.Legal_Basis__c = legalBasis;
+            detail.Purpose__c     = purpose;
+        }
     }
   }
