@@ -1,5 +1,12 @@
 <template>
     <lightning-card title={cardTitle} icon-name="standard:task">
+        <lightning-button-icon
+            slot="actions"
+            icon-name="utility:refresh"
+            alternative-text="Oppdater aktivitetsliste"
+            title="Oppdater aktivitetsliste"
+            onclick={handleRefresh}>
+        </lightning-button-icon>
         <span slot="title" class="slds-badge slds-m-left_x-small">
             {taskCount}
         </span>

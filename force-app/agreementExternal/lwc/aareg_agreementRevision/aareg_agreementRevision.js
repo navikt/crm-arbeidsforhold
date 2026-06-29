@@ -1,5 +1,6 @@
 import { LightningElement, api, wire } from 'lwc';
 import { getRelatedListRecords } from 'lightning/uiRelatedListApi';
+import { refreshApex } from '@salesforce/apex';
 import { NavigationMixin } from 'lightning/navigation';
 
 const COLUMNS = [
@@ -37,6 +38,7 @@ export default class Aareg_agreementRevision extends NavigationMixin(LightningEl
     tasks = [];
     error;
     isLoading = true;
+    wiredTasksResult
 
     @wire(getRelatedListRecords, {
         parentRecordId: '$recordId',
@@ -51,7 +53,9 @@ export default class Aareg_agreementRevision extends NavigationMixin(LightningEl
         ],
         sortBy: ['-Task.CreatedDate']
     })
-    wiredTasks({ data, error }) {
+    wiredTasks(result) {
+        this.wiredTasksResult = result; 
+        const { data, error } = result;
         this.isLoading = false;
         if (data) {
             this.tasks = data.records
@@ -73,6 +77,22 @@ export default class Aareg_agreementRevision extends NavigationMixin(LightningEl
             this.error = error;
             this.tasks = [];
         }
+    }
+
+    @api
+    async refresh() {
+        this.isLoading = true;
+        try {
+            await refreshApex(this.wiredTasksResult);
+        } catch (e) {
+            this.error = e;
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    handleRefresh() {
+        this.refresh();
     }
 
     get hasTasks() {
