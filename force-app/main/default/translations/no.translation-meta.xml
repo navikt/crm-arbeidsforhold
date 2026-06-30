@@ -507,14 +507,28 @@
         <flows>
             <screens>
                 <fields>
-                    <fieldText>Du fullfører nå vedtak som er avslått</fieldText>
+                    <fieldText>Vedtaksdato er ikke utfylt</fieldText>
+                    <name>checkDecisionDate</name>
+                </fields>
+                <fields>
+                    <name>checkDecisionText</name>
+                </fields>
+                <fields>
+                    <fieldText>Sjekkliste</fieldText>
+                    <name>checkList</name>
+                </fields>
+                <name>AAREG_CheckList</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Du fullfører nå vedtak som er avslått. Søker kan se vedtak under "Mine søknader"</fieldText>
                     <name>Copy_1_of_isFinishedText</name>
                 </fields>
                 <name>decision_finished1</name>
             </screens>
             <screens>
                 <fields>
-                    <fieldText>Du fullfører nå vedtaket som er innvilget eller delvis innvilget og en avtale opprettes</fieldText>
+                    <fieldText>Du fullfører nå vedtaket som er innvilget eller delvis innvilget og en avtale opprettes. Søker kan se vedtak under "Mine avtaler"</fieldText>
                     <name>isFinishedText</name>
                 </fields>
                 <name>isDecisionFinished</name>
