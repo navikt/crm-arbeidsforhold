@@ -1,0 +1,75 @@
+<apex:page standardController="Application__c" 
+           extensions="AAREG_ApplicationPdfController"
+           renderAs="pdf" 
+           applyHtmlTag="false" 
+           showHeader="false" 
+           standardStylesheets="false"
+           cache="false">
+    <html>
+        <head>
+            <style>
+                @page { size: A4; margin: 2cm; }
+                body { font-family: Arial, sans-serif; font-size: 11pt; color: #1a1a1a; }
+                h1 { color: #003865; border-bottom: 2px solid #003865; padding-bottom: 8px; }
+                h2 { color: #003865; margin-top: 24px; font-size: 14pt; }
+                table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+                th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #ddd; }
+                th { background-color: #f4f4f4; width: 35%; }
+                .footer { position: fixed; bottom: 1cm; left: 0; right: 0; 
+                          text-align: center; font-size: 9pt; color: #666; }
+            </style>
+        </head>
+        <body>
+            <h1>Søknad om tilgang til Aa-registeret</h1>
+
+            <h2>Søknadsinformasjon</h2>
+            <table>
+                <tr><th>Søknadsnummer</th><td>{!Application__c.Name}</td></tr>
+                <tr><th>Status</th><td>{!Application__c.Status__c}</td></tr>
+                <tr><th>Innsendt dato</th><td>
+                    <apex:outputText value="{0,date,dd.MM.yyyy}">
+                        <apex:param value="{!Application__c.ApplicationSubmittedDate__c}" />
+                    </apex:outputText>
+                </td></tr>
+                <tr><th>Svarfrist</th><td>
+                    <apex:outputText value="{0,date,dd.MM.yyyy}">
+                        <apex:param value="{!Application__c.ApplicationDeadlineForReply__c}" />
+                    </apex:outputText>
+                </td></tr>
+            </table>
+
+            <h2>Konsumentinformasjon</h2>
+            <table>
+                <tr><th>Navn</th><td>{!Application__c.AccountName__c}</td></tr>
+                <tr><th>Organisasjonsnummer</th><td>{!Application__c.OrganizationNumber__c}</td></tr>
+                <tr><th>Adresse</th><td>{!Application__c.MailingAddress__c}</td></tr>
+                <tr><th>Poststed</th><td>
+                    {!Application__c.MailingPostalCode__c} {!Application__c.MailingCity__c}
+                </td></tr>
+                <tr><th>E-post</th><td>{!Application__c.Email__c}</td></tr>
+            </table>
+
+            <h2>Tilgangstyper</h2>
+            <table>
+                <tr><th>API-tilgang</th><td>{!IF(Application__c.APIAccess__c, 'Ja', 'Nei')}</td></tr>
+                <tr><th>Uttrekk</th><td>{!IF(Application__c.ExtractionAccess__c, 'Ja', 'Nei')}</td></tr>
+                <tr><th>Webtilgang</th><td>{!IF(Application__c.OnlineAccess__c, 'Ja', 'Nei')}</td></tr>
+            </table>
+
+            <h2>Behandlingsgrunnlag</h2>
+            <apex:repeat value="{!basisCodes}" var="bc">
+                <table>
+                    <tr><th>Organisasjonstype</th><td>{!bc.OrganizationType__c}</td></tr>
+                    <tr><th>Behandlingsgrunnlag</th><td>{!bc.ProcessingBasis__c}</td></tr>
+                </table>
+                <br/>
+            </apex:repeat>
+
+            <div class="footer">
+                Generert: <apex:outputText value="{0,date,dd.MM.yyyy HH:mm}">
+                    <apex:param value="{!NOW()}" />
+                </apex:outputText>
+            </div>
+        </body>
+    </html>
+</apex:page>
