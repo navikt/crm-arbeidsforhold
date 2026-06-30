@@ -5,12 +5,12 @@
         <name>AAREG_application</name>
     </customApplications>
     <customApplications>
-        <label>Arbeidsforhold - admin</label>
-        <name>Arbeidsforhold_Admin</name>
-    </customApplications>
-    <customApplications>
         <label>Aa-registeret – Brukerstøtte</label>
         <name>AAREG_support</name>
+    </customApplications>
+    <customApplications>
+        <label>Arbeidsforhold - admin</label>
+        <name>Arbeidsforhold_Admin</name>
     </customApplications>
     <customApplications>
         <label><!-- Email Scheduling --></label>
@@ -289,7 +289,7 @@
         <name>Henvendelse_Language_Change_Yes</name>
     </customLabels>
     <customLabels>
-        <label><!-- Internal comment --></label>
+        <label>Interne merknader</label>
         <name>Internal_comment</name>
     </customLabels>
     <customLabels>
@@ -482,6 +482,32 @@
     </flowDefinitions>
     <flowDefinitions>
         <flows>
+            <screens>
+                <fields>
+                    <name>AAREG_commentResultStart</name>
+                </fields>
+                <fields>
+                    <name>displayMessageStart</name>
+                </fields>
+                <name>AAREG_revisionAgreementScreenStart</name>
+            </screens>
+            <screens>
+                <fields>
+                    <name>AAREG_commentResultStop</name>
+                </fields>
+                <fields>
+                    <name>displayMessageStop</name>
+                </fields>
+                <name>Start_revision</name>
+            </screens>
+            <textTemplates>
+                <name>line_break</name>
+            </textTemplates>
+        </flows>
+        <fullName>AAREG_Agreement_revision</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
             <choices>
                 <name>var_CurrenUserChoice</name>
             </choices>
@@ -507,14 +533,23 @@
         <flows>
             <screens>
                 <fields>
-                    <fieldText>Du fullfører nå vedtak som er avslått</fieldText>
+                    <name>checkDecisionDate</name>
+                </fields>
+                <fields>
+                    <name>checkDecisionText</name>
+                </fields>
+                <name>AAREG_CheckList</name>
+            </screens>
+            <screens>
+                <fields>
+                    <fieldText>Du fullfører nå vedtak som er avslått. Søker kan se vedtak under &quot;Mine søknader&quot;</fieldText>
                     <name>Copy_1_of_isFinishedText</name>
                 </fields>
                 <name>decision_finished1</name>
             </screens>
             <screens>
                 <fields>
-                    <fieldText>Du fullfører nå vedtaket som er innvilget eller delvis innvilget og en avtale opprettes</fieldText>
+                    <fieldText>Du fullfører nå vedtaket som er innvilget eller delvis innvilget og en avtale opprettes. Søker kan se vedtak under &quot;Mine avtaler&quot;</fieldText>
                     <name>isFinishedText</name>
                 </fields>
                 <name>isDecisionFinished</name>
@@ -628,6 +663,21 @@
         <fullName>AAREG_afterInsertUpdateThreadOwnerId</fullName>
     </flowDefinitions>
     <flowDefinitions>
+        <flows />
+        <fullName>AAREG_agreementLoggActivity</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows>
+            <screens>
+                <fields>
+                    <name>AAREG_loggComment</name>
+                </fields>
+                <name>AAREG_addComment</name>
+            </screens>
+        </flows>
+        <fullName>AAREG_agreementRevisionLoggComment</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
         <flows>
             <screens>
                 <fields>
@@ -654,7 +704,11 @@
         <fullName>AAREG_applicationChangingStatus</fullName>
     </flowDefinitions>
     <flowDefinitions>
-        <flows />
+        <flows>
+            <textTemplates>
+                <name>testinghtml</name>
+            </textTemplates>
+        </flows>
         <fullName>AAREG_applicationNotificationToCasehandler</fullName>
     </flowDefinitions>
     <flowDefinitions>
@@ -721,6 +775,10 @@
             </screens>
         </flows>
         <fullName>AAREG_deactivateAgreement</fullName>
+    </flowDefinitions>
+    <flowDefinitions>
+        <flows />
+        <fullName>AAREG_deleteDraftInquiriesANDrelatedDocuments</fullName>
     </flowDefinitions>
     <flowDefinitions>
         <flows />
@@ -1372,9 +1430,25 @@
             </screens>
             <screens>
                 <fields>
+                    <name>Error_Text</name>
+                </fields>
+                <fields>
                     <name>Post_Error_Text</name>
                 </fields>
+                <fields>
+                    <name>Post_Error_Text_Not4xx</name>
+                </fields>
                 <name>Post_Error_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>actorId</name>
+                        <value />
+                    </inputParameters>
+                    <name>nksOppgaveCreatedPublisher</name>
+                </fields>
+                <name>Publish_Oppgave_created_LMS_event</name>
             </screens>
         </flows>
         <fullName>Conversation_Note_Redaction_Send_NAV_Task</fullName>
@@ -1639,9 +1713,25 @@
             </screens>
             <screens>
                 <fields>
+                    <name>Error_Text</name>
+                </fields>
+                <fields>
                     <name>Post_Error_Text</name>
                 </fields>
+                <fields>
+                    <name>Post_Error_Text_Not4xx</name>
+                </fields>
                 <name>Post_Error_Screen</name>
+            </screens>
+            <screens>
+                <fields>
+                    <inputParameters>
+                        <name>actorId</name>
+                        <value />
+                    </inputParameters>
+                    <name>nksOppgaveCreatedPublisher</name>
+                </fields>
+                <name>Publish_Oppgave_created_LMS_event</name>
             </screens>
         </flows>
         <fullName>Thread_Redaction_Send_NAV_Task</fullName>
