@@ -9,7 +9,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              - To Application_Decision__c-poster
      *              Brukes som grunnlag for testene som ikke oppretter egen data.
      */
-    /*
+    
      @TestSetup
     static void setupTestData() {
          // Create a test Account
@@ -35,7 +35,6 @@ public class AAREG_ApplicationDecisionControllerTest {
         ));
         insert decisions;
     }
-        */
     
     /**
      * @description Verifiserer at getApplicationDecision returnerer alle 
@@ -43,7 +42,6 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              Forventer 2 vedtak basert på testdata fra @TestSetup.
      */
 
-     /*
     
      @isTest
     static void testGetApplicationDecision() {
@@ -58,7 +56,6 @@ public class AAREG_ApplicationDecisionControllerTest {
         // Assertions
         System.Assert.areEqual(2, result.size(), 'There should be two decisions.');
     }
-        */
     
      /**
      * @description Tester opprettelse av nytt vedtak for en County-søknad.
@@ -69,7 +66,6 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              - API_Access__c kopieres korrekt fra basisCodes
      */
 
-     /*
     @isTest
     static void testCreateApplicationDecision() {
         // Retrieve the test Application
@@ -96,12 +92,10 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(true, decisionDetails[0].API_Access__c, 'First detail API_Access__c should match.');
         System.Assert.areEqual(false, decisionDetails[2].API_Access__c, 'Second detail API_Access__c should match.');
     }
-        */
     
     /**
  	* @description Verifiserer at null som recordId fanges og logges korrekt.
  	*/
-    /*
 	@isTest
     static void testCreateApplicationDecisionWithNullId() {
         Boolean exceptionThrown = false;
@@ -121,7 +115,6 @@ public class AAREG_ApplicationDecisionControllerTest {
             'Exception skal kastes når recordId er null.'
         );
     }
-        */
     
     /**
      * @description Tester opprettelse av vedtak for OrganizationType 'State'.
@@ -130,7 +123,6 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              - To detaljposter opprettes
      *              - Tilgangs-flagg (API_Access__c) kopieres korrekt
      */
-    /*
     @isTest
     static void testCreateState(){
         
@@ -162,7 +154,6 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(true, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
         
     }
-        */
     
     /**
      * @description Tester opprettelse av vedtak for OrganizationType 'Pension'.
@@ -170,7 +161,6 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              assignLegalBasisAndPurpose treffes, og at to detaljposter 
      *              med korrekt tilgangs-flagg opprettes.
      */
-    /*
     @isTest
     static void testCreatePension(){
         
@@ -202,7 +192,6 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(false, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
         
     }
-    */
 
      /**
      * @description Tester opprettelse av vedtak for OrganizationType 'Municipality'.
@@ -210,7 +199,6 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              kommunens lovgrunnlag/formål kopieres til detaljpostene.
      */
 
-     /*
     @isTest
     static void testCreateMunicipality(){
         
@@ -242,7 +230,6 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(false, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
         
     }
-        */
     
     /**
      * @description Tester opprettelse av vedtak for OrganizationType 
@@ -251,7 +238,6 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              tilhørende lovgrunnlag/formål kopieres korrekt.
      */
 
-    /*
     @isTest
     static void testCreateEL(){
         
@@ -283,7 +269,6 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(false, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
         
     }
-        */
     
     /**
      * @description Tester opprettelse av vedtak for OrganizationType 'Other'.
@@ -292,7 +277,6 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              switch-statementen ikke har en matchende case.
      */
 
-     /*
      @isTest
     static void testCreateOther(){
         
@@ -343,5 +327,4 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(false, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
         
     }
-    */
 }
