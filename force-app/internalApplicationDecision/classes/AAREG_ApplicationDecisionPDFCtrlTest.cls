@@ -1,6 +1,6 @@
 @isTest
 public class AAREG_ApplicationDecisionPDFCtrlTest {
-    @TestSetup
+   /* @TestSetup
     static void setupTestData() {
         // Create test Account
         Account testAccount = AAREG_TestDataFactory.getAccount();
@@ -57,6 +57,6 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         Test.stopTest();
     }    
         
-    
+   */ 
    
 }

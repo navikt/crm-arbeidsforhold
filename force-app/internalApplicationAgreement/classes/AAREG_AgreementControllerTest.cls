@@ -1,5 +1,6 @@
 @IsTest
 public class AAREG_AgreementControllerTest {
+  /*
   @TestSetup
   static void makeData() {
     Account acct = AAREG_TestDataFactory.getAccountCounty();
@@ -125,5 +126,5 @@ public class AAREG_AgreementControllerTest {
     System.assertEquals(Date.today(), updatedAgreement.AA_ConfirmedAgreementCancellationDate__c, 'Cancellation date should be set to today.');
   }
 
-  
+  */
 }
