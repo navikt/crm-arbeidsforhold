@@ -129,13 +129,16 @@ REM ============================================================
 :DeployProject
     echo.
     echo [4/6] Deploying project source to '%ORG_ALIAS%'...
-    call sf project deploy start --target-org %ORG_ALIAS% --wait 10
+    REM Legger til ignor warnings for å slippe warnings på sourchemember tracking rundt Custom metadata
+    call sf project deploy start --target-org %ORG_ALIAS% --wait 10 --ignore-warnings 
     if errorlevel 1 (
         echo       WARNING: sf project deploy failed. Trying legacy command...
         call sf force source push --target-org %ORG_ALIAS% --forceoverwrite
         if errorlevel 1 exit /b 1
     )
     echo       Project deployed successfully.
+    echo       Resetting source tracking to clear CMDT SourceMember mismatches...
+    call sf project reset tracking --target-org %ORG_ALIAS% --no-prompt >NUL 2>&1
     exit /b 0
 
 :AssignPermsets
