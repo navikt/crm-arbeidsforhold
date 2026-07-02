@@ -148,6 +148,7 @@ public without sharing class AAREG_ApplicationController {
 
       Id accessRequestId = upsertAccessRequest(application.Access_Request__c);
       application.Access_Request__c = accessRequestId;
+      application = sanitizeApplicationForDml(application);
       upsert application;
       upsertRelatedContacts(application.Id, relatedContacts);
       upsertBasisCodes(application.Id, basisCode);
@@ -237,6 +238,35 @@ public without sharing class AAREG_ApplicationController {
       WHERE Id = :applicationId
     ];
   }
+
+    /**
+     * Returns a copy of the provided Application__c containing only fields the
+     * current context has permission to create/update. This prevents DML errors
+     * when callers (guest users or restricted profiles) include fields they
+     * don't have access to.
+     */
+    private static Application__c sanitizeApplicationForDml(Application__c application) {
+      if (application == null) return null;
+
+      Map<String, Object> populated = application.getPopulatedFieldsAsMap();
+      Application__c safeApp = new Application__c();
+      // Preserve Id when present so upsert/update targets the correct record
+      if (application.Id != null) safeApp.Id = application.Id;
+
+      Map<String, Schema.SObjectField> fieldMap = Schema.sObjectType.Application__c.fields.getMap();
+
+      for (String fieldName : populated.keySet()) {
+        if (fieldName == 'Id') continue;
+        if (!fieldMap.containsKey(fieldName)) continue;
+        Schema.DescribeFieldResult d = fieldMap.get(fieldName).getDescribe();
+        Boolean allowed = (application.Id == null) ? d.isCreateable() : d.isUpdateable();
+        if (allowed) {
+          safeApp.put(fieldName, populated.get(fieldName));
+        }
+      }
+
+      return safeApp;
+    }
 
   private static List<RelatedContact__c> getRelatedContacts(Id applicationId) {
     return [
