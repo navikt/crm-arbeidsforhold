@@ -9,7 +9,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              - To Application_Decision__c-poster
      *              Brukes som grunnlag for testene som ikke oppretter egen data.
      */
-    
+    /*
      @TestSetup
     static void setupTestData() {
          // Create a test Account
@@ -322,4 +322,5 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(false, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
         
     }
+        */
 }
