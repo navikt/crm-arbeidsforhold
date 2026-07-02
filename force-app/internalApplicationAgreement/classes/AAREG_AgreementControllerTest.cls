@@ -21,6 +21,7 @@ public class AAREG_AgreementControllerTest {
     Update con;
   }
 
+  
   @IsTest
   static void getAgreementContacts() {
     Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -32,6 +33,7 @@ public class AAREG_AgreementControllerTest {
     System.assertEquals(2, contacts.size(), 'Confirm that the agreement has two related contacts.');
     System.assertEquals('Kommunekontakt 1', contacts[0].Name, 'First contact name should match expected test data.');
   }
+    
 
   @IsTest
   static void updateAgreement() {
@@ -54,6 +56,56 @@ public class AAREG_AgreementControllerTest {
     System.assertEquals(1, updatedContacts.size(), 'Only 1 contact left after deletion.');
     System.assertEquals('Updated Name', updatedContacts[0].Name, 'Name updated successfully.');
     System.assertEquals(false, updatedAgreement.ExtractionAccess__c, 'Agreement ExtractionAccess should be updated.');
+  }
+
+  @IsTest
+  static void updateAgreementHandlesNullLists() {
+    Agreement__c agreement = [SELECT Id, ExtractionAccess__c FROM Agreement__c LIMIT 1];
+    agreement.ExtractionAccess__c = false;
+
+    Test.startTest();
+    AAREG_AgreementController.updateAgreement(agreement, null, null);
+    Test.stopTest();
+
+    Agreement__c updatedAgreement = [SELECT Id, ExtractionAccess__c FROM Agreement__c WHERE Id = :agreement.Id];
+    System.assertEquals(false, updatedAgreement.ExtractionAccess__c, 'Agreement ExtractionAccess should be updated when contact lists are null.');
+  }
+
+  @IsTest
+  static void updateAgreementThrowsWhenAgreementMissing() {
+    Boolean exceptionThrown = false;
+    try {
+      Test.startTest();
+      AAREG_AgreementController.updateAgreement(null, null, null);
+      Test.stopTest();
+    } catch (Exception e) {
+      exceptionThrown = true;
+      System.assert(e.getMessage() != null, 'Expected an exception message.');
+    }
+    System.assert(exceptionThrown, 'Expected an exception when agreement is null.');
+  }
+
+  @IsTest
+  static void cancelAgreementThrowsWhenAgreementMissing() {
+    Boolean exceptionThrown = false;
+    try {
+      Test.startTest();
+      AAREG_AgreementController.cancelAgreement(null);
+      Test.stopTest();
+    } catch (Exception e) {
+      exceptionThrown = true;
+      System.assert(e.getMessage() != null, 'Expected an exception message.');
+    }
+    System.assert(exceptionThrown, 'Expected an exception when agreement is null.');
+  }
+
+  @IsTest
+  static void getAgreementContactsWithNullIdReturnsEmptyList() {
+    Test.startTest();
+    List<RelatedContact__c> contacts = AAREG_AgreementController.getAgreementContacts(null);
+    Test.stopTest();
+
+    System.assertEquals(0, contacts.size(), 'Expected empty contact list when agreement id is null.');
   }
 
   @IsTest

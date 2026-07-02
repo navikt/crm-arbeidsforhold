@@ -66,8 +66,18 @@ public with sharing class AAREG_AgreementController {
       contactsToDelete = new List<RelatedContact__c>();
     }
 
-    if (!contacts.isEmpty() && !Schema.sObjectType.RelatedContact__c.isCreateable() && !Schema.sObjectType.RelatedContact__c.isUpdateable()) {
-      throw new AuraHandledException('Ingen tilgang til å opprette eller oppdatere kontaktpersoner.');
+    if (!contacts.isEmpty()) {
+      Boolean canCreate = Schema.sObjectType.RelatedContact__c.isCreateable();
+      Boolean canUpdate = Schema.sObjectType.RelatedContact__c.isUpdateable();
+
+      for (RelatedContact__c contact : contacts) {
+        if (contact.Id == null && !canCreate) {
+          throw new AuraHandledException('Ingen tilgang til å opprette kontaktpersoner.');
+        }
+        if (contact.Id != null && !canUpdate) {
+          throw new AuraHandledException('Ingen tilgang til å oppdatere kontaktpersoner.');
+        }
+      }
     }
 
     if (!contactsToDelete.isEmpty() && !Schema.sObjectType.RelatedContact__c.isDeletable()) {
