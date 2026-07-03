@@ -59,11 +59,16 @@ export default class Aareg_home extends LightningElement {
         this.representChoice = this.selectedUserType !== 'Organization';
         this.lastUsedOrganization = queryValues.organizationNumber;
 
+        sessionStorage.setItem(`${this.currentUser}_representingPerson`, 'false');
+        console.log('Cache key set when representing a business is chosen:', `${this.currentUser}_representingPerson`, 'Cache value set to: false');
+
         if (this.representChoice) {
             this.hasAccess = true;
             this.hasApplicationAccess = false;
             this.updateUrl();
             this.isLoaded = true;
+            sessionStorage.setItem(`${this.currentUser}_representingPerson`, 'true');
+            console.log('Cache key set when representing a business is chosen:', `${this.currentUser}_representingPerson`, 'Cache value set to: true');
             return;
         }
 
