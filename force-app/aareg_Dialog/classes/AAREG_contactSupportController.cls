@@ -16,7 +16,7 @@ public with sharing class AAREG_contactSupportController {
    * Returns the Id of the created draft record.
    */
   @AuraEnabled
-  public static Id initDraftRecord(String userId) {
+   public static Id initDraftRecord(String userId, Boolean representingPerson) {
 
     Inquiry__c draft = new Inquiry__c();
     // Set minimal draft defaults; adjust fields as needed in your org
@@ -29,16 +29,17 @@ public with sharing class AAREG_contactSupportController {
     }
     Database.SaveResult sr;
     try {
-
-      String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId] ?.LastUsedOrganization__c;
-      draft.CreatedByOrganizationNumber__c = lastUsedOrganizationNumber;
+      if (!representingPerson) {
+        String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId] ?.LastUsedOrganization__c;
+        draft.CreatedByOrganizationNumber__c = lastUsedOrganizationNumber;
+      }
       sr = Database.insert(draft, AccessLevel.USER_MODE);
     } catch (Exception e) {
       throw new AuraHandledException('Could not initialize draft Inquiry__c' + ' - ' + e.getMessage());
     }
     return sr.getId();
   }
-
+  
   /**
    * Update draft Inquiry__c using an existing draft and metadata from the client.
    * Returns the final Inquiry__c Id (same as draft if updating in place).

@@ -28,7 +28,7 @@ public class AAREG_MyThreadsControllerTest {
     List<Thread__c> userThreads;
 
     Test.startTest();
-    userThreads = AAREG_MyThreadsController.getUsersThreads(String.valueOf(usr.Id));
+    userThreads = AAREG_MyThreadsController.getUsersThreadsForOrganization(String.valueOf(usr.Id));
     Test.stopTest();
 
     System.assertEquals(1, userThreads.size(), '1 Thread for the user.');
@@ -50,7 +50,7 @@ public class AAREG_MyThreadsControllerTest {
 
     Test.startTest();
       try{
-       userThreads = AAREG_MyThreadsController.getUsersThreads(String.valueOf(usr.Id));   
+       userThreads = AAREG_MyThreadsController.getUsersThreadsForOrganization(String.valueOf(usr.Id));   
       }catch(exception e){}
     
     Test.stopTest();
