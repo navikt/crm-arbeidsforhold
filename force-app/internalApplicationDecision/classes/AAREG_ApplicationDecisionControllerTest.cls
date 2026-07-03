@@ -1,4 +1,4 @@
-@isTest
+@IsTest
 public class AAREG_ApplicationDecisionControllerTest {
     
     /**
@@ -43,7 +43,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      */
 
     
-     @isTest
+     @IsTest
     static void testGetApplicationDecision() {
        // Retrieve the test Application
         Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
@@ -66,7 +66,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              - API_Access__c kopieres korrekt fra basisCodes
      */
 
-    @isTest
+    @IsTest
     static void testCreateApplicationDecision() {
         // Retrieve the test Application
         Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
@@ -96,7 +96,7 @@ public class AAREG_ApplicationDecisionControllerTest {
     /**
  	* @description Verifiserer at null som recordId fanges og logges korrekt.
  	*/
-	@isTest
+	@IsTest
     static void testCreateApplicationDecisionWithNullId() {
         Boolean exceptionThrown = false;
     
@@ -123,7 +123,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              - To detaljposter opprettes
      *              - Tilgangs-flagg (API_Access__c) kopieres korrekt
      */
-    @isTest
+    @IsTest
     static void testCreateState(){
         
         Test.startTest();
@@ -161,7 +161,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              assignLegalBasisAndPurpose treffes, og at to detaljposter 
      *              med korrekt tilgangs-flagg opprettes.
      */
-    @isTest
+    @IsTest
     static void testCreatePension(){
         
         Test.startTest();
@@ -199,7 +199,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              kommunens lovgrunnlag/formål kopieres til detaljpostene.
      */
 
-    @isTest
+    @IsTest
     static void testCreateMunicipality(){
         
         Test.startTest();
@@ -238,7 +238,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              tilhørende lovgrunnlag/formål kopieres korrekt.
      */
 
-    @isTest
+    @IsTest
     static void testCreateEL(){
         
         Test.startTest();
@@ -277,7 +277,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              switch-statementen ikke har en matchende case.
      */
 
-     @isTest
+     @IsTest
     static void testCreateOther(){
         
         Test.startTest();
