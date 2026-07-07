@@ -1,9 +1,27 @@
+/**
+ * Controller for the internal application decision PDF Visualforce page.
+ *
+ * Loads the application, decision, and related decision detail data required
+ * to generate a PDF presentation of the decision.
+ */
 public with sharing class AAREG_ApplicationDecisionPDFController {
+    /** The current decision record Id from the page parameters. */
     public Id currentRecordId { get; set; }
+
+    /** The decision wrapper loaded for the current decision record. */
     public AAREG_ApplicationDecision currentRecord { get; set; }
+
+    /** The application wrapper loaded for the decision's related application. */
     public AAREG_ApplicationInternal applicationRecord { get; set; }
+
+    /** The list of decision detail wrappers displayed in the PDF. */
     public List<AAREG_BasisCodesInternal> decisionDetailsRecords { get; set; }  
 
+    /**
+     * Initializes the PDF controller and loads the decision and application data.
+     *
+     * @param sc The standard Visualforce controller used by the page.
+     */
     public AAREG_ApplicationDecisionPDFController(ApexPages.StandardController sc) {
         this.currentRecordId = sc.getId();
         this.currentRecord = getApplicationDecisionRecord(this.currentRecordId);
@@ -33,6 +51,7 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
                CasehandlerOwner__r.Name
         FROM Application__c
         WHERE Id = :currentRecordId
+        WITH USER_MODE
         LIMIT 1
     ];
     if (application != null) {
@@ -62,6 +81,7 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
             SELECT Id, Name, CreatedDate, Application__c, Status__c,decision_description__c,Letter_complaint_text__c, Letter_terms_text__c,Decision_date__c,Web_access_count__c, Letter_github_text__c,Letter_webaccess_text__c
             FROM Application_Decision__c 
             WHERE Id = :currentRecordId 
+            WITH USER_MODE
             LIMIT 1
         ];
 
@@ -101,6 +121,7 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
                 Approved__c
             FROM Application_Decision_Details__c
             WHERE Application_Decision__c = :currentRecordId
+            WITH USER_MODE
         ];
 
         if(detailRecords != null && detailRecords.size() > 0){
