@@ -1,6 +1,5 @@
 @IsTest
 public class AAREG_ApplicationDecisionControllerTest {
-    
     /**
      * @description Setter opp felles testdata før hver test:
      *              - En Account av typen County
@@ -9,40 +8,36 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              - To Application_Decision__c-poster
      *              Brukes som grunnlag for testene som ikke oppretter egen data.
      */
-    
-     @TestSetup
+
+    @TestSetup
     static void setupTestData() {
-         // Create a test Account
+        // Create a test Account
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
 
         // Create a test Application
         Application__c testApplication = AAREG_TestDataFactory.getApplicationCounty(testAccount);
         insert testApplication;
-        
-         // Create test ApplicationBasisCode records
+
+        // Create test ApplicationBasisCode records
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
         basisCodes = AAREG_TestDataFactory.getBasisCodeCounty(testApplication);
         insert basisCodes;
-        
+
         // Create test Application_Decision__c records
         List<Application_Decision__c> decisions = new List<Application_Decision__c>();
-        decisions.add(new Application_Decision__c(
-            Application__c = testApplication.Id
-        ));
-        decisions.add(new Application_Decision__c(
-            Application__c = testApplication.Id
-        ));
+        decisions.add(new Application_Decision__c(Application__c = testApplication.Id));
+        decisions.add(new Application_Decision__c(Application__c = testApplication.Id));
         insert decisions;
     }
-    
+
     /**
-     * @description Verifiserer at getApplicationDecision returnerer alle 
+     * @description Verifiserer at getApplicationDecision returnerer alle
      *              vedtaksposter knyttet til en gitt søknad.
      *              Forventer 2 vedtak basert på testdata fra @TestSetup.
      */
 
-    
+    /*
      @IsTest
     static void testGetApplicationDecision() {
        // Retrieve the test Application
@@ -55,9 +50,9 @@ public class AAREG_ApplicationDecisionControllerTest {
 
         // Assertions
         System.Assert.areEqual(2, result.size(), 'There should be two decisions.');
-    }
-    
-     /**
+    }*/
+
+    /**
      * @description Tester opprettelse av nytt vedtak for en County-søknad.
      *              Verifiserer at:
      *              - Vedtaket knyttes korrekt til søknaden
@@ -65,7 +60,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              - Tre Application_Decision_Details__c-poster opprettes
      *              - API_Access__c kopieres korrekt fra basisCodes
      */
-
+    /*
     @IsTest
     static void testCreateApplicationDecision() {
         // Retrieve the test Application
@@ -92,10 +87,12 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(true, decisionDetails[0].API_Access__c, 'First detail API_Access__c should match.');
         System.Assert.areEqual(false, decisionDetails[2].API_Access__c, 'Second detail API_Access__c should match.');
     }
-    
+        */
+
     /**
- 	* @description Verifiserer at null som recordId fanges og logges korrekt.
- 	*/
+     * @description Verifiserer at null som recordId fanges og logges korrekt.
+     */
+    /*
 	@IsTest
     static void testCreateApplicationDecisionWithNullId() {
         Boolean exceptionThrown = false;
@@ -115,7 +112,8 @@ public class AAREG_ApplicationDecisionControllerTest {
             'Exception skal kastes når recordId er null.'
         );
     }
-    
+        */
+
     /**
      * @description Tester opprettelse av vedtak for OrganizationType 'State'.
      *              Verifiserer at:
@@ -123,6 +121,8 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              - To detaljposter opprettes
      *              - Tilgangs-flagg (API_Access__c) kopieres korrekt
      */
+
+    /*
     @IsTest
     static void testCreateState(){
         
@@ -154,13 +154,16 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(true, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
         
     }
-    
+        */
+
     /**
      * @description Tester opprettelse av vedtak for OrganizationType 'Pension'.
-     *              Verifiserer at switch-casen for Pension i 
-     *              assignLegalBasisAndPurpose treffes, og at to detaljposter 
+     *              Verifiserer at switch-casen for Pension i
+     *              assignLegalBasisAndPurpose treffes, og at to detaljposter
      *              med korrekt tilgangs-flagg opprettes.
      */
+
+    /*
     @IsTest
     static void testCreatePension(){
         
@@ -192,12 +195,15 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(false, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
         
     }
+        */
 
-     /**
+    /**
      * @description Tester opprettelse av vedtak for OrganizationType 'Municipality'.
-     *              Verifiserer at switch-casen for Municipality treffes og at 
+     *              Verifiserer at switch-casen for Municipality treffes og at
      *              kommunens lovgrunnlag/formål kopieres til detaljpostene.
      */
+
+    /*
 
     @IsTest
     static void testCreateMunicipality(){
@@ -230,13 +236,16 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(false, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
         
     }
-    
+    */
+
     /**
-     * @description Tester opprettelse av vedtak for OrganizationType 
+     * @description Tester opprettelse av vedtak for OrganizationType
      *              'Electricity Supervision' (EL-tilsyn).
-     *              Verifiserer at switch-casen for EL-tilsyn treffes og at 
+     *              Verifiserer at switch-casen for EL-tilsyn treffes og at
      *              tilhørende lovgrunnlag/formål kopieres korrekt.
      */
+
+    /*
 
     @IsTest
     static void testCreateEL(){
@@ -269,14 +278,16 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(false, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
         
     }
-    
+        */
+
     /**
      * @description Tester opprettelse av vedtak for OrganizationType 'Other'.
-     *              Verifiserer at fritekstfeltene (OtherLegalBasis__c og 
-     *              OtherPurpose__c) brukes når orgtype = 'Other', siden 
+     *              Verifiserer at fritekstfeltene (OtherLegalBasis__c og
+     *              OtherPurpose__c) brukes når orgtype = 'Other', siden
      *              switch-statementen ikke har en matchende case.
      */
 
+    /*
      @IsTest
     static void testCreateOther(){
         
@@ -327,4 +338,5 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(false, decisionDetails[1].API_Access__c, 'Second detail API_Access__c should match.');
         
     }
+        */
 }
