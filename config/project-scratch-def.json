@@ -73,7 +73,8 @@
             "enableTranslationWorkbench": true
         },
         "lightningExperienceSettings": {
-            "enableS1DesktopEnabled": true
+            "enableS1DesktopEnabled": true,
+            "enableLightningPreviewPref": true
         },
         "liveAgentSettings": {
             "enableLiveAgent": true
