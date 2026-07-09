@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Personal_Inquiries</fullName>
+    <active>true</active>
+    <description>Inquiries related to Person</description>
+    <label>Personal Inquiries</label>
+    <picklistValues>
+        <picklist>Status__c</picklist>
+        <values>
+            <fullName>Closed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>In progress</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>New</fullName>
+            <default>true</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>TypeOfInquiry__c</picklist>
+        <values>
+            <fullName>Endringsbehov</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Faglige%2Ffunksjonelle spørsmål</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Feil i løsningen</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sikkerhetsbrudd</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tekniske spørsmål</fullName>
+            <default>true</default>
+        </values>
+        <values>
+            <fullName>Tips om uriktige eller manglende opplysninger i registeret</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

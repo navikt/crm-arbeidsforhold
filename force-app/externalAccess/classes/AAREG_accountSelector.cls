@@ -19,4 +19,18 @@ public without sharing class AAREG_accountSelector{
        }
        return accList; 
    }
+
+   /**
+    * Selects a list of Person Account records based on the provided user ID.
+    *
+    * @param userId The user ID used to filter Person Account records.
+    * @return A list of Person Account records that match the given user ID. Only the first matching record is returned.
+    */
+   public static list<Account> selectPersonAccountByUserId(String userId){
+       list<Account> accList = new list<Account>();
+       if(userId!=null){
+          accList = Database.query('SELECT id FROM Account WHERE ownerId =:userId AND IsPersonAccount = true LIMIT 1');	
+       }
+       return accList; 
+   }
 }
