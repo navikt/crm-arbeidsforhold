@@ -3,9 +3,9 @@
  * It also handles file attachments by creating ContentVersion records and linking them to the relevant records.
  *
  * @since February 2026
- * @group AAREG DIALOG
+ * @group TEAMS AAREG
  */
-public with sharing class AAREG_ContactSupportController {
+public with sharing class AAREG_contactSupportController {
     /**
      * Wrapper for file upload payloads from the client.
      */
