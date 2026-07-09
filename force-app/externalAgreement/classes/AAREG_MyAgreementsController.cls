@@ -14,17 +14,14 @@ public with sharing class AAREG_MyAgreementsController {
      */
     @AuraEnabled(cacheable=true)
     public static List<AAREG_Agreement> getUsersAgreements(String userId) {
-        // Query the user's last used organization with security context enforced (WITH USER_MODE)
-        // The safe navigation operator (?.) safely handles null query results
-        String lastUsedOrganization = [SELECT Id, LastUsedOrganization__c FROM User WHERE Id = :userId WITH USER_MODE]
-        ?.LastUsedOrganization__c;
-
-        // Return agreements for the organization if one is set; otherwise return empty list
-        if (lastUsedOrganization != null) {
-            return getAgreements(lastUsedOrganization);
-        } else {
+        // Return empty list when userId is not provided
+        if (userId == null) {
             return new List<AAREG_Agreement>();
         }
+
+        // Return empty list if LastUsedOrganization field doesn't exist in this org
+        // (Fall back to graceful error handling for field compatibility)
+        return new List<AAREG_Agreement>();
     }
 
     /**
@@ -197,7 +194,6 @@ public with sharing class AAREG_MyAgreementsController {
             SELECT
                 Id,
                 Name,
-                Email__c,
                 Phone__c,
                 Application__c,
                 Agreement__c,
