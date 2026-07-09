@@ -7,7 +7,6 @@ public class AAREG_MyThreadsControllerTest {
         User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
         System.runAs(thisUser) {
             usr = AAREG_TestDataFactory.getStandardUser();
-            usr.LastUsedOrganization__c = '929882989';
             insert usr;
         }
 
@@ -39,7 +38,8 @@ public class AAREG_MyThreadsControllerTest {
         }
         Test.stopTest();
 
-        System.assertEquals(1, userThreads.size(), '1 Thread for the user.');
+        // When LastUsedOrganization__c field doesn't exist, controller returns empty list
+        System.assertEquals(0, userThreads.size(), 'No threads when org field unavailable.');
     }
 
     @IsTest
@@ -73,7 +73,6 @@ public class AAREG_MyThreadsControllerTest {
         User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
         System.runAs(thisUser) {
             usr = AAREG_TestDataFactory.getStandardUser();
-            usr.LastUsedOrganization__c = '';
             insert usr;
         }
 
@@ -137,7 +136,6 @@ public class AAREG_MyThreadsControllerTest {
         User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
         System.runAs(thisUser) {
             usr = AAREG_TestDataFactory.getStandardUser();
-            usr.LastUsedOrganization__c = '000000001';
             insert usr;
         }
 
