@@ -50,25 +50,22 @@ export default class Aareg_home extends LightningElement {
     }
 
     render() {
-        return this.representChoice ? userSupportTemplate : applicationAccessTemplate;
-    }
-
-    async init() {
         const queryValues = this.getQueryValues();
         this.selectedUserType = queryValues.userType;
         this.representChoice = this.selectedUserType !== 'Organization';
         this.lastUsedOrganization = queryValues.organizationNumber;
+        sessionStorage.setItem(`${this.currentUser}_userType`, this.selectedUserType);
+        console.log('Cache key set when representing a business is chosen:', `${this.currentUser}_userType`, 'Cache value set to:', this.selectedUserType);
+        return this.representChoice ? userSupportTemplate : applicationAccessTemplate;
+    }
 
-        sessionStorage.setItem(`${this.currentUser}_representingPerson`, 'false');
-        console.log('Cache key set when representing a business is chosen:', `${this.currentUser}_representingPerson`, 'Cache value set to: false');
+    async init() {
 
         if (this.representChoice) {
             this.hasAccess = true;
             this.hasApplicationAccess = false;
             this.updateUrl();
             this.isLoaded = true;
-            sessionStorage.setItem(`${this.currentUser}_representingPerson`, 'true');
-            console.log('Cache key set when representing a business is chosen:', `${this.currentUser}_representingPerson`, 'Cache value set to: true');
             return;
         }
 
@@ -175,7 +172,7 @@ export default class Aareg_home extends LightningElement {
         const url = new URL(window.location.href);
         const userType = this.normalizeUserType(url.searchParams.get('userType'));
         const organizationNumber =
-            (url.searchParams.get('organization-number') || '').trim() ||
+            (url.searchParams.get('orgNr') || '').trim() ||
             (url.searchParams.get('organizationNumber') || '').trim();
 
         return {
@@ -201,9 +198,9 @@ export default class Aareg_home extends LightningElement {
         url.searchParams.set('userType', this.selectedUserType);
 
         if (this.lastUsedOrganization) {
-            url.searchParams.set('organization-number', this.lastUsedOrganization);
+            url.searchParams.set('orgNr', this.lastUsedOrganization);
         } else {
-            url.searchParams.delete('organization-number');
+            url.searchParams.delete('orgNr');
         }
 
         window.history.replaceState({}, '', url.toString());

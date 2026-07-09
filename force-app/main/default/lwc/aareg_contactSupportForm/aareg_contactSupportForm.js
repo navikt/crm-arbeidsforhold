@@ -34,7 +34,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   @track inquiry;
   // Reactive state for picklist options and user interactions
   @track inquiryTypeOptions;
-  @track isRepresentingPerson = false;
+  @track isRepresentingOrganization = false;
   @track recordTypeIdForPicklist;
 
   // Selected application ID for linking inquiries to existing applications, if applicable
@@ -107,8 +107,8 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
       ];
     }
 
-    const representingPerson = sessionStorage.getItem(`${this.currentUser}_representingPerson`);
-    this.isRepresentingPerson = representingPerson === 'true';
+    const representingOrganization = sessionStorage.getItem(`${this.currentUser}_userType`);
+    this.isRepresentingOrganization = representingOrganization === 'Organization';
     this._updateRecordTypeId();
 
   }
@@ -143,7 +143,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
 
   _updateRecordTypeId() {
     if (!this.inquiryObjectInfo?.data) return;
-    if (this.isRepresentingPerson) {
+    if (!this.isRepresentingOrganization) {
       const rtInfos = this.inquiryObjectInfo.data.recordTypeInfos;
       //log record type infos for debugging purposes; this should include the record type for personal inquiries
       const personalRt = Object.values(rtInfos).find(
@@ -199,7 +199,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
       // and returns its Id. This ensures that there is a valid record to associate file uploads with, allowing users to upload files before submitting 
       // the form and ensuring that those files are properly linked to the inquiry when it is finalized.   
       // Server initializes minimal Inquiry__c (e.g., Status = Draft)
-      this.draftRecordId = await initDraftRecord({ userId: this.currentUser, representingPerson: !this.isRepresentingPerson });
+      this.draftRecordId = await initDraftRecord({ userId: this.currentUser, representingPerson: !this.isRepresentingOrganization });
     } catch (e) {
         console.error('Error initializing draft Inquiry__c:', e);
       // Surface error to user if needed

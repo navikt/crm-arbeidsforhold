@@ -81,9 +81,9 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
 
   async connectedCallback() {
     try {
-      const representingPerson = sessionStorage.getItem(`${this.currentUser}_representingPerson`);
-      console.log('Cache key:', `${this.currentUser}_representingPerson`, 'Cache value on connectedCallback:', representingPerson);
-      await this.loadThreads(representingPerson === 'true');
+      const representingPerson = sessionStorage.getItem(`${this.currentUser}_userType`) === 'Employee';
+      console.log('Cache key:', `${this.currentUser}_userType`, 'Cache value on connectedCallback:', representingPerson);
+      await this.loadThreads(representingPerson);
     } catch (error) {
       console.error(error);
       this.error = error;
@@ -124,9 +124,9 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
     });
 
     try {
-      const representingPerson = sessionStorage.getItem(`${this.currentUser}_representingPerson`);
-      console.log('Cache key:', `${this.currentUser}_representingPerson`, 'Cache value on viewThread:', representingPerson);
-      await this.loadThreads(representingPerson === 'true');
+      const representingPerson = sessionStorage.getItem(`${this.currentUser}_userType`) === 'Employee';
+      console.log('Cache key:', `${this.currentUser}_userType`, 'Cache value on viewThread:', representingPerson);
+      await this.loadThreads(representingPerson);
     } catch (error) {
       console.error(error);
       this.error = error;
