@@ -1,4 +1,5 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, track, wire } from 'lwc';
+import { CurrentPageReference } from 'lightning/navigation';
 import applicationAccessTemplate from './aareg_applicationAccess.html';
 import userSupportTemplate from './aareg_userSupport.html';
 import Id from '@salesforce/user/Id';
@@ -49,13 +50,21 @@ export default class Aareg_home extends LightningElement {
         this.init();
     }
 
-    render() {
-        const queryValues = this.getQueryValues();
-        this.selectedUserType = queryValues.userType;
+    @wire(CurrentPageReference)
+    handlePageRef(pageRef) {
+        if (!pageRef) return;
+        const state = pageRef.state;
+        const rawUserType = state.userType || state.c__userType;
+        const rawOrgNr = (state.orgNr || state.c__orgNr || state.organizationNumber || state.c__organizationNumber || '').trim();
+
+        this.selectedUserType = this.normalizeUserType(rawUserType);
         this.representChoice = this.selectedUserType !== 'Organization';
-        this.lastUsedOrganization = queryValues.organizationNumber;
+        this.lastUsedOrganization = rawOrgNr || null;
         sessionStorage.setItem(`${this.currentUser}_userType`, this.selectedUserType);
         console.log('Cache key set when representing a business is chosen:', `${this.currentUser}_userType`, 'Cache value set to:', this.selectedUserType);
+    }
+
+    render() {
         return this.representChoice ? userSupportTemplate : applicationAccessTemplate;
     }
 
@@ -166,19 +175,6 @@ export default class Aareg_home extends LightningElement {
 
     get hasPreviouslySelectedOrganization() {
         return this.lastUsedOrganization;
-    }
-
-    getQueryValues() {
-        const url = new URL(window.location.href);
-        const userType = this.normalizeUserType(url.searchParams.get('userType'));
-        const organizationNumber =
-            (url.searchParams.get('orgNr') || '').trim() ||
-            (url.searchParams.get('organizationNumber') || '').trim();
-
-        return {
-            userType,
-            organizationNumber: organizationNumber || null
-        };
     }
 
     normalizeUserType(userType) {
