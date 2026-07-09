@@ -6,7 +6,7 @@
  * @group Application Decision
  */
 @IsTest
-public class AAREG_ApplicationDecisionPDFFileServiceTest {
+public class AAREG_ApplicationDecisionPDFFileSerTest {
     /**
      * @description Setter opp felles testdata før hver test:
      *              - En Account av typen County
@@ -39,11 +39,8 @@ public class AAREG_ApplicationDecisionPDFFileServiceTest {
         );
         insert testDecision;
 
-        // Create test Access Request
-        Access_Request__c testAccessRequest = new Access_Request__c(
-            Application__c = testApplication.Id,
-            Status__c = 'New'
-        );
+        // Create test Access Request (minimal - only required for ID reference)
+        Access_Request__c testAccessRequest = new Access_Request__c();
         insert testAccessRequest;
 
         // Create test ApplicationBasisCode records
