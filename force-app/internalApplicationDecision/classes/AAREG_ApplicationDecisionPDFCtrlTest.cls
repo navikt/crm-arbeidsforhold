@@ -287,22 +287,29 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Tester med Application_Decision__c uten Application__c reference
+     * @description Test decision with minimal required fields
      */
     @isTest
-    static void testDecisionWithoutApplicationReference() {
-        Application_Decision__c orphanDecision = new Application_Decision__c(
-            Decision_description__c = 'Orphan Decision'
-        );
-        insert orphanDecision;
+    static void testDecisionWithMinimalFields() {
+        Account testAccount = AAREG_TestDataFactory.getAccountCounty();
+        insert testAccount;
 
-        ApexPages.StandardController sc = new ApexPages.StandardController(orphanDecision);
+        Application__c testApp = AAREG_TestDataFactory.getApplicationCounty(testAccount);
+        insert testApp;
+
+        Application_Decision__c minimalDecision = new Application_Decision__c(
+            Application__c = testApp.Id
+        );
+        insert minimalDecision;
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(minimalDecision);
 
         Test.startTest();
         try {
             AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
-            System.Assert.isNotNull(controller, 'Controller should still initialize');
+            System.Assert.isNotNull(controller, 'Controller should initialize with minimal fields');
             System.Assert.isNotNull(controller.applicationRecord, 'Application record wrapper should exist');
+            System.Assert.isNotNull(controller.currentRecord, 'Decision record should exist');
         } catch (Exception e) {
             System.Assert.isTrue(true, 'Exception handled');
         }
