@@ -58,7 +58,11 @@ public class AAREG_ApplicationDecisionTest {
         System.assertEquals('Vilkår text content', decision.vilkaartekst, 'Terms text should be set');
         System.assertEquals('GitHub text content', decision.githubtekst, 'GitHub text should be set');
         System.assertEquals('Web access text content', decision.webTilgangtekst, 'Web access text should be set');
-        System.assertEquals('Decision justification', decision.vedtaksbegrunnelse, 'Decision justification should be set');
+        System.assertEquals(
+            'Decision justification',
+            decision.vedtaksbegrunnelse,
+            'Decision justification should be set'
+        );
     }
 
     /**

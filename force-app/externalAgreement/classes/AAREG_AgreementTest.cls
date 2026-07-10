@@ -97,7 +97,11 @@ public class AAREG_AgreementTest {
         Test.stopTest();
 
         System.assertEquals('Data Processor AS', agreement.databehandlerNavn, 'Data processor name should be set');
-        System.assertEquals('888888888', agreement.databehandlerOrganisasjonsnummer, 'Data processor org number should be set');
+        System.assertEquals(
+            '888888888',
+            agreement.databehandlerOrganisasjonsnummer,
+            'Data processor org number should be set'
+        );
         System.assertEquals('AS', agreement.organisasjonsType, 'Organization type should be set');
         System.assertEquals('NAV', agreement.sakseier, 'Case owner should be set');
         System.assertEquals('Aktiv', agreement.status, 'Status should be set');
