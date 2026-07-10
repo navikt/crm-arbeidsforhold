@@ -20,17 +20,12 @@ private class AAREG_ApplicationControllerTest {
 
     @IsTest
     private static void testProcessNewApplication() {
-        Account account = [
-            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
-            FROM Account
-            LIMIT 1
-        ];
+        Account account = [SELECT Id FROM Account LIMIT 1];
 
         Application__c application = new Application__c();
         application.Account__c = account.Id;
         application.IsConfirmationEmailSent__c = true;
         application.Status__c = 'New';
-        application.Casehandler_Status__c = 'New';
 
         List<RelatedContact__c> contacts = new List<RelatedContact__c>();
         contacts.add(new RelatedContact__c(name = 'Test Contact 1'));
@@ -53,31 +48,23 @@ private class AAREG_ApplicationControllerTest {
         );
         System.Test.stopTest();
 
-        List<Application__c> processedApplications = [
-            SELECT Id, Casehandler_Status__c, Status__c
+        List<Application__c> result = [
+            SELECT Id, Status__c
             FROM Application__c
             WHERE Id = :processedApplicationId
         ];
 
-        System.Assert.areEqual(1, processedApplications.size(), 'Check only one application was inserted');
-        System.Assert.isTrue(
-            processedApplications[0].Casehandler_Status__c != null,
-            'Casehandler status should be set'
-        );
+        System.Assert.areEqual(1, result.size(), 'Application should be created');
+        System.Assert.areEqual('New', result[0].Status__c, 'Status should be New');
     }
 
     @IsTest
     private static void testProcessAdditionalInformationApplication() {
-        Account account = [
-            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
-            FROM Account
-            LIMIT 1
-        ];
+        Account account = [SELECT Id FROM Account LIMIT 1];
 
         Application__c application = new Application__c();
         application.Account__c = account.Id;
         application.Status__c = 'Additional Information Required';
-        application.Casehandler_Status__c = 'Additional Information Required';
         application.IsConfirmationEmailSent__c = true;
 
         List<RelatedContact__c> contacts = new List<RelatedContact__c>();
@@ -92,17 +79,13 @@ private class AAREG_ApplicationControllerTest {
         String fileName = null;
 
         System.Test.startTest();
-        AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
+        Id appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
         System.Test.stopTest();
 
-        List<Application__c> processedApplications = [SELECT Id, Status__c, Casehandler_Status__c FROM Application__c];
+        List<Application__c> result = [SELECT Id, Status__c FROM Application__c WHERE Id = :appId];
 
-        System.Assert.areEqual(1, processedApplications.size(), 'Check only one application was upserted');
-        System.Assert.isTrue(processedApplications[0].Status__c != null, 'Status should be set');
-        System.Assert.isTrue(
-            processedApplications[0].Casehandler_Status__c != null,
-            'Casehandler status should be set'
-        );
+        System.Assert.areEqual(1, result.size(), 'Application should be upserted');
+        System.Assert.areEqual('In Progress', result[0].Status__c, 'Status should be In Progress');
     }
 
     @IsTest
@@ -133,11 +116,7 @@ private class AAREG_ApplicationControllerTest {
 
     @IsTest
     private static void testGetDraftApplication() {
-        Account account = [
-            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
-            FROM Account
-            LIMIT 1
-        ];
+        Account account = [SELECT Id FROM Account LIMIT 1];
 
         Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
         insert application;
@@ -165,11 +144,7 @@ private class AAREG_ApplicationControllerTest {
 
     @IsTest
     private static void testDeleteDraftRecord() {
-        Account account = [
-            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
-            FROM Account
-            LIMIT 1
-        ];
+        Account account = [SELECT Id FROM Account LIMIT 1];
         Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
         insert application;
 
@@ -183,11 +158,7 @@ private class AAREG_ApplicationControllerTest {
 
     @IsTest
     private static void testSaveAsDraft() {
-        Account account = [
-            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
-            FROM Account
-            LIMIT 1
-        ];
+        Account account = [SELECT Id FROM Account LIMIT 1];
 
         Application__c application = new Application__c();
         application.Account__c = account.Id;
