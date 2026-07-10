@@ -234,7 +234,11 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
             AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
             System.Assert.isNotNull(controller.currentRecord, 'Current record should not be null');
             System.Assert.areEqual(testDecision.Id, controller.currentRecord.vedtaksId, 'Decision ID should match');
-            System.Assert.areEqual(testDecision.Decision_description__c, controller.currentRecord.vedtaksbegrunnelse, 'Description should match');
+            System.Assert.areEqual(
+                testDecision.Decision_description__c,
+                controller.currentRecord.vedtaksbegrunnelse,
+                'Description should match'
+            );
         } catch (Exception e) {
             System.Assert.isTrue(true, 'Exception handled');
         }
@@ -341,10 +345,18 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     @isTest
     static void testAllApplicationDecisionFields() {
         Application_Decision__c testDecision = [
-            SELECT 
-                Id, Name, Application__c, Status__c, decision_description__c,
-                Letter_complaint_text__c, Letter_terms_text__c, Decision_date__c,
-                Letter_github_text__c, Letter_webaccess_text__c, Web_access_count__c
+            SELECT
+                Id,
+                Name,
+                Application__c,
+                Status__c,
+                decision_description__c,
+                Letter_complaint_text__c,
+                Letter_terms_text__c,
+                Decision_date__c,
+                Letter_github_text__c,
+                Letter_webaccess_text__c,
+                Web_access_count__c
             FROM Application_Decision__c
             LIMIT 1
         ];
@@ -355,17 +367,37 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         try {
             AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
             AAREG_ApplicationDecision wrapper = controller.currentRecord;
-            
+
             System.Assert.areEqual(testDecision.Id, wrapper.vedtaksId, 'vedtaksId should be set');
             System.Assert.areEqual(testDecision.Name, wrapper.vedtaksNr, 'vedtaksNr should be set');
             System.Assert.areEqual(testDecision.Status__c, wrapper.status, 'status should be set');
             System.Assert.areEqual(testDecision.Application__c, wrapper.soknadsId, 'soknadsId should be set');
-            System.Assert.areEqual(testDecision.decision_description__c, wrapper.vedtaksbegrunnelse, 'vedtaksbegrunnelse should be set');
-            System.Assert.areEqual(testDecision.Letter_complaint_text__c, wrapper.klagetekst, 'klagetekst should be set');
-            System.Assert.areEqual(testDecision.Letter_terms_text__c, wrapper.vilkaartekst, 'vilkaartekst should be set');
+            System.Assert.areEqual(
+                testDecision.decision_description__c,
+                wrapper.vedtaksbegrunnelse,
+                'vedtaksbegrunnelse should be set'
+            );
+            System.Assert.areEqual(
+                testDecision.Letter_complaint_text__c,
+                wrapper.klagetekst,
+                'klagetekst should be set'
+            );
+            System.Assert.areEqual(
+                testDecision.Letter_terms_text__c,
+                wrapper.vilkaartekst,
+                'vilkaartekst should be set'
+            );
             System.Assert.areEqual(testDecision.Decision_date__c, wrapper.vedtaksdato, 'vedtaksdato should be set');
-            System.Assert.areEqual(testDecision.Letter_github_text__c, wrapper.githubtekst, 'githubtekst should be set');
-            System.Assert.areEqual(testDecision.Letter_webaccess_text__c, wrapper.webTilgangtekst, 'webTilgangtekst should be set');
+            System.Assert.areEqual(
+                testDecision.Letter_github_text__c,
+                wrapper.githubtekst,
+                'githubtekst should be set'
+            );
+            System.Assert.areEqual(
+                testDecision.Letter_webaccess_text__c,
+                wrapper.webTilgangtekst,
+                'webTilgangtekst should be set'
+            );
             System.Assert.areEqual(testDecision.Web_access_count__c, wrapper.webTilgang, 'webTilgang should be set');
         } catch (Exception e) {
             System.Assert.isTrue(true, 'Exception handled');

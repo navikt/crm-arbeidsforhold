@@ -7,20 +7,18 @@
  */
 @IsTest
 public class AAREG_CheckObjectTypeNamingTest {
-    
     @TestSetup
     static void setupTestData() {
         // Create test account
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
-        
+
         // Create test application
         Application__c testApp = AAREG_TestDataFactory.getApplicationCounty(testAccount);
         insert testApp;
-        
+
         // Create test thread
         Thread__c testThread = new Thread__c();
-        testThread.Subject__c = 'Test Thread';
         testThread.CRM_Related_Object__c = testApp.Id;
         insert testThread;
     }
@@ -32,8 +30,8 @@ public class AAREG_CheckObjectTypeNamingTest {
     static void testCheckObjectTypeNameWithValidApplicationId() {
         Thread__c thread = [SELECT Id, CRM_Related_Object__c FROM Thread__c LIMIT 1];
         Application__c app = [SELECT Id FROM Application__c LIMIT 1];
-        
-        List<Id> threadIds = new List<Id>{thread.Id};
+
+        List<Id> threadIds = new List<Id>{ thread.Id };
 
         Test.startTest();
         try {
@@ -84,7 +82,7 @@ public class AAREG_CheckObjectTypeNamingTest {
     @IsTest
     static void testCheckObjectTypeNameProcessesFirstId() {
         Thread__c thread = [SELECT Id FROM Thread__c LIMIT 1];
-        List<Id> threadIds = new List<Id>{thread.Id};
+        List<Id> threadIds = new List<Id>{ thread.Id };
 
         Test.startTest();
         try {
@@ -105,15 +103,15 @@ public class AAREG_CheckObjectTypeNamingTest {
     static void testObjectTypeDetermination() {
         Thread__c thread = [SELECT CRM_Related_Object__c FROM Thread__c LIMIT 1];
         Application__c app = [SELECT Id FROM Application__c LIMIT 1];
-        
+
         // Verify thread has Application reference
         System.Assert.isNotNull(thread.CRM_Related_Object__c, 'Thread should have related object');
-        
+
         // Parse the ID to verify it's an Application
         String relatedObjectId = thread.CRM_Related_Object__c;
         Id parsedId = Id.valueOf(relatedObjectId);
         String objectType = parsedId.getSObjectType().getDescribe().getName();
-        
+
         System.Assert.areEqual('Application__c', objectType, 'Should be Application__c type');
     }
 }

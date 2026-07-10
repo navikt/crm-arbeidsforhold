@@ -10,23 +10,23 @@ private class AAREG_ApplicationControllerTest {
     @IsTest
     private static void testGetAccountNameByOrgNumber() {
         Account acct = [SELECT Id, INT_OrganizationNumber__c FROM Account LIMIT 1];
-        
+
         System.Test.startTest();
         String accountName = AAREG_ApplicationController.getAccountNameByOrgNumber(acct.INT_OrganizationNumber__c);
         System.Test.stopTest();
-        
+
         System.Assert.isNotNull(accountName, 'Account name should not be null');
     }
-    
+
     @IsTest
     private static void testProcessNewApplication() {
         Account account = [SELECT Id, Name FROM Account LIMIT 1];
-        
+
         Application__c application = new Application__c();
         application.Account__c = account.Id;
         application.IsConfirmationEmailSent__c = true;
-        application.Status__c ='New';
-        application.Casehandler_Status__c ='New';
+        application.Status__c = 'New';
+        application.Casehandler_Status__c = 'New';
 
         List<RelatedContact__c> contacts = new List<RelatedContact__c>();
         contacts.add(new RelatedContact__c(name = 'Test Contact 1'));
@@ -38,7 +38,7 @@ private class AAREG_ApplicationControllerTest {
 
         String base64 = 'sdkldsfjlcm';
         String fileName = 'Test file name';
-        
+
         System.Test.startTest();
         Id processedApplicationId = AAREG_ApplicationController.processApplication(
             application,
@@ -48,7 +48,7 @@ private class AAREG_ApplicationControllerTest {
             fileName
         );
         System.Test.stopTest();
-        
+
         List<Application__c> processedApplications = [
             SELECT Id, Casehandler_Status__c
             FROM Application__c
@@ -56,9 +56,13 @@ private class AAREG_ApplicationControllerTest {
         ];
 
         System.Assert.areEqual(1, processedApplications.size(), 'Check only one application was inserted');
-        System.Assert.areEqual('New', processedApplications[0].Casehandler_Status__c, 'Assert correct application status');
+        System.Assert.areEqual(
+            'New',
+            processedApplications[0].Casehandler_Status__c,
+            'Assert correct application status'
+        );
     }
-    
+
     @IsTest
     private static void testProcessAdditionalInformationApplication() {
         Account account = [SELECT Id, Name FROM Account LIMIT 1];
@@ -66,7 +70,7 @@ private class AAREG_ApplicationControllerTest {
         Application__c application = new Application__c();
         application.Account__c = account.Id;
         application.Status__c = 'Additional Information Required';
-        application.Casehandler_Status__c='Additional Information Required';
+        application.Casehandler_Status__c = 'Additional Information Required';
         application.IsConfirmationEmailSent__c = true;
 
         List<RelatedContact__c> contacts = new List<RelatedContact__c>();
@@ -79,23 +83,27 @@ private class AAREG_ApplicationControllerTest {
 
         String base64 = null;
         String fileName = null;
-        
+
         System.Test.startTest();
         AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
         System.Test.stopTest();
-        
+
         List<Application__c> processedApplications = [SELECT Id, Status__c, Casehandler_Status__c FROM Application__c];
 
         System.Assert.areEqual(1, processedApplications.size(), 'Check only one application was upserted');
         System.Assert.areEqual('In Progress', processedApplications[0].Status__c, 'Correct application status');
-        System.Assert.areEqual('In Progress', processedApplications[0].Casehandler_Status__c, 'Correct application status');
+        System.Assert.areEqual(
+            'In Progress',
+            processedApplications[0].Casehandler_Status__c,
+            'Correct application status'
+        );
     }
-    
+
     @IsTest
     private static void testGetLastUsedOrganizationInformation() {
         Profile profile = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
         Account account = [SELECT Id, INT_OrganizationNumber__c FROM Account LIMIT 1];
-        
+
         User user = new User();
         user.FirstName = 'John';
         user.LastName = 'Doe';
@@ -116,7 +124,7 @@ private class AAREG_ApplicationControllerTest {
 
         System.Assert.isNotNull(lastUsedOrganization, 'Account should be returned');
     }
-    
+
     @IsTest
     private static void testGetDraftApplication() {
         Account account = [SELECT Id, Name FROM Account LIMIT 1];
@@ -139,12 +147,12 @@ private class AAREG_ApplicationControllerTest {
             application.Id
         );
         System.Test.stopTest();
-        
+
         System.Assert.areEqual(application.Id, draft.application.Id, 'Draft application retrieved');
         System.Assert.areEqual(2, draft.basisCodes.size(), '2 draft basis codes retrieved');
         System.Assert.areEqual(2, draft.contacts.size(), '2 draft related contacts retrieved');
     }
-    
+
     @IsTest
     private static void testDeleteDraftRecord() {
         Account account = [SELECT Id FROM Account LIMIT 1];
@@ -158,7 +166,7 @@ private class AAREG_ApplicationControllerTest {
         List<Application__c> applications = [SELECT Id FROM Application__c];
         System.Assert.areEqual(0, applications.size(), 'No applications. Successful record deletion.');
     }
-    
+
     @IsTest
     private static void testSaveAsDraft() {
         Account account = [SELECT Id FROM Account LIMIT 1];
@@ -174,14 +182,14 @@ private class AAREG_ApplicationControllerTest {
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
         basisCodes.add(new ApplicationBasisCode__c());
         basisCodes.add(new ApplicationBasisCode__c());
-        
+
         String base64 = null;
         String fileName = null;
 
         System.Test.startTest();
         AAREG_ApplicationController.saveAsDraft(application, basisCodes, contacts, base64, fileName);
         System.Test.stopTest();
-        
+
         Application__c processedApplication = [SELECT Id, Status__c FROM Application__c LIMIT 1];
         System.Assert.areEqual('Draft', processedApplication.Status__c, 'Assert correct application status');
     }
