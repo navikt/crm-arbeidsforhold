@@ -45,26 +45,25 @@ public class P360_StubArchiveAdapterTest {
 
     /**
      * @description Tests stub adapter exception handling
-     * Verifies that stub throws appropriate contract exception
+     * Verifies that stub returns a successful response without throwing exception
      */
     @IsTest
     static void testStubAdapterArchiveThrowsException() {
         P360_StubArchiveAdapter adapter = new P360_StubArchiveAdapter();
         P360_ArchiveRequestDto request = new P360_ArchiveRequestDto();
+        request.externalId = '001000000000001';
 
-        Boolean exceptionThrown = false;
-
+        P360_ArchiveResponseDto response;
         Test.startTest();
         try {
-            adapter.archive(request);
-        } catch (P360_ContractException e) {
-            exceptionThrown = true;
+            response = adapter.archive(request);
         } catch (Exception e) {
-            // Any exception is acceptable for stub
-            exceptionThrown = true;
+            System.Assert.fail('Stub should not throw exception: ' + e.getMessage());
         }
         Test.stopTest();
 
-        System.Assert.isTrue(exceptionThrown, 'Stub should throw exception');
+        System.Assert.isNotNull(response, 'Stub should return response');
+        System.Assert.isTrue(response.success, 'Stub should return successful response');
+        System.Assert.isTrue(response.message.contains('Stub'), 'Response should indicate stub behavior');
     }
 }

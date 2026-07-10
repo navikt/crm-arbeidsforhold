@@ -36,11 +36,17 @@ public class AAREG_AgreementControllerTest {
 
         // WITH USER_MODE in test context may restrict visibility, so we verify non-null return
         System.Assert.isNotNull(contacts, 'Should return a list');
-        
+
         // Also verify we can query contacts directly to ensure test data exists
         List<RelatedContact__c> directQuery = [
-            SELECT Id, Name, Phone__c, AgreementNotifications__c, ChangeNotifications__c,
-                   ErrorMessageNotifications__c, SecurityNotifications__c
+            SELECT
+                Id,
+                Name,
+                Phone__c,
+                AgreementNotifications__c,
+                ChangeNotifications__c,
+                ErrorMessageNotifications__c,
+                SecurityNotifications__c
             FROM RelatedContact__c
             WHERE Agreement__c = :agreement.Id
         ];
