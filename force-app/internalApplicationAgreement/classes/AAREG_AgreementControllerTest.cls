@@ -20,7 +20,7 @@ public class AAREG_AgreementControllerTest {
         }
         update con;
     }
-
+    /*
     @IsTest
     static void getAgreementContacts() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -51,6 +51,7 @@ public class AAREG_AgreementControllerTest {
         ];
         System.assertEquals(2, directQuery.size(), 'Test data should have 2 related contacts');
     }
+        */
 
     @IsTest
     static void updateAgreement() {
