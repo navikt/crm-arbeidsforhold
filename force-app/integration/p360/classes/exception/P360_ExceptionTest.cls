@@ -97,16 +97,16 @@ public class P360_ExceptionTest {
     }
 
     /**
-     * @description Tests exception with null message
-     * Verifies exceptions handle null messages gracefully
+     * @description Tests exception without explicit message parameter
+     * Verifies exceptions can be created with no parameters
      */
     @IsTest
-    static void testExceptionWithNullMessage() {
+    static void testExceptionDefaultConstructor() {
         Test.startTest();
         try {
-            throw new P360_ContractException(null);
+            throw new P360_ContractException();
         } catch (P360_ContractException e) {
-            System.Assert.isTrue(true, 'Exception should handle null message');
+            System.Assert.isTrue(true, 'Exception should handle default constructor');
         } catch (Exception e) {
             System.Assert.fail('Should throw P360_ContractException: ' + e.getMessage());
         }
