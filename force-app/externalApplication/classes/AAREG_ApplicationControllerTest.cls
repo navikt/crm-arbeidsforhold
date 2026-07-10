@@ -20,7 +20,11 @@ private class AAREG_ApplicationControllerTest {
 
     @IsTest
     private static void testProcessNewApplication() {
-        Account account = [SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode FROM Account LIMIT 1];
+        Account account = [
+            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
+            FROM Account
+            LIMIT 1
+        ];
 
         Application__c application = new Application__c();
         application.Account__c = account.Id;
@@ -56,12 +60,19 @@ private class AAREG_ApplicationControllerTest {
         ];
 
         System.Assert.areEqual(1, processedApplications.size(), 'Check only one application was inserted');
-        System.Assert.isTrue(processedApplications[0].Casehandler_Status__c != null, 'Casehandler status should be set');
+        System.Assert.isTrue(
+            processedApplications[0].Casehandler_Status__c != null,
+            'Casehandler status should be set'
+        );
     }
 
     @IsTest
     private static void testProcessAdditionalInformationApplication() {
-        Account account = [SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode FROM Account LIMIT 1];
+        Account account = [
+            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
+            FROM Account
+            LIMIT 1
+        ];
 
         Application__c application = new Application__c();
         application.Account__c = account.Id;
@@ -88,7 +99,10 @@ private class AAREG_ApplicationControllerTest {
 
         System.Assert.areEqual(1, processedApplications.size(), 'Check only one application was upserted');
         System.Assert.isTrue(processedApplications[0].Status__c != null, 'Status should be set');
-        System.Assert.isTrue(processedApplications[0].Casehandler_Status__c != null, 'Casehandler status should be set');
+        System.Assert.isTrue(
+            processedApplications[0].Casehandler_Status__c != null,
+            'Casehandler status should be set'
+        );
     }
 
     @IsTest
@@ -119,7 +133,11 @@ private class AAREG_ApplicationControllerTest {
 
     @IsTest
     private static void testGetDraftApplication() {
-        Account account = [SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode FROM Account LIMIT 1];
+        Account account = [
+            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
+            FROM Account
+            LIMIT 1
+        ];
 
         Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
         insert application;
@@ -147,7 +165,11 @@ private class AAREG_ApplicationControllerTest {
 
     @IsTest
     private static void testDeleteDraftRecord() {
-        Account account = [SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode FROM Account LIMIT 1];
+        Account account = [
+            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
+            FROM Account
+            LIMIT 1
+        ];
         Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
         insert application;
 
@@ -161,7 +183,11 @@ private class AAREG_ApplicationControllerTest {
 
     @IsTest
     private static void testSaveAsDraft() {
-        Account account = [SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode FROM Account LIMIT 1];
+        Account account = [
+            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
+            FROM Account
+            LIMIT 1
+        ];
 
         Application__c application = new Application__c();
         application.Account__c = account.Id;

@@ -297,9 +297,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         Application__c testApp = AAREG_TestDataFactory.getApplicationCounty(testAccount);
         insert testApp;
 
-        Application_Decision__c minimalDecision = new Application_Decision__c(
-            Application__c = testApp.Id
-        );
+        Application_Decision__c minimalDecision = new Application_Decision__c(Application__c = testApp.Id);
         insert minimalDecision;
 
         ApexPages.StandardController sc = new ApexPages.StandardController(minimalDecision);
