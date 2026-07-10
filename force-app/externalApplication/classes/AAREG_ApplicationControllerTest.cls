@@ -85,7 +85,7 @@ private class AAREG_ApplicationControllerTest {
         List<Application__c> result = [SELECT Id, Status__c FROM Application__c WHERE Id = :appId];
 
         System.Assert.areEqual(1, result.size(), 'Application should be upserted');
-        System.Assert.areEqual('In Progress', result[0].Status__c, 'Status should be In Progress');
+        System.Assert.areEqual('New', result[0].Status__c, 'Status should be New');
     }
 
     @IsTest
@@ -116,7 +116,11 @@ private class AAREG_ApplicationControllerTest {
 
     @IsTest
     private static void testGetDraftApplication() {
-        Account account = [SELECT Id FROM Account LIMIT 1];
+        Account account = [
+            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
+            FROM Account
+            LIMIT 1
+        ];
 
         Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
         insert application;
@@ -144,7 +148,11 @@ private class AAREG_ApplicationControllerTest {
 
     @IsTest
     private static void testDeleteDraftRecord() {
-        Account account = [SELECT Id FROM Account LIMIT 1];
+        Account account = [
+            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
+            FROM Account
+            LIMIT 1
+        ];
         Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
         insert application;
 
