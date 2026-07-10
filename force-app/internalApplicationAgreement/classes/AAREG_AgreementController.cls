@@ -25,7 +25,6 @@ public with sharing class AAREG_AgreementController {
             SELECT
                 Id,
                 Name,
-                Phone__c,
                 AgreementNotifications__c,
                 ChangeNotifications__c,
                 ErrorMessageNotifications__c,

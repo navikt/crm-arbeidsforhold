@@ -42,7 +42,6 @@ public class AAREG_AgreementControllerTest {
             SELECT
                 Id,
                 Name,
-                Phone__c,
                 AgreementNotifications__c,
                 ChangeNotifications__c,
                 ErrorMessageNotifications__c,
