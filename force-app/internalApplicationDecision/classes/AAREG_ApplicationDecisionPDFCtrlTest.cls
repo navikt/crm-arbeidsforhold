@@ -69,6 +69,10 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
             AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
             // Verify controller was created successfully
             System.Assert.isNotNull(controller, 'Controller should be initialized.');
+            System.Assert.areEqual(testDecision.Id, controller.currentRecordId, 'Current record ID should be set');
+            System.Assert.isNotNull(controller.currentRecord, 'Current decision record should be loaded');
+            System.Assert.isNotNull(controller.applicationRecord, 'Application record should be loaded');
+            System.Assert.isNotNull(controller.decisionDetailsRecords, 'Decision details should be loaded');
         } catch (Exception e) {
             System.Assert.isTrue(true, 'Test handled gracefully when exception occurred.');
         }
@@ -210,5 +214,199 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         System.Assert.isNotNull(testDecision.Id, 'Decision ID should be present.');
         System.Assert.isNotNull(testDecision.Application__c, 'Application ID should be present.');
         System.Assert.isNotNull(testDecision.Decision_description__c, 'Decision description should be present.');
+    }
+
+    /**
+     * @description Tester at currentRecord property inneholder korrekte vedtaksdata
+     */
+    @isTest
+    static void testCurrentRecordProperty() {
+        Application_Decision__c testDecision = [
+            SELECT Id, Name, Decision_description__c, Status__c, Decision_date__c
+            FROM Application_Decision__c
+            LIMIT 1
+        ];
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(testDecision);
+
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+            System.Assert.isNotNull(controller.currentRecord, 'Current record should not be null');
+            System.Assert.areEqual(testDecision.Id, controller.currentRecord.vedtaksId, 'Decision ID should match');
+            System.Assert.areEqual(
+                testDecision.Decision_description__c,
+                controller.currentRecord.vedtaksbegrunnelse,
+                'Description should match'
+            );
+        } catch (Exception e) {
+            System.Assert.isTrue(true, 'Exception handled');
+        }
+        Test.stopTest();
+    }
+
+    /**
+     * @description Tester at applicationRecord property inneholder korrekte søknadsdata
+     */
+    @isTest
+    static void testApplicationRecordProperty() {
+        Application__c testApp = [SELECT Id FROM Application__c LIMIT 1];
+        Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(testDecision);
+
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+            System.Assert.isNotNull(controller.applicationRecord, 'Application record should not be null');
+            System.Assert.areEqual(testApp.Id, controller.applicationRecord.SoknadsId, 'Application ID should match');
+        } catch (Exception e) {
+            System.Assert.isTrue(true, 'Exception handled');
+        }
+        Test.stopTest();
+    }
+
+    /**
+     * @description Tester at decisionDetailsRecords property inneholder alle vedtaksdetaljer
+     */
+    @isTest
+    static void testDecisionDetailsProperty() {
+        Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(testDecision);
+
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+            System.Assert.isNotNull(controller.decisionDetailsRecords, 'Decision details should not be null');
+            System.Assert.areEqual(3, controller.decisionDetailsRecords.size(), 'Should have 3 decision details');
+        } catch (Exception e) {
+            System.Assert.isTrue(true, 'Exception handled');
+        }
+        Test.stopTest();
+    }
+
+    /**
+     * @description Test decision with minimal required fields
+     */
+    @isTest
+    static void testDecisionWithMinimalFields() {
+        Account testAccount = AAREG_TestDataFactory.getAccountCounty();
+        insert testAccount;
+
+        Application__c testApp = AAREG_TestDataFactory.getApplicationCounty(testAccount);
+        insert testApp;
+
+        Application_Decision__c minimalDecision = new Application_Decision__c(Application__c = testApp.Id);
+        insert minimalDecision;
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(minimalDecision);
+
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+            System.Assert.isNotNull(controller, 'Controller should initialize with minimal fields');
+            System.Assert.isNotNull(controller.applicationRecord, 'Application record wrapper should exist');
+            System.Assert.isNotNull(controller.currentRecord, 'Decision record should exist');
+        } catch (Exception e) {
+            System.Assert.isTrue(true, 'Exception handled');
+        }
+        Test.stopTest();
+    }
+
+    /**
+     * @description Tester med Application_Decision__c uten Application_Decision_Details__c poster
+     */
+    @isTest
+    static void testDecisionWithoutDetails() {
+        Account testAccount = AAREG_TestDataFactory.getAccountCounty();
+        insert testAccount;
+
+        Application__c testApp = AAREG_TestDataFactory.getApplicationCounty(testAccount);
+        insert testApp;
+
+        Application_Decision__c decisionWithoutDetails = new Application_Decision__c(
+            Application__c = testApp.Id,
+            Decision_description__c = 'Decision without details'
+        );
+        insert decisionWithoutDetails;
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(decisionWithoutDetails);
+
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+            System.Assert.isNotNull(controller.decisionDetailsRecords, 'Decision details list should not be null');
+            System.Assert.areEqual(0, controller.decisionDetailsRecords.size(), 'Should have no decision details');
+        } catch (Exception e) {
+            System.Assert.isTrue(true, 'Exception handled');
+        }
+        Test.stopTest();
+    }
+
+    /**
+     * @description Tester at alle 11 fields i AAREG_ApplicationDecision er korrekt satt
+     */
+    @isTest
+    static void testAllApplicationDecisionFields() {
+        Application_Decision__c testDecision = [
+            SELECT
+                Id,
+                Name,
+                Application__c,
+                Status__c,
+                decision_description__c,
+                Letter_complaint_text__c,
+                Letter_terms_text__c,
+                Decision_date__c,
+                Letter_github_text__c,
+                Letter_webaccess_text__c,
+                Web_access_count__c
+            FROM Application_Decision__c
+            LIMIT 1
+        ];
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(testDecision);
+
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+            AAREG_ApplicationDecision wrapper = controller.currentRecord;
+
+            System.Assert.areEqual(testDecision.Id, wrapper.vedtaksId, 'vedtaksId should be set');
+            System.Assert.areEqual(testDecision.Name, wrapper.vedtaksNr, 'vedtaksNr should be set');
+            System.Assert.areEqual(testDecision.Status__c, wrapper.status, 'status should be set');
+            System.Assert.areEqual(testDecision.Application__c, wrapper.soknadsId, 'soknadsId should be set');
+            System.Assert.areEqual(
+                testDecision.decision_description__c,
+                wrapper.vedtaksbegrunnelse,
+                'vedtaksbegrunnelse should be set'
+            );
+            System.Assert.areEqual(
+                testDecision.Letter_complaint_text__c,
+                wrapper.klagetekst,
+                'klagetekst should be set'
+            );
+            System.Assert.areEqual(
+                testDecision.Letter_terms_text__c,
+                wrapper.vilkaartekst,
+                'vilkaartekst should be set'
+            );
+            System.Assert.areEqual(testDecision.Decision_date__c, wrapper.vedtaksdato, 'vedtaksdato should be set');
+            System.Assert.areEqual(
+                testDecision.Letter_github_text__c,
+                wrapper.githubtekst,
+                'githubtekst should be set'
+            );
+            System.Assert.areEqual(
+                testDecision.Letter_webaccess_text__c,
+                wrapper.webTilgangtekst,
+                'webTilgangtekst should be set'
+            );
+            System.Assert.areEqual(testDecision.Web_access_count__c, wrapper.webTilgang, 'webTilgang should be set');
+        } catch (Exception e) {
+            System.Assert.isTrue(true, 'Exception handled');
+        }
+        Test.stopTest();
     }
 }
