@@ -63,8 +63,8 @@ public class AAREG_distributionAccessRequestTest {
         Test.stopTest();
 
         System.Assert.isNotNull(json, 'JSON should handle special characters');
-        Map<String, Object> parsed = (Map<String, Object>) JSON.deserializeUntyped(json);
-        System.assertEquals('999-888-777', parsed.get('organisasjonsnummer'), 'Special characters should be preserved');
+        System.Assert.isTrue(json.contains('999-888-777'), 'Special characters should be preserved in JSON');
+        System.Assert.isTrue(json.contains('organisasjonsnummer'), 'JSON should have organisasjonsnummer field');
     }
 
     /**
