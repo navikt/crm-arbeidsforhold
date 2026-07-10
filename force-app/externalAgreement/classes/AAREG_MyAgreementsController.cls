@@ -18,10 +18,26 @@ public with sharing class AAREG_MyAgreementsController {
         if (userId == null) {
             return new List<AAREG_Agreement>();
         }
+        try {
+            User usr = [
+                SELECT LastUsedOrganization__c
+                FROM User
+                WHERE Id = :userId
+                WITH USER_MODE
+                LIMIT 1
+            ];
 
-        // Return empty list if LastUsedOrganization field doesn't exist in this org
-        // (Fall back to graceful error handling for field compatibility)
-        return new List<AAREG_Agreement>();
+            if (String.isBlank(usr.LastUsedOrganization__c)) {
+                return new List<AAREG_Agreement>();
+            }
+
+            return getAgreements(usr.LastUsedOrganization__c);
+        } catch (Exception e) {
+            LoggerUtility logger = new LoggerUtility();
+            logger.error('Error loading agreements for user: ' + e.getMessage(), null);
+            logger.publish();
+            return new List<AAREG_Agreement>();
+        }
     }
 
     /**

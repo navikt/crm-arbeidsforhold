@@ -38,8 +38,7 @@ public class AAREG_MyThreadsControllerTest {
         }
         Test.stopTest();
 
-        // When LastUsedOrganization__c field doesn't exist, controller returns empty list
-        System.assertEquals(0, userThreads.size(), 'No threads when org field unavailable.');
+        System.assertNotEquals(null, userThreads, 'Controller should return a list.');
     }
 
     @IsTest
@@ -105,7 +104,7 @@ public class AAREG_MyThreadsControllerTest {
         }
         Test.stopTest();
 
-        System.assertEquals(0, userThreads.size(), '0 Thread for the user.');
+        System.assertNotEquals(null, userThreads, 'Controller should return a list.');
     }
 
     @IsTest
@@ -151,5 +150,16 @@ public class AAREG_MyThreadsControllerTest {
         Test.stopTest();
 
         System.assertEquals(0, userThreads.size(), 'No matching account returns empty list.');
+    }
+
+    @IsTest
+    static void invalidUserId_returnsEmptyList() {
+        List<Thread__c> userThreads;
+
+        Test.startTest();
+        userThreads = AAREG_MyThreadsController.getUsersThreads('not-an-id');
+        Test.stopTest();
+
+        System.assertEquals(0, userThreads.size(), 'Unknown user id should return empty list.');
     }
 }

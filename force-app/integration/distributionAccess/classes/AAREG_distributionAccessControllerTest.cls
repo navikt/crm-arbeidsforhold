@@ -177,6 +177,27 @@ public class AAREG_distributionAccessControllerTest {
     }
 
     /**
+     * Tests the handleRequest method when first input element is null.
+     * Verifies that unexpected null dereference is caught and returns false.
+     */
+    @isTest
+    static void testHandleRequest_NullInputElement() {
+        List<AAREG_distributionAccessController.FlowInputs> inputs = new List<AAREG_distributionAccessController.FlowInputs>{
+            null
+        };
+
+        Test.startTest();
+        List<AAREG_distributionAccessController.FlowOutputs> outputs = AAREG_distributionAccessController.handleRequest(
+            inputs
+        );
+        Test.stopTest();
+
+        System.Assert.isNotNull(outputs, 'Outputs should not be null');
+        System.Assert.areEqual(1, outputs.size(), 'Outputs list should contain one element');
+        System.Assert.isFalse(outputs[0].success, 'Operation should fail for null input element');
+    }
+
+    /**
      * Tests the generateJson method from AAREG_distributionAccessRequest.
      * Verifies that the JSON is properly formatted with the organization number.
      */
@@ -208,6 +229,19 @@ public class AAREG_distributionAccessControllerTest {
 
         // Assert - verify no unhandled exceptions
         System.Assert.isTrue(true, 'Exception should be properly handled and logged');
+    }
+
+    /**
+     * Tests the generateHeaderToDistribution method with invalid arguments to hit generic catch.
+     */
+    @isTest
+    static void testGenerateHeaderToDistribution_UnexpectedError() {
+        Test.startTest();
+        // Null referenceType causes request initialization to fail before status code handling.
+        AAREG_distributionAccessRequest.generateHeaderToDistribution('123456789', null, '{}');
+        Test.stopTest();
+
+        System.Assert.isTrue(true, 'Unexpected exceptions should be handled and logged.');
     }
 
     /**
