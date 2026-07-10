@@ -38,52 +38,64 @@ public with sharing class AAREG_MyApplicationsController {
    * @return The decision PDF as a String.
    */
   public static String getDecisionPDF(Id applicationId) {
-    String documentTitle ='Vedtak til søknad %';
-    try { 
-       // Query the ContentDocumentLink associated with the Application_Decision__c
-       List<ContentDocumentLink> contentDocumentLinks = [
-          SELECT ContentDocumentId
-          FROM ContentDocumentLink
-          WHERE LinkedEntityId = :applicationId
-        ];
+    String documentTitle = 'Vedtak til søknad %';
+    try {
+      // First, query Application_Decision__c records for the given application
+      List<Application_Decision__c> decisions = [
+        SELECT Id
+        FROM Application_Decision__c
+        WHERE Application__c = :applicationId
+        ORDER BY CreatedDate DESC
+        LIMIT 1
+      ];
 
-        // Collect all ContentDocumentIds from ContentDocumentLinks
-        Set<Id> contentDocumentIds = new Set<Id>();
-        for (ContentDocumentLink contentDocumentLink : contentDocumentLinks) {
-            contentDocumentIds.add(contentDocumentLink.ContentDocumentId);
-        }
+      if (decisions.isEmpty()) {
+        throw new AuraHandledException('No decision found for the given Application.');
+      }
 
-        // Query ContentVersions outside the loop
-        Map<Id, ContentVersion> contentVersionMap = new Map<Id, ContentVersion>(
-            [
-                SELECT Id, ContentDocumentId
-                FROM ContentVersion
-                WHERE ContentDocumentId IN :contentDocumentIds
-                AND Title LIKE :documentTitle
-                ORDER BY VersionNumber DESC
-            ]
-        );
+      // Query the ContentDocumentLink associated with the Application_Decision__c
+      List<ContentDocumentLink> contentDocumentLinks = [
+        SELECT ContentDocumentId
+        FROM ContentDocumentLink
+        WHERE LinkedEntityId = :decisions[0].Id
+      ];
 
-        // Find the correct ContentVersion
-        ContentVersion selectedContentVersion;
-        for (Id contentDocumentId : contentDocumentIds) {
-            if (contentVersionMap.containsKey(contentDocumentId)) {
-                selectedContentVersion = contentVersionMap.get(contentDocumentId);
-                break; // Exit the loop once the correct ContentVersion is found
-            }
-        }
+      // Collect all ContentDocumentIds from ContentDocumentLinks
+      Set<Id> contentDocumentIds = new Set<Id>();
+      for (ContentDocumentLink contentDocumentLink : contentDocumentLinks) {
+        contentDocumentIds.add(contentDocumentLink.ContentDocumentId);
+      }
 
-    // If no matching ContentVersion is found, throw an error
-    if (selectedContentVersion == null) {
-      throw new AuraHandledException('No matching file found for the given Application Decision.');
-    }
-    
-    // Return the download URL for the ContentVersion
-        return '/sfc/servlet.shepherd/document/download/' + selectedContentVersion.ContentDocumentId +'?operationContext=S1';
+      if (contentDocumentIds.isEmpty()) {
+        throw new AuraHandledException('No documents linked to the decision.');
+      }
+
+      // Query ContentVersions outside the loop
+      List<ContentVersion> contentVersions = [
+        SELECT Id, ContentDocumentId
+        FROM ContentVersion
+        WHERE ContentDocumentId IN :contentDocumentIds
+        AND Title LIKE :documentTitle
+        AND IsLatest = true
+        ORDER BY VersionNumber DESC
+        LIMIT 1
+      ];
+
+      // If no matching ContentVersion is found, throw an error
+      if (contentVersions.isEmpty()) {
+        throw new AuraHandledException('No matching file found for the given Application Decision.');
+      }
+
+      ContentVersion selectedContentVersion = contentVersions[0];
+
+      // Return the download URL for the ContentVersion
+      return '/sfc/servlet.shepherd/document/download/' + selectedContentVersion.ContentDocumentId + '?operationContext=S1';
+    } catch (AuraHandledException e) {
+      throw e;
     } catch (Exception e) {
-        throw new AuraHandledException('Error retrieving the PDF: ' + e.getMessage());
+      throw new AuraHandledException('Error retrieving the PDF: ' + e.getMessage());
     }
-}
+  }
 
   private static List<Application__c> getApplications(String lastUsedOrganization) {
     List<Application__c> applications = new List<Application__c>();
