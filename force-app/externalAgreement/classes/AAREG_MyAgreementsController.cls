@@ -205,22 +205,34 @@ public with sharing class AAREG_MyAgreementsController {
      */
     @AuraEnabled(cacheable=true)
     public static List<RelatedContact__c> getAgreementContacts(Id currentRecordId) {
-        // Query all contacts linked to this agreement with security context enforced
-        return [
-            SELECT
-                Id,
-                Name,
-                Phone__c,
-                Application__c,
-                Agreement__c,
-                ChangeNotifications__c,
-                SecurityNotifications__c,
-                ErrorMessageNotifications__c,
-                AgreementNotifications__c
-            FROM RelatedContact__c
-            WHERE Agreement__c = :currentRecordId
-            WITH USER_MODE
-        ];
+        Map<String, Schema.SObjectField> relatedContactFields =
+            RelatedContact__c.SObjectType.getDescribe().fields.getMap();
+
+        List<String> selectFields = new List<String>{
+            'Id',
+            'Name',
+            'Application__c',
+            'Agreement__c',
+            'ChangeNotifications__c',
+            'SecurityNotifications__c',
+            'ErrorMessageNotifications__c',
+            'AgreementNotifications__c'
+        };
+
+        if (relatedContactFields.containsKey('Phone__c')) {
+            selectFields.add('Phone__c');
+        }
+
+        if (relatedContactFields.containsKey('Email__c')) {
+            selectFields.add('Email__c');
+        }
+
+        String soql =
+            'SELECT ' +
+            String.join(selectFields, ', ') +
+            ' FROM RelatedContact__c WHERE Agreement__c = :currentRecordId WITH USER_MODE';
+
+        return Database.query(soql);
     }
 
     @AuraEnabled
