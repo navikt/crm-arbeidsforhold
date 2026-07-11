@@ -205,22 +205,49 @@ public with sharing class AAREG_MyAgreementsController {
      */
     @AuraEnabled(cacheable=true)
     public static List<RelatedContact__c> getAgreementContacts(Id currentRecordId) {
-        // Query all contacts linked to this agreement with security context enforced
-        return [
-            SELECT
-                Id,
-                Name,
-                Phone__c,
-                Application__c,
-                Agreement__c,
-                ChangeNotifications__c,
-                SecurityNotifications__c,
-                ErrorMessageNotifications__c,
-                AgreementNotifications__c
-            FROM RelatedContact__c
-            WHERE Agreement__c = :currentRecordId
-            WITH USER_MODE
-        ];
+        Map<String, Schema.SObjectField> relatedContactFields = RelatedContact__c.SObjectType.getDescribe()
+            .fields.getMap();
+
+        if (!relatedContactFields.containsKey('Agreement__c')) {
+            return new List<RelatedContact__c>();
+        }
+
+        List<String> selectFields = new List<String>{
+            'Id',
+            'Name'
+        };
+
+        List<String> optionalFields = new List<String>{
+            'Agreement__c',
+            'Application__c',
+            'Phone__c',
+            'Email__c',
+            'ChangeNotifications__c',
+            'SecurityNotifications__c',
+            'ErrorMessageNotifications__c',
+            'AgreementNotifications__c'
+        };
+
+        for (String fieldName : optionalFields) {
+            if (relatedContactFields.containsKey(fieldName)) {
+                selectFields.add(fieldName);
+            }
+        }
+
+        String soql =
+            'SELECT ' +
+            String.join(selectFields, ', ') +
+            ' FROM RelatedContact__c WHERE Agreement__c = :currentRecordId WITH USER_MODE';
+
+        try {
+            return Database.query(soql);
+        } catch (QueryException e) {
+            if (e.getMessage() != null && e.getMessage().contains('No such column')) {
+                return new List<RelatedContact__c>();
+            }
+
+            throw e;
+        }
     }
 
     @AuraEnabled
