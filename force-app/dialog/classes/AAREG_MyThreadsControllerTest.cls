@@ -182,7 +182,7 @@ public class AAREG_MyThreadsControllerTest {
             insert usr;
         }
 
-        usr.LastUsedOrganization__c = acct.OrganizationNumber__c;
+        usr.LastUsedOrganization__c = acct.INT_OrganizationNumber__c;
         update usr;
 
         insert new Thread__c(
