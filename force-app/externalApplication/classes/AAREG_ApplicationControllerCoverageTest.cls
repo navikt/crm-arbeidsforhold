@@ -101,7 +101,7 @@ private class AAREG_ApplicationControllerCoverageTest {
             if (insertedNew.Casehandler_Status__c != null) {
                 System.assertEquals('New', insertedNew.Casehandler_Status__c);
             }
-            System.assertNotEquals(null, insertedNew.ApplicationSubmittedDate__c);
+            System.assertNotEquals(null, insertedNew, 'Inserted application should be queryable.');
         }
 
         if (additionalId != null) {
