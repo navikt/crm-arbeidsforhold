@@ -114,13 +114,13 @@ private class AAREG_ApplicationControllerCoverageTest {
             if (updatedAdditional.Status__c != null) {
                 System.assert(
                     updatedAdditional.Status__c == 'In Progress' ||
-                    updatedAdditional.Status__c == 'Additional Information Required'
+                        updatedAdditional.Status__c == 'Additional Information Required'
                 );
             }
             if (updatedAdditional.Casehandler_Status__c != null) {
                 System.assert(
                     updatedAdditional.Casehandler_Status__c == 'In Progress' ||
-                    updatedAdditional.Casehandler_Status__c == 'Additional Information Required'
+                        updatedAdditional.Casehandler_Status__c == 'Additional Information Required'
                 );
             }
             if (updatedAdditional.AA_ApplicationArchived__c != null) {
