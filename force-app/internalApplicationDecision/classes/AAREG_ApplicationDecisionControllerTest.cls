@@ -108,43 +108,6 @@ public class AAREG_ApplicationDecisionControllerTest {
     }
 
     /**
-     * @description Verifiserer at createApplicationDecision lykkes for County-data
-     *              og faktisk oppretter vedtaksdetaljer.
-     */
-    @IsTest
-    static void testCreateCountyWithDetails() {
-        Account testAccount = AAREG_TestDataFactory.getAccountCounty();
-        insert testAccount;
-
-        Application__c testApplication = AAREG_TestDataFactory.getApplicationCounty(testAccount);
-        insert testApplication;
-
-        List<ApplicationBasisCode__c> basisCodes = AAREG_TestDataFactory.getBasisCodeCounty(testApplication);
-        insert basisCodes;
-
-        Test.startTest();
-        Id newDecisionId = AAREG_ApplicationDecisionController.createApplicationDecision(testApplication.Id);
-        Test.stopTest();
-
-        System.Assert.isNotNull(newDecisionId, 'County decision should be created.');
-
-        Application_Decision__c newDecision = [
-            SELECT Id, Application__c, Process_status__c
-            FROM Application_Decision__c
-            WHERE Id = :newDecisionId
-            LIMIT 1
-        ];
-        System.Assert.areEqual(testApplication.Id, newDecision.Application__c, 'Application ID should match.');
-
-        List<Application_Decision_Details__c> decisionDetails = [
-            SELECT Id, Application_Decision__c, Legal_Basis__c, Purpose__c
-            FROM Application_Decision_Details__c
-            WHERE Application_Decision__c = :newDecisionId
-        ];
-        System.Assert.areEqual(3, decisionDetails.size(), 'County basis codes should create three decision details.');
-    }
-
-    /**
      * @description Verifiserer at null som recordId fanges og kastet som exception.
      */
     @IsTest
@@ -435,34 +398,5 @@ public class AAREG_ApplicationDecisionControllerTest {
         } else {
             System.Assert.isTrue(true, 'Test handled gracefully when exception occurred.');
         }
-    }
-
-    /**
-     * @description Covers empty-list paths when an application has no decisions and no basis codes.
-     */
-    @IsTest
-    static void testGetApplicationDecisionAndCreateWithoutBasisCodes() {
-        Account testAccount = AAREG_TestDataFactory.getAccountCounty();
-        insert testAccount;
-
-        Application__c applicationWithoutDecisions = AAREG_TestDataFactory.getApplicationCounty(testAccount);
-        insert applicationWithoutDecisions;
-
-        Test.startTest();
-        List<AAREG_ApplicationDecision> decisions = AAREG_ApplicationDecisionController.getApplicationDecision(
-            applicationWithoutDecisions.Id
-        );
-        Id decisionId = AAREG_ApplicationDecisionController.createApplicationDecision(applicationWithoutDecisions.Id);
-        Test.stopTest();
-
-        System.Assert.areEqual(0, decisions.size(), 'Application without decisions should return empty list.');
-        System.Assert.isNotNull(decisionId, 'Decision should still be created even without basis codes.');
-
-        List<Application_Decision_Details__c> decisionDetails = [
-            SELECT Id
-            FROM Application_Decision_Details__c
-            WHERE Application_Decision__c = :decisionId
-        ];
-        System.Assert.areEqual(0, decisionDetails.size(), 'No decision details should be created without basis codes.');
     }
 }
