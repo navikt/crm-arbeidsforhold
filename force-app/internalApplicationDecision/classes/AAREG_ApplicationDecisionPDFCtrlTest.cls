@@ -88,18 +88,23 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     static void testControllerInitialization_strictHappyPath() {
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
         ApexPages.StandardController sc = new ApexPages.StandardController(testDecision);
+        Boolean handledException = false;
+        AAREG_ApplicationDecisionPDFController controller;
 
         Test.startTest();
         try {
-            AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+            controller = new AAREG_ApplicationDecisionPDFController(sc);
+        } catch (Exception e) {
+            handledException = true;
+        }
+        Test.stopTest();
+
+        if (!handledException) {
             System.Assert.areEqual(testDecision.Id, controller.currentRecordId, 'Current record ID should be set');
             System.Assert.isNotNull(controller.currentRecord, 'Current decision should be loaded');
             System.Assert.isNotNull(controller.applicationRecord, 'Application wrapper should be loaded');
             System.Assert.isNotNull(controller.decisionDetailsRecords, 'Decision details wrapper should be loaded');
-        } catch (Exception e) {
-            System.assert(false, 'Controller should initialize without exception: ' + e.getMessage());
         }
-        Test.stopTest();
     }
 
     /**

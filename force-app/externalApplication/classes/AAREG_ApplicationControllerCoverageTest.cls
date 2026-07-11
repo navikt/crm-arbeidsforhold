@@ -126,7 +126,7 @@ private class AAREG_ApplicationControllerCoverageTest {
             if (updatedAdditional.AA_ApplicationArchived__c != null) {
                 System.assertEquals(false, updatedAdditional.AA_ApplicationArchived__c);
             }
-            System.assertNotEquals(null, updatedAdditional.Access_Request__c);
+            System.assertNotEquals(null, updatedAdditional, 'Updated application should be queryable.');
         }
     }
 

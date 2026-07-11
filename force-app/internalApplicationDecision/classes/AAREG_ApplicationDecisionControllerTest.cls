@@ -399,4 +399,33 @@ public class AAREG_ApplicationDecisionControllerTest {
             System.Assert.isTrue(true, 'Test handled gracefully when exception occurred.');
         }
     }
+
+    /**
+     * @description Covers empty-list paths when an application has no decisions and no basis codes.
+     */
+    @IsTest
+    static void testGetApplicationDecisionAndCreateWithoutBasisCodes() {
+        Account testAccount = AAREG_TestDataFactory.getAccountCounty();
+        insert testAccount;
+
+        Application__c applicationWithoutDecisions = AAREG_TestDataFactory.getApplicationCounty(testAccount);
+        insert applicationWithoutDecisions;
+
+        Test.startTest();
+        List<AAREG_ApplicationDecision> decisions = AAREG_ApplicationDecisionController.getApplicationDecision(
+            applicationWithoutDecisions.Id
+        );
+        Id decisionId = AAREG_ApplicationDecisionController.createApplicationDecision(applicationWithoutDecisions.Id);
+        Test.stopTest();
+
+        System.Assert.areEqual(0, decisions.size(), 'Application without decisions should return empty list.');
+        System.Assert.isNotNull(decisionId, 'Decision should still be created even without basis codes.');
+
+        List<Application_Decision_Details__c> decisionDetails = [
+            SELECT Id
+            FROM Application_Decision_Details__c
+            WHERE Application_Decision__c = :decisionId
+        ];
+        System.Assert.areEqual(0, decisionDetails.size(), 'No decision details should be created without basis codes.');
+    }
 }
