@@ -17,6 +17,8 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         // Create test Application
         Application__c testApplication = AAREG_TestDataFactory.getApplicationCounty(testAccount);
         insert testApplication;
+        testApplication.CasehandlerOwner__c = UserInfo.getUserId();
+        update testApplication;
 
         // Create test Application Decision
         Application_Decision__c testDecision = new Application_Decision__c(
@@ -75,6 +77,27 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
             System.Assert.isNotNull(controller.decisionDetailsRecords, 'Decision details should be loaded');
         } catch (Exception e) {
             System.Assert.isTrue(true, 'Test handled gracefully when exception occurred.');
+        }
+        Test.stopTest();
+    }
+
+    /**
+     * @description Strict happy-path test to ensure constructor executes all data-loading paths.
+     */
+    @isTest
+    static void testControllerInitialization_strictHappyPath() {
+        Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
+        ApexPages.StandardController sc = new ApexPages.StandardController(testDecision);
+
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+            System.Assert.areEqual(testDecision.Id, controller.currentRecordId, 'Current record ID should be set');
+            System.Assert.isNotNull(controller.currentRecord, 'Current decision should be loaded');
+            System.Assert.isNotNull(controller.applicationRecord, 'Application wrapper should be loaded');
+            System.Assert.isNotNull(controller.decisionDetailsRecords, 'Decision details wrapper should be loaded');
+        } catch (Exception e) {
+            System.assert(false, 'Controller should initialize without exception: ' + e.getMessage());
         }
         Test.stopTest();
     }
