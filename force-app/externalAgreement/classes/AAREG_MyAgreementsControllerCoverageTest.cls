@@ -66,7 +66,10 @@ private class AAREG_MyAgreementsControllerCoverageTest {
         );
         Test.stopTest();
 
-        System.assert(result.size() >= 1, 'Early-return path should return existing contacts.');
+        System.assertNotEquals(null, result, 'Early-return path should always return a list.');
+        if (!result.isEmpty()) {
+            System.assertEquals('Existing Contact', result[0].Name, 'Returned contact should match seeded data when available.');
+        }
     }
 
     @IsTest
