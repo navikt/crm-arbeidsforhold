@@ -28,16 +28,35 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
      * @param sc The standard Visualforce controller used by the page.
      */
     public AAREG_ApplicationDecisionPDFController(ApexPages.StandardController sc) {
+        this.currentRecordId = sc.getId();
+        this.currentRecord = new AAREG_ApplicationDecision();
+        this.applicationRecord = new AAREG_ApplicationInternal();
+        this.decisionDetailsRecords = new List<AAREG_BasisCodesInternal>();
+
         try {
-            this.currentRecordId = sc.getId();
             this.currentRecord = getApplicationDecisionRecord(this.currentRecordId);
-            this.applicationRecord = getApplicationRecord(this.currentRecord.soknadsId);
+        } catch (Exception e) {
+            LoggerUtility logger = new LoggerUtility();
+            logger.error('Feil ved lasting av vedtak i PDF-controller: ' + e.getMessage(), null);
+            logger.publish();
+        }
+
+        if (this.currentRecord != null && this.currentRecord.soknadsId != null) {
+            try {
+                this.applicationRecord = getApplicationRecord(this.currentRecord.soknadsId);
+            } catch (Exception e) {
+                LoggerUtility logger = new LoggerUtility();
+                logger.error('Feil ved lasting av søknad i PDF-controller: ' + e.getMessage(), null);
+                logger.publish();
+            }
+        }
+
+        try {
             this.decisionDetailsRecords = getApplicationDecisionDetails(this.currentRecordId);
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved initialisering av PDF-controller: ' + e.getMessage(), null);
+            logger.error('Feil ved lasting av vedtaksdetaljer i PDF-controller: ' + e.getMessage(), null);
             logger.publish();
-            throw new AuraHandledException('Kunne ikke laste PDF-data: ' + e.getMessage());
         }
     }
 

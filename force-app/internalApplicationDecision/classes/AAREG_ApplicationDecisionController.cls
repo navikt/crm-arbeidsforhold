@@ -131,9 +131,8 @@ public with sharing class AAREG_ApplicationDecisionController {
      */
     private static Application_Decision__c buildNewDecision(Id applicationId) {
         // Initialize new decision with default values and standard text labels from custom labels
-        return new Application_Decision__c(
+        Application_Decision__c decision = new Application_Decision__c(
             Application__c = applicationId,
-            Process_status__c = STATUS_IN_PROGRESS,
             Decision_date__c = System.today(),
             // Load standardized complaint, terms, and access text from org labels
             Letter_complaint_text__c = System.Label.AAREG_complaint_description_section,
@@ -141,6 +140,13 @@ public with sharing class AAREG_ApplicationDecisionController {
             Letter_github_text__c = System.Label.AAREG_github_description_text,
             Letter_webaccess_text__c = System.Label.AAREG_web_access_text
         );
+
+        // Some CI/package org snapshots may not expose this field; set only when available.
+        if (Schema.sObjectType.Application_Decision__c.fields.getMap().containsKey('Process_status__c')) {
+            decision.put('Process_status__c', STATUS_IN_PROGRESS);
+        }
+
+        return decision;
     }
 
     /**

@@ -45,6 +45,31 @@ private class AAREG_MyAgreementsControllerCoverageTest {
     }
 
     @IsTest
+    static void getUsersAgreements_handles_malformed_id() {
+        Test.startTest();
+        List<AAREG_Agreement> agreements = AAREG_MyAgreementsController.getUsersAgreements('not-an-id');
+        Test.stopTest();
+
+        System.assertNotEquals(null, agreements);
+        System.assertEquals(0, agreements.size(), 'Malformed user id should be handled and return empty list.');
+    }
+
+    @IsTest
+    static void saveAgreementContacts_empty_input_returns_existing_contacts() {
+        Agreement__c agreement = [SELECT Id FROM Agreement__c WHERE Status__c = 'Active' LIMIT 1];
+        insert new RelatedContact__c(Name = 'Existing Contact', Agreement__c = agreement.Id);
+
+        Test.startTest();
+        List<RelatedContact__c> result = AAREG_MyAgreementsController.saveAgreementContacts(
+            agreement.Id,
+            new List<RelatedContact__c>()
+        );
+        Test.stopTest();
+
+        System.assert(result.size() >= 1, 'Early-return path should return existing contacts.');
+    }
+
+    @IsTest
     static void contact_operations_cover_main_paths() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c WHERE Status__c = 'Active' LIMIT 1];
         Application__c app = [SELECT Id FROM Application__c LIMIT 1];
