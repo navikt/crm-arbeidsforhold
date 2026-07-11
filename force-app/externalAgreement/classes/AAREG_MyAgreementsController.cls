@@ -205,26 +205,33 @@ public with sharing class AAREG_MyAgreementsController {
      */
     @AuraEnabled(cacheable=true)
     public static List<RelatedContact__c> getAgreementContacts(Id currentRecordId) {
-        Map<String, Schema.SObjectField> relatedContactFields =
-            RelatedContact__c.SObjectType.getDescribe().fields.getMap();
+        Map<String, Schema.SObjectField> relatedContactFields = RelatedContact__c.SObjectType.getDescribe()
+            .fields.getMap();
+
+        if (!relatedContactFields.containsKey('Agreement__c')) {
+            return new List<RelatedContact__c>();
+        }
 
         List<String> selectFields = new List<String>{
             'Id',
-            'Name',
-            'Application__c',
+            'Name'
+        };
+
+        List<String> optionalFields = new List<String>{
             'Agreement__c',
+            'Application__c',
+            'Phone__c',
+            'Email__c',
             'ChangeNotifications__c',
             'SecurityNotifications__c',
             'ErrorMessageNotifications__c',
             'AgreementNotifications__c'
         };
 
-        if (relatedContactFields.containsKey('Phone__c')) {
-            selectFields.add('Phone__c');
-        }
-
-        if (relatedContactFields.containsKey('Email__c')) {
-            selectFields.add('Email__c');
+        for (String fieldName : optionalFields) {
+            if (relatedContactFields.containsKey(fieldName)) {
+                selectFields.add(fieldName);
+            }
         }
 
         String soql =
