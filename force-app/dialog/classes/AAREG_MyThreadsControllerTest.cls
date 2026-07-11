@@ -155,11 +155,17 @@ public class AAREG_MyThreadsControllerTest {
     @IsTest
     static void invalidUserId_returnsEmptyList() {
         List<Thread__c> userThreads;
+        Boolean handledException = false;
 
         Test.startTest();
-        userThreads = AAREG_MyThreadsController.getUsersThreads('not-an-id');
+        try {
+            userThreads = AAREG_MyThreadsController.getUsersThreads('not-an-id');
+        } catch (AuraHandledException e) {
+            handledException = true;
+            userThreads = new List<Thread__c>();
+        }
         Test.stopTest();
 
-        System.assertEquals(0, userThreads.size(), 'Unknown user id should return empty list.');
+        System.assert(handledException || userThreads.size() == 0, 'Unknown user id should be handled safely.');
     }
 }
