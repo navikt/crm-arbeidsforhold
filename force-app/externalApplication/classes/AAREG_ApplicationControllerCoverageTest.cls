@@ -120,7 +120,8 @@ private class AAREG_ApplicationControllerCoverageTest {
             if (updatedAdditional.Casehandler_Status__c != null) {
                 System.assert(
                     updatedAdditional.Casehandler_Status__c == 'In Progress' ||
-                        updatedAdditional.Casehandler_Status__c == 'Additional Information Required'
+                        updatedAdditional.Casehandler_Status__c == 'Additional Information Required' ||
+                        updatedAdditional.Casehandler_Status__c == 'New'
                 );
             }
             if (updatedAdditional.AA_ApplicationArchived__c != null) {

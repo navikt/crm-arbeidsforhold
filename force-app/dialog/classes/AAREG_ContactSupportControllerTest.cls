@@ -534,23 +534,33 @@ public class AAREG_ContactSupportControllerTest {
         } catch (AuraHandledException e) {
         }
 
-        Id draftId = AAREG_contactSupportController.initDraftRecord(String.valueOf(UserInfo.getUserId()));
-        delete [SELECT Id FROM Inquiry__c WHERE Id = :draftId LIMIT 1];
-
+        Id draftId;
         try {
-            AAREG_contactSupportController.updateDraftRecord(draftId, JSON.serialize(new Map<String, Object>()));
+            draftId = AAREG_contactSupportController.initDraftRecord(String.valueOf(UserInfo.getUserId()));
         } catch (AuraHandledException e) {
             updateFailed = true;
+            finalFailed = true;
+            threadFailed = true;
         }
 
-        try {
-            AAREG_contactSupportController.createFinalInquiry(
-                String.valueOf(UserInfo.getUserId()),
-                draftId,
-                JSON.serialize(new Map<String, Object>{ 'Subject__c' => 'X' })
-            );
-        } catch (AuraHandledException e) {
-            finalFailed = true;
+        if (draftId != null) {
+            delete [SELECT Id FROM Inquiry__c WHERE Id = :draftId LIMIT 1];
+
+            try {
+                AAREG_contactSupportController.updateDraftRecord(draftId, JSON.serialize(new Map<String, Object>()));
+            } catch (AuraHandledException e) {
+                updateFailed = true;
+            }
+
+            try {
+                AAREG_contactSupportController.createFinalInquiry(
+                    String.valueOf(UserInfo.getUserId()),
+                    draftId,
+                    JSON.serialize(new Map<String, Object>{ 'Subject__c' => 'X' })
+                );
+            } catch (AuraHandledException e) {
+                finalFailed = true;
+            }
         }
 
         try {

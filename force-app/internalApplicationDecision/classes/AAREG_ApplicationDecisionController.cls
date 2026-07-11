@@ -26,6 +26,9 @@ public with sharing class AAREG_ApplicationDecisionController {
     @AuraEnabled(cacheable=true)
     public static List<AAREG_ApplicationDecision> getApplicationDecision(Id recordId) {
         List<AAREG_ApplicationDecision> decisionWrappers = new List<AAREG_ApplicationDecision>();
+        Boolean hasProcessStatusField = Schema.sObjectType.Application_Decision__c.fields.getMap().containsKey(
+            'Process_status__c'
+        );
 
         // Check if current user has read access to Application_Decision__c (FLS - Field Level Security)
         Schema.DescribeSObjectResult describe = getSObjectDescribe(Application_Decision__c.sObjectType);
@@ -37,20 +40,23 @@ public with sharing class AAREG_ApplicationDecisionController {
         }
 
         // Query all decisions for the application with security context enforced (WITH USER_MODE)
-        List<Application_Decision__c> decisions = [
-            SELECT Id, Name, Application__c, Process_status__c
-            FROM Application_Decision__c
-            WHERE Application__c = :recordId
-            WITH USER_MODE
-        ];
+        String query = 'SELECT Id, Name, Application__c';
+        if (hasProcessStatusField) {
+            query += ', Process_status__c';
+        }
+        query += ' FROM Application_Decision__c WHERE Application__c = :recordId WITH USER_MODE';
+
+        List<SObject> decisions = Database.query(query);
 
         // Map database records to wrapper objects for LWC consumption
-        for (Application_Decision__c app : decisions) {
+        for (SObject appRecord : decisions) {
             AAREG_ApplicationDecision wrapper = new AAREG_ApplicationDecision();
-            wrapper.vedtaksId = app.Id;
-            wrapper.vedtaksNr = app.Name;
-            wrapper.soknadsId = app.Application__c;
-            wrapper.statusProsess = app.Process_status__c;
+            wrapper.vedtaksId = (Id) appRecord.get('Id');
+            wrapper.vedtaksNr = (String) appRecord.get('Name');
+            wrapper.soknadsId = (Id) appRecord.get('Application__c');
+            if (hasProcessStatusField) {
+                wrapper.statusProsess = (String) appRecord.get('Process_status__c');
+            }
             decisionWrappers.add(wrapper);
         }
 

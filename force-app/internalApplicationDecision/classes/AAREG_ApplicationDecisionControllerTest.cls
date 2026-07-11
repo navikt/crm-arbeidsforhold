@@ -108,6 +108,43 @@ public class AAREG_ApplicationDecisionControllerTest {
     }
 
     /**
+     * @description Verifiserer at createApplicationDecision lykkes for County-data
+     *              og faktisk oppretter vedtaksdetaljer.
+     */
+    @IsTest
+    static void testCreateCountyWithDetails() {
+        Account testAccount = AAREG_TestDataFactory.getAccountCounty();
+        insert testAccount;
+
+        Application__c testApplication = AAREG_TestDataFactory.getApplicationCounty(testAccount);
+        insert testApplication;
+
+        List<ApplicationBasisCode__c> basisCodes = AAREG_TestDataFactory.getBasisCodeCounty(testApplication);
+        insert basisCodes;
+
+        Test.startTest();
+        Id newDecisionId = AAREG_ApplicationDecisionController.createApplicationDecision(testApplication.Id);
+        Test.stopTest();
+
+        System.Assert.isNotNull(newDecisionId, 'County decision should be created.');
+
+        Application_Decision__c newDecision = [
+            SELECT Id, Application__c, Process_status__c
+            FROM Application_Decision__c
+            WHERE Id = :newDecisionId
+            LIMIT 1
+        ];
+        System.Assert.areEqual(testApplication.Id, newDecision.Application__c, 'Application ID should match.');
+
+        List<Application_Decision_Details__c> decisionDetails = [
+            SELECT Id, Application_Decision__c, Legal_Basis__c, Purpose__c
+            FROM Application_Decision_Details__c
+            WHERE Application_Decision__c = :newDecisionId
+        ];
+        System.Assert.areEqual(3, decisionDetails.size(), 'County basis codes should create three decision details.');
+    }
+
+    /**
      * @description Verifiserer at null som recordId fanges og kastet som exception.
      */
     @IsTest
