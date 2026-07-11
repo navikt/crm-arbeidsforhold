@@ -168,4 +168,35 @@ public class AAREG_MyThreadsControllerTest {
 
         System.assert(handledException || userThreads.size() == 0, 'Unknown user id should be handled safely.');
     }
+
+    @IsTest
+    static void happyPath_returns_threads_for_last_used_org() {
+        Account acct = AAREG_TestDataFactory.getAccountCounty();
+        insert acct;
+
+        User usr;
+        User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
+        System.runAs(thisUser) {
+            usr = AAREG_TestDataFactory.getStandardUser();
+            usr.Username = 'threads.happy.' + System.currentTimeMillis() + '@aareg.test.invalid';
+            insert usr;
+        }
+
+        usr.LastUsedOrganization__c = acct.OrganizationNumber__c;
+        update usr;
+
+        insert new Thread__c(
+            Name = 'Happy Thread',
+            CRM_FROM__c = usr.Id,
+            CRM_Account__c = acct.Id,
+            CRM_isActive__c = true
+        );
+
+        Test.startTest();
+        List<Thread__c> userThreads = AAREG_MyThreadsController.getUsersThreads(String.valueOf(usr.Id));
+        Test.stopTest();
+
+        System.assertNotEquals(null, userThreads, 'Controller should return a list in happy path.');
+        System.assert(userThreads.size() > 0, 'Expected at least one thread for user organization.');
+    }
 }

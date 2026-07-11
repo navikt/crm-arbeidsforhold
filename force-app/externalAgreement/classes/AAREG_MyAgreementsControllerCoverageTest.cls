@@ -171,4 +171,51 @@ private class AAREG_MyAgreementsControllerCoverageTest {
             System.assertEquals('Deactivated', updated.Status__c);
         }
     }
+
+    @IsTest
+    static void validation_paths_throw_handled_exceptions() {
+        Boolean saveThrows = false;
+        Boolean addThrows = false;
+        Boolean removeThrows = false;
+        Boolean deleteThrows = false;
+        Boolean endThrows = false;
+
+        Test.startTest();
+        try {
+            AAREG_MyAgreementsController.saveAgreementContacts(null, new List<RelatedContact__c>());
+        } catch (AuraHandledException e) {
+            saveThrows = true;
+        }
+
+        try {
+            AAREG_MyAgreementsController.addContactToAgreement(null, null, null, null, null, null, null, null);
+        } catch (AuraHandledException e) {
+            addThrows = true;
+        }
+
+        try {
+            AAREG_MyAgreementsController.removeContactFromAgreement(null, null);
+        } catch (AuraHandledException e) {
+            removeThrows = true;
+        }
+
+        try {
+            AAREG_MyAgreementsController.deleteAgreementContact(null);
+        } catch (AuraHandledException e) {
+            deleteThrows = true;
+        }
+
+        try {
+            AAREG_MyAgreementsController.endAgreement(null);
+        } catch (AuraHandledException e) {
+            endThrows = true;
+        }
+        Test.stopTest();
+
+        System.assert(saveThrows, 'saveAgreementContacts should validate null agreement id.');
+        System.assert(addThrows, 'addContactToAgreement should validate required params.');
+        System.assert(removeThrows, 'removeContactFromAgreement should validate contact id.');
+        System.assert(deleteThrows, 'deleteAgreementContact should validate contact id.');
+        System.assert(endThrows, 'endAgreement should validate agreement id.');
+    }
 }
