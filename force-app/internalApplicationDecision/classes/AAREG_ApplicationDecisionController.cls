@@ -26,9 +26,8 @@ public with sharing class AAREG_ApplicationDecisionController {
     @AuraEnabled(cacheable=true)
     public static List<AAREG_ApplicationDecision> getApplicationDecision(Id recordId) {
         List<AAREG_ApplicationDecision> decisionWrappers = new List<AAREG_ApplicationDecision>();
-        Boolean hasProcessStatusField = Schema.sObjectType.Application_Decision__c.fields.getMap().containsKey(
-            'Process_status__c'
-        );
+        Boolean hasProcessStatusField = Schema.sObjectType.Application_Decision__c.fields.getMap()
+            .containsKey('Process_status__c');
 
         // Check if current user has read access to Application_Decision__c (FLS - Field Level Security)
         Schema.DescribeSObjectResult describe = getSObjectDescribe(Application_Decision__c.sObjectType);
