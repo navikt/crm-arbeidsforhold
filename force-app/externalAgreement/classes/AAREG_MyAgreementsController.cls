@@ -239,7 +239,15 @@ public with sharing class AAREG_MyAgreementsController {
             String.join(selectFields, ', ') +
             ' FROM RelatedContact__c WHERE Agreement__c = :currentRecordId WITH USER_MODE';
 
-        return Database.query(soql);
+        try {
+            return Database.query(soql);
+        } catch (QueryException e) {
+            if (e.getMessage() != null && e.getMessage().contains('No such column')) {
+                return new List<RelatedContact__c>();
+            }
+
+            throw e;
+        }
     }
 
     @AuraEnabled
