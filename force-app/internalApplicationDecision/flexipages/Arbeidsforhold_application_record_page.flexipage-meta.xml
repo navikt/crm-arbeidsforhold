@@ -91,6 +91,20 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>message</name>
+                    <value>Husk å endre status i banen til &quot;Venter på svar&quot; for å trigge en epostutsendelse.</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>type</name>
+                    <value>Info</value>
+                </componentInstanceProperties>
+                <componentName>crmAlertBanner</componentName>
+                <identifier>c_crmAlertBanner2</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
                     <name>showClose</name>
                     <value>false</value>
                 </componentInstanceProperties>
@@ -134,7 +148,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.DecisionDate__c</fieldItem>
                 <identifier>RecordDecisionDate_cField</identifier>
@@ -168,7 +182,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Casehandler_Status__c</fieldItem>
                 <identifier>RecordCasehandler_Status_cField</identifier>
@@ -178,7 +192,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Status__c</fieldItem>
                 <identifier>RecordStatus_cField</identifier>
@@ -297,9 +311,8 @@
                 <identifier>c_crmAlertBanner</identifier>
                 <visibilityRule>
                     <criteria>
-                        <leftValue>{!Record.Status__c}</leftValue>
+                        <leftValue>{!Record.applicationOwner__c}</leftValue>
                         <operator>EQUAL</operator>
-                        <rightValue>New</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>
@@ -309,7 +322,7 @@
                 <componentName>aareg_applicationInternalDecision</componentName>
                 <identifier>c_aareg_applicationInternalDecision</identifier>
                 <visibilityRule>
-                    <booleanFilter>1 OR 2 OR 3 OR 4</booleanFilter>
+                    <booleanFilter>1 OR 2 OR 3 OR 4 OR 5</booleanFilter>
                     <criteria>
                         <leftValue>{!Record.Status__c}</leftValue>
                         <operator>EQUAL</operator>
@@ -329,6 +342,11 @@
                         <leftValue>{!Record.Status__c}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>Declined</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.Status__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Additional Information Required</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>
@@ -512,7 +530,7 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>parentFieldApiName</name>
-                    <value>Application__c.Access_Request__c</value>
+                    <value>Application__c.Id</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListApiName</name>
