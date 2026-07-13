@@ -15,6 +15,22 @@
             </value>
         </assignmentItems>
         <connector>
+            <targetReference>Is_in_progress</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_status_under_behandling</name>
+        <label>Set status - under behandling</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>In Progress</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
             <targetReference>AAREG_updateStatus</targetReference>
         </connector>
     </assignments>
@@ -24,7 +40,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>createTaskChangeStatus</targetReference>
+            <targetReference>Is_in_progress</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Standardutfall</defaultConnectorLabel>
         <rules>
@@ -44,7 +60,32 @@
             <label>isWaiting</label>
         </rules>
     </decisions>
-    <description>Arbeidsforhold - Legger til en aktivitet på record ved hver status endring.</description>
+    <decisions>
+        <name>Is_in_progress</name>
+        <label>Is in progress</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>AAREG_updateStatus</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>isInProgress</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Casehandler_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>In Progress</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_status_under_behandling</targetReference>
+            </connector>
+            <label>isInProgress</label>
+        </rules>
+    </decisions>
+    <description>Arbeidsforhold søknad - Legger til en aktivitet på record ved hver status endring.</description>
     <environments>Default</environments>
     <formulas>
         <name>var_PriorStatus</name>
