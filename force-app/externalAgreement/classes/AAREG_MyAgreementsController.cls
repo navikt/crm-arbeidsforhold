@@ -23,7 +23,6 @@ public with sharing class AAREG_MyAgreementsController {
                 SELECT LastUsedOrganization__c
                 FROM User
                 WHERE Id = :userId
-                WITH USER_MODE
                 LIMIT 1
             ];
 
@@ -54,7 +53,6 @@ public with sharing class AAREG_MyAgreementsController {
             SELECT Id, CreatedDate, Name, Status__c, Application__c
             FROM Agreement__c
             WHERE OrganizationNumber__c = :lastUsedOrganization
-            WITH USER_MODE
         ];
 
         // Map database records to wrapper objects for LWC consumption
@@ -125,7 +123,6 @@ public with sharing class AAREG_MyAgreementsController {
                 SELECT Id, Application__c
                 FROM RelatedContact__c
                 WHERE Id = :contactId
-                WITH USER_MODE
                 LIMIT 1
             ];
 
@@ -176,7 +173,6 @@ public with sharing class AAREG_MyAgreementsController {
                 SELECT Id, Status__c
                 FROM Agreement__c
                 WHERE Id = :agreementId
-                WITH USER_MODE
                 LIMIT 1
             ];
 
@@ -212,10 +208,7 @@ public with sharing class AAREG_MyAgreementsController {
             return new List<RelatedContact__c>();
         }
 
-        List<String> selectFields = new List<String>{
-            'Id',
-            'Name'
-        };
+        List<String> selectFields = new List<String>{ 'Id', 'Name' };
 
         List<String> optionalFields = new List<String>{
             'Agreement__c',
@@ -237,7 +230,7 @@ public with sharing class AAREG_MyAgreementsController {
         String soql =
             'SELECT ' +
             String.join(selectFields, ', ') +
-            ' FROM RelatedContact__c WHERE Agreement__c = :currentRecordId WITH USER_MODE';
+            ' FROM RelatedContact__c WHERE Agreement__c = :currentRecordId';
 
         try {
             return Database.query(soql);
@@ -341,6 +334,73 @@ public with sharing class AAREG_MyAgreementsController {
             logger.error('Unexpected error removing contact from agreement: ' + e.getMessage(), null);
             logger.publish();
             throw new AuraHandledException('Uventet feil ved fjerning av kontakt.');
+        }
+    }
+
+    @AuraEnabled
+    /**
+     * Retrieves the decision PDF for the specified agreement.
+     *
+     * @param agreementId The ID of the agreement for which the decision PDF is to be retrieved.
+     * @return The decision PDF as a String.
+     */
+    public static String getDecisionPDF(Id agreementId) {
+        String documentTitle = 'Vedtak til søknad %';
+        try {
+            // First, query Application_Decision__c records for the given agreement
+            List<Application_Decision__c> decisions = [
+                SELECT Id
+                FROM Application_Decision__c
+                WHERE Agreement__c = :agreementId
+                ORDER BY CreatedDate DESC
+                LIMIT 1
+            ];
+
+            if (decisions.isEmpty()) {
+                throw new AuraHandledException('No decision found for the given Agreement.');
+            }
+
+            // Query the ContentDocumentLink associated with the Application_Decision__c
+            List<ContentDocumentLink> contentDocumentLinks = [
+                SELECT ContentDocumentId
+                FROM ContentDocumentLink
+                WHERE LinkedEntityId = :decisions[0].Id
+            ];
+
+            // Collect all ContentDocumentIds from ContentDocumentLinks
+            Set<Id> contentDocumentIds = new Set<Id>();
+            for (ContentDocumentLink contentDocumentLink : contentDocumentLinks) {
+                contentDocumentIds.add(contentDocumentLink.ContentDocumentId);
+            }
+
+            if (contentDocumentIds.isEmpty()) {
+                throw new AuraHandledException('No documents linked to the decision.');
+            }
+
+            // Query ContentVersions outside the loop
+            List<ContentVersion> contentVersions = [
+                SELECT Id, ContentDocumentId
+                FROM ContentVersion
+                WHERE ContentDocumentId IN :contentDocumentIds AND Title LIKE :documentTitle AND IsLatest = TRUE
+                ORDER BY VersionNumber DESC
+                LIMIT 1
+            ];
+
+            // If no matching ContentVersion is found, throw an error
+            if (contentVersions.isEmpty()) {
+                throw new AuraHandledException('No matching file found for the given Application Decision.');
+            }
+
+            ContentVersion selectedContentVersion = contentVersions[0];
+
+            // Return the download URL for the ContentVersion
+            return '/sfc/servlet.shepherd/document/download/' +
+                selectedContentVersion.ContentDocumentId +
+                '?operationContext=S1';
+        } catch (AuraHandledException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AuraHandledException('Error retrieving the PDF: ' + e.getMessage());
         }
     }
 
