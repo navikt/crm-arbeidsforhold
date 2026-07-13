@@ -85,7 +85,11 @@ private class AAREG_ApplicationControllerTest {
         List<Application__c> result = [SELECT Id, Status__c FROM Application__c WHERE Id = :appId];
 
         System.Assert.areEqual(1, result.size(), 'Application should be upserted');
-        System.Assert.areEqual('In Progress', result[0].Status__c, 'Status should be In Progress');
+        System.Assert.areEqual(
+            'New',
+            result[0].Status__c,
+            'Status should be New after processing Additional Information Required application'
+        );
     }
 
     @IsTest
