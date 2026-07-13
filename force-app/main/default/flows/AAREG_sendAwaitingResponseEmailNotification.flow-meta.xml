@@ -4,7 +4,7 @@
         <name>Create_EmailQueue_failed</name>
         <label>Create EmailQueue failed</label>
         <locationX>440</locationX>
-        <locationY>539</locationY>
+        <locationY>647</locationY>
         <actionName>LoggerUtility</actionName>
         <actionType>apex</actionType>
         <dataTypeMappings>
@@ -64,8 +64,13 @@
             <targetReference>createEmailQueue</targetReference>
         </connector>
     </assignments>
-    <description>Arbeidsforhold søknad - Sender ut epost til konsument sin kontaktperson</description>
+    <description>Arbeidsforhold søknad - Sender ut epost til konsument sin kontaktperson.</description>
     <environments>Default</environments>
+    <formulas>
+        <name>var_Description</name>
+        <dataType>String</dataType>
+        <expression>&apos;E-post til kontaktperson &apos;&amp; {!$Record.Email__c} &amp;&apos; er opprettet og ligger i kø for utsendelse. Kø id: &apos;&amp;{!var_emailQueueId}</expression>
+    </formulas>
     <formulas>
         <name>var_FlowNameNoLongerThan32Char</name>
         <dataType>String</dataType>
@@ -97,8 +102,12 @@
         <label>createEmailQueue</label>
         <locationX>176</locationX>
         <locationY>431</locationY>
+        <assignRecordIdToReference>var_emailQueueId</assignRecordIdToReference>
+        <connector>
+            <targetReference>Opprett_aktivitet</targetReference>
+        </connector>
         <faultConnector>
-            <targetReference>Create_EmailQueue_failed</targetReference>
+            <targetReference>Opprett_aktivitet_feil</targetReference>
         </faultConnector>
         <inputAssignments>
             <field>Priority__c</field>
@@ -137,7 +146,6 @@
             </value>
         </inputAssignments>
         <object>EmailQueue__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <start>
         <locationX>50</locationX>
@@ -159,6 +167,77 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>Opprett_aktivitet</name>
+        <label>Opprett aktivitet</label>
+        <locationX>176</locationX>
+        <locationY>539</locationY>
+        <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varAccessRequest</name>
+            <value>
+                <elementReference>$Record.Access_Request__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varDescription</name>
+            <value>
+                <elementReference>var_Description</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRelatedToId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSubject</name>
+            <value>
+                <stringValue>Epost ligger i kø</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varTypeOfTask</name>
+            <value>
+                <stringValue>Dialog</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <name>Opprett_aktivitet_feil</name>
+        <label>Opprett aktivitet</label>
+        <locationX>440</locationX>
+        <locationY>539</locationY>
+        <connector>
+            <targetReference>Create_EmailQueue_failed</targetReference>
+        </connector>
+        <flowName>AAREG_subflowCreateTask</flowName>
+        <inputAssignments>
+            <name>varAccessRequest</name>
+            <value>
+                <elementReference>$Record.Access_Request__r.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRelatedToId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSubject</name>
+            <value>
+                <stringValue>Feil ved utsendelse av epost.</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varTypeOfTask</name>
+            <value>
+                <stringValue>Dialog</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
     <variables>
         <name>var_Category</name>
         <dataType>String</dataType>
@@ -168,6 +247,13 @@
         <value>
             <stringValue>Application</stringValue>
         </value>
+    </variables>
+    <variables>
+        <name>var_emailQueueId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
     </variables>
     <variables>
         <name>varContactId</name>
