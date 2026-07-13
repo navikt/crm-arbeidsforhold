@@ -3,6 +3,7 @@ import { NavigationMixin } from 'lightning/navigation';
 import Id from '@salesforce/user/Id';
 import getUsersAgreements from '@salesforce/apex/AAREG_MyAgreementsController.getUsersAgreements';
 import endAgreement from '@salesforce/apex/AAREG_MyAgreementsController.endAgreement';
+import getDecisionPDF from '@salesforce/apex/AAREG_MyAgreementsController.getDecisionPDF';
 
 import { refreshApex } from '@salesforce/apex';
 
@@ -10,16 +11,6 @@ const COLUMNS = [
   { label: 'Avtalenummer', fieldName: 'avtaleNummer', type: 'text', hideDefaultActions: true },
   { label: 'Avtale dato', fieldName: 'avtaleDato', type: 'date', hideDefaultActions: true },
   { label: 'Status', fieldName: 'status', type: 'text', hideDefaultActions: true },
-  {
-    type: 'button',
-    fixedWidth: 200,
-    typeAttributes: {
-      label: 'Se kontaktpersoner',
-      title: 'Se kontaktpersoner',
-      name: 'Kontaktpersoner',
-      variant: 'brand-outline'
-    }
-  },
   {
     type: 'button',
     fixedWidth: 200,
@@ -102,29 +93,11 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
 
   /* ----------------- Row actions ----------------- */
   handleRowAction(event) {
-    const actionName = event.detail.action.name;
-    this.selectedAgreement = event.detail.row;
-
-    switch (actionName) {
-      case 'Kontaktpersoner':
-        this[NavigationMixin.Navigate]({
-          type: 'comm__namedPage',
-          attributes: { name: 'kontaktpersoner__c' },
-          state: {
-            agreementId: this.selectedAgreement.avtaleId,
-            agreementNumber: this.selectedAgreement.avtaleNummer
-          }
-        });
-        break;
-      case 'LastNedVedtak':
-        this.downloadFile(this.selectedAgreement);
-        break;
-      case 'AvsluttAvtale':
-        this.openEndAgreementModal();
-        break;
-      default:
-        break;
-    }
+     if(event.detail.action.name === 'LastNedVedtak') {
+        this.downloadDecision(event);
+        }else if (event.detail.action.name === 'AvsluttAvtale') {
+          this.openEndAgreementModal();
+        }
   }
 
 
@@ -153,12 +126,35 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
   }
 
   /* ----------------- Last ned vedtak (PDF) ----------------- */
-  downloadFile(row) {
-    if (!row || !row.soknadsNummer) {
-      return;
-    }
-    const siteOrigin = window.location.origin;
+  downloadDecision(event) {
+    const row = event.detail.row;
+    const agreementId = row.Id; 
    
+    getDecisionPDF({ agreementId })
+    .then((url) => {
+      let fullUrl='';
+      if (url) {
+          // Prepend the domain to the URL
+          const siteOrigin = window.location.origin;
+          if(siteOrigin === 'https://navdialog--sit2.sandbox.my.site.com') {
+              fullUrl = siteOrigin + '/aaregisteret' + url;
+          }else{
+            fullUrl = siteOrigin + url;
+          }
 
+          // Use NavigationMixin to navigate to the URL
+          this[NavigationMixin.Navigate]({
+              type: 'standard__webPage',
+              attributes: {
+                  url: fullUrl
+              }
+          });
+      } else {
+          console.error('No PDF found for the given Application Decision.');
+      }
+  })
+  .catch((error) => {
+      console.error('Error retrieving the PDF:', error);
+  });
   }
 }

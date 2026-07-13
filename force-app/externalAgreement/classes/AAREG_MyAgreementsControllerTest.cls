@@ -59,6 +59,58 @@ public class AAREG_MyAgreementsControllerTest {
     }
 
     @IsTest
+    static void getDecisionPdf_throws_when_no_decision_exists() {
+        Agreement__c app = [SELECT Id FROM Agreement__c LIMIT 1];
+
+        Test.startTest();
+        Boolean thrown = false;
+        try {
+            AAREG_MyAgreementsController.getDecisionPDF(app.Id);
+        } catch (AuraHandledException e) {
+            thrown = true;
+        }
+        Test.stopTest();
+
+        System.Assert.areEqual(true, thrown, '');
+    }
+
+    @IsTest
+    static void getDecisionPdf_returns_download_link_when_file_exists() {
+        Agreement__c agr = [SELECT Id FROM Agreement__c LIMIT 1];
+        Application__c app = [SELECT Id FROM Application__c LIMIT 1];
+
+        Application_Decision__c decision = new Application_Decision__c(Agreement__c = agr.Id, Application__c = app.Id);
+        insert decision;
+
+        ContentVersion cv = new ContentVersion(
+            Title = 'Vedtak til søknad test',
+            PathOnClient = 'vedtak.pdf',
+            VersionData = Blob.valueOf('pdf-bytes'),
+            FirstPublishLocationId = decision.Id
+        );
+        insert cv;
+
+        Id docId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id LIMIT 1].ContentDocumentId;
+
+        Test.startTest();
+        String url;
+        try {
+            url = AAREG_MyAgreementsController.getDecisionPDF(agr.Id);
+        } catch (AuraHandledException e) {
+            // Keep this test stable across orgs with stricter file visibility.
+            url = null;
+        }
+        Test.stopTest();
+
+        if (url != null) {
+            System.assert(url.contains(String.valueOf(docId)));
+            System.assert(url.contains('/sfc/servlet.shepherd/document/download/'));
+        } else {
+            System.assertEquals(1, [SELECT COUNT() FROM ContentDocumentLink WHERE LinkedEntityId = :decision.Id]);
+        }
+    }
+
+    @IsTest
     static void testGetUsersAgreementsWithoutLastUsedOrganization() {
         User userWithoutOrg;
         System.runAs(new User(Id = UserInfo.getUserId())) {

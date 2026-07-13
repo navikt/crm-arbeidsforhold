@@ -39,10 +39,7 @@ public with sharing class AAREG_ApplicationDecisionController {
         }
 
         // Query all decisions for the application with security context enforced (WITH USER_MODE)
-        String query = 'SELECT Id, Name, Application__c';
-        if (hasProcessStatusField) {
-            query += ', Process_status__c';
-        }
+        String query = 'SELECT Id, Name, Application__c, Status__c, Process_status__c';
         query += ' FROM Application_Decision__c WHERE Application__c = :recordId WITH USER_MODE';
 
         List<SObject> decisions = Database.query(query);
@@ -53,9 +50,8 @@ public with sharing class AAREG_ApplicationDecisionController {
             wrapper.vedtaksId = (Id) appRecord.get('Id');
             wrapper.vedtaksNr = (String) appRecord.get('Name');
             wrapper.soknadsId = (Id) appRecord.get('Application__c');
-            if (hasProcessStatusField) {
-                wrapper.statusProsess = (String) appRecord.get('Process_status__c');
-            }
+            wrapper.status = (String) appRecord.get('Status__c');
+            wrapper.statusProsess = (String) appRecord.get('Process_status__c');
             decisionWrappers.add(wrapper);
         }
 
