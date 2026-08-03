@@ -5,6 +5,9 @@
       <div class="breadcrumbs">
         <c-breadcrumbs url-list={breadcrumbs}></c-breadcrumbs>
       </div>
+      <div class="no-applications-container">
+        <p>Har du spørsmål til søknaden kan du kontakte Nav registerforvaltning <a href="#" onclick={navigateToNyMelding}>Send melding</a></p>
+      </div>
       <div if:true={isMobile} style="height: 600px;">
         <lightning-datatable
           key-field="id"

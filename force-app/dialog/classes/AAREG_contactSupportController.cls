@@ -39,7 +39,6 @@ public with sharing class AAREG_contactSupportController {
                     SELECT LastUsedOrganization__c
                     FROM User
                     WHERE Id = :userId
-                    WITH USER_MODE
                     LIMIT 1
                 ];
                 draft.CreatedByOrganizationNumber__c = users.isEmpty() ? null : users[0].LastUsedOrganization__c;

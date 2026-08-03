@@ -12,7 +12,6 @@ public with sharing class AAREG_MyThreadsController {
                 SELECT LastUsedOrganization__c
                 FROM User
                 WHERE Id = :userId
-                WITH USER_MODE
                 LIMIT 1
             ];
 
@@ -46,7 +45,6 @@ public with sharing class AAREG_MyThreadsController {
                     CRM_isActive__c
                 FROM Thread__c
                 WHERE CRM_Account__c = :accountId
-                WITH USER_MODE
                 ORDER BY CRM_Latest_Message_Datetime__c DESC
             ];
         } catch (Exception e) {
