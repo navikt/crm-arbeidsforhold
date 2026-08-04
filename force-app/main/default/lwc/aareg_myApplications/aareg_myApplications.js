@@ -9,7 +9,8 @@ import getDecisionPDF from '@salesforce/apex/AAREG_MyApplicationsController.getD
 const COLUMNS = [
   { label: 'Søknadsnummer', fieldName: 'Name', type: 'text', hideDefaultActions: true },
   { label: 'Dato innlevert', fieldName: 'ApplicationSubmittedDate__c', type: 'date', hideDefaultActions: true },
-  { label: 'Forventet svarfrist', fieldName: 'ApplicationDeadlineForReply__c', type: 'date', hideDefaultActions: true},
+  { label: 'Forventet behandlingsdato', fieldName: 'ApplicationDeadlineForReply__c', type: 'date', hideDefaultActions: true},
+  { label: 'Vedtaksdato', fieldName: 'DecisionDate__c ', type: 'date', hideDefaultActions: true },
   { label: 'Status', fieldName: 'Status__c', type: 'text', hideDefaultActions: true },
   {
     type: 'button',
@@ -18,8 +19,8 @@ const COLUMNS = [
       label: 'Se søknad',
       title: 'Se søknad',
       name: 'Søknad',
-      variant: 'Brand Outline'
-    }
+      variant: 'Brand Outline',
+      disabled: {fieldName: 'disableApplication'}    }
   },
   {
     type: 'button',
@@ -65,6 +66,7 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
       this.applications = JSON.parse(JSON.stringify(this.initialApplications));
       this.applications.forEach(application => {
         application.disableButton = application.Status__c !== 'Avslag';
+        application.disableApplication = application.Status__c !== 'Trukket tilbake';
       });
     } else if (result.error) {
       console.error(result.error);
@@ -132,5 +134,15 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   .catch((error) => {
       console.error('Error retrieving the PDF:', error);
   });
+  }
+
+  navigateToNyMelding(event) {
+    event.preventDefault();
+    this[NavigationMixin.Navigate]({
+      type: 'comm__namedPage',
+      attributes: {
+        name: 'Ny_Melding__c'
+      }
+    });
   }
 }
