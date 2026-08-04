@@ -13,6 +13,8 @@ PROJECT_FILE="${PROJECT_FILE:-sfdx-project.json}"
 COMMUNITY_NAME="${COMMUNITY_NAME:-Aa-registret}"
 DUMMY_DATA_PLAN="${DUMMY_DATA_PLAN:-dummy-data/plan.json}"
 PACKAGE_WAIT_MINUTES="${PACKAGE_WAIT_MINUTES:-10}"
+PACKAGE_INSTALL_MAX_ATTEMPTS="${PACKAGE_INSTALL_MAX_ATTEMPTS:-3}"
+PACKAGE_INSTALL_RETRY_DELAY_SECONDS="${PACKAGE_INSTALL_RETRY_DELAY_SECONDS:-5}"
 PACKAGE_INSTALL_KEY="${PACKAGE_INSTALL_KEY:-}"
 PACKAGE_INSTALL_KEYCHAIN_SERVICE="${PACKAGE_INSTALL_KEYCHAIN_SERVICE:-}"
 PACKAGE_INSTALL_KEYCHAIN_ACCOUNT="${PACKAGE_INSTALL_KEYCHAIN_ACCOUNT:-}"
@@ -42,6 +44,9 @@ REQUESTED_USE_POOL=""
 REQUESTED_UPDATE_PACKAGES_ONLY=""
 REQUESTED_PACKAGE_PLAN_ONLY=""
 REQUESTED_INSTALL_LATEST_PACKAGES=""
+ORG_ALIAS_SET_EXPLICITLY=false
+TARGET_ORG=""
+TARGET_ORG_SOURCE=""
 
 # Packages in this list do NOT use package install key.
 # Packages NOT in this list WILL use package install key.
@@ -258,6 +263,19 @@ run_cmd() {
     "$@"
 }
 
+is_retryable_package_install_failure() {
+    local output="$1"
+
+    case "$output" in
+        *"TypeError: terminated"*|*"ECONNRESET"*|*"read ECONNRESET"*|*"socket hang up"*|*"ETIMEDOUT"*|*"ENOTFOUND"*|*"UND_ERR_"*)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
 usage() {
     cat <<'EOF_USAGE'
 Usage:
@@ -293,6 +311,8 @@ Options:
   -h, --help                          Show this help text.
 
 Environment variables:
+    PACKAGE_INSTALL_MAX_ATTEMPTS        Number of install retries for transient Salesforce CLI/network errors. Default: 3
+    PACKAGE_INSTALL_RETRY_DELAY_SECONDS Delay between retry attempts in seconds. Default: 5
   PACKAGE_INSTALL_KEY                 Installation key used for packages requiring key.
     PACKAGE_INSTALL_KEYCHAIN_SERVICE      macOS Keychain service name for install key lookup.
     PACKAGE_INSTALL_KEYCHAIN_ACCOUNT      Optional macOS Keychain account name for lookup.
@@ -537,6 +557,46 @@ resolve_pool_devhub_username_for_check() {
     fi
 
     echo "$resolved_devhub"
+}
+
+resolve_default_target_org_for_runtime() {
+    local resolved_target_org=""
+
+    resolved_target_org="$(
+        sf config get target-org --json 2>/dev/null \
+            | jq -r '.result[]? | select(.name == "target-org") | .value // empty' \
+            | head -n 1
+    )"
+
+    if [[ -z "$resolved_target_org" || "$resolved_target_org" == "null" ]]; then
+        return 1
+    fi
+
+    echo "$resolved_target_org"
+}
+
+resolve_runtime_target_org() {
+    local resolved_target_org=""
+
+    if [[ "$ORG_ALIAS_SET_EXPLICITLY" == "true" ]]; then
+        TARGET_ORG="$ORG_ALIAS"
+        TARGET_ORG_SOURCE="explicit --alias"
+        return 0
+    fi
+
+    if [[ "$RUN_ORG_CREATE" == "true" ]]; then
+        TARGET_ORG="$ORG_ALIAS"
+        TARGET_ORG_SOURCE="org alias for create/fetch"
+        return 0
+    fi
+
+    if resolved_target_org="$(resolve_default_target_org_for_runtime)"; then
+        TARGET_ORG="$resolved_target_org"
+        TARGET_ORG_SOURCE="sf config target-org"
+        return 0
+    fi
+
+    error 1 "No Salesforce default target org is configured for partial run mode. Set it with: sf config set target-org \"<alias-or-username>\" or pass --alias <alias>."
 }
 
 resolve_pool_devhub_username() {
@@ -902,13 +962,13 @@ EOF_JSON
 
 get_installed_packages_json() {
     sf package installed list \
-        --target-org "$ORG_ALIAS" \
+    --target-org "$TARGET_ORG" \
         --json
 }
 
 load_installed_packages() {
     echo ""
-    echo "Reading installed packages from org: $ORG_ALIAS"
+    echo "Reading installed packages from org: $TARGET_ORG"
 
     if [[ "$ORG_AVAILABLE_FOR_READ" != "true" ]]; then
         warning "Org was not actually created or fetched in this run. Assuming no installed packages for planning."
@@ -917,7 +977,7 @@ load_installed_packages() {
     fi
 
     INSTALLED_PACKAGES_JSON="$(get_installed_packages_json)" \
-        || error $? "Failed to read installed packages from org: $ORG_ALIAS"
+        || error $? "Failed to read installed packages from org: $TARGET_ORG"
 }
 
 installed_package_json() {
@@ -1008,13 +1068,18 @@ compare_versions() {
 
 install_resolved_package() {
     local package_name="$1"
+    local max_attempts="$PACKAGE_INSTALL_MAX_ATTEMPTS"
+    local retry_delay_seconds="$PACKAGE_INSTALL_RETRY_DELAY_SECONDS"
+    local attempt=""
+    local output=""
+    local status=0
 
     local install_args=(
         package install
         -r
         -w "$PACKAGE_WAIT_MINUTES"
         -p "$RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID"
-        --target-org "$ORG_ALIAS"
+        --target-org "$TARGET_ORG"
     )
 
     if package_requires_key "$package_name"; then
@@ -1025,8 +1090,37 @@ install_resolved_package() {
         fi
     fi
 
-    run_cmd sf "${install_args[@]}" \
-        || error $? "Failed to install package $package_name with ID $RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID"
+    if [[ "$DRY_RUN" == "true" ]]; then
+        run_cmd sf "${install_args[@]}" \
+            || error $? "Failed to install package $package_name with ID $RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID"
+        return 0
+    fi
+
+    for ((attempt = 1; attempt <= max_attempts; attempt++)); do
+        output=""
+        status=0
+
+        set +e
+        output="$(sf "${install_args[@]}" 2>&1)"
+        status=$?
+        set -e
+
+        if [[ -n "$output" ]]; then
+            echo "$output"
+        fi
+
+        if [[ "$status" -eq 0 ]]; then
+            return 0
+        fi
+
+        if (( attempt < max_attempts )) && is_retryable_package_install_failure "$output"; then
+            warning "Transient Salesforce CLI/network error while installing $package_name (attempt $attempt/$max_attempts). Retrying in ${retry_delay_seconds}s..."
+            sleep "$retry_delay_seconds"
+            continue
+        fi
+
+        error "$status" "Failed to install package $package_name with ID $RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID"
+    done
 }
 
 delete_existing_scratch_org() {
@@ -1109,17 +1203,39 @@ install_packages() {
         echo "Install mode: versions defined in $PROJECT_FILE"
     fi
 
+    load_installed_packages
+
     while IFS=$'\t' read -r package_name requested_version; do
         [[ -z "$package_name" ]] && continue
 
         resolve_package_version "$package_name" "$requested_version"
         warn_if_dependency_is_not_latest "$package_name" "$requested_version"
 
+        local installed_json=""
+        local installed_04t=""
+
+        installed_json="$(installed_package_json "$package_name")"
+
         echo ""
         echo "Installing $package_name"
         echo "Defined version:  $requested_version"
         echo "Resolved version: $RESOLVED_SELECTED_VERSION"
         echo "Package ID:       $RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID"
+
+        if [[ -n "$installed_json" && "$installed_json" != "null" ]]; then
+            installed_04t="$(installed_package_04t "$installed_json")"
+            echo "Installed 04t:    ${installed_04t:-unknown}"
+
+            if [[ "$installed_04t" == "$RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID" ]]; then
+                echo "${GREEN}Package is already on target 04t. Skipping.${RESET}"
+                add_package_skipped "$package_name $RESOLVED_SELECTED_VERSION"
+                continue
+            fi
+        else
+            echo "Installed 04t:    not installed"
+        fi
+
+        echo "${YELLOW}Package is missing target 04t. Installing.${RESET}"
 
         install_resolved_package "$package_name"
         add_package_installed "$package_name $RESOLVED_SELECTED_VERSION"
@@ -1201,10 +1317,10 @@ deploy_metadata() {
     echo "Deploying metadata..."
 
     run_cmd sf project deploy start \
-        --target-org "$ORG_ALIAS" \
+        --target-org "$TARGET_ORG" \
         || error $? '"sf project deploy start" command failed.'
 
-    add_action "Deployed metadata to $ORG_ALIAS"
+    add_action "Deployed metadata to $TARGET_ORG"
 }
 
 assign_permission_sets() {
@@ -1212,13 +1328,13 @@ assign_permission_sets() {
     echo "Assigning permission sets..."
 
     run_cmd sf org assign permset \
-        --target-org "$ORG_ALIAS" \
+        --target-org "$TARGET_ORG" \
         --name AAREG_Arbeidsforhold_Saksbehandling \
         --name AAREG_Arbeidsforhold_Support \
         --name AAREG_CommunityPermission \
         || error $? '"sf org assign permset" command failed.'
 
-    add_action "Assigned permission sets in $ORG_ALIAS"
+    add_action "Assigned permission sets in $TARGET_ORG"
 }
 
 import_dummy_data() {
@@ -1226,7 +1342,7 @@ import_dummy_data() {
     echo "Importing dummy data..."
 
     run_cmd sf data import tree \
-        --target-org "$ORG_ALIAS" \
+        --target-org "$TARGET_ORG" \
         --plan "$DUMMY_DATA_PLAN" \
         || error $? '"sf data import tree" command failed.'
 
@@ -1238,7 +1354,7 @@ publish_community() {
     echo "Publishing community: $COMMUNITY_NAME"
 
     run_cmd sf community publish \
-        --target-org "$ORG_ALIAS" \
+        --target-org "$TARGET_ORG" \
         --name "$COMMUNITY_NAME" \
         || error $? "\"sf community publish\" command failed for community: \"$COMMUNITY_NAME\"."
 
@@ -1484,13 +1600,13 @@ run_self_check() {
     if [[ "$requested_requires_org_access" == "true" ]]; then
         echo ""
         echo "Checking target org access (read-only)..."
-        if sf org display --target-org "$ORG_ALIAS" --json >/dev/null 2>&1; then
-            echo "${GREEN}OK:${RESET} sf org display --target-org $ORG_ALIAS"
-            add_summary_row "PASS" "Target org access" "Target org $ORG_ALIAS is readable."
+        if sf org display --target-org "$TARGET_ORG" --json >/dev/null 2>&1; then
+            echo "${GREEN}OK:${RESET} sf org display --target-org $TARGET_ORG"
+            add_summary_row "PASS" "Target org access" "Target org $TARGET_ORG is readable."
         else
-            echo "${RED}FAIL:${RESET} Could not read target org: $ORG_ALIAS"
+            echo "${RED}FAIL:${RESET} Could not read target org: $TARGET_ORG"
             failures=$((failures + 1))
-            add_summary_row "FAIL" "Target org access" "Could not read target org $ORG_ALIAS."
+            add_summary_row "FAIL" "Target org access" "Could not read target org $TARGET_ORG."
         fi
     else
         add_summary_row "SKIP" "Target org access" "No read-only org access required for requested mode."
@@ -1678,13 +1794,17 @@ print_settings() {
 
     echo ""
     echo "Scratch org setup settings:"
-    echo "Alias:                         $ORG_ALIAS"
+    echo "Creation alias:                $ORG_ALIAS"
+    echo "Effective target org:          $TARGET_ORG"
+    echo "Target org source:             $TARGET_ORG_SOURCE"
     echo "Duration days:                 $DURATION_DAYS"
     echo "Definition file:               $SCRATCH_DEF_FILE"
     echo "Project file:                  $PROJECT_FILE"
     echo "Community name:                $COMMUNITY_NAME"
     echo "Dummy data plan:               $DUMMY_DATA_PLAN"
     echo "Package wait minutes:          $PACKAGE_WAIT_MINUTES"
+    echo "Package install max attempts:  $PACKAGE_INSTALL_MAX_ATTEMPTS"
+    echo "Package install retry delay s: $PACKAGE_INSTALL_RETRY_DELAY_SECONDS"
     echo "Run org create/fetch:          $RUN_ORG_CREATE"
     echo "Use pool:                      $USE_POOL"
     echo "Pool tag:                      $POOL_TAG"
@@ -1713,6 +1833,7 @@ while [[ $# -gt 0 ]]; do
         -a|--alias)
             require_option_value "$1" "${2:-}"
             ORG_ALIAS="$2"
+            ORG_ALIAS_SET_EXPLICITLY=true
             shift 2
             ;;
         -d|--duration-days)
@@ -1863,6 +1984,12 @@ REQUESTED_INSTALL_LATEST_PACKAGES="$INSTALL_LATEST_PACKAGES"
 
 validate_number "$DURATION_DAYS" "Duration days"
 validate_number "$PACKAGE_WAIT_MINUTES" "Package wait minutes"
+validate_number "$PACKAGE_INSTALL_MAX_ATTEMPTS" "Package install max attempts"
+validate_number "$PACKAGE_INSTALL_RETRY_DELAY_SECONDS" "Package install retry delay seconds"
+
+if [[ "$PACKAGE_INSTALL_MAX_ATTEMPTS" -lt 1 ]]; then
+    error 1 "Package install max attempts must be at least 1. Got: $PACKAGE_INSTALL_MAX_ATTEMPTS"
+fi
 
 validate_boolean "$RUN_ORG_CREATE" "RUN_ORG_CREATE"
 validate_boolean "$RUN_PACKAGES" "RUN_PACKAGES"
@@ -1896,6 +2023,8 @@ fi
 if [[ "$RUN_ORG_CREATE" == "true" && ( "$USE_POOL" != "true" || "$FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY" == "true" ) ]]; then
     validate_file_exists "$SCRATCH_DEF_FILE" "Scratch org definition file"
 fi
+
+resolve_runtime_target_org
 
 # -----------------------------
 # Main
