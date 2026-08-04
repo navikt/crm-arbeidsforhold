@@ -14,6 +14,8 @@ COMMUNITY_NAME="${COMMUNITY_NAME:-Aa-registret}"
 DUMMY_DATA_PLAN="${DUMMY_DATA_PLAN:-dummy-data/plan.json}"
 PACKAGE_WAIT_MINUTES="${PACKAGE_WAIT_MINUTES:-10}"
 PACKAGE_INSTALL_KEY="${PACKAGE_INSTALL_KEY:-}"
+PACKAGE_INSTALL_KEYCHAIN_SERVICE="${PACKAGE_INSTALL_KEYCHAIN_SERVICE:-}"
+PACKAGE_INSTALL_KEYCHAIN_ACCOUNT="${PACKAGE_INSTALL_KEYCHAIN_ACCOUNT:-}"
 
 RUN_ORG_CREATE="${RUN_ORG_CREATE:-true}"
 RUN_PACKAGES="${RUN_PACKAGES:-true}"
@@ -33,9 +35,17 @@ SELF_CHECK_ONLY="${SELF_CHECK_ONLY:-false}"
 DRY_RUN="${DRY_RUN:-false}"
 PACKAGE_PLAN_ONLY="${PACKAGE_PLAN_ONLY:-false}"
 
+REQUESTED_RUN_ORG_CREATE=""
+REQUESTED_RUN_PACKAGES=""
+REQUESTED_POST_STEPS=""
+REQUESTED_USE_POOL=""
+REQUESTED_UPDATE_PACKAGES_ONLY=""
+REQUESTED_PACKAGE_PLAN_ONLY=""
+REQUESTED_INSTALL_LATEST_PACKAGES=""
+
 # Packages in this list do NOT use package install key.
 # Packages NOT in this list WILL use package install key.
-PACKAGES_NOT_REQUIRING_INSTALL_KEY="${PACKAGES_NOT_REQUIRING_INSTALL_KEY:-platform-data-model,custom-metadata-dao,custom-permission-helper,feature-toggle}"
+PACKAGES_NOT_REQUIRING_INSTALL_KEY="${PACKAGES_NOT_REQUIRING_INSTALL_KEY:-platform-data-model,custom-metadata-dao,custom-permission-helper,feature-toggle,record-type-cache}"
 
 PACKAGE_UPDATE_SUGGESTIONS=""
 INSTALLED_PACKAGES_JSON=""
@@ -118,9 +128,21 @@ print_array_items() {
         return 0
     fi
 
+    if [[ "$#" -eq 1 && -z "${1:-}" ]]; then
+        return 0
+    fi
+
     echo ""
     echo "$title"
     printf -- "- %s\n" "$@"
+}
+
+array_length() {
+    local array_name="$1"
+    local length=0
+
+    eval "length=\${#${array_name}[@]}" 2>/dev/null || length=0
+    echo "$length"
 }
 
 print_run_summary() {
@@ -182,33 +204,33 @@ print_run_summary() {
     echo "- $ORG_ACTION"
     echo ""
     echo "Packages:"
-    echo "- Missing before install:     ${#PACKAGES_MISSING[@]}"
-    echo "- $installed_label:                  ${#PACKAGES_INSTALLED[@]}"
-    echo "- $updated_label:                    ${#PACKAGES_UPDATED[@]}"
-    echo "- Skipped, already correct:   ${#PACKAGES_SKIPPED[@]}"
-    echo "- Higher than target:         ${#PACKAGES_HIGHER_THAN_TARGET[@]}"
+    echo "- Missing before install:     $(array_length PACKAGES_MISSING)"
+    echo "- $installed_label:                  $(array_length PACKAGES_INSTALLED)"
+    echo "- $updated_label:                    $(array_length PACKAGES_UPDATED)"
+    echo "- Skipped, already correct:   $(array_length PACKAGES_SKIPPED)"
+    echo "- Higher than target:         $(array_length PACKAGES_HIGHER_THAN_TARGET)"
 
-    print_array_items "Packages missing before install:" "${PACKAGES_MISSING[@]}"
-    print_array_items "Packages installed:" "${PACKAGES_INSTALLED[@]}"
-    print_array_items "Packages updated:" "${PACKAGES_UPDATED[@]}"
-    print_array_items "Packages skipped:" "${PACKAGES_SKIPPED[@]}"
-    print_array_items "Packages higher than target:" "${PACKAGES_HIGHER_THAN_TARGET[@]}"
+    print_array_items "Packages missing before install:" "${PACKAGES_MISSING[@]-}"
+    print_array_items "Packages installed:" "${PACKAGES_INSTALLED[@]-}"
+    print_array_items "Packages updated:" "${PACKAGES_UPDATED[@]-}"
+    print_array_items "Packages skipped:" "${PACKAGES_SKIPPED[@]-}"
+    print_array_items "Packages higher than target:" "${PACKAGES_HIGHER_THAN_TARGET[@]-}"
 
     echo ""
     echo "Post steps:"
-    if [[ "${#POST_STEPS_RUN[@]}" -eq 0 ]]; then
+    if [[ "$(array_length POST_STEPS_RUN)" -eq 0 ]]; then
         echo "- Ran:     none"
     else
-        echo "- Ran:     ${POST_STEPS_RUN[*]}"
+        echo "- Ran:     ${POST_STEPS_RUN[*]-}"
     fi
 
-    if [[ "${#POST_STEPS_SKIPPED[@]}" -eq 0 ]]; then
+    if [[ "$(array_length POST_STEPS_SKIPPED)" -eq 0 ]]; then
         echo "- Skipped: none"
     else
-        echo "- Skipped: ${POST_STEPS_SKIPPED[*]}"
+        echo "- Skipped: ${POST_STEPS_SKIPPED[*]-}"
     fi
 
-    print_array_items "Actions:" "${RUN_ACTIONS[@]}"
+    print_array_items "Actions:" "${RUN_ACTIONS[@]-}"
 
     echo "============================================================"
     echo ""
@@ -259,6 +281,8 @@ Options:
   --pool-tag <tag>                    sfp pool tag. Default: dev
   --pool-devhub <alias>               DevHub username or alias for sfp pool commands.
                                       If omitted, script tries: sf config get target-dev-hub --json
+    --keychain-service <service>          macOS Keychain service name for install key lookup.
+    --keychain-account <account>          macOS Keychain account name for install key lookup.
   --delete-org-only                   Only delete the scratch org matching --alias.
   --self-check                        Validate setup and configuration only.
   --dry-run                           Print mutating commands instead of executing them.
@@ -270,6 +294,8 @@ Options:
 
 Environment variables:
   PACKAGE_INSTALL_KEY                 Installation key used for packages requiring key.
+    PACKAGE_INSTALL_KEYCHAIN_SERVICE      macOS Keychain service name for install key lookup.
+    PACKAGE_INSTALL_KEYCHAIN_ACCOUNT      Optional macOS Keychain account name for lookup.
   PACKAGES_NOT_REQUIRING_INSTALL_KEY  Comma-separated list of packages that do NOT require install key.
 
 Examples:
@@ -413,6 +439,50 @@ package_requires_key() {
     return 0
 }
 
+resolve_package_install_key_from_keychain() {
+    if [[ -n "$PACKAGE_INSTALL_KEY" ]]; then
+        return 0
+    fi
+
+    if [[ "$(uname -s)" != "Darwin" ]]; then
+        return 0
+    fi
+
+    if ! command -v security >/dev/null 2>&1; then
+        return 0
+    fi
+
+    local services=()
+    local service=""
+    local key_value=""
+
+    if [[ -n "$PACKAGE_INSTALL_KEYCHAIN_SERVICE" ]]; then
+        services+=("$PACKAGE_INSTALL_KEYCHAIN_SERVICE")
+    fi
+
+    services+=(
+        "$ORG_ALIAS-package-install-key"
+        "$ORG_ALIAS/package-install-key"
+        "crm-arbeidsforhold-package-install-key"
+        "salesforce-package-install-key"
+    )
+
+    for service in "${services[@]}"; do
+        if [[ -n "$PACKAGE_INSTALL_KEYCHAIN_ACCOUNT" ]]; then
+            key_value="$(security find-generic-password -s "$service" -a "$PACKAGE_INSTALL_KEYCHAIN_ACCOUNT" -w 2>/dev/null || true)"
+        else
+            key_value="$(security find-generic-password -s "$service" -w 2>/dev/null || true)"
+        fi
+
+        if [[ -n "$key_value" ]]; then
+            PACKAGE_INSTALL_KEY="$key_value"
+            echo ""
+            echo "Found package install key in macOS Keychain (service: $service)."
+            return 0
+        fi
+    done
+}
+
 check_if_package_install_key_is_required() {
     local install_key_required=false
 
@@ -434,6 +504,10 @@ check_if_package_install_key_is_required() {
     done < <(read_dependencies)
 
     if [[ "$install_key_required" == "true" && -z "$PACKAGE_INSTALL_KEY" ]]; then
+        resolve_package_install_key_from_keychain
+    fi
+
+    if [[ "$install_key_required" == "true" && -z "$PACKAGE_INSTALL_KEY" ]]; then
         echo ""
         read -rsp "Package install key: " PACKAGE_INSTALL_KEY
         echo ""
@@ -442,6 +516,27 @@ check_if_package_install_key_is_required() {
             error 1 "Package install key is required because one or more packages require it."
         fi
     fi
+}
+
+resolve_pool_devhub_username_for_check() {
+    if [[ -n "$POOL_DEVHUB_USERNAME" ]]; then
+        echo "$POOL_DEVHUB_USERNAME"
+        return 0
+    fi
+
+    local resolved_devhub=""
+
+    resolved_devhub="$(
+        sf config get target-dev-hub --json 2>/dev/null \
+            | jq -r '.result[]? | select(.name == "target-dev-hub") | .value // empty' \
+            | head -n 1
+    )"
+
+    if [[ -z "$resolved_devhub" || "$resolved_devhub" == "null" ]]; then
+        return 1
+    fi
+
+    echo "$resolved_devhub"
 }
 
 resolve_pool_devhub_username() {
@@ -1151,6 +1246,21 @@ publish_community() {
 }
 
 run_self_check() {
+    local failures=0
+    local requested_needs_project_file=false
+    local requested_requires_org_access=false
+    local requested_data_step=false
+    local install_key_required=false
+    local package_count=0
+
+    local requested_run_org_create="$REQUESTED_RUN_ORG_CREATE"
+    local requested_run_packages="$REQUESTED_RUN_PACKAGES"
+    local requested_post_steps="$REQUESTED_POST_STEPS"
+    local requested_use_pool="$REQUESTED_USE_POOL"
+    local requested_update_packages_only="$REQUESTED_UPDATE_PACKAGES_ONLY"
+    local requested_package_plan_only="$REQUESTED_PACKAGE_PLAN_ONLY"
+    local requested_install_latest_packages="$REQUESTED_INSTALL_LATEST_PACKAGES"
+
     echo ""
     echo "${GREEN}Running self-check...${RESET}"
     echo ""
@@ -1164,49 +1274,221 @@ run_self_check() {
     echo "Use pool:                  $USE_POOL"
     echo "Install latest packages:   $INSTALL_LATEST_PACKAGES"
     echo ""
+    echo "Requested mode (before self-check safety overrides):"
+    echo "- Run org create/fetch:    $requested_run_org_create"
+    echo "- Run packages:            $requested_run_packages"
+    echo "- Update packages only:    $requested_update_packages_only"
+    echo "- Package plan only:       $requested_package_plan_only"
+    echo "- Use pool:                $requested_use_pool"
+    echo "- Post steps:              $requested_post_steps"
+    echo "- Install latest packages: $requested_install_latest_packages"
+    echo ""
 
     echo "Checking required commands..."
-    require_command "sf"
-    echo "${GREEN}OK:${RESET} sf"
-    require_command "jq"
-    echo "${GREEN}OK:${RESET} jq"
-    require_command "sed"
-    echo "${GREEN}OK:${RESET} sed"
+    if command -v sf >/dev/null 2>&1; then
+        echo "${GREEN}OK:${RESET} sf"
+    else
+        echo "${RED}FAIL:${RESET} sf command not found"
+        failures=$((failures + 1))
+    fi
 
-    if [[ "$USE_POOL" == "true" ]]; then
-        require_command "sfp"
-        echo "${GREEN}OK:${RESET} sfp"
+    if command -v jq >/dev/null 2>&1; then
+        echo "${GREEN}OK:${RESET} jq"
+    else
+        echo "${RED}FAIL:${RESET} jq command not found"
+        failures=$((failures + 1))
+    fi
 
-        if [[ -n "$POOL_DEVHUB_USERNAME" ]]; then
-            echo "${GREEN}OK:${RESET} pool DevHub provided: $POOL_DEVHUB_USERNAME"
+    if command -v sed >/dev/null 2>&1; then
+        echo "${GREEN}OK:${RESET} sed"
+    else
+        echo "${RED}FAIL:${RESET} sed command not found"
+        failures=$((failures + 1))
+    fi
+
+    if [[ "$requested_use_pool" == "true" && "$requested_run_org_create" == "true" ]]; then
+        if command -v sfp >/dev/null 2>&1; then
+            echo "${GREEN}OK:${RESET} sfp"
         else
-            local resolved_devhub=""
-            resolved_devhub="$(resolve_pool_devhub_username)"
-            echo "${GREEN}OK:${RESET} resolved default DevHub for sfp: $resolved_devhub"
+            echo "${RED}FAIL:${RESET} sfp command not found (required for pool mode)"
+            failures=$((failures + 1))
         fi
     fi
 
     echo ""
-    echo "Checking files..."
-    validate_file_exists "$PROJECT_FILE" "Project file"
-    echo "${GREEN}OK:${RESET} $PROJECT_FILE exists"
-    validate_json_file "$PROJECT_FILE"
-    echo "${GREEN}OK:${RESET} $PROJECT_FILE is valid JSON"
-
-    if [[ -f "$SCRATCH_DEF_FILE" ]]; then
-        echo "${GREEN}OK:${RESET} $SCRATCH_DEF_FILE exists"
+    echo "Checking Salesforce CLI access..."
+    if sf org list --json >/dev/null 2>&1; then
+        echo "${GREEN}OK:${RESET} sf org list --json"
     else
-        warning "$SCRATCH_DEF_FILE does not exist. This is only required when creating a scratch org without pool."
+        echo "${RED}FAIL:${RESET} Could not run sf org list --json. Ensure CLI auth/session is valid."
+        failures=$((failures + 1))
+    fi
+
+    if [[ "$requested_use_pool" == "true" && "$requested_run_org_create" == "true" ]]; then
+        echo ""
+        echo "Checking pool access (read-only)..."
+
+        local resolved_devhub_for_check=""
+        if resolved_devhub_for_check="$(resolve_pool_devhub_username_for_check)"; then
+            echo "${GREEN}OK:${RESET} resolved DevHub for pool: $resolved_devhub_for_check"
+            if sfp pool list --tag "$POOL_TAG" -a --targetdevhubusername "$resolved_devhub_for_check" >/dev/null 2>&1; then
+                echo "${GREEN}OK:${RESET} sfp pool list --tag $POOL_TAG"
+            else
+                echo "${RED}FAIL:${RESET} Could not list sfp pool for tag $POOL_TAG"
+                failures=$((failures + 1))
+            fi
+        else
+            echo "${RED}FAIL:${RESET} Could not resolve DevHub for pool mode. Set --pool-devhub or sf target-dev-hub config."
+            failures=$((failures + 1))
+        fi
+    fi
+
+    if [[ "$requested_run_packages" == "true" || "$requested_update_packages_only" == "true" || "$requested_package_plan_only" == "true" ]]; then
+        requested_needs_project_file=true
     fi
 
     echo ""
-    echo "Checking package dependencies..."
-    local count=""
-    count="$(dependency_count)"
-    echo "Dependencies found: $count"
+    echo "Checking files..."
+    if [[ "$requested_needs_project_file" == "true" ]]; then
+        if [[ -f "$PROJECT_FILE" ]]; then
+            echo "${GREEN}OK:${RESET} $PROJECT_FILE exists"
+            if jq empty "$PROJECT_FILE" >/dev/null 2>&1; then
+                echo "${GREEN}OK:${RESET} $PROJECT_FILE is valid JSON"
+            else
+                echo "${RED}FAIL:${RESET} $PROJECT_FILE is not valid JSON"
+                failures=$((failures + 1))
+            fi
+        else
+            echo "${RED}FAIL:${RESET} Project file not found: $PROJECT_FILE"
+            failures=$((failures + 1))
+        fi
+    else
+        echo "Project file check skipped (no package operations requested)."
+    fi
 
-    if [[ "$count" -eq 0 ]]; then
-        error 1 "No package dependencies found in $PROJECT_FILE"
+    if [[ "$requested_run_org_create" == "true" && ( "$requested_use_pool" != "true" || "$FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY" == "true" ) ]]; then
+        if [[ -f "$SCRATCH_DEF_FILE" ]]; then
+            echo "${GREEN}OK:${RESET} $SCRATCH_DEF_FILE exists"
+            if jq empty "$SCRATCH_DEF_FILE" >/dev/null 2>&1; then
+                echo "${GREEN}OK:${RESET} $SCRATCH_DEF_FILE is valid JSON"
+            else
+                echo "${RED}FAIL:${RESET} $SCRATCH_DEF_FILE is not valid JSON"
+                failures=$((failures + 1))
+            fi
+        else
+            echo "${RED}FAIL:${RESET} Scratch definition file not found: $SCRATCH_DEF_FILE"
+            failures=$((failures + 1))
+        fi
+    fi
+
+    if [[ "$requested_post_steps" == "all" || ",$requested_post_steps," == *,data,* ]]; then
+        requested_data_step=true
+    fi
+
+    if [[ "$requested_data_step" == "true" ]]; then
+        if [[ -f "$DUMMY_DATA_PLAN" ]]; then
+            echo "${GREEN}OK:${RESET} $DUMMY_DATA_PLAN exists"
+            if jq empty "$DUMMY_DATA_PLAN" >/dev/null 2>&1; then
+                echo "${GREEN}OK:${RESET} $DUMMY_DATA_PLAN is valid JSON"
+            else
+                echo "${RED}FAIL:${RESET} $DUMMY_DATA_PLAN is not valid JSON"
+                failures=$((failures + 1))
+            fi
+        else
+            echo "${RED}FAIL:${RESET} Dummy data plan not found: $DUMMY_DATA_PLAN"
+            failures=$((failures + 1))
+        fi
+    fi
+
+    if [[ "$requested_update_packages_only" == "true" || "$requested_package_plan_only" == "true" ]]; then
+        requested_requires_org_access=true
+    fi
+
+    if [[ "$requested_run_org_create" != "true" && ( "$requested_run_packages" == "true" || "$requested_post_steps" != "none" ) ]]; then
+        requested_requires_org_access=true
+    fi
+
+    if [[ "$requested_requires_org_access" == "true" ]]; then
+        echo ""
+        echo "Checking target org access (read-only)..."
+        if sf org display --target-org "$ORG_ALIAS" --json >/dev/null 2>&1; then
+            echo "${GREEN}OK:${RESET} sf org display --target-org $ORG_ALIAS"
+        else
+            echo "${RED}FAIL:${RESET} Could not read target org: $ORG_ALIAS"
+            failures=$((failures + 1))
+        fi
+    fi
+
+    if [[ "$requested_needs_project_file" == "true" && -f "$PROJECT_FILE" ]]; then
+        echo ""
+        echo "Checking package dependencies and version resolution..."
+        package_count="$(dependency_count 2>/dev/null || echo 0)"
+        echo "Dependencies found: $package_count"
+
+        if [[ "$package_count" -eq 0 ]]; then
+            echo "${RED}FAIL:${RESET} No package dependencies found in $PROJECT_FILE"
+            failures=$((failures + 1))
+        else
+            while IFS=$'\t' read -r package_name requested_version; do
+                [[ -z "$package_name" ]] && continue
+
+                if package_requires_key "$package_name"; then
+                    install_key_required=true
+                fi
+
+                local versions_json=""
+                local selected_json=""
+                local latest_json=""
+
+                if ! versions_json="$(get_package_versions_json "$package_name" 2>/dev/null)"; then
+                    echo "${RED}FAIL:${RESET} Could not list released versions for package: $package_name"
+                    failures=$((failures + 1))
+                    continue
+                fi
+
+                latest_json="$(latest_version_json "$versions_json" 2>/dev/null || true)"
+                if [[ -z "$latest_json" || "$latest_json" == "null" ]]; then
+                    echo "${RED}FAIL:${RESET} Could not resolve latest released version for package: $package_name"
+                    failures=$((failures + 1))
+                    continue
+                fi
+
+                if [[ "$requested_install_latest_packages" == "true" ]]; then
+                    selected_json="$latest_json"
+                else
+                    selected_json="$(requested_version_json "$versions_json" "$requested_version" 2>/dev/null || true)"
+                fi
+
+                if [[ -z "$selected_json" || "$selected_json" == "null" ]]; then
+                    echo "${RED}FAIL:${RESET} Could not resolve requested version $requested_version for package: $package_name"
+                    failures=$((failures + 1))
+                    continue
+                fi
+
+                echo "${GREEN}OK:${RESET} $package_name -> $requested_version"
+            done < <(read_dependencies)
+
+            if [[ "$install_key_required" == "true" ]]; then
+                if [[ -n "$PACKAGE_INSTALL_KEY" ]]; then
+                    echo "${GREEN}OK:${RESET} Package install key provided via environment"
+                else
+                    resolve_package_install_key_from_keychain
+                    if [[ -n "$PACKAGE_INSTALL_KEY" ]]; then
+                        echo "${GREEN}OK:${RESET} Package install key available from macOS Keychain"
+                    else
+                        echo "${RED}FAIL:${RESET} Package install key is required for at least one package, but was not found in env or Keychain."
+                        failures=$((failures + 1))
+                    fi
+                fi
+            fi
+        fi
+    fi
+
+    if [[ "$failures" -gt 0 ]]; then
+        ORG_ACTION="No org action. Self-check failed."
+        echo ""
+        echo "${RED}Self-check failed with $failures issue(s).${RESET}"
+        error 1 "Self-check found $failures issue(s)."
     fi
 
     ORG_ACTION="No org action. Self-check only."
@@ -1292,6 +1574,8 @@ package_plan() {
 
 print_settings() {
     local pool_devhub_display="${POOL_DEVHUB_USERNAME:-resolve from sf config target-dev-hub}"
+    local keychain_service_display="${PACKAGE_INSTALL_KEYCHAIN_SERVICE:-auto}"
+    local keychain_account_display="${PACKAGE_INSTALL_KEYCHAIN_ACCOUNT:-auto}"
 
     echo ""
     echo "Scratch org setup settings:"
@@ -1306,6 +1590,8 @@ print_settings() {
     echo "Use pool:                      $USE_POOL"
     echo "Pool tag:                      $POOL_TAG"
     echo "Pool DevHub:                   $pool_devhub_display"
+    echo "Keychain service:              $keychain_service_display"
+    echo "Keychain account:              $keychain_account_display"
     echo "Run packages:                  $RUN_PACKAGES"
     echo "Post steps:                    $POST_STEPS"
     echo "Verify package versions:       $VERIFY_PACKAGE_VERSIONS"
@@ -1382,6 +1668,16 @@ while [[ $# -gt 0 ]]; do
             POOL_DEVHUB_USERNAME="$2"
             shift 2
             ;;
+        --keychain-service)
+            require_option_value "$1" "${2:-}"
+            PACKAGE_INSTALL_KEYCHAIN_SERVICE="$2"
+            shift 2
+            ;;
+        --keychain-account)
+            require_option_value "$1" "${2:-}"
+            PACKAGE_INSTALL_KEYCHAIN_ACCOUNT="$2"
+            shift 2
+            ;;
         --delete-org-only)
             DELETE_ORG_ONLY=true
             shift
@@ -1440,12 +1736,6 @@ if [[ "$DELETE_ORG_ONLY" == "true" ]]; then
     USE_POOL=false
 fi
 
-if [[ "$SELF_CHECK_ONLY" == "true" ]]; then
-    RUN_ORG_CREATE=false
-    RUN_PACKAGES=false
-    POST_STEPS=none
-fi
-
 if [[ "$PACKAGE_PLAN_ONLY" == "true" ]]; then
     RUN_ORG_CREATE=false
     RUN_PACKAGES=false
@@ -1459,6 +1749,14 @@ if [[ "$UPDATE_PACKAGES_ONLY" == "true" ]]; then
     POST_STEPS=none
     USE_POOL=false
 fi
+
+REQUESTED_RUN_ORG_CREATE="$RUN_ORG_CREATE"
+REQUESTED_RUN_PACKAGES="$RUN_PACKAGES"
+REQUESTED_POST_STEPS="$POST_STEPS"
+REQUESTED_USE_POOL="$USE_POOL"
+REQUESTED_UPDATE_PACKAGES_ONLY="$UPDATE_PACKAGES_ONLY"
+REQUESTED_PACKAGE_PLAN_ONLY="$PACKAGE_PLAN_ONLY"
+REQUESTED_INSTALL_LATEST_PACKAGES="$INSTALL_LATEST_PACKAGES"
 
 # -----------------------------
 # Validation
