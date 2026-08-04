@@ -1252,6 +1252,17 @@ run_self_check() {
     local requested_data_step=false
     local install_key_required=false
     local package_count=0
+    local summary_rows=""
+    local checks_total=0
+    local checks_passed=0
+    local checks_failed=0
+    local checks_skipped=0
+    local command_failures=0
+    local file_failures=0
+    local package_resolution_failed=0
+    local package_resolution_passed=0
+    local key_check_status="SKIP"
+    local key_check_detail="No package in dependency set requires install key."
 
     local requested_run_org_create="$REQUESTED_RUN_ORG_CREATE"
     local requested_run_packages="$REQUESTED_RUN_PACKAGES"
@@ -1260,6 +1271,39 @@ run_self_check() {
     local requested_update_packages_only="$REQUESTED_UPDATE_PACKAGES_ONLY"
     local requested_package_plan_only="$REQUESTED_PACKAGE_PLAN_ONLY"
     local requested_install_latest_packages="$REQUESTED_INSTALL_LATEST_PACKAGES"
+
+    add_summary_row() {
+        local status="$1"
+        local name="$2"
+        local detail="$3"
+
+        checks_total=$((checks_total + 1))
+
+        case "$status" in
+            PASS) checks_passed=$((checks_passed + 1)) ;;
+            FAIL) checks_failed=$((checks_failed + 1)) ;;
+            SKIP) checks_skipped=$((checks_skipped + 1)) ;;
+        esac
+
+        summary_rows+="$status|$name|$detail"$'\n'
+    }
+
+    print_self_check_summary() {
+        echo ""
+        echo "Self-check summary"
+        echo "- Total:   $checks_total"
+        echo "- Passed:  $checks_passed"
+        echo "- Failed:  $checks_failed"
+        echo "- Skipped: $checks_skipped"
+        echo ""
+        printf "%-6s | %-30s | %s\n" "Status" "Check" "Details"
+        printf "%-6s-+-%-30s-+-%s\n" "------" "------------------------------" "------------------------------"
+
+        while IFS='|' read -r status name detail; do
+            [[ -z "$status" ]] && continue
+            printf "%-6s | %-30s | %s\n" "$status" "$name" "$detail"
+        done <<< "$summary_rows"
+    }
 
     echo ""
     echo "${GREEN}Running self-check...${RESET}"
@@ -1290,6 +1334,7 @@ run_self_check() {
     else
         echo "${RED}FAIL:${RESET} sf command not found"
         failures=$((failures + 1))
+        command_failures=$((command_failures + 1))
     fi
 
     if command -v jq >/dev/null 2>&1; then
@@ -1297,6 +1342,7 @@ run_self_check() {
     else
         echo "${RED}FAIL:${RESET} jq command not found"
         failures=$((failures + 1))
+        command_failures=$((command_failures + 1))
     fi
 
     if command -v sed >/dev/null 2>&1; then
@@ -1304,6 +1350,7 @@ run_self_check() {
     else
         echo "${RED}FAIL:${RESET} sed command not found"
         failures=$((failures + 1))
+        command_failures=$((command_failures + 1))
     fi
 
     if [[ "$requested_use_pool" == "true" && "$requested_run_org_create" == "true" ]]; then
@@ -1312,16 +1359,25 @@ run_self_check() {
         else
             echo "${RED}FAIL:${RESET} sfp command not found (required for pool mode)"
             failures=$((failures + 1))
+            command_failures=$((command_failures + 1))
         fi
+    fi
+
+    if [[ "$command_failures" -eq 0 ]]; then
+        add_summary_row "PASS" "Required commands" "All required commands are available."
+    else
+        add_summary_row "FAIL" "Required commands" "$command_failures required command check(s) failed."
     fi
 
     echo ""
     echo "Checking Salesforce CLI access..."
     if sf org list --json >/dev/null 2>&1; then
         echo "${GREEN}OK:${RESET} sf org list --json"
+        add_summary_row "PASS" "Salesforce CLI session" "sf org list --json succeeded."
     else
         echo "${RED}FAIL:${RESET} Could not run sf org list --json. Ensure CLI auth/session is valid."
         failures=$((failures + 1))
+        add_summary_row "FAIL" "Salesforce CLI session" "sf org list --json failed."
     fi
 
     if [[ "$requested_use_pool" == "true" && "$requested_run_org_create" == "true" ]]; then
@@ -1333,14 +1389,19 @@ run_self_check() {
             echo "${GREEN}OK:${RESET} resolved DevHub for pool: $resolved_devhub_for_check"
             if sfp pool list --tag "$POOL_TAG" -a --targetdevhubusername "$resolved_devhub_for_check" >/dev/null 2>&1; then
                 echo "${GREEN}OK:${RESET} sfp pool list --tag $POOL_TAG"
+                add_summary_row "PASS" "Pool access" "sfp pool list worked for tag $POOL_TAG."
             else
                 echo "${RED}FAIL:${RESET} Could not list sfp pool for tag $POOL_TAG"
                 failures=$((failures + 1))
+                add_summary_row "FAIL" "Pool access" "sfp pool list failed for tag $POOL_TAG."
             fi
         else
             echo "${RED}FAIL:${RESET} Could not resolve DevHub for pool mode. Set --pool-devhub or sf target-dev-hub config."
             failures=$((failures + 1))
+            add_summary_row "FAIL" "Pool access" "Could not resolve pool DevHub."
         fi
+    else
+        add_summary_row "SKIP" "Pool access" "Pool mode not requested."
     fi
 
     if [[ "$requested_run_packages" == "true" || "$requested_update_packages_only" == "true" || "$requested_package_plan_only" == "true" ]]; then
@@ -1357,10 +1418,12 @@ run_self_check() {
             else
                 echo "${RED}FAIL:${RESET} $PROJECT_FILE is not valid JSON"
                 failures=$((failures + 1))
+                file_failures=$((file_failures + 1))
             fi
         else
             echo "${RED}FAIL:${RESET} Project file not found: $PROJECT_FILE"
             failures=$((failures + 1))
+            file_failures=$((file_failures + 1))
         fi
     else
         echo "Project file check skipped (no package operations requested)."
@@ -1374,10 +1437,12 @@ run_self_check() {
             else
                 echo "${RED}FAIL:${RESET} $SCRATCH_DEF_FILE is not valid JSON"
                 failures=$((failures + 1))
+                file_failures=$((file_failures + 1))
             fi
         else
             echo "${RED}FAIL:${RESET} Scratch definition file not found: $SCRATCH_DEF_FILE"
             failures=$((failures + 1))
+            file_failures=$((file_failures + 1))
         fi
     fi
 
@@ -1393,11 +1458,19 @@ run_self_check() {
             else
                 echo "${RED}FAIL:${RESET} $DUMMY_DATA_PLAN is not valid JSON"
                 failures=$((failures + 1))
+                file_failures=$((file_failures + 1))
             fi
         else
             echo "${RED}FAIL:${RESET} Dummy data plan not found: $DUMMY_DATA_PLAN"
             failures=$((failures + 1))
+            file_failures=$((file_failures + 1))
         fi
+    fi
+
+    if [[ "$file_failures" -eq 0 ]]; then
+        add_summary_row "PASS" "Files and JSON" "All required files exist and parse as JSON."
+    else
+        add_summary_row "FAIL" "Files and JSON" "$file_failures file/JSON check(s) failed."
     fi
 
     if [[ "$requested_update_packages_only" == "true" || "$requested_package_plan_only" == "true" ]]; then
@@ -1413,10 +1486,14 @@ run_self_check() {
         echo "Checking target org access (read-only)..."
         if sf org display --target-org "$ORG_ALIAS" --json >/dev/null 2>&1; then
             echo "${GREEN}OK:${RESET} sf org display --target-org $ORG_ALIAS"
+            add_summary_row "PASS" "Target org access" "Target org $ORG_ALIAS is readable."
         else
             echo "${RED}FAIL:${RESET} Could not read target org: $ORG_ALIAS"
             failures=$((failures + 1))
+            add_summary_row "FAIL" "Target org access" "Could not read target org $ORG_ALIAS."
         fi
+    else
+        add_summary_row "SKIP" "Target org access" "No read-only org access required for requested mode."
     fi
 
     if [[ "$requested_needs_project_file" == "true" && -f "$PROJECT_FILE" ]]; then
@@ -1443,6 +1520,7 @@ run_self_check() {
                 if ! versions_json="$(get_package_versions_json "$package_name" 2>/dev/null)"; then
                     echo "${RED}FAIL:${RESET} Could not list released versions for package: $package_name"
                     failures=$((failures + 1))
+                    package_resolution_failed=$((package_resolution_failed + 1))
                     continue
                 fi
 
@@ -1450,6 +1528,7 @@ run_self_check() {
                 if [[ -z "$latest_json" || "$latest_json" == "null" ]]; then
                     echo "${RED}FAIL:${RESET} Could not resolve latest released version for package: $package_name"
                     failures=$((failures + 1))
+                    package_resolution_failed=$((package_resolution_failed + 1))
                     continue
                 fi
 
@@ -1462,27 +1541,47 @@ run_self_check() {
                 if [[ -z "$selected_json" || "$selected_json" == "null" ]]; then
                     echo "${RED}FAIL:${RESET} Could not resolve requested version $requested_version for package: $package_name"
                     failures=$((failures + 1))
+                    package_resolution_failed=$((package_resolution_failed + 1))
                     continue
                 fi
 
                 echo "${GREEN}OK:${RESET} $package_name -> $requested_version"
+                package_resolution_passed=$((package_resolution_passed + 1))
             done < <(read_dependencies)
+
+            if [[ "$package_resolution_failed" -eq 0 ]]; then
+                add_summary_row "PASS" "Package resolution" "Resolved $package_resolution_passed/$package_count dependencies."
+            else
+                add_summary_row "FAIL" "Package resolution" "Resolved $package_resolution_passed/$package_count; failed $package_resolution_failed."
+            fi
 
             if [[ "$install_key_required" == "true" ]]; then
                 if [[ -n "$PACKAGE_INSTALL_KEY" ]]; then
                     echo "${GREEN}OK:${RESET} Package install key provided via environment"
+                    key_check_status="PASS"
+                    key_check_detail="Install key is available via environment variable."
                 else
                     resolve_package_install_key_from_keychain
                     if [[ -n "$PACKAGE_INSTALL_KEY" ]]; then
                         echo "${GREEN}OK:${RESET} Package install key available from macOS Keychain"
+                        key_check_status="PASS"
+                        key_check_detail="Install key was resolved from macOS Keychain."
                     else
                         echo "${RED}FAIL:${RESET} Package install key is required for at least one package, but was not found in env or Keychain."
                         failures=$((failures + 1))
+                        key_check_status="FAIL"
+                        key_check_detail="Install key required but not found in env or Keychain."
                     fi
                 fi
             fi
         fi
+    else
+        add_summary_row "SKIP" "Package resolution" "No package operation requested."
     fi
+
+    add_summary_row "$key_check_status" "Install key readiness" "$key_check_detail"
+
+    print_self_check_summary
 
     if [[ "$failures" -gt 0 ]]; then
         ORG_ACTION="No org action. Self-check failed."
