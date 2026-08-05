@@ -198,3 +198,43 @@ sfdx-project.json.backup
 
 
 bin/install-temp.sh
+
+# Unlocked-packaged
+platform-data-model/**
+!platform-data-model/README.md
+custom-metadata-dao/**
+!custom-metadata-dao/README.md
+custom-permission-helper/**
+!custom-permission-helper/README.md
+feature-toggle/**
+!feature-toggle/README.md
+record-type-cache/**
+!record-type-cache/README.md
+crm-platform-base/**
+!crm-platform-base/README.md
+crm-platform-reporting/**
+!crm-platform-reporting/README.md
+crm-platform-access-control/**
+!crm-platform-access-control/README.md
+crm-thread-view/**
+!crm-thread-view/README.md
+crm-shared-timeline/**
+!crm-shared-timeline/README.md
+crm-community-base/**
+!crm-community-base/README.md
+crm-platform-integration/**
+!crm-platform-integration/README.md
+crm-platform-email-scheduling/**
+!crm-platform-email-scheduling/README.md
+crm-journal-utilities/**
+!crm-journal-utilities/README.md
+crm-shared-user-notification/**
+!crm-shared-user-notification/README.md
+crm-shared-flowComponents/**
+!crm-shared-flowComponents/README.md
+crm-platform-oppgave/**
+!crm-platform-oppgave/README.md
+crm-henvendelse-base/**
+!crm-henvendelse-base/README.md
+crm-henvendelse/**
+!crm-henvendelse/README.md

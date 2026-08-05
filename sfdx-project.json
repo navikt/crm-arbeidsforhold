@@ -87,6 +87,63 @@
         {
             "path": "src-temp",
             "default": true
+        },
+        {
+            "path": "platform-data-model"
+        },
+        {
+            "path": "custom-metadata-dao"
+        },
+        {
+            "path": "custom-permission-helper"
+        },
+        {
+            "path": "feature-toggle"
+        },
+        {
+            "path": "record-type-cache"
+        },
+        {
+            "path": "crm-platform-base"
+        },
+        {
+            "path": "crm-platform-reporting"
+        },
+        {
+            "path": "crm-platform-access-control"
+        },
+        {
+            "path": "crm-thread-view"
+        },
+        {
+            "path": "crm-shared-timeline"
+        },
+        {
+            "path": "crm-community-base"
+        },
+        {
+            "path": "crm-platform-integration"
+        },
+        {
+            "path": "crm-platform-email-scheduling"
+        },
+        {
+            "path": "crm-journal-utilities"
+        },
+        {
+            "path": "crm-shared-user-notification"
+        },
+        {
+            "path": "crm-shared-flowComponents"
+        },
+        {
+            "path": "crm-platform-oppgave"
+        },
+        {
+            "path": "crm-henvendelse-base"
+        },
+        {
+            "path": "crm-henvendelse"
         }
     ],
     "namespace": "",
