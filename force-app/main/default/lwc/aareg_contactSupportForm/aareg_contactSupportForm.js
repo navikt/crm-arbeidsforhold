@@ -109,6 +109,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
 
     const representingOrganization = sessionStorage.getItem(`${this.currentUser}_userType`);
     this.isRepresentingOrganization = representingOrganization === 'Organization';
+    console.log('Is Representing organization:', this.isRepresentingOrganization);
     this._updateRecordTypeId();
 
   }
