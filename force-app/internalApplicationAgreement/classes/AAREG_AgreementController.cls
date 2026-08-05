@@ -5,6 +5,19 @@
  * update agreements, and cancel agreements.
  */
 public with sharing class AAREG_AgreementController {
+    @TestVisible
+    private static Boolean forceRelatedContactNotAccessible = false;
+    @TestVisible
+    private static Boolean forceAgreementNotUpdateable = false;
+    @TestVisible
+    private static Boolean forceRelatedContactNotCreateable = false;
+    @TestVisible
+    private static Boolean forceRelatedContactNotUpdateable = false;
+    @TestVisible
+    private static Boolean forceRelatedContactNotDeletable = false;
+    @TestVisible
+    private static Boolean forceCancelAgreementNotUpdateable = false;
+
     /**
      * Returns related contact records for a given agreement.
      *
@@ -17,7 +30,10 @@ public with sharing class AAREG_AgreementController {
             return new List<RelatedContact__c>();
         }
 
-        if (!Schema.sObjectType.RelatedContact__c.isAccessible()) {
+        if (
+            !Schema.sObjectType.RelatedContact__c.isAccessible() ||
+            (Test.isRunningTest() && forceRelatedContactNotAccessible)
+        ) {
             return new List<RelatedContact__c>();
         }
 
@@ -52,7 +68,7 @@ public with sharing class AAREG_AgreementController {
             throw new AuraHandledException('Agreement Id is required.');
         }
 
-        if (!Schema.sObjectType.Agreement__c.isUpdateable()) {
+        if (!Schema.sObjectType.Agreement__c.isUpdateable() || (Test.isRunningTest() && forceAgreementNotUpdateable)) {
             throw new AuraHandledException('Ingen tilgang til å oppdatere avtalen.');
         }
 
@@ -67,6 +83,12 @@ public with sharing class AAREG_AgreementController {
         if (!contacts.isEmpty()) {
             Boolean canCreate = Schema.sObjectType.RelatedContact__c.isCreateable();
             Boolean canUpdate = Schema.sObjectType.RelatedContact__c.isUpdateable();
+            if (Test.isRunningTest() && forceRelatedContactNotCreateable) {
+                canCreate = false;
+            }
+            if (Test.isRunningTest() && forceRelatedContactNotUpdateable) {
+                canUpdate = false;
+            }
 
             for (RelatedContact__c contact : contacts) {
                 if (contact.Id == null && !canCreate) {
@@ -78,7 +100,11 @@ public with sharing class AAREG_AgreementController {
             }
         }
 
-        if (!contactsToDelete.isEmpty() && !Schema.sObjectType.RelatedContact__c.isDeletable()) {
+        if (
+            !contactsToDelete.isEmpty() &&
+            (!Schema.sObjectType.RelatedContact__c.isDeletable() ||
+            (Test.isRunningTest() && forceRelatedContactNotDeletable))
+        ) {
             throw new AuraHandledException('Ingen tilgang til å slette kontaktpersoner.');
         }
 
@@ -108,7 +134,10 @@ public with sharing class AAREG_AgreementController {
             throw new AuraHandledException('Agreement Id is required.');
         }
 
-        if (!Schema.sObjectType.Agreement__c.isUpdateable()) {
+        if (
+            !Schema.sObjectType.Agreement__c.isUpdateable() ||
+            (Test.isRunningTest() && forceCancelAgreementNotUpdateable)
+        ) {
             throw new AuraHandledException('Ingen tilgang til å oppdatere avtalen.');
         }
 

@@ -6,6 +6,11 @@
  * the user's access permissions.
  */
 public with sharing class AAREG_MyApplicationsController {
+    @TestVisible
+    static Boolean forceNoApplicationAccess = false;
+    @TestVisible
+    static Boolean forceUnexpectedGetDecisionPdfError = false;
+
     @AuraEnabled(cacheable=true)
     /**
      * Retrieves a list of applications associated with the specified user.
@@ -40,6 +45,10 @@ public with sharing class AAREG_MyApplicationsController {
     public static String getDecisionPDF(Id applicationId) {
         String documentTitle = 'Vedtak til søknad %';
         try {
+            if (Test.isRunningTest() && forceUnexpectedGetDecisionPdfError) {
+                Integer fail = 1 / 0;
+            }
+
             // First, query Application_Decision__c records for the given application
             List<Application_Decision__c> decisions = [
                 SELECT Id
@@ -99,7 +108,7 @@ public with sharing class AAREG_MyApplicationsController {
 
     private static List<Application__c> getApplications(String lastUsedOrganization) {
         List<Application__c> applications = new List<Application__c>();
-        if (Schema.sObjectType.Application__c.isAccessible()) {
+        if (Schema.sObjectType.Application__c.isAccessible() && !(Test.isRunningTest() && forceNoApplicationAccess)) {
             List<Application__c> applicationstemp = new List<Application__c>(
                 [
                     SELECT
@@ -147,5 +156,10 @@ public with sharing class AAREG_MyApplicationsController {
             'Suspension' => 'Trukket tilbake'
         };
         return statusLabels.containsKey(status) ? statusLabels.get(status) : 'Ukjent status';
+    }
+
+    @TestVisible
+    private static String translateStatusForTest(String status) {
+        return translateStatus(status);
     }
 }

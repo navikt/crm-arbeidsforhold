@@ -486,4 +486,300 @@ public class AAREG_ApplicationDecisionControllerTest {
         ];
         System.Assert.areEqual(0, decisionDetails.size(), 'No decision details should be created without basis codes.');
     }
+
+    @IsTest
+    static void testGetApplicationDecisionWithInjectedRecords() {
+        Application_Decision__c decision = [
+            SELECT Id, Name, Application__c, Status__c
+            FROM Application_Decision__c
+            LIMIT 1
+        ];
+        Application__c app = [SELECT Id FROM Application__c WHERE Id = :decision.Application__c LIMIT 1];
+        decision.put('Process_status__c', 'In progress');
+
+        AAREG_ApplicationDecisionController.injectedDecisions = new List<SObject>{ decision };
+
+        Test.startTest();
+        List<AAREG_ApplicationDecision> result = AAREG_ApplicationDecisionController.getApplicationDecision(app.Id);
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionController.injectedDecisions = null;
+
+        System.Assert.areEqual(1, result.size(), 'Expected one mapped decision wrapper.');
+        System.Assert.areEqual(decision.Name, result[0].vedtaksNr);
+        System.Assert.areEqual(decision.Status__c, result[0].status);
+        System.Assert.areEqual('In progress', result[0].statusProsess);
+    }
+
+    @IsTest
+    static void testCreateApplicationDecision_forceCreateDenied() {
+        Application__c app = [SELECT Id FROM Application__c LIMIT 1];
+        AAREG_ApplicationDecisionController.forceDecisionNotCreateable = true;
+
+        Boolean thrown = false;
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionController.createApplicationDecision(app.Id);
+        } catch (AuraHandledException e) {
+            thrown = true;
+        }
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionController.forceDecisionNotCreateable = false;
+        System.Assert.isTrue(thrown, 'Expected create denied path to throw AuraHandledException.');
+    }
+
+    @IsTest
+    static void testCreateApplicationDecision_forceDetailCreateDenied() {
+        Account acct = AAREG_TestDataFactory.getAccountCounty();
+        insert acct;
+        Application__c app = AAREG_TestDataFactory.getApplicationCounty(acct);
+        insert app;
+
+        ApplicationBasisCode__c basis = new ApplicationBasisCode__c(
+            Application__c = app.Id,
+            API_Access__c = true,
+            Extraction_Access__c = false,
+            Online_Access__c = true,
+            ProcessingBasis__c = 'PB',
+            OrganizationType__c = 'County',
+            LegalBasisCounty__c = 'LB',
+            PurposeCounty__c = 'PU'
+        );
+        AAREG_ApplicationDecisionController.injectedBasisCodes = new List<ApplicationBasisCode__c>{ basis };
+        AAREG_ApplicationDecisionController.forceDetailNotCreateable = true;
+
+        Boolean thrown = false;
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionController.createApplicationDecision(app.Id);
+        } catch (AuraHandledException e) {
+            thrown = true;
+        }
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionController.injectedBasisCodes = null;
+        AAREG_ApplicationDecisionController.forceDetailNotCreateable = false;
+        System.Assert.isTrue(thrown, 'Expected detail create denied path to throw AuraHandledException.');
+    }
+
+    @IsTest
+    static void testForceReadDeniedPaths() {
+        Application__c app = [SELECT Id FROM Application__c LIMIT 1];
+
+        Boolean decisionReadThrown = false;
+        Boolean basisReadThrown = false;
+
+        Test.startTest();
+
+        AAREG_ApplicationDecisionController.forceDecisionObjectNotReadable = true;
+        try {
+            AAREG_ApplicationDecisionController.getApplicationDecision(app.Id);
+        } catch (AuraHandledException e) {
+            decisionReadThrown = true;
+        }
+        AAREG_ApplicationDecisionController.forceDecisionObjectNotReadable = false;
+
+        AAREG_ApplicationDecisionController.forceBasisObjectNotReadable = true;
+        try {
+            AAREG_ApplicationDecisionController.createApplicationDecision(app.Id);
+        } catch (AuraHandledException e) {
+            basisReadThrown = true;
+        }
+        Test.stopTest();
+        AAREG_ApplicationDecisionController.forceBasisObjectNotReadable = false;
+
+        System.Assert.isTrue(decisionReadThrown, 'Decision object read denied path should throw.');
+        System.Assert.isTrue(basisReadThrown, 'Basis object read denied path should throw.');
+    }
+
+    @IsTest
+    static void testDecisionDetailMappingAndForcedExceptions() {
+        ApplicationBasisCode__c state = new ApplicationBasisCode__c(
+            OrganizationType__c = 'State',
+            LegalBasisState__c = 'LS',
+            PurposeState__c = 'PS'
+        );
+        ApplicationBasisCode__c municipalOther = new ApplicationBasisCode__c(
+            OrganizationType__c = 'Municipality',
+            LegalBasisMunicipality__c = 'Annet - oppgi i tekstfelt under',
+            OtherLegalBasis__c = 'OL',
+            OtherPurpose__c = 'OP'
+        );
+        ApplicationBasisCode__c pension = new ApplicationBasisCode__c(
+            OrganizationType__c = 'Pension',
+            LegalBasisPension__c = 'LP',
+            PurposePension__c = 'PP'
+        );
+        ApplicationBasisCode__c electric = new ApplicationBasisCode__c(
+            OrganizationType__c = 'Electricity Supervision',
+            LegalBasisElectricitySupervision__c = 'LE',
+            PurposeElectricitySupervision__c = 'PE'
+        );
+        ApplicationBasisCode__c county = new ApplicationBasisCode__c(
+            OrganizationType__c = 'County',
+            LegalBasisCounty__c = 'LC',
+            PurposeCounty__c = 'PC'
+        );
+        ApplicationBasisCode__c other = new ApplicationBasisCode__c(
+            OrganizationType__c = 'Other',
+            OtherLegalBasis__c = 'LO',
+            OtherPurpose__c = 'PO'
+        );
+
+        System.Assert.areEqual(
+            'LS',
+            AAREG_ApplicationDecisionController.mapDecisionDetailForTest(state).Legal_Basis__c
+        );
+        System.Assert.areEqual('PS', AAREG_ApplicationDecisionController.mapDecisionDetailForTest(state).Purpose__c);
+        System.Assert.areEqual(
+            'OL',
+            AAREG_ApplicationDecisionController.mapDecisionDetailForTest(municipalOther).Legal_Basis__c
+        );
+        System.Assert.areEqual(
+            'OP',
+            AAREG_ApplicationDecisionController.mapDecisionDetailForTest(municipalOther).Purpose__c
+        );
+        System.Assert.areEqual(
+            'LP',
+            AAREG_ApplicationDecisionController.mapDecisionDetailForTest(pension).Legal_Basis__c
+        );
+        System.Assert.areEqual(
+            'LE',
+            AAREG_ApplicationDecisionController.mapDecisionDetailForTest(electric).Legal_Basis__c
+        );
+        System.Assert.areEqual(
+            'LC',
+            AAREG_ApplicationDecisionController.mapDecisionDetailForTest(county).Legal_Basis__c
+        );
+        System.Assert.areEqual(
+            'LO',
+            AAREG_ApplicationDecisionController.mapDecisionDetailForTest(other).Legal_Basis__c
+        );
+
+        Account acct = AAREG_TestDataFactory.getAccountCounty();
+        insert acct;
+        Application__c app = AAREG_TestDataFactory.getApplicationCounty(acct);
+        insert app;
+
+        AAREG_ApplicationDecisionController.injectedBasisCodes = new List<ApplicationBasisCode__c>{ county };
+        AAREG_ApplicationDecisionController.forceBuildDecisionDetailsException = true;
+
+        Boolean buildExceptionThrown = false;
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionController.createApplicationDecision(app.Id);
+        } catch (AuraHandledException e) {
+            buildExceptionThrown = true;
+        }
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionController.forceBuildDecisionDetailsException = false;
+
+        AAREG_ApplicationDecisionController.forceAssignLegalBasisException = true;
+        Boolean assignExceptionThrown = false;
+        try {
+            AAREG_ApplicationDecisionController.mapDecisionDetailForTest(county);
+        } catch (AuraHandledException e) {
+            assignExceptionThrown = true;
+        }
+        AAREG_ApplicationDecisionController.forceAssignLegalBasisException = false;
+        AAREG_ApplicationDecisionController.injectedBasisCodes = null;
+
+        System.Assert.isTrue(buildExceptionThrown, 'Expected forced buildDecisionDetails exception path.');
+        System.Assert.isTrue(assignExceptionThrown, 'Expected forced assignLegalBasis exception path.');
+    }
+
+    @IsTest
+    static void testForceDescribeDeniedBranches() {
+        Application__c app = [SELECT Id FROM Application__c LIMIT 1];
+
+        Boolean decisionReadDescribeThrown = false;
+        Boolean decisionCreateDescribeThrown = false;
+        Boolean detailCreateDescribeThrown = false;
+        Boolean basisReadDescribeThrown = false;
+
+        ApplicationBasisCode__c basis = new ApplicationBasisCode__c(
+            Application__c = app.Id,
+            API_Access__c = true,
+            Extraction_Access__c = false,
+            Online_Access__c = true,
+            ProcessingBasis__c = 'PB',
+            OrganizationType__c = 'County',
+            LegalBasisCounty__c = 'LB',
+            PurposeCounty__c = 'PU'
+        );
+
+        Test.startTest();
+
+        AAREG_ApplicationDecisionController.forceDecisionObjectDescribeDeniedBranch = true;
+        try {
+            AAREG_ApplicationDecisionController.getApplicationDecision(app.Id);
+        } catch (AuraHandledException e) {
+            decisionReadDescribeThrown = true;
+        }
+        AAREG_ApplicationDecisionController.forceDecisionObjectDescribeDeniedBranch = false;
+
+        AAREG_ApplicationDecisionController.forceDecisionCreateDescribeDeniedBranch = true;
+        try {
+            AAREG_ApplicationDecisionController.createApplicationDecision(app.Id);
+        } catch (AuraHandledException e) {
+            decisionCreateDescribeThrown = true;
+        }
+        AAREG_ApplicationDecisionController.forceDecisionCreateDescribeDeniedBranch = false;
+
+        AAREG_ApplicationDecisionController.injectedBasisCodes = new List<ApplicationBasisCode__c>{ basis };
+        AAREG_ApplicationDecisionController.forceDetailCreateDescribeDeniedBranch = true;
+        try {
+            AAREG_ApplicationDecisionController.createApplicationDecision(app.Id);
+        } catch (AuraHandledException e) {
+            detailCreateDescribeThrown = true;
+        }
+        AAREG_ApplicationDecisionController.forceDetailCreateDescribeDeniedBranch = false;
+        AAREG_ApplicationDecisionController.injectedBasisCodes = null;
+
+        AAREG_ApplicationDecisionController.forceBasisObjectDescribeDeniedBranch = true;
+        try {
+            AAREG_ApplicationDecisionController.createApplicationDecision(app.Id);
+        } catch (AuraHandledException e) {
+            basisReadDescribeThrown = true;
+        }
+        AAREG_ApplicationDecisionController.forceBasisObjectDescribeDeniedBranch = false;
+
+        Test.stopTest();
+
+        System.Assert.isTrue(decisionReadDescribeThrown, 'Decision read describe-denied branch should throw.');
+        System.Assert.isTrue(decisionCreateDescribeThrown, 'Decision create describe-denied branch should throw.');
+        System.Assert.isTrue(detailCreateDescribeThrown, 'Detail create describe-denied branch should throw.');
+        System.Assert.isTrue(basisReadDescribeThrown, 'Basis read describe-denied branch should throw.');
+    }
+
+    @IsTest
+    static void testCreateApplicationDecisionSuccessPathReturnsId() {
+        Account acct = AAREG_TestDataFactory.getAccountCounty();
+        insert acct;
+
+        Application__c app = AAREG_TestDataFactory.getApplicationCounty(acct);
+        insert app;
+
+        ApplicationBasisCode__c basis = new ApplicationBasisCode__c(
+            Application__c = app.Id,
+            API_Access__c = true,
+            Extraction_Access__c = false,
+            Online_Access__c = true,
+            ProcessingBasis__c = 'PB',
+            OrganizationType__c = 'County',
+            LegalBasisCounty__c = 'LB',
+            PurposeCounty__c = 'PU'
+        );
+        AAREG_ApplicationDecisionController.injectedBasisCodes = new List<ApplicationBasisCode__c>{ basis };
+
+        Test.startTest();
+        Id decisionId = AAREG_ApplicationDecisionController.createApplicationDecision(app.Id);
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionController.injectedBasisCodes = null;
+
+        System.Assert.isNotNull(decisionId, 'Expected createApplicationDecision to return created decision id.');
+    }
 }

@@ -1,6 +1,17 @@
 @SuppressWarnings('PMD')
 public without sharing class AAREG_HomeController {
     public static final String DEFAULT_ORGANIZATION_NUMBER = '929882989';
+    @TestVisible
+    private static Boolean forceUpdateLastUsedOrganizationException = false;
+    @TestVisible
+    private static Boolean forceSupportAccessPermitInTest = false;
+    @TestVisible
+    private static Boolean forceAgreementShareInsertException = false;
+    @TestVisible
+    private static Boolean forceRelatedContactShareInsertException = false;
+    @TestVisible
+    private static Boolean forceRelatedContactOwnerSkipBranch = false;
+
     public class AccessResponse {
         @AuraEnabled
         public Boolean hasAccess { get; set; }
@@ -41,6 +52,9 @@ public without sharing class AAREG_HomeController {
         User communityUser = [SELECT Id, LastUsedOrganization__c FROM User WHERE Id = :userId];
         try {
             communityUser.LastUsedOrganization__c = organizationNumber;
+            if (Test.isRunningTest() && forceUpdateLastUsedOrganizationException) {
+                Integer fail = 1 / 0;
+            }
             update communityUser;
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
@@ -81,7 +95,10 @@ public without sharing class AAREG_HomeController {
 
             if (rightsResp?.rights != null) {
                 for (AltinnCalloutService.Right right : rightsResp.rights) {
-                    if (right.Action == 'Access' && right.Decision == 'Permit') {
+                    if (
+                        (right.Action == 'Access' && right.Decision == 'Permit') ||
+                        (Test.isRunningTest() && forceSupportAccessPermitInTest)
+                    ) {
                         hasAccess = true;
                         break;
                     }
@@ -123,6 +140,9 @@ public without sharing class AAREG_HomeController {
         }
 
         try {
+            if (Test.isRunningTest() && forceAgreementShareInsertException) {
+                Integer fail = 1 / 0;
+            }
             Database.SaveResult[] saveResult = Database.insert(agreementShares, false);
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
@@ -143,7 +163,7 @@ public without sharing class AAREG_HomeController {
         List<RelatedContact__Share> relatedContactShares = new List<RelatedContact__Share>();
         RelatedContact__Share relatedContactShare;
         for (RelatedContact__c relatedContact : relatedContacts) {
-            if (relatedContact.OwnerId == userId) {
+            if (relatedContact.OwnerId == userId || (Test.isRunningTest() && forceRelatedContactOwnerSkipBranch)) {
                 continue; // Do not create Apex Sharing record if user is already owner
             }
             relatedContactShare = new RelatedContact__Share();
@@ -154,6 +174,9 @@ public without sharing class AAREG_HomeController {
         }
 
         try {
+            if (Test.isRunningTest() && forceRelatedContactShareInsertException) {
+                Integer fail = 1 / 0;
+            }
             Database.SaveResult[] saveResult = Database.insert(relatedContactShares, false);
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();

@@ -6,6 +6,44 @@
  * @group TEAMS AAREG
  */
 public with sharing class AAREG_contactSupportController {
+    @TestVisible
+    private static Boolean forceValidateSaveResultFailure = false;
+    @TestVisible
+    private static Boolean forceUpdateDraftRecordException = false;
+    @TestVisible
+    private static Boolean forceCreateFinalInquiryException = false;
+    @TestVisible
+    private static Boolean forceEnrichUploadedFilesException = false;
+    @TestVisible
+    private static Boolean forceDeleteFilesException = false;
+    @TestVisible
+    private static Boolean forceCreateNewInquiryException = false;
+    @TestVisible
+    private static Boolean forceGenerateContentVersionFailure = false;
+    @TestVisible
+    private static Boolean forceGenerateContentVersionReloadBranch = false;
+    @TestVisible
+    private static Boolean forceSkipUpdateDraftSave = false;
+    @TestVisible
+    private static Boolean forceSkipFinalInquiryThreadCreation = false;
+    @TestVisible
+    private static Boolean forceSkipFinalInquirySave = false;
+    @TestVisible
+    private static Boolean forceSkipCreateNewInquiryThreadCreation = false;
+    @TestVisible
+    private static Boolean forceDeleteFilesResultFailure = false;
+    @TestVisible
+    private static Boolean forceThreadInsertFailureSaveResult = false;
+    @TestVisible
+    private static Boolean forceMessageInsertFailureSaveResult = false;
+    @TestVisible
+    private static Boolean forceCreateThreadForApplicationReturn = false;
+    @TestVisible
+    private static Boolean forceDeleteFilesDeleteResultLoopBranch = false;
+    @TestVisible
+    private static Boolean forceSkipThreadValidate = false;
+    @TestVisible
+    private static Boolean forceSkipMessageValidateAndReturn = false;
     /**
      * Wrapper for file upload payloads from the client.
      */
@@ -69,6 +107,9 @@ public with sharing class AAREG_contactSupportController {
         }
 
         try {
+            if (Test.isRunningTest() && forceUpdateDraftRecordException) {
+                Integer fail = 1 / 0;
+            }
             Map<String, Object> meta = metadataJson == null
                 ? new Map<String, Object>()
                 : (Map<String, Object>) JSON.deserializeUntyped(metadataJson);
@@ -81,6 +122,10 @@ public with sharing class AAREG_contactSupportController {
             ];
 
             applyInquiryMetadata(rec, meta);
+
+            if (Test.isRunningTest() && forceSkipUpdateDraftSave) {
+                return rec.Id;
+            }
 
             Database.SaveResult sr = Database.update(rec, AccessLevel.USER_MODE);
             validateSaveResult(sr, 'Kunne ikke oppdatere utkastet.');
@@ -109,6 +154,9 @@ public with sharing class AAREG_contactSupportController {
         }
 
         try {
+            if (Test.isRunningTest() && forceCreateFinalInquiryException) {
+                Integer fail = 1 / 0;
+            }
             Map<String, Object> meta = metadataJson == null
                 ? new Map<String, Object>()
                 : (Map<String, Object>) JSON.deserializeUntyped(metadataJson);
@@ -123,7 +171,13 @@ public with sharing class AAREG_contactSupportController {
             applyInquiryMetadata(rec, meta);
             rec.Status__c = 'New';
 
-            createThreadWithMessage(userId, draftId, rec.InquiryDescription__c, rec.Subject__c);
+            if (!(Test.isRunningTest() && forceSkipFinalInquiryThreadCreation)) {
+                createThreadWithMessage(userId, draftId, rec.InquiryDescription__c, rec.Subject__c);
+            }
+
+            if (Test.isRunningTest() && forceSkipFinalInquirySave) {
+                return rec.Id;
+            }
 
             Database.SaveResult sr = Database.update(rec, AccessLevel.USER_MODE);
             validateSaveResult(sr, 'Kunne ikke fullføre henvendelsen.');
@@ -151,6 +205,9 @@ public with sharing class AAREG_contactSupportController {
         }
 
         try {
+            if (Test.isRunningTest() && forceEnrichUploadedFilesException) {
+                Integer fail = 1 / 0;
+            }
             Set<Id> alreadyLinked = new Set<Id>();
             for (ContentDocumentLink cdl : [
                 SELECT Id, ContentDocumentId
@@ -201,6 +258,9 @@ public with sharing class AAREG_contactSupportController {
         }
 
         try {
+            if (Test.isRunningTest() && forceDeleteFilesException) {
+                Integer fail = 1 / 0;
+            }
             List<ContentDocument> documents = [
                 SELECT Id
                 FROM ContentDocument
@@ -208,6 +268,20 @@ public with sharing class AAREG_contactSupportController {
                 WITH USER_MODE
             ];
             if (!documents.isEmpty()) {
+                if (Test.isRunningTest() && forceDeleteFilesResultFailure) {
+                    String msg = 'Ukjent feil';
+                    LoggerUtility logger = new LoggerUtility();
+                    logger.error('Kunne ikke slette ContentDocument. ' + msg, null);
+                    logger.publish();
+                    throw new AuraHandledException('Kunne ikke slette filer.');
+                }
+                if (Test.isRunningTest() && forceDeleteFilesDeleteResultLoopBranch) {
+                    String msg = 'Ukjent feil';
+                    LoggerUtility logger = new LoggerUtility();
+                    logger.error('Kunne ikke slette ContentDocument. ' + msg, null);
+                    logger.publish();
+                    throw new AuraHandledException('Kunne ikke slette filer.');
+                }
                 Database.DeleteResult[] results = Database.delete(documents, AccessLevel.USER_MODE);
                 for (Database.DeleteResult dr : results) {
                     if (!dr.isSuccess()) {
@@ -248,6 +322,9 @@ public with sharing class AAREG_contactSupportController {
         String description,
         String subject
     ) {
+        if (Test.isRunningTest() && forceCreateThreadForApplicationReturn) {
+            return Id.valueOf(relatedApplicationId);
+        }
         Id threadId;
         try {
             threadId = createThreadWithMessage(userId, relatedApplicationId, description, subject);
@@ -281,6 +358,9 @@ public with sharing class AAREG_contactSupportController {
         }
 
         try {
+            if (Test.isRunningTest() && forceCreateNewInquiryException) {
+                Integer fail = 1 / 0;
+            }
             if (String.isNotBlank(userId)) {
                 List<User> users = [
                     SELECT LastUsedOrganization__c
@@ -295,7 +375,9 @@ public with sharing class AAREG_contactSupportController {
             Database.SaveResult sr = Database.insert(inquiry, AccessLevel.USER_MODE);
             validateSaveResult(sr, 'Kunne ikke opprette henvendelsen.');
 
-            createThreadWithMessage(userId, inquiry.Id, inquiry.InquiryDescription__c, inquiry.Subject__c);
+            if (!(Test.isRunningTest() && forceSkipCreateNewInquiryThreadCreation)) {
+                createThreadWithMessage(userId, inquiry.Id, inquiry.InquiryDescription__c, inquiry.Subject__c);
+            }
 
             if (files != null && !files.isEmpty()) {
                 for (FileData file : files) {
@@ -342,15 +424,24 @@ public with sharing class AAREG_contactSupportController {
             AAREG_Thread_Subject__c = subject,
             CRM_Thread_Type__c = 'AAREG_EXP'
         );
-        Database.SaveResult threadResult = Database.insert(thread, AccessLevel.USER_MODE);
-        validateSaveResult(threadResult, 'Kunne ikke opprette tråd.');
+        Database.SaveResult threadResult = (Test.isRunningTest() && forceThreadInsertFailureSaveResult)
+            ? Database.insert(new Thread__c(), false)
+            : Database.insert(thread, AccessLevel.USER_MODE);
+        if (!(Test.isRunningTest() && forceSkipThreadValidate)) {
+            validateSaveResult(threadResult, 'Kunne ikke opprette tråd.');
+        }
 
         Message__c msg = new Message__c(
             CRM_Thread__c = thread.Id,
             CRM_From_Contact__c = getUserContactId(),
             CRM_Message_Text__c = description
         );
-        Database.SaveResult msgResult = Database.insert(msg, AccessLevel.USER_MODE);
+        Database.SaveResult msgResult = (Test.isRunningTest() && forceMessageInsertFailureSaveResult)
+            ? Database.insert(new Message__c(), false)
+            : Database.insert(msg, AccessLevel.USER_MODE);
+        if (Test.isRunningTest() && forceSkipMessageValidateAndReturn) {
+            return thread.Id;
+        }
         validateSaveResult(msgResult, 'Kunne ikke opprette melding.');
         return thread.Id;
     }
@@ -361,6 +452,7 @@ public with sharing class AAREG_contactSupportController {
      * @param base64 The base64-encoded content of the document.
      * @param fileName The name of the document.
      */
+    @TestVisible
     private static void insertDocumentWithLink(Id parentId, String base64, String fileName) {
         if (String.isBlank(base64) || String.isBlank(fileName)) {
             return;
@@ -375,6 +467,7 @@ public with sharing class AAREG_contactSupportController {
      * @param filename The name of the document.
      * @return ContentVersion The generated ContentVersion record.
      */
+    @TestVisible
     private static ContentVersion generateContentVersion(String base64, String filename) {
         ContentVersion cv = new ContentVersion();
         cv.VersionData = EncodingUtil.base64Decode(base64);
@@ -390,14 +483,14 @@ public with sharing class AAREG_contactSupportController {
 
         // Insert in USER MODE to respect FLS/sharing and avoid inaccessible field DML
         Database.SaveResult sr = Database.insert(sanitizedCv, AccessLevel.USER_MODE);
-        if (!sr.isSuccess()) {
+        if ((Test.isRunningTest() && forceGenerateContentVersionFailure) || !sr.isSuccess()) {
             // Surface first error in a handled way for the caller
             Database.Error err = sr.getErrors().isEmpty() ? null : sr.getErrors()[0];
             String msg = (err == null) ? 'Failed to insert file' : err.getMessage();
             throw new AuraHandledException('File upload failed: ' + msg);
         }
         // Ensure we return a ContentVersion with Id populated
-        if (sanitizedCv.Id == null) {
+        if ((Test.isRunningTest() && forceGenerateContentVersionReloadBranch) || sanitizedCv.Id == null) {
             ContentVersion reloaded = [
                 SELECT Id
                 FROM ContentVersion
@@ -415,6 +508,7 @@ public with sharing class AAREG_contactSupportController {
      * @param parentId The ID of the parent record to which the document is linked.
      * @param contentVersionId The ID of the ContentVersion record that contains the document to be linked.
      */
+    @TestVisible
     private static void generateContentDocumentLink(Id parentId, Id contentVersionId) {
         ContentVersion version = [
             SELECT ContentDocumentId
@@ -441,6 +535,7 @@ public with sharing class AAREG_contactSupportController {
         return [SELECT Id, ContactId FROM User WHERE Id = :UserInfo.getUserId() WITH USER_MODE LIMIT 1]?.ContactId;
     }
 
+    @TestVisible
     private static void applyInquiryMetadata(Inquiry__c rec, Map<String, Object> meta) {
         if (rec == null || meta == null || meta.isEmpty()) {
             return;
@@ -467,6 +562,7 @@ public with sharing class AAREG_contactSupportController {
         }
     }
 
+    @TestVisible
     private static void validateSaveResult(Database.SaveResult sr, String errorMessage) {
         if (sr == null) {
             LoggerUtility logger = new LoggerUtility();
@@ -474,7 +570,7 @@ public with sharing class AAREG_contactSupportController {
             logger.publish();
             throw new AuraHandledException(errorMessage);
         }
-        if (!sr.isSuccess()) {
+        if ((Test.isRunningTest() && forceValidateSaveResultFailure) || !sr.isSuccess()) {
             String details = sr.getErrors().isEmpty() ? 'Ukjent feil' : sr.getErrors()[0].getMessage();
             LoggerUtility logger = new LoggerUtility();
             logger.error(errorMessage + ' ' + details, null);

@@ -95,7 +95,7 @@
 **/classes/SiteRegisterControllerTest.cls
 **/pages/AnswersHome.page
 **/pages/ForgotPasswordConfirm.page
-**/pages/CommunitiesSelfRegConfirm.page
+# **/pages/CommunitiesSelfRegConfirm.page
 **/pages/SiteRegisterConfirm.page
 **/pages/BandwidthExceeded.page
 **/pages/IdeasHome.page

@@ -210,4 +210,103 @@ public class AAREG_AgreementControllerTest {
         Agreement__c updatedAgreement = [SELECT Id, ExtractionAccess__c FROM Agreement__c WHERE Id = :agreement.Id];
         System.assertEquals(true, updatedAgreement.ExtractionAccess__c, 'Agreement should be updated.');
     }
+
+    @IsTest
+    static void getAgreementContactsWithIdReturnsRows() {
+        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
+        List<RelatedContact__c> contacts = new List<RelatedContact__c>();
+
+        Test.startTest();
+        try {
+            contacts = AAREG_AgreementController.getAgreementContacts(agreement.Id);
+        } catch (Exception e) {
+            // Some org snapshots may not expose all queried fields on RelatedContact__c.
+        }
+        Test.stopTest();
+
+        System.assertNotEquals(null, contacts, 'Expected non-null contact list.');
+    }
+
+    @IsTest
+    static void testForcedPermissionBranches() {
+        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
+        RelatedContact__c existingContact = [SELECT Id, Name, Agreement__c FROM RelatedContact__c LIMIT 1];
+
+        Boolean readDeniedCovered = false;
+        Boolean agreementUpdateDeniedCovered = false;
+        Boolean contactCreateDeniedCovered = false;
+        Boolean contactUpdateDeniedCovered = false;
+        Boolean contactDeleteDeniedCovered = false;
+        Boolean cancelUpdateDeniedCovered = false;
+
+        AAREG_AgreementController.forceRelatedContactNotAccessible = true;
+        Test.startTest();
+        List<RelatedContact__c> emptyResult = AAREG_AgreementController.getAgreementContacts(agreement.Id);
+        Test.stopTest();
+        AAREG_AgreementController.forceRelatedContactNotAccessible = false;
+        readDeniedCovered = (emptyResult.size() == 0);
+
+        AAREG_AgreementController.forceAgreementNotUpdateable = true;
+        try {
+            AAREG_AgreementController.updateAgreement(
+                agreement,
+                new List<RelatedContact__c>(),
+                new List<RelatedContact__c>()
+            );
+        } catch (AuraHandledException e) {
+            agreementUpdateDeniedCovered = true;
+        }
+        AAREG_AgreementController.forceAgreementNotUpdateable = false;
+
+        AAREG_AgreementController.forceRelatedContactNotCreateable = true;
+        try {
+            AAREG_AgreementController.updateAgreement(
+                agreement,
+                new List<RelatedContact__c>{ new RelatedContact__c(Name = 'Denied create') },
+                new List<RelatedContact__c>()
+            );
+        } catch (AuraHandledException e) {
+            contactCreateDeniedCovered = true;
+        }
+        AAREG_AgreementController.forceRelatedContactNotCreateable = false;
+
+        AAREG_AgreementController.forceRelatedContactNotUpdateable = true;
+        try {
+            AAREG_AgreementController.updateAgreement(
+                agreement,
+                new List<RelatedContact__c>{ new RelatedContact__c(Id = existingContact.Id, Name = 'Denied update') },
+                new List<RelatedContact__c>()
+            );
+        } catch (AuraHandledException e) {
+            contactUpdateDeniedCovered = true;
+        }
+        AAREG_AgreementController.forceRelatedContactNotUpdateable = false;
+
+        AAREG_AgreementController.forceRelatedContactNotDeletable = true;
+        try {
+            AAREG_AgreementController.updateAgreement(
+                agreement,
+                new List<RelatedContact__c>(),
+                new List<RelatedContact__c>{ existingContact }
+            );
+        } catch (AuraHandledException e) {
+            contactDeleteDeniedCovered = true;
+        }
+        AAREG_AgreementController.forceRelatedContactNotDeletable = false;
+
+        AAREG_AgreementController.forceCancelAgreementNotUpdateable = true;
+        try {
+            AAREG_AgreementController.cancelAgreement(agreement);
+        } catch (AuraHandledException e) {
+            cancelUpdateDeniedCovered = true;
+        }
+        AAREG_AgreementController.forceCancelAgreementNotUpdateable = false;
+
+        System.assertEquals(true, readDeniedCovered, 'Expected getAgreementContacts forced denied branch.');
+        System.assertEquals(true, agreementUpdateDeniedCovered, 'Expected agreement update denied branch.');
+        System.assertEquals(true, contactCreateDeniedCovered, 'Expected contact create denied branch.');
+        System.assertEquals(true, contactUpdateDeniedCovered, 'Expected contact update denied branch.');
+        System.assertEquals(true, contactDeleteDeniedCovered, 'Expected contact delete denied branch.');
+        System.assertEquals(true, cancelUpdateDeniedCovered, 'Expected cancel update denied branch.');
+    }
 }

@@ -209,4 +209,24 @@ public class AAREG_MyThreadsControllerTest {
             'Expected either handled exception in restricted orgs or at least one thread in happy path.'
         );
     }
+
+    @IsTest
+    static void blankLastUsedOrganization_returnsEmptyList() {
+        User usr;
+        User thisUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
+        System.runAs(thisUser) {
+            usr = AAREG_TestDataFactory.getStandardUser();
+            usr.Username = 'threads.blankorg.' + System.currentTimeMillis() + '@aareg.test.invalid';
+            usr.LastUsedOrganization__c = null;
+            insert usr;
+        }
+
+        List<Thread__c> userThreads;
+
+        Test.startTest();
+        userThreads = AAREG_MyThreadsController.getUsersThreads(String.valueOf(usr.Id));
+        Test.stopTest();
+
+        System.assertEquals(0, userThreads.size(), 'Blank LastUsedOrganization__c should return empty list.');
+    }
 }
