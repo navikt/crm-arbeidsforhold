@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+set -eu
+
+if [ "${ALLOW_PACKAGE_DIR_COMMIT:-0}" != "1" ]; then
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "Feil: jq er kravd for pre-commit policy (mangler i PATH)."
+    exit 1
+  fi
+
+  # Build blocked directory regex dynamically from sfdx-project.json.
+  blocked_paths_regex=$(jq -r '
+    [
+      .packageDirectories[]?.path
+      | select(type == "string" and . != "force-app")
+      | gsub("([.^$|()\\[\\]{}*+?\\\\])"; "\\\\\\1")
+    ]
+    | if length > 0 then
+        "^(" + join("|") + ")/"
+      else
+        "^$"
+      end
+  ' sfdx-project.json)
+
+  blocked_paths=$(git diff --cached --name-only --diff-filter=ACMR | grep -E "$blocked_paths_regex" || true)
+
+  if [ -n "$blocked_paths" ]; then
+    echo "Feil: Commit blokkert. Endringar i pakke/referanse-mapper er ikkje tillatt i pre-commit."
+    echo
+    echo "Staged filer som bryt policy:"
+    echo "$blocked_paths"
+    echo
+    echo "Fjern frå stage (eksempel):"
+    echo "  git restore --staged <fil>"
+    echo
+    echo "Ved eksplisitt unntak (nødbruk):"
+    echo "  ALLOW_PACKAGE_DIR_COMMIT=1 git commit ..."
+    exit 1
+  fi
+fi
+
+npx lint-staged
