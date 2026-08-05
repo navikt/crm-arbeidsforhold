@@ -86,7 +86,7 @@ public with sharing class AAREG_contactSupportController {
             return sr.getId();
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved initDraftRecord. ' + e.getMessage(), null);
+            logger.error('Feil ved initDraftRecord. ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
             logger.publish();
             throw new AuraHandledException('Kunne ikke initialisere utkastet.');
         }
@@ -132,7 +132,7 @@ public with sharing class AAREG_contactSupportController {
             return rec.Id;
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved updateDraftRecord. ' + e.getMessage(), null);
+            logger.error('Feil ved updateDraftRecord. ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
             logger.publish();
             throw new AuraHandledException('Kunne ikke oppdatere utkastet.');
         }
@@ -185,7 +185,7 @@ public with sharing class AAREG_contactSupportController {
             return rec.Id;
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved createFinalInquiry. ' + e.getMessage(), null);
+            logger.error('Feil ved createFinalInquiry. ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
             logger.publish();
             throw new AuraHandledException('Kunne ikke fullføre henvendelsen.');
         }
@@ -239,7 +239,7 @@ public with sharing class AAREG_contactSupportController {
             }
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved enrichUploadedFiles. ' + e.getMessage(), null);
+            logger.error('Feil ved enrichUploadedFiles. ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
             logger.publish();
             throw new AuraHandledException('Kunne ikke oppdatere filkoblinger.');
         }
@@ -287,7 +287,7 @@ public with sharing class AAREG_contactSupportController {
                     if (!dr.isSuccess()) {
                         String msg = dr.getErrors().isEmpty() ? 'Ukjent feil' : dr.getErrors()[0].getMessage();
                         LoggerUtility logger = new LoggerUtility();
-                        logger.error('Kunne ikke slette ContentDocument. ' + msg, null);
+                        logger.error('Kunne ikke slette ContentDocument. ' + msg, null, CRM_ApplicationDomain.Domain.AAREG);
                         logger.publish();
                         throw new AuraHandledException('Kunne ikke slette filer.');
                     }
@@ -295,7 +295,7 @@ public with sharing class AAREG_contactSupportController {
             }
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved deleteFiles. ' + e.getMessage(), null);
+            logger.error('Feil ved deleteFiles. ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
             logger.publish();
             throw new AuraHandledException('Kunne ikke slette filer.');
         }
