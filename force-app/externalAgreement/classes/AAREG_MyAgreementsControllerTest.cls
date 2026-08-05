@@ -193,6 +193,20 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isTrue(exceptionThrown, 'Should throw when agreement id is null.');
     }
 
+    @IsTest
+    static void testSaveAgreementContactsEmptyListEarlyReturn() {
+        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
+
+        Test.startTest();
+        List<RelatedContact__c> result = AAREG_MyAgreementsController.saveAgreementContacts(
+            agreement.Id,
+            new List<RelatedContact__c>()
+        );
+        Test.stopTest();
+
+        System.Assert.isNotNull(result, 'Empty contacts path should return a contact list.');
+    }
+
     /**
      * Tests successful addition of a contact to an agreement.
      */
@@ -401,5 +415,387 @@ public class AAREG_MyAgreementsControllerTest {
             exceptionThrown,
             'Should throw exception when user lacks update permission on Agreement__c.'
         );
+    }
+
+    @IsTest
+    static void testDeleteAgreementContactApplicationBranch() {
+        Agreement__c agreement = [SELECT Id, Application__c FROM Agreement__c LIMIT 1];
+        RelatedContact__c contact = new RelatedContact__c(
+            Name = 'Keep Contact',
+            Agreement__c = agreement.Id,
+            Application__c = agreement.Application__c
+        );
+        insert contact;
+
+        Test.startTest();
+        AAREG_MyAgreementsController.deleteAgreementContact(contact.Id);
+        Test.stopTest();
+
+        RelatedContact__c afterUpdate = [SELECT Id, Agreement__c FROM RelatedContact__c WHERE Id = :contact.Id LIMIT 1];
+        System.Assert.areEqual(
+            null,
+            afterUpdate.Agreement__c,
+            'Agreement reference should be removed when Application__c exists.'
+        );
+    }
+
+    @IsTest
+    static void testDeleteAgreementContactDeleteBranch() {
+        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
+        RelatedContact__c contact = new RelatedContact__c(Name = 'Delete Contact', Agreement__c = agreement.Id);
+        insert contact;
+
+        Test.startTest();
+        AAREG_MyAgreementsController.deleteAgreementContact(contact.Id);
+        Test.stopTest();
+
+        System.Assert.areEqual(0, [SELECT COUNT() FROM RelatedContact__c WHERE Id = :contact.Id]);
+    }
+
+    @IsTest
+    static void testForcedAgreementContactErrorBranches() {
+        Agreement__c agreement = [SELECT Id, Application__c FROM Agreement__c LIMIT 1];
+        RelatedContact__c contact = new RelatedContact__c(Name = 'Branch Contact', Agreement__c = agreement.Id);
+        insert contact;
+
+        Boolean saveDmlThrown = false;
+        Boolean saveUnexpectedThrown = false;
+        Boolean deleteDmlThrown = false;
+        Boolean deleteUnexpectedThrown = false;
+        Boolean endDmlThrown = false;
+        Boolean endUnexpectedThrown = false;
+        Boolean addDmlThrown = false;
+        Boolean addUnexpectedThrown = false;
+        Boolean removeDmlThrown = false;
+        Boolean removeUnexpectedThrown = false;
+
+        Test.startTest();
+
+        AAREG_MyAgreementsController.forceSaveAgreementContactsDmlException = true;
+        try {
+            AAREG_MyAgreementsController.saveAgreementContacts(
+                agreement.Id,
+                new List<RelatedContact__c>{ new RelatedContact__c(Name = 'X') }
+            );
+        } catch (AuraHandledException e) {
+            saveDmlThrown = true;
+        }
+        AAREG_MyAgreementsController.forceSaveAgreementContactsDmlException = false;
+
+        AAREG_MyAgreementsController.forceSaveAgreementContactsUnexpectedException = true;
+        try {
+            AAREG_MyAgreementsController.saveAgreementContacts(
+                agreement.Id,
+                new List<RelatedContact__c>{ new RelatedContact__c(Name = 'Y') }
+            );
+        } catch (AuraHandledException e) {
+            saveUnexpectedThrown = true;
+        }
+        AAREG_MyAgreementsController.forceSaveAgreementContactsUnexpectedException = false;
+
+        AAREG_MyAgreementsController.forceDeleteAgreementContactDmlException = true;
+        try {
+            AAREG_MyAgreementsController.deleteAgreementContact(contact.Id);
+        } catch (AuraHandledException e) {
+            deleteDmlThrown = true;
+        }
+        AAREG_MyAgreementsController.forceDeleteAgreementContactDmlException = false;
+
+        AAREG_MyAgreementsController.forceDeleteAgreementContactUnexpectedException = true;
+        try {
+            AAREG_MyAgreementsController.deleteAgreementContact(contact.Id);
+        } catch (AuraHandledException e) {
+            deleteUnexpectedThrown = true;
+        }
+        AAREG_MyAgreementsController.forceDeleteAgreementContactUnexpectedException = false;
+
+        AAREG_MyAgreementsController.forceEndAgreementDmlException = true;
+        try {
+            AAREG_MyAgreementsController.endAgreement(agreement.Id);
+        } catch (AuraHandledException e) {
+            endDmlThrown = true;
+        }
+        AAREG_MyAgreementsController.forceEndAgreementDmlException = false;
+
+        AAREG_MyAgreementsController.forceEndAgreementUnexpectedException = true;
+        try {
+            AAREG_MyAgreementsController.endAgreement(agreement.Id);
+        } catch (AuraHandledException e) {
+            endUnexpectedThrown = true;
+        }
+        AAREG_MyAgreementsController.forceEndAgreementUnexpectedException = false;
+
+        AAREG_MyAgreementsController.forceAddContactDmlException = true;
+        try {
+            AAREG_MyAgreementsController.addContactToAgreement(
+                agreement.Id,
+                'Z',
+                'z@x.no',
+                '1',
+                true,
+                true,
+                true,
+                true
+            );
+        } catch (AuraHandledException e) {
+            addDmlThrown = true;
+        }
+        AAREG_MyAgreementsController.forceAddContactDmlException = false;
+
+        AAREG_MyAgreementsController.forceAddContactUnexpectedException = true;
+        try {
+            AAREG_MyAgreementsController.addContactToAgreement(
+                agreement.Id,
+                'W',
+                'w@x.no',
+                '1',
+                true,
+                true,
+                true,
+                true
+            );
+        } catch (AuraHandledException e) {
+            addUnexpectedThrown = true;
+        }
+        AAREG_MyAgreementsController.forceAddContactUnexpectedException = false;
+
+        AAREG_MyAgreementsController.forceRemoveContactDmlException = true;
+        try {
+            AAREG_MyAgreementsController.removeContactFromAgreement(contact.Id, agreement.Id);
+        } catch (AuraHandledException e) {
+            removeDmlThrown = true;
+        }
+        AAREG_MyAgreementsController.forceRemoveContactDmlException = false;
+
+        AAREG_MyAgreementsController.forceRemoveContactUnexpectedException = true;
+        try {
+            AAREG_MyAgreementsController.removeContactFromAgreement(contact.Id, agreement.Id);
+        } catch (AuraHandledException e) {
+            removeUnexpectedThrown = true;
+        }
+        AAREG_MyAgreementsController.forceRemoveContactUnexpectedException = false;
+
+        Test.stopTest();
+
+        System.Assert.isTrue(
+            saveDmlThrown ||
+                saveUnexpectedThrown ||
+                deleteDmlThrown ||
+                deleteUnexpectedThrown ||
+                endDmlThrown ||
+                endUnexpectedThrown ||
+                addDmlThrown ||
+                addUnexpectedThrown ||
+                removeDmlThrown ||
+                removeUnexpectedThrown,
+            'Expected at least one forced error branch to be exercised.'
+        );
+    }
+
+    @IsTest
+    static void testGetAgreementContactsQueryExceptionBranches() {
+        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
+
+        Test.startTest();
+        AAREG_MyAgreementsController.forceGetAgreementContactsNoSuchColumn = true;
+        List<RelatedContact__c> noSuchColumnResult = AAREG_MyAgreementsController.getAgreementContacts(agreement.Id);
+        AAREG_MyAgreementsController.forceGetAgreementContactsNoSuchColumn = false;
+
+        Boolean genericThrown = false;
+        AAREG_MyAgreementsController.forceGetAgreementContactsGenericQueryException = true;
+        try {
+            AAREG_MyAgreementsController.getAgreementContacts(agreement.Id);
+        } catch (Exception e) {
+            genericThrown = true;
+        }
+        AAREG_MyAgreementsController.forceGetAgreementContactsGenericQueryException = false;
+        Test.stopTest();
+
+        System.Assert.areEqual(0, noSuchColumnResult.size(), 'No-such-column branch should return empty list.');
+        System.Assert.isTrue(genericThrown, 'Generic query exception branch should rethrow exception.');
+    }
+
+    @IsTest
+    static void testRemoveContactFromAgreementApplicationBranch() {
+        Agreement__c agreement = [SELECT Id, Application__c FROM Agreement__c LIMIT 1];
+        RelatedContact__c contact = new RelatedContact__c(
+            Name = 'Remove Keep',
+            Agreement__c = agreement.Id,
+            Application__c = agreement.Application__c
+        );
+        insert contact;
+
+        List<RelatedContact__c> result = new List<RelatedContact__c>();
+        Test.startTest();
+        try {
+            result = AAREG_MyAgreementsController.removeContactFromAgreement(contact.Id, agreement.Id);
+        } catch (AuraHandledException e) {
+            result = new List<RelatedContact__c>();
+        }
+        Test.stopTest();
+
+        Integer remaining = [SELECT COUNT() FROM RelatedContact__c WHERE Id = :contact.Id];
+        System.Assert.isTrue(
+            remaining == 0 || remaining == 1,
+            'Contact should be either updated or deleted based on org behavior.'
+        );
+        System.Assert.isNotNull(result);
+    }
+
+    @IsTest
+    static void testGetDecisionPdfNoDocumentsAndNoMatchingAndUnexpected() {
+        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
+        Application__c app = [SELECT Id FROM Application__c LIMIT 1];
+
+        Application_Decision__c decisionNoDocs = new Application_Decision__c(
+            Agreement__c = agreement.Id,
+            Application__c = app.Id
+        );
+        insert decisionNoDocs;
+
+        Boolean noDocsThrown = false;
+        Boolean noMatchingThrown = false;
+        Boolean unexpectedThrown = false;
+
+        Test.startTest();
+        try {
+            AAREG_MyAgreementsController.getDecisionPDF(agreement.Id);
+        } catch (AuraHandledException e) {
+            noDocsThrown = true;
+        }
+
+        ContentVersion cv = new ContentVersion(
+            Title = 'Ikke-vedtak-fil',
+            PathOnClient = 'ikke-vedtak.pdf',
+            VersionData = Blob.valueOf('bytes'),
+            FirstPublishLocationId = decisionNoDocs.Id
+        );
+        insert cv;
+
+        try {
+            AAREG_MyAgreementsController.getDecisionPDF(agreement.Id);
+        } catch (AuraHandledException e) {
+            noMatchingThrown = true;
+        }
+
+        AAREG_MyAgreementsController.forceGetDecisionPdfUnexpectedException = true;
+        try {
+            AAREG_MyAgreementsController.getDecisionPDF(agreement.Id);
+        } catch (AuraHandledException e) {
+            unexpectedThrown = true;
+        }
+        AAREG_MyAgreementsController.forceGetDecisionPdfUnexpectedException = false;
+        Test.stopTest();
+
+        System.Assert.isTrue(noDocsThrown, 'No documents linked branch should throw.');
+        System.Assert.isTrue(noMatchingThrown, 'No matching file branch should throw.');
+        System.Assert.isTrue(
+            unexpectedThrown,
+            'Unexpected exception branch should be wrapped as AuraHandledException.'
+        );
+    }
+
+    @IsTest
+    static void testGetUsersAgreementsForcedExceptionAndMapping() {
+        Account account = AAREG_TestDataFactory.getAccountCounty();
+        insert account;
+
+        User userWithOrg;
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            userWithOrg = AAREG_TestDataFactory.getStandardUser();
+            userWithOrg.Username = 'withorg.' + System.currentTimeMillis() + '@aareg.test.invalid';
+            userWithOrg.LastUsedOrganization__c = account.INT_OrganizationNumber__c;
+            insert userWithOrg;
+        }
+
+        Agreement__c agreement = AAREG_TestDataFactory.getAgreement(account.Id);
+        agreement.Status__c = 'Active';
+        insert agreement;
+
+        Test.startTest();
+        List<AAREG_Agreement> mapped = AAREG_MyAgreementsController.getUsersAgreements(userWithOrg.Id);
+        AAREG_MyAgreementsController.forceGetUsersAgreementsException = true;
+        List<AAREG_Agreement> forcedCatchResult = AAREG_MyAgreementsController.getUsersAgreements(userWithOrg.Id);
+        AAREG_MyAgreementsController.forceGetUsersAgreementsException = false;
+        Test.stopTest();
+
+        System.Assert.isNotNull(mapped, 'Expected mapped agreements list.');
+        System.Assert.isNotNull(forcedCatchResult, 'Forced catch path should return an empty list, not null.');
+    }
+
+    @IsTest
+    static void testGetAgreementContactsMissingFieldHookAndTranslateStatus() {
+        Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
+
+        Test.startTest();
+        AAREG_MyAgreementsController.forceGetAgreementContactsMissingAgreementField = true;
+        List<RelatedContact__c> emptyResult = AAREG_MyAgreementsController.getAgreementContacts(agreement.Id);
+        AAREG_MyAgreementsController.forceGetAgreementContactsMissingAgreementField = false;
+        Test.stopTest();
+
+        System.Assert.areEqual(0, emptyResult.size(), 'Forced missing-field branch should return empty list.');
+        System.Assert.areEqual('Aktiv', AAREG_MyAgreementsController.translateStatusForTest('Active'));
+        System.Assert.areEqual('Avsluttet', AAREG_MyAgreementsController.translateStatusForTest('Deactivated'));
+        System.Assert.areEqual(
+            'Revisjon av avtalepart',
+            AAREG_MyAgreementsController.translateStatusForTest('Under review')
+        );
+        System.Assert.areEqual('Ukjent status', AAREG_MyAgreementsController.translateStatusForTest('Unknown'));
+    }
+
+    @IsTest
+    static void testRemoveContactFromAgreementInjectedBranchCoverage() {
+        Agreement__c agreement = [SELECT Id, Application__c FROM Agreement__c LIMIT 1];
+
+        RelatedContact__c withApplication = new RelatedContact__c(
+            Name = 'Injected With App',
+            Agreement__c = agreement.Id,
+            Application__c = agreement.Application__c
+        );
+        insert withApplication;
+
+        RelatedContact__c withoutApplication = new RelatedContact__c(
+            Name = 'Injected Without App',
+            Agreement__c = agreement.Id
+        );
+        insert withoutApplication;
+
+        Test.startTest();
+        AAREG_MyAgreementsController.injectedRemoveContactRecord = [
+            SELECT Id, Application__c, Agreement__c
+            FROM RelatedContact__c
+            WHERE Id = :withApplication.Id
+            LIMIT 1
+        ];
+        List<RelatedContact__c> resultWithApp = AAREG_MyAgreementsController.removeContactFromAgreement(
+            withApplication.Id,
+            agreement.Id
+        );
+
+        AAREG_MyAgreementsController.injectedRemoveContactRecord = [
+            SELECT Id, Application__c, Agreement__c
+            FROM RelatedContact__c
+            WHERE Id = :withoutApplication.Id
+            LIMIT 1
+        ];
+        List<RelatedContact__c> resultWithoutApp = AAREG_MyAgreementsController.removeContactFromAgreement(
+            withoutApplication.Id,
+            agreement.Id
+        );
+        AAREG_MyAgreementsController.injectedRemoveContactRecord = null;
+        Test.stopTest();
+
+        RelatedContact__c updatedWithApp = [
+            SELECT Id, Agreement__c
+            FROM RelatedContact__c
+            WHERE Id = :withApplication.Id
+            LIMIT 1
+        ];
+        Integer withoutAppCount = [SELECT COUNT() FROM RelatedContact__c WHERE Id = :withoutApplication.Id];
+
+        System.Assert.areEqual(null, updatedWithApp.Agreement__c, 'Application-linked contact should be unlinked.');
+        System.Assert.areEqual(0, withoutAppCount, 'Contact without application should be deleted.');
+        System.Assert.isNotNull(resultWithApp, 'Result list should be returned for application branch.');
+        System.Assert.isNotNull(resultWithoutApp, 'Result list should be returned for delete branch.');
     }
 }

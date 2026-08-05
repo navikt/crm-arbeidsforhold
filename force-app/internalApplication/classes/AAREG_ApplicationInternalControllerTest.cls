@@ -268,4 +268,110 @@ public class AAREG_ApplicationInternalControllerTest {
             'No related contacts should be returned when none exist.'
         );
     }
+
+    @IsTest
+    static void testApplicationInternalWrapperProperties() {
+        Date today = Date.today();
+        Date deadline = Date.today().addDays(7);
+
+        AAREG_ApplicationInternal wrapper = new AAREG_ApplicationInternal();
+        wrapper.SoknadsId = 'APP-1';
+        wrapper.SoknadsNavn = 'Soknad';
+        wrapper.APITilgang = true;
+        wrapper.Uttrekk = false;
+        wrapper.WebTilgang = true;
+        wrapper.KonsumentId = 'K-1';
+        wrapper.KonsumentNavn = 'Konsument';
+        wrapper.KonsumentKontaktNavn = 'Kontakt';
+        wrapper.KonsumentOrganisasjonsnummer = '123456789';
+        wrapper.KonsumentAdresse = 'Gate 1';
+        wrapper.KonsumentPoststed = 'Oslo';
+        wrapper.KonsumentPostnummer = '0101';
+        wrapper.KonsumentEpost = 'test@nav.no';
+        wrapper.OrganisasjonsType = 'County';
+        wrapper.SoknadLevert = today;
+        wrapper.Svarfrist = deadline;
+        wrapper.Vilkaar = true;
+        wrapper.DatabehandlerNavn = 'DBH';
+        wrapper.DatabehandlerOrganisasjonsnummer = '987654321';
+        wrapper.Sakseier = 'Sakseier';
+
+        System.assertEquals('APP-1', wrapper.SoknadsId);
+        System.assertEquals('Soknad', wrapper.SoknadsNavn);
+        System.assertEquals(true, wrapper.APITilgang);
+        System.assertEquals(false, wrapper.Uttrekk);
+        System.assertEquals(true, wrapper.WebTilgang);
+        System.assertEquals('K-1', wrapper.KonsumentId);
+        System.assertEquals('Konsument', wrapper.KonsumentNavn);
+        System.assertEquals('Kontakt', wrapper.KonsumentKontaktNavn);
+        System.assertEquals('123456789', wrapper.KonsumentOrganisasjonsnummer);
+        System.assertEquals('Gate 1', wrapper.KonsumentAdresse);
+        System.assertEquals('Oslo', wrapper.KonsumentPoststed);
+        System.assertEquals('0101', wrapper.KonsumentPostnummer);
+        System.assertEquals('test@nav.no', wrapper.KonsumentEpost);
+        System.assertEquals('County', wrapper.OrganisasjonsType);
+        System.assertEquals(today, wrapper.SoknadLevert);
+        System.assertEquals(deadline, wrapper.Svarfrist);
+        System.assertEquals(true, wrapper.Vilkaar);
+        System.assertEquals('DBH', wrapper.DatabehandlerNavn);
+        System.assertEquals('987654321', wrapper.DatabehandlerOrganisasjonsnummer);
+        System.assertEquals('Sakseier', wrapper.Sakseier);
+    }
+
+    @IsTest
+    static void testGetApplicationDetailsWithUnknownOrganizationType() {
+        Account testAccount = AAREG_TestDataFactory.getAccountCounty();
+        insert testAccount;
+
+        Application__c testApplication = AAREG_TestDataFactory.getApplicationCounty(testAccount);
+        testApplication.OrganizationStructure__c = null;
+        insert testApplication;
+
+        Test.startTest();
+        AAREG_ApplicationInternalController.ApplicationWrapper result = AAREG_ApplicationInternalController.getApplicationDetails(
+            testApplication.Id
+        );
+        Test.stopTest();
+
+        System.assertEquals(1, result.application.size(), 'One application should be returned.');
+        System.assertEquals(
+            null,
+            result.application[0].OrganisasjonsType,
+            'Unknown org type should be returned unchanged.'
+        );
+        System.assertEquals('Unknown', AAREG_ApplicationInternalController.translateOrganizationType('Unknown'));
+    }
+
+    @IsTest
+    static void testGetApplicationDetailsMunicipalityWithOtherLegalBasis() {
+        Account testAccount = AAREG_TestDataFactory.getAccountCounty();
+        insert testAccount;
+
+        Application__c testApplication = AAREG_TestDataFactory.getApplicationMunicipality(testAccount);
+        insert testApplication;
+
+        ApplicationBasisCode__c basisCode = new ApplicationBasisCode__c(
+            Application__c = testApplication.Id,
+            OrganizationType__c = 'Municipality',
+            LegalBasisMunicipality__c = 'Annet - oppgi i tekstfelt under',
+            OtherLegalBasis__c = 'Kommunal hjemmel annet',
+            OtherPurpose__c = 'Kommunalt formaal annet'
+        );
+        insert basisCode;
+
+        Test.startTest();
+        AAREG_ApplicationInternalController.ApplicationWrapper result = AAREG_ApplicationInternalController.getApplicationDetails(
+            testApplication.Id
+        );
+        Test.stopTest();
+
+        System.assertEquals(1, result.basisCodes.size(), 'One basis code should be returned.');
+        System.assertEquals('Kommunal hjemmel annet', result.basisCodes[0].Hjemmel);
+        System.assertEquals('Kommunalt formaal annet', result.basisCodes[0].Formaal);
+    }
+
+    @IsTest
+    static void testTranslateOrganizationTypeOther() {
+        System.assertEquals('Annet', AAREG_ApplicationInternalController.translateOrganizationType('Other'));
+    }
 }

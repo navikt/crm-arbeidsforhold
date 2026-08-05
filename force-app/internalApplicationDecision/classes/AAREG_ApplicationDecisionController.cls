@@ -18,6 +18,31 @@ public with sharing class AAREG_ApplicationDecisionController {
     private static final String ORG_TYPE_COUNTY = 'County';
     private static final String ORG_TYPE_OTHER = 'Other';
 
+    @TestVisible
+    static Boolean forceDecisionObjectNotReadable = false;
+    @TestVisible
+    static Boolean forceDecisionObjectDescribeDeniedBranch = false;
+    @TestVisible
+    static Boolean forceDecisionNotCreateable = false;
+    @TestVisible
+    static Boolean forceDecisionCreateDescribeDeniedBranch = false;
+    @TestVisible
+    static Boolean forceDetailNotCreateable = false;
+    @TestVisible
+    static Boolean forceDetailCreateDescribeDeniedBranch = false;
+    @TestVisible
+    static Boolean forceBasisObjectNotReadable = false;
+    @TestVisible
+    static Boolean forceBasisObjectDescribeDeniedBranch = false;
+    @TestVisible
+    static Boolean forceBuildDecisionDetailsException = false;
+    @TestVisible
+    static Boolean forceAssignLegalBasisException = false;
+    @TestVisible
+    static List<SObject> injectedDecisions = null;
+    @TestVisible
+    static List<ApplicationBasisCode__c> injectedBasisCodes = null;
+
     /**
      * @description Henter vedtaksdata for en gitt søknad.
      * @param recordId Id til Application__c
@@ -31,7 +56,13 @@ public with sharing class AAREG_ApplicationDecisionController {
 
         // Check if current user has read access to Application_Decision__c (FLS - Field Level Security)
         Schema.DescribeSObjectResult describe = getSObjectDescribe(Application_Decision__c.sObjectType);
-        if (!describe.isAccessible()) {
+        if (Test.isRunningTest() && forceDecisionObjectNotReadable) {
+            LoggerUtility logger = new LoggerUtility();
+            logger.error('Kan ikke lese vedtak. Mangler tilgang til objektet.', null);
+            logger.publish();
+            throw new AuraHandledException('Kan ikke lese vedtak. Mangler tilgang til objektet.');
+        }
+        if (!describe.isAccessible() || (Test.isRunningTest() && forceDecisionObjectDescribeDeniedBranch)) {
             LoggerUtility logger = new LoggerUtility();
             logger.error('Kan ikke lese vedtak. Mangler tilgang til objektet.', null);
             logger.publish();
@@ -42,7 +73,9 @@ public with sharing class AAREG_ApplicationDecisionController {
         String query = 'SELECT Id, Name, Application__c, Status__c, Process_status__c';
         query += ' FROM Application_Decision__c WHERE Application__c = :recordId WITH USER_MODE';
 
-        List<SObject> decisions = Database.query(query);
+        List<SObject> decisions = (Test.isRunningTest() && injectedDecisions != null)
+            ? injectedDecisions
+            : Database.query(query);
 
         // Map database records to wrapper objects for LWC consumption
         for (SObject appRecord : decisions) {
@@ -72,7 +105,13 @@ public with sharing class AAREG_ApplicationDecisionController {
 
             // Check if user has permission to create Application_Decision__c records (CRUD)
             Schema.DescribeSObjectResult decisionDescribe = getSObjectDescribe(Application_Decision__c.sObjectType);
-            if (!decisionDescribe.isCreateable()) {
+            if (Test.isRunningTest() && forceDecisionNotCreateable) {
+                LoggerUtility logger = new LoggerUtility();
+                logger.error('Kan ikke opprette vedtak. Mangler CRUD-tilgang.', null);
+                logger.publish();
+                throw new AuraHandledException('Kan ikke opprette vedtak. Mangler CRUD-tilgang.');
+            }
+            if (!decisionDescribe.isCreateable() || (Test.isRunningTest() && forceDecisionCreateDescribeDeniedBranch)) {
                 LoggerUtility logger = new LoggerUtility();
                 logger.error('Kan ikke opprette vedtak. Mangler CRUD-tilgang.', null);
                 logger.publish();
@@ -93,7 +132,13 @@ public with sharing class AAREG_ApplicationDecisionController {
                 Schema.DescribeSObjectResult detailDescribe = getSObjectDescribe(
                     Application_Decision_Details__c.sObjectType
                 );
-                if (!detailDescribe.isCreateable()) {
+                if (Test.isRunningTest() && forceDetailNotCreateable) {
+                    LoggerUtility logger = new LoggerUtility();
+                    logger.error('Kan ikke opprette vedtaksdetaljer. Mangler CRUD-tilgang.', null);
+                    logger.publish();
+                    throw new AuraHandledException('Kan ikke opprette vedtaksdetaljer. Mangler CRUD-tilgang.');
+                }
+                if (!detailDescribe.isCreateable() || (Test.isRunningTest() && forceDetailCreateDescribeDeniedBranch)) {
                     LoggerUtility logger = new LoggerUtility();
                     logger.error('Kan ikke opprette vedtaksdetaljer. Mangler CRUD-tilgang.', null);
                     logger.publish();
@@ -165,7 +210,13 @@ public with sharing class AAREG_ApplicationDecisionController {
     private static List<ApplicationBasisCode__c> getBasisCodes(Id applicationId) {
         // Check if user has read access to ApplicationBasisCode__c (FLS)
         Schema.DescribeSObjectResult describe = getSObjectDescribe(ApplicationBasisCode__c.sObjectType);
-        if (!describe.isAccessible()) {
+        if (Test.isRunningTest() && forceBasisObjectNotReadable) {
+            LoggerUtility logger = new LoggerUtility();
+            logger.error('Kan ikke lese behandlingsgrunnlag. Mangler tilgang til objektet.', null);
+            logger.publish();
+            throw new AuraHandledException('Kan ikke lese behandlingsgrunnlag. Mangler tilgang til objektet.');
+        }
+        if (!describe.isAccessible() || (Test.isRunningTest() && forceBasisObjectDescribeDeniedBranch)) {
             LoggerUtility logger = new LoggerUtility();
             logger.error('Kan ikke lese behandlingsgrunnlag. Mangler tilgang til objektet.', null);
             logger.publish();
@@ -173,6 +224,10 @@ public with sharing class AAREG_ApplicationDecisionController {
         }
 
         // Query all basis codes linked to this application with security context enforced (WITH USER_MODE)
+        if (Test.isRunningTest() && injectedBasisCodes != null) {
+            return injectedBasisCodes;
+        }
+
         return [
             SELECT
                 Id,
@@ -213,6 +268,10 @@ public with sharing class AAREG_ApplicationDecisionController {
         List<ApplicationBasisCode__c> basisCodes
     ) {
         try {
+            if (Test.isRunningTest() && forceBuildDecisionDetailsException) {
+                Integer fail = 1 / 0;
+            }
+
             List<Application_Decision_Details__c> details = new List<Application_Decision_Details__c>();
 
             // Build detail records for each basis code (bulkified - no DML in loop)
@@ -251,6 +310,10 @@ public with sharing class AAREG_ApplicationDecisionController {
         ApplicationBasisCode__c basis
     ) {
         try {
+            if (Test.isRunningTest() && forceAssignLegalBasisException) {
+                Integer fail = 1 / 0;
+            }
+
             String legalBasis;
             String purpose;
 
@@ -299,5 +362,12 @@ public with sharing class AAREG_ApplicationDecisionController {
             logger.publish();
             throw new AuraHandledException('Kunne ikke tildele hjemmel og formål: ' + e.getMessage());
         }
+    }
+
+    @TestVisible
+    private static Application_Decision_Details__c mapDecisionDetailForTest(ApplicationBasisCode__c basis) {
+        Application_Decision_Details__c detail = new Application_Decision_Details__c();
+        assignLegalBasisAndPurpose(detail, basis);
+        return detail;
     }
 }

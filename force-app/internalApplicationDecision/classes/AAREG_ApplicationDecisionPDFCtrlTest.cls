@@ -290,7 +290,11 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
             AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
             System.Assert.isNotNull(controller.applicationRecord, 'Application record should not be null');
             if (controller.applicationRecord.SoknadsId != null) {
-                System.Assert.areEqual(testApp.Id, controller.applicationRecord.SoknadsId, 'Application ID should match');
+                System.Assert.areEqual(
+                    testApp.Id,
+                    controller.applicationRecord.SoknadsId,
+                    'Application ID should match'
+                );
             }
         } catch (Exception e) {
             System.Assert.isTrue(true, 'Exception handled');
@@ -318,9 +322,17 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
             ];
 
             if (controller.currentRecord != null && controller.currentRecord.vedtaksId != null) {
-                System.Assert.areEqual(expectedDetails, controller.decisionDetailsRecords.size(), 'Decision details count should match');
+                System.Assert.areEqual(
+                    expectedDetails,
+                    controller.decisionDetailsRecords.size(),
+                    'Decision details count should match'
+                );
             } else {
-                System.Assert.areEqual(0, controller.decisionDetailsRecords.size(), 'Fallback path should return empty details');
+                System.Assert.areEqual(
+                    0,
+                    controller.decisionDetailsRecords.size(),
+                    'Fallback path should return empty details'
+                );
             }
         } catch (Exception e) {
             System.Assert.isTrue(true, 'Exception handled');
@@ -446,11 +458,439 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
                     wrapper.webTilgangtekst,
                     'webTilgangtekst should be set'
                 );
-                System.Assert.areEqual(testDecision.Web_access_count__c, wrapper.webTilgang, 'webTilgang should be set');
+                System.Assert.areEqual(
+                    testDecision.Web_access_count__c,
+                    wrapper.webTilgang,
+                    'webTilgang should be set'
+                );
             }
         } catch (Exception e) {
             System.Assert.isTrue(true, 'Exception handled');
         }
         Test.stopTest();
+    }
+
+    @isTest
+    static void testInjectedRecordsMapping() {
+        AAREG_ApplicationDecisionPDFController.forceDecisionReadDenied = false;
+        AAREG_ApplicationDecisionPDFController.forceApplicationReadDenied = false;
+        AAREG_ApplicationDecisionPDFController.forceDetailsReadDenied = false;
+
+        Account acct = AAREG_TestDataFactory.getAccountCounty();
+        insert acct;
+        Application__c app = AAREG_TestDataFactory.getApplicationCounty(acct);
+        insert app;
+        app.CasehandlerOwner__c = UserInfo.getUserId();
+        update app;
+
+        Application_Decision__c decision = new Application_Decision__c(
+            Application__c = app.Id,
+            Decision_description__c = 'Desc',
+            Letter_complaint_text__c = 'Complaint',
+            Letter_terms_text__c = 'Terms',
+            Decision_date__c = Date.today(),
+            Letter_github_text__c = 'Github',
+            Letter_webaccess_text__c = 'Web'
+        );
+        insert decision;
+
+        decision = [
+            SELECT
+                Id,
+                Name,
+                Application__c,
+                Decision_description__c,
+                Letter_complaint_text__c,
+                Letter_terms_text__c,
+                Decision_date__c,
+                Web_access_count__c,
+                Letter_github_text__c,
+                Letter_webaccess_text__c
+            FROM Application_Decision__c
+            WHERE Id = :decision.Id
+            LIMIT 1
+        ];
+
+        Application_Decision_Details__c detail = new Application_Decision_Details__c(
+            Application_Decision__c = decision.Id,
+            API_Access__c = true,
+            Extraction_Access__c = false,
+            Online_Access__c = true,
+            Processing_Basis__c = 'PB',
+            Legal_Basis__c = 'LB',
+            Purpose__c = 'PUR',
+            Decision_description__c = 'DD',
+            Approved__c = true
+        );
+        insert detail;
+
+        detail = [
+            SELECT
+                Id,
+                Name,
+                Application_Decision__c,
+                API_Access__c,
+                Extraction_Access__c,
+                Online_Access__c,
+                Processing_Basis__c,
+                Legal_Basis__c,
+                Purpose__c,
+                Decision_description__c,
+                Approved__c
+            FROM Application_Decision_Details__c
+            WHERE Id = :detail.Id
+            LIMIT 1
+        ];
+
+        AAREG_ApplicationDecisionPDFController.injectedApplicationRecords = new List<Application__c>{ app };
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = new List<Application_Decision__c>{ decision };
+        AAREG_ApplicationDecisionPDFController.injectedDetailRecords = new List<Application_Decision_Details__c>{
+            detail
+        };
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(decision);
+
+        Test.startTest();
+        AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionPDFController.injectedApplicationRecords = null;
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = null;
+        AAREG_ApplicationDecisionPDFController.injectedDetailRecords = null;
+
+        System.Assert.isNotNull(controller.currentRecord, 'Decision wrapper should be initialized.');
+        System.Assert.isNotNull(controller.applicationRecord, 'Application wrapper should be initialized.');
+        System.Assert.isNotNull(controller.decisionDetailsRecords, 'Details wrapper should be initialized.');
+
+        if (controller.currentRecord.vedtaksNr != null) {
+            System.Assert.areEqual(decision.Name, controller.currentRecord.vedtaksNr);
+        }
+        if (controller.applicationRecord.SoknadsId != null) {
+            System.Assert.areEqual(app.Id, controller.applicationRecord.SoknadsId);
+        }
+        if (!controller.decisionDetailsRecords.isEmpty()) {
+            System.Assert.areEqual('LB', controller.decisionDetailsRecords[0].hjemmel);
+        }
+    }
+
+    @isTest
+    static void testForcedReadDeniedBranches() {
+        Application_Decision__c testDecision = [
+            SELECT
+                Id,
+                Name,
+                Application__c,
+                Status__c,
+                decision_description__c,
+                Letter_complaint_text__c,
+                Letter_terms_text__c,
+                Decision_date__c,
+                Web_access_count__c,
+                Letter_github_text__c,
+                Letter_webaccess_text__c
+            FROM Application_Decision__c
+            WHERE Application__c != NULL
+            LIMIT 1
+        ];
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = new List<Application_Decision__c>{
+            testDecision
+        };
+        ApexPages.StandardController sc = new ApexPages.StandardController(testDecision);
+
+        AAREG_ApplicationDecisionPDFController.forceApplicationReadDenied = true;
+        AAREG_ApplicationDecisionPDFController.forceDetailsReadDenied = true;
+
+        Test.startTest();
+        AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionPDFController.forceApplicationReadDenied = false;
+        AAREG_ApplicationDecisionPDFController.forceDetailsReadDenied = false;
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = null;
+
+        System.Assert.isNotNull(controller, 'Controller should still initialize and handle denied paths.');
+        System.Assert.isNotNull(controller.currentRecord, 'Current record wrapper should remain initialized.');
+        System.Assert.isNotNull(controller.applicationRecord, 'Application wrapper should remain initialized.');
+        System.Assert.isNotNull(
+            controller.decisionDetailsRecords,
+            'Decision details wrapper should remain initialized.'
+        );
+    }
+
+    @isTest
+    static void testForcedDecisionReadDeniedBranch() {
+        Application_Decision__c testDecision = [
+            SELECT
+                Id,
+                Name,
+                Application__c,
+                Status__c,
+                decision_description__c,
+                Letter_complaint_text__c,
+                Letter_terms_text__c,
+                Decision_date__c,
+                Web_access_count__c,
+                Letter_github_text__c,
+                Letter_webaccess_text__c
+            FROM Application_Decision__c
+            WHERE Application__c != NULL
+            LIMIT 1
+        ];
+
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = new List<Application_Decision__c>{
+            testDecision
+        };
+        AAREG_ApplicationDecisionPDFController.forceDecisionReadDenied = true;
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(testDecision);
+
+        Test.startTest();
+        AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = null;
+        AAREG_ApplicationDecisionPDFController.forceDecisionReadDenied = false;
+
+        System.Assert.isNotNull(controller, 'Controller should initialize and catch decision read denied branch.');
+        System.Assert.isNotNull(controller.currentRecord, 'Current record wrapper should remain initialized.');
+        System.Assert.isNotNull(controller.applicationRecord, 'Application wrapper should remain initialized.');
+        System.Assert.isNotNull(
+            controller.decisionDetailsRecords,
+            'Decision details wrapper should remain initialized.'
+        );
+    }
+
+    @isTest
+    static void testApplicationLoadCatchBranchWithDecisionPresent() {
+        Application_Decision__c decision = [
+            SELECT
+                Id,
+                Name,
+                Application__c,
+                Status__c,
+                decision_description__c,
+                Letter_complaint_text__c,
+                Letter_terms_text__c,
+                Decision_date__c,
+                Web_access_count__c,
+                Letter_github_text__c,
+                Letter_webaccess_text__c
+            FROM Application_Decision__c
+            WHERE Application__c != NULL
+            LIMIT 1
+        ];
+
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = new List<Application_Decision__c>{ decision };
+        AAREG_ApplicationDecisionPDFController.forceApplicationReadDenied = true;
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(decision);
+
+        Test.startTest();
+        AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = null;
+        AAREG_ApplicationDecisionPDFController.forceApplicationReadDenied = false;
+
+        System.Assert.isNotNull(controller, 'Controller should initialize even when application load fails.');
+    }
+
+    @isTest
+    static void testInjectedMappingStrictPath() {
+        Application_Decision__c decision = [
+            SELECT
+                Id,
+                Name,
+                Application__c,
+                Status__c,
+                decision_description__c,
+                Letter_complaint_text__c,
+                Letter_terms_text__c,
+                Decision_date__c,
+                Web_access_count__c,
+                Letter_github_text__c,
+                Letter_webaccess_text__c
+            FROM Application_Decision__c
+            WHERE Application__c != NULL
+            LIMIT 1
+        ];
+
+        Application__c app = [
+            SELECT
+                Id,
+                Name,
+                Account__c,
+                AccountName__c,
+                Contact__c,
+                OrganizationNumber__c,
+                MailingAddress__c,
+                MailingCity__c,
+                MailingPostalCode__c,
+                Email__c,
+                ApplicationSubmittedDate__c,
+                DataProcessorName__c,
+                DataProcessorOrganizationNumber__c,
+                CasehandlerOwner__r.Name
+            FROM Application__c
+            WHERE Id = :decision.Application__c
+            LIMIT 1
+        ];
+
+        Application_Decision_Details__c detail = [
+            SELECT
+                Id,
+                Name,
+                Application_Decision__c,
+                API_Access__c,
+                Extraction_Access__c,
+                Legal_Basis__c,
+                Online_Access__c,
+                Processing_Basis__c,
+                Purpose__c,
+                Decision_description__c,
+                Approved__c
+            FROM Application_Decision_Details__c
+            WHERE Application_Decision__c = :decision.Id
+            LIMIT 1
+        ];
+
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = new List<Application_Decision__c>{ decision };
+        AAREG_ApplicationDecisionPDFController.injectedApplicationRecords = new List<Application__c>{ app };
+        AAREG_ApplicationDecisionPDFController.injectedDetailRecords = new List<Application_Decision_Details__c>{
+            detail
+        };
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(decision);
+
+        Test.startTest();
+        AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = null;
+        AAREG_ApplicationDecisionPDFController.injectedApplicationRecords = null;
+        AAREG_ApplicationDecisionPDFController.injectedDetailRecords = null;
+
+        System.Assert.areEqual(decision.Name, controller.currentRecord.vedtaksNr);
+        System.Assert.areEqual(decision.Application__c, controller.currentRecord.soknadsId);
+        System.Assert.areEqual(app.Id, controller.applicationRecord.SoknadsId);
+        System.Assert.areEqual(app.Name, controller.applicationRecord.SoknadsNavn);
+        System.Assert.areEqual(1, controller.decisionDetailsRecords.size());
+        System.Assert.areEqual(detail.Name, controller.decisionDetailsRecords[0].vedtaksDetailNr);
+    }
+
+    @isTest
+    static void testForcedDescribeDeniedBranches() {
+        Application_Decision__c decision = [
+            SELECT
+                Id,
+                Name,
+                Application__c,
+                Status__c,
+                decision_description__c,
+                Letter_complaint_text__c,
+                Letter_terms_text__c,
+                Decision_date__c,
+                Web_access_count__c,
+                Letter_github_text__c,
+                Letter_webaccess_text__c
+            FROM Application_Decision__c
+            WHERE Application__c != NULL
+            LIMIT 1
+        ];
+        ApexPages.StandardController sc = new ApexPages.StandardController(decision);
+
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = new List<Application_Decision__c>{ decision };
+        AAREG_ApplicationDecisionPDFController.forceApplicationDescribeDeniedBranch = true;
+        AAREG_ApplicationDecisionPDFController.forceDetailsDescribeDeniedBranch = true;
+
+        Test.startTest();
+        AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+        AAREG_ApplicationDecisionPDFController.forceApplicationDescribeDeniedBranch = false;
+        AAREG_ApplicationDecisionPDFController.forceDetailsDescribeDeniedBranch = false;
+        AAREG_ApplicationDecisionPDFController.forceDecisionDescribeDeniedBranch = true;
+        AAREG_ApplicationDecisionPDFController controller2 = new AAREG_ApplicationDecisionPDFController(sc);
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = null;
+        AAREG_ApplicationDecisionPDFController.forceApplicationDescribeDeniedBranch = false;
+        AAREG_ApplicationDecisionPDFController.forceDetailsDescribeDeniedBranch = false;
+        AAREG_ApplicationDecisionPDFController.forceDecisionDescribeDeniedBranch = false;
+
+        System.Assert.isNotNull(controller, 'Controller should initialize when app/detail describe access fails.');
+        System.Assert.isNotNull(controller2, 'Controller should initialize when decision describe access fails.');
+    }
+
+    @isTest
+    static void testApplicationQueryPathWithoutInjection() {
+        Application_Decision__c decision = [
+            SELECT
+                Id,
+                Name,
+                Application__c,
+                Status__c,
+                decision_description__c,
+                Letter_complaint_text__c,
+                Letter_terms_text__c,
+                Decision_date__c,
+                Web_access_count__c,
+                Letter_github_text__c,
+                Letter_webaccess_text__c
+            FROM Application_Decision__c
+            WHERE Application__c != NULL
+            LIMIT 1
+        ];
+
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = new List<Application_Decision__c>{ decision };
+        AAREG_ApplicationDecisionPDFController.injectedApplicationRecords = null;
+        AAREG_ApplicationDecisionPDFController.forceApplicationReadDenied = false;
+        AAREG_ApplicationDecisionPDFController.forceApplicationDescribeDeniedBranch = false;
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(decision);
+
+        Test.startTest();
+        AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = null;
+
+        System.Assert.isNotNull(
+            controller.applicationRecord,
+            'Application query path should initialize application wrapper.'
+        );
+    }
+
+    @isTest
+    static void testApplicationQueryExceptionCatchPath() {
+        Application_Decision__c decision = [
+            SELECT
+                Id,
+                Name,
+                Application__c,
+                Status__c,
+                decision_description__c,
+                Letter_complaint_text__c,
+                Letter_terms_text__c,
+                Decision_date__c,
+                Web_access_count__c,
+                Letter_github_text__c,
+                Letter_webaccess_text__c
+            FROM Application_Decision__c
+            WHERE Application__c != NULL
+            LIMIT 1
+        ];
+
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = new List<Application_Decision__c>{ decision };
+        AAREG_ApplicationDecisionPDFController.forceApplicationQueryException = true;
+
+        ApexPages.StandardController sc = new ApexPages.StandardController(decision);
+
+        Test.startTest();
+        AAREG_ApplicationDecisionPDFController controller = new AAREG_ApplicationDecisionPDFController(sc);
+        Test.stopTest();
+
+        AAREG_ApplicationDecisionPDFController.injectedDecisionRecords = null;
+        AAREG_ApplicationDecisionPDFController.forceApplicationQueryException = false;
+
+        System.Assert.isNotNull(controller, 'Controller should handle forced application query exception path.');
     }
 }

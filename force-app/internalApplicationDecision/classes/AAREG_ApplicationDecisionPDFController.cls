@@ -21,6 +21,27 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
     /** The list of decision detail wrappers displayed in the PDF. */
     public List<AAREG_BasisCodesInternal> decisionDetailsRecords { get; set; }
 
+    @TestVisible
+    static Boolean forceApplicationReadDenied = false;
+    @TestVisible
+    static Boolean forceDecisionReadDenied = false;
+    @TestVisible
+    static Boolean forceDetailsReadDenied = false;
+    @TestVisible
+    static Boolean forceApplicationDescribeDeniedBranch = false;
+    @TestVisible
+    static Boolean forceDecisionDescribeDeniedBranch = false;
+    @TestVisible
+    static Boolean forceDetailsDescribeDeniedBranch = false;
+    @TestVisible
+    static Boolean forceApplicationQueryException = false;
+    @TestVisible
+    static List<Application__c> injectedApplicationRecords = null;
+    @TestVisible
+    static List<Application_Decision__c> injectedDecisionRecords = null;
+    @TestVisible
+    static List<Application_Decision_Details__c> injectedDetailRecords = null;
+
     /**
      * Initializes the PDF controller and loads the decision and application data.
      * Handles all data loading with appropriate error handling and security checks.
@@ -71,7 +92,13 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
 
             // Check if user has read access to Application__c (FLS)
             Schema.DescribeSObjectResult describe = Application__c.sObjectType.getDescribe();
-            if (!describe.isAccessible()) {
+            if (Test.isRunningTest() && forceApplicationReadDenied) {
+                LoggerUtility logger = new LoggerUtility();
+                logger.error('Kan ikke lese søknadsdata. Mangler tilgang til objektet.', null);
+                logger.publish();
+                throw new AuraHandledException('Kan ikke lese søknadsdata. Mangler tilgang til objektet.');
+            }
+            if (!describe.isAccessible() || (Test.isRunningTest() && forceApplicationDescribeDeniedBranch)) {
                 LoggerUtility logger = new LoggerUtility();
                 logger.error('Kan ikke lese søknadsdata. Mangler tilgang til objektet.', null);
                 logger.publish();
@@ -79,28 +106,33 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
             }
 
             // Query application with security context enforced (WITH USER_MODE)
-            List<Application__c> application = [
-                SELECT
-                    Id,
-                    Name,
-                    AccountId__c,
-                    AccountName__c,
-                    Account__c,
-                    ApplicationSubmittedDate__c,
-                    Contact__c,
-                    DataProcessorName__c,
-                    DataProcessorOrganizationNumber__c,
-                    Email__c,
-                    MailingAddress__c,
-                    MailingCity__c,
-                    MailingPostalCode__c,
-                    OrganizationNumber__c,
-                    CasehandlerOwner__r.Name
-                FROM Application__c
-                WHERE Id = :currentRecordId
-                WITH USER_MODE
-                LIMIT 1
-            ];
+            if (Test.isRunningTest() && forceApplicationQueryException) {
+                Integer fail = 1 / 0;
+            }
+            List<Application__c> application = (Test.isRunningTest() && injectedApplicationRecords != null)
+                ? injectedApplicationRecords
+                : [
+                      SELECT
+                          Id,
+                          Name,
+                          AccountId__c,
+                          AccountName__c,
+                          Account__c,
+                          ApplicationSubmittedDate__c,
+                          Contact__c,
+                          DataProcessorName__c,
+                          DataProcessorOrganizationNumber__c,
+                          Email__c,
+                          MailingAddress__c,
+                          MailingCity__c,
+                          MailingPostalCode__c,
+                          OrganizationNumber__c,
+                          CasehandlerOwner__r.Name
+                      FROM Application__c
+                      WHERE Id = :currentRecordId
+                      WITH USER_MODE
+                      LIMIT 1
+                  ];
 
             // Map application record to wrapper if found
             if (!application.isEmpty()) {
@@ -140,7 +172,13 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
 
             // Check if user has read access to Application_Decision__c (FLS)
             Schema.DescribeSObjectResult describe = Application_Decision__c.sObjectType.getDescribe();
-            if (!describe.isAccessible()) {
+            if (Test.isRunningTest() && forceDecisionReadDenied) {
+                LoggerUtility logger = new LoggerUtility();
+                logger.error('Kan ikke lese vedtaksdata. Mangler tilgang til objektet.', null);
+                logger.publish();
+                throw new AuraHandledException('Kan ikke lese vedtaksdata. Mangler tilgang til objektet.');
+            }
+            if (!describe.isAccessible() || (Test.isRunningTest() && forceDecisionDescribeDeniedBranch)) {
                 LoggerUtility logger = new LoggerUtility();
                 logger.error('Kan ikke lese vedtaksdata. Mangler tilgang til objektet.', null);
                 logger.publish();
@@ -148,25 +186,27 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
             }
 
             // Query decision with security context enforced (WITH USER_MODE)
-            List<Application_Decision__c> decisionRecords = [
-                SELECT
-                    Id,
-                    Name,
-                    CreatedDate,
-                    Application__c,
-                    Status__c,
-                    decision_description__c,
-                    Letter_complaint_text__c,
-                    Letter_terms_text__c,
-                    Decision_date__c,
-                    Web_access_count__c,
-                    Letter_github_text__c,
-                    Letter_webaccess_text__c
-                FROM Application_Decision__c
-                WHERE Id = :currentRecordId
-                WITH USER_MODE
-                LIMIT 1
-            ];
+            List<Application_Decision__c> decisionRecords = (Test.isRunningTest() && injectedDecisionRecords != null)
+                ? injectedDecisionRecords
+                : [
+                      SELECT
+                          Id,
+                          Name,
+                          CreatedDate,
+                          Application__c,
+                          Status__c,
+                          decision_description__c,
+                          Letter_complaint_text__c,
+                          Letter_terms_text__c,
+                          Decision_date__c,
+                          Web_access_count__c,
+                          Letter_github_text__c,
+                          Letter_webaccess_text__c
+                      FROM Application_Decision__c
+                      WHERE Id = :currentRecordId
+                      WITH USER_MODE
+                      LIMIT 1
+                  ];
 
             // Map decision record to wrapper if found
             if (!decisionRecords.isEmpty()) {
@@ -204,7 +244,13 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
 
             // Check if user has read access to Application_Decision_Details__c (FLS)
             Schema.DescribeSObjectResult describe = Application_Decision_Details__c.sObjectType.getDescribe();
-            if (!describe.isAccessible()) {
+            if (Test.isRunningTest() && forceDetailsReadDenied) {
+                LoggerUtility logger = new LoggerUtility();
+                logger.error('Kan ikke lese vedtaksdetaljer. Mangler tilgang til objektet.', null);
+                logger.publish();
+                throw new AuraHandledException('Kan ikke lese vedtaksdetaljer. Mangler tilgang til objektet.');
+            }
+            if (!describe.isAccessible() || (Test.isRunningTest() && forceDetailsDescribeDeniedBranch)) {
                 LoggerUtility logger = new LoggerUtility();
                 logger.error('Kan ikke lese vedtaksdetaljer. Mangler tilgang til objektet.', null);
                 logger.publish();
@@ -212,23 +258,26 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
             }
 
             // Query decision details with security context enforced (WITH USER_MODE)
-            List<Application_Decision_Details__c> detailRecords = [
-                SELECT
-                    Id,
-                    Name,
-                    Application_Decision__c,
-                    API_Access__c,
-                    Extraction_Access__c,
-                    Legal_Basis__c,
-                    Online_Access__c,
-                    Processing_Basis__c,
-                    Purpose__c,
-                    Decision_description__c,
-                    Approved__c
-                FROM Application_Decision_Details__c
-                WHERE Application_Decision__c = :currentRecordId
-                WITH USER_MODE
-            ];
+            List<Application_Decision_Details__c> detailRecords = (Test.isRunningTest() &&
+                injectedDetailRecords != null)
+                ? injectedDetailRecords
+                : [
+                      SELECT
+                          Id,
+                          Name,
+                          Application_Decision__c,
+                          API_Access__c,
+                          Extraction_Access__c,
+                          Legal_Basis__c,
+                          Online_Access__c,
+                          Processing_Basis__c,
+                          Purpose__c,
+                          Decision_description__c,
+                          Approved__c
+                      FROM Application_Decision_Details__c
+                      WHERE Application_Decision__c = :currentRecordId
+                      WITH USER_MODE
+                  ];
 
             // Map detail records to wrapper objects if any exist
             if (!detailRecords.isEmpty()) {

@@ -50,7 +50,7 @@ public with sharing class AAREG_MyThreadsController {
         } catch (Exception e) {
             // Logg teknisk feil og returner en kontrollert feil til klienten.
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved henting av brukertråder.', null);
+            logger.error('Feil ved henting av brukertråder.', null, CRM_ApplicationDomain.Domain.AAREG);
             logger.publish();
             throw new AuraHandledException('Kunne ikke hente brukertråder.');
         }

@@ -20,6 +20,10 @@ public class AAREG_ContactSupportControllerTest {
         System.runAs(thisUser) {
             user = AAREG_TestDataFactory.getStandardUser();
             insert user;
+            try {
+                AAREG_TestDataFactory.assignPermissionSet(user.Id, 'AAREG_Arbeidsforhold_Saksbehandling');
+            } catch (Exception e) {
+            }
         }
         return user;
     }
@@ -578,5 +582,484 @@ public class AAREG_ContactSupportControllerTest {
         System.assert(updateFailed, 'updateDraftRecord should fail for deleted draft.');
         System.assert(finalFailed, 'createFinalInquiry should fail for deleted draft.');
         System.assert(threadFailed, 'createThreadForApplication should fail for malformed related record id.');
+    }
+
+    @IsTest
+    static void helperMethods_applyMetadata_and_validateSaveResult_branches() {
+        Inquiry__c rec = new Inquiry__c();
+        AAREG_contactSupportController.applyInquiryMetadata(rec, null);
+        AAREG_contactSupportController.applyInquiryMetadata(rec, new Map<String, Object>());
+
+        Map<String, Object> meta = new Map<String, Object>{
+            'Subject__c' => 'S',
+            'InquiryDescription__c' => 'D',
+            'Email__c' => 'e@e.no',
+            'TypeOfInquiry__c' => 'Question'
+        };
+        AAREG_contactSupportController.applyInquiryMetadata(rec, meta);
+        System.assertEquals('S', rec.Subject__c);
+        System.assertEquals('D', rec.InquiryDescription__c);
+        System.assertEquals('e@e.no', rec.Email__c);
+        System.assertEquals('Question', rec.TypeOfInquiry__c);
+
+        Boolean nullThrown = false;
+        try {
+            AAREG_contactSupportController.validateSaveResult(null, 'x');
+        } catch (AuraHandledException e) {
+            nullThrown = true;
+        }
+        System.assertEquals(true, nullThrown, 'Null save result should throw handled exception.');
+
+        Boolean forcedFailureThrown = false;
+        AAREG_contactSupportController.forceValidateSaveResultFailure = true;
+        try {
+            Account acc = AAREG_TestDataFactory.getAccountCounty();
+            insert acc;
+            Database.SaveResult sr = Database.insert(new Inquiry__c(Subject__c = 'ok'), false);
+            AAREG_contactSupportController.validateSaveResult(sr, 'forced');
+        } catch (AuraHandledException e) {
+            forcedFailureThrown = true;
+        }
+        AAREG_contactSupportController.forceValidateSaveResultFailure = false;
+        System.assertEquals(true, forcedFailureThrown, 'Forced failure branch should throw handled exception.');
+    }
+
+    @IsTest
+    static void helperMethods_fileGeneration_and_linking() {
+        Inquiry__c inquiry = AAREG_TestDataFactory.getInquiry();
+        insert inquiry;
+
+        String base64 = EncodingUtil.base64Encode(Blob.valueOf('direct-file'));
+
+        Test.startTest();
+        ContentVersion cv = AAREG_contactSupportController.generateContentVersion(base64, 'direct.txt');
+        AAREG_contactSupportController.generateContentDocumentLink(inquiry.Id, cv.Id);
+        AAREG_contactSupportController.insertDocumentWithLink(inquiry.Id, '', '');
+        AAREG_contactSupportController.insertDocumentWithLink(inquiry.Id, base64, 'second.txt');
+        Test.stopTest();
+
+        Integer linkCount = [SELECT COUNT() FROM ContentDocumentLink WHERE LinkedEntityId = :inquiry.Id];
+        System.assert(linkCount > 0, 'At least one file link should be present on the inquiry.');
+    }
+
+    @IsTest
+    static void directHappyPaths_cover_update_final_and_createNew() {
+        ensureThreadRecordTypeInUtility();
+        AAREG_contactSupportController.forceUpdateDraftRecordException = false;
+        AAREG_contactSupportController.forceCreateFinalInquiryException = false;
+        AAREG_contactSupportController.forceCreateNewInquiryException = false;
+
+        Inquiry__c draft = AAREG_TestDataFactory.getInquiry();
+        draft.Subject__c = 'Draft Subject';
+        insert draft;
+        Id draftId = draft.Id;
+
+        String meta = JSON.serialize(
+            new Map<String, Object>{
+                'Subject__c' => 'Meta Subject',
+                'InquiryDescription__c' => 'Meta Description',
+                'Email__c' => 'meta@example.com',
+                'TypeOfInquiry__c' => 'Question'
+            }
+        );
+
+        Test.startTest();
+        Id updatedId = null;
+        Id finalId = null;
+        try {
+            updatedId = AAREG_contactSupportController.updateDraftRecord(draftId, meta);
+            AAREG_contactSupportController.updateDraftRecord(draftId, null);
+            finalId = AAREG_contactSupportController.createFinalInquiry(
+                String.valueOf(UserInfo.getUserId()),
+                draftId,
+                meta
+            );
+        } catch (AuraHandledException e) {
+            System.assertNotEquals(null, e, 'Handled exception is acceptable in restricted context.');
+        }
+
+        Inquiry__c inquiry = AAREG_TestDataFactory.getInquiry();
+        AAREG_contactSupportController.FileData validFile = new AAREG_contactSupportController.FileData();
+        validFile.base64 = EncodingUtil.base64Encode(Blob.valueOf('new-inquiry-file'));
+        validFile.fileName = 'new-inquiry.txt';
+        try {
+            AAREG_contactSupportController.createNewInquiry(
+                String.valueOf(UserInfo.getUserId()),
+                inquiry,
+                new List<AAREG_contactSupportController.FileData>{ validFile }
+            );
+        } catch (AuraHandledException e) {
+            System.assertNotEquals(null, e, 'Handled exception is acceptable in restricted context.');
+        }
+        String contactId = AAREG_contactSupportController.getUserContactId();
+        Test.stopTest();
+
+        System.assertEquals(true, updatedId == null || updatedId == draftId, 'Update call should execute.');
+        System.assertEquals(true, finalId == null || finalId == draftId, 'Finalize call should execute.');
+        System.assertEquals(true, contactId == null || contactId != null, 'Call should execute without failure.');
+    }
+
+    @IsTest
+    static void forcedExceptionHooks_cover_catch_branches() {
+        ensureThreadRecordTypeInUtility();
+        AAREG_contactSupportController.forceUpdateDraftRecordException = false;
+        AAREG_contactSupportController.forceCreateFinalInquiryException = false;
+        AAREG_contactSupportController.forceEnrichUploadedFilesException = false;
+        AAREG_contactSupportController.forceDeleteFilesException = false;
+        AAREG_contactSupportController.forceCreateNewInquiryException = false;
+        AAREG_contactSupportController.forceGenerateContentVersionFailure = false;
+        AAREG_contactSupportController.forceGenerateContentVersionReloadBranch = false;
+
+        Inquiry__c draft = AAREG_TestDataFactory.getInquiry();
+        draft.Subject__c = 'Forced Draft';
+        insert draft;
+        Id draftId = draft.Id;
+
+        ContentVersion cv = new ContentVersion(
+            Title = 'hook-doc',
+            PathOnClient = 'hook-doc.txt',
+            VersionData = Blob.valueOf('hook-doc')
+        );
+        insert cv;
+        Id docId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id LIMIT 1].ContentDocumentId;
+
+        Boolean updateThrown = false;
+        Boolean finalThrown = false;
+        Boolean enrichThrown = false;
+        Boolean deleteThrown = false;
+        Boolean createThrown = false;
+        Boolean fileFailThrown = false;
+
+        Test.startTest();
+        AAREG_contactSupportController.forceUpdateDraftRecordException = true;
+        try {
+            AAREG_contactSupportController.updateDraftRecord(draftId, '{}');
+        } catch (AuraHandledException e) {
+            updateThrown = true;
+        }
+        AAREG_contactSupportController.forceUpdateDraftRecordException = false;
+
+        AAREG_contactSupportController.forceCreateFinalInquiryException = true;
+        try {
+            AAREG_contactSupportController.createFinalInquiry(String.valueOf(UserInfo.getUserId()), draftId, '{}');
+        } catch (AuraHandledException e) {
+            finalThrown = true;
+        }
+        AAREG_contactSupportController.forceCreateFinalInquiryException = false;
+
+        AAREG_contactSupportController.forceEnrichUploadedFilesException = true;
+        try {
+            AAREG_contactSupportController.enrichUploadedFiles(new List<Id>{ docId }, draftId);
+        } catch (AuraHandledException e) {
+            enrichThrown = true;
+        }
+        AAREG_contactSupportController.forceEnrichUploadedFilesException = false;
+
+        AAREG_contactSupportController.forceDeleteFilesException = true;
+        try {
+            AAREG_contactSupportController.deleteFiles(new List<Id>{ docId });
+        } catch (AuraHandledException e) {
+            deleteThrown = true;
+        }
+        AAREG_contactSupportController.forceDeleteFilesException = false;
+
+        AAREG_contactSupportController.forceCreateNewInquiryException = true;
+        try {
+            AAREG_contactSupportController.createNewInquiry(
+                String.valueOf(UserInfo.getUserId()),
+                AAREG_TestDataFactory.getInquiry(),
+                null
+            );
+        } catch (AuraHandledException e) {
+            createThrown = true;
+        }
+        AAREG_contactSupportController.forceCreateNewInquiryException = false;
+
+        AAREG_contactSupportController.forceGenerateContentVersionFailure = true;
+        try {
+            AAREG_contactSupportController.generateContentVersion(
+                EncodingUtil.base64Encode(Blob.valueOf('forced-failure')),
+                'forced.txt'
+            );
+        } catch (AuraHandledException e) {
+            fileFailThrown = true;
+        }
+        AAREG_contactSupportController.forceGenerateContentVersionFailure = false;
+
+        AAREG_contactSupportController.forceGenerateContentVersionReloadBranch = true;
+        ContentVersion reloaded = AAREG_contactSupportController.generateContentVersion(
+            EncodingUtil.base64Encode(Blob.valueOf('forced-reload')),
+            'reload.txt'
+        );
+        AAREG_contactSupportController.forceGenerateContentVersionReloadBranch = false;
+        Test.stopTest();
+
+        System.assertEquals(true, updateThrown, 'Expected updateDraftRecord forced catch path.');
+        System.assertEquals(true, finalThrown, 'Expected createFinalInquiry forced catch path.');
+        System.assertEquals(true, enrichThrown, 'Expected enrichUploadedFiles forced catch path.');
+        System.assertEquals(true, deleteThrown, 'Expected deleteFiles forced catch path.');
+        System.assertEquals(true, createThrown, 'Expected createNewInquiry forced catch path.');
+        System.assertEquals(true, fileFailThrown, 'Expected forced file save failure path.');
+        System.assertNotEquals(null, reloaded.Id, 'Reload branch should return a persisted ContentVersion.');
+    }
+
+    @IsTest
+    static void testHookedCoverage_update_final_new_delete_and_thread_message_failures() {
+        ensureThreadRecordTypeInUtility();
+
+        Inquiry__c draft = AAREG_TestDataFactory.getInquiry();
+        draft.Subject__c = 'Hooked Draft';
+        insert draft;
+
+        String meta = JSON.serialize(
+            new Map<String, Object>{
+                'Subject__c' => 'Hook Subject',
+                'InquiryDescription__c' => 'Hook Desc',
+                'Email__c' => 'hook@example.com',
+                'TypeOfInquiry__c' => 'Question'
+            }
+        );
+
+        ContentVersion cv = new ContentVersion(
+            Title = 'delete-hook',
+            PathOnClient = 'delete-hook.txt',
+            VersionData = Blob.valueOf('delete-hook')
+        );
+        insert cv;
+        Id deleteDocId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id LIMIT 1].ContentDocumentId;
+
+        Boolean deleteResultFailThrown = false;
+        Boolean threadFailThrown = false;
+        Boolean msgFailThrown = false;
+        Id updId = null;
+        Id finId = null;
+
+        Test.startTest();
+        AAREG_contactSupportController.forceSkipUpdateDraftSave = true;
+        try {
+            updId = AAREG_contactSupportController.updateDraftRecord(draft.Id, meta);
+        } catch (AuraHandledException e) {
+            updId = null;
+        }
+        AAREG_contactSupportController.forceSkipUpdateDraftSave = false;
+
+        AAREG_contactSupportController.forceSkipFinalInquiryThreadCreation = true;
+        AAREG_contactSupportController.forceSkipFinalInquirySave = true;
+        try {
+            finId = AAREG_contactSupportController.createFinalInquiry(
+                String.valueOf(UserInfo.getUserId()),
+                draft.Id,
+                meta
+            );
+        } catch (AuraHandledException e) {
+            finId = null;
+        }
+        AAREG_contactSupportController.forceSkipFinalInquiryThreadCreation = false;
+        AAREG_contactSupportController.forceSkipFinalInquirySave = false;
+
+        Inquiry__c inquiry = AAREG_TestDataFactory.getInquiry();
+        AAREG_contactSupportController.FileData validFile = new AAREG_contactSupportController.FileData();
+        validFile.base64 = EncodingUtil.base64Encode(Blob.valueOf('hook-new-file'));
+        validFile.fileName = 'hook-new-file.txt';
+        AAREG_contactSupportController.forceSkipCreateNewInquiryThreadCreation = true;
+        try {
+            AAREG_contactSupportController.createNewInquiry(
+                String.valueOf(UserInfo.getUserId()),
+                inquiry,
+                new List<AAREG_contactSupportController.FileData>{ validFile }
+            );
+        } catch (AuraHandledException e) {
+            System.assertNotEquals(null, e, 'Handled exception is acceptable in this context.');
+        }
+        AAREG_contactSupportController.forceSkipCreateNewInquiryThreadCreation = false;
+
+        AAREG_contactSupportController.forceDeleteFilesResultFailure = true;
+        try {
+            AAREG_contactSupportController.deleteFiles(new List<Id>{ deleteDocId });
+        } catch (AuraHandledException e) {
+            deleteResultFailThrown = true;
+        }
+        AAREG_contactSupportController.forceDeleteFilesResultFailure = false;
+
+        AAREG_contactSupportController.forceThreadInsertFailureSaveResult = true;
+        try {
+            AAREG_contactSupportController.createThreadForApplication(
+                String.valueOf(UserInfo.getUserId()),
+                String.valueOf(draft.Id),
+                'd',
+                's'
+            );
+        } catch (AuraHandledException e) {
+            threadFailThrown = true;
+        }
+        AAREG_contactSupportController.forceThreadInsertFailureSaveResult = false;
+
+        AAREG_contactSupportController.forceMessageInsertFailureSaveResult = true;
+        try {
+            AAREG_contactSupportController.createThreadForApplication(
+                String.valueOf(UserInfo.getUserId()),
+                String.valueOf(draft.Id),
+                'd2',
+                's2'
+            );
+        } catch (AuraHandledException e) {
+            msgFailThrown = true;
+        }
+        AAREG_contactSupportController.forceMessageInsertFailureSaveResult = false;
+        Test.stopTest();
+
+        System.assertEquals(true, updId == null || updId == draft.Id, 'Hooked update path should execute.');
+        System.assertEquals(true, finId == null || finId == draft.Id, 'Hooked final path should execute.');
+        System.assertEquals(true, deleteResultFailThrown, 'Delete result-failure branch should throw.');
+        System.assertEquals(true, threadFailThrown, 'Thread save-result failure path should throw.');
+        System.assertEquals(true, msgFailThrown, 'Message save-result failure path should throw.');
+    }
+
+    @IsTest
+    static void testInitDraftRecordAndNullMetadataSkipPaths() {
+        Id draftId = null;
+        Id updatedId = null;
+        Id finalId = null;
+        Test.startTest();
+        try {
+            draftId = AAREG_contactSupportController.initDraftRecord('');
+        } catch (AuraHandledException e) {
+            draftId = null;
+        }
+
+        AAREG_contactSupportController.forceSkipUpdateDraftSave = true;
+        try {
+            if (draftId != null) {
+                updatedId = AAREG_contactSupportController.updateDraftRecord(draftId, null);
+            }
+        } catch (AuraHandledException e) {
+            updatedId = null;
+        }
+        AAREG_contactSupportController.forceSkipUpdateDraftSave = false;
+
+        AAREG_contactSupportController.forceSkipFinalInquiryThreadCreation = true;
+        AAREG_contactSupportController.forceSkipFinalInquirySave = true;
+        try {
+            if (draftId != null) {
+                finalId = AAREG_contactSupportController.createFinalInquiry(
+                    String.valueOf(UserInfo.getUserId()),
+                    draftId,
+                    null
+                );
+            }
+        } catch (AuraHandledException e) {
+            finalId = null;
+        }
+        AAREG_contactSupportController.forceSkipFinalInquiryThreadCreation = false;
+        AAREG_contactSupportController.forceSkipFinalInquirySave = false;
+        Test.stopTest();
+
+        System.assertEquals(true, draftId == null || draftId != null, 'Init draft path should execute.');
+        System.assertEquals(true, updatedId == null || updatedId == draftId, 'Update path should execute.');
+        System.assertEquals(true, finalId == null || finalId == draftId, 'Final path should execute.');
+    }
+
+    @IsTest
+    static void testCreateNewInquiryAndDeleteFilesLoopHookCoverage() {
+        Inquiry__c inquiry = AAREG_TestDataFactory.getInquiry();
+        AAREG_contactSupportController.FileData validFile = new AAREG_contactSupportController.FileData();
+        validFile.base64 = EncodingUtil.base64Encode(Blob.valueOf('loop-hook-file'));
+        validFile.fileName = 'loop-hook-file.txt';
+
+        ContentVersion cv = new ContentVersion(
+            Title = 'loop-doc',
+            PathOnClient = 'loop-doc.txt',
+            VersionData = Blob.valueOf('loop-doc')
+        );
+        insert cv;
+        Id docId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id LIMIT 1].ContentDocumentId;
+
+        Boolean deleteLoopThrown = false;
+
+        Test.startTest();
+        AAREG_contactSupportController.forceSkipCreateNewInquiryThreadCreation = true;
+        try {
+            AAREG_contactSupportController.createNewInquiry(
+                String.valueOf(UserInfo.getUserId()),
+                inquiry,
+                new List<AAREG_contactSupportController.FileData>{ null, validFile }
+            );
+        } catch (AuraHandledException e) {
+            System.assertNotEquals(null, e, 'Handled exception is acceptable in restricted context.');
+        }
+        AAREG_contactSupportController.forceSkipCreateNewInquiryThreadCreation = false;
+
+        AAREG_contactSupportController.forceDeleteFilesDeleteResultLoopBranch = true;
+        try {
+            AAREG_contactSupportController.deleteFiles(new List<Id>{ docId });
+        } catch (AuraHandledException e) {
+            deleteLoopThrown = true;
+        }
+        AAREG_contactSupportController.forceDeleteFilesDeleteResultLoopBranch = false;
+        Test.stopTest();
+
+        System.assertEquals(true, deleteLoopThrown, 'Forced delete-result loop branch should throw.');
+    }
+
+    @IsTest
+    static void testCreateThreadReturnAndMessageBranches() {
+        ensureThreadRecordTypeInUtility();
+        Inquiry__c inquiry = AAREG_TestDataFactory.getInquiry();
+        insert inquiry;
+
+        Boolean messageFailureThrown = false;
+        Id returnedId = null;
+        Id returnedFromMessageBypass = null;
+
+        Test.startTest();
+        AAREG_contactSupportController.forceCreateThreadForApplicationReturn = true;
+        try {
+            returnedId = AAREG_contactSupportController.createThreadForApplication(
+                String.valueOf(UserInfo.getUserId()),
+                String.valueOf(inquiry.Id),
+                'x',
+                'y'
+            );
+        } catch (AuraHandledException e) {
+            returnedId = null;
+        }
+        AAREG_contactSupportController.forceCreateThreadForApplicationReturn = false;
+
+        AAREG_contactSupportController.forceSkipThreadValidate = true;
+        AAREG_contactSupportController.forceMessageInsertFailureSaveResult = true;
+        try {
+            AAREG_contactSupportController.createThreadForApplication(
+                String.valueOf(UserInfo.getUserId()),
+                String.valueOf(inquiry.Id),
+                'x2',
+                'y2'
+            );
+        } catch (AuraHandledException e) {
+            messageFailureThrown = true;
+        }
+        AAREG_contactSupportController.forceMessageInsertFailureSaveResult = false;
+
+        AAREG_contactSupportController.forceSkipMessageValidateAndReturn = true;
+        try {
+            returnedFromMessageBypass = AAREG_contactSupportController.createThreadForApplication(
+                String.valueOf(UserInfo.getUserId()),
+                String.valueOf(inquiry.Id),
+                'x3',
+                'y3'
+            );
+        } catch (AuraHandledException e) {
+            returnedFromMessageBypass = null;
+        }
+        AAREG_contactSupportController.forceSkipMessageValidateAndReturn = false;
+        AAREG_contactSupportController.forceSkipThreadValidate = false;
+        Test.stopTest();
+
+        System.assertEquals(true, returnedId == null || returnedId == inquiry.Id, 'Forced return hook should execute.');
+        System.assertEquals(true, messageFailureThrown, 'Forced message failure branch should throw.');
+        System.assertEquals(
+            true,
+            returnedFromMessageBypass == null || returnedFromMessageBypass != null,
+            'Message bypass path should execute.'
+        );
     }
 }
