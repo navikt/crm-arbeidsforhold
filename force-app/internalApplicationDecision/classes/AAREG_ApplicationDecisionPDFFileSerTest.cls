@@ -260,4 +260,116 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
 
         System.Assert.areEqual('testContentDocId', output.contentDocumentId, 'contentDocumentId should be set.');
     }
+
+    @IsTest
+    static void testCreateFile_forceContentVersionCrudDenied() {
+        Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
+        Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
+        Access_Request__c testAccessRequest = [SELECT Id FROM Access_Request__c LIMIT 1];
+
+        AAREG_ApplicationDecisionPDFFileService.FlowInput input = new AAREG_ApplicationDecisionPDFFileService.FlowInput();
+        input.decisionRecordId = testDecision.Id;
+        input.applicationRecordId = testApplication.Id;
+        input.accessRequestRecordId = testAccessRequest.Id;
+        input.decisionFileTitle = 'Test PDF Title';
+
+        AAREG_ApplicationDecisionPDFFileService.forceContentVersionNotCreateable = true;
+        Boolean thrown = false;
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionPDFFileService.createFile(
+                new List<AAREG_ApplicationDecisionPDFFileService.FlowInput>{ input }
+            );
+        } catch (AuraHandledException e) {
+            thrown = true;
+        }
+        Test.stopTest();
+        AAREG_ApplicationDecisionPDFFileService.forceContentVersionNotCreateable = false;
+
+        System.Assert.isTrue(thrown, 'Expected exception when ContentVersion create permission is denied.');
+    }
+
+    @IsTest
+    static void testCreateFile_forceContentVersionQueryEmpty() {
+        Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
+        Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
+        Access_Request__c testAccessRequest = [SELECT Id FROM Access_Request__c LIMIT 1];
+
+        AAREG_ApplicationDecisionPDFFileService.FlowInput input = new AAREG_ApplicationDecisionPDFFileService.FlowInput();
+        input.decisionRecordId = testDecision.Id;
+        input.applicationRecordId = testApplication.Id;
+        input.accessRequestRecordId = testAccessRequest.Id;
+        input.decisionFileTitle = 'Test PDF Title';
+
+        AAREG_ApplicationDecisionPDFFileService.forceContentVersionQueryEmpty = true;
+        Boolean thrown = false;
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionPDFFileService.createFile(
+                new List<AAREG_ApplicationDecisionPDFFileService.FlowInput>{ input }
+            );
+        } catch (AuraHandledException e) {
+            thrown = true;
+        }
+        Test.stopTest();
+        AAREG_ApplicationDecisionPDFFileService.forceContentVersionQueryEmpty = false;
+
+        System.Assert.isTrue(thrown, 'Expected exception when ContentVersion query returns empty list.');
+    }
+
+    @IsTest
+    static void testCreateFile_forceContentDocumentLinkCrudDenied() {
+        Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
+        Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
+        Access_Request__c testAccessRequest = [SELECT Id FROM Access_Request__c LIMIT 1];
+
+        AAREG_ApplicationDecisionPDFFileService.FlowInput input = new AAREG_ApplicationDecisionPDFFileService.FlowInput();
+        input.decisionRecordId = testDecision.Id;
+        input.applicationRecordId = testApplication.Id;
+        input.accessRequestRecordId = testAccessRequest.Id;
+        input.decisionFileTitle = 'Test PDF Title';
+
+        AAREG_ApplicationDecisionPDFFileService.forceContentDocumentLinkNotCreateable = true;
+        Boolean thrown = false;
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionPDFFileService.createFile(
+                new List<AAREG_ApplicationDecisionPDFFileService.FlowInput>{ input }
+            );
+        } catch (AuraHandledException e) {
+            thrown = true;
+        }
+        Test.stopTest();
+        AAREG_ApplicationDecisionPDFFileService.forceContentDocumentLinkNotCreateable = false;
+
+        System.Assert.isTrue(thrown, 'Expected exception when ContentDocumentLink create permission is denied.');
+    }
+
+    @IsTest
+    static void testCreateFile_forceDmlExceptionPath() {
+        Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
+        Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
+        Access_Request__c testAccessRequest = [SELECT Id FROM Access_Request__c LIMIT 1];
+
+        AAREG_ApplicationDecisionPDFFileService.FlowInput input = new AAREG_ApplicationDecisionPDFFileService.FlowInput();
+        input.decisionRecordId = testDecision.Id;
+        input.applicationRecordId = testApplication.Id;
+        input.accessRequestRecordId = testAccessRequest.Id;
+        input.decisionFileTitle = 'Test PDF Title';
+
+        AAREG_ApplicationDecisionPDFFileService.forceDmlException = true;
+        Boolean thrown = false;
+        Test.startTest();
+        try {
+            AAREG_ApplicationDecisionPDFFileService.createFile(
+                new List<AAREG_ApplicationDecisionPDFFileService.FlowInput>{ input }
+            );
+        } catch (AuraHandledException e) {
+            thrown = true;
+        }
+        Test.stopTest();
+        AAREG_ApplicationDecisionPDFFileService.forceDmlException = false;
+
+        System.Assert.isTrue(thrown, 'Expected DML error path to throw AuraHandledException.');
+    }
 }

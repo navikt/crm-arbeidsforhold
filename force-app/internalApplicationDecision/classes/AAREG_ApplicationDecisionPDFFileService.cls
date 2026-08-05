@@ -12,6 +12,15 @@
  * @group-content This class is part of the internal application decision handling module.
  */
 public with sharing class AAREG_ApplicationDecisionPDFFileService {
+    @TestVisible
+    static Boolean forceContentVersionNotCreateable = false;
+    @TestVisible
+    static Boolean forceContentVersionQueryEmpty = false;
+    @TestVisible
+    static Boolean forceContentDocumentLinkNotCreateable = false;
+    @TestVisible
+    static Boolean forceDmlException = false;
+
     @InvocableMethod(label='AAREG Create ContentVersion PDF')
     /**
      * Creates a PDF file based on the provided flow inputs.
@@ -62,7 +71,7 @@ public with sharing class AAREG_ApplicationDecisionPDFFileService {
 
             // Check if user has create access to ContentVersion (CRUD check)
             Schema.DescribeSObjectResult cvDescribe = ContentVersion.sObjectType.getDescribe();
-            if (!cvDescribe.isCreateable()) {
+            if (!cvDescribe.isCreateable() || (Test.isRunningTest() && forceContentVersionNotCreateable)) {
                 LoggerUtility logger = new LoggerUtility();
                 logger.error('Kan ikke opprette PDF-fil. Mangler CRUD-tilgang til ContentVersion.', null);
                 logger.publish();
@@ -77,13 +86,15 @@ public with sharing class AAREG_ApplicationDecisionPDFFileService {
             insert content;
 
             // Query inserted content with security context to get ContentDocumentId
-            List<ContentVersion> cvList = [
-                SELECT Id, ContentDocumentId
-                FROM ContentVersion
-                WHERE Id = :content.Id
-                WITH USER_MODE
-                LIMIT 1
-            ];
+            List<ContentVersion> cvList = (Test.isRunningTest() && forceContentVersionQueryEmpty)
+                ? new List<ContentVersion>()
+                : [
+                      SELECT Id, ContentDocumentId
+                      FROM ContentVersion
+                      WHERE Id = :content.Id
+                      WITH USER_MODE
+                      LIMIT 1
+                  ];
 
             if (cvList.isEmpty()) {
                 LoggerUtility logger = new LoggerUtility();
@@ -104,11 +115,15 @@ public with sharing class AAREG_ApplicationDecisionPDFFileService {
 
             // Check if user has create access to ContentDocumentLink (CRUD check)
             Schema.DescribeSObjectResult cdlDescribe = ContentDocumentLink.sObjectType.getDescribe();
-            if (!cdlDescribe.isCreateable()) {
+            if (!cdlDescribe.isCreateable() || (Test.isRunningTest() && forceContentDocumentLinkNotCreateable)) {
                 LoggerUtility logger = new LoggerUtility();
                 logger.error('Kan ikke linke PDF-fil. Mangler CRUD-tilgang til ContentDocumentLink.', null);
                 logger.publish();
                 throw new AuraHandledException('Kan ikke linke PDF-fil. Mangler tilgang.');
+            }
+
+            if (Test.isRunningTest() && forceDmlException) {
+                insert new ContentDocumentLink();
             }
 
             // Create content document links to all valid target records
