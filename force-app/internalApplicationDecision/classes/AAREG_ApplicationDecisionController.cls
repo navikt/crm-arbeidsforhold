@@ -58,13 +58,21 @@ public with sharing class AAREG_ApplicationDecisionController {
         Schema.DescribeSObjectResult describe = getSObjectDescribe(Application_Decision__c.sObjectType);
         if (Test.isRunningTest() && forceDecisionObjectNotReadable) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Kan ikke lese vedtak. Mangler tilgang til objektet.', null);
+            logger.error(
+                'Kan ikke lese vedtak. Mangler tilgang til objektet.',
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Kan ikke lese vedtak. Mangler tilgang til objektet.');
         }
         if (!describe.isAccessible() || (Test.isRunningTest() && forceDecisionObjectDescribeDeniedBranch)) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Kan ikke lese vedtak. Mangler tilgang til objektet.', null);
+            logger.error(
+                'Kan ikke lese vedtak. Mangler tilgang til objektet.',
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Kan ikke lese vedtak. Mangler tilgang til objektet.');
         }
@@ -107,13 +115,21 @@ public with sharing class AAREG_ApplicationDecisionController {
             Schema.DescribeSObjectResult decisionDescribe = getSObjectDescribe(Application_Decision__c.sObjectType);
             if (Test.isRunningTest() && forceDecisionNotCreateable) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Kan ikke opprette vedtak. Mangler CRUD-tilgang.', null);
+                logger.error(
+                    'Kan ikke opprette vedtak. Mangler CRUD-tilgang.',
+                    null,
+                    CRM_ApplicationDomain.Domain.AAREG
+                );
                 logger.publish();
                 throw new AuraHandledException('Kan ikke opprette vedtak. Mangler CRUD-tilgang.');
             }
             if (!decisionDescribe.isCreateable() || (Test.isRunningTest() && forceDecisionCreateDescribeDeniedBranch)) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Kan ikke opprette vedtak. Mangler CRUD-tilgang.', null);
+                logger.error(
+                    'Kan ikke opprette vedtak. Mangler CRUD-tilgang.',
+                    null,
+                    CRM_ApplicationDomain.Domain.AAREG
+                );
                 logger.publish();
                 throw new AuraHandledException('Kan ikke opprette vedtak. Mangler CRUD-tilgang.');
             }
@@ -134,13 +150,21 @@ public with sharing class AAREG_ApplicationDecisionController {
                 );
                 if (Test.isRunningTest() && forceDetailNotCreateable) {
                     LoggerUtility logger = new LoggerUtility();
-                    logger.error('Kan ikke opprette vedtaksdetaljer. Mangler CRUD-tilgang.', null);
+                    logger.error(
+                        'Kan ikke opprette vedtaksdetaljer. Mangler CRUD-tilgang.',
+                        null,
+                        CRM_ApplicationDomain.Domain.AAREG
+                    );
                     logger.publish();
                     throw new AuraHandledException('Kan ikke opprette vedtaksdetaljer. Mangler CRUD-tilgang.');
                 }
                 if (!detailDescribe.isCreateable() || (Test.isRunningTest() && forceDetailCreateDescribeDeniedBranch)) {
                     LoggerUtility logger = new LoggerUtility();
-                    logger.error('Kan ikke opprette vedtaksdetaljer. Mangler CRUD-tilgang.', null);
+                    logger.error(
+                        'Kan ikke opprette vedtaksdetaljer. Mangler CRUD-tilgang.',
+                        null,
+                        CRM_ApplicationDomain.Domain.AAREG
+                    );
                     logger.publish();
                     throw new AuraHandledException('Kan ikke opprette vedtaksdetaljer. Mangler CRUD-tilgang.');
                 }
@@ -152,13 +176,21 @@ public with sharing class AAREG_ApplicationDecisionController {
         } catch (DmlException e) {
             // Handle database operation exceptions
             LoggerUtility logger = new LoggerUtility();
-            logger.error('DML-feil ved opprettelse av vedtak: ' + e.getMessage(), null);
+            logger.error(
+                'DML-feil ved opprettelse av vedtak: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Kunne ikke opprette vedtak: ' + e.getMessage());
         } catch (Exception e) {
             // Handle all other unexpected exceptions
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Uventet feil ved opprettelse av vedtak: ' + e.getMessage(), null);
+            logger.error(
+                'Uventet feil ved opprettelse av vedtak: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('En uventet feil oppstod: ' + e.getMessage());
         }
@@ -212,13 +244,21 @@ public with sharing class AAREG_ApplicationDecisionController {
         Schema.DescribeSObjectResult describe = getSObjectDescribe(ApplicationBasisCode__c.sObjectType);
         if (Test.isRunningTest() && forceBasisObjectNotReadable) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Kan ikke lese behandlingsgrunnlag. Mangler tilgang til objektet.', null);
+            logger.error(
+                'Kan ikke lese behandlingsgrunnlag. Mangler tilgang til objektet.',
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Kan ikke lese behandlingsgrunnlag. Mangler tilgang til objektet.');
         }
         if (!describe.isAccessible() || (Test.isRunningTest() && forceBasisObjectDescribeDeniedBranch)) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Kan ikke lese behandlingsgrunnlag. Mangler tilgang til objektet.', null);
+            logger.error(
+                'Kan ikke lese behandlingsgrunnlag. Mangler tilgang til objektet.',
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Kan ikke lese behandlingsgrunnlag. Mangler tilgang til objektet.');
         }
@@ -292,7 +332,11 @@ public with sharing class AAREG_ApplicationDecisionController {
         } catch (Exception e) {
             // Log any unexpected errors during detail building
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved bygging av vedtaksdetaljer: ' + e.getMessage(), null);
+            logger.error(
+                'Feil ved bygging av vedtaksdetaljer: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Kunne ikke bygge vedtaksdetaljer: ' + e.getMessage());
         }
@@ -358,7 +402,11 @@ public with sharing class AAREG_ApplicationDecisionController {
         } catch (Exception e) {
             // Log any errors during legal basis assignment
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved tildeling av hjemmel og formål: ' + e.getMessage(), null);
+            logger.error(
+                'Feil ved tildeling av hjemmel og formål: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Kunne ikke tildele hjemmel og formål: ' + e.getMessage());
         }

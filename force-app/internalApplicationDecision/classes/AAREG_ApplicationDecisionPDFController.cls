@@ -58,7 +58,11 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
             this.currentRecord = getApplicationDecisionRecord(this.currentRecordId);
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved lasting av vedtak i PDF-controller: ' + e.getMessage(), null);
+            logger.error(
+                'Feil ved lasting av vedtak i PDF-controller: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
         }
 
@@ -67,7 +71,11 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
                 this.applicationRecord = getApplicationRecord(this.currentRecord.soknadsId);
             } catch (Exception e) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Feil ved lasting av søknad i PDF-controller: ' + e.getMessage(), null);
+                logger.error(
+                    'Feil ved lasting av søknad i PDF-controller: ' + e.getMessage(),
+                    null,
+                    CRM_ApplicationDomain.Domain.AAREG
+                );
                 logger.publish();
             }
         }
@@ -76,7 +84,11 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
             this.decisionDetailsRecords = getApplicationDecisionDetails(this.currentRecordId);
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved lasting av vedtaksdetaljer i PDF-controller: ' + e.getMessage(), null);
+            logger.error(
+                'Feil ved lasting av vedtaksdetaljer i PDF-controller: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
         }
     }
@@ -94,13 +106,21 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
             Schema.DescribeSObjectResult describe = Application__c.sObjectType.getDescribe();
             if (Test.isRunningTest() && forceApplicationReadDenied) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Kan ikke lese søknadsdata. Mangler tilgang til objektet.', null);
+                logger.error(
+                    'Kan ikke lese søknadsdata. Mangler tilgang til objektet.',
+                    null,
+                    CRM_ApplicationDomain.Domain.AAREG
+                );
                 logger.publish();
                 throw new AuraHandledException('Kan ikke lese søknadsdata. Mangler tilgang til objektet.');
             }
             if (!describe.isAccessible() || (Test.isRunningTest() && forceApplicationDescribeDeniedBranch)) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Kan ikke lese søknadsdata. Mangler tilgang til objektet.', null);
+                logger.error(
+                    'Kan ikke lese søknadsdata. Mangler tilgang til objektet.',
+                    null,
+                    CRM_ApplicationDomain.Domain.AAREG
+                );
                 logger.publish();
                 throw new AuraHandledException('Kan ikke lese søknadsdata. Mangler tilgang til objektet.');
             }
@@ -155,7 +175,11 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
             return applicationWrapperTempList;
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved henting av søknadsdata: ' + e.getMessage(), null);
+            logger.error(
+                'Feil ved henting av søknadsdata: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Kunne ikke hente søknadsdata: ' + e.getMessage());
         }
@@ -174,13 +198,21 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
             Schema.DescribeSObjectResult describe = Application_Decision__c.sObjectType.getDescribe();
             if (Test.isRunningTest() && forceDecisionReadDenied) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Kan ikke lese vedtaksdata. Mangler tilgang til objektet.', null);
+                logger.error(
+                    'Kan ikke lese vedtaksdata. Mangler tilgang til objektet.',
+                    null,
+                    CRM_ApplicationDomain.Domain.AAREG
+                );
                 logger.publish();
                 throw new AuraHandledException('Kan ikke lese vedtaksdata. Mangler tilgang til objektet.');
             }
             if (!describe.isAccessible() || (Test.isRunningTest() && forceDecisionDescribeDeniedBranch)) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Kan ikke lese vedtaksdata. Mangler tilgang til objektet.', null);
+                logger.error(
+                    'Kan ikke lese vedtaksdata. Mangler tilgang til objektet.',
+                    null,
+                    CRM_ApplicationDomain.Domain.AAREG
+                );
                 logger.publish();
                 throw new AuraHandledException('Kan ikke lese vedtaksdata. Mangler tilgang til objektet.');
             }
@@ -227,7 +259,11 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
             return decisionWrapper;
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved henting av vedtaksdata: ' + e.getMessage(), null);
+            logger.error(
+                'Feil ved henting av vedtaksdata: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Kunne ikke hente vedtaksdata: ' + e.getMessage());
         }
@@ -246,13 +282,21 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
             Schema.DescribeSObjectResult describe = Application_Decision_Details__c.sObjectType.getDescribe();
             if (Test.isRunningTest() && forceDetailsReadDenied) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Kan ikke lese vedtaksdetaljer. Mangler tilgang til objektet.', null);
+                logger.error(
+                    'Kan ikke lese vedtaksdetaljer. Mangler tilgang til objektet.',
+                    null,
+                    CRM_ApplicationDomain.Domain.AAREG
+                );
                 logger.publish();
                 throw new AuraHandledException('Kan ikke lese vedtaksdetaljer. Mangler tilgang til objektet.');
             }
             if (!describe.isAccessible() || (Test.isRunningTest() && forceDetailsDescribeDeniedBranch)) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Kan ikke lese vedtaksdetaljer. Mangler tilgang til objektet.', null);
+                logger.error(
+                    'Kan ikke lese vedtaksdetaljer. Mangler tilgang til objektet.',
+                    null,
+                    CRM_ApplicationDomain.Domain.AAREG
+                );
                 logger.publish();
                 throw new AuraHandledException('Kan ikke lese vedtaksdetaljer. Mangler tilgang til objektet.');
             }
