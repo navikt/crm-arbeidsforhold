@@ -146,7 +146,7 @@ public without sharing class AAREG_HomeController {
             Database.SaveResult[] saveResult = Database.insert(agreementShares, false);
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error(e.getMessage(), null);
+            logger.error(e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
             logger.publish();
         }
         shareAgreementRelatedContacts(agreements, userId);
@@ -180,7 +180,7 @@ public without sharing class AAREG_HomeController {
             Database.SaveResult[] saveResult = Database.insert(relatedContactShares, false);
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error(e.getMessage(), null);
+            logger.error(e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
             logger.publish();
         }
     }

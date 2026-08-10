@@ -36,11 +36,19 @@ public class AAREG_distributionAccessRequest {
             }
         } catch (StatusCodeException e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Distribution access request failed: ' + e.getMessage(), null);
+            logger.error(
+                'Distribution access request failed: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Unexpected error in distribution access request: ' + e.getMessage(), null);
+            logger.error(
+                'Unexpected error in distribution access request: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
         }
     }

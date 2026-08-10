@@ -59,7 +59,11 @@ public class AAREG_distributionAccessController {
             }
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Error processing distribution access request: ' + e.getMessage(), null);
+            logger.error(
+                'Error processing distribution access request: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             success = false;
         }

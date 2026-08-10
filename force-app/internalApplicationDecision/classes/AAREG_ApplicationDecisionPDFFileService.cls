@@ -36,7 +36,7 @@ public with sharing class AAREG_ApplicationDecisionPDFFileService {
             // Validate input is not empty
             if (inputs == null || inputs.isEmpty()) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Ingen input mottatt for PDF-opprettelse.', null);
+                logger.error('Ingen input mottatt for PDF-opprettelse.', null, CRM_ApplicationDomain.Domain.AAREG);
                 logger.publish();
                 throw new AuraHandledException('Ingen input mottatt for PDF-opprettelse.');
             }
@@ -51,7 +51,7 @@ public with sharing class AAREG_ApplicationDecisionPDFFileService {
                 String.isBlank(input.decisionFileTitle)
             ) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Påkrevde felt mangler i PDF-input.', null);
+                logger.error('Påkrevde felt mangler i PDF-input.', null, CRM_ApplicationDomain.Domain.AAREG);
                 logger.publish();
                 throw new AuraHandledException('Påkrevde felt mangler i PDF-input.');
             }
@@ -73,7 +73,11 @@ public with sharing class AAREG_ApplicationDecisionPDFFileService {
             Schema.DescribeSObjectResult cvDescribe = ContentVersion.sObjectType.getDescribe();
             if (!cvDescribe.isCreateable() || (Test.isRunningTest() && forceContentVersionNotCreateable)) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Kan ikke opprette PDF-fil. Mangler CRUD-tilgang til ContentVersion.', null);
+                logger.error(
+                    'Kan ikke opprette PDF-fil. Mangler CRUD-tilgang til ContentVersion.',
+                    null,
+                    CRM_ApplicationDomain.Domain.AAREG
+                );
                 logger.publish();
                 throw new AuraHandledException('Kan ikke opprette PDF-fil. Mangler tilgang.');
             }
@@ -98,7 +102,7 @@ public with sharing class AAREG_ApplicationDecisionPDFFileService {
 
             if (cvList.isEmpty()) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('ContentVersion ble ikke funnet etter insert.', null);
+                logger.error('ContentVersion ble ikke funnet etter insert.', null, CRM_ApplicationDomain.Domain.AAREG);
                 logger.publish();
                 throw new AuraHandledException('Kunne ikke finne opprettet PDF-fil.');
             }
@@ -117,7 +121,11 @@ public with sharing class AAREG_ApplicationDecisionPDFFileService {
             Schema.DescribeSObjectResult cdlDescribe = ContentDocumentLink.sObjectType.getDescribe();
             if (!cdlDescribe.isCreateable() || (Test.isRunningTest() && forceContentDocumentLinkNotCreateable)) {
                 LoggerUtility logger = new LoggerUtility();
-                logger.error('Kan ikke linke PDF-fil. Mangler CRUD-tilgang til ContentDocumentLink.', null);
+                logger.error(
+                    'Kan ikke linke PDF-fil. Mangler CRUD-tilgang til ContentDocumentLink.',
+                    null,
+                    CRM_ApplicationDomain.Domain.AAREG
+                );
                 logger.publish();
                 throw new AuraHandledException('Kan ikke linke PDF-fil. Mangler tilgang.');
             }
@@ -155,13 +163,21 @@ public with sharing class AAREG_ApplicationDecisionPDFFileService {
         } catch (DmlException e) {
             // Handle DML-specific errors
             LoggerUtility logger = new LoggerUtility();
-            logger.error('DML-feil ved opprettelse av PDF-fil: ' + e.getMessage(), null);
+            logger.error(
+                'DML-feil ved opprettelse av PDF-fil: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('DML-feil ved opprettelse av PDF-fil: ' + e.getMessage());
         } catch (Exception e) {
             // Handle unexpected errors
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Uventet feil ved opprettelse av PDF-fil: ' + e.getMessage(), null);
+            logger.error(
+                'Uventet feil ved opprettelse av PDF-fil: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Uventet feil ved opprettelse av PDF-fil: ' + e.getMessage());
         }

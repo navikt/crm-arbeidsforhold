@@ -271,14 +271,14 @@ public with sharing class AAREG_contactSupportController {
                 if (Test.isRunningTest() && forceDeleteFilesResultFailure) {
                     String msg = 'Ukjent feil';
                     LoggerUtility logger = new LoggerUtility();
-                    logger.error('Kunne ikke slette ContentDocument. ' + msg, null);
+                    logger.error('Kunne ikke slette ContentDocument. ' + msg, null, CRM_ApplicationDomain.Domain.AAREG);
                     logger.publish();
                     throw new AuraHandledException('Kunne ikke slette filer.');
                 }
                 if (Test.isRunningTest() && forceDeleteFilesDeleteResultLoopBranch) {
                     String msg = 'Ukjent feil';
                     LoggerUtility logger = new LoggerUtility();
-                    logger.error('Kunne ikke slette ContentDocument. ' + msg, null);
+                    logger.error('Kunne ikke slette ContentDocument. ' + msg, null, CRM_ApplicationDomain.Domain.AAREG);
                     logger.publish();
                     throw new AuraHandledException('Kunne ikke slette filer.');
                 }
@@ -287,7 +287,11 @@ public with sharing class AAREG_contactSupportController {
                     if (!dr.isSuccess()) {
                         String msg = dr.getErrors().isEmpty() ? 'Ukjent feil' : dr.getErrors()[0].getMessage();
                         LoggerUtility logger = new LoggerUtility();
-                        logger.error('Kunne ikke slette ContentDocument. ' + msg, null, CRM_ApplicationDomain.Domain.AAREG);
+                        logger.error(
+                            'Kunne ikke slette ContentDocument. ' + msg,
+                            null,
+                            CRM_ApplicationDomain.Domain.AAREG
+                        );
                         logger.publish();
                         throw new AuraHandledException('Kunne ikke slette filer.');
                     }
@@ -388,7 +392,7 @@ public with sharing class AAREG_contactSupportController {
             }
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Feil ved createNewInquiry. ' + e.getMessage(), null);
+            logger.error('Feil ved createNewInquiry. ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
             logger.publish();
             throw new AuraHandledException('Kunne ikke opprette henvendelsen.');
         }
@@ -566,14 +570,14 @@ public with sharing class AAREG_contactSupportController {
     private static void validateSaveResult(Database.SaveResult sr, String errorMessage) {
         if (sr == null) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error(errorMessage, null);
+            logger.error(errorMessage, null, CRM_ApplicationDomain.Domain.AAREG);
             logger.publish();
             throw new AuraHandledException(errorMessage);
         }
         if ((Test.isRunningTest() && forceValidateSaveResultFailure) || !sr.isSuccess()) {
             String details = sr.getErrors().isEmpty() ? 'Ukjent feil' : sr.getErrors()[0].getMessage();
             LoggerUtility logger = new LoggerUtility();
-            logger.error(errorMessage + ' ' + details, null);
+            logger.error(errorMessage + ' ' + details, null, CRM_ApplicationDomain.Domain.AAREG);
             logger.publish();
             throw new AuraHandledException(errorMessage);
         }
