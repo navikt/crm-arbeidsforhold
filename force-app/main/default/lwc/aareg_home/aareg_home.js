@@ -1,13 +1,22 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, track, wire } from 'lwc';
 import Id from '@salesforce/user/Id';
 import getLastUsersLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganization';
 import getOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.getOrganizationsWithRoles';
 import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.updateLastUsedOrganization';
 import checkAndShareIfAuthorized from '@salesforce/apex/AAREG_HomeController.checkAndShareIfAuthorized';
+import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreads';
 
 export default class Aareg_home extends LightningElement {
   @track organizations;
   isLoaded = false;
+  unreadThreadCount = 0;
+
+  @wire(getUsersThreads, { userId: '$currentUser' })
+  wiredThreads({ data }) {
+    if (data) {
+      this.unreadThreadCount = data.reduce((sum, t) => sum + (t.CRM_Number_of_unread_Messages__c || 0), 0);
+    }
+  }
   hasApplicationAccess = false;
   hasAccess = false;
   lastUsedOrganization;
