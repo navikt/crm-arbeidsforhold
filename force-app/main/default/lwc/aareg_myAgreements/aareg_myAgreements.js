@@ -22,7 +22,7 @@ const COLUMNS = [
       iconName: 'utility:download',
       iconPosition: 'right',
       iconAlternativeText: 'Last ned',
-
+      disabled: { fieldName: 'disableDownloadDecision' }
     }
   },
   {
@@ -43,6 +43,8 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
   columns = COLUMNS;
   currentUser = Id;
   error;
+  selectedStatusFilter = 'ALL';
+  statusFilterOptions = [{ label: 'Alle statuser', value: 'ALL' }];
   wiredResult;            // holder hele wire-resultatet for refreshApex
   selectedAgreement={};      // raden modalene jobber mot
   siteURL = '';
@@ -55,6 +57,28 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
 
   get isMobile() {
     return window.screen.width < 576;
+  }
+
+  get hasAgreements() {
+    return Array.isArray(this.agreements) && this.agreements.length > 0;
+  }
+
+  get filteredAgreements() {
+    if (!Array.isArray(this.agreements)) {
+      return [];
+    }
+    if (this.selectedStatusFilter === 'ALL') {
+      return this.agreements;
+    }
+    return this.agreements.filter((row) => row.status === this.selectedStatusFilter);
+  }
+
+  get hasFilteredAgreements() {
+    return this.filteredAgreements.length > 0;
+  }
+
+  get showNoFilteredResults() {
+    return this.hasAgreements && !this.hasFilteredAgreements;
   }
 
   connectedCallback() {
@@ -78,11 +102,7 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
   agreementList(result) {
     this.wiredResult = result;
     if (result.data) {
-      this.agreements = result.data.map((row) => ({
-        ...row,
-        // disabled = true når status IKKE er aktiv
-        disableEndAgreement: row.status === 'Avsluttet'
-      }));
+      this.processAgreements(result.data);
       this.error = undefined;
     } else if (result.error) {
       console.error(result.error);
@@ -91,9 +111,55 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
     }
   }
 
+  async processAgreements(data) {
+    const agreementsWithPdfStatus = await Promise.all(
+      data.map(async (row) => {
+        let hasPdf = false;
+        try {
+          const pdfUrl = await getDecisionPDF({ agreementId: row.avtaleId });
+          hasPdf = !!pdfUrl;
+        } catch (err) {
+          // Ingen PDF funnet, hold hasPdf som false
+          hasPdf = false;
+        }
+        return {
+          ...row,
+          disableEndAgreement: row.status === 'Avsluttet',
+          disableDownloadDecision: !hasPdf
+        };
+      })
+    );
+    this.agreements = agreementsWithPdfStatus;
+    this.updateStatusFilterOptions(agreementsWithPdfStatus);
+  }
+
+  updateStatusFilterOptions(rows) {
+    const uniqueStatuses = [...new Set((rows || [])
+      .map((row) => row.status)
+      .filter((status) => typeof status === 'string' && status.trim().length > 0))].sort();
+
+    this.statusFilterOptions = [
+      { label: 'Alle statuser', value: 'ALL' },
+      ...uniqueStatuses.map((status) => ({ label: status, value: status }))
+    ];
+
+    const selectedExists = this.statusFilterOptions.some((opt) => opt.value === this.selectedStatusFilter);
+    if (!selectedExists) {
+      this.selectedStatusFilter = 'ALL';
+    }
+  }
+
+  handleStatusFilterChange(event) {
+    this.selectedStatusFilter = event.detail.value;
+  }
+
+
+
   /* ----------------- Row actions ----------------- */
   handleRowAction(event) {
-     if(event.detail.action.name === 'LastNedVedtak') {
+      this.selectedAgreement = event.detail.row;
+
+      if(event.detail.action.name === 'LastNedVedtak') {
         this.downloadDecision(event);
         }else if (event.detail.action.name === 'AvsluttAvtale') {
           this.openEndAgreementModal();
@@ -113,6 +179,7 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
    /* Avslutt avtale */
    async handleConfirmEndAgreement() {
     if (!this.selectedAgreement || !this.selectedAgreement.avtaleId) {
+      console.error('Mangler valgt avtale ved avslutting av avtale.', this.selectedAgreement);
       return;
     }
 
@@ -128,7 +195,12 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
   /* ----------------- Last ned vedtak (PDF) ----------------- */
   downloadDecision(event) {
     const row = event.detail.row;
-    const agreementId = row.Id; 
+    const agreementId = row?.avtaleId;
+
+    if (!agreementId) {
+      console.error('Mangler avtaleId i valgt rad ved nedlasting av vedtak.', row);
+      return;
+    }
    
     getDecisionPDF({ agreementId })
     .then((url) => {
@@ -141,7 +213,7 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
           }else{
             fullUrl = siteOrigin + url;
           }
-
+          
           // Use NavigationMixin to navigate to the URL
           this[NavigationMixin.Navigate]({
               type: 'standard__webPage',
