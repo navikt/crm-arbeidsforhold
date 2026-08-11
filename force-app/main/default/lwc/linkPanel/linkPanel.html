@@ -6,7 +6,12 @@
     onclick={navigateToPage}
   >
     <div class="lenkepanel-navno__innhold">
-      <h2 class="typo-undertittel lenkepanel__heading">{panelTitle}</h2>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <h2 class="typo-undertittel lenkepanel__heading">{panelTitle}</h2>
+        <template if:true={hasUnread}>
+          <span class="slds-badge slds-badge_lightest" style="background-color: #ba3a26; color: #fff; border-color: #ba3a26;">{unreadCount}</span>
+        </template>
+      </div>
       <div class="lenkepanel-navno__ingress">
         <p class="typo-normal">{panelSubTitle}</p>
       </div>
