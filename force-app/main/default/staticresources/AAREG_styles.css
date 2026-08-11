@@ -1,9 +1,19 @@
 .unread-cell {
   .unread-cell {
-    display: block;
-    width: fit-content;
-  margin: 0 auto;
-    border: 0.25rem solid #ba0517;
-    border-radius: 1.563rem;
-   }
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.75rem;
+    height: 1.75rem;
+    padding: 0 0.4rem;
+    margin: 0 auto;
+    background-color: #ba0517;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 50rem;
+  }
+}
+
+tr:has(.unread-cell) {
+  background-color: #fff0f0;
 }
