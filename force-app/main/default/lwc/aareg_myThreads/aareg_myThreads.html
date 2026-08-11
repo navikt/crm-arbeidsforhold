@@ -1,5 +1,10 @@
 <template>
-  <c-aareg_main-banner>Aa-registeret - Mine Meldinger</c-aareg_main-banner>
+  <c-aareg_main-banner>
+    Aa-registeret - Mine Meldinger
+    <template if:true={totalUnread}>
+      &nbsp;<span style="display: inline-block; background-color: #ba3a26; color: #fff; border-radius: 1rem; padding: 0 0.5rem; font-size: 0.875rem; font-weight: 700; vertical-align: middle;">{totalUnread}</span>
+    </template>
+  </c-aareg_main-banner>
   <div class="container">
     <div class="inner-container">
       <div class="slds-grid slds-grid_vertical">

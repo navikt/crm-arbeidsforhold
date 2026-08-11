@@ -92,6 +92,12 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
             : ''
       }));
       this.threads = rows.length > 0 ? rows : undefined;
+      this.totalUnread = result.data.reduce((sum, r) => sum + (r.CRM_Number_of_unread_Messages__c || 0), 0);
+      this.columns = COLUMNS.map(col =>
+        col.fieldName === 'CRM_Number_of_unread_Messages__c'
+          ? { ...col, label: this.totalUnread > 0 ? `Uleste meldinger (${this.totalUnread})` : 'Uleste meldinger' }
+          : col
+      );
       this.error = undefined;
     } else if (result.error) {
       console.error(result.error);
