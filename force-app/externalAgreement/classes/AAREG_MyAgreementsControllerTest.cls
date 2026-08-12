@@ -696,6 +696,20 @@ public class AAREG_MyAgreementsControllerTest {
     }
 
     @IsTest
+    static void testGetDecisionPdfNullAgreementId() {
+        Test.startTest();
+        Boolean thrown = false;
+        try {
+            AAREG_MyAgreementsController.getDecisionPDF(null);
+        } catch (AuraHandledException e) {
+            thrown = true;
+        }
+        Test.stopTest();
+
+        System.Assert.isTrue(thrown, 'Should throw when agreement id is null.');
+    }
+
+    @IsTest
     static void testGetUsersAgreementsForcedExceptionAndMapping() {
         Account account = AAREG_TestDataFactory.getAccountCounty();
         insert account;
