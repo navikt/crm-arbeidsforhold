@@ -428,24 +428,16 @@ public with sharing class AAREG_MyAgreementsController {
             if (Test.isRunningTest() && forceGetDecisionPdfUnexpectedException) {
                 Integer fail = 1 / 0;
             }
-            // First, query Application_Decision__c records for the given agreement
-            List<Application_Decision__c> decisions = [
-                SELECT Id
-                FROM Application_Decision__c
-                WHERE Agreement__c = :agreementId
-                ORDER BY CreatedDate DESC
-                LIMIT 1
-            ];
 
-            if (decisions.isEmpty()) {
-                throw new AuraHandledException('No decision found for the given Agreement.');
+            if (agreementId == null) {
+                throw new AuraHandledException('AgreementId is missing.');
             }
 
-            // Query the ContentDocumentLink associated with the Application_Decision__c
+            // Query the ContentDocumentLink associated directly with the Agreement__c
             List<ContentDocumentLink> contentDocumentLinks = [
                 SELECT ContentDocumentId
                 FROM ContentDocumentLink
-                WHERE LinkedEntityId = :decisions[0].Id
+                WHERE LinkedEntityId = :agreementId
             ];
 
             // Collect all ContentDocumentIds from ContentDocumentLinks
