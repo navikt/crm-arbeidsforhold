@@ -9,7 +9,7 @@ import getDecisionPDF from '@salesforce/apex/AAREG_MyApplicationsController.getD
 const COLUMNS = [
   { label: 'Søknadsnummer', fieldName: 'Name', type: 'text', hideDefaultActions: true },
   { label: 'Dato innlevert', fieldName: 'ApplicationSubmittedDate__c', type: 'date', hideDefaultActions: true },
-  { label: 'Forventet behandlingsdato', fieldName: 'ApplicationDeadlineForReply__c', type: 'date', hideDefaultActions: true},
+  { label: 'Forventet svar', fieldName: 'ApplicationDeadlineForReply__c', type: 'date', hideDefaultActions: true},
   { label: 'Vedtaksdato', fieldName: 'DecisionDate__c ', type: 'date', hideDefaultActions: true },
   { label: 'Status', fieldName: 'Status__c', type: 'text', hideDefaultActions: true },
   {
@@ -44,6 +44,8 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   columns = COLUMNS;
   currentUser = Id;
   navLogoUrl = navLogo;
+  selectedStatusFilter = 'ALL';
+  statusFilterOptions = [{ label: 'Alle statuser', value: 'ALL' }];
   breadcrumbs = [
     {
       label: 'Min side',
@@ -58,6 +60,24 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
   get isMobile() {
     return window.screen.width < 576;
   }
+
+  get hasApplications() {
+    return Array.isArray(this.applications) && this.applications.length > 0;
+  }
+
+  get filteredApplications() {
+    if (!Array.isArray(this.applications)) {
+      return [];
+    }
+    if (this.selectedStatusFilter === 'ALL') {
+      return this.applications;
+    }
+    return this.applications.filter((row) => row.Status__c === this.selectedStatusFilter);
+  }
+
+  get showNoFilteredResults() {
+    return this.hasApplications && this.filteredApplications.length === 0;
+  }
     
   @wire(getUsersApplications, { userId: '$currentUser' })
   wiredGetUsersApplications(result) {
@@ -66,11 +86,32 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
       this.applications = JSON.parse(JSON.stringify(this.initialApplications));
       this.applications.forEach(application => {
         application.disableButton = application.Status__c !== 'Avslag';
-        application.disableApplication = application.Status__c !== 'Trukket tilbake';
+        application.disableApplication = !['Venter på svar', 'Utkast'].includes(application.Status__c);
       });
+      this.updateStatusFilterOptions(this.applications);
     } else if (result.error) {
       console.error(result.error);
     }
+  }
+
+  updateStatusFilterOptions(rows) {
+    const uniqueStatuses = [...new Set((rows || [])
+      .map((row) => row.Status__c)
+      .filter((status) => typeof status === 'string' && status.trim().length > 0))].sort();
+
+    this.statusFilterOptions = [
+      { label: 'Alle statuser', value: 'ALL' },
+      ...uniqueStatuses.map((status) => ({ label: status, value: status }))
+    ];
+
+    const selectedExists = this.statusFilterOptions.some((opt) => opt.value === this.selectedStatusFilter);
+    if (!selectedExists) {
+      this.selectedStatusFilter = 'ALL';
+    }
+  }
+
+  handleStatusFilterChange(event) {
+    this.selectedStatusFilter = event.detail.value;
   }
 
   handleRowAction(event) {
@@ -141,7 +182,7 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     this[NavigationMixin.Navigate]({
       type: 'comm__namedPage',
       attributes: {
-        name: 'Ny_Melding__c'
+        name: 'Mine_Meldinger__c'
       }
     });
   }
