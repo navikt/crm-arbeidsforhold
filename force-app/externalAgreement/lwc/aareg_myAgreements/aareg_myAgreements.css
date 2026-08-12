@@ -26,6 +26,11 @@
   margin-bottom: 1.5rem;
 }
 
+.datatable-wrapper {
+  overflow-x: auto;
+  padding-right: 0.75rem;
+}
+
 @media (max-width: 576px) {
   .inner-container {
     padding: 1rem 3rem 1rem 3rem;

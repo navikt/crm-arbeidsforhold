@@ -33,6 +33,23 @@ const COLUMNS = [
       title: 'Avslutt avtale',
       name: 'AvsluttAvtale',
       variant: 'brand-outline',
+      iconName: 'utility:close', 
+      iconAlternativeText: 'Avslutt avtale',
+      iconPosition: 'right',
+      disabled: {fieldName: 'disableEndAgreement'}
+    }
+  },
+  {
+    type: 'button',
+    fixedWidth: 300,
+    typeAttributes: {
+      label: 'Kontaktpersoner',
+      title: 'Kontaktpersoner',
+      name: 'Kontaktpersoner',
+      variant: 'brand-outline',
+      iconName: 'utility:edit', 
+      iconAlternativeText: 'Rediger',
+      iconPosition: 'right',
       disabled: {fieldName: 'disableEndAgreement'}
     }
   }
@@ -43,7 +60,7 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
   columns = COLUMNS;
   currentUser = Id;
   error;
-  selectedStatusFilter = 'ALL';
+  selectedStatusFilter = 'Aktiv';
   statusFilterOptions = [{ label: 'Alle statuser', value: 'ALL' }];
   wiredResult;            // holder hele wire-resultatet for refreshApex
   selectedAgreement={};      // raden modalene jobber mot
@@ -125,7 +142,7 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
         return {
           ...row,
           disableEndAgreement: row.status === 'Avsluttet',
-          disableDownloadDecision: !hasPdf
+          disableDownloadDecision: !hasPdf || row.status === 'Avsluttet'
         };
       })
     );
@@ -163,6 +180,8 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
         this.downloadDecision(event);
         }else if (event.detail.action.name === 'AvsluttAvtale') {
           this.openEndAgreementModal();
+        }else if(event.detail.action.name === 'Kontaktpersoner') {
+          this.navigateToContactPersons(event.detail.row);
         }
   }
 
@@ -190,6 +209,21 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
     } catch (err) {
       console.error('Kunne ikke avslutte avtale:', err);
     }
+  }
+
+  navigateToContactPersons(row) {
+    this[NavigationMixin.Navigate](
+      {
+        type: 'comm__namedPage',
+        attributes: {
+          name: 'mine_kontaktpersoner__c'
+        },
+        state: {
+          c__agreementId: row?.avtaleId,
+          c__agreementNumber: row?.avtaleNummer
+        }
+      }
+    );
   }
 
   /* ----------------- Last ned vedtak (PDF) ----------------- */
