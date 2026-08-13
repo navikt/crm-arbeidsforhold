@@ -29,7 +29,7 @@ Follow Nav Platforce naming conventions and Salesforce ApexDoc guidance for new 
 - All classes MUST be prefixed with `AAREG_`.
 - Controller classes: `AAREG_<Feature>Controller` (e.g., `AAREG_HomeController`).
 - Test classes: `AAREG_<ClassName>Test` (e.g., `AAREG_HomeControllerTest`).
-- Selector classes: `AAREG_<Object>Selector` (e.g., `AAREG_accountSelector`).
+- Selector classes: `AAREG_<Object>Selector` (e.g., `AAREG_AccountSelector`).
 - Wrapper classes: `AAREG_<Purpose>Internal` (e.g., `AAREG_ApplicationInternal`).
 
 ### Code Quality Rules

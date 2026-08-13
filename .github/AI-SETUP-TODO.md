@@ -15,6 +15,7 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [x] Lagt til mønstertilpassa LWC-instruks for `.js`, `.html` og `.css` i `.github/instructions/salesforce-lwc.instructions.md`.
 - [x] Lagt til mønstertilpassa metadata-instruks for Salesforce XML, Flow og objekt-/feltmetadata i `.github/instructions/salesforce-metadata.instructions.md`.
 - [x] Lagt til mønstertilpassa testinstruks for Apex `*Test.cls` og LWC `__tests__` i `.github/instructions/salesforce-testing.instructions.md`.
+- [x] Korrigert selector-eksempelet i `force-app/main/default/AGENTS.md` slik at det følgjer PascalCase-regelen.
 - [x] Verifisert at dei nye Markdown-filene har gyldig struktur og passerer isolert Prettier-sjekk.
 
 ## Neste steg
@@ -34,6 +35,10 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - Hovudpakkja har legacy-testmetodar med `test...`-prefiks i `AAREG_HomeControllerTest` og `AAREG_ApplicationControllerTest`. Dette er eit eigna første naming-oppryddingstiltak, men krev eiga TDD-/review-skive.
 - Repo-søket viser ApexDoc på fleire sentrale klasser, men dette er ikkje nok til å konkludere om komplett ApexDoc-dekning for alle offentlege kontraktar.
 - `force-app/unpackagable/` og dei eksterne pakke-eigde mappene skal ikkje takast med i denne oppryddinga utan eksplisitt godkjenning.
+- Repoet har ingen lokal Salesforce Code Analyzer-konfigurasjon eller npm-script; PR-valideringa brukar `navikt/crm-workflows-base`. Vurder Code Analyzer gjennom eksisterande Nav-workflow før ny lokal dependency eller CI blir introdusert.
+- Read-only review fann at fleire workflows brukar mutable `@master`-referansar. Dette er eit Trusted-/supply-chain-funn, men pinning til immutable commit-SHA krev eksplisitt godkjenning fordi det endrar CI/auth-konfigurasjon.
+- Read-only review fann at `force-app/main/default/AGENTS.md` har eldre eller motstridande døme i prosjektstruktur og selector-naming. Dette bør ryddast i ei separat dokumentasjonsskive før naming-opprydding i Apex.
+- Spec-axis i code review er avgrensa så lenge issue tracker og lagringsstad for specs/tickets ikkje er valt.
 
 ## Vedtak
 
