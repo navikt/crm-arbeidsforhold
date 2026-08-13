@@ -10,7 +10,7 @@ const COLUMNS = [
   { label: 'Søknadsnummer', fieldName: 'Name', type: 'text', hideDefaultActions: true },
   { label: 'Dato innlevert', fieldName: 'ApplicationSubmittedDate__c', type: 'date', hideDefaultActions: true },
   { label: 'Forventet svar', fieldName: 'ApplicationDeadlineForReply__c', type: 'date', hideDefaultActions: true},
-  { label: 'Vedtaksdato', fieldName: 'DecisionDate__c ', type: 'date', hideDefaultActions: true },
+  { label: 'Vedtaksdato', fieldName: 'DecisionDate__c', type: 'date', hideDefaultActions: true },
   { label: 'Status', fieldName: 'Status__c', type: 'text', hideDefaultActions: true },
   {
     type: 'button',
