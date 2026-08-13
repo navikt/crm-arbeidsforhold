@@ -36,8 +36,8 @@ Follow Nav Platforce naming conventions and Salesforce ApexDoc guidance for new 
 
 - Always use `with sharing` unless there is a documented reason to use `without sharing`.
 - Never hardcode record IDs or org-specific URLs. Use Custom Metadata, Custom Settings, or Custom Labels instead.
-- All `@AuraEnabled` methods MUST include proper error handling with `try-catch` blocks.
-- Always throw `AuraHandledException` for errors surfaced to LWC components.
+- All `@AuraEnabled` methods MUST define explicit, context-appropriate error handling. Use `try-catch` when the method must translate, log, or recover from an exception; do not add blanket catches that hide failures.
+- Throw `AuraHandledException` for expected errors that must be surfaced as user-friendly messages to LWC components, while preserving unexpected failures for the established logging and error boundary.
 - Use `LoggerUtility` for logging errors instead of `System.debug` in production code.
 
 ### Well-Architected Review
