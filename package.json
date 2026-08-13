@@ -16,6 +16,7 @@
     },
     "devDependencies": {
         "@prettier/plugin-xml": "^3.4.2",
+        "@sa11y/jest": "^8.0.28",
         "@salesforce/sfdx-lwc-jest": "^7.9.0",
         "husky": "^9.1.7",
         "jest-canvas-mock": "^2.5.8",
