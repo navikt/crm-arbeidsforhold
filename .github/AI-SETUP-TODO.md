@@ -16,6 +16,7 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [x] Lagt til mønstertilpassa metadata-instruks for Salesforce XML, Flow og objekt-/feltmetadata i `.github/instructions/salesforce-metadata.instructions.md`.
 - [x] Lagt til mønstertilpassa testinstruks for Apex `*Test.cls` og LWC `__tests__` i `.github/instructions/salesforce-testing.instructions.md`.
 - [x] Korrigert selector-eksempelet i `force-app/main/default/AGENTS.md` slik at det følgjer PascalCase-regelen.
+- [x] Lagt til mønstertilpassa GitHub Actions-instruks for `.github/workflows/**/*.yml` i `.github/instructions/github-actions.instructions.md`.
 - [x] Verifisert at dei nye Markdown-filene har gyldig struktur og passerer isolert Prettier-sjekk.
 
 ## Neste steg
