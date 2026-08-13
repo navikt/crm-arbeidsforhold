@@ -40,8 +40,8 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [ ] Vurdere periodisk gjennomgang mot nye versjonar av Matt Pocock sine skills utan å kopiere inn språk- eller rammeverkspesifikke antakingar.
 - [ ] Avklare om Nav user-scope-filene skal forvaltast gjennom ein registrert collection, eller om teamet skal vedlikehalde repo-tilpassingane manuelt med Nav som referansekjelde.
 - [ ] Avklare issue tracker og lagringsstad for specs, ADR-ar og tickets før `to-spec`/`to-tickets`-flyt blir innført.
-- [ ] Lage ein liten, reell Apex- eller LWC-endring gjennom TDD-flyten og dokumentere raud test, grøn test og breiare validering.
-- [ ] TDD-pilot: fokuserte testar er grøne, men brei Jest-validering må framleis gåast gjennom for manglande lokale mocks og eventuelle eksisterande komponentfeil.
+- [x] Lage ein liten, reell LWC-endring gjennom TDD-flyten: `aareg_applicationInternal` viser Apex-feil utan å krasje når `error.body` manglar; regresjonstest og brei Jest-validering er grøne.
+- [x] TDD-pilot: fokuserte testar og brei Jest-validering er grøne; 3 suites og 4 testar passerer gjennom `npm test`.
 - [ ] Vurdere automatisk CI-handheving av PR-malen og relevante review-/testkrav gjennom eksisterande Nav-workflow; malen støttar prosessen, men handhevar ikkje krava åleine.
 - [ ] Vurdere lokal secret scanning med Gitleaks dersom teamet godkjenner verktøyet og CI ikkje allereie dekkjer behovet.
 - [ ] Vurdere `.github/agents/` med ein Salesforce-spesialist berre dersom ein konkret arbeidsflyt ikkje kan dekkast av instruksjonar og skills.
