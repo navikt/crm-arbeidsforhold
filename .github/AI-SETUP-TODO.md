@@ -25,6 +25,8 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [x] Dokumentert lokal verktøybaseline: Nav Pilot `2026.07.26-074941-46bcf6b`, cplt `2026.07.14-084701-5cac7d9` og Node `v22.20.0`.
 - [x] Lagt til `CONTEXT.md` med Aa-registeret-domene, arkitekturgrenser, red-zone og verifikasjonsvokabular.
 - [x] Lagt til `.github/PULL_REQUEST_TEMPLATE.md` med TDD-, scope-, to-aksa review- og human-approval-sjekkliste.
+- [x] Strukturvalidert lokale instructions og skills: frontmatter, `applyTo`, `name` og `description` er til stades for dei relevante filene.
+- [x] Lagt til user-invokable `.github/prompts/tdd-salesforce-slice.prompt.md` for ein konkret Salesforce red-green-refactor-skive.
 - [x] Verifisert at dei nye Markdown-filene har gyldig struktur og passerer isolert Prettier-sjekk.
 
 ## Neste steg
