@@ -1,29 +1,30 @@
 {
-  "name": "crm-arbeidsforhold",
-  "private": true,
-  "version": "1.0.0",
-  "scripts": {
-    "test": "npm run test:unit",
-    "test:unit": "sfdx-lwc-jest",
-    "test:unit:watch": "sfdx-lwc-jest --watch",
-    "test:unit:debug": "sfdx-lwc-jest --debug",
-    "test:unit:coverage": "sfdx-lwc-jest --coverage",
-    "prettier:write": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
-    "prettier:check": "prettier --check --no-error-on-unmatched-pattern \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
-    "prepare": "husky",
-    "precommit": "lint-staged",
-    "lint-staged": "lint-staged"
-  },
-  "devDependencies": {
-    "@prettier/plugin-xml": "^3.4.2",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.4",
-    "prettier": "^3.6.2",
-    "prettier-plugin-apex": "^2.2.6"
-  },
-  "lint-staged": {
-    "**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}": [
-      "prettier --write --ignore-path .gitignore --ignore-path .prettierignore"
-    ]
-  }
+    "name": "crm-arbeidsforhold",
+    "private": true,
+    "version": "1.0.0",
+    "scripts": {
+        "test": "npm run test:unit",
+        "test:unit": "sfdx-lwc-jest",
+        "test:unit:watch": "sfdx-lwc-jest --watch",
+        "test:unit:debug": "sfdx-lwc-jest --debug",
+        "test:unit:coverage": "sfdx-lwc-jest --coverage",
+        "prettier:write": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
+        "prettier:check": "prettier --check --no-error-on-unmatched-pattern \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
+        "prepare": "husky",
+        "precommit": "lint-staged",
+        "lint-staged": "lint-staged"
+    },
+    "devDependencies": {
+        "@prettier/plugin-xml": "^3.4.2",
+        "@salesforce/sfdx-lwc-jest": "^7.9.0",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.2.4",
+        "prettier": "^3.6.2",
+        "prettier-plugin-apex": "^2.2.6"
+    },
+    "lint-staged": {
+        "**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}": [
+            "prettier --write --ignore-path .gitignore --ignore-path .prettierignore"
+        ]
+    }
 }
