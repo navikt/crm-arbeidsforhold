@@ -28,6 +28,7 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [x] Strukturvalidert lokale instructions og skills: frontmatter, `applyTo`, `name` og `description` er til stades for dei relevante filene.
 - [x] Lagt til user-invokable `.github/prompts/tdd-salesforce-slice.prompt.md` for ein konkret Salesforce red-green-refactor-skive.
 - [x] Lagt til user-invokable `.github/prompts/review-salesforce-change.prompt.md` for separat Standards-/Specification-review.
+- [x] Starta første TDD-skive med ein isolert `linkPanel`-test for unread-badge åtferd.
 - [x] Verifisert at dei nye Markdown-filene har gyldig struktur og passerer isolert Prettier-sjekk.
 
 ## Neste steg
@@ -38,6 +39,7 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [ ] Avklare om Nav user-scope-filene skal forvaltast gjennom ein registrert collection, eller om teamet skal vedlikehalde repo-tilpassingane manuelt med Nav som referansekjelde.
 - [ ] Avklare issue tracker og lagringsstad for specs, ADR-ar og tickets før `to-spec`/`to-tickets`-flyt blir innført.
 - [ ] Lage ein liten, reell Apex- eller LWC-endring gjennom TDD-flyten og dokumentere raud test, grøn test og breiare validering.
+- [ ] Blokkert TDD-pilot: repoet manglar `@salesforce/sfdx-lwc-jest` i manifest, lockfile og installasjon. Avklar og godkjenn dependency-oppsett før testen kan køyrast.
 - [ ] Vurdere automatisk CI-handheving av PR-malen og relevante review-/testkrav gjennom eksisterande Nav-workflow; malen støttar prosessen, men handhevar ikkje krava åleine.
 - [ ] Vurdere lokal secret scanning med Gitleaks dersom teamet godkjenner verktøyet og CI ikkje allereie dekkjer behovet.
 - [ ] Vurdere `.github/agents/` med ein Salesforce-spesialist berre dersom ein konkret arbeidsflyt ikkje kan dekkast av instruksjonar og skills.
