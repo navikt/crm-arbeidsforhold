@@ -12,6 +12,7 @@ Agent workflow details are in `.github/instructions/agentic-development.instruct
 Use `.github/skills/tdd-salesforce/SKILL.md` for test-first feature work and
 `.github/skills/code-review-two-axis/SKILL.md` before commit or pull request review.
 The active setup backlog is `.github/AI-SETUP-TODO.md`.
+Shared domain language and verification vocabulary are in `CONTEXT.md`; read it before planning feature work, TDD slices, or architecture reviews.
 
 ## Standards hierarchy
 

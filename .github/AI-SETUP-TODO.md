@@ -18,6 +18,13 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [x] Korrigert selector-eksempelet i `force-app/main/default/AGENTS.md` slik at det følgjer PascalCase-regelen.
 - [x] Presisert `@AuraEnabled`-feilhandtering i `force-app/main/default/AGENTS.md` slik at blanket-catch ikkje blir anbefalt.
 - [x] Lagt til mønstertilpassa GitHub Actions-instruks for `.github/workflows/**/*.yml` i `.github/instructions/github-actions.instructions.md`.
+- [x] Køyrt `nav-pilot doctor`: user-scope Nav-tilpassingar er installerte, `rtk` og Git er OK, og repo-scope er medvite ikkje installert fordi repoet har Salesforce-spesifikke tilpassingar.
+- [x] Verifisert at `cplt` støttar repo-scope policy via `config init --repo`, review og separat `cplt trust` før aktivering.
+- [x] Køyrt `nav-pilot sync --dry-run`: ingen registrert syncbar collection blei funnen; user-scope-filene er likevel validerte av `nav-pilot doctor`.
+- [x] Stadfesta med `nav-pilot list --installed` at ingen collection er registrert; repoet behandlast derfor som manuelt vedlikehaldt inntil teamet vel ein collection-strategi.
+- [x] Dokumentert lokal verktøybaseline: Nav Pilot `2026.07.26-074941-46bcf6b`, cplt `2026.07.14-084701-5cac7d9` og Node `v22.20.0`.
+- [x] Lagt til `CONTEXT.md` med Aa-registeret-domene, arkitekturgrenser, red-zone og verifikasjonsvokabular.
+- [x] Lagt til `.github/PULL_REQUEST_TEMPLATE.md` med TDD-, scope-, to-aksa review- og human-approval-sjekkliste.
 - [x] Verifisert at dei nye Markdown-filene har gyldig struktur og passerer isolert Prettier-sjekk.
 
 ## Neste steg
@@ -25,11 +32,13 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [ ] Teamet må verifisere at Nav si interne agentiske utviklingspolicy er rett tolka for dette repoet, særleg krav til datahandtering, logging, modellbruk og godkjenning.
 - [ ] Køyre Nav agent-readiness via `mcp-onboarding.nav.no` eller `nav-pilot` når verktøyet er tilgjengeleg og brukaren er autentisert.
 - [ ] Vurdere periodisk gjennomgang mot nye versjonar av Matt Pocock sine skills utan å kopiere inn språk- eller rammeverkspesifikke antakingar.
+- [ ] Avklare om Nav user-scope-filene skal forvaltast gjennom ein registrert collection, eller om teamet skal vedlikehalde repo-tilpassingane manuelt med Nav som referansekjelde.
 - [ ] Avklare issue tracker og lagringsstad for specs, ADR-ar og tickets før `to-spec`/`to-tickets`-flyt blir innført.
 - [ ] Lage ein liten, reell Apex- eller LWC-endring gjennom TDD-flyten og dokumentere raud test, grøn test og breiare validering.
-- [ ] Legge til ein PR-review-sjekk som krev relevant test og review av kjeldegrenser for endringar i `force-app/`.
+- [ ] Vurdere automatisk CI-handheving av PR-malen og relevante review-/testkrav gjennom eksisterande Nav-workflow; malen støttar prosessen, men handhevar ikkje krava åleine.
 - [ ] Vurdere lokal secret scanning med Gitleaks dersom teamet godkjenner verktøyet og CI ikkje allereie dekkjer behovet.
 - [ ] Vurdere `.github/agents/` med ein Salesforce-spesialist berre dersom ein konkret arbeidsflyt ikkje kan dekkast av instruksjonar og skills.
+- [ ] Vurdere cplt-agentval (`sandbox.agent=copilot`) og ein repo-lokal `.cplt.toml`; cplt vel sjølve klienten, medan Nav Pilot si klientkonfigurasjon er separat. Dette krev teamavklaring om sandbox-policy og separat `cplt trust`, og skal ikkje innførast automatisk.
 - [ ] Ta ein separat naming-/ApexDoc-gjennomgang av eksisterande kode og lag ei prioritert oppryddingsliste; ikkje masse-rename deployed metadata utan migreringsplan.
 
 ### Første kartleggingsfunn
