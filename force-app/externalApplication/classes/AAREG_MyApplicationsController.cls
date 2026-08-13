@@ -153,7 +153,7 @@ public with sharing class AAREG_MyApplicationsController {
             'Approved' => 'Innvilget',
             'Approved Partially' => 'Delvis innvilget',
             'Declined' => 'Avslag',
-            'Suspension' => 'Trukket tilbake'
+            'Suspension' => 'Henlagt'
         };
         return statusLabels.containsKey(status) ? statusLabels.get(status) : 'Ukjent status';
     }
