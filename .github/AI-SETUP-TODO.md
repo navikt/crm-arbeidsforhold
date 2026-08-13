@@ -14,6 +14,7 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [x] Lagt til mønstertilpassa Apex-instruks for `.cls`-filer i `.github/instructions/salesforce-apex.instructions.md`.
 - [x] Lagt til mønstertilpassa LWC-instruks for `.js`, `.html` og `.css` i `.github/instructions/salesforce-lwc.instructions.md`.
 - [x] Lagt til mønstertilpassa metadata-instruks for Salesforce XML, Flow og objekt-/feltmetadata i `.github/instructions/salesforce-metadata.instructions.md`.
+- [x] Lagt til mønstertilpassa testinstruks for Apex `*Test.cls` og LWC `__tests__` i `.github/instructions/salesforce-testing.instructions.md`.
 - [x] Verifisert at dei nye Markdown-filene har gyldig struktur og passerer isolert Prettier-sjekk.
 
 ## Neste steg
