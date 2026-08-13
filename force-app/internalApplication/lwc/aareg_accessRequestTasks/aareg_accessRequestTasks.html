@@ -1,0 +1,43 @@
+<template>
+    <lightning-card title="Historikk" icon-name="standard:task">
+        <lightning-button-icon
+            slot="actions"
+            icon-name="utility:refresh"
+            alternative-text="Oppdater taskliste"
+            title="Oppdater taskliste"
+            onclick={handleRefresh}>
+        </lightning-button-icon>
+        <span slot="title">
+            Historikk
+            <span class="slds-badge slds-m-left_x-small">{taskCount}</span>
+        </span>
+
+        <div class="slds-p-horizontal_small slds-p-bottom_small">
+            <template lwc:if={isLoading}>
+                <lightning-spinner alternative-text="Laster tasker..." size="small"></lightning-spinner>
+            </template>
+
+            <template lwc:elseif={hasTasks}>
+                <lightning-datatable
+                    key-field="id"
+                    data={tasks}
+                    columns={columns}
+                    hide-checkbox-column
+                    resize-column-disabled>
+                </lightning-datatable>
+            </template>
+
+            <template lwc:elseif={error}>
+                <p class="slds-text-color_error slds-p-around_small">
+                    Kunne ikke hente tasks for access request.
+                </p>
+            </template>
+
+            <template lwc:else>
+                <p class="slds-text-align_center slds-p-around_medium slds-text-color_weak">
+                    Ingen tasks er knyttet til denne access requesten.
+                </p>
+            </template>
+        </div>
+    </lightning-card>
+</template>
