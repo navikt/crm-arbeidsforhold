@@ -29,6 +29,8 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [x] Lagt til user-invokable `.github/prompts/tdd-salesforce-slice.prompt.md` for ein konkret Salesforce red-green-refactor-skive.
 - [x] Lagt til user-invokable `.github/prompts/review-salesforce-change.prompt.md` for separat Standards-/Specification-review.
 - [x] Starta første TDD-skive med ein isolert `linkPanel`-test for unread-badge åtferd.
+- [x] Verifisert `linkPanel`-skiva grøn: 2 fokuserte Jest-testar passerer etter installasjon av `@salesforce/sfdx-lwc-jest`, `jest-canvas-mock` og `@sa11y/jest`, og lokale mocks for navigation og Community base path.
+- [x] Fjerna Jest-rendercrash i `aareg_applicationInternal` ved å gjere feilmeldinga null-safe for både Apex-feil med `body.message` og enklare feilobjekt.
 - [x] Verifisert at dei nye Markdown-filene har gyldig struktur og passerer isolert Prettier-sjekk.
 
 ## Neste steg
@@ -39,7 +41,7 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [ ] Avklare om Nav user-scope-filene skal forvaltast gjennom ein registrert collection, eller om teamet skal vedlikehalde repo-tilpassingane manuelt med Nav som referansekjelde.
 - [ ] Avklare issue tracker og lagringsstad for specs, ADR-ar og tickets før `to-spec`/`to-tickets`-flyt blir innført.
 - [ ] Lage ein liten, reell Apex- eller LWC-endring gjennom TDD-flyten og dokumentere raud test, grøn test og breiare validering.
-- [ ] TDD-pilot delvis avblokkert: `@salesforce/sfdx-lwc-jest@7.9.0` er no installert, men Jest stoppar fordi `jest-canvas-mock` manglar og testscriptet ikkje vidarefører fil/filterargument korrekt. Avklar dependency og script-oppsett før testen kan bli grøn.
+- [ ] TDD-pilot: fokuserte testar er grøne, men brei Jest-validering må framleis gåast gjennom for manglande lokale mocks og eventuelle eksisterande komponentfeil.
 - [ ] Vurdere automatisk CI-handheving av PR-malen og relevante review-/testkrav gjennom eksisterande Nav-workflow; malen støttar prosessen, men handhevar ikkje krava åleine.
 - [ ] Vurdere lokal secret scanning med Gitleaks dersom teamet godkjenner verktøyet og CI ikkje allereie dekkjer behovet.
 - [ ] Vurdere `.github/agents/` med ein Salesforce-spesialist berre dersom ein konkret arbeidsflyt ikkje kan dekkast av instruksjonar og skills.
