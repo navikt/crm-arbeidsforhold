@@ -5,6 +5,10 @@
         <visible>true</visible>
     </applicationVisibilities>
     <classAccesses>
+        <apexClass>AAREG_AccessRequestTasksController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>AAREG_CommunityUtils</apexClass>
         <enabled>true</enabled>
     </classAccesses>
