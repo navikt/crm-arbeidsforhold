@@ -37,12 +37,9 @@ export default class Aareg_agreementContacts extends NavigationMixin(LightningEl
   /* ----------------- URL-parameter ----------------- */
   @wire(CurrentPageReference)
   setPageRef(pageRef) {
-    if (pageRef?.state?.agreementId) {
-      this.agreementId = pageRef.state.agreementId;
-    }
-    if (pageRef?.state?.agreementNumber) {
-      this.agreementLabel = `for avtale ${pageRef.state.agreementNumber}`;
-    }
+    const state = pageRef?.state || {};
+    this.agreementId = state.c__agreementId || null;
+    this.agreementLabel = state.c__agreementNumber ? `for avtale ${state.c__agreementNumber}` : '';
   }
 
   /* ----------------- Hent kontakter ----------------- */

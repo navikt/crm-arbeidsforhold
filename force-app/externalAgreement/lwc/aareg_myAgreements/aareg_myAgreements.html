@@ -14,7 +14,7 @@
           onchange={handleStatusFilterChange}>
         </lightning-combobox>
       </div>
-      <div if:true={isMobile} style="height: 600px;">
+      <div if:true={isMobile} class="datatable-wrapper" style="height: 600px;">
         <lightning-datatable
           key-field="id"
           data={filteredAgreements}
@@ -24,7 +24,7 @@
           hide-checkbox-column="true">
         </lightning-datatable>
       </div>
-      <div if:false={isMobile}>
+      <div if:false={isMobile} class="datatable-wrapper">
         <lightning-datatable
           key-field="id"
           data={filteredAgreements}
