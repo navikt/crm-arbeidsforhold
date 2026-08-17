@@ -1,4 +1,4 @@
-import { LightningElement,track,api } from 'lwc';
+import { LightningElement, track, api } from 'lwc';
 import getApplicationDetails from '@salesforce/apex/AAREG_ApplicationInternalController.getApplicationDetails';
 import applicationTitle from '@salesforce/label/c.AAREG_application_title';
 import applicantsSection from '@salesforce/label/c.Applicant';
@@ -16,9 +16,15 @@ export default class Aareg_applicationInternal extends LightningElement {
     @track relatedContacts = [];
     @track error;
 
-    activeSections = ['applicationSection', 'legalbasisSection', 'dataprocessorSection', 'termsSection', 'contactpersonSection'];
+    activeSections = [
+        'applicationSection',
+        'legalbasisSection',
+        'dataprocessorSection',
+        'termsSection',
+        'contactpersonSection'
+    ];
 
-    label ={
+    label = {
         applicationSection,
         dataprocessorSection,
         termsOfUseSection,
@@ -27,7 +33,7 @@ export default class Aareg_applicationInternal extends LightningElement {
         applicantsSection,
         legalbasisSection,
         contactPersonSection
-    }
+    };
 
     connectedCallback() {
         this.fetchApplicationDetails();
@@ -50,9 +56,10 @@ export default class Aareg_applicationInternal extends LightningElement {
     }
 
     get hasAccessTypes() {
+        return this.application.some((a) => a.APITilgang || a.Uttrekk || a.WebTilgang);
+    }
 
-        return this.application.some(
-            (a) => a.APITilgang || a.Uttrekk || a.WebTilgang
-        );
+    get errorMessage() {
+        return this.error?.body?.message || this.error?.message || 'Kunne ikke hente søknadsdetaljer.';
     }
 }

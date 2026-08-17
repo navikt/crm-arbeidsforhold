@@ -1,73 +1,76 @@
 <template>
     <lightning-card title={label.applicationTitle} icon-name="custom:custom18" class="container">
         <template if:true={application}>
-
             <lightning-accordion allow-multiple-sections-open active-section-name={activeSections}>
-                <lightning-accordion-section name="applicationSection" label={label.applicantsSection} class="slds-var-m-*_medium">
-                    <table >
-                        <template for:each={application} for:item="app"> 
-                            
-                                    <tr key={app.SoknadsId} class="other-sections">
-                                        <th>Søker</th>
-                                        <td>{app.KonsumentNavn}</td>
-                                    </tr>
-                                    <tr key={app.SoknadsId} class="other-sections">
-                                        <th>Adresse</th>
-                                        <td>{app.KonsumentAdresse}</td>
-                                    </tr>
-                                    <tr key={app.SoknadsId} class="other-sections">
-                                        <th>Postnummer</th>
-                                        <td>{app.KonsumentPostnummer}</td>
-                                    </tr>
-                                    <tr key={app.SoknadsId} class="other-sections">
-                                        <th>Poststed</th>
-                                        <td>{app.KonsumentPoststed}</td>
-                                    </tr>
-                                    <tr key={app.SoknadsId} class="other-sections">
-                                        <th>Organisasjonsnummer</th>
-                                        <td>{app.KonsumentOrganisasjonsnummer}</td></tr>
-                                    <tr key={app.SoknadsId} class="other-sections">
-                                        <th>E-post</th>
-                                        <td>{app.KonsumentEpost}</td>
-                                    </tr>
-                                    <tr key={app.SoknadsId} class="other-sections">
-                                        <th>Telefon</th>
-                                        <td>{app.KonsumentTelefon}</td>
-                                    </tr>
-                                    <tr key={app.SoknadsId} class="other-sections">
-                                        <th>Organisasjonstype</th>
-                                        <td>{app.OrganisasjonsType}</td>
-                                    </tr>
+                <lightning-accordion-section
+                    name="applicationSection"
+                    label={label.applicantsSection}
+                    class="slds-var-m-around_medium"
+                >
+                    <table>
+                        <template for:each={application} for:item="app">
+                            <tr key={app.SoknadsId} class="other-sections">
+                                <th>Søker</th>
+                                <td>{app.KonsumentNavn}</td>
+                            </tr>
+                            <tr key={app.SoknadsId} class="other-sections">
+                                <th>Adresse</th>
+                                <td>{app.KonsumentAdresse}</td>
+                            </tr>
+                            <tr key={app.SoknadsId} class="other-sections">
+                                <th>Postnummer</th>
+                                <td>{app.KonsumentPostnummer}</td>
+                            </tr>
+                            <tr key={app.SoknadsId} class="other-sections">
+                                <th>Poststed</th>
+                                <td>{app.KonsumentPoststed}</td>
+                            </tr>
+                            <tr key={app.SoknadsId} class="other-sections">
+                                <th>Organisasjonsnummer</th>
+                                <td>{app.KonsumentOrganisasjonsnummer}</td>
+                            </tr>
+                            <tr key={app.SoknadsId} class="other-sections">
+                                <th>E-post</th>
+                                <td>{app.KonsumentEpost}</td>
+                            </tr>
+                            <tr key={app.SoknadsId} class="other-sections">
+                                <th>Telefon</th>
+                                <td>{app.KonsumentTelefon}</td>
+                            </tr>
+                            <tr key={app.SoknadsId} class="other-sections">
+                                <th>Organisasjonstype</th>
+                                <td>{app.OrganisasjonsType}</td>
+                            </tr>
                         </template>
                     </table>
                 </lightning-accordion-section>
                 <template if:true={hasAccessTypes}>
-                <lightning-accordion-section name="accesstypesSection" label={label.accessTypesSection}>
-                <table class="other-sections">
-                    <template for:each={application} for:item="medium">
-                        <tr key={medium.SoknadsId}>
-                            <th>API</th>
-                            <td><input type="checkbox" disabled  checked={medium.APITilgang}  ></td>
-                        </tr>
-                        <tr key={medium.SoknadsId}>
-                            <th>Uttrekk</th>
-                            <td><input type="checkbox" disabled checked={medium.Uttrekk}  ></td>
-                        </tr>
-                        <tr key={medium.SoknadsId}>
-                            <th>Web</th>
-                            <td><input type="checkbox" disabled checked={medium.WebTilgang}  ></td>
-                        </tr>
-                    </template>
-                </table>
-                </lightning-accordion-section>
-            </template>
+                    <lightning-accordion-section name="accesstypesSection" label={label.accessTypesSection}>
+                        <table class="other-sections">
+                            <template for:each={application} for:item="medium">
+                                <tr key={medium.SoknadsId}>
+                                    <th>API</th>
+                                    <td><input type="checkbox" disabled checked={medium.APITilgang} /></td>
+                                </tr>
+                                <tr key={medium.SoknadsId}>
+                                    <th>Uttrekk</th>
+                                    <td><input type="checkbox" disabled checked={medium.Uttrekk} /></td>
+                                </tr>
+                                <tr key={medium.SoknadsId}>
+                                    <th>Web</th>
+                                    <td><input type="checkbox" disabled checked={medium.WebTilgang} /></td>
+                                </tr>
+                            </template>
+                        </table>
+                    </lightning-accordion-section>
+                </template>
 
                 <lightning-accordion-section name="legalbasisSection" label={label.legalbasisSection}>
                     <template if:true={basisCodes}>
                         <table class="legal-basis">
                             <template for:each={basisCodes} for:item="code">
                                 <thead key={code.KodeverkId}>
-                                    <tr >
+                                    <tr>
                                         <th>Hjemmel</th>
                                         <td>{code.Hjemmel}</td>
                                     </tr>
@@ -81,15 +84,15 @@
                                     </tr>
                                     <tr>
                                         <th>API tilgang</th>
-                                        <td><input type="checkbox" disabled checked={code.APITilgang}> </td>
+                                        <td><input type="checkbox" disabled checked={code.APITilgang} /></td>
                                     </tr>
                                     <tr>
                                         <th>Uttrekk</th>
-                                        <td><input type="checkbox" disabled checked={code.Uttrekk}></td>         
+                                        <td><input type="checkbox" disabled checked={code.Uttrekk} /></td>
                                     </tr>
                                     <tr>
                                         <th>Webtilgang</th>
-                                        <td><input type="checkbox" disabled checked={code.WebTilgang}></td>
+                                        <td><input type="checkbox" disabled checked={code.WebTilgang} /></td>
                                     </tr>
                                 </thead>
                             </template>
@@ -98,7 +101,7 @@
                 </lightning-accordion-section>
 
                 <lightning-accordion-section name="dataprocessorSection" label={label.dataprocessorSection}>
-                    <table class="other-sections" >
+                    <table class="other-sections">
                         <template for:each={application} for:item="dataProcessor">
                             <tr key={dataProcessor.SoknadsId}>
                                 <th>Databehandler</th>
@@ -117,7 +120,7 @@
                         <template for:each={application} for:item="responsible">
                             <tr key={responsible.SoknadsId}>
                                 <th>Bruksvilkår</th>
-                                <td><input type="checkbox" disabled checked={responsible.Vilkaar}></td>
+                                <td><input type="checkbox" disabled checked={responsible.Vilkaar} /></td>
                             </tr>
                         </template>
                     </table>
@@ -143,10 +146,10 @@
                                         <td>{contact.KontaktNavn}</td>
                                         <td>{contact.KontaktEpost}</td>
                                         <td>{contact.KontaktTelefon}</td>
-                                        <td><input type="checkbox" disabled checked={contact.AvtaleVarsel}> </td>
-                                        <td><input type="checkbox" disabled checked={contact.EndringsVarsel}> </td>
-                                        <td><input type="checkbox" disabled checked={contact.FeilmeldingsVarsel}></td>
-                                        <td><input type="checkbox" disabled checked={contact.SikkerhetsVarsel}> </td>
+                                        <td><input type="checkbox" disabled checked={contact.AvtaleVarsel} /></td>
+                                        <td><input type="checkbox" disabled checked={contact.EndringsVarsel} /></td>
+                                        <td><input type="checkbox" disabled checked={contact.FeilmeldingsVarsel} /></td>
+                                        <td><input type="checkbox" disabled checked={contact.SikkerhetsVarsel} /></td>
                                     </tr>
                                 </template>
                             </tbody>
@@ -158,7 +161,7 @@
 
         <template if:true={error}>
             <div class="slds-m-around_medium">
-                <p class="slds-text-color_error">Error: {error.body.message}</p>
+                <p class="slds-text-color_error">Error: {errorMessage}</p>
             </div>
         </template>
     </lightning-card>
