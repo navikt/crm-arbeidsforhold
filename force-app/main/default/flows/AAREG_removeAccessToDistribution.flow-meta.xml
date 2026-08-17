@@ -46,247 +46,16 @@
         <offset>0</offset>
     </actionCalls>
     <actionCalls>
-        <name>Create_Inquiry_failed</name>
-        <label>Create Inquiry failed</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Inquiry__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
-        <name>Create_Inquiry_failed_2</name>
-        <label>Create Inquiry failed 2</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Inquiry__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
-        <name>Create_Message_failed</name>
-        <label>Create Message failed</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Message__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
-        <name>Create_Task_failed_2</name>
-        <label>Create Task failed 2</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Task</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
-        <name>Create_Thread_failed</name>
-        <label>Create Thread failed</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Thread__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
-    <actionCalls>
-        <name>deactivateAccessForUser</name>
+        <name>deactivateAccessForUser1</name>
         <label>deactivateAccessForUser</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>AAREG_distributionAccessController</actionName>
         <actionType>apex</actionType>
         <connector>
-            <targetReference>checkDeactivationType</targetReference>
+            <targetReference>createActivityHistoryWeb</targetReference>
         </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <name>refOrganizationNumber</name>
-            <value>
-                <elementReference>getAgreement.OrganizationNumber__c</elementReference>
-            </value>
-        </inputParameters>
         <inputParameters>
             <name>refAccessType</name>
             <value>
@@ -305,100 +74,18 @@
                 <stringValue>DELETE</stringValue>
             </value>
         </inputParameters>
+        <inputParameters>
+            <name>refOrganizationNumber</name>
+            <value>
+                <elementReference>getAgreement.OrganizationNumber__c</elementReference>
+            </value>
+        </inputParameters>
         <nameSegment>AAREG_distributionAccessController</nameSegment>
         <offset>0</offset>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
-    <actionCalls>
-        <name>getAccessTypes</name>
-        <label>getAccessTypes</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>AAREG_MultiSelectFlowValues</actionName>
-        <actionType>apex</actionType>
-        <connector>
-            <targetReference>loopTextCollection</targetReference>
-        </connector>
-        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <name>values</name>
-            <value>
-                <elementReference>getApplication.AA_AccessTypes__c</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>AAREG_MultiSelectFlowValues</nameSegment>
-        <offset>0</offset>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </actionCalls>
-    <actionCalls>
-        <name>Update_Agreement_failed</name>
-        <label>Update Agreement failed</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <actionName>LoggerUtility</actionName>
-        <actionType>apex</actionType>
-        <dataTypeMappings>
-            <typeName>T__refRecord</typeName>
-            <typeValue>Agreement__c</typeValue>
-        </dataTypeMappings>
-        <flowTransactionModel>Automatic</flowTransactionModel>
-        <inputParameters>
-            <name>category</name>
-            <value>
-                <elementReference>var_FlowNameNoLongerThan32Char</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>domain</name>
-            <value>
-                <stringValue>AAREG</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logLevel</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>logMessage</name>
-            <value>
-                <elementReference>$Flow.FaultMessage</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>refRecord</name>
-            <value>
-                <elementReference>$Record</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>source</name>
-            <value>
-                <elementReference>$Flow.CurrentRecord</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>LoggerUtility</nameSegment>
-        <offset>0</offset>
-    </actionCalls>
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <assignments>
-        <name>setSingleAccessTypes</name>
-        <label>setSingleAccessTypes</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>varSingleAccessType</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>loopTextCollection</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>checkValidAccessTypes</targetReference>
-        </connector>
-    </assignments>
     <constants>
         <name>newLineVal</name>
         <dataType>String</dataType>
@@ -407,207 +94,53 @@
         </value>
     </constants>
     <decisions>
-        <name>checkDeactivationType</name>
-        <label>checkDeactivationType</label>
+        <name>Check_if_access_is_API</name>
+        <label>Check if access is API</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>loopTextCollection</targetReference>
+            <targetReference>Delete_related_contacts</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
-            <name>isActiveOrRemoveAccessFlowWhileInactiveButKeepAccess</name>
-            <conditionLogic>(1 AND 2 AND 3) OR (2 AND 3 AND 4 AND 5)</conditionLogic>
-            <conditions>
-                <leftValueReference>getAgreement.Status__c</leftValueReference>
-                <operator>NotEqualTo</operator>
-                <rightValue>
-                    <stringValue>Deactivated</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>NotEqualTo</operator>
-                <rightValue>
-                    <stringValue></stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>getAgreement.isAccessDeactivationThroughFlow__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>getAgreement.Status__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Deactivated</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>createInquiry</targetReference>
-            </connector>
-            <label>isActiveOrRemoveAccessFlowWhileInactiveButKeepAccess</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>checkStatus</name>
-        <label>checkStatus</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>updateFlowFieldOnAgreementToFalse</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
-        <rules>
-            <name>isDeactivated</name>
+            <name>isApi</name>
             <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>getAgreement.Status__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Deactivated</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>getAgreement.isAccessDeactivationThroughFlow__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>createActivityHistoryDeactivateAgreement</targetReference>
-            </connector>
-            <label>isDeactivated</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>checkValidAccessTypes</name>
-        <label>checkValidAccessTypes</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <isGoTo>true</isGoTo>
-            <targetReference>loopTextCollection</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
-        <rules>
-            <name>isOnline</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Access Online</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>getAgreement.OnlineAccess__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record__Prior.OnlineAccess__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>deactivateAccessForUser</targetReference>
-            </connector>
-            <label>isOnline</label>
-        </rules>
-        <rules>
-            <name>isAPI</name>
-            <conditionLogic>5 AND 6 AND (1 OR 2 OR 3 OR 4)</conditionLogic>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Access API</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Access API with dataprocessor</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Access OTP</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Access OTP with dataprocessor</stringValue>
-                </rightValue>
-            </conditions>
             <conditions>
                 <leftValueReference>getAgreement.APIAccess__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record__Prior.APIAccess__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>createInquiryForIT</targetReference>
+                <targetReference>Create_inquiry_for_IT</targetReference>
             </connector>
-            <label>isAPI</label>
+            <label>isApi</label>
         </rules>
+    </decisions>
+    <decisions>
+        <name>Check_if_access_is_web</name>
+        <label>Check if access is web</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Check_if_access_is_API</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
         <rules>
-            <name>isExtract</name>
+            <name>isWeb</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>varSingleAccessType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Extract</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>getAgreement.ExtractionAccess__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>$Record__Prior.ExtractionAccess__c</leftValueReference>
+                <leftValueReference>getAgreement.OnlineAccess__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>checkDeactivationType</targetReference>
+                <targetReference>deactivateAccessForUser1</targetReference>
             </connector>
-            <label>isExtract</label>
+            <label>isWeb</label>
         </rules>
     </decisions>
     <description>If casehandler or user is deactivating the agreement a cancellation callout is sent to distribution through the integration.</description>
@@ -640,29 +173,13 @@
     <formulas>
         <name>varInquiryDesciptionAPIEvent</name>
         <dataType>String</dataType>
-        <expression>&quot;Deaktivere &quot; &amp;{!convertAccessTextForuser} &amp;&quot;: &quot; &amp;{!varConvertAccessType} &amp;&quot;.&quot; &amp;BR()
-&amp;&quot;Vedtaksdato: &quot;&amp;TEXT(TODAY()) &amp; BR()
-&amp;&quot;Virksomhet: &quot;&amp;{!getApplication.Account__r.Name} &amp; BR()
-&amp;&quot;Organisasjonsnummer: &quot;&amp;{!getApplication.Account__r.INT_OrganizationNumber__c}</expression>
-    </formulas>
-    <formulas>
-        <name>varInquiryDescription</name>
-        <dataType>String</dataType>
-        <expression>{!convertAccessTextForuser} &amp;&quot;: &quot; &amp;{!varConvertAccessType} &amp;&quot;, er deaktivert.&quot; &amp;BR()
-&amp;&quot;Bruker - &quot; &amp;{!$User.FirstName}&amp; &quot; &quot;&amp;{!$User.LastName} &amp;&quot; har endret tilgangstype. Vurder konsekvens for vedtak.&quot; &amp;BR()
-&amp;&quot;Vedtaksdato: &quot;&amp;TEXT(TODAY()) &amp; BR()
-&amp;&quot;Virksomhet: &quot;&amp;{!getApplication.Account__r.Name} &amp; BR()
-&amp;&quot;Organisasjonsnummer: &quot;&amp;{!getApplication.Account__r.INT_OrganizationNumber__c}</expression>
-    </formulas>
-    <formulas>
-        <name>varInquirySubject</name>
-        <dataType>String</dataType>
-        <expression>{!convertAccessTextForuser} &amp; &quot; er deaktivert.&quot;</expression>
+        <expression>&apos;Avtale &apos;+{!$Record.Name}+&apos; er deaktivert. Avtalen hadde API tilgang.&apos;+
+&apos;Sjekk om denne må deaktiveres.&apos;</expression>
     </formulas>
     <formulas>
         <name>varInquirySubjectAPIEvent</name>
         <dataType>String</dataType>
-        <expression>&quot;Deaktivere: &quot; &amp;{!convertAccessTextForuser}</expression>
+        <expression>&apos;Deaktiver API fra avtale &apos;+{!$Record.Name}</expression>
     </formulas>
     <formulas>
         <name>varMessageFromNAV</name>
@@ -674,29 +191,15 @@
     <formulas>
         <name>varTaskDescription</name>
         <dataType>String</dataType>
-        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har deaktivert tilgang: &apos; + {!varConvertAccessType} + &apos;.&apos;</expression>
+        <expression>&apos;Bruker - &apos;+{!$User.FirstName}+ &apos; &apos;+{!$User.LastName}+&apos; har deaktivert avtale.&apos;</expression>
     </formulas>
     <formulas>
         <name>varTaskSubject</name>
         <dataType>String</dataType>
-        <expression>&apos;Tilgang: &apos; + {!varConvertAccessType} + &apos; er deaktivert&apos;</expression>
+        <expression>&apos;Avtale er deaktivert&apos;</expression>
     </formulas>
     <interviewLabel>AAREG_removeAccessToDistribution {!$Flow.CurrentDateTime}</interviewLabel>
     <label>AAREG Agreement remove access to distribution</label>
-    <loops>
-        <name>loopTextCollection</name>
-        <label>loopTextCollection</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <collectionReference>getAccessTypes</collectionReference>
-        <iterationOrder>Asc</iterationOrder>
-        <nextValueConnector>
-            <targetReference>setSingleAccessTypes</targetReference>
-        </nextValueConnector>
-        <noMoreValuesConnector>
-            <targetReference>checkStatus</targetReference>
-        </noMoreValuesConnector>
-    </loops>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -717,16 +220,54 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordCreates>
+        <name>Create_inquiry_for_IT</name>
+        <label>Create inquiry for IT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>createActivityHistoryAPI</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>AccountId__c</field>
+            <value>
+                <elementReference>$Record.account__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>InquiryDescription__c</field>
+            <value>
+                <elementReference>varInquiryDesciptionAPIEvent</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject__c</field>
+            <value>
+                <elementReference>varInquirySubjectAPIEvent</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>TypeOfInquiry__c</field>
+            <value>
+                <stringValue>Tekniske spørsmål</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Inquiry__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
         <name>createActivityHistory</name>
         <label>createActivityHistory</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <connector>
-            <targetReference>loopTextCollection</targetReference>
-        </connector>
         <faultConnector>
             <targetReference>Create_Activity_failed</targetReference>
         </faultConnector>
+        <inputAssignments>
+            <field>AAREG_AccessRequest__c</field>
+            <value>
+                <elementReference>$Record.Access_Request__r.Id</elementReference>
+            </value>
+        </inputAssignments>
         <inputAssignments>
             <field>ActivityDate</field>
             <value>
@@ -773,16 +314,19 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordCreates>
-        <name>createActivityHistoryDeactivateAgreement</name>
-        <label>createActivityHistoryDeactivateAgreement</label>
+        <name>createActivityHistoryAPI</name>
+        <label>createActivityHistory</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>updateFlowFieldOnAgreementToFalse</targetReference>
+            <targetReference>Delete_related_contacts</targetReference>
         </connector>
-        <faultConnector>
-            <targetReference>Create_Task_failed_2</targetReference>
-        </faultConnector>
+        <inputAssignments>
+            <field>AAREG_AccessRequest__c</field>
+            <value>
+                <elementReference>$Record.Access_Request__r.Id</elementReference>
+            </value>
+        </inputAssignments>
         <inputAssignments>
             <field>ActivityDate</field>
             <value>
@@ -792,7 +336,7 @@
         <inputAssignments>
             <field>Description</field>
             <value>
-                <elementReference>varDeactivatedAgreementDescription</elementReference>
+                <elementReference>var_taskDescriptionAPI</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -810,7 +354,7 @@
         <inputAssignments>
             <field>Subject</field>
             <value>
-                <elementReference>varDeactivatedAgreementSubject</elementReference>
+                <elementReference>var_taskSubjectAPI</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -829,225 +373,85 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordCreates>
-        <name>createInquiry</name>
-        <label>createInquiry</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignRecordIdToReference>varInquiryId</assignRecordIdToReference>
-        <connector>
-            <targetReference>getInquiryName</targetReference>
-        </connector>
-        <faultConnector>
-            <targetReference>Create_Inquiry_failed_2</targetReference>
-        </faultConnector>
-        <inputAssignments>
-            <field>AccountId__c</field>
-            <value>
-                <elementReference>getApplication.Account__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>ContactId__c</field>
-            <value>
-                <elementReference>getApplication.Contact__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Email__c</field>
-            <value>
-                <elementReference>getApplication.Email__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>InquiryDescription__c</field>
-            <value>
-                <elementReference>varInquiryDescription</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Subject__c</field>
-            <value>
-                <elementReference>varInquirySubject</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>TypeOfInquiry__c</field>
-            <value>
-                <stringValue>Spørsmål før du søker om tilgang</stringValue>
-            </value>
-        </inputAssignments>
-        <object>Inquiry__c</object>
-    </recordCreates>
-    <recordCreates>
-        <name>createInquiryForIT</name>
-        <label>createInquiryForIT</label>
+        <name>createActivityHistoryWeb</name>
+        <label>createActivityHistory</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>checkDeactivationType</targetReference>
+            <targetReference>Check_if_access_is_API</targetReference>
         </connector>
-        <faultConnector>
-            <targetReference>Create_Inquiry_failed</targetReference>
-        </faultConnector>
         <inputAssignments>
-            <field>AccountId__c</field>
+            <field>AAREG_AccessRequest__c</field>
             <value>
-                <elementReference>getApplication.Account__c</elementReference>
+                <elementReference>$Record.Access_Request__r.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>ContactId__c</field>
+            <field>ActivityDate</field>
             <value>
-                <elementReference>getApplication.Contact__c</elementReference>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Email__c</field>
+            <field>Description</field>
             <value>
-                <elementReference>getApplication.Email__c</elementReference>
+                <elementReference>var_taskSubjectWeb</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>InquiryDescription__c</field>
+            <field>RecordTypeId</field>
             <value>
-                <elementReference>varInquiryDesciptionAPIEvent</elementReference>
+                <elementReference>varRecordTypeId</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>Subject__c</field>
+            <field>Status</field>
             <value>
-                <elementReference>varInquirySubjectAPIEvent</elementReference>
+                <stringValue>Completed</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>TypeOfInquiry__c</field>
+            <field>Subject</field>
             <value>
-                <stringValue>Tekniske spørsmål</stringValue>
+                <elementReference>var_taskSubjectWeb</elementReference>
             </value>
         </inputAssignments>
-        <object>Inquiry__c</object>
+        <inputAssignments>
+            <field>Type</field>
+            <value>
+                <stringValue>Tilgang</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId</field>
+            <value>
+                <elementReference>getAgreement.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Task</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
-    <recordCreates>
-        <name>createMessageFromNAV</name>
-        <label>createMessageFromNAV</label>
+    <recordDeletes>
+        <name>Delete_related_contacts</name>
+        <label>Delete related contacts</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>createActivityHistory</targetReference>
         </connector>
-        <faultConnector>
-            <targetReference>Create_Message_failed</targetReference>
-        </faultConnector>
-        <inputAssignments>
-            <field>CRM_Message_Text__c</field>
-            <value>
-                <elementReference>varMessageFromNAV</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CRM_Thread__c</field>
-            <value>
-                <elementReference>createThread</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Message__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
-    <recordCreates>
-        <name>createThread</name>
-        <label>createThread</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <targetReference>createMessageFromNAV</targetReference>
-        </connector>
-        <faultConnector>
-            <targetReference>Create_Thread_failed</targetReference>
-        </faultConnector>
-        <inputAssignments>
-            <field>AAREG_Thread_Subject__c</field>
-            <value>
-                <stringValue>Deaktivering av tilgang(er)</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CRM_Account__c</field>
-            <value>
-                <elementReference>getApplication.Account__c</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CRM_HenvendelseId__c</field>
-            <value>
-                <elementReference>varInquiryName</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CRM_Related_Object_Type__c</field>
-            <value>
-                <stringValue>Inquiry__c</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CRM_Related_Object__c</field>
-            <value>
-                <elementReference>varInquiryId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>CRM_Thread_Type__c</field>
-            <value>
-                <stringValue>AAREG_EXP</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Name</field>
-            <value>
-                <elementReference>varInquiryName</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>OwnerId</field>
-            <value>
-                <elementReference>getApplication.OwnerId</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Thread__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
-    <recordLookups>
-        <name>getAgreement</name>
-        <label>getAgreement</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>getApplication</targetReference>
-        </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Id</field>
+            <field>Agreement__c</field>
             <operator>EqualTo</operator>
             <value>
                 <elementReference>$Record.Id</elementReference>
             </value>
         </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Agreement__c</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>OrganizationNumber__c</queriedFields>
-        <queriedFields>Application__c</queriedFields>
-        <queriedFields>APIAccess__c</queriedFields>
-        <queriedFields>OnlineAccess__c</queriedFields>
-        <queriedFields>Status__c</queriedFields>
-        <queriedFields>isAccessDeactivationThroughFlow__c</queriedFields>
-        <queriedFields>ExtractionAccess__c</queriedFields>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
+        <object>RelatedContact__c</object>
+    </recordDeletes>
     <recordLookups>
-        <name>getApplication</name>
-        <label>getApplication</label>
+        <name>getAgreement</name>
+        <label>getAgreement</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
@@ -1059,41 +463,12 @@
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>getAgreement.Application__c</elementReference>
+                <elementReference>$Record.Id</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Application__c</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>AA_AccessTypes__c</queriedFields>
-        <queriedFields>Account__c</queriedFields>
-        <queriedFields>Contact__c</queriedFields>
-        <queriedFields>Email__c</queriedFields>
-        <queriedFields>OwnerId</queriedFields>
+        <object>Agreement__c</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>getInquiryName</name>
-        <label>getInquiryName</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>createThread</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>varInquiryId</elementReference>
-            </value>
-        </filters>
-        <object>Inquiry__c</object>
-        <outputAssignments>
-            <assignToReference>varInquiryName</assignToReference>
-            <field>Name</field>
-        </outputAssignments>
     </recordLookups>
     <recordLookups>
         <name>getRecordTypeId_0</name>
@@ -1102,7 +477,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>getAccessTypes</targetReference>
+            <targetReference>Check_if_access_is_web</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -1118,29 +493,11 @@
             <field>Id</field>
         </outputAssignments>
     </recordLookups>
-    <recordUpdates>
-        <name>updateFlowFieldOnAgreementToFalse</name>
-        <label>updateFlowFieldOnAgreementToFalse</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <faultConnector>
-            <targetReference>Update_Agreement_failed</targetReference>
-        </faultConnector>
-        <inputAssignments>
-            <field>isAccessDeactivationThroughFlow__c</field>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </inputAssignments>
-        <inputReference>$Record</inputReference>
-    </recordUpdates>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <connector>
-            <targetReference>getAgreement</targetReference>
-        </connector>
-        <filterLogic>4 AND 6 AND (1 OR 2 OR 3 OR 5 )</filterLogic>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>and</filterLogic>
         <filters>
             <field>Status__c</field>
             <operator>EqualTo</operator>
@@ -1148,52 +505,53 @@
                 <stringValue>Deactivated</stringValue>
             </value>
         </filters>
-        <filters>
-            <field>OnlineAccess__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </filters>
-        <filters>
-            <field>APIAccess__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </filters>
-        <filters>
-            <field>isNoDeactivationAccess__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </filters>
-        <filters>
-            <field>ExtractionAccess__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </filters>
-        <filters>
-            <field>isDeactivateThroughBatch__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </filters>
         <object>Agreement__c</object>
         <recordTriggerType>Update</recordTriggerType>
+        <scheduledPaths>
+            <connector>
+                <targetReference>getAgreement</targetReference>
+            </connector>
+            <pathType>AsyncAfterCommit</pathType>
+        </scheduledPaths>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>var_taskDescriptionAPI</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Deaktivering av API - brukerstøttesak er opprettet</stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>var_taskSubjectAPI</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Deaktivering av API</stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>var_taskSubjectWeb</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue>Deaktivering av tilgang sendt: AAREG_TILGANG_ONLINE</stringValue>
+        </value>
     </variables>
     <variables>
         <name>varInquiryId</name>
