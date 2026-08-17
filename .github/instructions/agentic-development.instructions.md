@@ -45,3 +45,13 @@ Etter endring:
 ## Menneskeleg kontroll
 
 Org-oppretting, pakkeinstallasjon, deploy, pakkeoppretting, pakke-promotering og endring av CI/auth krev eksplisitt godkjenning frå brukaren. Agenten skal ikkje finne på org-alias, Salesforce-ID-ar, installasjonsnøklar eller avhengigheitsversjonar.
+
+## Nav AI-policy
+
+- Bruk berre GitHub Copilot Business gjennom Nav-organisasjonen til Nav-arbeid. Private Copilot-abonnement og frittståande AI-kodeverktøy er ikkje tillatne.
+- Alle modellar som er tilgjengelege gjennom Copilot Business kan brukast, men utviklaren er ansvarleg for resultatet.
+- Agent mode og lokale agentar skal køyre isolert med `cplt` eller ei tilsvarande sandbox-løysing. Agentar med uavgrensa tilgang til Nav-utstyr er ikkje tillatne.
+- Bruk berre MCP-serverar som er godkjende i Nav sin verktøykatalog.
+- Coding agent kan berre brukast til avgrensa oppgåver og må alltid ende i menneskeleg gjennomgang og godkjenning av PR før merge.
+- Utviklaren skal forstå og kritisk vurdere generert kode, skrive testar, bruke code review og køyre relevante sikkerheitskontrollar.
+- Ver ekstra varsam i raud sone: debugging, nye konsept, kjernelogikk, tilgang, persondata og sikkerheitskritisk kode.

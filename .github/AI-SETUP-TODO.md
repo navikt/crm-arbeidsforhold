@@ -40,14 +40,15 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [x] Vurdert behovet for `.github/agents/`: ikkje nødvendig no, fordi repoet har Salesforce-spesifikke instruksar, skills og prompts som dekkjer den dokumenterte arbeidsflyten.
 - [x] Vedtatt hybrid forvaltning av AI-oppsettet: Nav sine generelle reglar kan forvaltast i user-scope/collection, medan Salesforce-, Aa-registeret- og repo-spesifikke reglar skal liggje i repoet. Bygg og test skal ikkje vere avhengig av ekstern collection.
 - [x] Vedtatt dokumentasjonsstruktur: GitHub Issues for arbeidsoppgåver, `.github/specs/` for korte feature-spesifikasjonar, `docs/adr/` for arkitekturvedtak og `CONTEXT.md` for stabil domene- og arkitekturkontekst.
+- [x] Human-approved Nav AI-policy gate: Copilot Business gjennom Nav-organisasjonen, isolerte agentar med `cplt` eller tilsvarande, godkjende MCP-serverar, avgrensa coding-agent-oppgåver med menneskeleg PR-godkjenning, og utviklaransvar for forståing, testing, review og sikkerheit.
 
 ## Neste steg
 
-- [ ] Teamet må verifisere tolkinga mot Nav si interne agentiske utviklingspolicy, særleg krav til datahandtering, logging og modellbruk. `min-copilot.ansatt.nav.no` krev innlogging og kan ikkje verifiserast automatisk.
 - [ ] Køyre Nav agent-readiness via `mcp-onboarding.nav.no` eller `nav-pilot` når verktøyet er tilgjengeleg og brukaren er autentisert.
+- [ ] cplt er initialisert i user-scope med `sandbox.agent = "copilot"` og standard restrictive sandbox-defaults. `cplt trust show` viser ingen repo-config, som er tilsikta sidan ingen ekstra repo-permisjonar er nødvendige. Verifisering frå denne agent-terminalen er blokkert fordi sandboxen ikkje eksponerer `~/.config/cplt`; køyr `cplt config validate` og `cplt config show` i vanleg lokal terminal før punktet blir lukka.
 - [ ] CI-funn dokumentert: PR-validering er delegert til `navikt/crm-workflows-base/.github/workflows/validate.yml@master`, medan PR-malen ikkje handhevar avkryssingar. Teamet må avklare om TDD-/reviewkrav skal handhevast i den delte workflowen eller lokalt; pinning av `@master` krev separat godkjenning fordi det endrar CI/auth-konfigurasjon.
 - [ ] Vurdere lokal secret scanning med Gitleaks dersom teamet godkjenner verktøyet og CI ikkje allereie dekkjer behovet.
-- [ ] Vurdere cplt-agentval (`sandbox.agent=copilot`) og ein repo-lokal `.cplt.toml`; cplt vel sjølve klienten, medan Nav Pilot si klientkonfigurasjon er separat. Dette krev teamavklaring om sandbox-policy og separat `cplt trust`, og skal ikkje innførast automatisk.
+- [ ] Aktivere og verifisere `cplt` eller ei anna godkjend sandbox-løysing før agent mode blir brukt på Nav-utstyr. Eventuell repo-lokal `.cplt.toml` og `sandbox.agent=copilot` krev separat konfigurasjonsgjennomgang.
 - [ ] Ta ein separat naming-/ApexDoc-gjennomgang av eksisterande kode og lag ei prioritert oppryddingsliste; ikkje masse-rename deployed metadata utan migreringsplan.
 
 ### Første kartleggingsfunn
