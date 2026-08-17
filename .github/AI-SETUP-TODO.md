@@ -42,11 +42,15 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [x] Vedtatt dokumentasjonsstruktur: GitHub Issues for arbeidsoppgåver, `.github/specs/` for korte feature-spesifikasjonar, `docs/adr/` for arkitekturvedtak og `CONTEXT.md` for stabil domene- og arkitekturkontekst.
 - [x] Human-approved Nav AI-policy gate: Copilot Business gjennom Nav-organisasjonen, isolerte agentar med `cplt` eller tilsvarande, godkjende MCP-serverar, avgrensa coding-agent-oppgåver med menneskeleg PR-godkjenning, og utviklaransvar for forståing, testing, review og sikkerheit.
 - [x] Aktivert og verifisert cplt-sandbox i user-scope med `sandbox.agent = "copilot"`: configen validerer, standard restrictive sandbox-defaults er aktive, og repoet har ingen ekstra trust-permisjonar.
+- [x] Vurdert `nav-pilot doctor`-varselet «Agent not pinned to nav-pilot» (`cplt config set copilot.agent_name nav-pilot`): stadfesta på nytt etter at cplt auto-oppdaterte til `2026.08.17-062831-1008a92` — `copilot.agent_name` finst framleis ikkje som gyldig nøkkel. Dette er ein feil i `nav-pilot doctor`, ikkje eit repo-problem. Vi forfølgjer det ikkje vidare; varselet blokkerer ikkje agent-readiness.
+
+- [x] Korrigert tidlegare 404-funn: rett domene for `mcp-onboarding` er `https://mcp-onboarding.intern.nav.no`, ikkje `mcp-onboarding.nav.no`. `GET /health` svarer `{"status":"healthy"}`. Dette var eit domenenamn-avvik, ikkje eit tilgangs- eller driftsproblem.
 
 ## Neste steg
 
-- [ ] Køyre Nav agent-readiness via `mcp-onboarding.nav.no` eller `nav-pilot` når verktøyet er tilgjengeleg og brukaren er autentisert.
-- [ ] Nav Pilot-integrasjon: `nav-pilot doctor` foreslår `copilot.agent_name = nav-pilot`, men installert cplt `2026.07.14-084701-5cac7d9` avviser denne nøkkelen som ukjent. Avklar kompatibel Nav Pilot/cplt-versjon eller dokumenter alternativ integrasjon før agent-readiness blir markert ferdig.
+- [x] Køyrt `check_agent_readiness` for `navikt/crm-arbeidsforhold` via MCP-serveren `io.github.navikt/mcp-onboarding`. Resultat: **Basic (2/14)**, 0/8 customizations funne (ingen `AGENTS.md`, `copilot-instructions.md`, `.github/instructions/`, `.github/skills/`, `.github/prompts/`, `.github/workflows/copilot-setup-steps.yml`). Årsak stadfesta: verktøyet les GitHub sin default branch (`main`), som er 32 commits bak. Alt arbeidet i denne oppsett-økta ligg berre på `origin/KlargjørForAgentiskKoding` og er ikkje merga. Dette er forventa, ikkje ein feil i repo-oppsettet.
+- [ ] Opne PR frå `KlargjørForAgentiskKoding` til `main` og få han godkjent og merga, deretter køyre `check_agent_readiness` på nytt mot `main` for å stadfeste den reelle skåren.
+- [ ] Vurdere å generere `copilot-setup-steps.yml` med `generate_setup_steps`-verktøyet i `mcp-onboarding` for Copilot coding agent; fila finst ikkje i repoet i dag.
 - [ ] CI-funn dokumentert: PR-validering er delegert til `navikt/crm-workflows-base/.github/workflows/validate.yml@master`, medan PR-malen ikkje handhevar avkryssingar. Teamet må avklare om TDD-/reviewkrav skal handhevast i den delte workflowen eller lokalt; pinning av `@master` krev separat godkjenning fordi det endrar CI/auth-konfigurasjon.
 - [ ] Vurdere lokal secret scanning med Gitleaks dersom teamet godkjenner verktøyet og CI ikkje allereie dekkjer behovet.
 - [ ] Ta ein separat naming-/ApexDoc-gjennomgang av eksisterande kode og lag ei prioritert oppryddingsliste; ikkje masse-rename deployed metadata utan migreringsplan.
