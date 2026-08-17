@@ -32,19 +32,20 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [x] Verifisert `linkPanel`-skiva grøn: 2 fokuserte Jest-testar passerer etter installasjon av `@salesforce/sfdx-lwc-jest`, `jest-canvas-mock` og `@sa11y/jest`, og lokale mocks for navigation og Community base path.
 - [x] Fjerna Jest-rendercrash i `aareg_applicationInternal` ved å gjere feilmeldinga null-safe for både Apex-feil med `body.message` og enklare feilobjekt.
 - [x] Verifisert at dei nye Markdown-filene har gyldig struktur og passerer isolert Prettier-sjekk.
+- [x] Repoet si lokale tolking av Nav-prinsippa er kontrollert mot `AGENTS.md`, `CONTEXT.md` og agentinstruksen: små endringar, lokal validering, TDD, raud sone, human control og eksplisitt verifikasjonsstatus er dekte.
+- [x] Vurdert Matt Pocock sine skills og anbefalingar: repoet brukar prinsippa gjennom Salesforce-tilpassa TDD- og review-skills, utan å kopiere inn språk- eller rammeverkspesifikke antakingar.
+- [x] Lage ein liten, reell LWC-endring gjennom TDD-flyten: `aareg_applicationInternal` viser Apex-feil utan å krasje når `error.body` manglar; regresjonstest og brei Jest-validering er grøne.
+- [x] TDD-pilot: fokuserte testar og brei Jest-validering er grøne; 3 suites og 4 testar passerer gjennom `npm test`.
+- [x] Vurdert behovet for `.github/agents/`: ikkje nødvendig no, fordi repoet har Salesforce-spesifikke instruksar, skills og prompts som dekkjer den dokumenterte arbeidsflyten.
 
 ## Neste steg
 
-- [ ] Teamet må verifisere at Nav si interne agentiske utviklingspolicy er rett tolka for dette repoet, særleg krav til datahandtering, logging, modellbruk og godkjenning.
+- [ ] Teamet må verifisere tolkinga mot Nav si interne agentiske utviklingspolicy, særleg krav til datahandtering, logging og modellbruk. `min-copilot.ansatt.nav.no` krev innlogging og kan ikkje verifiserast automatisk.
 - [ ] Køyre Nav agent-readiness via `mcp-onboarding.nav.no` eller `nav-pilot` når verktøyet er tilgjengeleg og brukaren er autentisert.
-- [ ] Vurdere periodisk gjennomgang mot nye versjonar av Matt Pocock sine skills utan å kopiere inn språk- eller rammeverkspesifikke antakingar.
 - [ ] Avklare om Nav user-scope-filene skal forvaltast gjennom ein registrert collection, eller om teamet skal vedlikehalde repo-tilpassingane manuelt med Nav som referansekjelde.
 - [ ] Avklare issue tracker og lagringsstad for specs, ADR-ar og tickets før `to-spec`/`to-tickets`-flyt blir innført.
-- [x] Lage ein liten, reell LWC-endring gjennom TDD-flyten: `aareg_applicationInternal` viser Apex-feil utan å krasje når `error.body` manglar; regresjonstest og brei Jest-validering er grøne.
-- [x] TDD-pilot: fokuserte testar og brei Jest-validering er grøne; 3 suites og 4 testar passerer gjennom `npm test`.
-- [ ] Vurdere automatisk CI-handheving av PR-malen og relevante review-/testkrav gjennom eksisterande Nav-workflow; malen støttar prosessen, men handhevar ikkje krava åleine.
+- [ ] CI-funn dokumentert: PR-validering er delegert til `navikt/crm-workflows-base/.github/workflows/validate.yml@master`, medan PR-malen ikkje handhevar avkryssingar. Teamet må avklare om TDD-/reviewkrav skal handhevast i den delte workflowen eller lokalt; pinning av `@master` krev separat godkjenning fordi det endrar CI/auth-konfigurasjon.
 - [ ] Vurdere lokal secret scanning med Gitleaks dersom teamet godkjenner verktøyet og CI ikkje allereie dekkjer behovet.
-- [ ] Vurdere `.github/agents/` med ein Salesforce-spesialist berre dersom ein konkret arbeidsflyt ikkje kan dekkast av instruksjonar og skills.
 - [ ] Vurdere cplt-agentval (`sandbox.agent=copilot`) og ein repo-lokal `.cplt.toml`; cplt vel sjølve klienten, medan Nav Pilot si klientkonfigurasjon er separat. Dette krev teamavklaring om sandbox-policy og separat `cplt trust`, og skal ikkje innførast automatisk.
 - [ ] Ta ein separat naming-/ApexDoc-gjennomgang av eksisterande kode og lag ei prioritert oppryddingsliste; ikkje masse-rename deployed metadata utan migreringsplan.
 
