@@ -34,16 +34,17 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [x] Verifisert at dei nye Markdown-filene har gyldig struktur og passerer isolert Prettier-sjekk.
 - [x] Repoet si lokale tolking av Nav-prinsippa er kontrollert mot `AGENTS.md`, `CONTEXT.md` og agentinstruksen: små endringar, lokal validering, TDD, raud sone, human control og eksplisitt verifikasjonsstatus er dekte.
 - [x] Vurdert Matt Pocock sine skills og anbefalingar: repoet brukar prinsippa gjennom Salesforce-tilpassa TDD- og review-skills, utan å kopiere inn språk- eller rammeverkspesifikke antakingar.
+- [x] Lagt inn ein lokal, Salesforce-tilpassa kjerne av Matt Pocock-inspirerte skills: `setup-matt-pocock-skills`, `grill-with-docs`, `to-spec`, `to-tickets`, `implement` og `diagnosing-bugs`, i tillegg til `tdd-salesforce` og `code-review-two-axis`.
 - [x] Lage ein liten, reell LWC-endring gjennom TDD-flyten: `aareg_applicationInternal` viser Apex-feil utan å krasje når `error.body` manglar; regresjonstest og brei Jest-validering er grøne.
 - [x] TDD-pilot: fokuserte testar og brei Jest-validering er grøne; 3 suites og 4 testar passerer gjennom `npm test`.
 - [x] Vurdert behovet for `.github/agents/`: ikkje nødvendig no, fordi repoet har Salesforce-spesifikke instruksar, skills og prompts som dekkjer den dokumenterte arbeidsflyten.
+- [x] Vedtatt hybrid forvaltning av AI-oppsettet: Nav sine generelle reglar kan forvaltast i user-scope/collection, medan Salesforce-, Aa-registeret- og repo-spesifikke reglar skal liggje i repoet. Bygg og test skal ikkje vere avhengig av ekstern collection.
+- [x] Vedtatt dokumentasjonsstruktur: GitHub Issues for arbeidsoppgåver, `.github/specs/` for korte feature-spesifikasjonar, `docs/adr/` for arkitekturvedtak og `CONTEXT.md` for stabil domene- og arkitekturkontekst.
 
 ## Neste steg
 
 - [ ] Teamet må verifisere tolkinga mot Nav si interne agentiske utviklingspolicy, særleg krav til datahandtering, logging og modellbruk. `min-copilot.ansatt.nav.no` krev innlogging og kan ikkje verifiserast automatisk.
 - [ ] Køyre Nav agent-readiness via `mcp-onboarding.nav.no` eller `nav-pilot` når verktøyet er tilgjengeleg og brukaren er autentisert.
-- [ ] Avklare om Nav user-scope-filene skal forvaltast gjennom ein registrert collection, eller om teamet skal vedlikehalde repo-tilpassingane manuelt med Nav som referansekjelde.
-- [ ] Avklare issue tracker og lagringsstad for specs, ADR-ar og tickets før `to-spec`/`to-tickets`-flyt blir innført.
 - [ ] CI-funn dokumentert: PR-validering er delegert til `navikt/crm-workflows-base/.github/workflows/validate.yml@master`, medan PR-malen ikkje handhevar avkryssingar. Teamet må avklare om TDD-/reviewkrav skal handhevast i den delte workflowen eller lokalt; pinning av `@master` krev separat godkjenning fordi det endrar CI/auth-konfigurasjon.
 - [ ] Vurdere lokal secret scanning med Gitleaks dersom teamet godkjenner verktøyet og CI ikkje allereie dekkjer behovet.
 - [ ] Vurdere cplt-agentval (`sandbox.agent=copilot`) og ein repo-lokal `.cplt.toml`; cplt vel sjølve klienten, medan Nav Pilot si klientkonfigurasjon er separat. Dette krev teamavklaring om sandbox-policy og separat `cplt trust`, og skal ikkje innførast automatisk.
@@ -58,6 +59,7 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - Read-only review fann at fleire workflows brukar mutable `@master`-referansar. Dette er eit Trusted-/supply-chain-funn, men pinning til immutable commit-SHA krev eksplisitt godkjenning fordi det endrar CI/auth-konfigurasjon.
 - Read-only review fann at `force-app/main/default/AGENTS.md` har eldre eller motstridande døme i prosjektstruktur og selector-naming. Dette bør ryddast i ei separat dokumentasjonsskive før naming-opprydding i Apex.
 - Spec-axis i code review er avgrensa så lenge issue tracker og lagringsstad for specs/tickets ikkje er valt.
+- Upstream-kjelde for dei tilpassa engineering-skillsa: https://github.com/mattpocock/skills. Repoet held ved like Salesforce-adapterar lokalt i staden for å vere avhengig av upstream-filer eller ekstern collection.
 
 ## Vedtak
 

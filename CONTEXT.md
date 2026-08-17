@@ -49,3 +49,13 @@ Use English for Apex, metadata, API, and backend identifiers. User-facing Norweg
 - **Trusted / Easy / Adaptable:** review Salesforce design for security/compliance/reliability, maintainability/clarity/intentionality, and resilience/separation/packageability.
 
 Never report an org-dependent check as successful unless the command completed successfully.
+
+## AI and change governance
+
+- General Nav guidance may be managed in user scope or a Nav collection.
+- Salesforce-, Aa-registeret-, and repository-specific guidance is maintained in this repository.
+- Building and testing this repository must not depend on an external collection being available.
+- GitHub Issues are the system of record for work items.
+- Store short feature specifications under `.github/specs/`.
+- Store architecture decision records under `docs/adr/`.
+- Keep stable domain and architecture context in this file.
