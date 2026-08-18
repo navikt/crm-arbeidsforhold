@@ -2,14 +2,15 @@
  * Test class for AAREG_distributionAccessController.
  * Verifies the behavior of the distribution access integration controller.
  *
- * @author AAREG Team
- * @version 66
+ * @author Ann Kristin Olsen
+ * @since July 2026
  * @group Integration
  */
 @isTest
 public class AAREG_distributionAccessControllerTest {
     /**
      * Test setup method to initialize common test data.
+     * @since July 2026
      */
     @TestSetup
     static void setupTestData() {
@@ -20,6 +21,7 @@ public class AAREG_distributionAccessControllerTest {
     /**
      * Tests the handleRequest method with a valid PUT operation.
      * Verifies that a successful PUT request returns true in FlowOutputs.
+     * @since July 2026
      */
     @isTest
     static void testHandleRequest_PUT_Success() {
@@ -51,6 +53,7 @@ public class AAREG_distributionAccessControllerTest {
     /**
      * Tests the handleRequest method with a valid DELETE operation.
      * Verifies that a successful DELETE request returns true in FlowOutputs.
+     * @since July 2026
      */
     @isTest
     static void testHandleRequest_DELETE_Success() {
@@ -82,6 +85,7 @@ public class AAREG_distributionAccessControllerTest {
     /**
      * Tests the handleRequest method with an invalid operation type.
      * Verifies that an unsupported operation type returns false.
+     * @since July 2026
      */
     @isTest
     static void testHandleRequest_InvalidOperationType() {
@@ -112,6 +116,7 @@ public class AAREG_distributionAccessControllerTest {
     /**
      * Tests the handleRequest method with null input.
      * Verifies that null input returns false result.
+     * @since July 2026
      */
     @isTest
     static void testHandleRequest_NullInput() {
@@ -131,6 +136,7 @@ public class AAREG_distributionAccessControllerTest {
     /**
      * Tests the handleRequest method with empty input list.
      * Verifies that empty input returns false result.
+     * @since July 2026
      */
     @isTest
     static void testHandleRequest_EmptyInput() {
@@ -150,6 +156,7 @@ public class AAREG_distributionAccessControllerTest {
     /**
      * Tests the handleRequest method when organization number is blank.
      * Verifies that missing organization number returns false result.
+     * @since July 2026
      */
     @isTest
     static void testHandleRequest_BlankOrganizationNumber() {
@@ -179,6 +186,7 @@ public class AAREG_distributionAccessControllerTest {
     /**
      * Tests the handleRequest method when first input element is null.
      * Verifies that unexpected null dereference is caught and returns false.
+     * @since July 2026
      */
     @isTest
     static void testHandleRequest_NullInputElement() {
@@ -200,6 +208,7 @@ public class AAREG_distributionAccessControllerTest {
     /**
      * Tests the generateJson method from AAREG_distributionAccessRequest.
      * Verifies that the JSON is properly formatted with the organization number.
+     * @since July 2026
      */
     @isTest
     static void testGenerateJson() {
@@ -218,6 +227,7 @@ public class AAREG_distributionAccessControllerTest {
     /**
      * Tests the generateHeaderToDistribution method with HTTP error response.
      * Verifies that status code errors are properly logged and handled.
+     * @since July 2026
      */
     @isTest
     static void testGenerateHeaderToDistribution_HttpError() {
@@ -233,6 +243,7 @@ public class AAREG_distributionAccessControllerTest {
 
     /**
      * Tests the generateHeaderToDistribution method with invalid arguments to hit generic catch.
+     * @since July 2026
      */
     @isTest
     static void testGenerateHeaderToDistribution_UnexpectedError() {
@@ -247,6 +258,7 @@ public class AAREG_distributionAccessControllerTest {
     /**
      * Tests the FlowOutputs inner class constructors.
      * Verifies that both default and parameterized constructors work correctly.
+     * @since July 2026
      */
     @isTest
     static void testFlowOutputsConstructors() {

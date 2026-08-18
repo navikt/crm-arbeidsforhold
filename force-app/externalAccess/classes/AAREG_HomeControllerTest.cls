@@ -1,6 +1,20 @@
-@SuppressWarnings('PMD')
+/**
+ * Test class for AAREG_HomeController.
+ *
+ * @author Jordan Mathews
+ * @author Erik Fladby
+ * @author Kenneth Sørensen
+ * @author Ann Kristin Olsen
+ * @since May 2021
+ * @group AAREG External Access
+ */
 @IsTest
 public with sharing class AAREG_HomeControllerTest {
+    /**
+     * Creates the standard test user and Altinn 3 integration setting used by the controller tests.
+     *
+     * @since May 2021
+     */
     @TestSetup
     static void makeData() {
         Profile profile = [SELECT Id, UserLicense.Name FROM Profile WHERE Name = 'Standard User' LIMIT 1];
@@ -32,6 +46,11 @@ public with sharing class AAREG_HomeControllerTest {
         insert settings;
     }
 
+    /**
+     * getOrganizationsWithRoles should return the user's organizations from Altinn.
+     *
+     * @since May 2021
+     */
     @IsTest
     private static void testGetOrganizationsWithRoles() {
         List<Feature_Flag__mdt> featureFlags = new List<Feature_Flag__mdt>();
@@ -59,6 +78,11 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(18, response.organizations.size(), 'Expect 18 organaizations');
     }
 
+    /**
+     * getLastUsersLastUsedOrganization should return the user's last used organization number.
+     *
+     * @since May 2021
+     */
     @IsTest
     private static void testGetLastUsedOrganizationNumber() {
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
@@ -72,6 +96,11 @@ public with sharing class AAREG_HomeControllerTest {
         );
     }
 
+    /**
+     * updateLastUsedOrganization should persist the given organization number on the user.
+     *
+     * @since May 2021
+     */
     @IsTest
     private static void testUpdateLastUsedOrganization() {
         String orgNumber = '999999999';
@@ -84,6 +113,11 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(orgNumber, updatedUser.LastUsedOrganization__c, 'Last used organization number updated.');
     }
 
+    /**
+     * shareAgreementsWithUser should create Agreement__Share and RelatedContact__Share records for the user.
+     *
+     * @since November 2022
+     */
     @IsTest
     private static void testShareAgreementsWithUser() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
@@ -123,6 +157,11 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(2, sharedRelatedContacts.size(), '2 Shared related contact records not created.');
     }
 
+    /**
+     * checkAndShareIfAuthorized should grant access and share the agreement on a Permit/Access decision.
+     *
+     * @since January 2026
+     */
     @IsTest
     private static void testCheckAndShareIfAuthorizedWithAccess() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
@@ -158,6 +197,11 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(1, sharedAgreements.size(), 'Agreement should be shared with user');
     }
 
+    /**
+     * checkAndShareIfAuthorized should deny access on a Deny decision.
+     *
+     * @since October 2025
+     */
     @IsTest
     private static void testCheckAndShareIfAuthorizedNoAccess() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
@@ -179,6 +223,11 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(false, response.hasApplicationAccess, 'User should not have application access');
     }
 
+    /**
+     * checkAndShareIfAuthorized should throw for null userId or empty organization number.
+     *
+     * @since January 2026
+     */
     @IsTest
     private static void testCheckAndShareIfAuthorizedInvalidParameters() {
         System.Test.startTest();
@@ -207,6 +256,11 @@ public with sharing class AAREG_HomeControllerTest {
         System.Test.stopTest();
     }
 
+    /**
+     * shareAgreementsWithUser should not duplicate share records when the user is already the owner.
+     *
+     * @since January 2026
+     */
     @IsTest
     private static void testShareAgreementsWithUserIsOwner() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
@@ -251,6 +305,11 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(2, sharedRelatedContacts.size(), 'Should have two shared related contact record');
     }
 
+    /**
+     * updateLastUsedOrganization should surface a handled exception on the forced failure path.
+     *
+     * @since August 2026
+     */
     @IsTest
     private static void testUpdateLastUsedOrganizationException() {
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
@@ -267,6 +326,11 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(true, exceptionThrown, 'Expected AuraHandledException from forced update exception path.');
     }
 
+    /**
+     * shareAgreementsWithUser should be a no-op when the user has no agreements to share.
+     *
+     * @since October 2025
+     */
     @IsTest
     private static void testShareAgreementsWithUserNoAgreements() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
@@ -284,6 +348,11 @@ public with sharing class AAREG_HomeControllerTest {
         System.assertEquals(0, sharedAgreements.size(), 'No agreements to share');
     }
 
+    /**
+     * checkAndShareIfAuthorized should return no access when the rights response is null.
+     *
+     * @since October 2025
+     */
     @IsTest
     private static void testCheckAndShareIfAuthorizedNullRightsResponse() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
@@ -308,6 +377,11 @@ public with sharing class AAREG_HomeControllerTest {
         );
     }
 
+    /**
+     * checkAndShareIfAuthorized should fall back to support access when the forced test flag is set.
+     *
+     * @since August 2026
+     */
     @IsTest
     private static void testCheckAndShareIfAuthorizedFallbackSupportAccess() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
@@ -333,6 +407,11 @@ public with sharing class AAREG_HomeControllerTest {
         );
     }
 
+    /**
+     * shareAgreementsWithUser should tolerate forced share-insert exceptions and the owner-skip branch.
+     *
+     * @since August 2026
+     */
     @IsTest
     private static void testShareAgreementsForcedCatchAndOwnerSkip() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];

@@ -1,5 +1,19 @@
+/**
+ * Test class for AAREG_DeactivateAccessOnDeletedOrgsBatch.
+ *
+ * @author Erik Fladby
+ * @author Ann Kristin Olsen
+ * @author Kenneth Sørensen
+ * @since December 2022
+ * @group AAREG Internal Application Agreement
+ */
 @IsTest
 public class AAREG_DeactivateAccessBatchTest {
+    /**
+     * Creates a deleted-employer account with two applications and agreements.
+     *
+     * @since December 2022
+     */
     @TestSetup
     static void makeData() {
         Account account = AAREG_TestDataFactory.getDeletedAccount();
@@ -19,6 +33,11 @@ public class AAREG_DeactivateAccessBatchTest {
         insert agreement2;
     }
 
+    /**
+     * The batch should deactivate agreements and create inquiries and tasks for deleted-employer accounts.
+     *
+     * @since December 2022
+     */
     @IsTest
     static void testBatch() {
         Account account = [
@@ -65,6 +84,11 @@ public class AAREG_DeactivateAccessBatchTest {
         }
     }
 
+    /**
+     * The batch should be schedulable via a cron expression.
+     *
+     * @since December 2022
+     */
     @IsTest
     static void schedulableTest() {
         String cronExp = '0 0 0 3 9 ? *';
@@ -78,6 +102,11 @@ public class AAREG_DeactivateAccessBatchTest {
         System.assert(jobId != null, 'Job ID should not be null after scheduling the batch.');
     }
 
+    /**
+     * execute should handle a forced exception without propagating it.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void execute_handles_exception_path() {
         List<Agreement__c> agreements = [

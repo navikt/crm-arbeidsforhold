@@ -1,6 +1,19 @@
+/**
+ * Test class for AAREG_MyThreadsController.
+ *
+ * @author Ann Kristin Olsen
+ * @author Kenneth Sørensen
+ * @since July 2026
+ * @group AAREG DIALOG
+ */
 @IsTest
 public class AAREG_MyThreadsControllerTest {
     static final String STRING_CONST = 'Test Thread yes';
+    /**
+     * getUsersThreads should return a list of threads for the user's account.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void getUsersThreads() {
         User usr;
@@ -41,6 +54,11 @@ public class AAREG_MyThreadsControllerTest {
         System.assertNotEquals(null, userThreads, 'Controller should return a list.');
     }
 
+    /**
+     * getUsersThreads should return an empty list when the user has no threads.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void getUsersThreadsNone() {
         User usr;
@@ -66,6 +84,11 @@ public class AAREG_MyThreadsControllerTest {
         System.assertEquals(true, userThreads.isEmpty(), 'User has 0 threads');
     }
 
+    /**
+     * getUsersThreads should return an empty list when the user's organization is blank.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void blankOrganization() {
         User usr;
@@ -107,6 +130,11 @@ public class AAREG_MyThreadsControllerTest {
         System.assertNotEquals(null, userThreads, 'Controller should return a list.');
     }
 
+    /**
+     * getUsersThreads should return an empty list when called with a blank user Id.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void blankUserId() {
         List<Thread__c> userThreads;
@@ -118,6 +146,11 @@ public class AAREG_MyThreadsControllerTest {
         System.assertEquals(0, userThreads.size(), 'Empty userId returns empty list.');
     }
 
+    /**
+     * getUsersThreads should return an empty list when called with a null user Id.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void nullUserId() {
         List<Thread__c> userThreads;
@@ -129,6 +162,11 @@ public class AAREG_MyThreadsControllerTest {
         System.assertEquals(0, userThreads.size(), 'Null userId returns empty list.');
     }
 
+    /**
+     * getUsersThreads should return an empty list when the user has no matching account.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void noMatchingAccount() {
         User usr;
@@ -152,6 +190,11 @@ public class AAREG_MyThreadsControllerTest {
         System.assertEquals(0, userThreads.size(), 'No matching account returns empty list.');
     }
 
+    /**
+     * getUsersThreads should handle an unresolvable user Id safely.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void invalidUserId_returnsEmptyList() {
         List<Thread__c> userThreads;
@@ -169,6 +212,11 @@ public class AAREG_MyThreadsControllerTest {
         System.assert(handledException || userThreads.size() == 0, 'Unknown user id should be handled safely.');
     }
 
+    /**
+     * getUsersThreads should return the user's threads for their last used organization (happy path).
+     *
+     * @since July 2026
+     */
     @IsTest
     static void happyPath_returns_threads_for_last_used_org() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();
@@ -210,6 +258,11 @@ public class AAREG_MyThreadsControllerTest {
         );
     }
 
+    /**
+     * getUsersThreads should return an empty list when LastUsedOrganization__c is blank.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void blankLastUsedOrganization_returnsEmptyList() {
         User usr;

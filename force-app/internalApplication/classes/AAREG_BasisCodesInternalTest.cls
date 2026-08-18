@@ -1,5 +1,17 @@
+/**
+ * Test class for AAREG_BasisCodesInternal wrapper.
+ *
+ * @author Ann Kristin Olsen
+ * @since July 2026
+ * @group AAREG Internal Application
+ */
 @IsTest
 public class AAREG_BasisCodesInternalTest {
+    /**
+     * AAREG_BasisCodesInternal wrapper properties should be settable and readable.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void wrapper_properties_are_settable() {
         AAREG_BasisCodesInternal w = new AAREG_BasisCodesInternal();

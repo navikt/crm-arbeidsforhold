@@ -1,8 +1,17 @@
+/**
+ * Retrieves an internal application's details, basis codes, and related contacts
+ * for the internal application LWC.
+ *
+ * @author Ann Kristin Olsen
+ * @author Kenneth Sørensen
+ * @since November 2025
+ * @group AAREG Internal Application
+ */
 public with sharing class AAREG_ApplicationInternalController {
-    /*
-     * wrapperclass
-     **/
-
+    /**
+     * Wrapper combining an application's details, basis codes, and related
+     * contacts for a single LWC response.
+     */
     public class ApplicationWrapper {
         @AuraEnabled
         public List<AAREG_ApplicationInternal> application { get; set; }
@@ -11,9 +20,11 @@ public with sharing class AAREG_ApplicationInternalController {
         @AuraEnabled
         public List<AAREG_RelatedContactInternal> relatedContacts { get; set; }
 
-        /*
-         * Constructor
-         **/
+        /**
+         * @param application The application details.
+         * @param basisCodes The application's basis codes.
+         * @param relatedContacts The application's related contacts.
+         */
         public ApplicationWrapper(
             List<AAREG_ApplicationInternal> application,
             List<AAREG_BasisCodesInternal> basisCodes,
@@ -25,6 +36,13 @@ public with sharing class AAREG_ApplicationInternalController {
         }
     }
 
+    /**
+     * Translates an application basis code's organization type to its Norwegian
+     * label. Visibility modified for testing purposes.
+     *
+     * @param orgType The English organization type value.
+     * @return The Norwegian label, or the original value if it is not recognized.
+     */
     @TestVisible
     private static String translateOrganizationType(String orgType) {
         if (orgType == 'County') {
@@ -44,6 +62,14 @@ public with sharing class AAREG_ApplicationInternalController {
         }
     }
 
+    /**
+     * Retrieves the application, its basis codes, and its related contacts for the
+     * internal application LWC.
+     *
+     * @param recordId Id of the Application__c record.
+     * @return An ApplicationWrapper with the application, basis codes, and related
+     * contacts for the record.
+     */
     @AuraEnabled
     public static ApplicationWrapper getApplicationDetails(Id recordId) {
         List<AAREG_ApplicationInternal> applicationWrapperTempList = new List<AAREG_ApplicationInternal>();

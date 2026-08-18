@@ -1,5 +1,17 @@
+/**
+ * Test class for AAREG_MyAgreementsController coverage of contact and agreement lifecycle paths.
+ *
+ * @author Ann Kristin Olsen
+ * @since July 2026
+ * @group AAREG External Agreement
+ */
 @IsTest
 private class AAREG_MyAgreementsControllerCoverageTest {
+    /**
+     * Creates an active and an under-review agreement, plus a standard test user.
+     *
+     * @since July 2026
+     */
     @TestSetup
     static void setupData() {
         Account account = AAREG_TestDataFactory.getAccountCounty();
@@ -23,6 +35,11 @@ private class AAREG_MyAgreementsControllerCoverageTest {
         insert usr;
     }
 
+    /**
+     * getUsersAgreements should map status values to their display labels.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void getUsersAgreements_maps_status_labels() {
         User usr = [SELECT Id FROM User WHERE LastName = 'Doe' LIMIT 1];
@@ -44,6 +61,11 @@ private class AAREG_MyAgreementsControllerCoverageTest {
         }
     }
 
+    /**
+     * getUsersAgreements should return an empty list for a malformed user Id.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void getUsersAgreements_handles_malformed_id() {
         Test.startTest();
@@ -54,6 +76,11 @@ private class AAREG_MyAgreementsControllerCoverageTest {
         System.assertEquals(0, agreements.size(), 'Malformed user id should be handled and return empty list.');
     }
 
+    /**
+     * saveAgreementContacts should return the existing contacts unchanged for an empty input list.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void saveAgreementContacts_empty_input_returns_existing_contacts() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c WHERE Status__c = 'Active' LIMIT 1];
@@ -68,10 +95,19 @@ private class AAREG_MyAgreementsControllerCoverageTest {
 
         System.assertNotEquals(null, result, 'Early-return path should always return a list.');
         if (!result.isEmpty()) {
-            System.assertEquals('Existing Contact', result[0].Name, 'Returned contact should match seeded data when available.');
+            System.assertEquals(
+                'Existing Contact',
+                result[0].Name,
+                'Returned contact should match seeded data when available.'
+            );
         }
     }
 
+    /**
+     * Covers save, add, remove, unlink, and delete contact operations on an agreement.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void contact_operations_cover_main_paths() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c WHERE Status__c = 'Active' LIMIT 1];
@@ -153,6 +189,11 @@ private class AAREG_MyAgreementsControllerCoverageTest {
         }
     }
 
+    /**
+     * endAgreement should set the agreement status to Deactivated.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void endAgreement_sets_deactivated_status() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c WHERE Status__c = 'Active' LIMIT 1];
@@ -172,6 +213,11 @@ private class AAREG_MyAgreementsControllerCoverageTest {
         }
     }
 
+    /**
+     * All controller methods should throw a handled exception when required Ids are null.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void validation_paths_throw_handled_exceptions() {
         Boolean saveThrows = false;

@@ -1,5 +1,17 @@
+/**
+ * Test class for AAREG_checkObjectTypeNameche.
+ *
+ * @author Ann Kristin Olsen
+ * @since July 2026
+ * @group AAREG Utility
+ */
 @IsTest
 public class AAREG_checkObjectTypeNamecheTest {
+    /**
+     * checkObjectTypeName should copy the account and owner from the related application onto the thread.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void checkObjectTypeName_handles_non_empty_values() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();

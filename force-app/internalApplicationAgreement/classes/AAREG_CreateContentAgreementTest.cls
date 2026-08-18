@@ -1,14 +1,15 @@
 /**
  * @description Test class for AAREG_createContentVersionForAgreement invocable method
  * Tests content file duplication from Application to Agreement records
- * @author AAREG Team
- * @version 66
+ * @author Ann Kristin Olsen
+ * @since July 2026
  * @group Internal Application Agreement
  */
 @IsTest
 public class AAREG_CreateContentAgreementTest {
     /**
      * @description Tests successful file creation from application to agreement
+     * @since July 2026
      */
     @IsTest
     static void testCreateFileSuccessfully() {
@@ -50,6 +51,7 @@ public class AAREG_CreateContentAgreementTest {
 
     /**
      * @description Tests handling when application has no content
+     * @since July 2026
      */
     @IsTest
     static void testCreateFileWhenApplicationHasNoContent() {
@@ -82,6 +84,7 @@ public class AAREG_CreateContentAgreementTest {
 
     /**
      * @description Tests handling when agreement has no application
+     * @since July 2026
      */
     @IsTest
     static void testCreateFileWhenAgreementHasNoApplication() {
@@ -109,6 +112,7 @@ public class AAREG_CreateContentAgreementTest {
 
     /**
      * @description Tests FlowInput instantiation
+     * @since July 2026
      */
     @IsTest
     static void testFlowInputInstantiation() {
@@ -123,6 +127,7 @@ public class AAREG_CreateContentAgreementTest {
 
     /**
      * @description Tests method handles multiple inputs
+     * @since July 2026
      */
     @IsTest
     static void testCreateFileWithMultipleInputs() {
@@ -159,6 +164,7 @@ public class AAREG_CreateContentAgreementTest {
 
     /**
      * @description Tests that content version data is properly preserved
+     * @since July 2026
      */
     @IsTest
     static void testFileDataPreservation() {
@@ -199,6 +205,7 @@ public class AAREG_CreateContentAgreementTest {
 
     /**
      * @description Tests file extension handling
+     * @since July 2026
      */
     @IsTest
     static void testFileExtensionPreservation() {
