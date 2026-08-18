@@ -7,6 +7,10 @@
         <translation>Ferdigbehandlet</translation>
     </picklistValues>
     <picklistValues>
+        <masterLabel>Draft</masterLabel>
+        <translation>Utkast</translation>
+    </picklistValues>
+    <picklistValues>
         <masterLabel>In progress</masterLabel>
         <translation>Under behandling</translation>
     </picklistValues>
