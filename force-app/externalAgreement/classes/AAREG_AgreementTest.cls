@@ -1,14 +1,15 @@
 /**
  * @description Test class for AAREG_Agreement wrapper class
  * Tests data encapsulation and property access for agreement LWC interface
- * @author AAREG Team
- * @version 66
+ * @author Ann Kristin Olsen
+ * @since July 2026
  * @group External Agreement
  */
 @IsTest
 public class AAREG_AgreementTest {
     /**
      * @description Tests basic instantiation of agreement wrapper
+     * @since July 2026
      */
     @IsTest
     static void testAgreementInstantiation() {
@@ -21,6 +22,7 @@ public class AAREG_AgreementTest {
 
     /**
      * @description Tests setting and getting agreement core properties
+     * @since July 2026
      */
     @IsTest
     static void testAgreementCoreProperties() {
@@ -40,6 +42,7 @@ public class AAREG_AgreementTest {
 
     /**
      * @description Tests setting and getting access permission properties
+     * @since July 2026
      */
     @IsTest
     static void testAgreementAccessProperties() {
@@ -57,6 +60,7 @@ public class AAREG_AgreementTest {
 
     /**
      * @description Tests setting and getting consumer properties
+     * @since July 2026
      */
     @IsTest
     static void testAgreementConsumerProperties() {
@@ -84,6 +88,7 @@ public class AAREG_AgreementTest {
 
     /**
      * @description Tests setting and getting data processor properties
+     * @since July 2026
      */
     @IsTest
     static void testAgreementDataProcessorProperties() {
@@ -109,6 +114,7 @@ public class AAREG_AgreementTest {
 
     /**
      * @description Tests multiple agreement instances don't interfere
+     * @since July 2026
      */
     @IsTest
     static void testMultipleAgreementInstances() {
@@ -130,6 +136,7 @@ public class AAREG_AgreementTest {
 
     /**
      * @description Tests null values handling
+     * @since July 2026
      */
     @IsTest
     static void testAgreementNullValues() {
@@ -145,6 +152,7 @@ public class AAREG_AgreementTest {
 
     /**
      * @description Tests property defaults after instantiation
+     * @since July 2026
      */
     @IsTest
     static void testAgreementDefaultValues() {

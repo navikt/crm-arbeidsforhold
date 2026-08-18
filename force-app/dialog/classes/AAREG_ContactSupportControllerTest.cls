@@ -4,7 +4,9 @@
  * threads and inquiries, as well as the handling of file attachments and the association of threads with the correct records.
  * <br><br>
  *
- * @since Februar 2026
+ * @author Ann Kristin Olsen
+ * @author Kenneth Sørensen
+ * @since Juli 2026
  * @group AAREG DIALOG
  */
 @IsTest
@@ -13,6 +15,7 @@ public class AAREG_ContactSupportControllerTest {
      * Creates and inserts a standard test user used by controller tests.
      *
      * @return User Inserted user record for runAs contexts.
+     * @since July 2026
      */
     private static User createSupportUser() {
         User user;
@@ -30,6 +33,8 @@ public class AAREG_ContactSupportControllerTest {
 
     /**
      * Ensures the utility singleton has a valid Thread__c record type Id in test context.
+     *
+     * @since July 2026
      */
     private static void ensureThreadRecordTypeInUtility() {
         Id threadRtId = [
@@ -48,6 +53,8 @@ public class AAREG_ContactSupportControllerTest {
     /** Test method to verify the creation of a thread for a given application and the correct association of
      * the thread with the application. It also checks that the initial message is created and that the
      * thread has the correct number of unread messages.
+     *
+     * @since July 2026
      */
     @IsTest
     static void whenApplicationIsProvided_ThenThreadIsCreatedForApplication() {
@@ -81,6 +88,8 @@ public class AAREG_ContactSupportControllerTest {
     /** Test method to verify that a thread is created with the correct subject and description
      * when a new inquiry is created without file attachments. It checks that the thread is associated with the
      * created inquiry and that the initial message content matches the inquiry description.
+     *
+     * @since July 2026
      */
     @IsTest
     static void whenApplicationIsProvided_ThenThreadIsCreatedWithCRMAccount() {
@@ -117,7 +126,10 @@ public class AAREG_ContactSupportControllerTest {
 
     /** Test method to verify that the getThreadRecordTypeId method in the AAREG_Utility class returns a valid
      * RecordType Id when the custom metadata is properly set up.
-     * It mocks the custom metadata to return a specific RecordType name and checks that the returned Id is not null. */
+     * It mocks the custom metadata to return a specific RecordType name and checks that the returned Id is not null.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void WhenMethodcheckObjectTypeNameche_CalledWithEmptyList_ThenNoExceptionThrown() {
         // Call the method with an empty list
@@ -131,6 +143,8 @@ public class AAREG_ContactSupportControllerTest {
 
     /**
      * initDraftRecord should create a draft Inquiry__c and return its Id (direct happy path).
+     *
+     * @since July 2026
      */
     @IsTest
     static void when_initDraftRecordCalled_ThenSuccess() {
@@ -157,6 +171,8 @@ public class AAREG_ContactSupportControllerTest {
 
     /**
      * createFinalInquiry should map fields from metadata JSON and update the same record.
+     *
+     * @since July 2026
      */
     @IsTest
     static void when_createFinalInquiryCalled_ThenUpdatesFields() {
@@ -205,6 +221,8 @@ public class AAREG_ContactSupportControllerTest {
 
     /**
      * Test null guard for createFinalInquiry - should throw AuraHandledException when draftId is null.
+     *
+     * @since July 2026
      */
     @IsTest
     static void when_createFinalInquiryCalled_WithNullDraftId_ThenThrowsException() {
@@ -223,6 +241,8 @@ public class AAREG_ContactSupportControllerTest {
     /**
      * enrichUploadedFiles should create missing links and not duplicate existing ones.
      * Also covers early-return scenarios.
+     *
+     * @since July 2026
      */
     @IsTest
     static void test_enrichUploadedFiles_addsMissingLinks_and_skipsExisting() {
@@ -264,6 +284,8 @@ public class AAREG_ContactSupportControllerTest {
 
     /**
      * deleteFiles should delete existing documents and ignore null inputs.
+     *
+     * @since July 2026
      */
     @IsTest
     static void test_deleteFiles_deletesExisting_and_earlyReturn() {
@@ -295,6 +317,8 @@ public class AAREG_ContactSupportControllerTest {
      * thread has the correct number of unread messages and that it is related to the created inquiry.
      * This test ensures that the core functionality of creating a thread for an inquiry works as expected when no files are
      * involved, which is important for backward compatibility and for users who may not need to attach files to their inquiries.
+     *
+     * @since July 2026
      */
     @IsTest
     static void When_NewInquiryIsCreatedWithoutFiles_ThenThreadIsCreated() {
@@ -320,6 +344,8 @@ public class AAREG_ContactSupportControllerTest {
      * It checks that a ContentDocumentLink record is created linking the uploaded file to the associatedinquiry.
      * This test ensures that the file attachment functionality works as expected and that users can successfully attach files to their inquiries,
      * which is crucial for providing necessary documentation or evidence related to their support requests.
+     *
+     * @since July 2026
      */
     @IsTest
     static void When_NewInquiryIsCreatedWithFile_ThenFileIsLinkedToInquiry() {
@@ -353,6 +379,8 @@ public class AAREG_ContactSupportControllerTest {
      * It checks that a ContentDocumentLink record is created linking the uploaded file to the associatedinquiry.
      * This test ensures that the file attachment functionality works as expected and that users can successfully attach files to their inquiries,
      * which is crucial for providing necessary documentation or evidence related to their support requests.
+     *
+     * @since July 2026
      */
     @IsTest
     static void When_NewInquiryIsCreatedWithMultipleFiles_ThenFilesAreLinkedToInquiry() {
@@ -390,6 +418,8 @@ public class AAREG_ContactSupportControllerTest {
 
     /**
      * updateDraftRecord should map metadata fields and persist updates on an existing draft.
+     *
+     * @since July 2026
      */
     @IsTest
     static void when_updateDraftRecordCalled_ThenUpdatesFields() {
@@ -436,6 +466,8 @@ public class AAREG_ContactSupportControllerTest {
 
     /**
      * updateDraftRecord should throw when called without a draft Id.
+     *
+     * @since July 2026
      */
     @IsTest
     static void when_updateDraftRecordCalled_WithNullDraftId_ThenThrowsException() {
@@ -451,6 +483,8 @@ public class AAREG_ContactSupportControllerTest {
 
     /**
      * createNewInquiry should throw when inquiry payload is null.
+     *
+     * @since July 2026
      */
     @IsTest
     static void when_createNewInquiryCalled_WithNullInquiry_ThenThrowsException() {
@@ -466,6 +500,8 @@ public class AAREG_ContactSupportControllerTest {
 
     /**
      * Covers non-runAs happy paths to avoid permission-related early exits in restricted contexts.
+     *
+     * @since July 2026
      */
     @IsTest
     static void happyPath_withoutRunAs_covers_more_branches() {
@@ -523,6 +559,8 @@ public class AAREG_ContactSupportControllerTest {
 
     /**
      * Covers handled error paths that are otherwise difficult to reach in org-specific contexts.
+     *
+     * @since July 2026
      */
     @IsTest
     static void handledErrorPaths_cover_exception_branches() {
@@ -584,6 +622,11 @@ public class AAREG_ContactSupportControllerTest {
         System.assert(threadFailed, 'createThreadForApplication should fail for malformed related record id.');
     }
 
+    /**
+     * Covers applyInquiryMetadata field mapping and validateSaveResult's null and forced-failure branches.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void helperMethods_applyMetadata_and_validateSaveResult_branches() {
         Inquiry__c rec = new Inquiry__c();
@@ -624,6 +667,11 @@ public class AAREG_ContactSupportControllerTest {
         System.assertEquals(true, forcedFailureThrown, 'Forced failure branch should throw handled exception.');
     }
 
+    /**
+     * Covers direct file generation, document linking, and empty-input handling.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void helperMethods_fileGeneration_and_linking() {
         Inquiry__c inquiry = AAREG_TestDataFactory.getInquiry();
@@ -642,6 +690,11 @@ public class AAREG_ContactSupportControllerTest {
         System.assert(linkCount > 0, 'At least one file link should be present on the inquiry.');
     }
 
+    /**
+     * Covers the direct happy paths for update, finalize, and create-new-inquiry flows.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void directHappyPaths_cover_update_final_and_createNew() {
         ensureThreadRecordTypeInUtility();
@@ -699,6 +752,11 @@ public class AAREG_ContactSupportControllerTest {
         System.assertEquals(true, contactId == null || contactId != null, 'Call should execute without failure.');
     }
 
+    /**
+     * Forces each hooked exception flag and verifies the corresponding catch branch is exercised.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void forcedExceptionHooks_cover_catch_branches() {
         ensureThreadRecordTypeInUtility();
@@ -803,6 +861,11 @@ public class AAREG_ContactSupportControllerTest {
         System.assertNotEquals(null, reloaded.Id, 'Reload branch should return a persisted ContentVersion.');
     }
 
+    /**
+     * Covers the hooked skip/failure branches for update, finalize, create-new, delete, and thread/message creation.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testHookedCoverage_update_final_new_delete_and_thread_message_failures() {
         ensureThreadRecordTypeInUtility();
@@ -915,6 +978,11 @@ public class AAREG_ContactSupportControllerTest {
         System.assertEquals(true, msgFailThrown, 'Message save-result failure path should throw.');
     }
 
+    /**
+     * Covers initDraftRecord with a blank user Id and the null-metadata skip paths for update and finalize.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testInitDraftRecordAndNullMetadataSkipPaths() {
         Id draftId = null;
@@ -959,6 +1027,11 @@ public class AAREG_ContactSupportControllerTest {
         System.assertEquals(true, finalId == null || finalId == draftId, 'Final path should execute.');
     }
 
+    /**
+     * Covers createNewInquiry with a null file entry in the list, and the delete-files result-loop branch.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testCreateNewInquiryAndDeleteFilesLoopHookCoverage() {
         Inquiry__c inquiry = AAREG_TestDataFactory.getInquiry();
@@ -1001,6 +1074,11 @@ public class AAREG_ContactSupportControllerTest {
         System.assertEquals(true, deleteLoopThrown, 'Forced delete-result loop branch should throw.');
     }
 
+    /**
+     * Covers createThreadForApplication's forced-return, message-failure, and message-bypass branches.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testCreateThreadReturnAndMessageBranches() {
         ensureThreadRecordTypeInUtility();

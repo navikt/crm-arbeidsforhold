@@ -1,4 +1,23 @@
+/**
+ * Provides the community user's message threads for the Aa-registeret dialog UI.
+ *
+ * @author Ann Kristin Olsen
+ * @author Ashish Misra
+ * @since July 2026
+ * @group AAREG Dialog
+ */
 public with sharing class AAREG_MyThreadsController {
+    /**
+     * Retrieves the message threads for the account linked to the user's last-used
+     * organization, ordered by most recent message first. Result is cacheable
+     * (`cacheable=true`); the calling LWC must invoke `refreshApex()` to force a
+     * refresh after the underlying data changes.
+     *
+     * @param userId Id of the community User record. Returns an empty list if blank.
+     * @return The user's Thread__c records, or an empty list if the user, last-used
+     * organization, or matching account cannot be resolved.
+     * @throws AuraHandledException If retrieving the threads fails.
+     */
     @AuraEnabled(cacheable=true)
     public static List<Thread__c> getUsersThreads(String userId) {
         // Returner tom liste hvis bruker-ID ikke er oppgitt.

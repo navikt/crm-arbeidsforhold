@@ -1,3 +1,11 @@
+/**
+ * Test class for AAREG_ApplicationDecisionController.
+ *
+ * @author Ann Kristin Olsen
+ * @author Kenneth Sørensen
+ * @since January 2026
+ * @group AAREG Internal Application Decision
+ */
 @IsTest
 public class AAREG_ApplicationDecisionControllerTest {
     /**
@@ -7,6 +15,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              - To ApplicationBasisCode__c-poster
      *              - To Application_Decision__c-poster
      *              Brukes som grunnlag for testene som ikke oppretter egen data.
+     * @since January 2026
      */
 
     @TestSetup
@@ -35,6 +44,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @description Verifiserer at getApplicationDecision returnerer alle
      *              vedtaksposter knyttet til en gitt søknad.
      *              Forventer 2 vedtak basert på testdata fra @TestSetup.
+     * @since January 2026
      */
     @IsTest
     static void testGetApplicationDecision() {
@@ -63,6 +73,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              - Status settes til 'In progress'
      *              - To Application_Decision_Details__c-poster opprettes
      *              - API_Access__c kopieres korrekt fra basisCodes
+     * @since January 2026
      */
     @IsTest
     static void testCreateApplicationDecision() {
@@ -109,6 +120,7 @@ public class AAREG_ApplicationDecisionControllerTest {
 
     /**
      * @description Verifiserer at null som recordId fanges og kastet som exception.
+     * @since June 2026
      */
     @IsTest
     static void testCreateApplicationDecisionWithNullId() {
@@ -131,6 +143,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              - Riktig orgtype gjenspeiles i basisCodes
      *              - Decision details opprettes
      *              - Tilgangs-flagg (API_Access__c) kopieres korrekt
+     * @since January 2026
      */
     @IsTest
     static void testCreateState() {
@@ -178,6 +191,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              Verifiserer at switch-casen for Pension i
      *              assignLegalBasisAndPurpose treffes, og at decision details
      *              med korrekt tilgangs-flagg opprettes.
+     * @since January 2026
      */
     @IsTest
     static void testCreatePension() {
@@ -224,6 +238,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @description Tester opprettelse av vedtak for OrganizationType 'Municipality'.
      *              Verifiserer at switch-casen for Municipality treffes og at
      *              kommunens lovgrunnlag/formål kopieres til detaljpostene.
+     * @since January 2026
      */
     @IsTest
     static void testCreateMunicipality() {
@@ -274,6 +289,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              'Electricity Supervision' (EL-tilsyn).
      *              Verifiserer at switch-casen for EL-tilsyn treffes og at
      *              tilhørende lovgrunnlag/formål kopieres korrekt.
+     * @since July 2026
      */
     @IsTest
     static void testCreateElectricitySu() {
@@ -324,6 +340,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      *              Verifiserer at fritekstfeltene (OtherLegalBasis__c og
      *              OtherPurpose__c) brukes når orgtype = 'Other', siden
      *              switch-statementen ikke har en matchende case.
+     * @since January 2026
      */
     @IsTest
     static void testCreateOther() {
@@ -403,6 +420,7 @@ public class AAREG_ApplicationDecisionControllerTest {
     /**
      * @description Verifiserer at createApplicationDecision lykkes for County-data
      *              og faktisk oppretter vedtaksdetaljer.
+     * @since July 2026
      */
     @IsTest
     static void testCreateCountyWithDetails() {
@@ -447,6 +465,7 @@ public class AAREG_ApplicationDecisionControllerTest {
 
     /**
      * @description Covers empty-list paths when an application has no decisions and no basis codes.
+     * @since July 2026
      */
     @IsTest
     static void testGetApplicationDecisionAndCreateWithoutBasisCodes() {
@@ -487,6 +506,11 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual(0, decisionDetails.size(), 'No decision details should be created without basis codes.');
     }
 
+    /**
+     * getApplicationDecision should map an injected Application_Decision__c record, including process status.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testGetApplicationDecisionWithInjectedRecords() {
         Application_Decision__c decision = [
@@ -511,6 +535,11 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.areEqual('In progress', result[0].statusProsess);
     }
 
+    /**
+     * createApplicationDecision should throw when the decision is not createable.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testCreateApplicationDecision_forceCreateDenied() {
         Application__c app = [SELECT Id FROM Application__c LIMIT 1];
@@ -529,6 +558,11 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.isTrue(thrown, 'Expected create denied path to throw AuraHandledException.');
     }
 
+    /**
+     * createApplicationDecision should throw when the decision details are not createable.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testCreateApplicationDecision_forceDetailCreateDenied() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();
@@ -563,6 +597,11 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.isTrue(thrown, 'Expected detail create denied path to throw AuraHandledException.');
     }
 
+    /**
+     * getApplicationDecision should return an empty list when the decision is not readable.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testForceReadDeniedPaths() {
         Application__c app = [SELECT Id FROM Application__c LIMIT 1];
@@ -593,6 +632,11 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.isTrue(basisReadThrown, 'Basis object read denied path should throw.');
     }
 
+    /**
+     * Covers decision detail field mapping and the forced exception branches.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testDecisionDetailMappingAndForcedExceptions() {
         ApplicationBasisCode__c state = new ApplicationBasisCode__c(
@@ -690,6 +734,11 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.isTrue(assignExceptionThrown, 'Expected forced assignLegalBasis exception path.');
     }
 
+    /**
+     * Covers the forced describe-denied branches for reading decision fields.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testForceDescribeDeniedBranches() {
         Application__c app = [SELECT Id FROM Application__c LIMIT 1];
@@ -754,6 +803,11 @@ public class AAREG_ApplicationDecisionControllerTest {
         System.Assert.isTrue(basisReadDescribeThrown, 'Basis read describe-denied branch should throw.');
     }
 
+    /**
+     * createApplicationDecision should return the new decision Id on the success path.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testCreateApplicationDecisionSuccessPathReturnsId() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();

@@ -1,12 +1,30 @@
-@SuppressWarnings('PMD')
+/**
+ * Test class for AAREG_ApplicationController.
+ *
+ * @author Jordan Mathews
+ * @author Ann Kristin Olsen
+ * @author Kenneth Sørensen
+ * @since May 2021
+ * @group AAREG External Application
+ */
 @IsTest
 private class AAREG_ApplicationControllerTest {
+    /**
+     * Creates a county account for use across the controller tests.
+     *
+     * @since May 2021
+     */
     @TestSetup
     private static void makeData() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
     }
 
+    /**
+     * getAccountNameByOrgNumber should return the account name for a known organization number.
+     *
+     * @since May 2021
+     */
     @IsTest
     private static void testGetAccountNameByOrgNumber() {
         Account acct = [SELECT Id, INT_OrganizationNumber__c FROM Account LIMIT 1];
@@ -18,6 +36,11 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.isNotNull(accountName, 'Account name should not be null');
     }
 
+    /**
+     * processApplication should create a new application with status New.
+     *
+     * @since May 2021
+     */
     @IsTest
     private static void testProcessNewApplication() {
         Account account = [SELECT Id FROM Account LIMIT 1];
@@ -58,6 +81,11 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.areEqual('New', result[0].Status__c, 'Status should be New');
     }
 
+    /**
+     * processApplication should upsert an existing application and reset status to New.
+     *
+     * @since July 2026
+     */
     @IsTest
     private static void testProcessAdditionalInformationApplication() {
         Account account = [SELECT Id FROM Account LIMIT 1];
@@ -92,6 +120,11 @@ private class AAREG_ApplicationControllerTest {
         );
     }
 
+    /**
+     * getLastUsedOrganizationInformation should return the account for the user's last used organization.
+     *
+     * @since May 2021
+     */
     @IsTest
     private static void testGetLastUsedOrganizationInformation() {
         Profile profile = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
@@ -118,6 +151,11 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.isNotNull(lastUsedOrganization, 'Account should be returned');
     }
 
+    /**
+     * getDraftApplication should return the application together with its basis codes and related contacts.
+     *
+     * @since July 2026
+     */
     @IsTest
     private static void testGetDraftApplication() {
         Account account = [
@@ -150,6 +188,11 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.areEqual(2, draft.contacts.size(), '2 draft related contacts retrieved');
     }
 
+    /**
+     * deleteDraftRecord should delete the given application record.
+     *
+     * @since July 2026
+     */
     @IsTest
     private static void testDeleteDraftRecord() {
         Account account = [
@@ -168,6 +211,11 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.areEqual(0, applications.size(), 'No applications. Successful record deletion.');
     }
 
+    /**
+     * saveAsDraft should persist the application with status Draft.
+     *
+     * @since July 2026
+     */
     @IsTest
     private static void testSaveAsDraft() {
         Account account = [SELECT Id FROM Account LIMIT 1];
@@ -195,6 +243,11 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.areEqual('Draft', processedApplication.Status__c, 'Assert correct application status');
     }
 
+    /**
+     * getDraftApplication should return the linked access request when present on the application.
+     *
+     * @since August 2026
+     */
     @IsTest
     private static void testGetDraftApplicationWithAccessRequest() {
         Account account = [
@@ -219,6 +272,11 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.areEqual(ar.Id, draft.accessRequest.Id, 'Expected linked access request id.');
     }
 
+    /**
+     * saveAsDraft should reuse the existing access request when updating an application.
+     *
+     * @since August 2026
+     */
     @IsTest
     private static void testUpdateExistingApplicationReusesAccessRequest() {
         Account account = [
@@ -265,6 +323,11 @@ private class AAREG_ApplicationControllerTest {
         AAREG_ApplicationController.forceSanitizeAllowedBranch = false;
     }
 
+    /**
+     * processApplication should still create the application when the forced sanitize-allowed branch is set.
+     *
+     * @since August 2026
+     */
     @IsTest
     private static void testProcessApplicationForceSanitizeAllowedBranch() {
         Account account = [SELECT Id FROM Account LIMIT 1];
@@ -288,6 +351,11 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.isNotNull(appId, 'Application should be created when forcing sanitize allowed branch.');
     }
 
+    /**
+     * processApplication should reuse the existing access request when updating an existing application.
+     *
+     * @since August 2026
+     */
     @IsTest
     private static void testProcessApplicationExistingRecordReusesAccessRequest() {
         Account account = [
@@ -336,12 +404,22 @@ private class AAREG_ApplicationControllerTest {
         );
     }
 
+    /**
+     * sanitizeApplicationForDmlForTest should return null for a null input.
+     *
+     * @since August 2026
+     */
     @IsTest
     private static void testSanitizeApplicationForDmlNullInput() {
         Application__c sanitized = AAREG_ApplicationController.sanitizeApplicationForDmlForTest(null);
         System.Assert.areEqual(null, sanitized, 'Sanitize should return null when input is null.');
     }
 
+    /**
+     * sanitizeApplicationForDmlForTest should skip populated fields when the forced unknown-field branch is set.
+     *
+     * @since August 2026
+     */
     @IsTest
     private static void testSanitizeApplicationForDmlForcedUnknownFieldBranch() {
         Application__c application = new Application__c(Status__c = 'Draft', IsConfirmationEmailSent__c = true);

@@ -1,5 +1,17 @@
+/**
+ * Test class for DecisionController.
+ *
+ * @author Ann Kristin Olsen
+ * @since July 2026
+ * @group AAREG External Application Decision
+ */
 @IsTest
 private class DecisionControllerTest {
+    /**
+     * Creates a county account and application with a decision template.
+     *
+     * @since July 2026
+     */
     @TestSetup
     static void setup() {
         Account account = AAREG_TestDataFactory.getAccountCounty();
@@ -9,6 +21,11 @@ private class DecisionControllerTest {
         insert application;
     }
 
+    /**
+     * DecisionController should load the application id from the page parameter when the template has no HTML tags.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void testWithoutHTMLTags() {
         Application__c application = [SELECT Id FROM Application__c];
@@ -27,6 +44,11 @@ private class DecisionControllerTest {
         System.assertEquals(applicationId, ApexPages.currentPage().getParameters().get('id'));
     }
 
+    /**
+     * DecisionController should load the application id from the page parameter when the template contains HTML tags.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void testWithHTMLTags() {
         Application__c application = [SELECT Id, AA_CasehandlerDecisionTemplate__c FROM Application__c];
@@ -47,6 +69,11 @@ private class DecisionControllerTest {
         System.assertEquals(applicationId, ApexPages.currentPage().getParameters().get('id'));
     }
 
+    /**
+     * DecisionController should leave application null when no id page parameter is provided.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void testWithoutIdParameter() {
         Test.setCurrentPage(Page.AAREG_decisionPDF);

@@ -1,14 +1,15 @@
 /**
  * @description Test class for AAREG_ApplicationDecision wrapper class
  * Tests data encapsulation and property access for application decision LWC interface
- * @author AAREG Team
- * @version 66
+ * @author Ann Kristin Olsen
+ * @since July 2026
  * @group Internal Application Decision
  */
 @IsTest
 public class AAREG_ApplicationDecisionTest {
     /**
      * @description Tests default constructor instantiation
+     * @since July 2026
      */
     @IsTest
     static void testDecisionInstantiation() {
@@ -21,6 +22,7 @@ public class AAREG_ApplicationDecisionTest {
 
     /**
      * @description Tests setting and getting decision core properties
+     * @since July 2026
      */
     @IsTest
     static void testDecisionCoreProperties() {
@@ -42,6 +44,7 @@ public class AAREG_ApplicationDecisionTest {
 
     /**
      * @description Tests setting and getting decision text properties
+     * @since July 2026
      */
     @IsTest
     static void testDecisionTextProperties() {
@@ -67,6 +70,7 @@ public class AAREG_ApplicationDecisionTest {
 
     /**
      * @description Tests setting and getting date properties
+     * @since July 2026
      */
     @IsTest
     static void testDecisionDateProperties() {
@@ -83,6 +87,7 @@ public class AAREG_ApplicationDecisionTest {
 
     /**
      * @description Tests setting and getting numeric properties
+     * @since July 2026
      */
     @IsTest
     static void testDecisionNumericProperties() {
@@ -96,6 +101,7 @@ public class AAREG_ApplicationDecisionTest {
 
     /**
      * @description Tests multiple decision instances independence
+     * @since July 2026
      */
     @IsTest
     static void testMultipleDecisionInstances() {
@@ -117,6 +123,7 @@ public class AAREG_ApplicationDecisionTest {
 
     /**
      * @description Tests null values handling
+     * @since July 2026
      */
     @IsTest
     static void testDecisionNullValues() {
@@ -132,6 +139,7 @@ public class AAREG_ApplicationDecisionTest {
 
     /**
      * @description Tests all properties can be set together
+     * @since July 2026
      */
     @IsTest
     static void testDecisionCompleteDataSet() {
@@ -159,6 +167,7 @@ public class AAREG_ApplicationDecisionTest {
 
     /**
      * @description Tests property modification after initial setting
+     * @since July 2026
      */
     @IsTest
     static void testDecisionPropertyModification() {

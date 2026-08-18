@@ -1,12 +1,17 @@
 /**
  * @description Test class for AAREG_checkObjectTypeNameche flow invocable action
  * Tests object type name checking and thread updates
- * @author AAREG Team
- * @version 66
+ * @author Ann Kristin Olsen
+ * @since July 2026
  * @group Utility Flow Actions
  */
 @IsTest
 public class AAREG_CheckObjectTypeNamingTest {
+    /**
+     * Creates a county account, application, and a thread linked to the application.
+     *
+     * @since July 2026
+     */
     @TestSetup
     static void setupTestData() {
         // Create test account
@@ -25,6 +30,7 @@ public class AAREG_CheckObjectTypeNamingTest {
 
     /**
      * @description Test checkObjectTypeName with valid Application ID
+     * @since July 2026
      */
     @IsTest
     static void testCheckObjectTypeNameWithValidApplicationId() {
@@ -45,6 +51,7 @@ public class AAREG_CheckObjectTypeNamingTest {
 
     /**
      * @description Test checkObjectTypeName with empty list
+     * @since July 2026
      */
     @IsTest
     static void testCheckObjectTypeNameWithEmptyList() {
@@ -62,6 +69,7 @@ public class AAREG_CheckObjectTypeNamingTest {
 
     /**
      * @description Test checkObjectTypeName with null list
+     * @since July 2026
      */
     @IsTest
     static void testCheckObjectTypeNameWithNullList() {
@@ -78,6 +86,7 @@ public class AAREG_CheckObjectTypeNamingTest {
 
     /**
      * @description Test that checkObjectTypeName processes the first ID in list
+     * @since July 2026
      */
     @IsTest
     static void testCheckObjectTypeNameProcessesFirstId() {
@@ -98,6 +107,7 @@ public class AAREG_CheckObjectTypeNamingTest {
 
     /**
      * @description Test checkObjectTypeName retrieves correct object type
+     * @since July 2026
      */
     @IsTest
     static void testObjectTypeDetermination() {

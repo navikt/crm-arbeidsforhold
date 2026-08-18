@@ -4,44 +4,48 @@
  *
  * This class enforces sharing rules to ensure that the operations respect
  * the user's access permissions.
+ *
+ * @author Jordan Mathews
+ * @author Ann Kristin Olsen
+ * @author Erik Fladby
+ * @since August 2021
+ * @group AAREG External Application
  */
 public with sharing class AAREG_MyApplicationsController {
+    /** Test-only toggle to simulate insufficient Application__c access in getApplications. */
     @TestVisible
     static Boolean forceNoApplicationAccess = false;
+    /** Test-only toggle to simulate an unexpected error in getDecisionPDF. */
     @TestVisible
     static Boolean forceUnexpectedGetDecisionPdfError = false;
 
-    @AuraEnabled(cacheable=true)
     /**
-     * Retrieves a list of applications associated with the specified user.
+     * Retrieves a list of applications associated with the specified user. Result is
+     * cacheable (`cacheable=true`); the calling LWC must invoke `refreshApex()` to
+     * force a refresh after the underlying data changes.
      *
      * @param userId The ID of the user whose applications are to be retrieved.
      * @return A list of Application__c records associated with the given user.
      */
+    @AuraEnabled(cacheable=true)
     public static List<Application__c> getUsersApplications(String userId) {
         String lastUsedOrganization = [SELECT Id, lastUsedOrganization__c FROM User WHERE ID = :userid]
         ?.LastUsedOrganization__c;
 
         if (lastUsedOrganization != null) {
-            /**
-             * Retrieves the applications associated with the last used organization.
-             *
-             * @param lastUsedOrganization The organization that was last used.
-             * @return A list of applications for the specified organization.
-             */
             return getApplications(lastUsedOrganization);
         } else {
             return new List<Application__c>();
         }
     }
 
-    @AuraEnabled
     /**
      * Retrieves the decision PDF for the specified application.
      *
      * @param applicationId The ID of the application for which the decision PDF is to be retrieved.
      * @return The decision PDF as a String.
      */
+    @AuraEnabled
     public static String getDecisionPDF(Id applicationId) {
         String documentTitle = 'Vedtak til søknad %';
         try {
@@ -106,6 +110,14 @@ public with sharing class AAREG_MyApplicationsController {
         }
     }
 
+    /**
+     * Retrieves the user's applications for the given organization, translating each
+     * application's status to its Norwegian label.
+     *
+     * @param lastUsedOrganization Organization number to filter applications by.
+     * @return The matching Application__c records for the organization, newest submission first.
+     * @throws AuraHandledException If the running user cannot access Application__c records.
+     */
     private static List<Application__c> getApplications(String lastUsedOrganization) {
         List<Application__c> applications = new List<Application__c>();
         if (Schema.sObjectType.Application__c.isAccessible() && !(Test.isRunningTest() && forceNoApplicationAccess)) {
@@ -144,6 +156,12 @@ public with sharing class AAREG_MyApplicationsController {
         return applications;
     }
 
+    /**
+     * Translates an application status to its Norwegian label.
+     *
+     * @param status The English status value.
+     * @return The Norwegian label, or "Ukjent status" if the value is not recognized.
+     */
     private static String translateStatus(String status) {
         Map<String, String> statusLabels = new Map<String, String>{
             'In Progress' => 'Under behandling',

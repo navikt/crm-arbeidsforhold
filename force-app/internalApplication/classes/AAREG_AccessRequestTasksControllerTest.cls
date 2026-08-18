@@ -1,5 +1,17 @@
+/**
+ * Test class for AAREG_AccessRequestTasksController.
+ *
+ * @author Ann Kristin Olsen
+ * @since August 2026
+ * @group AAREG Internal Application
+ */
 @IsTest
 public class AAREG_AccessRequestTasksControllerTest {
+    /**
+     * getTasks should return only the tasks linked to the given access request.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void returnsTasksForAccessRequest() {
         Access_Request__c accessRequest = new Access_Request__c();
@@ -33,6 +45,11 @@ public class AAREG_AccessRequestTasksControllerTest {
         System.assertEquals(accessRequest.Id, result[0].AAREG_AccessRequest__c);
     }
 
+    /**
+     * getTasks should return an empty list when the record Id is null.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void returnsEmptyListWhenRecordIdIsNull() {
         Test.startTest();

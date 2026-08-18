@@ -17,3 +17,8 @@ For new or materially changed Apex and LWC tests:
 - For callouts, use `HttpCalloutMock` and assert the integration contract without making real network calls.
 - For LWC, test user-visible DOM and interaction, wire/Apex outcomes, loading/empty/error states, and relevant accessibility behaviour.
 - If an Apex test requires an authenticated Salesforce org, report the exact blocked command and do not claim the test is green.
+- Use ApexDoc for new or materially changed test classes and test methods, following the same standard as production Apex (see `.github/instructions/salesforce-apex.instructions.md`).
+  - Give the test class a class-level ApexDoc block with a one-sentence summary, `@author` (original file author first, then top contributors ordered by each person's first commit on the file, from `git log --follow`), `@since`, and `@group`.
+  - Give each test method a one-sentence ApexDoc summary of the scenario under test, plus `@since` showing when that specific test method was added (from `git log -S"methodName"` on the file), so the history of test coverage growth stays visible. Always include `@since` on test methods, even when it matches the class-level `@since`. Never invent a date; if history cannot be determined reliably, state that explicitly instead of guessing.
+  - Do not add `@param`/`@return` to test methods (they take no meaningful parameters and return void).
+

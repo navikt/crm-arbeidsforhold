@@ -1,9 +1,22 @@
-@SuppressWarnings('PMD')
+/**
+ * Test class for AAREG_CommunityUtils.
+ *
+ * @author Jordan Mathews
+ * @author Kenneth Sørensen
+ * @author Ann Kristin Olsen
+ * @since May 2021
+ * @group AAREG External Access
+ */
 @IsTest
 private class AAREG_CommunityUtilsTest {
     public static final String DEFAULT_ORGANIZATION_NUMBER = '123456789';
     public static final String DEFAULT_ALTINN_SUPPORT_RESOURCE = 'nav_arbeidsforhold_aa-registeret-brukerstotte';
-    public static final String DEFAULT_ALTINN_APPLICATION_RESOURCE ='nav_arbeidsforhold_aa-registeret-sok-tilgang';
+    public static final String DEFAULT_ALTINN_APPLICATION_RESOURCE = 'nav_arbeidsforhold_aa-registeret-sok-tilgang';
+    /**
+     * Creates the standard test user used by the callout tests.
+     *
+     * @since May 2021
+     */
     @TestSetup
     private static void makeData() {
         Profile profile = [SELECT Id, UserLicense.Name FROM Profile WHERE Name = 'Standard User' LIMIT 1];
@@ -26,6 +39,11 @@ private class AAREG_CommunityUtilsTest {
         BaseTestFactory.insertEncryptionKey();
     }
 
+    /**
+     * getUserRights should return granted application-access rights for Altinn 3.
+     *
+     * @since August 2025
+     */
     @IsTest
     private static void getUserRightsAV3ApplayForAccess() {
         Altinn3IntegrationSetting__c settings = new Altinn3IntegrationSetting__c();
@@ -59,6 +77,11 @@ private class AAREG_CommunityUtilsTest {
         System.Assert.areEqual(DEFAULT_ALTINN_APPLICATION_RESOURCE, response.rights[0].Resource);
     }
 
+    /**
+     * getUserRights should return granted support-inquiry rights for Altinn 3.
+     *
+     * @since August 2025
+     */
     @IsTest
     private static void getUserRightsAV3ApplayForHenvendelse() {
         Altinn3IntegrationSetting__c settings = new Altinn3IntegrationSetting__c();
