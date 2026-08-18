@@ -2,16 +2,16 @@
  * This is the test class for the AAREG_Utility utility class.
  * <br><br>
  * @author Ashish Misra
+ * @author Ann Kristin Olsen
  * @since Februar 2026
  * @group AAREG Utility
  */
 @isTest
-@SuppressWarnings('PMD.MethodNamingConventions')
 public class AAREG_UtilityTest {
-
     /**
      * Verifies that the singleton instance is created successfully.
      * Asserts that the instance is not null.
+     * @since Februar 2026
      */
     @isTest
     static void when_Invoked_InstanceCreated() {
@@ -25,6 +25,7 @@ public class AAREG_UtilityTest {
     /**
      * Verifies that the constructor initializes the threadRecordTypeId correctly.
      * Asserts that the instance is not null.
+     * @since Februar 2026
      */
     @isTest
     static void when_ConstructorInvoked_ThreadRecordTypeIdReturned() {
@@ -48,6 +49,7 @@ public class AAREG_UtilityTest {
      * Verifies that the constructor initializes the threadRecordTypeId to null when metadata
      * value does not match any RecordType.
      * Asserts that the instance is not null.
+     * @since Februar 2026
      */
     @isTest
     static void when_ConstructorInvoked_MetadataMismatchWithDatabase_ThreadRecordTypeId_IsNull() {
@@ -72,6 +74,7 @@ public class AAREG_UtilityTest {
     /**
      * Verifies that the constructor initializes the threadRecordTypeId to null when metadata
      * has multiple values and the correct one is not in the first place.
+     * @since Februar 2026
      */
     @isTest
     static void when_ConstructorInvoked_MetadataWithMulitpleValuesInCorrecAtFirstPlace_ThreadRecordTypeId_IsNull() {
@@ -96,6 +99,7 @@ public class AAREG_UtilityTest {
     /**
      * Verifies that the constructor initializes the threadRecordTypeId correctly
      * when metadata has multiple values and the correct one is in the first place.
+     * @since Februar 2026
      */
     @isTest
     static void when_ConstructorInvoked_MetadataWithMulitpleValuesCorrectAtFirstPlace_ThreadRecordTypeIdIsReturned() {
@@ -118,6 +122,7 @@ public class AAREG_UtilityTest {
     /**
      * Verifies that the constructor initializes the threadRecordTypeId to null when metadata
      * is empty.
+     * @since Februar 2026
      */
     @isTest
     static void when_ConstructorInvoked_MetaDataEmpty_ThreadRecordTypeIsNull() {
@@ -130,10 +135,10 @@ public class AAREG_UtilityTest {
         System.Assert.isNull(aaregConstructor.getThreadRecordTypeId(), 'The thread RecordType Id should be null');
     }
 
-
     /**
      * Verifies that multiple invocations of getInstance method
      * return the same instance. (Singleton pattern).
+     * @since Februar 2026
      */
     @isTest
     static void when_InvokedMulitpleTimes_ReturnsTheSameInstanceOfClass_isSingleton() {
@@ -150,6 +155,7 @@ public class AAREG_UtilityTest {
      * Verifies that when the class is invoked and everything is set up correctly,
      * the Thread RecordType Id is returned by the utility. Also verifies that the
      * instance is not null.
+     * @since Februar 2026
      */
     @isTest
     static void when_ClassInvoked_AndEverythingOK_ThreadRecordTypeIdIsReturned() {

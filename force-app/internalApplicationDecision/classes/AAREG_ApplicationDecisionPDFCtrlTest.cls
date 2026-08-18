@@ -1,3 +1,11 @@
+/**
+ * Test class for AAREG_ApplicationDecisionPDFController.
+ *
+ * @author Ann Kristin Olsen
+ * @author Kenneth Sørensen
+ * @since February 2026
+ * @group AAREG Internal Application Decision
+ */
 @isTest
 public class AAREG_ApplicationDecisionPDFCtrlTest {
     /**
@@ -7,6 +15,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      *              - En Application_Decision__c med vedtaksdetaljer
      *              - Liste av Application_Decision_Details__c poster
      *              Brukes som grunnlag for PDF controller testing.
+     * @since February 2026
      */
     @TestSetup
     static void setupTestData() {
@@ -56,6 +65,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @description Verifiserer at PDF-controlleren initialiseres korrekt
      *              med en valid Application_Decision__c record.
      *              Kontrollerer at alle private data-loading metoder kjøres.
+     * @since February 2026
      */
     @isTest
     static void testControllerInitialization() {
@@ -83,6 +93,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
 
     /**
      * @description Strict happy-path test to ensure constructor executes all data-loading paths.
+     * @since July 2026
      */
     @isTest
     static void testControllerInitialization_strictHappyPath() {
@@ -110,6 +121,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     /**
      * @description Tester at getApplicationRecord() returnerer alle relevante søknadsdata.
      *              Verifiserer at alle 15 felter mappes korrekt fra databasen.
+     * @since July 2026
      */
     @isTest
     static void testGetApplicationRecord() {
@@ -134,6 +146,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     /**
      * @description Tester at getApplicationDecisionRecord() returnerer alle relevante vedtaksdata.
      *              Verifiserer at alle 11 felter mappes korrekt fra Application_Decision__c.
+     * @since July 2026
      */
     @isTest
     static void testGetApplicationDecisionRecord() {
@@ -168,6 +181,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     /**
      * @description Tester at getApplicationDecisionDetails() returnerer alle Application_Decision_Details__c poster.
      *              Verifiserer at listen ikke er tom og alle details mappes korrekt.
+     * @since July 2026
      */
     @isTest
     static void testGetApplicationDecisionDetails() {
@@ -199,6 +213,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     /**
      * @description Tester at controlleren håndterer manglende Application_Decision__c record korrekt.
      *              Verifiserer at exception kastes og håndteres.
+     * @since July 2026
      */
     @isTest
     static void testControllerWithInvalidId() {
@@ -228,6 +243,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     /**
      * @description Tester PDF-generation med alle required felter satt.
      *              Verifiserer at PDF controller kan instantieres for PDF rendering.
+     * @since July 2026
      */
     @isTest
     static void testPDFGenerationPrep() {
@@ -246,6 +262,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
 
     /**
      * @description Tester at currentRecord property inneholder korrekte vedtaksdata
+     * @since July 2026
      */
     @isTest
     static void testCurrentRecordProperty() {
@@ -277,6 +294,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
 
     /**
      * @description Tester at applicationRecord property inneholder korrekte søknadsdata
+     * @since July 2026
      */
     @isTest
     static void testApplicationRecordProperty() {
@@ -304,6 +322,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
 
     /**
      * @description Tester at decisionDetailsRecords property inneholder alle vedtaksdetaljer
+     * @since July 2026
      */
     @isTest
     static void testDecisionDetailsProperty() {
@@ -342,6 +361,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
 
     /**
      * @description Test decision with minimal required fields
+     * @since July 2026
      */
     @isTest
     static void testDecisionWithMinimalFields() {
@@ -370,6 +390,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
 
     /**
      * @description Tester med Application_Decision__c uten Application_Decision_Details__c poster
+     * @since July 2026
      */
     @isTest
     static void testDecisionWithoutDetails() {
@@ -400,6 +421,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
 
     /**
      * @description Tester at alle 11 fields i AAREG_ApplicationDecision er korrekt satt
+     * @since July 2026
      */
     @isTest
     static void testAllApplicationDecisionFields() {
@@ -470,6 +492,11 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         Test.stopTest();
     }
 
+    /**
+     * Covers the injected record mapping for the application decision wrapper fields.
+     *
+     * @since August 2026
+     */
     @isTest
     static void testInjectedRecordsMapping() {
         AAREG_ApplicationDecisionPDFController.forceDecisionReadDenied = false;
@@ -573,6 +600,11 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         }
     }
 
+    /**
+     * Covers the forced read-denied branches for the decision details.
+     *
+     * @since August 2026
+     */
     @isTest
     static void testForcedReadDeniedBranches() {
         Application_Decision__c testDecision = [
@@ -617,6 +649,11 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         );
     }
 
+    /**
+     * Covers the forced read-denied branch for the decision record itself.
+     *
+     * @since August 2026
+     */
     @isTest
     static void testForcedDecisionReadDeniedBranch() {
         Application_Decision__c testDecision = [
@@ -660,6 +697,11 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         );
     }
 
+    /**
+     * Covers the application-load catch branch when the decision record is still present.
+     *
+     * @since August 2026
+     */
     @isTest
     static void testApplicationLoadCatchBranchWithDecisionPresent() {
         Application_Decision__c decision = [
@@ -695,6 +737,11 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         System.Assert.isNotNull(controller, 'Controller should initialize even when application load fails.');
     }
 
+    /**
+     * Covers the strict injected-record mapping path with all fields populated.
+     *
+     * @since August 2026
+     */
     @isTest
     static void testInjectedMappingStrictPath() {
         Application_Decision__c decision = [
@@ -778,6 +825,11 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         System.Assert.areEqual(detail.Name, controller.decisionDetailsRecords[0].vedtaksDetailNr);
     }
 
+    /**
+     * Covers the forced describe-denied branches for reading decision fields.
+     *
+     * @since August 2026
+     */
     @isTest
     static void testForcedDescribeDeniedBranches() {
         Application_Decision__c decision = [
@@ -820,6 +872,11 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         System.Assert.isNotNull(controller2, 'Controller should initialize when decision describe access fails.');
     }
 
+    /**
+     * Covers the application query path when no records are injected.
+     *
+     * @since August 2026
+     */
     @isTest
     static void testApplicationQueryPathWithoutInjection() {
         Application_Decision__c decision = [
@@ -859,6 +916,11 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
         );
     }
 
+    /**
+     * Covers the application query exception catch path.
+     *
+     * @since August 2026
+     */
     @isTest
     static void testApplicationQueryExceptionCatchPath() {
         Application_Decision__c decision = [

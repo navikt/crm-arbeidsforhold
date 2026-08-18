@@ -1,5 +1,18 @@
+/**
+ * Test class for AAREG_MyApplicationsController.
+ *
+ * @author Jordan Mathews
+ * @author Kenneth Sørensen
+ * @since July 2021
+ * @group AAREG External Application
+ */
 @IsTest
 public class AAREG_MyApplicationsControllerTest {
+    /**
+     * Creates a county account and application with an organization number.
+     *
+     * @since July 2021
+     */
     @TestSetup
     static void makeData() {
         Account account = AAREG_TestDataFactory.getAccountCounty();
@@ -10,6 +23,11 @@ public class AAREG_MyApplicationsControllerTest {
         insert application;
     }
 
+    /**
+     * getUsersApplications should return only the applications for the user's last used organization.
+     *
+     * @since August 2021
+     */
     @IsTest
     static void getUsersApplications() {
         User user = AAREG_TestDataFactory.getStandardUser();
@@ -32,6 +50,11 @@ public class AAREG_MyApplicationsControllerTest {
         System.test.stoptest();
     }
 
+    /**
+     * getUsersApplications should return an empty list when the user has no last used organization.
+     *
+     * @since August 2021
+     */
     @IsTest
     static void noLastUsedOrganization() {
         User user = AAREG_TestDataFactory.getStandardUser();
@@ -55,6 +78,11 @@ public class AAREG_MyApplicationsControllerTest {
         System.test.stoptest();
     }
 
+    /**
+     * getDecisionPDF should return a download URL when a matching decision file exists.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void getDecisionPDF_returnsDownloadUrl() {
         Application__c application = [SELECT Id FROM Application__c LIMIT 1];
@@ -86,6 +114,11 @@ public class AAREG_MyApplicationsControllerTest {
         );
     }
 
+    /**
+     * getDecisionPDF should throw when no Application_Decision__c exists for the application.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void getDecisionPDF_noDecision_throws() {
         Account account = AAREG_TestDataFactory.getAccountCounty();
@@ -105,6 +138,11 @@ public class AAREG_MyApplicationsControllerTest {
         System.assertEquals(true, thrown, 'Expected exception when no decision exists.');
     }
 
+    /**
+     * getDecisionPDF should throw when the decision has no linked documents.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void getDecisionPDF_noLinkedDocuments_throws() {
         Application__c application = [SELECT Id FROM Application__c LIMIT 1];
@@ -123,6 +161,11 @@ public class AAREG_MyApplicationsControllerTest {
         System.assertEquals(true, thrown, 'Expected exception when no documents are linked.');
     }
 
+    /**
+     * getDecisionPDF should throw when no linked document matches the expected decision title.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void getDecisionPDF_noMatchingTitle_throws() {
         Application__c application = [SELECT Id FROM Application__c LIMIT 1];
@@ -154,6 +197,11 @@ public class AAREG_MyApplicationsControllerTest {
         System.assertEquals(true, thrown, 'Expected exception when no matching title exists.');
     }
 
+    /**
+     * getUsersApplications should throw when access is denied.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void getUsersApplications_permissionDenied_throws() {
         User user = AAREG_TestDataFactory.getStandardUser();
@@ -174,6 +222,11 @@ public class AAREG_MyApplicationsControllerTest {
         System.assertEquals(true, thrown, 'Expected permission exception when access is denied.');
     }
 
+    /**
+     * translateStatusForTest should return a fallback label for unknown statuses.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void translateStatus_unknown_returnsFallback() {
         System.assertEquals(
@@ -183,6 +236,11 @@ public class AAREG_MyApplicationsControllerTest {
         System.assertEquals('Under behandling', AAREG_MyApplicationsController.translateStatusForTest('In Progress'));
     }
 
+    /**
+     * getDecisionPDF should wrap unexpected errors in an AuraHandledException.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void getDecisionPDF_unexpectedError_wrapsInAuraHandledException() {
         Application__c application = [SELECT Id FROM Application__c LIMIT 1];

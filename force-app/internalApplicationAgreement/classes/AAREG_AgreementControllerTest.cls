@@ -1,5 +1,19 @@
+/**
+ * Test class for AAREG_AgreementController.
+ *
+ * @author Jordan Mathews
+ * @author Ann Kristin Olsen
+ * @author Kenneth Sørensen
+ * @since September 2021
+ * @group AAREG Internal Application Agreement
+ */
 @IsTest
 public class AAREG_AgreementControllerTest {
+    /**
+     * Creates a county account, application, agreement, and related contacts.
+     *
+     * @since September 2021
+     */
     @TestSetup
     static void makeData() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();
@@ -53,6 +67,11 @@ public class AAREG_AgreementControllerTest {
     }
         */
 
+    /**
+     * updateAgreement should update the agreement and related contacts, deleting removed ones.
+     *
+     * @since September 2021
+     */
     @IsTest
     static void updateAgreement() {
         Agreement__c agreement = [SELECT Id, ExtractionAccess__c FROM Agreement__c LIMIT 1];
@@ -87,6 +106,11 @@ public class AAREG_AgreementControllerTest {
         System.assertEquals(1, updatedContacts.size(), 'Only 1 contact left after deletion.');
     }
 
+    /**
+     * updateAgreement should still update the agreement when the contact lists are null.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void updateAgreementHandlesNullLists() {
         Agreement__c agreement = [SELECT Id, ExtractionAccess__c FROM Agreement__c LIMIT 1];
@@ -108,6 +132,11 @@ public class AAREG_AgreementControllerTest {
         );
     }
 
+    /**
+     * updateAgreement should throw when the agreement is missing.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void updateAgreementThrowsWhenAgreementMissing() {
         Boolean exceptionThrown = false;
@@ -122,6 +151,11 @@ public class AAREG_AgreementControllerTest {
         System.assert(exceptionThrown, 'Expected an exception when agreement is null.');
     }
 
+    /**
+     * cancelAgreement should throw when the agreement is missing.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void cancelAgreementThrowsWhenAgreementMissing() {
         Boolean exceptionThrown = false;
@@ -136,6 +170,11 @@ public class AAREG_AgreementControllerTest {
         System.assert(exceptionThrown, 'Expected an exception when agreement is null.');
     }
 
+    /**
+     * getAgreementContacts should return an empty list when the agreement Id is null.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void getAgreementContactsWithNullIdReturnsEmptyList() {
         Test.startTest();
@@ -145,6 +184,11 @@ public class AAREG_AgreementControllerTest {
         System.assertEquals(0, contacts.size(), 'Expected empty contact list when agreement id is null.');
     }
 
+    /**
+     * cancelAgreement should deactivate the agreement.
+     *
+     * @since September 2021
+     */
     @IsTest
     static void cancelAgreement() {
         Agreement__c agreement = [
@@ -176,6 +220,11 @@ public class AAREG_AgreementControllerTest {
         System.assertEquals('Deactivated', updatedAgreement.Status__c, 'Agreement should be deactivated.');
     }
 
+    /**
+     * getAgreementContacts should return an empty list when the agreement Id is null.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void getAgreementContactsNullId() {
         Test.startTest();
@@ -190,6 +239,11 @@ public class AAREG_AgreementControllerTest {
         System.assertEquals(0, contacts.size(), 'Should return empty list when agreement id is null.');
     }
 
+    /**
+     * updateAgreement should succeed when the contact lists are empty.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void updateAgreementWithEmptyLists() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -211,6 +265,11 @@ public class AAREG_AgreementControllerTest {
         System.assertEquals(true, updatedAgreement.ExtractionAccess__c, 'Agreement should be updated.');
     }
 
+    /**
+     * getAgreementContacts should return related contacts for an existing agreement.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void getAgreementContactsWithIdReturnsRows() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -227,6 +286,11 @@ public class AAREG_AgreementControllerTest {
         System.assertNotEquals(null, contacts, 'Expected non-null contact list.');
     }
 
+    /**
+     * Covers the forced permission-denied branches for read, update, create, delete, and cancel operations.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testForcedPermissionBranches() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];

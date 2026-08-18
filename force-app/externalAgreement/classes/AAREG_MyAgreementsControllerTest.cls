@@ -1,7 +1,20 @@
+/**
+ * Test class for AAREG_MyAgreementsController.
+ *
+ * @author Ann Kristin Olsen
+ * @author Kenneth Sørensen
+ * @since February 2026
+ * @group AAREG External Agreement
+ */
 @IsTest
 public class AAREG_MyAgreementsControllerTest {
     private static final String ORG_NUMBER = '929882989';
 
+    /**
+     * Creates a county account, application, agreement, and a standard test user with edit access.
+     *
+     * @since February 2026
+     */
     @TestSetup
     static void setupTestData() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
@@ -23,6 +36,8 @@ public class AAREG_MyAgreementsControllerTest {
 
     /**
      * Tests successful retrieval of agreements for a user with a valid organization.
+     *
+     * @since July 2026
      */
     @IsTest
     static void testGetUsersAgreementsSuccess() {
@@ -45,6 +60,11 @@ public class AAREG_MyAgreementsControllerTest {
         // Coverage note: When LastUsedOrganization__c field doesn't exist, returns empty list
     }
 
+    /**
+     * getUsersAgreements should throw when called with a null user Id.
+     *
+     * @since June 2026
+     */
     @IsTest
     static void testGetUsersAgreementsInvalidUserId() {
         // Call the method with an invalid userId
@@ -58,6 +78,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Test.stopTest();
     }
 
+    /**
+     * getDecisionPDF should throw when no Application_Decision__c exists for the agreement.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void getDecisionPdf_throws_when_no_decision_exists() {
         Agreement__c app = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -74,6 +99,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.areEqual(true, thrown, '');
     }
 
+    /**
+     * getDecisionPDF should return a download link when a decision PDF file exists.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void getDecisionPdf_returns_download_link_when_file_exists() {
         Agreement__c agr = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -110,6 +140,11 @@ public class AAREG_MyAgreementsControllerTest {
         }
     }
 
+    /**
+     * getUsersAgreements should return an empty list when the user has no last used organization.
+     *
+     * @since June 2026
+     */
     @IsTest
     static void testGetUsersAgreementsWithoutLastUsedOrganization() {
         User userWithoutOrg;
@@ -131,6 +166,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.areEqual(0, agreements.size(), 'No agreements when LastUsedOrganization is empty.');
     }
 
+    /**
+     * getUsersAgreements should return an empty list for an unrecognized organization number.
+     *
+     * @since June 2026
+     */
     @IsTest
     static void testGetUsersAgreementsWithUnknownOrganization() {
         User testUser;
@@ -154,6 +194,8 @@ public class AAREG_MyAgreementsControllerTest {
 
     /**
      * Tests successful saving of agreement contacts.
+     *
+     * @since July 2026
      */
     @IsTest
     static void testSaveAgreementContactsSuccess() {
@@ -176,6 +218,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isNotNull(result, 'Result should not be null');
     }
 
+    /**
+     * saveAgreementContacts should throw when called with a null agreement Id.
+     *
+     * @since June 2026
+     */
     @IsTest
     static void testSaveAgreementContactsNullAgreementId() {
         Test.startTest();
@@ -193,6 +240,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isTrue(exceptionThrown, 'Should throw when agreement id is null.');
     }
 
+    /**
+     * saveAgreementContacts should return the contact list unchanged for an early-return empty input.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testSaveAgreementContactsEmptyListEarlyReturn() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -209,6 +261,8 @@ public class AAREG_MyAgreementsControllerTest {
 
     /**
      * Tests successful addition of a contact to an agreement.
+     *
+     * @since July 2026
      */
     @IsTest
     static void testAddContactToAgreementSuccess() {
@@ -235,6 +289,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isNotNull(result, 'Result should not be null');
     }
 
+    /**
+     * addContactToAgreement should throw when the agreement Id is missing.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void testAddContactToAgreementMissingAgreementId() {
         Test.startTest();
@@ -249,6 +308,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isTrue(exceptionThrown, 'Should throw when agreementId is null.');
     }
 
+    /**
+     * addContactToAgreement should throw when the contact name is blank.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void testAddContactToAgreementMissingName() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -276,6 +340,8 @@ public class AAREG_MyAgreementsControllerTest {
 
     /**
      * Tests retrieval of agreement contacts.
+     *
+     * @since July 2026
      */
     @IsTest
     static void testGetAgreementContactsSuccess() {
@@ -299,6 +365,8 @@ public class AAREG_MyAgreementsControllerTest {
 
     /**
      * Tests removal of a contact from an agreement.
+     *
+     * @since July 2026
      */
     @IsTest
     static void testRemoveContactFromAgreementSuccess() {
@@ -320,6 +388,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isNotNull(result, 'Result should not be null');
     }
 
+    /**
+     * removeContactFromAgreement should throw when the related contact Id is null.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void testRemoveContactFromAgreementNullId() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -338,6 +411,8 @@ public class AAREG_MyAgreementsControllerTest {
 
     /**
      * Tests successful ending of an agreement.
+     *
+     * @since July 2026
      */
     @IsTest
     static void testEndAgreementSuccess() {
@@ -353,6 +428,11 @@ public class AAREG_MyAgreementsControllerTest {
         Test.stopTest();
     }
 
+    /**
+     * deleteAgreementContact should throw when the contact Id is null.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void testDeleteAgreementContactNullId() {
         Test.startTest();
@@ -367,6 +447,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isTrue(exceptionThrown, 'Should throw when contactId is null.');
     }
 
+    /**
+     * endAgreement should throw when the agreement Id is null.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void testEndAgreementNullId() {
         Test.startTest();
@@ -381,6 +466,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isTrue(exceptionThrown, 'Should throw when agreementId is null.');
     }
 
+    /**
+     * endAgreement should throw when the running user lacks update access on Agreement__c.
+     *
+     * @since June 2026
+     */
     @IsTest
     static void testEndAgreementNoUpdateAccess() {
         // Create a user WITHOUT permission set that grants edit rights to Agreement__c
@@ -417,6 +507,11 @@ public class AAREG_MyAgreementsControllerTest {
         );
     }
 
+    /**
+     * deleteAgreementContact should unlink the contact from the agreement when it is linked to an application.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testDeleteAgreementContactApplicationBranch() {
         Agreement__c agreement = [SELECT Id, Application__c FROM Agreement__c LIMIT 1];
@@ -439,6 +534,11 @@ public class AAREG_MyAgreementsControllerTest {
         );
     }
 
+    /**
+     * deleteAgreementContact should delete the contact when it is not linked to an application.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testDeleteAgreementContactDeleteBranch() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -452,6 +552,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.areEqual(0, [SELECT COUNT() FROM RelatedContact__c WHERE Id = :contact.Id]);
     }
 
+    /**
+     * Covers the forced DML and unexpected-exception branches for save, delete, end, add, and remove operations.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testForcedAgreementContactErrorBranches() {
         Agreement__c agreement = [SELECT Id, Application__c FROM Agreement__c LIMIT 1];
@@ -592,6 +697,11 @@ public class AAREG_MyAgreementsControllerTest {
         );
     }
 
+    /**
+     * getAgreementContacts should handle the no-such-column and generic query exception branches.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testGetAgreementContactsQueryExceptionBranches() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -615,6 +725,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isTrue(genericThrown, 'Generic query exception branch should rethrow exception.');
     }
 
+    /**
+     * removeContactFromAgreement should unlink or delete the contact depending on its application link.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testRemoveContactFromAgreementApplicationBranch() {
         Agreement__c agreement = [SELECT Id, Application__c FROM Agreement__c LIMIT 1];
@@ -642,6 +757,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isNotNull(result);
     }
 
+    /**
+     * getDecisionPDF should throw for no linked documents, no matching file, and an unexpected exception.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testGetDecisionPdfNoDocumentsAndNoMatchingAndUnexpected() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -695,6 +815,11 @@ public class AAREG_MyAgreementsControllerTest {
         );
     }
 
+    /**
+     * getDecisionPDF should throw when the agreement Id is null.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testGetDecisionPdfNullAgreementId() {
         Test.startTest();
@@ -709,6 +834,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isTrue(thrown, 'Should throw when agreement id is null.');
     }
 
+    /**
+     * getUsersAgreements should map agreements and return an empty list on the forced exception branch.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testGetUsersAgreementsForcedExceptionAndMapping() {
         Account account = AAREG_TestDataFactory.getAccountCounty();
@@ -737,6 +867,12 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.isNotNull(forcedCatchResult, 'Forced catch path should return an empty list, not null.');
     }
 
+    /**
+     * getAgreementContacts should return an empty list on the forced missing-field branch;
+     * translateStatusForTest should map each known status to its Norwegian label.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testGetAgreementContactsMissingFieldHookAndTranslateStatus() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
@@ -757,6 +893,11 @@ public class AAREG_MyAgreementsControllerTest {
         System.Assert.areEqual('Ukjent status', AAREG_MyAgreementsController.translateStatusForTest('Unknown'));
     }
 
+    /**
+     * removeContactFromAgreement should unlink or delete based on the injected record's application link.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testRemoveContactFromAgreementInjectedBranchCoverage() {
         Agreement__c agreement = [SELECT Id, Application__c FROM Agreement__c LIMIT 1];

@@ -1,8 +1,9 @@
 /**
  * @description Test class for AAREG_ApplicationDecisionPDFFileService invocable service.
  *              Tests PDF file creation, ContentVersion handling, and ContentDocumentLink generation.
- * @author NAV
- * @version 66
+ * @author Ann Kristin Olsen
+ * @author Kenneth Sørensen
+ * @since July 2026
  * @group Application Decision
  */
 @IsTest
@@ -15,6 +16,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      *              - En AccessRequest__c
      *              - ApplicationBasisCode__c poster
      *              Brukes som grunnlag for PDF service testing.
+     * @since July 2026
      */
     @TestSetup
     static void setupTestData() {
@@ -55,6 +57,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      *              - ContentVersion opprettes
      *              - ContentDocumentLink opprettes for relevante records
      *              - FlowOutput returneres med korrekt ID
+     * @since July 2026
      */
     @IsTest
     static void testCreateFilePDFGeneration() {
@@ -88,6 +91,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     /**
      * @description Tester at createFile håndterer null input gracefully.
      *              Verifiserer at exception kastes med user-friendly error message.
+     * @since July 2026
      */
     @IsTest
     static void testCreateFileWithNullInput() {
@@ -109,6 +113,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     /**
      * @description Tester at createFile håndterer tom input liste gracefully.
      *              Verifiserer at exception kastes.
+     * @since July 2026
      */
     @IsTest
     static void testCreateFileWithEmptyInput() {
@@ -130,6 +135,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     /**
      * @description Tester at createFile håndterer manglende påkrevde felter gracefully.
      *              Verifiserer at exception kastes når decisionRecordId er null.
+     * @since July 2026
      */
     @IsTest
     static void testCreateFileWithMissingDecisionId() {
@@ -162,6 +168,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     /**
      * @description Tester at createFile håndterer manglende applicationRecordId gracefully.
      *              Verifiserer at exception kastes.
+     * @since July 2026
      */
     @IsTest
     static void testCreateFileWithMissingApplicationId() {
@@ -194,6 +201,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     /**
      * @description Tester at createFile håndterer manglende filTittel gracefully.
      *              Verifiserer at exception kastes.
+     * @since July 2026
      */
     @IsTest
     static void testCreateFileWithMissingFileTitle() {
@@ -231,6 +239,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     /**
      * @description Tester at FlowInput inner class can be instantiated og populated.
      *              Verifiserer at alle InvocableVariable felter er accessible.
+     * @since July 2026
      */
     @IsTest
     static void testFlowInputClass() {
@@ -252,6 +261,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     /**
      * @description Tester at FlowOutput inner class can be instantiated og populated.
      *              Verifiserer at contentDocumentId er accessible.
+     * @since July 2026
      */
     @IsTest
     static void testFlowOutputClass() {
@@ -261,6 +271,11 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
         System.Assert.areEqual('testContentDocId', output.contentDocumentId, 'contentDocumentId should be set.');
     }
 
+    /**
+     * createFile should throw when ContentVersion is not createable.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testCreateFile_forceContentVersionCrudDenied() {
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
@@ -289,6 +304,11 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
         System.Assert.isTrue(thrown, 'Expected exception when ContentVersion create permission is denied.');
     }
 
+    /**
+     * createFile should throw when the ContentVersion query returns an empty list.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testCreateFile_forceContentVersionQueryEmpty() {
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
@@ -317,6 +337,11 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
         System.Assert.isTrue(thrown, 'Expected exception when ContentVersion query returns empty list.');
     }
 
+    /**
+     * createFile should throw when ContentDocumentLink is not createable.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testCreateFile_forceContentDocumentLinkCrudDenied() {
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
@@ -345,6 +370,11 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
         System.Assert.isTrue(thrown, 'Expected exception when ContentDocumentLink create permission is denied.');
     }
 
+    /**
+     * createFile should wrap a forced DML exception in an AuraHandledException.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testCreateFile_forceDmlExceptionPath() {
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];

@@ -1,5 +1,18 @@
+/**
+ * Test class for AAREG_ApplicationInternalController.
+ *
+ * @author Ann Kristin Olsen
+ * @author Kenneth Sørensen
+ * @since January 2026
+ * @group AAREG Internal Application
+ */
 @IsTest
 public class AAREG_ApplicationInternalControllerTest {
+    /**
+     * getApplicationDetails should return application, basis codes, and related contacts for a county account.
+     *
+     * @since January 2026
+     */
     @IsTest
     static void testGetApplicationDetailsCounty() {
         // Create a test Account
@@ -61,6 +74,11 @@ public class AAREG_ApplicationInternalControllerTest {
         );
     }
 
+    /**
+     * getApplicationDetails should return application and basis codes for a state account.
+     *
+     * @since January 2026
+     */
     @IsTest
     static void testGetApplicationDetailsState() {
         // Create a test Account
@@ -96,6 +114,11 @@ public class AAREG_ApplicationInternalControllerTest {
         );
     }
 
+    /**
+     * getApplicationDetails should return application and basis codes for an electricity supervision account.
+     *
+     * @since January 2026
+     */
     @IsTest
     static void testGetApplicationDetailsEL() {
         // Create a test Account
@@ -135,6 +158,11 @@ public class AAREG_ApplicationInternalControllerTest {
         );
     }
 
+    /**
+     * getApplicationDetails should return application and basis codes for a pension account.
+     *
+     * @since January 2026
+     */
     @IsTest
     static void testGetApplicationDetailsPension() {
         // Create a test Account
@@ -174,6 +202,11 @@ public class AAREG_ApplicationInternalControllerTest {
         );
     }
 
+    /**
+     * getApplicationDetails should return application and basis codes for a municipality account.
+     *
+     * @since January 2026
+     */
     @IsTest
     static void testGetApplicationDetailsMunicipality() {
         // Create a test Account
@@ -213,6 +246,11 @@ public class AAREG_ApplicationInternalControllerTest {
         );
     }
 
+    /**
+     * getApplicationDetails should translate the Other organization type and map its other legal basis and purpose.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void testGetApplicationDetailsWithOtherOrganizationType() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
@@ -248,6 +286,11 @@ public class AAREG_ApplicationInternalControllerTest {
         );
     }
 
+    /**
+     * getApplicationDetails should return an empty related contacts list when none exist.
+     *
+     * @since July 2026
+     */
     @IsTest
     static void testGetApplicationDetailsWithNoRelatedContacts() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
@@ -269,6 +312,11 @@ public class AAREG_ApplicationInternalControllerTest {
         );
     }
 
+    /**
+     * AAREG_ApplicationInternal wrapper properties should be settable and readable.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testApplicationInternalWrapperProperties() {
         Date today = Date.today();
@@ -318,6 +366,11 @@ public class AAREG_ApplicationInternalControllerTest {
         System.assertEquals('Sakseier', wrapper.Sakseier);
     }
 
+    /**
+     * getApplicationDetails should return the organization type unchanged when it is unknown.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testGetApplicationDetailsWithUnknownOrganizationType() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
@@ -342,6 +395,11 @@ public class AAREG_ApplicationInternalControllerTest {
         System.assertEquals('Unknown', AAREG_ApplicationInternalController.translateOrganizationType('Unknown'));
     }
 
+    /**
+     * getApplicationDetails should map the municipality's "other" legal basis and purpose.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testGetApplicationDetailsMunicipalityWithOtherLegalBasis() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
@@ -370,6 +428,11 @@ public class AAREG_ApplicationInternalControllerTest {
         System.assertEquals('Kommunalt formaal annet', result.basisCodes[0].Formaal);
     }
 
+    /**
+     * translateOrganizationType should translate Other to Annet.
+     *
+     * @since August 2026
+     */
     @IsTest
     static void testTranslateOrganizationTypeOther() {
         System.assertEquals('Annet', AAREG_ApplicationInternalController.translateOrganizationType('Other'));

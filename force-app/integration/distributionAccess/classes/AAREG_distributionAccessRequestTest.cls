@@ -1,14 +1,15 @@
 /**
  * @description Test class for AAREG_distributionAccessRequest integration handler
  * Tests HTTP callout and JSON generation for distribution access operations
- * @author AAREG Team
- * @version 66
+ * @author Ann Kristin Olsen
+ * @since July 2026
  * @group Integration Distribution Access
  */
 @IsTest
 public class AAREG_distributionAccessRequestTest {
     /**
      * @description Tests JSON generation with organization number
+     * @since July 2026
      */
     @IsTest
     static void testGenerateJsonWithOrgNumber() {
@@ -23,6 +24,7 @@ public class AAREG_distributionAccessRequestTest {
 
     /**
      * @description Tests JSON generation format
+     * @since July 2026
      */
     @IsTest
     static void testGenerateJsonFormat() {
@@ -39,6 +41,7 @@ public class AAREG_distributionAccessRequestTest {
 
     /**
      * @description Tests JSON generation with different organization numbers
+     * @since July 2026
      */
     @IsTest
     static void testGenerateJsonWithVariousOrgNumbers() {
@@ -55,6 +58,7 @@ public class AAREG_distributionAccessRequestTest {
 
     /**
      * @description Tests JSON generation with special characters in org number
+     * @since July 2026
      */
     @IsTest
     static void testGenerateJsonWithSpecialCharacters() {
@@ -69,6 +73,7 @@ public class AAREG_distributionAccessRequestTest {
 
     /**
      * @description Tests StatusCodeException instantiation
+     * @since July 2026
      */
     @IsTest
     static void testStatusCodeExceptionInstantiation() {
@@ -84,6 +89,7 @@ public class AAREG_distributionAccessRequestTest {
 
     /**
      * @description Tests that future method can be called without error
+     * @since July 2026
      */
     @IsTest
     static void testGenerateHeaderToDistributionCanBeCalled() {
@@ -101,6 +107,7 @@ public class AAREG_distributionAccessRequestTest {
 
     /**
      * @description Tests JSON with empty string
+     * @since July 2026
      */
     @IsTest
     static void testGenerateJsonWithEmptyString() {
@@ -114,6 +121,7 @@ public class AAREG_distributionAccessRequestTest {
 
     /**
      * @description Tests JSON generation is consistent across multiple calls
+     * @since July 2026
      */
     @IsTest
     static void testGenerateJsonConsistency() {
@@ -127,6 +135,7 @@ public class AAREG_distributionAccessRequestTest {
 
     /**
      * @description Tests JSON with Norwegian characters in org number
+     * @since July 2026
      */
     @IsTest
     static void testGenerateJsonWithNorwegianCharacters() {
@@ -140,6 +149,7 @@ public class AAREG_distributionAccessRequestTest {
 
     /**
      * @description Tests StatusCodeException can be thrown and caught
+     * @since July 2026
      */
     @IsTest
     static void testStatusCodeExceptionThrowAndCatch() {
@@ -160,6 +170,7 @@ public class AAREG_distributionAccessRequestTest {
 
     /**
      * @description Tests multiple JSON generations don't interfere
+     * @since July 2026
      */
     @IsTest
     static void testMultipleJsonGenerations() {
