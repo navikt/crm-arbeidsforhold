@@ -823,6 +823,7 @@ Setter også svarfristdato</description>
         <connector>
             <targetReference>getCodeBasisCollection</targetReference>
         </connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Casehandler_Status__c</field>
@@ -832,7 +833,7 @@ Setter også svarfristdato</description>
             </value>
         </filters>
         <object>Application__c</object>
-        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
