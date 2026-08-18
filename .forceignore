@@ -127,3 +127,24 @@
 **/experiences
 
 **/README.md
+
+# Unlocked-packaged
+**/platform-data-model
+**/custom-metadata-dao
+**/custom-permission-helper
+**/feature-toggle
+**/record-type-cache
+**/crm-platform-base
+**/crm-platform-reporting
+**/crm-platform-access-control
+**/crm-thread-view
+**/crm-shared-timeline
+**/crm-community-base
+**/crm-platform-integration
+**/crm-platform-email-scheduling
+**/crm-journal-utilities
+**/crm-shared-user-notification
+**/crm-shared-flowComponents
+**/crm-platform-oppgave
+**/crm-henvendelse-base
+**/crm-henvendelse
