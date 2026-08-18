@@ -6,7 +6,7 @@
  *
  * @author Ann Kristin Olsen
  * @author Kenneth Sørensen
- * @since Juli 2026
+ * @since July 2026
  * @group AAREG DIALOG
  */
 @IsTest
