@@ -1,440 +1,476 @@
 <template>
-  <template if:true={hasAccess}>
-    <template if:true={organization}>
-      <template if:false={applicationSubmitted}>
-        <div class="container" if:true={isLoaded}>
-          <c-alertdialog
-            header={header}
-            content={content}
-            desktop-style="text-align: center; width: 50%"
-            mobile-style="text-align: center; max-width: 100%"
-            center-buttons="true"
-            no-cancel-button="true"
-            onbuttonclick={handleAlertDialogClick}>
-          </c-alertdialog>
-          <div class="breadcrumbs">
-            <c-breadcrumbs url-list={breadcrumbs} num-pops={numPops}></c-breadcrumbs>
-          </div>
-          <form>
-            <section class="app-section">
-              <h2 class="header-with-info-text">Søker</h2>
-              <p class="pl-16 pb-10">Denne informasjonen er hentet fra Enhetsregisteret</p>
-              <div class="row">
-                <div class="column">
-                  <span class="form-control">
-                    <label for="virksomhetsnavn">Navn</label>
-                    <input
-                      type="text"
-                      name="virksomhetsnavn"
-                      id="virksomhetsnavn"
-                      value={application.organizationName}
-                      disabled="disabled"
-                    />
-                  </span>
-                </div>
-                <div class="column">
-                  <span class="form-control">
-                    <label for="organisasjonsnummer">Organisasjonsnummer</label>
-                    <input
-                      type="text"
-                      name="organisasjonsnummer"
-                      id="organisasjonsnummer"
-                      value={application.OrganizationNumber__c}
-                      disabled="disabled"
-                    />
-                  </span>
-                </div>
-                <div class="column">
-                  <span class="form-control">
-                    <label for="organisasjonsform">Organisasjonsform</label>
-                    <input
-                      type="text"
-                      name="organisasjonsform"
-                      id="organisasjonsform"
-                      value={application.OrganizationStructure__c}
-                      disabled="disabled"
-                    />
-                  </span>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="column">
-                  <span class="form-control">
-                    <label for="postadresse">Forretningsadresse</label>
-                    <input
-                      type="text"
-                      name="postadresse"
-                      id="postadresse"
-                      value={application.MailingAddress__c}
-                      disabled="disabled"
-                    />
-                  </span>
-                </div>
-                <div class="column">
-                  <span class="form-control">
-                    <label for="postkode">Postnummer</label>
-                    <input
-                      type="text"
-                      name="postkode"
-                      id="postkode"
-                      value={application.MailingPostalCode__c}
-                      disabled="disabled"
-                    />
-                  </span>
-                </div>
-                <div class="column">
-                  <span class="form-control">
-                    <label for="poststed">Poststed</label>
-                    <input
-                      type="text"
-                      name="poststed"
-                      id="poststed"
-                      value={application.MailingCity__c}
-                      disabled="disabled"
-                    />
-                  </span>
-                </div>
-              </div>
-              <p class="pl-16 pb-10">
-                For at vi skal kunne gi deg beskjed om status i søknadsprosessen eller behov for ytterligere informasjon for å kunne ferdigbehandle søknaden. Oppgi din e-postadresse.  
-              </p>
-              <div class="row">
-                <div class="column">
-                  <span class="form-control" style="max-width: 65%">
-                    <label for="epost">
-                      <abbr if:false={isReadOnly} class="slds-required" title="Påkrevd felt">* </abbr>
-                      E-post
-                    </label>
-                    <lightning-helptext
-                      content=" Oppgi din e-postadresse som knytter deg til virksomheten. NAV benytter e-postadressen for å orientere virksomheten(søker) når søknaden er ferdig behandlet. "
-                      class="slds-m-left_xx-small"
+    <template if:true={hasAccess}>
+        <template if:true={organization}>
+            <template if:false={applicationSubmitted}>
+                <div class="container" if:true={isLoaded}>
+                    <c-alertdialog
+                        header={header}
+                        content={content}
+                        desktop-style="text-align: center; width: 50%"
+                        mobile-style="text-align: center; max-width: 100%"
+                        center-buttons="true"
+                        no-cancel-button="true"
+                        onbuttonclick={handleAlertDialogClick}
                     >
-                    </lightning-helptext>
-                    <input
-                      type="email"
-                      name="e-post"
-                      id="epost"
-                      data-id="Email__c"
-                      value={application.Email__c}
-                      onchange={handleInputChange}
-                      disabled={isReadOnly}
-                      required
-                    />
-                    <small>Error Message</small>
-                  </span>
-                </div>
-              </div>
-            </section>
-            <section class="app-section">
-              <h2>Begrunnelse</h2>
-              <p class="pl-16 pb-10">Her skal du:</p>
-              <ul>
-                <li>dokumentere at deres virksomhet har lov til å innhente opplysningene.</li>
-                <li>oppgi hva dere skal bruke opplysningene til.</li>
-                <li>dokumentere at dere har lov til å bruke opplysningene til å løse oppgaver i deres virksomhet.</li>
-              </ul>
-              <br>
-                   <p class="pl-16 pb-10 fw-600">For ytterligere veiledning se «i» for hvert felt.</p>
-                   <p class="pl-16 pb-10 fw-600">Om dere skal bruke opplysningene til flere formål/oppgaver, skal dere oppgi hvert formål for seg. Benytt «legg til» knappen for å legge til flere formål.​</p>       
-              <template if:true={applicationBasisRows} for:each={applicationBasisRows} for:item="row" for:index="index">
-                <div key={row.uuid} class="app-section">
-                  <c-aareg_application-basis
-                    record={row}
-                    read-only={isReadOnly}
-                    organization-type={organizationType}
-                    onapplicationbasischange={applicationBasisChange}
-                    onvalidationerror={processError}
-                  ></c-aareg_application-basis>
-                  <div class="button-container" if:true={showApplicationBasisRemove}>
-                    <button
-                      type="button"
-                      name="fjern grunnlag og hjemmel"
-                      class="button-remove"
-                      value={index}
-                      onclick={removeApplicationBasisRow}
-                    >
-                      Fjern
-                    </button>
-                  </div>
-                </div>
-              </template>
-
-              <div class="button-container" if:false={isReadOnly}>
-                <button
-                  type="button"
-                  name="legg til grunnlag og hjemmel"
-                  class="button button-standard"
-                  style="margin: 10px"
-                  onclick={addApplicationBasisRow}
-                >
-                  <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M11 13v8h2v-8h8v-2h-8V3h-2v8H3v2h8z"
-                      fill="currentColor"
-                    ></path>
-                  </svg>
-                  Legg til
-                </button>
-              </div>
-            </section>
-
-            <section class="app-section">
-              <span class="form-control">
-                <h2 class="header-with-info-text">Databehandler</h2>
-                <p class="pl-16 pb-10">
-                  Dersom dere benytter en databehandler som skal behandle personopplysninger på vegne av dere, må
-                  organisasjonsnummer til databehandleren oppgis. Navn på databehandleren hentes fra Enhetsregisteret.
-                </p>
-                <p class="pl-16 fw-600">
-                  Ikke fyll ut organisasjonsnummer i feltet, dersom dere ikke benytter databehandler.
-                </p>
-              </span>
-              <div class="row">
-                <div class="column">
-                  <span class="form-control">
-                    <label for="databehandler-organisasjonsnummer">Organisasjonsnummer</label>
-                    <input
-                      type="text"
-                      name="Databehandler organisasjonsnummer"
-                      id="databehandler-organisasjonsnummer"
-                      data-id="data-processor"
-                      disabled={isReadOnly}
-                      value={application.DataProcessorOrganizationNumber__c}
-                      onchange={handleDataProcessorChange}
-                    />
-                    <small>Error</small>
-                  </span>
-                </div>
-                <div class="column">
-                  <span class="form-control">
-                    <label for="navn-databehandler">Navn på databehandler</label>
-                    <input
-                      type="text"
-                      name="Navn på databehandler"
-                      id="navn-databehandler"
-                      data-id="DataProcessorName__c"
-                      value={application.DataProcessorName__c}
-                      disabled="disabled"
-                    />
-                  </span>
-                </div>
-              </div>
-            </section>
-
-            <section class="app-section">
-              <span class="form-control">
-                <span data-id="contacts"></span>
-                <h2 class="header-with-info-text">Kontaktpersoner</h2>
-                <p class="pl-16">
-                  Oppgi hvem Nav skal kontakte ved spørsmål knyttet til Avtale, Endringer i løsninger, Feilhåndtering
-                  eller Sikkerhetsbrudd. </p>
-                <p class="pl-16 fw-600">Her må alle fire bokser krysses ut av en eller flere kontaktpersoner.</p> 
-                </p>
-                <small class="pl-16">Error Message</small>
-              </span>
-
-              <template if:true={contactRows} for:each={contactRows} for:item="row" for:index="index">
-                <div key={row.uuid} class="app-section">
-                  <c-aareg_application-contact
-                    record={row}
-                    read-only={isReadOnly}
-                    oncontactchange={contactChange}
-                    onvalidationerror={processError}
-                    data-id={row.uuid}
-                  ></c-aareg_application-contact>
-
-                  <div class="button-container" if:true={showContactRemove}>
-                    <button
-                      type="button"
-                      name="fjern kontaktperson"
-                      class="button-remove"
-                      value={index}
-                      onclick={removeContactRow}
-                    >
-                      Fjern
-                    </button>
-                  </div>
-                </div>
-              </template>
-
-              <div class="button-container" if:false={isReadOnly}>
-                <button
-                  type="button"
-                  name="legg til kontaktperson"
-                  class="button button-standard"
-                  style="margin: 10px"
-                  onclick={addContactRow}
-                >
-                  <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M11 13v8h2v-8h8v-2h-8V3h-2v8H3v2h8z"
-                      fill="currentColor"
-                    ></path>
-                  </svg>
-                  Legg til
-                </button>
-              </div>
-            </section>
-            <section class="app-section" if:false={isReadOnly}>
-              <span class="form-control">
-                <span data-id="data-element"></span>
-                <h2 class="header-with-info-text">Dataelementer</h2>
-                <p class="pl-16">
-                  <a target="_blank" rel="noopener noreferrer" href={dataElementURL}
-                    >Lenke til skjema med dataelementer i Aa-registeret.&nbsp;
-                  </a>
-                  Skjema må fylles ut og lastes opp som vedlegge til søknaden her:
-                </p>
-                <small class="pl-16">Error Message</small>
-              </span>
-              <div class="data-element-container">
-                <div class="file-container">
-                  <div class="slds-form-element">
-                    <div class="slds-form-element__control">
-                      <div class="slds-file-selector slds-file-selector_files">
-                        <div>
-                          <input
-                            type="file"
-                            onchange={onFileUpload}
-                            name="uploadFile"
-                            accept={acceptedFileFormats}
-                            data-id="file-input"
-                            disabled={isReadOnly}
-                            required
-                            class="slds-file-selector__input slds-assistive-text"
-                            id="file-upload-input-01"
-                            aria-labelledby="file-selector-primary-label file-selector-secondary-label"
-                          />
-                          <label
-                            class="slds-file-selector__body"
-                            for="file-upload-input-01"
-                            id="file-selector-secondary-label"
-                          >
-                            <span class="button button-standard">
-                              <svg
-                                width="1em"
-                                height="1em"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  clip-rule="evenodd"
-                                  d="M12 0l7 6.625h-5V16h-4V6.625H5L12 0zm9 18h2v2a4 4 0 01-4 4H5a4 4 0 01-4-4v-2h20z"
-                                  fill="currentColor"
-                                ></path>
-                              </svg>
-                              Laste opp fil</span
-                            >
-                            <span class="slds-file-selector__text slds-medium-show dropzone-label"
-                              >Eller slipp filen her</span
-                            >
-                          </label>
-                        </div>
-                      </div>
+                    </c-alertdialog>
+                    <div class="breadcrumbs">
+                        <c-breadcrumbs url-list={breadcrumbs} num-pops={numPops}></c-breadcrumbs>
                     </div>
-                  </div>
-                  <div style="display: flex; flex-direction: row">
-                    <p if:true={fileData.filename} style="font-weight: bold;">Opplastet fil:&nbsp;</p>
-                    <p if:true={fileData.filename}>{fileData.filename}</p>
-                  </div>
-                  <br if:true={fileData.filename}/>
-                  <c-record-files-with-sharing
-                    record-id={recordId}
-                    is-get-all="true"
-                    is-delete-option="false"
-                    title="Tidligere opplastede vedlegg"
-                    header-alignment="start"
-                    no-download-link="true">
-                  </c-record-files-with-sharing>
-                </div>
-              </div>
-            </section>
+                    <form>
+                        <section class="app-section">
+                            <h2 class="header-with-info-text">Søker</h2>
+                            <p class="pl-16 pb-10">Denne informasjonen er hentet fra Enhetsregisteret</p>
+                            <div class="row">
+                                <div class="column">
+                                    <span class="form-control">
+                                        <label for="virksomhetsnavn">Navn</label>
+                                        <input
+                                            type="text"
+                                            name="virksomhetsnavn"
+                                            id="virksomhetsnavn"
+                                            value={application.organizationName}
+                                            disabled="disabled"
+                                        />
+                                    </span>
+                                </div>
+                                <div class="column">
+                                    <span class="form-control">
+                                        <label for="organisasjonsnummer">Organisasjonsnummer</label>
+                                        <input
+                                            type="text"
+                                            name="organisasjonsnummer"
+                                            id="organisasjonsnummer"
+                                            value={application.OrganizationNumber__c}
+                                            disabled="disabled"
+                                        />
+                                    </span>
+                                </div>
+                                <div class="column">
+                                    <span class="form-control">
+                                        <label for="organisasjonsform">Organisasjonsform</label>
+                                        <input
+                                            type="text"
+                                            name="organisasjonsform"
+                                            id="organisasjonsform"
+                                            value={application.OrganizationStructure__c}
+                                            disabled="disabled"
+                                        />
+                                    </span>
+                                </div>
+                            </div>
 
-            <section class="app-section" if:false={isReadOnly}>
-              <span class="form-control">
-                <span data-id="terms"></span>
-                <h2>Bruksvilkår</h2>
-                <small class="pl-16">Error Message</small>
-              </span>
-              <div class="inner-container">
-                <span class="form-control">
-                  <input
-                    type="checkbox"
-                    name="bruksvilkar"
-                    id="terms-of-use"
-                    data-id="TermsOfUse__c"
-                    disabled={isReadOnly}
-                    checked={application.TermsOfUse__c}
-                    onchange={handleCheckboxChange}
-                    required
-                  />
-                  <label for="terms-of-use">
-                    <abbr if:false={isReadOnly} class="slds-required" title="Påkrevd felt">* </abbr>
-                    Jeg har lest og godtar&nbsp;
-                    <a target="_blank" rel="noopener noreferrer" href={termsOfUseURL}>bruksvilkårene. </a></label
-                  >
-                </span>
-              </div>
-            </section>
-            <section if:false={isReadOnly}>
-              <p class="pl-16 fw-600">
-                Ved å trykke «SEND INN» signerer du søknaden digitalt på vegne av din virksomhet. Signaturen er juridisk
-                bindende.
-              </p>
-              <div class="button-container save-submit">
-                <c-button
-                    class="send-inn-button"
-                    button-styling="Secondary"
-                    button-label="Lagre"
-                    type="button"
-                    onbuttonclick={handleSaveAsDraft}
-                    desktop-style="width: 8rem; justify-content: center; margin-right: 2rem;"
-                    mobile-style="width: 8rem; justify-content: center; margin-right: 1rem;"
-                ></c-button>
-                <c-button
-                    class="send-inn-button"
-                    button-styling="Primary"
-                    button-label="Send inn"
-                    type="button"
-                    onbuttonclick={handleSubmit}
-                    desktop-style="width: 8rem; justify-content: center"
-                    mobile-style="width: 8rem; justify-content: center"
-                ></c-button>
-              </div>
-            </section>
-          </form>
-        </div>
-      </template>
-      <template if:true={applicationSubmitted}>
-        <div class="submission-success">
-          <h2 class="submission-success-h2">
-            Din søknad om tilgang til Aa-registeret er mottatt. Vi behandler søknaden så raskt vi kan. Dere vil motta et
-            svar senest innen 4 uker.
-          </h2>
-          <button
-            type="button"
-            name="OK"
-            class="button button-main"
-            onclick={returnToHome}
-            style="margin: 10px"
-          >
-            OK
-          </button>
-        </div>
-      </template>
+                            <div class="row">
+                                <div class="column">
+                                    <span class="form-control">
+                                        <label for="postadresse">Forretningsadresse</label>
+                                        <input
+                                            type="text"
+                                            name="postadresse"
+                                            id="postadresse"
+                                            value={application.MailingAddress__c}
+                                            disabled="disabled"
+                                        />
+                                    </span>
+                                </div>
+                                <div class="column">
+                                    <span class="form-control">
+                                        <label for="postkode">Postnummer</label>
+                                        <input
+                                            type="text"
+                                            name="postkode"
+                                            id="postkode"
+                                            value={application.MailingPostalCode__c}
+                                            disabled="disabled"
+                                        />
+                                    </span>
+                                </div>
+                                <div class="column">
+                                    <span class="form-control">
+                                        <label for="poststed">Poststed</label>
+                                        <input
+                                            type="text"
+                                            name="poststed"
+                                            id="poststed"
+                                            value={application.MailingCity__c}
+                                            disabled="disabled"
+                                        />
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="pl-16 pb-10">
+                                For at vi skal kunne gi deg beskjed om status i søknadsprosessen eller behov for
+                                ytterligere informasjon for å kunne ferdigbehandle søknaden. Oppgi din e-postadresse.
+                            </p>
+                            <div class="row">
+                                <div class="column">
+                                    <span class="form-control" style="max-width: 65%">
+                                        <label for="epost">
+                                            <abbr if:false={isReadOnly} class="slds-required" title="Påkrevd felt"
+                                                >*
+                                            </abbr>
+                                            E-post
+                                        </label>
+                                        <lightning-helptext
+                                            content=" Oppgi din e-postadresse som knytter deg til virksomheten. NAV benytter e-postadressen for å orientere virksomheten(søker) når søknaden er ferdig behandlet. "
+                                            class="slds-m-left_xx-small"
+                                        >
+                                        </lightning-helptext>
+                                        <input
+                                            type="email"
+                                            name="e-post"
+                                            id="epost"
+                                            data-id="Email__c"
+                                            value={application.Email__c}
+                                            onchange={handleInputChange}
+                                            disabled={isReadOnly}
+                                            required
+                                        />
+                                        <small>Error Message</small>
+                                    </span>
+                                </div>
+                            </div>
+                        </section>
+                        <section class="app-section">
+                            <h2>Begrunnelse</h2>
+                            <p class="pl-16 pb-10">Her skal du:</p>
+                            <ul>
+                                <li>dokumentere at deres virksomhet har lov til å innhente opplysningene.</li>
+                                <li>oppgi hva dere skal bruke opplysningene til.</li>
+                                <li>
+                                    dokumentere at dere har lov til å bruke opplysningene til å løse oppgaver i deres
+                                    virksomhet.
+                                </li>
+                            </ul>
+                            <br />
+                            <p class="pl-16 pb-10 fw-600">For ytterligere veiledning se «i» for hvert felt.</p>
+                            <p class="pl-16 pb-10 fw-600">
+                                Om dere skal bruke opplysningene til flere formål/oppgaver, skal dere oppgi hvert formål
+                                for seg. Benytt «legg til» knappen for å legge til flere formål.​
+                            </p>
+                            <template
+                                if:true={applicationBasisRows}
+                                for:each={applicationBasisRows}
+                                for:item="row"
+                                for:index="index"
+                            >
+                                <div key={row.uuid} class="app-section">
+                                    <c-aareg_application-basis
+                                        record={row}
+                                        read-only={isReadOnly}
+                                        organization-type={organizationType}
+                                        onapplicationbasischange={applicationBasisChange}
+                                        onvalidationerror={processError}
+                                    ></c-aareg_application-basis>
+                                    <div class="button-container" if:true={showApplicationBasisRemove}>
+                                        <button
+                                            type="button"
+                                            name="fjern grunnlag og hjemmel"
+                                            class="button-remove"
+                                            value={index}
+                                            onclick={removeApplicationBasisRow}
+                                        >
+                                            Fjern
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div class="button-container" if:false={isReadOnly}>
+                                <button
+                                    type="button"
+                                    name="legg til grunnlag og hjemmel"
+                                    class="button button-standard"
+                                    style="margin: 10px"
+                                    onclick={addApplicationBasisRow}
+                                >
+                                    <svg
+                                        width="1em"
+                                        height="1em"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            clip-rule="evenodd"
+                                            d="M11 13v8h2v-8h8v-2h-8V3h-2v8H3v2h8z"
+                                            fill="currentColor"
+                                        ></path>
+                                    </svg>
+                                    Legg til
+                                </button>
+                            </div>
+                        </section>
+
+                        <section class="app-section">
+                            <span class="form-control">
+                                <h2 class="header-with-info-text">Databehandler</h2>
+                                <p class="pl-16 pb-10">
+                                    Dersom dere benytter en databehandler som skal behandle personopplysninger på vegne
+                                    av dere, må organisasjonsnummer til databehandleren oppgis. Navn på databehandleren
+                                    hentes fra Enhetsregisteret.
+                                </p>
+                                <p class="pl-16 fw-600">
+                                    Ikke fyll ut organisasjonsnummer i feltet, dersom dere ikke benytter databehandler.
+                                </p>
+                            </span>
+                            <div class="row">
+                                <div class="column">
+                                    <span class="form-control">
+                                        <label for="databehandler-organisasjonsnummer">Organisasjonsnummer</label>
+                                        <input
+                                            type="text"
+                                            name="Databehandler organisasjonsnummer"
+                                            id="databehandler-organisasjonsnummer"
+                                            data-id="data-processor"
+                                            disabled={isReadOnly}
+                                            value={application.DataProcessorOrganizationNumber__c}
+                                            onchange={handleDataProcessorChange}
+                                        />
+                                        <small>Error</small>
+                                    </span>
+                                </div>
+                                <div class="column">
+                                    <span class="form-control">
+                                        <label for="navn-databehandler">Navn på databehandler</label>
+                                        <input
+                                            type="text"
+                                            name="Navn på databehandler"
+                                            id="navn-databehandler"
+                                            data-id="DataProcessorName__c"
+                                            value={application.DataProcessorName__c}
+                                            disabled="disabled"
+                                        />
+                                    </span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="app-section">
+                            <span class="form-control">
+                                <span data-id="contacts"></span>
+                                <h2 class="header-with-info-text">Kontaktpersoner</h2>
+                                <p class="pl-16">
+                                    Oppgi hvem Nav skal kontakte ved spørsmål knyttet til Avtale, Endringer i løsninger,
+                                    Feilhåndtering eller Sikkerhetsbrudd.
+                                </p>
+                                <p class="pl-16 fw-600">
+                                    Her må alle fire bokser krysses ut av en eller flere kontaktpersoner.
+                                </p>
+                                <small class="pl-16">Error Message</small>
+                            </span>
+
+                            <template if:true={contactRows} for:each={contactRows} for:item="row" for:index="index">
+                                <div key={row.uuid} class="app-section">
+                                    <c-aareg_application-contact
+                                        record={row}
+                                        read-only={isReadOnly}
+                                        oncontactchange={contactChange}
+                                        onvalidationerror={processError}
+                                        data-id={row.uuid}
+                                    ></c-aareg_application-contact>
+
+                                    <div class="button-container" if:true={showContactRemove}>
+                                        <button
+                                            type="button"
+                                            name="fjern kontaktperson"
+                                            class="button-remove"
+                                            value={index}
+                                            onclick={removeContactRow}
+                                        >
+                                            Fjern
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div class="button-container" if:false={isReadOnly}>
+                                <button
+                                    type="button"
+                                    name="legg til kontaktperson"
+                                    class="button button-standard"
+                                    style="margin: 10px"
+                                    onclick={addContactRow}
+                                >
+                                    <svg
+                                        width="1em"
+                                        height="1em"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            clip-rule="evenodd"
+                                            d="M11 13v8h2v-8h8v-2h-8V3h-2v8H3v2h8z"
+                                            fill="currentColor"
+                                        ></path>
+                                    </svg>
+                                    Legg til
+                                </button>
+                            </div>
+                        </section>
+                        <section class="app-section" if:false={isReadOnly}>
+                            <span class="form-control">
+                                <span data-id="data-element"></span>
+                                <h2 class="header-with-info-text">Dataelementer</h2>
+                                <p class="pl-16">
+                                    <a target="_blank" rel="noopener noreferrer" href={dataElementURL}
+                                        >Lenke til skjema med dataelementer i Aa-registeret.&nbsp;
+                                    </a>
+                                    Skjema må fylles ut og lastes opp som vedlegge til søknaden her:
+                                </p>
+                                <small class="pl-16">Error Message</small>
+                            </span>
+                            <div class="data-element-container">
+                                <div class="file-container">
+                                    <div class="slds-form-element">
+                                        <div class="slds-form-element__control">
+                                            <div class="slds-file-selector slds-file-selector_files">
+                                                <div>
+                                                    <input
+                                                        type="file"
+                                                        onchange={onFileUpload}
+                                                        name="uploadFile"
+                                                        accept={acceptedFileFormats}
+                                                        data-id="file-input"
+                                                        disabled={isReadOnly}
+                                                        required
+                                                        class="slds-file-selector__input slds-assistive-text"
+                                                        id="file-upload-input-01"
+                                                        aria-labelledby="file-selector-primary-label file-selector-secondary-label"
+                                                    />
+                                                    <label
+                                                        class="slds-file-selector__body"
+                                                        for="file-upload-input-01"
+                                                        id="file-selector-secondary-label"
+                                                    >
+                                                        <span class="button button-standard">
+                                                            <svg
+                                                                width="1em"
+                                                                height="1em"
+                                                                viewBox="0 0 24 24"
+                                                                fill="none"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                            >
+                                                                <path
+                                                                    fill-rule="evenodd"
+                                                                    clip-rule="evenodd"
+                                                                    d="M12 0l7 6.625h-5V16h-4V6.625H5L12 0zm9 18h2v2a4 4 0 01-4 4H5a4 4 0 01-4-4v-2h20z"
+                                                                    fill="currentColor"
+                                                                ></path>
+                                                            </svg>
+                                                            Laste opp fil</span
+                                                        >
+                                                        <span
+                                                            class="slds-file-selector__text slds-medium-show dropzone-label"
+                                                            >Eller slipp filen her</span
+                                                        >
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: row">
+                                        <p if:true={fileData.filename} style="font-weight: bold">
+                                            Opplastet fil:&nbsp;
+                                        </p>
+                                        <p if:true={fileData.filename}>{fileData.filename}</p>
+                                    </div>
+                                    <br if:true={fileData.filename} />
+                                    <c-record-files-with-sharing
+                                        record-id={recordId}
+                                        is-get-all="true"
+                                        is-delete-option="false"
+                                        title="Tidligere opplastede vedlegg"
+                                        header-alignment="start"
+                                        no-download-link="true"
+                                    >
+                                    </c-record-files-with-sharing>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="app-section" if:false={isReadOnly}>
+                            <span class="form-control">
+                                <span data-id="terms"></span>
+                                <h2>Bruksvilkår</h2>
+                                <small class="pl-16">Error Message</small>
+                            </span>
+                            <div class="inner-container">
+                                <span class="form-control">
+                                    <input
+                                        type="checkbox"
+                                        name="bruksvilkar"
+                                        id="terms-of-use"
+                                        data-id="TermsOfUse__c"
+                                        disabled={isReadOnly}
+                                        checked={application.TermsOfUse__c}
+                                        onchange={handleCheckboxChange}
+                                        required
+                                    />
+                                    <label for="terms-of-use">
+                                        <abbr if:false={isReadOnly} class="slds-required" title="Påkrevd felt">* </abbr>
+                                        Jeg har lest og godtar&nbsp;
+                                        <a target="_blank" rel="noopener noreferrer" href={termsOfUseURL}
+                                            >bruksvilkårene.
+                                        </a></label
+                                    >
+                                </span>
+                            </div>
+                        </section>
+                        <section if:false={isReadOnly}>
+                            <p class="pl-16 fw-600">
+                                Ved å trykke «SEND INN» signerer du søknaden digitalt på vegne av din virksomhet.
+                                Signaturen er juridisk bindende.
+                            </p>
+                            <div class="button-container save-submit">
+                                <c-button
+                                    class="send-inn-button"
+                                    button-styling="Secondary"
+                                    button-label="Lagre"
+                                    type="button"
+                                    onbuttonclick={handleSaveAsDraft}
+                                    desktop-style="width: 8rem; justify-content: center; margin-right: 2rem;"
+                                    mobile-style="width: 8rem; justify-content: center; margin-right: 1rem;"
+                                ></c-button>
+                                <c-button
+                                    class="send-inn-button"
+                                    button-styling="Primary"
+                                    button-label="Send inn"
+                                    type="button"
+                                    onbuttonclick={handleSubmit}
+                                    desktop-style="width: 8rem; justify-content: center"
+                                    mobile-style="width: 8rem; justify-content: center"
+                                ></c-button>
+                            </div>
+                        </section>
+                    </form>
+                </div>
+            </template>
+            <template if:true={applicationSubmitted}>
+                <div class="submission-success">
+                    <h2 class="submission-success-h2">
+                        Din søknad om tilgang til Aa-registeret er mottatt. Vi behandler søknaden så raskt vi kan. Dere
+                        vil motta et svar senest innen 4 uker.
+                    </h2>
+                    <button
+                        type="button"
+                        name="OK"
+                        class="button button-main"
+                        onclick={returnToHome}
+                        style="margin: 10px"
+                    >
+                        OK
+                    </button>
+                </div>
+            </template>
+        </template>
     </template>
-  </template>
-  <template if:true={error}>
-    <c-aareg_missing-access></c-aareg_missing-access>
-  </template>
-  <template if:false={isLoaded}>
-    <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
-  </template>
+    <template if:true={error}>
+        <c-aareg_missing-access></c-aareg_missing-access>
+    </template>
+    <template if:false={isLoaded}>
+        <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+    </template>
 </template>
