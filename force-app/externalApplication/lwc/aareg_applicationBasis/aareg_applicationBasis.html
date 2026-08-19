@@ -1,218 +1,223 @@
 <template>
-  <div class="app-section">
-    <div if:false={isOtherOrganizationType} class="row">
-      <div class="column">
-        <span class="form-control">
-          <label for="hjemmel">
-            <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
-            Hjemmel for utlevering</label
-          >
-          <lightning-helptext
-            content="Legg inn hvilken lov eller forskrift som gir dere lov til å innhente opplysningene. Opplysningene i Aa-registeret er underlagt taushetsplikt. Dere må derfor ha hjemmel i lov eller forskrift for å kunne innhente opplysningene."
-            class="slds-m-left_xx-small"
-          >
-          </lightning-helptext>
-          <select
-            name="hjemmel"
-            aria-invalid="false"
-            id="hjemmel"
-            data-id="legal-basis"
-            disabled={readOnly}
-            onchange={handleLegalBasisChange}
-            required
-          >
-            <option if:false={legalBasisValue} value="">Velg</option>
-            <template for:each={legalBasisOptions} for:item="option">
-              <option key={option.key} value={option.key}>{option.value}</option>
-            </template>
-          </select>
-          <small>Error Message</small>
-        </span>
-      </div>
-      <div class="column">
-        <span class="form-control">
-          <label for="Formal">
-            <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
-            Formål</label
-          >
-          <lightning-helptext
-            content="Oppgi hva opplysningene i Aa-registeret skal brukes til i deres virksomhet. Om dere har flere formål, skal dere oppgi hvert formål for seg. Benytt «legg til» knappen for å legge til flere formål."
-            class="slds-m-left_xx-small"
-          >
-          </lightning-helptext>
-          <select
-            name="Formål"
-            aria-invalid="false"
-            id="Formal"
-            data-id="purpose"
-            disabled={readOnly}
-            onchange={handlePurposeChange}
-            required
-          >
-            <option if:false={purposeValue} value="">Velg</option>
-            <template for:each={purposeOptions} for:item="option">
-              <option key={option.key} value={option.key}>{option.value}</option>
-            </template>
-          </select>
-          <small>Error Message</small>
-        </span>
-      </div>
-    </div>
-
-    <template if:true={showOtherInput}>
-      <div class="row">
-          <span class="form-control">
-            <label for="annet-hjemmel">
-              <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
-              Oppgi hjemmel for utlevering
-            </label>
-            <textarea
-              name="annet hjemmel"
-              id="annet-hjemmel"
-              data-id="other-legal-basis"
-              class="form-input-text-area"
-              disabled={readOnly}
-              onchange={handleInputChange}
-              onkeyup={countOtherLegalBasisChar}
-              maxlength="255"
-              required
-            >
-            {applicationBasis.OtherLegalBasis__c}
-            </textarea>
-            <span class="character-count">{remainingOtherLegalBasisChar}</span>
-            <small>Error Message</small>
-          </span>
-      </div>
-      <div class="row">
-          <span class="form-control">
-            <label for="annet-formal">
-              <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
-              Oppgi formål</label
-            >
-            <textarea
-              name="annet formål"
-              id="annet-formal"
-              data-id="other-purpose"
-              class="form-input-text-area"
-              disabled={readOnly}
-              onchange={handleInputChange}
-              onkeyup={countOtherPurposeChar}
-              maxlength="255"
-              required
-            >
-            {applicationBasis.OtherPurpose__c}
-            </textarea>
-            <span class="character-count">{remainingOtherPurposeChar}</span>
-            <small>Error Message</small>
-          </span>
-      </div>
-    </template>
-    <div class="row">
-      <div class="column">
-        <span class="form-control">
-          <label for="behandlingsgrunnlag">
-            <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
-            Behandlingsgrunnlag
-          </label>
-          <lightning-helptext
-            content="Her skal du oppgi hvilken lov eller forskrift som regulerer oppgaven/formålet dere skal bruke opplysningene til. Om virksomheten du representerer ikke er offentlig myndighet, så kan behandlingsgrunnlaget også være en avtale eller en annen rettslig forpliktelse.<br>
-            Eksempel: dersom formålet er innfordring av kommunale avgifter utenom særnamsfunksjonen, er det tvangsfullbyrdelsesloven § 7-1 og dekningsloven § 2-7 som regulerer kommunens rett til å utføre disse oppgavene."
-            class="slds-m-left_xx-small"
-          >
-          </lightning-helptext>
-          <textarea
-            name="Behandlingsgrunnlag"
-            id="behandlingsgrunnlag"
-            class="form-input-text-area"
-            data-id="processing-basis"
-            disabled={readOnly}
-            onchange={handleInputChange}
-            required
-          >
-          {applicationBasis.ProcessingBasis__c}
-          </textarea>
-          <small>Error Message</small>
-        </span>
-      </div>
-    </div>
-    <div class="row">
-      <div class="column">
-        <span class="form-control">
-          <span data-id="type-tilgang-group"></span>
-            <label for="typetilgang">
-              <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
-                  Kryss av for type tilgang dere har behov for knyttet til dette formålet.
-                </br>
-                </br>
-                  Dersom dere har behov for flere tilgangstyper til det samme formålet, velg "Legg til" og fyll inn samme formål og behandlingsgrunnlag. Kryss deretter av for den andre tilgangstypen dere har behov for.
-                </br>
-              </br>
-            </label>
-            <small>Error Message</small>
-            <div class="row">
-              <span class="form-control">
-                <input
-                  type="checkbox"
-                  name="type tilgang api"
-                  id="tilgang-api"
-                  data-id="API_Access__c"
-                  data-group="accessType"
-                  disabled={isReadOnly}
-                  checked={apiAccessValue}
-                  onchange={handleCheckboxChange}
-                />
-                <label for="tilgang-api"
-                  >Integrert oppslag (API)
-                  <lightning-helptext
-                    content="«Integrert oppslag (API)» gir tilgang til maskin-til-maskin-integrasjon. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
-                    class="slds-m-left_xx-small"
-                  >
-                  </lightning-helptext>
-                </label>
-              </span>
-              <span class="form-control">
-                <input
-                  type="checkbox"
-                  name="type tilgang online"
-                  id="tilgang-online"
-                  data-id="Online_Access__c"
-                  data-group="accessType"
-                  disabled={isReadOnly}
-                  checked={onlineAccessValue}
-                  onchange={handleCheckboxChange}
-                />
-                <label for="tilgang-online"
-                  >Web-oppslag
-                  <lightning-helptext
-                    content="«Web-oppslag» gir tilgang til web-oppslag i innlogget løsning på nav.no. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
-                    class="slds-m-left_xx-small"
-                  >
-                  </lightning-helptext>
-                </label>
-              </span>
-              <span class="form-control">
-                <input
-                  type="checkbox"
-                  name="type tilgang uttrekk"
-                  id="tilgang-uttrekk"
-                  data-id="Extraction_Access__c"
-                  data-group="accessType"
-                  disabled={isReadOnly}
-                  checked={extractAccessValue}
-                  onchange={handleCheckboxChange}
-                />
-                <label for="tilgang-uttrekk"
-                  >Uttrekk
-                  <lightning-helptext
-                    content="«Uttrekk» er utlevering som ikke er på standardformat. Det må oppgis en detaljert beskrivelse i «Vedlegg til søknad - Datainnhold» (standardformat) hva som skal inngå i uttrekket og utleveringsfrekvens. NAV kan ta seg betalt for å utvikle uttrekket."
-                    class="slds-m-left_xx-small"
-                  >
-                  </lightning-helptext>
-                </label>
-              </span>
+    <div class="app-section">
+        <div if:false={isOtherOrganizationType} class="row">
+            <div class="column">
+                <span class="form-control">
+                    <label for="hjemmel">
+                        <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
+                        Hjemmel for utlevering</label
+                    >
+                    <lightning-helptext
+                        content="Legg inn hvilken lov eller forskrift som gir dere lov til å innhente opplysningene. Opplysningene i Aa-registeret er underlagt taushetsplikt. Dere må derfor ha hjemmel i lov eller forskrift for å kunne innhente opplysningene."
+                        class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
+                    <select
+                        name="hjemmel"
+                        aria-invalid="false"
+                        id="hjemmel"
+                        data-id="legal-basis"
+                        disabled={readOnly}
+                        onchange={handleLegalBasisChange}
+                        required
+                    >
+                        <option if:false={legalBasisValue} value="">Velg</option>
+                        <template for:each={legalBasisOptions} for:item="option">
+                            <option key={option.key} value={option.key}>{option.value}</option>
+                        </template>
+                    </select>
+                    <small>Error Message</small>
+                </span>
             </div>
-        </span>
-      </div>
-    </div>
+            <div class="column">
+                <span class="form-control">
+                    <label for="Formal">
+                        <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
+                        Formål</label
+                    >
+                    <lightning-helptext
+                        content="Oppgi hva opplysningene i Aa-registeret skal brukes til i deres virksomhet. Om dere har flere formål, skal dere oppgi hvert formål for seg. Benytt «legg til» knappen for å legge til flere formål."
+                        class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
+                    <select
+                        name="Formål"
+                        aria-invalid="false"
+                        id="Formal"
+                        data-id="purpose"
+                        disabled={readOnly}
+                        onchange={handlePurposeChange}
+                        required
+                    >
+                        <option if:false={purposeValue} value="">Velg</option>
+                        <template for:each={purposeOptions} for:item="option">
+                            <option key={option.key} value={option.key}>{option.value}</option>
+                        </template>
+                    </select>
+                    <small>Error Message</small>
+                </span>
+            </div>
+        </div>
+
+        <template if:true={showOtherInput}>
+            <div class="row">
+                <span class="form-control">
+                    <label for="annet-hjemmel">
+                        <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
+                        Oppgi hjemmel for utlevering
+                    </label>
+                    <textarea
+                        name="annet hjemmel"
+                        id="annet-hjemmel"
+                        data-id="other-legal-basis"
+                        class="form-input-text-area"
+                        disabled={readOnly}
+                        onchange={handleInputChange}
+                        onkeyup={countOtherLegalBasisChar}
+                        maxlength="255"
+                        required
+                    >
+            {applicationBasis.OtherLegalBasis__c}
+            </textarea
+                    >
+                    <span class="character-count">{remainingOtherLegalBasisChar}</span>
+                    <small>Error Message</small>
+                </span>
+            </div>
+            <div class="row">
+                <span class="form-control">
+                    <label for="annet-formal">
+                        <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
+                        Oppgi formål</label
+                    >
+                    <textarea
+                        name="annet formål"
+                        id="annet-formal"
+                        data-id="other-purpose"
+                        class="form-input-text-area"
+                        disabled={readOnly}
+                        onchange={handleInputChange}
+                        onkeyup={countOtherPurposeChar}
+                        maxlength="255"
+                        required
+                    >
+            {applicationBasis.OtherPurpose__c}
+            </textarea
+                    >
+                    <span class="character-count">{remainingOtherPurposeChar}</span>
+                    <small>Error Message</small>
+                </span>
+            </div>
+        </template>
+        <div class="row">
+            <div class="column">
+                <span class="form-control">
+                    <label for="behandlingsgrunnlag">
+                        <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
+                        Behandlingsgrunnlag
+                    </label>
+                    <lightning-helptext
+                        content="Her skal du oppgi hvilken lov eller forskrift som regulerer oppgaven/formålet dere skal bruke opplysningene til. Om virksomheten du representerer ikke er offentlig myndighet, så kan behandlingsgrunnlaget også være en avtale eller en annen rettslig forpliktelse.<br>
+            Eksempel: dersom formålet er innfordring av kommunale avgifter utenom særnamsfunksjonen, er det tvangsfullbyrdelsesloven § 7-1 og dekningsloven § 2-7 som regulerer kommunens rett til å utføre disse oppgavene."
+                        class="slds-m-left_xx-small"
+                    >
+                    </lightning-helptext>
+                    <textarea
+                        name="Behandlingsgrunnlag"
+                        id="behandlingsgrunnlag"
+                        class="form-input-text-area"
+                        data-id="processing-basis"
+                        disabled={readOnly}
+                        onchange={handleInputChange}
+                        required
+                    >
+          {applicationBasis.ProcessingBasis__c}
+          </textarea
+                    >
+                    <small>Error Message</small>
+                </span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <span class="form-control">
+                    <span data-id="type-tilgang-group"></span>
+                    <label for="typetilgang">
+                        <abbr if:false={readOnly} class="slds-required" title="Påkrevd felt">* </abbr>
+                        Kryss av for type tilgang dere har behov for knyttet til dette formålet.
+                        <br />
+                        <br />
+                        Dersom dere har behov for flere tilgangstyper til det samme formålet, velg "Legg til" og fyll
+                        inn samme formål og behandlingsgrunnlag. Kryss deretter av for den andre tilgangstypen dere har
+                        behov for.
+                        <br />
+                        <br />
+                    </label>
+                    <small>Error Message</small>
+                    <div class="row">
+                        <span class="form-control">
+                            <input
+                                type="checkbox"
+                                name="type tilgang api"
+                                id="tilgang-api"
+                                data-id="API_Access__c"
+                                data-group="accessType"
+                                disabled={isReadOnly}
+                                checked={apiAccessValue}
+                                onchange={handleCheckboxChange}
+                            />
+                            <label for="tilgang-api"
+                                >Integrert oppslag (API)
+                                <lightning-helptext
+                                    content="«Integrert oppslag (API)» gir tilgang til maskin-til-maskin-integrasjon. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
+                                    class="slds-m-left_xx-small"
+                                >
+                                </lightning-helptext>
+                            </label>
+                        </span>
+                        <span class="form-control">
+                            <input
+                                type="checkbox"
+                                name="type tilgang online"
+                                id="tilgang-online"
+                                data-id="Online_Access__c"
+                                data-group="accessType"
+                                disabled={isReadOnly}
+                                checked={onlineAccessValue}
+                                onchange={handleCheckboxChange}
+                            />
+                            <label for="tilgang-online"
+                                >Web-oppslag
+                                <lightning-helptext
+                                    content="«Web-oppslag» gir tilgang til web-oppslag i innlogget løsning på nav.no. Dette er en standardløsning som er beskrevet på GitHub og tilbys gratis."
+                                    class="slds-m-left_xx-small"
+                                >
+                                </lightning-helptext>
+                            </label>
+                        </span>
+                        <span class="form-control">
+                            <input
+                                type="checkbox"
+                                name="type tilgang uttrekk"
+                                id="tilgang-uttrekk"
+                                data-id="Extraction_Access__c"
+                                data-group="accessType"
+                                disabled={isReadOnly}
+                                checked={extractAccessValue}
+                                onchange={handleCheckboxChange}
+                            />
+                            <label for="tilgang-uttrekk"
+                                >Uttrekk
+                                <lightning-helptext
+                                    content="«Uttrekk» er utlevering som ikke er på standardformat. Det må oppgis en detaljert beskrivelse i «Vedlegg til søknad - Datainnhold» (standardformat) hva som skal inngå i uttrekket og utleveringsfrekvens. NAV kan ta seg betalt for å utvikle uttrekket."
+                                    class="slds-m-left_xx-small"
+                                >
+                                </lightning-helptext>
+                            </label>
+                        </span>
+                    </div>
+                </span>
+            </div>
+        </div>
     </div>
 </template>
