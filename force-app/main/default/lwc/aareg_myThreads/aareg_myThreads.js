@@ -81,9 +81,9 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
 
   async connectedCallback() {
     try {
-      const representingPerson = sessionStorage.getItem(`${this.currentUser}_userType`) === 'Employee';
-      console.log('Cache key:', `${this.currentUser}_userType`, 'Cache value on connectedCallback:', representingPerson);
-      await this.loadThreads(representingPerson);
+      console.log('User type in cache on connectedCallback in aareg_myThreads.js at line number 84:', sessionStorage.getItem(`${this.currentUser}_userType`));
+      const representingOrganization = sessionStorage.getItem(`${this.currentUser}_userType`) === 'Organization';
+      await this.loadThreads(!representingOrganization);
     } catch (error) {
       console.error(error);
       this.error = error;
@@ -93,9 +93,11 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
 
   async loadThreads(isPerson) {
     try {
+      console.log('Loading threads in loadThreads in aareg_myThreads.js at line number 96:', isPerson);
       const data = isPerson
         ? await getUsersThreadsForPerson({ userId: this.currentUser })
         : await getUsersThreadsForOrganization({ userId: this.currentUser });
+      console.log(this.currentUser, 'Threads loaded in loadThreads in aareg_myThreads.js at line number 100:', data);
 
       const rows = data.map(r => ({
         ...r,
@@ -114,6 +116,7 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
   }
 
  async viewThread(event) {
+    console.log('Navigating to thread in viewThread in aareg_myThreads.js at line number 124:', event.detail.row);
     const row = event.detail.row;
     this[NavigationMixin.Navigate]({
       type: 'standard__recordPage',
@@ -124,10 +127,11 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
     });
 
     try {
-      const representingPerson = sessionStorage.getItem(`${this.currentUser}_userType`) === 'Employee';
-      console.log('Cache key:', `${this.currentUser}_userType`, 'Cache value on viewThread:', representingPerson);
-      await this.loadThreads(representingPerson);
+      console.log('User type in cache on viewThread in aareg_myThreads.js at line number 127:', sessionStorage.getItem(`${this.currentUser}_userType`));
+      const representingOrganization = sessionStorage.getItem(`${this.currentUser}_userType`) === 'Organization';
+      await this.loadThreads(!representingOrganization);
     } catch (error) {
+      console.log('Error occurred while reloading threads in viewThread in aareg_myThreads.js at line number 134:', error);
       console.error(error);
       this.error = error;
       this.threads = undefined;
@@ -135,6 +139,7 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
   }
 
   navigateToPage(event) {
+    console.log('Navigating to page in navigateToPage in aareg_myThreads.js at line number 140:', event.target.name);
     const page = event.target.name;
     this[NavigationMixin.Navigate]({
       type: 'comm__namedPage',

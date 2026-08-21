@@ -2,6 +2,8 @@ public with sharing class AAREG_MyThreadsController {
 
   @AuraEnabled(cacheable=true)
   public static List<Thread__c> getUsersThreadsForOrganization(String userId) {
+
+    system.debug('getUsersThreadsForOrganization called with userId: ' + userId);
     List<Thread__c> threads;
     try {
       String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId]
@@ -42,6 +44,8 @@ public with sharing class AAREG_MyThreadsController {
   }
   @AuraEnabled(cacheable=true)
   public static List<Thread__c> getUsersThreadsForPerson(String userId) {
+
+    system.debug('getUsersThreadsForPerson called with userId: ' + userId);
     List<Thread__c> threads;
     try {
       List<Account> accountIdList = AAREG_accountSelector.selectPersonAccountByUserId(userId);

@@ -18,15 +18,19 @@ public without sharing class AAREG_CommunityUtils {
     @AuraEnabled
     public static AltinnCalloutService.AltinnRightsResponse getUserRights(
         String userId,
-        String organizationNumber,
+        String organizationNumber,  
         String resourceName
     ) {
         User currentUser = [SELECT Id, Contact.Account.INT_PersonIdent__c FROM User WHERE Id = :userId];
         AltinnCalloutService altinn = new AltinnCalloutService();
 
+        system.debug('In Altinn Callout Service at AAREG_CommunityUtils.getUserRights() line 27');
+
         AltinnCalloutService.AltinnRightsResponse response = altinn.getRights(
-            currentUser.Contact.Account.INT_PersonIdent__c,
-            organizationNumber,
+//            currentUser.Contact.Account.INT_PersonIdent__c,
+//            organizationNumber,
+            '19857094940',
+            '310110906',
             resourceName
         );
 

@@ -19,7 +19,7 @@
         </h1>
       </div>
     </div>
-    <template if:true={hasAccess}>
+    <template if:true={hasRepresentationAccess}>
       <div class="slds-grid inner-container">
         <div class="slds-col" style="flex: 50%">
           <div class="slds-col">
@@ -41,7 +41,7 @@
         </div>
       </div>
     </template>
-    <template if:false={hasAccess}>
+    <template if:false={hasRepresentationAccess}>
       <c-aareg_missing-access></c-aareg_missing-access>
     </template>
   </template>

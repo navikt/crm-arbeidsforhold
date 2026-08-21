@@ -89,6 +89,40 @@ public without sharing class AAREG_HomeController {
             }
         }
 
+        if (!hasApplicationAccess) {
+            rightsResp = AAREG_CommunityUtils.getUserRights(
+                userId,
+                orgNumber,
+                'nav_arbeidsforhold_aa-registeret-innsyn-arbeidsgiver'
+            );
+
+            if (rightsResp?.rights != null) {
+                for (AltinnCalloutService.Right right : rightsResp.rights) {
+                    if (right.Action == 'Access' && right.Decision == 'Permit') {
+                        hasAccess = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!hasApplicationAccess) {
+            rightsResp = AAREG_CommunityUtils.getUserRights(
+                userId,
+                orgNumber,
+                'nav_arbeidsforhold_aa-registeret-oppslag-samarbeidspartnere'
+            );
+
+            if (rightsResp?.rights != null) {
+                for (AltinnCalloutService.Right right : rightsResp.rights) {
+                    if (right.Action == 'Access' && right.Decision == 'Permit') {
+                        hasAccess = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         if (hasAccess) {
             shareAgreementsWithUser(userId);
         }
