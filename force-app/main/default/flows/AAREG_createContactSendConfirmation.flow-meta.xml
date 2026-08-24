@@ -645,6 +645,7 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <triggerOrder>500</triggerOrder>
     <variables>
         <name>templateId</name>
         <dataType>String</dataType>

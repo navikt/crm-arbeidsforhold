@@ -847,6 +847,7 @@ Setter også svarfristdato</description>
         <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>&lt;p&gt;{!conGES}&lt;/p&gt;</text>
     </textTemplates>
+    <triggerOrder>600</triggerOrder>
     <variables>
         <name>legalBasisList</name>
         <dataType>String</dataType>
