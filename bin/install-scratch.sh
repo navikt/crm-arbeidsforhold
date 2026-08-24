@@ -71,7 +71,7 @@ assignPermission() {
 #}
 
 runPostInstallScripts() {
-    sf apex run --file ./scripts/apex/activateMock.cls || { error $? '"sf apex run" command failed for Apex class: "activateMock".'; }
+    sf apex run --file ./scripts/apex/activateMock.apex || { error $? '"sf apex run" command failed for Apex script: "activateMock".'; }
 }
 
 publishCommunity() {
