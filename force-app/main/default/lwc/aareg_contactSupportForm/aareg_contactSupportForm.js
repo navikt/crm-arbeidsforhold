@@ -29,6 +29,67 @@ import enrichUploadedFiles from '@salesforce/apex/AAREG_contactSupportController
 import { validateEmail } from 'c/aareg_helperClass';
 import deleteFiles from '@salesforce/apex/AAREG_contactSupportController.deleteFiles';
 
+const COMMON_INTRO_HTML =
+  'For at vi skal kunne gi deg raskest mulig svar, må du oppgi hvilken type henvendelse du sender oss. <br>' +
+  'Gå til ofte stilte spørsmål om du lurer på bruk av tjenesten. <br>' +
+  'Lenke videre <a href="https://www.nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/brukerstotte-for-samarbeidspartnere#chapter-3"> Ofte stilte spørsmål </a> <br>';
+
+const SUPPORT_SCOPE_NOTE =
+  'NB! Denne brukerstøtten gjelder kun spørsmål knyttet til Aa-registeret (Arbeidsgiver- og arbeidstakerregisteret)';
+
+const PARTNER_TIPS_INFO =
+  'Her finner du mer informasjon om Tips om uriktige eller manglende opplysninger i registeret. <a href="https://www.nav.no/samarbeidspartner/brukerstotte-aa-registeret#tips"> Ofte stilte spørsmål </a> <br>';
+
+const USER_TYPE_PAGE_CONFIG = {
+    organization: {
+        banner: 'Søke om tilgang til Aa-registeret for Søker',
+        header: 'Henvendelse til Aa-registeret vedrørende søknad om tilgang til registeret',
+        introduction: `${COMMON_INTRO_HTML}${SUPPORT_SCOPE_NOTE}`
+    },
+
+    userSupport: {
+        banner: 'Brukerstøtte for Aa-registeret for brukerstøtterollen',
+        header: 'Ny Henvendelse vedrørende Aa-registeret',
+        introduction: `${COMMON_INTRO_HTML}${SUPPORT_SCOPE_NOTE}`
+    },
+
+    partner: {
+        banner: 'Innsyn i Aa-registeret for samarbeidspartnere',
+        header: 'Henvendelse vedrørende Aa-registeret for samarbeidspartnere',
+        introduction: `${COMMON_INTRO_HTML}${PARTNER_TIPS_INFO}`
+    },
+
+    employer: {
+        banner: 'Innsyn i Aa-registeret for arbeidsgiver',
+        header: 'Henvendelse vedrørende Aa-registeret for arbeidsgiver',
+        introduction:
+            'For at vi skal kunne gi deg raskest mulig svar, må du oppgi hvilken type henvendelse du sender oss. <br>'
+    },
+
+    employee: {
+        banner: 'Innsyn i Aa-registeret for arbeidstaker',
+        header: 'Henvendelse vedrørende Aa-registeret for arbeidstaker',
+        introduction:
+            'For at vi skal kunne gi deg raskest mulig svar, må du oppgi hvilken type henvendelse du sender oss. <br>'
+    },
+
+    default: {
+        banner: 'Aa-registeret - Melding til brukerstøtte',
+        header: 'Ny henvendelse vedrørende Aa-registeret',
+        introduction:
+            'For at vi skal kunne gi deg raskest mulig svar, må du oppgi hvilken type henvendelse du sender oss.'
+    }
+};
+
+const USER_TYPE_ALIASES = {
+  organization: 'organization',
+  usersupport: 'userSupport',
+  partner: 'partner',
+  employer: 'employer',
+  employee: 'employee'
+};
+
+
 export default class Aareg_contactSupportForm extends NavigationMixin(LightningElement) {
   // Reactive state for inquiry form
   @track inquiry;
@@ -62,6 +123,32 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   finalRecordId;
   uploadedFiles = []; // [{ documentId, name }]
   acceptedFileFormats = ['.pdf', '.docx', '.xlsx', '.png', '.jpg', '.jpeg'];
+  
+  userType = sessionStorage.getItem(`${this.currentUser}_userType`);
+
+  get normalizedUserType() {
+    return (this.userType || '').replace(/[^a-z]/gi, '').toLowerCase();
+  }
+
+  get resolvedUserType() {
+    return USER_TYPE_ALIASES[this.normalizedUserType] || 'default';
+  }
+
+  get pageConfig() {
+    return USER_TYPE_PAGE_CONFIG[this.resolvedUserType] || USER_TYPE_PAGE_CONFIG.default;
+  }
+
+  get bannerText() {
+    return this.pageConfig.banner;
+  }
+
+  get headerText() {
+    return this.pageConfig.header;
+  }
+
+  get introductionHtml() {
+    return this.pageConfig.introduction;
+  }
 
   // Breadcrumbs for navigation, dynamically updated based on the user's navigation path to provide context and easy navigation back to relevant pages
   breadcrumbs = [
@@ -108,10 +195,8 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     }
 
     console.log('User type in cache on connectedCallback in aareg_contactSupportForm.js at line number 110:', sessionStorage.getItem(`${this.currentUser}_userType`));
-    const representingOrganization = sessionStorage.getItem(`${this.currentUser}_userType`);
-    this.isRepresentingOrganization = representingOrganization === 'Organization';
+    this.isRepresentingOrganization = this.userType === 'Organization';
     this._updateRecordTypeId();
-
   }
 
 

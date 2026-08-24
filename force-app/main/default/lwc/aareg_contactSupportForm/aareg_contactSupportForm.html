@@ -1,6 +1,6 @@
 <template>
   <!-- Page banner with static heading for the support form -->
-  <c-aareg_main-banner>Aa-registeret - Melding til brukerstøtte</c-aareg_main-banner>
+  <c-aareg_main-banner>{pageConfig.banner}</c-aareg_main-banner>
 
   <div class="container">
     <div class="inner-container">
@@ -17,17 +17,13 @@
           <div class="slds-grid slds-grid_vertical support-form">
             <div class="slds-col slds-align_absolute-center slds-m-top_x-small">
               <!-- Page-level heading for new Aa-registeret inquiry -->
-              <h1>Ny henvendelse vedrørende Aa-registeret</h1>
+              <h1>{pageConfig.header}</h1>
             </div>
 
             <!-- User guidance and link to FAQs (external) -->
             <p class="pl-20" style="text-align: left;">
-              For at vi skal kunne gi deg raskest mulig svar, må du oppgi hvilken type henvendelse du sender oss. <br>
-              Gå til ofte stilte spørsmål om du lurer på bruk av tjenesten. <br>
-              Lenke videre <a href="https://www.nav.no/no/nav-og-samfunn/samarbeid/tilgang-til-arbeidsgiver-og-arbeidstakerregisteret-aa-registeret/brukerstotte-for-samarbeidspartnere#chapter-3"> Ofte stilte spørsmål </a> <br>
-              NB! Denne brukerstøtten gjelder kun spørsmål knyttet til Aa-registeret (Arbeidsgiver- og arbeidstakerregisteret)
+              <lightning-formatted-rich-text value={introductionHtml}></lightning-formatted-rich-text>
             </p>
-
             <!-- Required category selector; data-id maps to field API name -->
             <div class="slds-col slds-m-top_small">
               <span class="form-control">
