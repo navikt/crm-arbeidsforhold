@@ -8,8 +8,29 @@ import getOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.get
 import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.updateLastUsedOrganization';
 import checkAndShareIfAuthorized from '@salesforce/apex/AAREG_HomeController.checkAndShareIfAuthorized';
 
+const USER_TYPE_HEADER_CONFIG = {
+    organization: {
+        header: 'Min side - Brukerstøtte og søknad om tilgang til Aa-registeret'
+    },
+    usersupport: {
+        header: 'Min side - Brukerstøtte til Aa-registeret'
+    },
+    partner: {
+        header: 'Min side - Brukerstøtte til Aa-registeret'
+    },
+    employer: {
+        header: 'Min side - Brukerstøtte til Aa-registeret'
+    },
+    employee: {
+        header: 'Min side - Brukerstøtte til Aa-registeret'
+    },
+    default: {
+        header: 'Min side - Brukerstøtte og søknad om tilgang til Aa-registeret'
+    }
+};
+
 export default class Aareg_home extends LightningElement {
-    supportedUserTypes = ['Organization', 'Employer', 'Employee', 'Partner'];
+    supportedUserTypes = ['organization', 'usersupport', 'employer', 'employee', 'partner'];
     organizations;
     isLoaded = false;
     hasApplicationAccess = false;
@@ -18,11 +39,12 @@ export default class Aareg_home extends LightningElement {
     currentUser = Id;
     showError = false;
     selectedUserType;
+    headerText = USER_TYPE_HEADER_CONFIG.default.header;
     // Initialize only once. URL changes after initialization are ignored.
     isInitialized = false;
     get representsPrivatePerson() {
         console.log('User type in cache in aareg_home.js at line number 24:', sessionStorage.getItem(`${this.currentUser}_userType`));
-        return this.selectedUserType !== 'Organization';
+        return this.selectedUserType !== 'organization';
     }
     messages =
         'Avtaler er for øyeblikket ikke tilgjengelig. Send inn en brukerstøtte sak, hvis tilgang til avtale haster.';
@@ -49,14 +71,12 @@ export default class Aareg_home extends LightningElement {
         'VIFE'
     ];
 
-    onlyOrganizations = ['Organization'];
+    onlyOrganizations = ['organization'];
 
     @wire(CurrentPageReference)
     handlePageRef(pageRef) {
-        debugger;
         console.log('Page reference in aareg_home.js at line number 56:', pageRef);
         if (!pageRef || this.isInitialized) {
-            debugger;
             console.log('Page reference is not available or already initialized in aareg_home.js at line number 58:', pageRef, this.isInitialized);
             return;
         }
@@ -64,15 +84,10 @@ export default class Aareg_home extends LightningElement {
         const state = pageRef.state || {};
 
         const rawUserType =
-            state.userType ||
-            state.usertype ||
-            state.c__userType;
+            state.userType || state.usertype || state.c__userType;
 
         const rawOrgNr = (
-            state.orgNr ||
-            state.c__orgNr ||
-            state.organizationNumber ||
-            state.c__organizationNumber ||
+            state.orgNr || state.c__orgNr || state.organizationNumber || state.c__organizationNumber ||
             ''
         ).trim();
 
@@ -87,18 +102,22 @@ export default class Aareg_home extends LightningElement {
         } else if (storedUserType) {
             this.selectedUserType = this.normalizeUserType(storedUserType);
         } else {
-            this.selectedUserType = 'Organization';
+            this.selectedUserType = 'organization';
         }
-        debugger;
         console.log('Selected user type in aareg_home.js at line number 89:', this.selectedUserType);
 
         this.lastUsedOrganization = rawOrgNr || null;
+        if (!this.lastUsedOrganization) {
+            const storedOrgNr = sessionStorage.getItem(`${this.currentUser}_orgNr`);  
+            this.lastUsedOrganization = storedOrgNr || null;
+        }
 
         // Store the resolved user type for subsequent visits.
         sessionStorage.setItem(storageKey, this.selectedUserType);
         sessionStorage.setItem(`${this.currentUser}_orgNr`, this.lastUsedOrganization || '');
-        debugger;
         console.log('User type in cache on handlePageRef in aareg_home.js at line number 91:', sessionStorage.getItem(storageKey));
+
+        this.headerText = (USER_TYPE_HEADER_CONFIG[this.selectedUserType] || USER_TYPE_HEADER_CONFIG.default).header;
 
         // 
         this.isInitialized = true;
@@ -107,13 +126,11 @@ export default class Aareg_home extends LightningElement {
     }
 
     render() {
-        debugger;
         console.log('Render method called in aareg_home.js at line number 106:', this.representsPrivatePerson);
         return this.representsPrivatePerson ? userSupportTemplate : applicationAccessTemplate;
     }
 
     async init() {
-        debugger;
         console.log('Init method called in aareg_home.js at line number 111:', this.representsPrivatePerson);
 
         if (this.representsPrivatePerson) {
@@ -123,7 +140,7 @@ export default class Aareg_home extends LightningElement {
             this.showError = false;
 
             // if user type is employer or partner, we need to check whether the user has access to the application. If not, we will show the user support template.
-            if (this.selectedUserType === 'Employer' || this.selectedUserType === 'Partner') {
+            if (this.selectedUserType === 'employer' || this.selectedUserType === 'partner') {
                 console.log('Going to secureAccessCheck in init in aareg_home.js at line number 117:', this.representsPrivatePerson);
                 await this.secureAccessCheck();
                 if (!this.hasRepresentationAccess) {
@@ -133,7 +150,7 @@ export default class Aareg_home extends LightningElement {
                 }         
             } else  this.hasRepresentationAccess = true;
             console.log('In init in aareg_home.js at line number 126:', this.representsPrivatePerson);
-            this.hasApplicationAccess = false; // We don't need to check for application access for user types other than 'Organization'.
+            this.hasApplicationAccess = false; // We don't need to check for application access for user types other than 'organization'.
             this.updateUrl();
             this.isLoaded = true;
             console.log('Exiting init in aareg_home.js at line number 130:', this.representsPrivatePerson);
@@ -141,11 +158,9 @@ export default class Aareg_home extends LightningElement {
         }
 
         console.log('representsPrivatePerson is false in init in aareg_home.js at line number 137:', this.representsPrivatePerson);
-        debugger;
 
         try {
             console.log('Going to getOrganizationsWithRoles in init in aareg_home.js at line number 140:', this.representsPrivatePerson);
-            debugger;
             const orgResult = await getOrganizationsWithRoles({ userId: this.currentUser });
             if (orgResult.success) {
                 console.log('Organizations fetched successfully in init in aareg_home.js at line number 143:', orgResult);
@@ -159,7 +174,6 @@ export default class Aareg_home extends LightningElement {
                 }
             } else {
                 console.error(`Failed to get organizations in init in aareg_home.js at line number 152: ${orgResult.errorMessage}`);
-                debugger;
                 throw new Error(`Failed to get organizations ${orgResult.errorMessage}`);
             }
 
@@ -167,20 +181,18 @@ export default class Aareg_home extends LightningElement {
                 this.lastUsedOrganization = await getLastUsersLastUsedOrganization({
                     userId: this.currentUser
                 });
-                console.log('Last used organization fetched successfully in init in aareg_home.js at line number 170:', this.lastUsedOrganization);
                 sessionStorage.setItem(`${this.currentUser}_orgNr`, this.lastUsedOrganization || '');
+                console.log('Last used organization fetched successfully in init in aareg_home.js at line number 170:', this.lastUsedOrganization);
             }
             this.sortOrganizations();
             this.updateUrl();
 
             if (this.lastUsedOrganization) {
                 console.log('Going to secureAccessCheck in init in aareg_home.js at line number 156:', this.representsPrivatePerson);
-                debugger;
                 await this.secureAccessCheck();
             }
         } catch (error) {
             console.error(error);
-            debugger;
             this.showErrorMessage('En feil oppstod. Vennligst prøv igjen eller refresh siden.');
         } finally {
             this.isLoaded = true;
@@ -189,27 +201,24 @@ export default class Aareg_home extends LightningElement {
 
     async handleOrganizationChange(event) {
         console.log('Organization changed in handleOrganizationChange in aareg_home.js at line number 178:', event.target.value);
-        debugger;
         this.isLoaded = false;
         this.hasRepresentationAccess = false;
         this.hasApplicationAccess = false;
         this.lastUsedOrganization = event.target.value;
-        sessionStorage.setItem(`${this.currentUser}_orgNr`, this.lastUsedOrganization || '');
 
         try {
             await updateLastUsedOrganization({
                 organizationNumber: this.lastUsedOrganization,
                 userId: this.currentUser
             });
+            sessionStorage.setItem(`${this.currentUser}_orgNr`, this.lastUsedOrganization || '');
             this.sortOrganizations();
             this.updateUrl();
             console.log('Going to secureAccessCheck in handleOrganizationChange in aareg_home.js at line number 191:', this.representsPrivatePerson);
-            debugger;
             await this.secureAccessCheck();
         } catch (error) {
             console.log('Error occurred in handleOrganizationChange in aareg_home.js at line number 194:', error);
             console.error(error);
-            debugger;
             this.showErrorMessage('En feil oppstod. Vennligst prøv igjen eller refresh siden.');
         } finally {
             this.isLoaded = true;
@@ -218,7 +227,6 @@ export default class Aareg_home extends LightningElement {
 
     sortOrganizations() {
         console.log('Sorting organizations in sortOrganizations in aareg_home.js at line number 203:', this.organizations, this.lastUsedOrganization);
-        debugger;
         if (!this.organizations) {
             return;
         }
@@ -247,7 +255,6 @@ export default class Aareg_home extends LightningElement {
 
     async secureAccessCheck() {
         console.log('Going to checkAndShareIfAuthorized in secureAccessCheck in aareg_home.js at line number 218:', this.representsPrivatePerson);
-        debugger;
         try {
             const result = await checkAndShareIfAuthorized({
                 userId: this.currentUser,
@@ -261,7 +268,6 @@ export default class Aareg_home extends LightningElement {
             
         } catch (error) {
             console.log('Error occurred in secureAccessCheck in aareg_home.js at line number 244:', error);
-            debugger;
             this.hasApplicationAccess = false;
             this.hasRepresentationAccess = false;
             console.log('At line number 232 hasApplicationAccess:', this.hasApplicationAccess, 'hasRepresentationAccess:', this.hasRepresentationAccess);
@@ -274,27 +280,24 @@ export default class Aareg_home extends LightningElement {
 
     get hasPreviouslySelectedOrganization() {
         console.log('Checking if user has previously selected organization in hasPreviouslySelectedOrganization in aareg_home.js at line number 248:', this.lastUsedOrganization);
-        debugger;
         return this.lastUsedOrganization;
     }
 
     normalizeUserType(userType) {
         console.log('Normalizing user type in normalizeUserType in aareg_home.js at line number 261:', userType);
-        debugger;
         if (!userType) {
-            return 'Organization';
+            return 'organization';
         }
 
         return (
             this.supportedUserTypes.find(
                 (type) => type.toLowerCase() === userType.toLowerCase()
-            ) || 'Organization'
+            ) || 'organization'
         );
     }
 
     updateUrl() {
         console.log('Updating URL in updateUrl in aareg_home.js at line number 273:', this.selectedUserType, this.lastUsedOrganization);
-        debugger;
         const url = new URL(window.location.href);
         url.searchParams.set('userType', this.selectedUserType);
 
@@ -309,14 +312,12 @@ export default class Aareg_home extends LightningElement {
 
     closeErrorMessage() {
         console.log('Closing error message in closeErrorMessage in aareg_home.js at line number 288');
-        debugger;
         this.showError = false;
     }
 
     errorMsg = 'En feil oppstod. Vennligst prøv igjen eller refresh siden.';
     showErrorMessage(errorMsg) {
         console.log('Showing error message in showErrorMessage in aareg_home.js at line number 293:', errorMsg);
-        debugger;
         this.showError = true;
         this.errorMsg = errorMsg;
     }

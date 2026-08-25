@@ -19,11 +19,11 @@ describe('c-aareg-home', () => {
 
         element.handlePageRef({
             state: {
-                usertype: 'Employer'
+                usertype: 'employer'
             }
         });
 
-        expect(element.selectedUserType).toBe('Employer');
+        expect(element.selectedUserType).toBe('employer');
         expect(element.representsPrivatePerson).toBe(true);
     });
 });

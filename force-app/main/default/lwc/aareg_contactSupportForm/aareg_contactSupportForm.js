@@ -83,7 +83,7 @@ const USER_TYPE_PAGE_CONFIG = {
 
 const USER_TYPE_ALIASES = {
   organization: 'organization',
-  usersupport: 'userSupport',
+  usersupport: 'usersupport',
   partner: 'partner',
   employer: 'employer',
   employee: 'employee'

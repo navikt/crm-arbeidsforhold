@@ -82,7 +82,7 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
   async connectedCallback() {
     try {
       console.log('User type in cache on connectedCallback in aareg_myThreads.js at line number 84:', sessionStorage.getItem(`${this.currentUser}_userType`));
-      const representingOrganization = sessionStorage.getItem(`${this.currentUser}_userType`) === 'Organization';
+      const representingOrganization = sessionStorage.getItem(`${this.currentUser}_userType`) === 'organization';
       await this.loadThreads(!representingOrganization);
     } catch (error) {
       console.error(error);
@@ -128,7 +128,7 @@ export default class Aareg_myThreads extends NavigationMixin(LightningElement) {
 
     try {
       console.log('User type in cache on viewThread in aareg_myThreads.js at line number 127:', sessionStorage.getItem(`${this.currentUser}_userType`));
-      const representingOrganization = sessionStorage.getItem(`${this.currentUser}_userType`) === 'Organization';
+      const representingOrganization = sessionStorage.getItem(`${this.currentUser}_userType`) === 'organization';
       await this.loadThreads(!representingOrganization);
     } catch (error) {
       console.log('Error occurred while reloading threads in viewThread in aareg_myThreads.js at line number 134:', error);
