@@ -96,6 +96,7 @@ export default class Aareg_home extends LightningElement {
 
         // Store the resolved user type for subsequent visits.
         sessionStorage.setItem(storageKey, this.selectedUserType);
+        sessionStorage.setItem(`${this.currentUser}_orgNr`, this.lastUsedOrganization || '');
         debugger;
         console.log('User type in cache on handlePageRef in aareg_home.js at line number 91:', sessionStorage.getItem(storageKey));
 
@@ -166,6 +167,8 @@ export default class Aareg_home extends LightningElement {
                 this.lastUsedOrganization = await getLastUsersLastUsedOrganization({
                     userId: this.currentUser
                 });
+                console.log('Last used organization fetched successfully in init in aareg_home.js at line number 170:', this.lastUsedOrganization);
+                sessionStorage.setItem(`${this.currentUser}_orgNr`, this.lastUsedOrganization || '');
             }
             this.sortOrganizations();
             this.updateUrl();
@@ -191,6 +194,7 @@ export default class Aareg_home extends LightningElement {
         this.hasRepresentationAccess = false;
         this.hasApplicationAccess = false;
         this.lastUsedOrganization = event.target.value;
+        sessionStorage.setItem(`${this.currentUser}_orgNr`, this.lastUsedOrganization || '');
 
         try {
             await updateLastUsedOrganization({

@@ -196,6 +196,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
 
     console.log('User type in cache on connectedCallback in aareg_contactSupportForm.js at line number 110:', sessionStorage.getItem(`${this.currentUser}_userType`));
     this.isRepresentingOrganization = this.userType === 'Organization';
+    console.log('isRepresentingOrganization:', this.isRepresentingOrganization);
     this._updateRecordTypeId();
   }
 
@@ -228,18 +229,24 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
   }
 
   _updateRecordTypeId() {
+    console.log('Updating record type ID for picklist based on user context... at line 232 in aareg_contactSupportForm.js');
     if (!this.inquiryObjectInfo?.data) return;
+    console.log('Updating record type ID for picklist based on user context... at line 234 in aareg_contactSupportForm.js');
+    console.log('Inquiry Object Info at line 235 in aareg_contactSupportForm.js:', this.inquiryObjectInfo.data);
     if (!this.isRepresentingOrganization) {
       const rtInfos = this.inquiryObjectInfo.data.recordTypeInfos;
       //log record type infos for debugging purposes; this should include the record type for personal inquiries
       const personalRt = Object.values(rtInfos).find(
         rt => rt.name === 'Personal Inquiries'
       );
+      console.log('Record Type Infos at line 242 in aareg_contactSupportForm.js:', rtInfos);
+      console.log('Personal Inquiries Record Type at line 243 in aareg_contactSupportForm.js:', personalRt);
       this.recordTypeIdForPicklist = personalRt?.recordTypeId
         ?? this.inquiryObjectInfo.data.defaultRecordTypeId;
     } else {
       // log default record type ID for debugging purposes; this should be the one used for non-representing users
       this.recordTypeIdForPicklist = this.inquiryObjectInfo.data.defaultRecordTypeId;
+      console.log('Default Record Type ID at line 248 in aareg_contactSupportForm.js:', this.recordTypeIdForPicklist);
     }
   }
 

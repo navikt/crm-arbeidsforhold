@@ -8,15 +8,19 @@ public with sharing class AAREG_MyThreadsController {
     try {
       String lastUsedOrganizationNumber = [SELECT LastUsedOrganization__c FROM USER WHERE Id = :userId]
       ?.LastUsedOrganization__c;
+      system.debug('getUsersThreadsForOrganization: last used organization number: ' + lastUsedOrganizationNumber);
       
       if (lastUsedOrganizationNumber == null) {
+        System.debug('getUsersThreadsForOrganization: last used organization number is null, returning empty list');
         return new List<Thread__c>();
       }
       List<Account> accountIdList = AAREG_accountSelector.selectAccountByOrganizationNumber(lastUsedOrganizationNumber);
       if (accountIdList.isEmpty()) {
+        System.debug('getUsersThreadsForOrganization: no account found for organization number, returning empty list');
         return new List<Thread__c>();
       }
       String accountId = accountIdList[0]?.Id;
+      system.debug('getUsersThreadsForOrganization: accountId: ' + accountId);
       threads = [
         SELECT
           Id,
@@ -50,9 +54,11 @@ public with sharing class AAREG_MyThreadsController {
     try {
       List<Account> accountIdList = AAREG_accountSelector.selectPersonAccountByUserId(userId);
       if (accountIdList.isEmpty()) {
+        system.debug('getUsersThreadsForPerson: No account found for userId: ' + userId + ', returning empty list');
         return new List<Thread__c>();
       }
       String accountId = accountIdList[0]?.Id;
+      system.debug('getUsersThreadsForPerson: accountId: ' + accountId);
       threads = [
         SELECT
           Id,
