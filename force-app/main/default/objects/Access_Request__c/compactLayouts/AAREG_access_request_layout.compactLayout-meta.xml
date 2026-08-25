@@ -2,5 +2,7 @@
 <CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>AAREG_access_request_layout</fullName>
     <fields>Name</fields>
+    <fields>organizationsnummer__c</fields>
+    <fields>Account__c</fields>
     <label>AAREG access request layout</label>
 </CompactLayout>

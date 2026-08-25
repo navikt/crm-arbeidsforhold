@@ -7,6 +7,6 @@ for (Profile p : [SELECT Id FROM Profile]) {
     mockSetting.Status__c = 'OK';
     mockSetting.Status_Code__c = '200';
     mockSetting.Use_Mock__c = true;
-    mockSettings.add(mockSetting); 
+    mockSettings.add(mockSetting);
 }
 upsert mockSettings;

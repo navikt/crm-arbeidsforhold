@@ -315,6 +315,7 @@
         <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>&lt;p&gt;Her er det noe text&lt;/p&gt;</text>
     </textTemplates>
+    <triggerOrder>800</triggerOrder>
     <variables>
         <name>RecipientID</name>
         <dataType>String</dataType>
