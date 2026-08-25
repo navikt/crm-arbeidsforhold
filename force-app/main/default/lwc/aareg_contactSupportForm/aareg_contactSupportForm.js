@@ -195,7 +195,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
     }
 
     console.log('User type in cache on connectedCallback in aareg_contactSupportForm.js at line number 110:', sessionStorage.getItem(`${this.currentUser}_userType`));
-    this.isRepresentingOrganization = this.userType === 'Organization';
+    this.isRepresentingOrganization = this.userType === 'organization';
     console.log('isRepresentingOrganization:', this.isRepresentingOrganization);
     this._updateRecordTypeId();
   }
