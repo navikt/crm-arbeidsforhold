@@ -22,7 +22,7 @@
     <picklistValues>
         <picklist>TypeOfInquiry__c</picklist>
         <values>
-            <fullName>Endringsbehov</fullName>
+            <fullName>Endringsønsker</fullName>
             <default>false</default>
         </values>
         <values>
@@ -30,7 +30,7 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Feil i løsningen</fullName>
+            <fullName>Feil i den tekniske løsningen</fullName>
             <default>false</default>
         </values>
         <values>

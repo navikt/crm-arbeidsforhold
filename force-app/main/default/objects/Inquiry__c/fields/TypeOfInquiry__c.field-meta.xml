@@ -11,9 +11,9 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Tekniske spørsmål</fullName>
+                <fullName>Spørsmål før du søker om tilgang</fullName>
                 <default>false</default>
-                <label>Tekniske spørsmål</label>
+                <label>Spørsmål før du søker om tilgang</label>
             </value>
             <value>
                 <fullName>Faglige/funksjonelle spørsmål</fullName>
@@ -21,24 +21,24 @@
                 <label>Faglige/funksjonelle spørsmål</label>
             </value>
             <value>
-                <fullName>Feil i løsningen</fullName>
+                <fullName>Tekniske spørsmål</fullName>
                 <default>false</default>
-                <label>Feil i løsningen</label>
+                <label>Tekniske spørsmål</label>
             </value>
             <value>
-                <fullName>Endringsbehov</fullName>
+                <fullName>Endringsønsker</fullName>
                 <default>false</default>
-                <label>Endringsbehov</label>
+                <label>Endringsønsker</label>
+            </value>
+            <value>
+                <fullName>Feil i den tekniske løsningen</fullName>
+                <default>false</default>
+                <label>Feil i den tekniske løsningen</label>
             </value>
             <value>
                 <fullName>Sikkerhetsbrudd</fullName>
                 <default>false</default>
                 <label>Sikkerhetsbrudd</label>
-            </value>
-            <value>
-                <fullName>Spørsmål før du søker om tilgang</fullName>
-                <default>false</default>
-                <label>Spørsmål før du søker om tilgang</label>
             </value>
             <value>
                 <fullName>Tips om uriktige eller manglende opplysninger i registeret</fullName>
