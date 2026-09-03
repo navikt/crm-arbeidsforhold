@@ -56,6 +56,11 @@
         <field>Agreement__c.account__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Contact.AAREG_Email__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>AAREG NADA</label>
     <objectPermissions>
