@@ -77,7 +77,7 @@ public with sharing class AAREG_contactSupportController {
    * Returns the final Inquiry__c Id (same as draft if updating in place).
    */
   @AuraEnabled
-  public static Id createFinalInquiry(String userId, Id draftId, String metadataJson) {
+  public static Id createFinalInquiry(String userId, Id draftId, String metadataJson, Boolean representingPerson) {
     if (draftId == null) {
       throw new AuraHandledException('Missing draftId');
     }
@@ -90,6 +90,19 @@ public with sharing class AAREG_contactSupportController {
       WITH USER_MODE  
       LIMIT 1
     ];
+
+    if(representingPerson == false) {
+      // update AAREG_Epost__c on user's contact with the epost on inquiry if the user is representing an person
+      email = (String) meta.get('Email__c');
+      if (String.isNotBlank(email)) {
+        // update AAREG_Epost__c on user's contact with the email from the inquiry
+        Contact userContact = [SELECT Id, AAREG_Epost__c FROM Contact WHERE Id = :getUserContactId() LIMIT 1];
+        if (userContact != null) {
+          userContact.AAREG_Epost__c = email.left(255);
+          Database.update(userContact, AccessLevel.USER_MODE);
+        } 
+      } 
+    }
 
     // Map provided fields cautiously with limits
     String subj = (String) meta.get('Subject__c');

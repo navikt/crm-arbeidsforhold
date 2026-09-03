@@ -484,7 +484,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
           // If files uploaded via lightning-file-upload, relink and enrich
           if (hasUploadedDocs) {
             this.isRelinking = true;
-            await enrichUploadedFiles({ documentIds, recordId: this.finalRecordId});
+            await enrichUploadedFiles({ documentIds, recordId: this.finalRecordId, representingPerson: !this.isRepresentingOrganization });
           }
 
           // Mark submitted and show success UI
