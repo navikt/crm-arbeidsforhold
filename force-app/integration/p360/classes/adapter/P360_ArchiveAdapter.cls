@@ -23,9 +23,16 @@ public with sharing class P360_ArchiveAdapter implements P360_IArchiveAdapter {
      *
      * @param request P360 archive request DTO.
      * @return Archive response from P360.
-     * @throws P360_ContractException Until implementation is completed.
+     * @throws P360_ContractException When the request or its idempotency key is missing.
      */
     public P360_ArchiveResponseDto archive(P360_ArchiveRequestDto request) {
-        throw new P360_ContractException('P360_ArchiveAdapter.archive is not implemented yet. TODO F3/F4/S1.');
+        if (request == null) {
+            throw new P360_ContractException('Archive request is required.');
+        }
+        if (String.isBlank(request.externalId)) {
+            throw new P360_ContractException('Archive request external id is required.');
+        }
+
+        throw new P360_ContractException('P360_ArchiveAdapter.archive contract is not implemented yet. TODO F3/F4/S1.');
     }
 }
