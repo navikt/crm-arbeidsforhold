@@ -14,15 +14,13 @@ private class P360_ArchiveAdapterTest {
      */
     @IsTest
     static void nullRequestIsRejectedBeforeTransport() {
-        System.runAs([SELECT Id FROM User WHERE Id = :UserInfo.getUserId()]) {
-            P360_ArchiveAdapter adapter = new P360_ArchiveAdapter(new RecordingRpcClient());
+        P360_ArchiveAdapter adapter = new P360_ArchiveAdapter(new RecordingRpcClient());
 
-            try {
-                adapter.archive((P360_ArchiveRequestDto) null);
-                System.assert(false, 'Expected a contract exception.');
-            } catch (P360_ContractException caughtError) {
-                System.assertEquals('Archive request is required.', caughtError.getMessage());
-            }
+        try {
+            adapter.archive((P360_ArchiveRequestDto) null);
+            System.assert(false, 'Expected a contract exception.');
+        } catch (P360_ContractException caughtError) {
+            System.assertEquals('Archive request is required.', caughtError.getMessage());
         }
     }
 
@@ -33,17 +31,15 @@ private class P360_ArchiveAdapterTest {
      */
     @IsTest
     static void missingExternalIdIsRejectedBeforeTransport() {
-        System.runAs([SELECT Id FROM User WHERE Id = :UserInfo.getUserId()]) {
-            P360_ArchiveRequestDto request = new P360_ArchiveRequestDto();
-            request.title = 'Archive request';
-            P360_ArchiveAdapter adapter = new P360_ArchiveAdapter(new RecordingRpcClient());
+        P360_ArchiveRequestDto request = new P360_ArchiveRequestDto();
+        request.title = 'Archive request';
+        P360_ArchiveAdapter adapter = new P360_ArchiveAdapter(new RecordingRpcClient());
 
-            try {
-                adapter.archive(request);
-                System.assert(false, 'Expected a contract exception.');
-            } catch (P360_ContractException caughtError) {
-                System.assertEquals('Archive request external id is required.', caughtError.getMessage());
-            }
+        try {
+            adapter.archive(request);
+            System.assert(false, 'Expected a contract exception.');
+        } catch (P360_ContractException caughtError) {
+            System.assertEquals('Archive request external id is required.', caughtError.getMessage());
         }
     }
 

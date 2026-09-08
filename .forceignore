@@ -71,10 +71,10 @@
 
 # # community classes
 # ----------------------------------------------------------------------------------------
-**/classes/ChangePasswordController.cls
-**/classes/ChangePasswordControllerTest.cls
-**/classes/CommunitiesLandingController.cls
-**/classes/CommunitiesLandingControllerTest.cls
+# **/classes/ChangePasswordController.cls
+# **/classes/ChangePasswordControllerTest.cls
+# **/classes/CommunitiesLandingController.cls
+# **/classes/CommunitiesLandingControllerTest.cls
 **/classes/CommunitiesLoginController.cls
 **/classes/CommunitiesLoginControllerTest.cls
 **/classes/CommunitiesSelfRegConfirmController.cls
@@ -101,11 +101,11 @@
 **/pages/IdeasHome.page
 **/pages/CommunitiesTemplate.page
 **/pages/SiteTemplate.page
-**/pages/ChangePassword.page
+# **/pages/ChangePassword.page
 **/pages/InMaintenance.page
 **/pages/Exception.page
 **/pages/StdExceptionTemplate.page
-**/pages/CommunitiesLanding.page
+# **/pages/CommunitiesLanding.page
 **/pages/MyProfilePage.page
 **/pages/FileNotFound.page
 **/pages/Unauthorized.page
