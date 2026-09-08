@@ -65,6 +65,31 @@ Disse kan ligge i backlogen frem til vi har valgt et konkret utviklingsspor.
 
 ## Anbefalt driftstatus
 
+## Ansvar og menneskelig oppfølging
+
+GitHub Issues skal vise når arbeidet ikke kan fullføres av agenten alene. Følgende labels brukes:
+
+- `needs-human-decision`: krever beslutning eller godkjenning fra produkteier, arkitekt, sikkerhetsansvarlig eller teamet.
+- `needs-external-owner`: krever svar eller handling fra P360-teamet, Confluence-eier eller Jira-eier.
+- `needs-org-validation`: krever autentisert Salesforce-org, Code Analyzer eller org-/deployansvarlig.
+
+| Issue           | Eier/handling som mangler                                                              | Labels                                         |
+| --------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `#975`          | Menneskelig beslutning om migreringsstrategi og eventuell rename/flytting              | `needs-human-decision`                         |
+| `#976` / `#993` | Arkitektgodkjenning av exception-hierarki og retry-modell; org-validering etterpå      | `needs-human-decision`, `needs-org-validation` |
+| `#977` / `#978` | Menneskelig migreringsbeslutning før enkeltvise rename-endringer                       | `needs-human-decision`                         |
+| `#979`          | Sikkerhetsansvarlig og Salesforce-org/Code Analyzer må klassifisere CRUD/FLS-funn      | `needs-human-decision`, `needs-org-validation` |
+| `#983` / `#995` | P360-teamet må bekrefte SIF RPC-kontrakt, mapping, auth og feilhåndtering              | `needs-external-owner`, `needs-human-decision` |
+| `#984` / `#992` | Confluence- eller Jira-eier må bekrefte kilde-URL-er og PDF-tolkninger                 | `needs-external-owner`                         |
+| `#985`          | Dokumenteier må formelt godkjenne ADR-0001 og angi vedtaksdato                         | `needs-human-decision`, `needs-external-owner` |
+| `#986`          | Teamet må bekrefte Confluence-flytting og rotere/inaktivere historisk testlegitimasjon | `needs-human-decision`, `needs-external-owner` |
+| `#988` / `#989` | Confluence-eier må synkronisere speilkopiene etter repoets lokale beslutninger         | `needs-external-owner`                         |
+| `#994`          | Jira-eier må rette klassenavn og dokumentere gjennomgangen                             | `needs-external-owner`                         |
+| `#997`          | Team-/driftseier må navngi runbook-eier                                                | `needs-human-decision`                         |
+| `#998`          | Jira-eier må registrere avhengigheter og rydde CRMAAREG-194                            | `needs-external-owner`                         |
+
+Agenten kan forberede dokumentasjon, kartlegge kode og foreslå endringer, men skal ikke lukke disse som ferdige før den angitte eieren har levert beslutningen eller valideringen.
+
 ### Behold åpent
 
 Det bør være et tydelig fokus på disse emnene:
