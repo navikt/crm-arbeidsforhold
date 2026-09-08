@@ -33,6 +33,7 @@ As a reviewer, I want the test utility dependencies to be explicit so that share
 - Apex tests use fully qualified `System.Assert.*` and `System.Test.*` APIs.
 - The shared utilities are test-only and do not change the production RPC contract.
 - The focused P360 Apex tests pass in the authenticated `crm-arbeidsforhold` scratch org after the new source is deployed there.
+- The explicitly injected stub adapter has a focused happy-path test that verifies a controlled response without transport.
 
 ## Behavioural test seam
 
@@ -58,6 +59,14 @@ The primary seam is `P360_IArchiveAdapter.archive(P360_ArchiveRequestDto)`. Inva
 - Use red-green-refactor for each new observable adapter behaviour when an authenticated org is available.
 - Run focused Apex tests against the named scratch org after deployment.
 - Run Prettier and `git diff --check` locally for changed Apex and metadata files.
+
+## Current evidence
+
+- Focused deploy of the four changed Apex classes succeeded in scratch org `crm-arbeidsforhold`.
+- Deploy ID: `0AfRR00000fvq5W0AQ`.
+- `P360_ArchiveAdapterTest` and `P360_ExceptionHierarchyTest` ran during deploy: 4 passed, 0 failed.
+- Focused deploy of `P360_StubArchiveAdapterTest` succeeded.
+- Stub test deploy ID: `0AfRR00000fvlp10AA`; `P360_StubArchiveAdapterTest`: 1 passed, 0 failed.
 
 ## Out of scope
 
