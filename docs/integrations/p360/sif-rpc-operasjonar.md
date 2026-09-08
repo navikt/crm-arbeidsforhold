@@ -42,6 +42,7 @@ Følgende må fylles inn for hver operasjon før DTO-ene kan anses som ferdige:
 - responsstruktur og feltnavn
 - obligatoriske og valgfrie felter
 - format og betydning for `recno`
+- betydning, tillatt bruk og kilde for `ADContextUser`
 - feilkoder og klassifisering
 - timeout og rate limits
 - idempotensnøkkel og retry-forventning
@@ -49,6 +50,20 @@ Følgende må fylles inn for hver operasjon før DTO-ene kan anses som ferdige:
 - hvordan P360-identifikatorer og document number returneres
 
 Ingen AuthKey-, ClientID-, token- eller miljøverdier skal lagres i dette dokumentet.
+
+## Begreper som krever P360-avklaring
+
+### `recno`
+
+`recno` er nevnt som et felt i Salesforce Custom Metadata-modellen for P360-kodeverk. Det er ikke dokumentert i de tilgjengelige P360-speilkopiene hva feltet identifiserer, hvem som tildeler verdien, eller om det skal sendes i SIF RPC-requester.
+
+Feltet skal derfor ikke brukes i DTO-er eller mapping før P360-teamet har bekreftet format, eierskap og livsløp.
+
+### `ADContextUser`
+
+`ADContextUser` er nevnt i sikkerhetsarbeidet som noe som ikke skal brukes som standard. Den tilgjengelige dokumentasjonen forklarer ikke om begrepet gjelder en transportheader, en P360-brukerkontekst eller en operasjonell sporbarhetsmekanisme.
+
+Dette er en sikkerhets- og sporbarhetsavklaring i rød sone. Repoet skal ikke innføre eller kopiere en `ADContextUser`-verdi før P360-teamet har bekreftet betydning, tillatt bruk og eventuell kobling til autentisering.
 
 ## Repo-konsekvens
 
