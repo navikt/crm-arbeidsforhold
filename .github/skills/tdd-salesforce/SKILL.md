@@ -28,6 +28,7 @@ Use one vertical slice at a time. A test is a behavioural specification at a pub
 ## Salesforce constraints
 
 - Apex tests must be bulk-safe and use the existing `AAREG_TestDataFactory` where applicable.
+- Always use the fully qualified Salesforce namespaces in Apex tests: `System.Assert.*` for assertions and `System.Test.*` for lifecycle calls such as `System.Test.startTest()` and `System.Test.stopTest()`. Never use bare `Assert` or unqualified `Test` calls.
 - Do not use real personal data, hardcoded org IDs, or package-owned source in test fixtures.
 - Prefer `Test.startTest()` and `Test.stopTest()` around the operation under test.
 - Test both successful and error outcomes for user-facing or integration behaviour.

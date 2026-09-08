@@ -8,6 +8,7 @@ For new or materially changed Apex and LWC tests:
 
 - Follow `.github/skills/tdd-salesforce/SKILL.md` and identify the public behavioural seam before writing the test.
 - Write one focused test for one observable behaviour, then run it red before implementing the smallest change.
+- Always use the fully qualified Salesforce namespaces in Apex tests: `System.Assert.*` for assertions and `System.Test.*` for lifecycle calls such as `System.Test.startTest()` and `System.Test.stopTest()`. Never use bare `Assert` or unqualified `Test` calls.
 - Name Apex test methods after the business scenario and expected behaviour, using a readable `given_When_Then` or `should_When` shape without a `test` prefix. Use descriptive Jest test names as well.
 - Prefer assertions against public outcomes: returned values, persisted records, emitted events, rendered DOM, user-visible errors, callout requests, or permission outcomes.
 - Avoid private-state assertions, implementation-coupled mocks, tautological expectations, shared mutable state, and tests that only prove that code did not throw.

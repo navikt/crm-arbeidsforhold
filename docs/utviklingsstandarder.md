@@ -17,6 +17,7 @@ Standardene her skal være praktiske og konkrete. De skal hjelpe utviklere å ta
 
 - Namnestandard for Apex, LWC, metadata og testklasser
 - Teststruktur og testprinsipper
+- Apex-testassertions og `Test`-livssyklus må bruke den fullt kvalifiserte Salesforce-namneplassen: `System.Assert.*` og `System.Test.*`. Ikke bruk bare `Assert` eller ukvalifisert `Test` i Apex-kode.
 - README-struktur
 - Retningslinjer for package og deploy
 - Regler for plassering av kode og metadata
