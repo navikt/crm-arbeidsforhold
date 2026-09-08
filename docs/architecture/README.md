@@ -36,18 +36,25 @@ Detaljer for konkrete integrasjoner ligger under `Salesforce / Integrasjoner`.
 
 Vi deler kilden etter dokumenttype:
 
-| Dokumenttype                                | Fasit      | Plassering                         |
-| ------------------------------------------- | ---------- | ---------------------------------- |
-| ADR-er                                      | Repoet     | `docs/adr/`                        |
-| Tekniske føringer, lagdeling, navnestandard | Repoet     | `docs/architecture/`               |
-| Integrasjonsspesifikk teknisk dokumentasjon | Repoet     | `docs/integrations/<integrasjon>/` |
-| Feature-spesifikasjoner                     | Repoet     | `.github/specs/`                   |
-| Arbeidsoppgaver                             | Repoet     | GitHub Issues                      |
-| Forvaltnings- og prosessdokumentasjon       | Confluence | Confluence                         |
-| Funksjonell brukerdokumentasjon             | Confluence | Confluence                         |
-| Operasjonelle runbooks                      | Confluence | Confluence                         |
+| Dokumenttype                                | Fasit      | Plassering                                             |
+| ------------------------------------------- | ---------- | ------------------------------------------------------ |
+| ADR-er                                      | Repoet     | `docs/adr/`                                            |
+| Tekniske føringer, lagdeling, navnestandard | Repoet     | `docs/architecture/`                                   |
+| Integrasjonsspesifikk teknisk dokumentasjon | Repoet     | `docs/integrations/<integrasjon>/`                     |
+| Operative utviklingsstandarder              | Repoet     | `.github/instructions/`, `AGENTS.md`, relevante skills |
+| Feature-spesifikasjoner                     | Repoet     | `.github/specs/`                                       |
+| Arbeidsoppgaver                             | Repoet     | GitHub Issues                                          |
+| Forvaltnings- og prosessdokumentasjon       | Confluence | Confluence                                             |
+| Funksjonell brukerdokumentasjon             | Confluence | Confluence                                             |
+| Operasjonelle runbooks                      | Confluence | Confluence                                             |
 
 Dokumenter som er merket `speilkopi: ja` i frontmatter er kopiert fra Confluence og skal ikke redigeres her uten at kilden oppdateres. Dokumenter uten den merkingen eies av repoet.
+
+## Utviklingsstandarder
+
+Maskinlesbare instruksjonsfiler, `AGENTS.md` og relevante skills er fasit for agentadferd og operativ utvikling. `docs/utviklingsstandarder.md` er en speilkopi som beskriver standardområdene og peker til den operative fasiten; den skal ikke konkurrere med eller overstyre instruksjonsfilene.
+
+README-struktur og dokumentasjonsstandarder håndheves gjennom repository-instruksjonene og etablerte dokumentmaler. Det opprettes ikke en separat, parallell standardtekst i speilkopien uten at Confluence-kilden oppdateres samtidig.
 
 ## Dokumenter i dette området
 
