@@ -8,7 +8,7 @@ This is a Salesforce project for **Aa-registeret** (Arbeidsgiver- og arbeidstake
 
 ## Project Structure
 
-force-app/ ├── main/default/ # Core metadata (permission sets, report types, etc.) ├── aareg_AccessExternal/ # External access (Experience Cloud controllers) ├── aareg_ApplicationAgreementExternal/ # External application & agreement logic ├── aareg_ApplicationAgreementInternal/ # Internal application & agreement logic ├── aareg_ApplicationDecisionInternal/ # Decision PDF generation & management ├── aareg_DistributionAccess/ # Distribution access callouts ├── aareg_Utility/ # Shared utilities & test data factory
+The current `force-app/` tree contains legacy feature areas and structural package areas. New work must follow the ownership model documented in `docs/architecture/repositorystruktur.md`. Do not rename or migrate existing areas without an approved migration plan.
 
 ## Apex Best Practices
 
@@ -26,10 +26,10 @@ Follow Nav Platforce naming conventions and Salesforce ApexDoc guidance for new 
 
 ### Naming Conventions
 
-- All classes MUST be prefixed with `AAREG_`.
+- Aa-registeret-owned classes use the `AAREG_` prefix. Integration-owned classes use the integration prefix defined by the relevant architecture and integration documentation, such as `P360_`. General reusable integration classes do not receive a domain prefix.
 - Controller classes: `AAREG_<Feature>Controller` (e.g., `AAREG_HomeController`).
 - Test classes: `AAREG_<ClassName>Test` (e.g., `AAREG_HomeControllerTest`).
-- Selector classes: `AAREG_<Object>Selector` (e.g., `AAREG_AccountSelector`).
+- Selector classes follow the established name of the class being changed. Existing legacy names, such as `AAREG_accountSelector`, are preserved unless a separately approved migration plan covers the rename.
 - Wrapper classes: `AAREG_<Purpose>Internal` (e.g., `AAREG_ApplicationInternal`).
 
 ### Code Quality Rules
