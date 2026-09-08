@@ -14,7 +14,7 @@ private class P360_ArchiveAdapterTest {
      */
     @IsTest
     static void nullRequestIsRejectedBeforeTransport() {
-        P360_ArchiveAdapter adapter = new P360_ArchiveAdapter(new RecordingRpcClient());
+        P360_ArchiveAdapter adapter = new P360_ArchiveAdapter(new P360_TestRpcClient());
         User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
 
         System.runAs(minimumAccessUser) {
@@ -39,7 +39,7 @@ private class P360_ArchiveAdapterTest {
     @IsTest
     static void missingExternalIdIsRejectedBeforeTransport() {
         P360_ArchiveRequestDto request = P360_TestDataFactory.archiveRequest().withExternalId(null).build();
-        P360_ArchiveAdapter adapter = new P360_ArchiveAdapter(new RecordingRpcClient());
+        P360_ArchiveAdapter adapter = new P360_ArchiveAdapter(new P360_TestRpcClient());
         User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
 
         System.runAs(minimumAccessUser) {
@@ -53,13 +53,6 @@ private class P360_ArchiveAdapterTest {
                     'Expected the missing external id validation message.'
                 );
             }
-        }
-    }
-
-    private class RecordingRpcClient implements P360_IRpcClient {
-        public P360_RpcResponse send(P360_RpcRequest request) {
-            System.Assert.fail('Transport must not be called for invalid requests.');
-            return null;
         }
     }
 }
