@@ -36,10 +36,13 @@ Use English for Apex, metadata, API, and backend identifiers. User-facing Norweg
 
 ## Architectural boundaries
 
+The authoritative architecture guidance lives in `docs/architecture/README.md` and the ADRs under `docs/adr/`. Read those before designing new structure. The points below are the minimum an agent needs in every task:
+
 - Keep Experience Cloud concerns, internal case-handler concerns, integration callouts, and shared utilities in their existing feature boundaries.
 - Prefer existing utilities, test-data factories, Custom Metadata, Custom Labels, permission sets, Named Credentials, and package dependencies before adding new abstractions or configuration.
 - Treat access control, personal data, authentication, callouts, and metadata visibility as red-zone work requiring human review.
 - Preserve deployed public contracts and legacy metadata names unless the task includes an approved migration plan.
+- New integration code follows the layering and naming rules in ADR-0001. Existing code predates that decision; do not mass-rename or restructure it outside an approved migration task.
 
 ## Verification vocabulary
 
@@ -58,4 +61,7 @@ Never report an org-dependent check as successful unless the command completed s
 - GitHub Issues are the system of record for work items.
 - Store short feature specifications under `.github/specs/`.
 - Store architecture decision records under `docs/adr/`.
-- Keep stable domain and architecture context in this file.
+- Store cross-cutting technical guidance under `docs/architecture/` and integration-specific technical documentation under `docs/integrations/<integration>/`.
+- Confluence remains the source of truth for management, process, functional user documentation, and operational runbooks. The repository is the source of truth for ADRs and technical guidance.
+- Files copied from Confluence carry `speilkopi: ja` in their frontmatter and are not edited here without updating the source.
+- Keep stable domain language and verification vocabulary in this file.
