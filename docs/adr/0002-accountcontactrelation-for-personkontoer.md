@@ -2,7 +2,7 @@
 adr: 0002
 tittel: AccountContactRelation objekt brukes for kontakter tilknyttet Personkontoer
 status: Foreslått
-dato: 2025-08-26
+dato: 2026-08-26
 kilde: Confluence — ADR-0002 (PDF-eksport)
 hentet: 2026-09-08
 speilkopi: ja
@@ -12,7 +12,7 @@ merknad: Navngitte beslutningstakere er utelatt ved speiling.
 # ADR-0002: AccountContactRelation objekt brukes for kontakter tilknyttet Personkontoer
 
 **Status:** Foreslått
-**Dato:** 2025-08-26
+**Dato:** 2026-08-26
 **Beslutningstakere:** Se Confluence
 
 ## 1.1. Kontekst og problemstilling
@@ -71,3 +71,4 @@ Automatisering: Opplæring av teammedlemmer og oppdatering av eventuelle nedstr�
 
 - Navngitte beslutningstakere er utelatt fordi repoet er offentlig. Se Confluence.
 - Kilden har enkelte skrivefeil (`Personkontorer`, `enkleteperson`, `begrenser en post`). Åpenbare skrivefeil er rettet i denne speilkopien; innholdet er ikke endret.
+- **Dato rettet.** PDF-eksporten oppgir 2025-08-26. Riktig år er 2026, bekreftet av dokumenteier. Rettet her.
