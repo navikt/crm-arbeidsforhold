@@ -49,6 +49,15 @@ Vi deler kilden etter dokumenttype:
 
 Dokumenter som er merket `speilkopi: ja` i frontmatter er kopiert fra Confluence og skal ikke redigeres her uten at kilden oppdateres. Dokumenter uten den merkingen eies av repoet.
 
+## Dokumenter i dette området
+
+| Dokument                                                                                           | Innhold                                                            | Status    |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | --------- |
+| [Arkitekturprinsipp, lagdeling og namnestandard](arkitekturprinsipp-lagdeling-og-namnestandard.md) | Normativ side for lagdeling, designprinsipp og navnestandard       | Speilkopi |
+| [Repositorystruktur](repositorystruktur.md)                                                        | `domain/`, `integration/`, `surfaces/`, `tests/` under `force-app` | UTKAST    |
+
+Integrasjonsspesifikk dokumentasjon ligger under [docs/integrations/](../integrations/README.md).
+
 ## ADR-er i dette repoet
 
 | ADR                                                                      | Tittel                                                                                             | Status           | Dato       |
