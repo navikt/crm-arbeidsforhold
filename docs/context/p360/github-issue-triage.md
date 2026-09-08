@@ -19,17 +19,16 @@ Dette dokumentet skiller mellom:
 
 ### 1) Aktivt implementasjonsarbeid som bør beholdes åpent
 
-Disse punktene er reelle blocker for koden vi faktisk skal implementere:
+Disse åpne punktene har fortsatt teknisk eller planmessig betydning:
 
-- `A2` / `976`: etablere felles exception-hierarki for integrasjoner
-- `A3` / `977`: avklare navnekonvensjonsbrudd i Apex-klasser
-- `A4` / `978`: rydde legacy testmetodenavn
+- `A1` / `975`: vedta migreringsstrategi før struktur- og rename-arbeid starter
+- `A2` / `976`: etablere felles exception-hierarki for integrasjoner, blokkert av #975
+- `A3` / `977`: avklare navnekonvensjonsbrudd i Apex-klasser, blokkert av #975
+- `A4` / `978`: rydde legacy testmetodenavn, blokkert av #975
 - `A5` / `979`: vurdere Sev2 CRUD/FLS-funn etter PMD-suppress
-- `A6` / `980`: rydde motstridende eksempler i `AGENTS.md`
 - `D1` / `993`: avklare exception-hierarki i forhold til ADR-0001
 - `D2` / `994`: rette klassenavn som bryter navnestandard
 - `D3` / `995`: kontraktsdokumentasjon for P360-operasjoner
-- `E1` / `996`: avklare forholdet mellom DI/service locator og `P360_AdapterFactory`
 - `E2` / `997`: avklare eierforhold til runbook
 - `E3` / `998`: registrere manglende avhengigheter i Jira og rydde `CRMAAREG-194`
 
@@ -41,23 +40,34 @@ Dette er hovedsakelig arbeid som allerede er håndtert i repoet eller som repres
 
 - `B1` / `981`: speile Confluence-arkitekturprinsipp til docs
 - `B2` / `982`: speile lagdelt struktur og namnestandard
-- `B3` / `983`: speile P360 API- og kontraktsdokumentasjon
-- `B4` / `984`: legge inn Confluence URL i frontmatter
+- `B3` / `983`: speile P360 API- og kontraktsdokumentasjon, delvis utført men åpen
+- `B4` / `984`: legge inn Confluence URL i frontmatter, åpen for verifiserte URL-er
 - `C1` / `988`: normalisere ADR-nummerering og statusvokabular
 - `C2` / `989`: avklare utviklingsstandarder
 - `C3` / `990`: policy for personnavn og miljø-URL-er i offentlig repo
 - `C4` / `991`: oppdatere `CONTEXT.md` og `AGENTS.md` med ny docs-struktur
 - `C5` / `992`: verifisere speiling fra PDF
-- `A7` / `986`: flytte Altinn-testbrukerlegitimasjon ut av repoet
-- `A8` / `987`: oppdatere rot-README
+- `A7` / `986`: flytte Altinn-testbrukerlegitimasjon ut av repoet, HEAD er renset men ekstern oppfølging gjenstår
+- `A8` / `987`: oppdatere rot-README, ferdig i repoet
 
 Dette er ikke de samme som den faktiske P360-implementasjonsblokkeringen. De kan holdes som backlog, flyttes til dokumentasjonsarbeid eller lukkes som løst når repoet er driftsklart.
 
-### 3) Dokumentert som “ikke valgt i denne runden”
+### 3) Gjeldende GitHub-status
+
+Følgende issues er ferdig behandlet og lukket som `completed`:
+
+- `#980`, `#981`, `#982`, `#987`, `#990`, `#991` og `#996`
+
+Følgende issues er gjennomgått, men står åpne fordi de krever menneskelig eller ekstern oppfølging:
+
+- `#975`, `#976`, `#977`, `#978`, `#979`, `#983`, `#984`, `#985`, `#986`, `#988`, `#989`, `#992`, `#993`, `#994`, `#995`, `#997` og `#998`
+
+De åpne sakene er merket med `needs-human-decision`, `needs-external-owner` eller `needs-org-validation` der det er relevant.
+
+### 4) Dokumentert som “ikke valgt i denne runden”
 
 Noen issue-funn er relevante for prosjekthåndtering, men ikke for den konkrete implementasjonsfase vi er i nå:
 
-- `A1` / `975`: migreringsstrategi for ADR-strukturen
 - `A2` / `976` og `A3` / `977` er mer håndterings-/kvalitetsarbeid, men målrettet mot samme kodebase
 - `D1` / `993` og `D2` / `994` er del av formell kodekvalitet og designkonformitet, ikke selve transportimplementasjon
 
@@ -108,7 +118,7 @@ Hvis vi vurderer dokumentasjonsspeiling og repo-cleanup som ferdig, kan disse lu
 
 ### Behold i backlogen uten å bruke dem som nåværende blocker
 
-- `A1`, `A2`, `A3`, `A4`, `A5`, `A6`, `E1`, `E2`, `E3`
+- `A1`, `A3`, `A4`, `A5`, `D2`, `E2`, `E3`
 
 ## Konklusjon
 
