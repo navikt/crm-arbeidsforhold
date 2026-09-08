@@ -1,11 +1,13 @@
 ---
-tittel: Lagdelt struktur og namnestandard for AAReg P360-integrasjonen
-kilde: Confluence — Lagdelt struktur og namnestandard for AAReg P360-integrasjonen (PDF-eksport)
+tittel: Lagdelt struktur og namnestandard for AAReg ↔ P360-integrasjonen
+kilde: Confluence — Lagdelt struktur og namnestandard for AAReg ↔ P360-integrasjonen (PDF-eksport)
+kilde-url: https://confluence.adeo.no/spaces/TAF/pages/800083154/
 hentet: 2026-09-08
 speilkopi: ja
+jira: CRMAAREG-84
 ---
 
-# Lagdelt struktur og namnestandard for AAReg P360-integrasjonen
+# Lagdelt struktur og namnestandard for AAReg ↔ P360-integrasjonen
 
 ## Formål
 
