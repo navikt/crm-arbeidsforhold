@@ -14,10 +14,40 @@ private class P360_ExceptionHierarchyTest {
      */
     @IsTest
     static void specializedErrorsAreIntegrationErrors() {
-        assertIsIntegrationError(new P360_ContractException());
-        assertIsIntegrationError(new P360_AuthenticationException());
-        assertIsIntegrationError(new P360_ConfigException());
-        assertIsIntegrationError(new P360_MappingException());
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+
+        System.runAs(minimumAccessUser) {
+            assertRuntimeType(new P360_ContractException(), P360_ContractException.class);
+            assertRuntimeType(new P360_AuthenticationException(), P360_AuthenticationException.class);
+            assertRuntimeType(new P360_ConfigException(), P360_ConfigException.class);
+            assertRuntimeType(new P360_MappingException(), P360_MappingException.class);
+
+            P360_IntegrationException contractError = new P360_ContractException();
+            P360_IntegrationException authError = new P360_AuthenticationException();
+            P360_IntegrationException configError = new P360_ConfigException();
+            P360_IntegrationException mappingError = new P360_MappingException();
+
+            System.Assert.areEqual(
+                P360_ContractException.class.getName(),
+                contractError.getTypeName(),
+                'Expected the contract exception type.'
+            );
+            System.Assert.areEqual(
+                P360_AuthenticationException.class.getName(),
+                authError.getTypeName(),
+                'Expected the authentication exception type.'
+            );
+            System.Assert.areEqual(
+                P360_ConfigException.class.getName(),
+                configError.getTypeName(),
+                'Expected the config exception type.'
+            );
+            System.Assert.areEqual(
+                P360_MappingException.class.getName(),
+                mappingError.getTypeName(),
+                'Expected the mapping exception type.'
+            );
+        }
     }
 
     /**
@@ -27,18 +57,37 @@ private class P360_ExceptionHierarchyTest {
      */
     @IsTest
     static void retryableTransportErrorsHaveRetryableTaxonomy() {
-        assertIsIntegrationError(new P360_TransportException());
-        assertIsTransportError(new P360_TimeoutException());
-        assertIsIntegrationError(new P360_TimeoutException());
-        assertIsTransportError(new P360_RetryableException());
-        assertIsIntegrationError(new P360_RetryableException());
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+
+        System.runAs(minimumAccessUser) {
+            assertRuntimeType(new P360_TransportException(), P360_TransportException.class);
+            assertRuntimeType(new P360_TimeoutException(), P360_TimeoutException.class);
+            assertRuntimeType(new P360_RetryableException(), P360_RetryableException.class);
+
+            P360_TransportException transportError = new P360_TransportException();
+            P360_TransportException timeoutError = new P360_TimeoutException();
+            P360_TransportException retryableError = new P360_RetryableException();
+
+            System.Assert.areEqual(
+                P360_TransportException.class.getName(),
+                transportError.getTypeName(),
+                'Expected the transport exception type.'
+            );
+            System.Assert.areEqual(
+                P360_TimeoutException.class.getName(),
+                timeoutError.getTypeName(),
+                'Expected the timeout exception type.'
+            );
+            System.Assert.areEqual(
+                P360_RetryableException.class.getName(),
+                retryableError.getTypeName(),
+                'Expected the retryable exception type.'
+            );
+        }
     }
 
-    private static void assertIsIntegrationError(P360_IntegrationException error) {
-        System.assertNotEquals(null, error, 'Expected a P360 integration exception.');
-    }
-
-    private static void assertIsTransportError(P360_TransportException error) {
-        System.assertNotEquals(null, error, 'Expected a P360 transport exception.');
+    private static void assertRuntimeType(Exception error, Type expectedType) {
+        System.Assert.isNotNull(error, 'Expected an exception instance.');
+        System.Assert.areEqual(expectedType.getName(), error.getTypeName(), 'Expected the runtime exception type.');
     }
 }
