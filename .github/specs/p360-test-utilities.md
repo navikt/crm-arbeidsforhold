@@ -4,7 +4,8 @@ status: active
 jira-epic: CRMAAREG-295
 jira-user-story: CRMAAREG-296
 jira-related-story: CRMAAREG-135
-jira-subtask: not documented in repository
+jira-subtask: CRMAAREG-141
+jira-related-subtask: CRMAAREG-136 (related F7 fake-service context)
 github-issue: 999
 ---
 
@@ -78,5 +79,5 @@ The primary seam is `P360_IArchiveAdapter.archive(P360_ArchiveRequestDto)`. Inva
 
 ## Open questions
 
-- Which Jira subtask key should own this concrete test-utility slice? The repository contains no verified key; do not invent one.
+- `CRMAAREG-141` is the primary Jira subtask for the test-data builder slice. `CRMAAREG-136` remains related F7 context only.
 - When should the external P360 team confirm the RPC contract needed for the first real adapter call?
