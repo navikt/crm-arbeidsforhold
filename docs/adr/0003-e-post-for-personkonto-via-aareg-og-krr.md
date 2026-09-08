@@ -2,7 +2,7 @@
 adr: 0003
 tittel: Håndtering av e-postadresse for personkonto via AAREG og KRR
 status: Foreslått
-dato: 2025-08-27
+dato: 2026-08-27
 kilde: Confluence — ADR-0003 (PDF-eksport)
 hentet: 2026-09-08
 speilkopi: ja
@@ -12,7 +12,7 @@ merknad: Navngitte beslutningstakere er utelatt ved speiling.
 # ADR-0003: Håndtering av e-postadresse for personkonto via AAREG og KRR
 
 **Status:** Foreslått
-**Dato:** 2025-08-27
+**Dato:** 2026-08-27
 **Beslutningstakere:** Se Confluence
 
 ## 1.1. Kontekst og problemstilling
@@ -58,5 +58,6 @@ Kilden har ingen innhold under denne overskriften.
 ## Merknader ved speiling
 
 - Navngitte beslutningstakere er utelatt fordi repoet er offentlig. Se Confluence.
+- **Dato rettet.** PDF-eksporten oppgir 2025-08-27. Riktig år er 2026, bekreftet av dokumenteier. Rettet her.
 - Kildens punkt om «Svar fra NAV (Utgående)» beskriver innkommende e-post fra NAV. Retningsmerkingen i kilden ser inkonsistent ut, men er ikke endret her. Avklar mot Confluence.
 - **Rød sone.** Denne ADR-en gjelder lagring av personopplysninger (e-post på privatpersoner), tilgangsstyring og GDPR/taushetsplikt. Krever menneskelig gjennomgang før implementasjon.
