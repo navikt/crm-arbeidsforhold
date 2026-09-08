@@ -57,8 +57,11 @@ Dokumenter som er merket `speilkopi: ja` i frontmatter er kopiert fra Confluence
 | [Repositorystruktur](repositorystruktur.md)                                                        | `domain/`, `integration/`, `surfaces/`, `tests/` under `force-app` | UTKAST    |
 
 Integrasjonsspesifikk dokumentasjon ligger under [docs/integrations/](../integrations/README.md).
+Domenedokumentasjon ligger under [docs/domain/](../domain/README.md), brukerflater under [docs/surfaces/](../surfaces/README.md) og utviklingsstandarder i [docs/utviklingsstandarder.md](../utviklingsstandarder.md).
 
 ## ADR-er i dette repoet
+
+Full oversikt og navngivingsregler: [docs/adr/README.md](../adr/README.md).
 
 | ADR                                                                      | Tittel                                                                                             | Status           | Dato       |
 | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | ---------------- | ---------- |
