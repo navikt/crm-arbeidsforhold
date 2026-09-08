@@ -24,6 +24,7 @@ For new or materially changed Apex in the main package:
   - Do not add blanket `@SuppressWarnings('PMD')` to hide static-analysis findings. If a specific rule must be suppressed, name the exact rule (e.g. `@SuppressWarnings('PMD.MethodNamingConventions')`) and document why in the ApexDoc.
 - Name tests after business scenarios and expected behaviour. Do not add a `test` prefix to test methods.
 - Always qualify Apex test API usage with the Salesforce namespace: use `System.Assert.*` and `System.Test.*` in Apex tests. Never use bare `Assert` or unqualified `Test` calls.
+- Include at least one `System.runAs(minimumAccessUser)` in Apex test classes when the behaviour under test does not require elevated permissions. Use the minimum-access profile (`Profile.Name = 'Minimum Access - Salesforce'`) unless the scenario genuinely requires stronger rights.
 - Add or update a focused behavioural test before implementation when an executable test seam exists. Report an authenticated-org blocker for Apex tests instead of claiming a green result.
 - Review design changes against Salesforce Well-Architected: Trusted, Easy, and Adaptable. Record important tradeoffs and preserve deployed public contracts.
 

@@ -41,6 +41,7 @@ When standards conflict, preserve deployed public contracts and record the devia
 - Apex must follow `force-app/main/default/AGENTS.md`: use `with sharing` by default, bulkify SOQL/DML, avoid hardcoded IDs and URLs, and use the established error-logging pattern.
 - Add or update focused Apex tests and LWC Jest tests when behavior changes.
 - In Apex tests, always call the Salesforce framework with the fully qualified namespace: use `System.Assert.*` for assertions and `System.Test.*` for lifecycle APIs such as `System.Test.startTest()` and `System.Test.stopTest()`. Do not use bare `Assert` or unqualified `Test` calls.
+- Include at least one `System.runAs(minimumAccessUser)` in Apex test classes when the behaviour under test does not require elevated permissions. Use a user created from the minimum-access profile (`Profile.Name = 'Minimum Access - Salesforce'`) unless the scenario genuinely requires a stronger profile.
 - Keep package dependencies and package aliases consistent with `sfdx-project.json`.
 - Prefer existing utilities, Custom Metadata, Custom Labels, and permission sets over new hardcoded configuration.
 - Use English for metadata labels, API names, Apex, and backend identifiers; use Translation Workbench for user-facing Norwegian text.

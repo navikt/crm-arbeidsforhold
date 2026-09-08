@@ -29,8 +29,9 @@ Use one vertical slice at a time. A test is a behavioural specification at a pub
 
 - Apex tests must be bulk-safe and use the existing `AAREG_TestDataFactory` where applicable.
 - Always use the fully qualified Salesforce namespaces in Apex tests: `System.Assert.*` for assertions and `System.Test.*` for lifecycle calls such as `System.Test.startTest()` and `System.Test.stopTest()`. Never use bare `Assert` or unqualified `Test` calls.
+- Apex test classes should include at least one `System.runAs(minimumAccessUser)` call when the behaviour under test does not require elevated access. Create the user from the minimum-access profile (`Profile.Name = 'Minimum Access - Salesforce'`) unless the scenario truly requires a stronger profile.
 - Do not use real personal data, hardcoded org IDs, or package-owned source in test fixtures.
-- Prefer `Test.startTest()` and `Test.stopTest()` around the operation under test.
+- Prefer `System.Test.startTest()` and `System.Test.stopTest()` around the operation under test.
 - Test both successful and error outcomes for user-facing or integration behaviour.
 - Use `HttpCalloutMock` for callouts and assert the observable contract, not internal implementation.
 - If an Apex red test cannot run because no authenticated org is available, stop at the written test and report the exact blocked command. Do not simulate a green result.
