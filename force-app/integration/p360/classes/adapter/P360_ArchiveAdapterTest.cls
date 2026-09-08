@@ -15,12 +15,19 @@ private class P360_ArchiveAdapterTest {
     @IsTest
     static void nullRequestIsRejectedBeforeTransport() {
         P360_ArchiveAdapter adapter = new P360_ArchiveAdapter(new RecordingRpcClient());
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
 
-        try {
-            adapter.archive((P360_ArchiveRequestDto) null);
-            System.assert(false, 'Expected a contract exception.');
-        } catch (P360_ContractException caughtError) {
-            System.assertEquals('Archive request is required.', caughtError.getMessage());
+        System.runAs(minimumAccessUser) {
+            try {
+                adapter.archive((P360_ArchiveRequestDto) null);
+                System.Assert.fail('Expected a contract exception.');
+            } catch (P360_ContractException caughtError) {
+                System.Assert.areEqual(
+                    'Archive request is required.',
+                    caughtError.getMessage(),
+                    'Expected the null request validation message.'
+                );
+            }
         }
     }
 
@@ -31,21 +38,27 @@ private class P360_ArchiveAdapterTest {
      */
     @IsTest
     static void missingExternalIdIsRejectedBeforeTransport() {
-        P360_ArchiveRequestDto request = new P360_ArchiveRequestDto();
-        request.title = 'Archive request';
+        P360_ArchiveRequestDto request = P360_TestDataFactory.archiveRequest().withExternalId(null).build();
         P360_ArchiveAdapter adapter = new P360_ArchiveAdapter(new RecordingRpcClient());
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
 
-        try {
-            adapter.archive(request);
-            System.assert(false, 'Expected a contract exception.');
-        } catch (P360_ContractException caughtError) {
-            System.assertEquals('Archive request external id is required.', caughtError.getMessage());
+        System.runAs(minimumAccessUser) {
+            try {
+                adapter.archive(request);
+                System.Assert.fail('Expected a contract exception.');
+            } catch (P360_ContractException caughtError) {
+                System.Assert.areEqual(
+                    'Archive request external id is required.',
+                    caughtError.getMessage(),
+                    'Expected the missing external id validation message.'
+                );
+            }
         }
     }
 
     private class RecordingRpcClient implements P360_IRpcClient {
         public P360_RpcResponse send(P360_RpcRequest request) {
-            System.assert(false, 'Transport must not be called for invalid requests.');
+            System.Assert.fail('Transport must not be called for invalid requests.');
             return null;
         }
     }
