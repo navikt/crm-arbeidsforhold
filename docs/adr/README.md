@@ -48,6 +48,19 @@ ADR-er navngis med løpenummer og kort tittel.
 | [ADR-0002](0002-accountcontactrelation-for-personkontoer.md)      | AccountContactRelation objekt brukes for kontakter tilknyttet Personkontoer                        | Foreslått        | 2026-08-26 |
 | [ADR-0003](0003-e-post-for-personkonto-via-aareg-og-krr.md)       | Håndtering av e-postadresse for personkonto via AAREG og KRR                                       | Foreslått        | 2026-08-27 |
 
+## Repo-lokal konvensjon
+
+ADR-er bruker én felles, løpende nummerserie på tvers av beslutningsområder. Nummeret beskriver dokumentrekkefølge, ikke et eget faglig spor. Nye ADR-er får neste ledige nummer; neste nummer er `ADR-0004`.
+
+Gyldige statusverdier for nye ADR-er er:
+
+- `Foreslått` — beslutningen er under vurdering.
+- `Vedtatt` — beslutningen er godkjent og normativ.
+- `Erstattet` — beslutningen er erstattet av en nyere ADR.
+- `Trukket` — forslaget skal ikke følges.
+
+Malens seksjoner (`Status`, `Dato`, `Kontekst`, `Beslutning`, `Alternativer vurdert`, `Konsekvenser` og `Oppfølging`) er obligatoriske for nye ADR-er. Eksisterende speilkopier omskrives ikke retroaktivt i repoet uten at Confluence-kilden oppdateres samtidig.
+
 ## Avvik funnet ved speiling
 
 **Nummerserien er ikke entydig.** Confluence-indekssiden bruker «ADR-0001 Funksjonsbasert repositorystruktur innenfor force-app» som eksempel på navngiving, men den speilede ADR-0001 heter «Etablere felles arkitekturprinsipp, lagdeling og namnestandard». Det er uklart om eksempelet er fiktivt, om det finnes en eldre ADR-0001, eller om repositorystruktur-dokumentet var ment å være ADR-0001.
