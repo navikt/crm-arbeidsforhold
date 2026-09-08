@@ -76,6 +76,7 @@ Følgjande sider bør liggje under dette området:
 - Aa-registeret Public 360
 - [Overordnet rammeverk](overordnet-rammeverk.md)
 - [SIF RPC-operasjonar og kontraktsstatus](sif-rpc-operasjonar.md)
+- [SIF RPC kontraktsoppslag](sif-rpc-kontrakt-oppslag.md)
 - [Dependency injection og adapterval](di-og-adapterval.md)
 - API og SIF RPC
 - Metadata og kodeverk
