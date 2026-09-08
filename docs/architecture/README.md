@@ -2,7 +2,7 @@
 tittel: Arkitektur og design (SF)
 kilde: Confluence — Arkitektur og design (SF) (PDF-eksport)
 hentet: 2026-09-08
-speilkopi: ja
+speilkopi: delvis
 ---
 
 # Arkitektur og design (SF)
@@ -31,6 +31,23 @@ Her dokumenterer vi beslutninger som påvirker flere deler av løsningen, for ek
 - Funksjonell brukerdokumentasjon
 
 Detaljer for konkrete integrasjoner ligger under `Salesforce / Integrasjoner`.
+
+## Hvor er fasit?
+
+Vi deler kilden etter dokumenttype:
+
+| Dokumenttype                                | Fasit      | Plassering                         |
+| ------------------------------------------- | ---------- | ---------------------------------- |
+| ADR-er                                      | Repoet     | `docs/adr/`                        |
+| Tekniske føringer, lagdeling, navnestandard | Repoet     | `docs/architecture/`               |
+| Integrasjonsspesifikk teknisk dokumentasjon | Repoet     | `docs/integrations/<integrasjon>/` |
+| Feature-spesifikasjoner                     | Repoet     | `.github/specs/`                   |
+| Arbeidsoppgaver                             | Repoet     | GitHub Issues                      |
+| Forvaltnings- og prosessdokumentasjon       | Confluence | Confluence                         |
+| Funksjonell brukerdokumentasjon             | Confluence | Confluence                         |
+| Operasjonelle runbooks                      | Confluence | Confluence                         |
+
+Dokumenter som er merket `speilkopi: ja` i frontmatter er kopiert fra Confluence og skal ikke redigeres her uten at kilden oppdateres. Dokumenter uten den merkingen eies av repoet.
 
 ## ADR-er i dette repoet
 
