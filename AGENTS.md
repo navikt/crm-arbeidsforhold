@@ -14,6 +14,8 @@ Use `.github/skills/tdd-salesforce/SKILL.md` for test-first feature work and
 The active setup backlog is `.github/AI-SETUP-TODO.md`.
 Shared domain language and verification vocabulary are in `CONTEXT.md`; read it before planning feature work, TDD slices, or architecture reviews.
 
+Technical documentation is organized under `docs/`: ADRs in `docs/adr/`, cross-cutting architecture in `docs/architecture/`, domain guidance in `docs/domain/`, surface guidance in `docs/surfaces/`, integration documentation in `docs/integrations/`, and shared development standards in `docs/utviklingsstandarder.md`.
+
 ## Standards hierarchy
 
 Apply standards in this order:

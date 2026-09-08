@@ -62,6 +62,7 @@ Never report an org-dependent check as successful unless the command completed s
 - Store short feature specifications under `.github/specs/`.
 - Store architecture decision records under `docs/adr/`.
 - Store cross-cutting technical guidance under `docs/architecture/` and integration-specific technical documentation under `docs/integrations/<integration>/`.
+- Store domain documentation under `docs/domain/`, surface documentation under `docs/surfaces/`, and shared development standards under `docs/utviklingsstandarder.md`.
 - Confluence remains the source of truth for management, process, functional user documentation, and operational runbooks. The repository is the source of truth for ADRs and technical guidance.
 - Files copied from Confluence carry `speilkopi: ja` in their frontmatter and are not edited here without updating the source.
 - Keep stable domain language and verification vocabulary in this file.
