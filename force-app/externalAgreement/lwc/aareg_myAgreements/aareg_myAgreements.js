@@ -129,15 +129,18 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
     }
 
     async processAgreements(data) {
-        // Default to disabled while PDF availability is being resolved.
-        this.agreements = (data || []).map((row) => ({
+        const rows = data || [];
+
+        this.updateStatusFilterOptions(rows);
+
+        this.agreements = rows.map((row) => ({
             ...row,
             disableEndAgreement: row.status === 'Avsluttet',
             disableDownloadDecision: true
         }));
 
         const agreementsWithPdfStatus = await Promise.all(
-            data.map(async (row) => {
+            rows.map(async (row) => {
                 let hasPdf = false;
                 try {
                     const pdfUrl = await getDecisionPDF({ agreementId: row.avtaleId });
@@ -154,7 +157,6 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
             })
         );
         this.agreements = agreementsWithPdfStatus;
-        this.updateStatusFilterOptions(agreementsWithPdfStatus);
     }
 
     updateStatusFilterOptions(rows) {
