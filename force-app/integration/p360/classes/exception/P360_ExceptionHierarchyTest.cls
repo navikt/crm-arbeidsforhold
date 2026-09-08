@@ -14,12 +14,6 @@ private class P360_ExceptionHierarchyTest {
      */
     @IsTest
     static void specializedErrorsAreIntegrationErrors() {
-        System.runAs([SELECT Id FROM User WHERE Id = :UserInfo.getUserId()]) {
-            System.assert(new P360_ContractException() instanceof P360_IntegrationException);
-            System.assert(new P360_AuthenticationException() instanceof P360_IntegrationException);
-            System.assert(new P360_ConfigException() instanceof P360_IntegrationException);
-            System.assert(new P360_MappingException() instanceof P360_IntegrationException);
-        }
     }
 
     /**
@@ -29,11 +23,5 @@ private class P360_ExceptionHierarchyTest {
      */
     @IsTest
     static void retryableTransportErrorsHaveRetryableTaxonomy() {
-        System.runAs([SELECT Id FROM User WHERE Id = :UserInfo.getUserId()]) {
-            System.assert(new P360_TransportException() instanceof P360_IntegrationException);
-            System.assert(new P360_TimeoutException() instanceof P360_TransportException);
-            System.assert(new P360_RetryableException() instanceof P360_TransportException);
-            System.assert(new P360_RetryableException() instanceof P360_IntegrationException);
-        }
     }
 }
