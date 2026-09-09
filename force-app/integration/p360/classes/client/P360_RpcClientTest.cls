@@ -39,11 +39,7 @@ private class P360_RpcClientTest {
     @IsTest
     static void structuredRequestStopsAtTransportBoundary() {
         User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
-        P360_RpcRequest request = new P360_RpcRequest();
-        request.serviceName = 'DocumentService';
-        request.operationName = 'CreateDocument';
-        request.body = '{}';
-        request.headers = new Map<String, String>();
+        P360_RpcRequest request = P360_TestDataFactory.rpcRequest().build();
         P360_RpcClient client = new P360_RpcClient();
 
         System.runAs(minimumAccessUser) {
