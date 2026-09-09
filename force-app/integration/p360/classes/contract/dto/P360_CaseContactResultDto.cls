@@ -24,6 +24,9 @@ public class P360_CaseContactResultDto {
     /** Contact external identity. */
     public String externalId;
 
+    /** Contact address. */
+    public P360_AddressDto address;
+
     /** Whether the contact is unofficial. */
     public Boolean isUnofficial;
 

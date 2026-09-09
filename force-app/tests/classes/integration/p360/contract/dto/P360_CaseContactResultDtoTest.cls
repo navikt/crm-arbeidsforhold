@@ -24,6 +24,9 @@ private class P360_CaseContactResultDtoTest {
             contact.referenceNumber = '123456789';
             contact.contactType = 'PrivatePerson';
             contact.externalId = 'contact-123';
+            contact.address = new P360_AddressDto();
+            contact.address.streetAddress = 'Drammensveien 1';
+            contact.address.country = 'NOR';
             contact.isUnofficial = false;
             contact.subjectArea = 'Employment';
             contact.notes = 'Contact notes';
@@ -44,6 +47,16 @@ private class P360_CaseContactResultDtoTest {
             );
             System.Assert.areEqual(contact.contactType, roundTrippedContact.contactType, 'Expected the contact type.');
             System.Assert.areEqual(contact.externalId, roundTrippedContact.externalId, 'Expected the external id.');
+            System.Assert.areEqual(
+                contact.address.streetAddress,
+                roundTrippedContact.address.streetAddress,
+                'Expected the contact street address.'
+            );
+            System.Assert.areEqual(
+                contact.address.country,
+                roundTrippedContact.address.country,
+                'Expected the contact country.'
+            );
             System.Assert.areEqual(
                 contact.isUnofficial,
                 roundTrippedContact.isUnofficial,
