@@ -51,6 +51,9 @@ public class P360_GetCasesRequestDto {
     /** Case type code or recno filter. */
     public String caseType;
 
+    /** Date field, operator and value used for date-based searches. */
+    public P360_DateCriteriaDto dateCriteria;
+
     /** Restricts results and related data to publicly publishable information. */
     public Boolean onlyPublicInfo;
 
@@ -62,7 +65,4 @@ public class P360_GetCasesRequestDto {
 
     /** Includes case-contact relations in the result. */
     public Boolean includeCaseContacts;
-
-    /** Includes additional 360 fields in the result. */
-    public Boolean includeCustomFields;
 }
