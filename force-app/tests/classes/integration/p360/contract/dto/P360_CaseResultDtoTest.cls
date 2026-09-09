@@ -36,7 +36,6 @@ private class P360_CaseResultDtoTest {
             result.caseTypeCode = 'Sak';
             result.uid = 'uid-case-123';
             result.uidOrigin = '360';
-            result.statusRecno = '2';
 
             P360_CaseResultDto roundTrippedResult = (P360_CaseResultDto) JSON.deserialize(
                 JSON.serialize(result),
@@ -89,7 +88,6 @@ private class P360_CaseResultDtoTest {
             System.Assert.areEqual(result.caseTypeCode, roundTrippedResult.caseTypeCode, 'Expected the case type.');
             System.Assert.areEqual(result.uid, roundTrippedResult.uid, 'Expected the UID.');
             System.Assert.areEqual(result.uidOrigin, roundTrippedResult.uidOrigin, 'Expected the UID origin.');
-            System.Assert.areEqual(result.statusRecno, roundTrippedResult.statusRecno, 'Expected the status recno.');
         }
     }
 }

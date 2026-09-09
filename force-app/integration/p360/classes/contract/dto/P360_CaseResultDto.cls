@@ -59,7 +59,4 @@ public class P360_CaseResultDto {
 
     /** Origin of the UID. */
     public String uidOrigin;
-
-    /** Case status record number. */
-    public String statusRecno;
 }

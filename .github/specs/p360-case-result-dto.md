@@ -15,11 +15,12 @@ GetCases returns a `CaseResult` object with core case metadata and optional nest
 ## Implemented scope
 
 - `P360_CaseResultDto`
+- `P360_CaseContactResultDto`
 - Case identity, title and external ID
 - Start and last-changed dates
 - Status and responsible-person/enterprise names
 - Subarchive, access-code, paragraph, notes and case-type fields
-- UID, UID origin and status recno
+- UID and UID origin
 - JSON round-trip test coverage
 
 ## Acceptance criteria
@@ -30,5 +31,5 @@ GetCases returns a `CaseResult` object with core case metadata and optional nest
 
 ## Out of scope
 
-- Case contacts, documents, estates, permissions, remarks, keywords, milestones and stages.
+- Documents, estates, permissions, remarks, keywords, milestones and stages.
 - GetCases orchestration and RPC client integration.
