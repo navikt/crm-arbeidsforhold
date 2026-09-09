@@ -30,7 +30,7 @@ The SIF PDF defines a query contract for finding existing cases. The integration
 
 ## Out of scope
 
-- Contact-recno search subcontracts.
+- Contact-filter request composition.
 - Custom-field result flags.
 - Additional-field query composition.
 - Full `CaseResult` and nested result DTOs.
