@@ -72,10 +72,7 @@ private class P360_DtoSerializationTest {
 
         System.runAs(minimumAccessUser) {
             P360_RpcRequest request = P360_TestDataFactory.rpcRequest().withHeaders(requestHeaders).build();
-            P360_RpcResponse response = new P360_RpcResponse();
-            response.statusCode = 200;
-            response.body = '{"result":"ok"}';
-            response.headers = responseHeaders;
+            P360_RpcResponse response = P360_TestDataFactory.rpcResponse().withHeaders(responseHeaders).build();
 
             P360_RpcRequest deserializedRequest = (P360_RpcRequest) JSON.deserialize(
                 JSON.serialize(request),
