@@ -1,7 +1,7 @@
 /**
  * Verifies archive-command validation at the P360 orchestration boundary.
  *
- * @author Not available (new file)
+ * @author Kenneth Sørensen
  * @since 2026-09
  * @group AAREG P360 Orchestration
  */

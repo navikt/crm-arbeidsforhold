@@ -22,6 +22,7 @@ Follow Nav Platforce naming conventions and Salesforce ApexDoc guidance for new 
 - Name test methods after the business scenario or expected behaviour. Use a readable `given_When_Then` or `should_When` shape and do not add a `test` prefix.
 - Use English for Apex and metadata identifiers. Translate user-facing labels to Norwegian through the established metadata translation pattern.
 - Use ApexDoc comments (`/** ... */`) for new or materially changed public classes, methods, constructors, properties, interfaces, enums, and significant annotations. Document purpose, sharing/security implications, parameters, return values, exceptions, and platform behaviour where relevant.
+- Use `@author` for the responsible human owner or verified human contributors. Do not list an AI tool as an author; record AI assistance in the relevant GitHub Issue, pull request, or work log when traceability is required.
 - Keep code clean and readable: prefer cohesive classes, small methods, explicit names, shallow control flow, and minimal abstractions.
 
 ### Naming Conventions

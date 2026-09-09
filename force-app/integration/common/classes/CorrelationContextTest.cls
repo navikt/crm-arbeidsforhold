@@ -1,7 +1,7 @@
 /**
  * Verifies shared correlation context behavior.
  *
- * @author Not available (new file)
+ * @author Kenneth Sørensen
  * @since 2026-09
  * @group Integration Common
  */

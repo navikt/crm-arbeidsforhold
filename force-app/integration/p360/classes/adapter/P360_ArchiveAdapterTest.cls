@@ -1,7 +1,7 @@
 /**
  * Verifies request validation at the P360 archive adapter boundary.
  *
- * @author Not available (new file)
+ * @author Kenneth Sørensen
  * @since 2026-09
  * @group P360 Adapter
  */

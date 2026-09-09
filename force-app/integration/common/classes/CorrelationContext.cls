@@ -1,7 +1,7 @@
 /**
  * Holds the correlation id for a shared integration flow.
  *
- * @author Not available (new file)
+ * @author Kenneth Sørensen
  * @since 2026-09
  * @group Integration Common
  */

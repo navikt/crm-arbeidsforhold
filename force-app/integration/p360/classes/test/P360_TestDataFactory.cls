@@ -1,7 +1,7 @@
 /**
  * Test-only factory and builders for P360 integration scenarios.
  *
- * @author Not available (new file)
+ * @author Kenneth Sørensen
  * @since 2026-09
  * @group P360 Test Utility
  */

@@ -1,7 +1,7 @@
 /**
  * Verifies reusable request and response fixtures for P360 tests.
  *
- * @author Not available (new file)
+ * @author Kenneth Sørensen
  * @since 2026-09
  * @group P360 Test Utility
  */

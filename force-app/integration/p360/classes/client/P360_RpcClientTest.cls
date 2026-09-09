@@ -1,7 +1,7 @@
 /**
  * Verifies the controlled boundary of the P360 RPC client skeleton.
  *
- * @author Not available (new file)
+ * @author Kenneth Sørensen
  * @since 2026-09
  * @group P360 RPC Client
  */
