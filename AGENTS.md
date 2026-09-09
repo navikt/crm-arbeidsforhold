@@ -30,6 +30,7 @@ When standards conflict, preserve deployed public contracts and record the devia
 ## Source boundaries
 
 - Make product changes in `force-app/` unless the task explicitly targets another area.
+- Place Apex test classes and reusable Apex test utilities under `force-app/tests/classes/<matching-area>/`; keep production Apex classes under their feature or integration package paths.
 - Treat these directories as read-only by default: `src-temp`, `platform-data-model`, `custom-metadata-dao`, `custom-permission-helper`, `feature-toggle`, `record-type-cache`, `crm-platform-base`, `crm-platform-reporting`, `crm-platform-access-control`, `crm-thread-view`, `crm-shared-timeline`, `crm-community-base`, `crm-platform-integration`, `crm-platform-email-scheduling`, `crm-journal-utilities`, `crm-shared-user-notification`, `crm-shared-flowComponents`, `crm-platform-oppgave`, `crm-henvendelse-base`, and `crm-henvendelse`.
 - Do not edit generated, cache, log, scratch-org, or dependency-installation output.
 - Never commit secrets, package installation keys, Salesforce credentials, session files, or real personal data.
