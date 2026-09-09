@@ -1,7 +1,7 @@
 /**
  * Test RPC client for P360 adapter tests.
  *
- * @author Not available (new file)
+ * @author Kenneth Sørensen
  * @since 2026-09
  * @group P360 Test Utility
  */

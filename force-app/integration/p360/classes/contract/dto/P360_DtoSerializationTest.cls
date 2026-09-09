@@ -1,7 +1,7 @@
 /**
  * Verifies JSON round-trip behaviour for the temporary P360 DTO wrappers.
  *
- * @author Not available (new file)
+ * @author Kenneth Sørensen
  * @since 2026-09
  * @group P360 DTO
  */

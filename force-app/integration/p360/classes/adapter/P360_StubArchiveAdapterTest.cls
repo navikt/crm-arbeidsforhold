@@ -1,7 +1,7 @@
 /**
  * Verifies the controlled local behaviour of the P360 stub archive adapter.
  *
- * @author Not available (new file)
+ * @author Kenneth Sørensen
  * @since 2026-09
  * @group P360 Adapter
  */
