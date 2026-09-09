@@ -16,10 +16,12 @@ The SIF PDF defines a query contract for finding existing cases. The integration
 
 - `P360_GetCasesRequestDto`
 - `P360_DateCriteriaDto`
+- `P360_CaseResultDto`
 - Context user, pagination and recno sorting
 - Case identity and common search filters
 - Date field, operator and value search criteria
 - Public-information and relation result flags
+- Primitive CaseResult identity, status, archive, access and UID fields
 - JSON round-trip test coverage
 
 ## Acceptance criteria
@@ -33,5 +35,5 @@ The SIF PDF defines a query contract for finding existing cases. The integration
 - Contact-filter request composition.
 - Custom-field result flags.
 - Additional-field query composition.
-- Full `CaseResult` and nested result DTOs.
+- Nested `CaseResult` DTOs for contacts, documents, estates, permissions and related data.
 - GetCases orchestration and RPC client integration.
