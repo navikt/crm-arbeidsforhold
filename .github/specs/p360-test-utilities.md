@@ -36,6 +36,7 @@ As a reviewer, I want the test utility dependencies to be explicit so that share
 - The shared utilities are test-only and do not change the production RPC contract.
 - The focused P360 Apex tests pass in the authenticated `crm-arbeidsforhold` scratch org after the new source is deployed there.
 - The explicitly injected stub adapter has a focused happy-path test that verifies a controlled response without transport.
+- The request and response builders have focused tests covering fluent overrides.
 
 ## Behavioural test seam
 
@@ -70,6 +71,7 @@ The primary seam is `P360_IArchiveAdapter.archive(P360_ArchiveRequestDto)`. Inva
 - Focused deploy of `P360_StubArchiveAdapterTest` succeeded.
 - Stub test deploy ID: `0AfRR00000fvlp10AA`; `P360_StubArchiveAdapterTest`: 1 passed, 0 failed.
 - Response-builder deploy ID: `0AfRR00000fwTZu0AM`; `P360_StubArchiveAdapterTest`: 1 passed, 0 failed.
+- Factory-builder deploy ID: `0AfRR00000fwSva0AE`; `P360_TestDataFactoryTest`: 2 passed, 0 failed.
 
 ## Out of scope
 
