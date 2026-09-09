@@ -1,0 +1,63 @@
+/**
+ * Verifies reusable request and response fixtures for P360 tests.
+ *
+ * @author Not available (new file)
+ * @since 2026-09
+ * @group P360 Test Utility
+ */
+@IsTest
+private class P360_TestDataFactoryTest {
+    /**
+     * Verifies that the archive request builder applies defaults and fluent overrides.
+     *
+     * @since 2026-09
+     */
+    @IsTest
+    static void archiveRequestBuilderCreatesReadableFixture() {
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+
+        System.runAs(minimumAccessUser) {
+            P360_ArchiveRequestDto request = P360_TestDataFactory.archiveRequest()
+                .withCorrelationId('correlation-override')
+                .withExternalId('external-override')
+                .withTitle('Archive title override')
+                .build();
+
+            System.Assert.areEqual(
+                'correlation-override',
+                request.correlationId,
+                'Expected the correlation id override.'
+            );
+            System.Assert.areEqual('external-override', request.externalId, 'Expected the external id override.');
+            System.Assert.areEqual('Archive title override', request.title, 'Expected the title override.');
+        }
+    }
+
+    /**
+     * Verifies that the archive response builder applies defaults and fluent overrides.
+     *
+     * @since 2026-09
+     */
+    @IsTest
+    static void archiveResponseBuilderCreatesReadableFixture() {
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+
+        System.runAs(minimumAccessUser) {
+            P360_ArchiveResponseDto response = P360_TestDataFactory.archiveResponse()
+                .withSuccess(false)
+                .withMessage('Response message override')
+                .withExternalCaseId('case-override')
+                .withExternalDocumentId('document-override')
+                .build();
+
+            System.Assert.isFalse(response.success, 'Expected the success override.');
+            System.Assert.areEqual('Response message override', response.message, 'Expected the message override.');
+            System.Assert.areEqual('case-override', response.externalCaseId, 'Expected the case id override.');
+            System.Assert.areEqual(
+                'document-override',
+                response.externalDocumentId,
+                'Expected the document id override.'
+            );
+        }
+    }
+}
