@@ -31,6 +31,7 @@ As a reviewer, I want the test utility dependencies to be explicit so that share
 - The factory can build the temporary archive request DTO with readable fluent methods.
 - The factory can build standard archive response DTO fixtures with readable fluent methods.
 - The factory can build temporary RPC request fixtures with readable fluent methods.
+- The factory can build temporary RPC response fixtures with readable fluent methods.
 - A shared RPC fake can guard that invalid adapter requests do not reach transport.
 - P360 adapter and exception tests use `System.runAs(minimumAccessUser)` where elevated access is not required.
 - Apex tests use fully qualified `System.Assert.*` and `System.Test.*` APIs.
@@ -74,6 +75,9 @@ The primary seam is `P360_IArchiveAdapter.archive(P360_ArchiveRequestDto)`. Inva
 - Response-builder deploy ID: `0AfRR00000fwTZu0AM`; `P360_StubArchiveAdapterTest`: 1 passed, 0 failed.
 - Factory-builder deploy ID: `0AfRR00000fwSva0AE`; `P360_TestDataFactoryTest`: 2 passed, 0 failed.
 - RPC-builder deploy ID: `0AfRR00000fwuGj0AI`; `P360_TestDataFactoryTest` and `P360_RpcClientTest`: 5 passed, 0 failed.
+- RPC-response-builder deploy ID: `0AfRR00000fx5da0AA`; `P360_TestDataFactoryTest`: 4 passed, 0 failed.
+- DTO serialization redeploy succeeded with conflict/warning/error override flags.
+- DTO serialization deploy ID: `0AfRR00000fxCVN0A2`; `P360_TestDataFactoryTest` and `P360_DtoSerializationTest`: 6 passed, 0 failed.
 
 ## Out of scope
 

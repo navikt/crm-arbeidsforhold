@@ -69,6 +69,16 @@ public with sharing class P360_TestDataFactory {
     }
 
     /**
+     * Starts building a standard RPC transport response.
+     *
+     * @return RpcResponseBuilder Fluent builder for an RPC response.
+     * @since 2026-09
+     */
+    public static RpcResponseBuilder rpcResponse() {
+        return new RpcResponseBuilder();
+    }
+
+    /**
      * Fluent builder for the temporary archive request DTO used by the P360 adapter tests.
      *
      * @since 2026-09
@@ -276,6 +286,67 @@ public with sharing class P360_TestDataFactory {
             request.body = body;
             request.headers = headers;
             return request;
+        }
+    }
+
+    /**
+     * Fluent builder for the temporary RPC response wrapper used by P360 client tests.
+     *
+     * @since 2026-09
+     */
+    public class RpcResponseBuilder {
+        private Integer statusCode = 200;
+        private String body = '{"result":"ok"}';
+        private Map<String, String> headers = new Map<String, String>();
+
+        /**
+         * Sets the transport status code.
+         *
+         * @param value Status code used by the response.
+         * @return RpcResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcResponseBuilder withStatusCode(Integer value) {
+            statusCode = value;
+            return this;
+        }
+
+        /**
+         * Sets the serialized response body.
+         *
+         * @param value Body used by the response.
+         * @return RpcResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcResponseBuilder withBody(String value) {
+            body = value;
+            return this;
+        }
+
+        /**
+         * Sets the response headers.
+         *
+         * @param value Headers used by the response.
+         * @return RpcResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcResponseBuilder withHeaders(Map<String, String> value) {
+            headers = value;
+            return this;
+        }
+
+        /**
+         * Builds the RPC response wrapper.
+         *
+         * @return P360_RpcResponse Configured RPC response.
+         * @since 2026-09
+         */
+        public P360_RpcResponse build() {
+            P360_RpcResponse response = new P360_RpcResponse();
+            response.statusCode = statusCode;
+            response.body = body;
+            response.headers = headers;
+            return response;
         }
     }
 }

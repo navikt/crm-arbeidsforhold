@@ -85,4 +85,27 @@ private class P360_TestDataFactoryTest {
             System.Assert.areEqual('test-value', request.headers.get('X-Test'), 'Expected the header override.');
         }
     }
+
+    /**
+     * Verifies that the RPC response builder applies fluent overrides.
+     *
+     * @since 2026-09
+     */
+    @IsTest
+    static void rpcResponseBuilderCreatesReadableFixture() {
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+        Map<String, String> headers = new Map<String, String>{ 'X-Test' => 'response-value' };
+
+        System.runAs(minimumAccessUser) {
+            P360_RpcResponse response = P360_TestDataFactory.rpcResponse()
+                .withStatusCode(201)
+                .withBody('{"created":true}')
+                .withHeaders(headers)
+                .build();
+
+            System.Assert.areEqual(201, response.statusCode, 'Expected the status code override.');
+            System.Assert.areEqual('{"created":true}', response.body, 'Expected the body override.');
+            System.Assert.areEqual('response-value', response.headers.get('X-Test'), 'Expected the header override.');
+        }
+    }
 }
