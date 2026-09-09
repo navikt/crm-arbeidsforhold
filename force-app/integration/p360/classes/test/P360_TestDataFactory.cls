@@ -49,6 +49,16 @@ public with sharing class P360_TestDataFactory {
     }
 
     /**
+     * Starts building a standard successful archive response.
+     *
+     * @return ArchiveResponseBuilder Fluent builder for an archive response.
+     * @since 2026-09
+     */
+    public static ArchiveResponseBuilder archiveResponse() {
+        return new ArchiveResponseBuilder();
+    }
+
+    /**
      * Fluent builder for the temporary archive request DTO used by the P360 adapter tests.
      *
      * @since 2026-09
@@ -106,6 +116,81 @@ public with sharing class P360_TestDataFactory {
             request.externalId = externalId;
             request.title = title;
             return request;
+        }
+    }
+
+    /**
+     * Fluent builder for the temporary archive response DTO used by P360 adapter tests.
+     *
+     * @since 2026-09
+     */
+    public class ArchiveResponseBuilder {
+        private Boolean success = true;
+        private String message = 'P360 test archive response.';
+        private String externalCaseId = 'p360-test-case-id';
+        private String externalDocumentId = 'p360-test-document-id';
+
+        /**
+         * Sets whether the archive operation succeeded.
+         *
+         * @param value Success value used by the response.
+         * @return ArchiveResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public ArchiveResponseBuilder withSuccess(Boolean value) {
+            success = value;
+            return this;
+        }
+
+        /**
+         * Sets the archive response message.
+         *
+         * @param value Message used by the response.
+         * @return ArchiveResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public ArchiveResponseBuilder withMessage(String value) {
+            message = value;
+            return this;
+        }
+
+        /**
+         * Sets the external case id.
+         *
+         * @param value External case id used by the response.
+         * @return ArchiveResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public ArchiveResponseBuilder withExternalCaseId(String value) {
+            externalCaseId = value;
+            return this;
+        }
+
+        /**
+         * Sets the external document id.
+         *
+         * @param value External document id used by the response.
+         * @return ArchiveResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public ArchiveResponseBuilder withExternalDocumentId(String value) {
+            externalDocumentId = value;
+            return this;
+        }
+
+        /**
+         * Builds the archive response DTO.
+         *
+         * @return P360_ArchiveResponseDto Configured archive response DTO.
+         * @since 2026-09
+         */
+        public P360_ArchiveResponseDto build() {
+            P360_ArchiveResponseDto response = new P360_ArchiveResponseDto();
+            response.success = success;
+            response.message = message;
+            response.externalCaseId = externalCaseId;
+            response.externalDocumentId = externalDocumentId;
+            return response;
         }
     }
 }
