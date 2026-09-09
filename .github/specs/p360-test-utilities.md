@@ -78,6 +78,7 @@ The primary seam is `P360_IArchiveAdapter.archive(P360_ArchiveRequestDto)`. Inva
 - RPC-response-builder deploy ID: `0AfRR00000fx5da0AA`; `P360_TestDataFactoryTest`: 4 passed, 0 failed.
 - DTO serialization redeploy succeeded with conflict/warning/error override flags.
 - DTO serialization deploy ID: `0AfRR00000fxCVN0A2`; `P360_TestDataFactoryTest` and `P360_DtoSerializationTest`: 6 passed, 0 failed.
+- Full focused P360 regression run: test run `707RR00001XXAp3`, 22 passed, 0 failed.
 
 ## Out of scope
 
