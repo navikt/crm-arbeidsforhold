@@ -60,4 +60,29 @@ private class P360_TestDataFactoryTest {
             );
         }
     }
+
+    /**
+     * Verifies that the RPC request builder applies fluent overrides.
+     *
+     * @since 2026-09
+     */
+    @IsTest
+    static void rpcRequestBuilderCreatesReadableFixture() {
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+        Map<String, String> headers = new Map<String, String>{ 'X-Test' => 'test-value' };
+
+        System.runAs(minimumAccessUser) {
+            P360_RpcRequest request = P360_TestDataFactory.rpcRequest()
+                .withServiceName('TestService')
+                .withOperationName('TestOperation')
+                .withBody('{"test":true}')
+                .withHeaders(headers)
+                .build();
+
+            System.Assert.areEqual('TestService', request.serviceName, 'Expected the service name override.');
+            System.Assert.areEqual('TestOperation', request.operationName, 'Expected the operation name override.');
+            System.Assert.areEqual('{"test":true}', request.body, 'Expected the body override.');
+            System.Assert.areEqual('test-value', request.headers.get('X-Test'), 'Expected the header override.');
+        }
+    }
 }

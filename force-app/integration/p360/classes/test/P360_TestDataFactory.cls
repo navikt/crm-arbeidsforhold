@@ -59,6 +59,16 @@ public with sharing class P360_TestDataFactory {
     }
 
     /**
+     * Starts building a standard RPC transport request.
+     *
+     * @return RpcRequestBuilder Fluent builder for an RPC request.
+     * @since 2026-09
+     */
+    public static RpcRequestBuilder rpcRequest() {
+        return new RpcRequestBuilder();
+    }
+
+    /**
      * Fluent builder for the temporary archive request DTO used by the P360 adapter tests.
      *
      * @since 2026-09
@@ -191,6 +201,81 @@ public with sharing class P360_TestDataFactory {
             response.externalCaseId = externalCaseId;
             response.externalDocumentId = externalDocumentId;
             return response;
+        }
+    }
+
+    /**
+     * Fluent builder for the temporary RPC request wrapper used by P360 client tests.
+     *
+     * @since 2026-09
+     */
+    public class RpcRequestBuilder {
+        private String serviceName = 'DocumentService';
+        private String operationName = 'CreateDocument';
+        private String body = '{}';
+        private Map<String, String> headers = new Map<String, String>();
+
+        /**
+         * Sets the RPC service name.
+         *
+         * @param value Service name used by the request.
+         * @return RpcRequestBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcRequestBuilder withServiceName(String value) {
+            serviceName = value;
+            return this;
+        }
+
+        /**
+         * Sets the RPC operation name.
+         *
+         * @param value Operation name used by the request.
+         * @return RpcRequestBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcRequestBuilder withOperationName(String value) {
+            operationName = value;
+            return this;
+        }
+
+        /**
+         * Sets the serialized RPC body.
+         *
+         * @param value Body used by the request.
+         * @return RpcRequestBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcRequestBuilder withBody(String value) {
+            body = value;
+            return this;
+        }
+
+        /**
+         * Sets the transport headers.
+         *
+         * @param value Headers used by the request.
+         * @return RpcRequestBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcRequestBuilder withHeaders(Map<String, String> value) {
+            headers = value;
+            return this;
+        }
+
+        /**
+         * Builds the RPC request wrapper.
+         *
+         * @return P360_RpcRequest Configured RPC request.
+         * @since 2026-09
+         */
+        public P360_RpcRequest build() {
+            P360_RpcRequest request = new P360_RpcRequest();
+            request.serviceName = serviceName;
+            request.operationName = operationName;
+            request.body = body;
+            request.headers = headers;
+            return request;
         }
     }
 }
