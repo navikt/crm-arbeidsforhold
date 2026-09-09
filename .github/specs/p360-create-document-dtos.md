@@ -36,7 +36,7 @@ The Salesforce integration has explicit internal DTOs for the first Document/Fil
 
 ## Out of scope
 
-- Document contacts, unregistered contacts, permissions and additional fields.
+- Document contacts, unregistered contacts and additional fields.
 - UpdateDocument/GetDocuments DTOs.
 - FileService transport implementation and large-file endpoint.
 - Salesforce-to-P360 mapping.
