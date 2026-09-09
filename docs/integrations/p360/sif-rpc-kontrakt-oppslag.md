@@ -1,13 +1,13 @@
 ---
 tittel: P360 SIF RPC kontraktsoppslag
-status: open contract
-kilde: Repo-local architecture and Jira/Confluence mirrors
+status: extracted contract with environment-specific open questions
+kilde: Repo-local architecture, Jira/Confluence mirrors and supplied SIF API PDF
 hentet: 2026-09-08
 ---
 
 # P360 SIF RPC kontraktsoppslag
 
-Dette dokumentet er et samlet oppslag for hva repoet faktisk vet om P360/SIF RPC, og hva som fortsatt må bekreftes av P360-teamet. Det er ikke en erstatning for den eksterne P360-kontrakten.
+Dette dokumentet er et samlet oppslag for hva repoet faktisk vet om P360/SIF RPC, og hva som fortsatt må bekreftes av P360-teamet. Operasjons- og feltkontraktene er nå hentet fra `docs/integrations/p360/source/sif-api.pdf`; miljø-, auth-, mapping- og retrydetaljer er fortsatt separate avklaringer.
 
 ## Bekreftet i repoet
 
@@ -22,6 +22,7 @@ Dette dokumentet er et samlet oppslag for hva repoet faktisk vet om P360/SIF RPC
 - P360-teamet eier arkivstruktur, sakstyper, klassifikasjon, journalposttyper, obligatoriske metadata og P360-valideringsregler.
 - Korrelasjons-ID skal følge flyten og brukes for sporbarhet og trygg retry.
 - Dokumentinnhold og sensitive data skal ikke logges.
+- Case, Document og File service-kontrakter er dokumentert i [sif-api-kontrakter.md](sif-api-kontrakter.md).
 
 ## Operasjoner som er nevnt
 
@@ -76,6 +77,8 @@ Dette dokumentet er et samlet oppslag for hva repoet faktisk vet om P360/SIF RPC
 ## Ikke bekreftet og skal ikke gjettes
 
 - Faktiske miljø-URL-er.
+- Customer-specific RPC URL and endpoint configuration.
+- Exact RPC auth header name and how it maps to Salesforce credential configuration.
 - OAuth scope, audience eller konkrete credential-verdier.
 - JSON/XML-feltnavn og envelope-format.
 - P360-spesifikke feilkoder.
