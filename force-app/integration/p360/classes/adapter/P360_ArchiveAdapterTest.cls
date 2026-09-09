@@ -55,4 +55,29 @@ private class P360_ArchiveAdapterTest {
             }
         }
     }
+
+    /**
+     * Verifies that a valid temporary request stops at the explicit contract boundary until P360 is confirmed.
+     *
+     * @since 2026-09
+     */
+    @IsTest
+    static void validRequestIsRejectedUntilExternalContractIsConfirmed() {
+        P360_ArchiveRequestDto request = P360_TestDataFactory.archiveRequest().build();
+        P360_ArchiveAdapter adapter = new P360_ArchiveAdapter(new P360_TestRpcClient());
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+
+        System.runAs(minimumAccessUser) {
+            try {
+                adapter.archive(request);
+                System.Assert.fail('Expected a contract exception until the external P360 contract is confirmed.');
+            } catch (P360_ContractException caughtError) {
+                System.Assert.areEqual(
+                    'P360_ArchiveAdapter.archive contract is not implemented yet. TODO F3/F4/S1.',
+                    caughtError.getMessage(),
+                    'Expected the explicit external-contract boundary message.'
+                );
+            }
+        }
+    }
 }
