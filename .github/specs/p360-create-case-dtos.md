@@ -37,5 +37,4 @@ The Salesforce integration has explicit internal Apex DTOs for the first Case-cr
 
 - Responsible person and enterprise subcontracts.
 - Case contacts, unregistered contacts and additional fields.
-- `GetCases` DTOs.
 - RPC client implementation and Salesforce-to-P360 mapping.
