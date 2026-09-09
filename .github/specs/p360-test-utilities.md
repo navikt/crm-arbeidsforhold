@@ -46,7 +46,7 @@ The primary seam is `P360_IArchiveAdapter.archive(P360_ArchiveRequestDto)`. Inva
 
 ## Implementation decisions
 
-- Place reusable P360 test utilities under `force-app/integration/p360/classes/test/`.
+- Place reusable P360 test utilities under `force-app/tests/classes/integration/p360/test/`.
 - Use `P360_TestDataFactory` for minimum-access users and archive request builders.
 - Use `P360_TestRpcClient` as a focused transport guard for pre-transport validation tests.
 - Keep constructor injection as the production dependency pattern. `P360_AdapterFactory` remains a composition root, not a service locator.
