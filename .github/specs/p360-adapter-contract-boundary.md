@@ -19,6 +19,8 @@ Invalid requests fail with stable contract errors, while valid temporary request
 
 ## Acceptance criteria
 
+- The explicitly injected local stub returns a controlled success response for a valid request.
+- The local stub tolerates a null request and returns no external case id.
 - A null archive request is rejected before transport.
 - A request without `externalId` is rejected before transport.
 - A structurally valid temporary request stops with the explicit unresolved-contract exception.
@@ -29,6 +31,12 @@ Invalid requests fail with stable contract errors, while valid temporary request
 ## Behavioural test seam
 
 `P360_ArchiveAdapter.archive(P360_ArchiveRequestDto)` with an injected `P360_TestRpcClient` transport guard.
+
+## Current evidence
+
+- Focused deploy ID: `0AfRR00000fx2iw0AA`.
+- `P360_StubArchiveAdapterTest`: 2 passed, 0 failed.
+- The local stub behavior is intentionally separate from the real adapter's strict request validation.
 
 ## Out of scope
 
