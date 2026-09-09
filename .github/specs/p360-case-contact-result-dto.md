@@ -18,6 +18,7 @@ GetCases can return case contacts as part of `CaseResult`. The integration needs
 - Contact name, role, recno, reference number and contact type
 - Contact external ID and unofficial flag
 - Nested contact address
+- Nested action class
 - Subject area, notes and role recno
 - JSON round-trip test coverage
 
@@ -29,5 +30,4 @@ GetCases can return case contacts as part of `CaseResult`. The integration needs
 
 ## Out of scope
 
-- Action-class nested DTO.
 - GetCases orchestration and RPC client integration.

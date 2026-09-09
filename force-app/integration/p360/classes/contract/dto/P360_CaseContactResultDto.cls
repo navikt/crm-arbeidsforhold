@@ -36,6 +36,9 @@ public class P360_CaseContactResultDto {
     /** Notes on the case contact. */
     public String notes;
 
+    /** Action class returned for the case contact. */
+    public P360_ActionClassDto actionClass;
+
     /** Contact role record number. */
     public String roleRecno;
 }
