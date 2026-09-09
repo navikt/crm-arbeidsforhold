@@ -29,6 +29,7 @@ As a reviewer, I want the test utility dependencies to be explicit so that share
 
 - A test-only P360 factory can create a minimum-access Salesforce user for tests that do not require elevated permissions.
 - The factory can build the temporary archive request DTO with readable fluent methods.
+- The factory can build standard archive response DTO fixtures with readable fluent methods.
 - A shared RPC fake can guard that invalid adapter requests do not reach transport.
 - P360 adapter and exception tests use `System.runAs(minimumAccessUser)` where elevated access is not required.
 - Apex tests use fully qualified `System.Assert.*` and `System.Test.*` APIs.
@@ -68,6 +69,7 @@ The primary seam is `P360_IArchiveAdapter.archive(P360_ArchiveRequestDto)`. Inva
 - `P360_ArchiveAdapterTest` and `P360_ExceptionHierarchyTest` ran during deploy: 4 passed, 0 failed.
 - Focused deploy of `P360_StubArchiveAdapterTest` succeeded.
 - Stub test deploy ID: `0AfRR00000fvlp10AA`; `P360_StubArchiveAdapterTest`: 1 passed, 0 failed.
+- Response-builder deploy ID: `0AfRR00000fwTZu0AM`; `P360_StubArchiveAdapterTest`: 1 passed, 0 failed.
 
 ## Out of scope
 

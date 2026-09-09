@@ -20,15 +20,23 @@ private class P360_StubArchiveAdapterTest {
 
         System.runAs(minimumAccessUser) {
             P360_ArchiveResponseDto response = adapter.archive(request);
+            P360_ArchiveResponseDto expectedResponse = P360_TestDataFactory.archiveResponse()
+                .withExternalCaseId(request.externalId)
+                .withMessage('Stub archive response. No callout was performed.')
+                .build();
 
-            System.Assert.isTrue(response.success, 'Expected the stub archive response to be successful.');
             System.Assert.areEqual(
-                request.externalId,
+                expectedResponse.success,
+                response.success,
+                'Expected the stub archive response to be successful.'
+            );
+            System.Assert.areEqual(
+                expectedResponse.externalCaseId,
                 response.externalCaseId,
                 'Expected the external id to be preserved.'
             );
             System.Assert.areEqual(
-                'Stub archive response. No callout was performed.',
+                expectedResponse.message,
                 response.message,
                 'Expected the controlled stub response message.'
             );
