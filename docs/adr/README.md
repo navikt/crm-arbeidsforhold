@@ -47,6 +47,7 @@ ADR-er navngis med løpenummer og kort tittel.
 | [ADR-0001](0001-arkitekturprinsipp-lagdeling-og-namnestandard.md) | Etablere felles arkitekturprinsipp, lagdeling og namnestandard for Aa-registeret Salesforce-pakken | UNDER BEHANDLING | 2026-04-26 |
 | [ADR-0002](0002-accountcontactrelation-for-personkontoer.md)      | AccountContactRelation objekt brukes for kontakter tilknyttet Personkontoer                        | Foreslått        | 2026-08-26 |
 | [ADR-0003](0003-e-post-for-personkonto-via-aareg-og-krr.md)       | Håndtering av e-postadresse for personkonto via AAREG og KRR                                       | Foreslått        | 2026-08-27 |
+| [ADR-0004](0004-p360-composition-root-og-kontraktsgrense.md)      | P360 composition root og kontraktsgrense                                                           | Foreslått        | 2026-09-10 |
 
 ## Repo-lokal konvensjon
 
