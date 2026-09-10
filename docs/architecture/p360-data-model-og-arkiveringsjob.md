@@ -199,4 +199,6 @@ Vi innfører ingen nye Salesforce-felt eller objekt i denne dokumentasjonsskiva.
 - personvernklassifisering av alle felt
 - migrering av `Public_360_id__c` eller eksisterande arkivfelt
 
+Auth-verdiar, tokens og cookies frå testeksempel skal ikkje lagrast i kode, dokumentasjon, issue eller shell-historikk. Credential-rotasjon og kontroll av eksponerte testverdiar er spora i GitHub issue #1020.
+
 Desse punkta er spora i GitHub-issues #1015, #1016, #1017 og #1018.
