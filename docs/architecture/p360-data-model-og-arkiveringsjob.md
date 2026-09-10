@@ -58,6 +58,18 @@ Det skal opprettast éin jobb per konkret arkiveringshending, ikkje éin jobb pe
 
 Idempotensnøkkelen skal vere unik på `P360_Archive_Job__c`. Aa-register-nummeret skal framleis brukast til domenekopling og P360-søk, men ikkje åleine som teknisk jobbidentitet.
 
+Retry skal alltid gjenbruke jobben med same idempotensnøkkel. Det skal ikkje opprettast ein ny jobb for same arkiveringshending.
+
+| Eksisterande status | Retry-åtferd                                                                             |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| `Succeeded`         | Ikkje køyr på nytt; bruk eksisterande resultat.                                          |
+| `Pending`           | Køyr eksisterande jobb.                                                                  |
+| `Failed`            | Oppdater same jobb, auk `Attempt_Count__c` og set ny retry-tid.                          |
+| `Manual Review`     | Køyr berre etter eksplisitt manuell frigiving.                                           |
+| `In Progress`       | Ikkje start parallelt forsøk; vurder jobben på nytt etter definert lease-/timeout-regel. |
+
+Ei ny dokumentversjon eller ei ny arkiveringshending skal få ein ny idempotensnøkkel og dermed ein ny jobb.
+
 ### Relasjonar
 
 `Access_Request__c` skal vere obligatorisk Lookup på jobben. Jobben kan i tillegg peike til den konkrete kjelda:
