@@ -79,6 +79,7 @@ Følgjande sider bør liggje under dette området:
 - [SIF API-kontrakter for Case, Document og File](sif-api-kontrakter.md)
 - [SIF RPC kontraktsoppslag](sif-rpc-kontrakt-oppslag.md)
 - [Dependency injection og adapterval](di-og-adapterval.md)
+- [P360 datamodell og asynkron arkiveringsjobb](../../architecture/p360-data-model-og-arkiveringsjob.md)
 - API og SIF RPC
 - Metadata og kodeverk
 - External ID-strategi

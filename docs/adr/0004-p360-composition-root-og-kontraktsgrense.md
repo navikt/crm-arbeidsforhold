@@ -72,6 +72,7 @@ Mogleg for små testar og eksplisitte use case-instansar, men ein composition ro
 - [P360 dependency injection og adapterval](../integrations/p360/di-og-adapterval.md)
 - [P360 component architecture](../architecture/p360-component-diagram.mmd)
 - [P360 archive sequence](../architecture/p360-archive-sequence.mmd)
+- [P360 datamodell og asynkron arkiveringsjobb](../architecture/p360-data-model-og-arkiveringsjob.md)
 - [P360 adapter contract boundary](../../.github/specs/p360-adapter-contract-boundary.md)
 - [P360 RPC client boundary](../../.github/specs/p360-rpc-client-boundary.md)
 - GitHub issues #995, #996, #1015, #1016, #1017 og #1018
