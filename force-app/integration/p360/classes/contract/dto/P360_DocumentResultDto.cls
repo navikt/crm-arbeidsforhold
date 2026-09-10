@@ -39,6 +39,9 @@ public class P360_DocumentResultDto {
     /** External document ID. */
     public String externalId;
 
+    /** File metadata connected to the document when requested. */
+    public List<P360_DocumentFileResultDto> files;
+
     /** Globally unique identifier. */
     public String uid;
 
