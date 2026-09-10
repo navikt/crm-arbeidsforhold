@@ -12,40 +12,41 @@ export function updateApplicationsWithDecisionState(applications, applicationId,
     });
 }
 
-export async function resolveDecisionAvailability(applications, getDecisionPDF) {
+export async function resolveDecisionAvailability(applications, getDecisionPDFs) {
     const rows = applications || [];
+    const declinedApplicationIds = rows
+        .filter((application) => application.Status__c === 'Avslag')
+        .map((application) => application.Id);
+    let decisionUrlsByApplicationId = {};
 
-    return Promise.all(
-        rows.map(async (application) => {
-            const disableApplication = !['Venter på svar', 'Utkast'].includes(application.Status__c);
+    if (declinedApplicationIds.length > 0) {
+        try {
+            decisionUrlsByApplicationId = (await getDecisionPDFs({ applicationIds: declinedApplicationIds })) || {};
+        } catch (error) {
+            decisionUrlsByApplicationId = {};
+        }
+    }
 
-            if (application.Status__c !== 'Avslag') {
-                return {
-                    ...application,
-                    decisionUrl: null,
-                    disableButton: true,
-                    disableApplication
-                };
-            }
+    return rows.map((application) => {
+        const disableApplication = !['Venter på svar', 'Utkast'].includes(application.Status__c);
 
-            try {
-                const url = await getDecisionPDF({ applicationId: application.Id });
-                return {
-                    ...application,
-                    decisionUrl: url || null,
-                    disableButton: !url,
-                    disableApplication
-                };
-            } catch (error) {
-                return {
-                    ...application,
-                    decisionUrl: null,
-                    disableButton: true,
-                    disableApplication
-                };
-            }
-        })
-    );
+        if (application.Status__c !== 'Avslag') {
+            return {
+                ...application,
+                decisionUrl: null,
+                disableButton: true,
+                disableApplication
+            };
+        }
+
+        const url = decisionUrlsByApplicationId[application.Id] || null;
+        return {
+            ...application,
+            decisionUrl: url,
+            disableButton: !url,
+            disableApplication
+        };
+    });
 }
 
 export function buildDecisionUrl(siteOrigin, urlPath) {

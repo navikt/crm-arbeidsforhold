@@ -12,19 +12,16 @@ describe('aareg_myApplicationsUtils', () => {
             { Id: 'a03', Status__c: 'Venter på svar' }
         ];
 
-        const getDecisionPDF = jest.fn(({ applicationId }) => {
-            if (applicationId === 'a01') {
-                return Promise.resolve('/sfc/servlet.shepherd/document/download/069');
-            }
-            if (applicationId === 'a02') {
-                return Promise.reject(new Error('PDF lookup failed'));
-            }
-            return Promise.reject(new Error('Should not be called for non-Avslag rows'));
-        });
+        const getDecisionPDFs = jest.fn(() =>
+            Promise.resolve({
+                a01: '/sfc/servlet.shepherd/document/download/069'
+            })
+        );
 
-        const updated = await resolveDecisionAvailability(rows, getDecisionPDF);
+        const updated = await resolveDecisionAvailability(rows, getDecisionPDFs);
 
-        expect(getDecisionPDF).toHaveBeenCalledTimes(2);
+        expect(getDecisionPDFs).toHaveBeenCalledTimes(1);
+        expect(getDecisionPDFs).toHaveBeenCalledWith({ applicationIds: ['a01', 'a02'] });
         expect(updated).toEqual([
             {
                 Id: 'a01',
@@ -46,6 +43,24 @@ describe('aareg_myApplicationsUtils', () => {
                 decisionUrl: null,
                 disableButton: true,
                 disableApplication: false
+            }
+        ]);
+    });
+
+    it('disables Avslag downloads when bulk lookup fails', async () => {
+        const rows = [{ Id: 'a01', Status__c: 'Avslag' }];
+        const getDecisionPDFs = jest.fn(() => Promise.reject(new Error('PDF lookup failed')));
+
+        const updated = await resolveDecisionAvailability(rows, getDecisionPDFs);
+
+        expect(getDecisionPDFs).toHaveBeenCalledWith({ applicationIds: ['a01'] });
+        expect(updated).toEqual([
+            {
+                Id: 'a01',
+                Status__c: 'Avslag',
+                decisionUrl: null,
+                disableButton: true,
+                disableApplication: true
             }
         ]);
     });

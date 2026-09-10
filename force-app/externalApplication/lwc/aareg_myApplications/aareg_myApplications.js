@@ -4,6 +4,7 @@ import Id from '@salesforce/user/Id';
 import navLogo from '@salesforce/resourceUrl/logo';
 import getUsersApplications from '@salesforce/apex/AAREG_MyApplicationsController.getUsersApplications';
 import getDecisionPDF from '@salesforce/apex/AAREG_MyApplicationsController.getDecisionPDF';
+import getDecisionPDFs from '@salesforce/apex/AAREG_MyApplicationsController.getDecisionPDFs';
 import {
     buildDecisionUrl,
     resolveDecisionAvailability,
@@ -103,7 +104,7 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     }
 
     async resolveDecisionStateOnLoad(rows) {
-        const resolved = await resolveDecisionAvailability(rows, getDecisionPDF);
+        const resolved = await resolveDecisionAvailability(rows, getDecisionPDFs);
         const resolvedById = new Map(resolved.map((row) => [row.Id, row.decisionUrl]));
 
         this.applications = (this.applications || []).map((application) => {

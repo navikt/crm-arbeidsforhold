@@ -115,6 +115,68 @@ public class AAREG_MyApplicationsControllerTest {
     }
 
     /**
+     * getDecisionPDFs should return decision URLs for applications that have matching decision files.
+     *
+     * @since September 2026
+     */
+    @IsTest
+    static void getDecisionPDFs_returnsDecisionUrls() {
+        Application__c firstApplication = [SELECT Id FROM Application__c LIMIT 1];
+        Account secondAccount = AAREG_TestDataFactory.getAccountCounty();
+        insert secondAccount;
+        Application__c secondApplication = AAREG_TestDataFactory.getApplicationCounty(secondAccount);
+        secondApplication.OrganizationNumber__c = '987654321';
+        insert secondApplication;
+
+        Application_Decision__c firstDecision = new Application_Decision__c(Application__c = firstApplication.Id);
+        Application_Decision__c secondDecision = new Application_Decision__c(Application__c = secondApplication.Id);
+        insert new List<Application_Decision__c>{ firstDecision, secondDecision };
+
+        ContentVersion firstVersion = new ContentVersion(
+            Title = 'Vedtak til søknad 1',
+            PathOnClient = 'vedtak-1.pdf',
+            VersionData = Blob.valueOf('pdf-data-1')
+        );
+        ContentVersion secondVersion = new ContentVersion(
+            Title = 'Vedtak til søknad 2',
+            PathOnClient = 'vedtak-2.pdf',
+            VersionData = Blob.valueOf('pdf-data-2')
+        );
+        insert new List<ContentVersion>{ firstVersion, secondVersion };
+
+        firstVersion = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :firstVersion.Id LIMIT 1];
+        secondVersion = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :secondVersion.Id LIMIT 1];
+        insert new List<ContentDocumentLink>{
+            new ContentDocumentLink(
+                LinkedEntityId = firstDecision.Id,
+                ContentDocumentId = firstVersion.ContentDocumentId,
+                ShareType = 'V'
+            ),
+            new ContentDocumentLink(
+                LinkedEntityId = secondDecision.Id,
+                ContentDocumentId = secondVersion.ContentDocumentId,
+                ShareType = 'V'
+            )
+        };
+
+        Test.startTest();
+        Map<Id, String> result = AAREG_MyApplicationsController.getDecisionPDFs(
+            new List<Id>{ firstApplication.Id, secondApplication.Id }
+        );
+        Test.stopTest();
+
+        System.assertEquals(2, result.size(), 'Expected URLs for both applications.');
+        System.assert(
+            result.get(firstApplication.Id).contains(String.valueOf(firstVersion.ContentDocumentId)),
+            'Expected first application URL to include first content document id.'
+        );
+        System.assert(
+            result.get(secondApplication.Id).contains(String.valueOf(secondVersion.ContentDocumentId)),
+            'Expected second application URL to include second content document id.'
+        );
+    }
+
+    /**
      * getDecisionPDF should throw when no Application_Decision__c exists for the application.
      *
      * @since August 2026
