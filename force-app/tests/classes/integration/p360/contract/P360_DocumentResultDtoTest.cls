@@ -29,6 +29,14 @@ private class P360_DocumentResultDtoTest {
             document.caseNumber = '26/00001';
             document.caseExternalId = 'case-123';
             document.externalId = 'document-123';
+
+            P360_DocumentFileResultDto file = new P360_DocumentFileResultDto();
+            file.recno = '800100';
+            file.title = 'Decision attachment';
+            file.format = 'pdf';
+            file.size = 24567;
+            document.files = new List<P360_DocumentFileResultDto>{ file };
+
             document.uid = 'uid-document-456';
             document.uidOrigin = '360';
 
@@ -64,6 +72,27 @@ private class P360_DocumentResultDtoTest {
                 'Expected the case external id.'
             );
             System.Assert.areEqual(document.externalId, roundTrippedDocument.externalId, 'Expected the external id.');
+            System.Assert.areEqual(document.files.size(), roundTrippedDocument.files.size(), 'Expected file metadata.');
+            System.Assert.areEqual(
+                document.files[0].recno,
+                roundTrippedDocument.files[0].recno,
+                'Expected the file recno.'
+            );
+            System.Assert.areEqual(
+                document.files[0].title,
+                roundTrippedDocument.files[0].title,
+                'Expected the file title.'
+            );
+            System.Assert.areEqual(
+                document.files[0].format,
+                roundTrippedDocument.files[0].format,
+                'Expected the file format.'
+            );
+            System.Assert.areEqual(
+                document.files[0].size,
+                roundTrippedDocument.files[0].size,
+                'Expected the file size.'
+            );
             System.Assert.areEqual(document.uid, roundTrippedDocument.uid, 'Expected the UID.');
             System.Assert.areEqual(document.uidOrigin, roundTrippedDocument.uidOrigin, 'Expected the UID origin.');
         }
