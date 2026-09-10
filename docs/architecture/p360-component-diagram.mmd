@@ -12,6 +12,7 @@ flowchart LR
     stub[P360_StubArchiveAdapter\nexplicit test/local implementation]
     client[P360_IRpcClient\nP360_RpcClient stub]
     dto[P360 contract DTOs]
+    context[integration/common\nCorrelationContext + IntegrationLogContext]
     transport[Unresolved SIF RPC transport\nendpoint/auth/payload pending]
 
     entry --> factory
@@ -21,6 +22,7 @@ flowchart LR
     orchestrator --> command
     orchestrator --> adapter
     orchestrator --> result
+    orchestrator --> context
     adapter --> client
     adapter --> dto
     client --> transport
