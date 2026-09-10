@@ -17,7 +17,7 @@ describe('aareg_myApplicationsUtils', () => {
                 return Promise.resolve('/sfc/servlet.shepherd/document/download/069');
             }
             if (applicationId === 'a02') {
-                return Promise.resolve(null);
+                return Promise.reject(new Error('PDF lookup failed'));
             }
             return Promise.reject(new Error('Should not be called for non-Avslag rows'));
         });
