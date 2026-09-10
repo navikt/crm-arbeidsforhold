@@ -1,0 +1,23 @@
+---
+title: P360 archive contract-boundary sequence
+---
+sequenceDiagram
+    participant Caller as Use case caller
+    participant Factory as P360_AdapterFactory
+    participant Orchestrator as AAREG_ArchiveApplicationOrchestrator
+    participant Adapter as P360_IArchiveAdapter
+    participant Client as P360_IRpcClient
+    participant Boundary as Unresolved SIF RPC boundary
+
+    Caller->>Factory: Compose standard adapter
+    Factory-->>Caller: Return injected adapter
+    Caller->>Orchestrator: archive(command)
+    alt command is null or applicationId is missing
+        Orchestrator-->>Caller: P360_ContractException
+    else command is structurally valid
+        Note over Orchestrator,Adapter: Current implementation stops at explicit contract boundary
+        Orchestrator-->>Caller: P360_ContractException (not implemented)
+        Note over Adapter,Client: No adapter or RPC call is made by the current orchestrator stub
+    end
+
+    Note over Client,Boundary: Endpoint, authentication, payload and response mapping await confirmed SIF contract
