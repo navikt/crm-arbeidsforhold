@@ -103,8 +103,26 @@ Ei ny dokumentversjon eller ei ny arkiveringshending skal få ein ny idempotensn
 
 - `Queued_Date__c`
 - `Started_Date__c`
+- `Lease_Expires_Date__c`
 - `Succeeded_Date__c`
 - `Failed_Date__c`
+
+### Førebels MVP-retrypolicy
+
+Følgjande policy er vald som førebels MVP-standard. Ho skal justerast dersom P360-teamet stadfestar andre timeoutar, rate limits eller feilkodeklassifiseringar:
+
+```text
+Callout-timeout:       120 sekund
+Jobb-lease:            10 minutt
+Maks automatiske forsøk: 5
+Retry-vindauge:        24 timar
+Backoff:               1 minutt, 5 minutt, 15 minutt, 1 time, 6 timar
+Etter grensa:          Manual Review
+```
+
+Når ein jobb går til `In Progress`, skal `Lease_Expires_Date__c` setjast. Ein jobb kan berre takast opp att etter utløpt lease, og statusovergangen må vere atomisk nok til å hindre parallell behandling.
+
+Retrybare feil er mellombelse timeoutar, nettverksfeil, rate limiting og mellombelse serverfeil. Ugyldige requestar, mappingfeil, autentiseringsfeil, fleire sakstreff og permanente P360-feil skal ikkje retryast automatisk; dei skal gå til `Manual Review` eller kontrollert `Failed` etter endeleg teamavklaring.
 
 ## Arkiveringsreglar
 
@@ -151,6 +169,7 @@ Vi innfører ingen nye Salesforce-felt eller objekt i denne dokumentasjonsskiva.
 - SIF RPC endpoint og autentisering
 - konkret request-/responsemapping
 - retry-intervall og maks forsøk
+- førebels retrypolicy: 120 sekund timeout, 10 minutt lease, fem forsøk og 24 timars retry-vindauge
 - filstrategi og storfiltransport
 - personvernklassifisering av alle felt
 - migrering av `Public_360_id__c` eller eksisterande arkivfelt
