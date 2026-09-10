@@ -154,6 +154,10 @@ Ved frigiving skal `Attempt_Count__c`, tidlegare feilkode og feilmelding bevaras
 - Ved innsending skal ein jobb av typen `ApplicationDocument` opprettast.
 - Ved ferdig vedtak skal ein jobb av typen `DecisionDocument` opprettast.
 - `DecisionDocument` skal berre opprettast når `Application_Decision__c.Ready_For_P360_Archive__c = true`.
+- `Ready_For_P360_Archive__c` skal vere eit eingongssignal. Når feltet er sett til `true`, kan det ikkje setjast tilbake til `false`.
+- Når signalet er sett til `true`, skal vedtaksdata som inngår i arkiveringa låsast for ordinære endringar. Nye forsøk på å endre vedtaket skal avvisast, også medan arkiveringsjobben står i `Pending`, `In Progress`, `Failed` eller `Manual Review`.
+- Retry skal berre gjenta arkiveringa av same låste vedtaksinnhald. Retry skal ikkje opne vedtaket eller tillate at ein ny versjon blir arkivert på same `DecisionDocument`-nøkkel.
+- Korrigering etter frigiving krev ein separat, kontrollert prosess for ny vedtaksversjon og ny idempotensnøkkel. Det skal ikkje løysast ved å nullstille eller overskrive det opphavlege eingongssignalet.
 - Salesforce skal ikkje generere vedtaks-PDF for P360-arkivering; P360 skal generere og eige arkivversjonen, fortrinnsvis PDF/A.
 - `DecisionDocument` skal sende vedtaksmetadata til P360 og lagre P360 document ID og eventuelt document number som P360-referanse.
 - Salesforce skal ikkje hente eller vise PDF/A frå P360 i MVP. Salesforce viser berre arkiveringsstatus og lagra P360-referansar.
@@ -179,12 +183,13 @@ Vi innfører ingen nye Salesforce-felt eller objekt i denne dokumentasjonsskiva.
 1. Opprett `P360_Archive_Job__c` med obligatorisk `Access_Request__c`.
 2. Opprett nye, tydeleg namngjevne P360-felt på dei fire domeneobjekta.
 3. Opprett `Application_Decision__c.Ready_For_P360_Archive__c` som eksplisitt arkiveringssignal.
-4. Opprett validering som krev `Access_Request__c` på nye relevante søknads-, vedtaks- og avtalejobbar.
-5. Implementer asynkron jobboppretting og statusovergangar.
-6. Kartlegg eksisterande `Agreement__c.Public_360_id__c` og arkivfelt.
-7. Migrer eksisterande verdiar berre etter dataanalyse, eigarskap og godkjend deployplan.
-8. Marker gamle felt som legacy først etter at rapportar, flows, Apex og integrasjonar er oppdaterte.
-9. Fjern eller avvikle gamle felt i ein separat, godkjend migreringssak.
+4. Opprett validering og låsemekanisme for `Ready_For_P360_Archive__c` og vedtaksdata som inngår i arkiveringa.
+5. Opprett validering som krev `Access_Request__c` på nye relevante søknads-, vedtaks- og avtalejobbar.
+6. Implementer asynkron jobboppretting og statusovergangar.
+7. Kartlegg eksisterande `Agreement__c.Public_360_id__c` og arkivfelt.
+8. Migrer eksisterande verdiar berre etter dataanalyse, eigarskap og godkjend deployplan.
+9. Marker gamle felt som legacy først etter at rapportar, flows, Apex og integrasjonar er oppdaterte.
+10. Fjern eller avvikle gamle felt i ein separat, godkjend migreringssak.
 
 ## Forbetringar som bør vurderast seinare
 
