@@ -153,6 +153,10 @@ Ved frigiving skal `Attempt_Count__c`, tidlegare feilkode og feilmelding bevaras
 - Utkast skal ikkje opprette arkiveringsjobb.
 - Ved innsending skal ein jobb av typen `ApplicationDocument` opprettast.
 - Ved ferdig vedtak skal ein jobb av typen `DecisionDocument` opprettast.
+- Salesforce skal ikkje generere vedtaks-PDF for P360-arkivering; P360 skal generere arkivversjonen, fortrinnsvis PDF/A.
+- `DecisionDocument` skal sende vedtaksmetadata til P360 og lagre document ID, document number og PDF/A-referanse dersom P360 returnerer dette i same respons.
+- Dersom same-respons-referanse ikkje er støtta, skal Salesforce lagre document ID og hente PDF/A-referansen gjennom eit separat, avklart P360-oppslag.
+- Vedtaksflyten skal ikkje gjerast avhengig av dagens Salesforce-PDF-generering.
 - Alle jobbar skal bruke `Application__c.Name` som Aa-register-nummer når søknadskontekst finst.
 - Eksisterande P360-sak skal søkast fram før ny sak blir oppretta.
 - Null treff kan opprette ny sak.
