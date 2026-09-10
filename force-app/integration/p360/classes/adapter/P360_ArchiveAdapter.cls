@@ -19,6 +19,15 @@ public with sharing class P360_ArchiveAdapter implements P360_IArchiveAdapter {
     }
 
     /**
+     * Returns the injected RPC client.
+     *
+     * @return RPC client used by this adapter.
+     */
+    public P360_IRpcClient getRpcClient() {
+        return rpcClient;
+    }
+
+    /**
      * Archives one request in P360.
      *
      * @param request P360 archive request DTO.
