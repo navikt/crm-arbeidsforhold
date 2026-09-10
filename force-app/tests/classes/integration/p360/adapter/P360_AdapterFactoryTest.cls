@@ -28,7 +28,7 @@ private class P360_AdapterFactoryTest {
             );
             System.Assert.areEqual(
                 rpcClient,
-                ((P360_ArchiveAdapter) archiveAdapter).getRpcClient(),
+                ((P360_ArchiveAdapter) archiveAdapter).rpcClient,
                 'Expected the injected client to be used.'
             );
         }
@@ -53,7 +53,7 @@ private class P360_AdapterFactoryTest {
                 'Expected a concrete archive adapter.'
             );
             System.Assert.isNotNull(
-                ((P360_ArchiveAdapter) archiveAdapter).getRpcClient(),
+                ((P360_ArchiveAdapter) archiveAdapter).rpcClient,
                 'Expected the default RPC client to be present.'
             );
         }

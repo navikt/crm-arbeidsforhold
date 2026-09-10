@@ -7,6 +7,7 @@
  * @group P360 Adapter
  */
 public with sharing class P360_ArchiveAdapter implements P360_IArchiveAdapter {
+    @TestVisible
     private final P360_IRpcClient rpcClient;
 
     /**
@@ -16,15 +17,6 @@ public with sharing class P360_ArchiveAdapter implements P360_IArchiveAdapter {
      */
     public P360_ArchiveAdapter(P360_IRpcClient rpcClient) {
         this.rpcClient = rpcClient;
-    }
-
-    /**
-     * Returns the injected RPC client.
-     *
-     * @return RPC client used by this adapter.
-     */
-    public P360_IRpcClient getRpcClient() {
-        return rpcClient;
     }
 
     /**
