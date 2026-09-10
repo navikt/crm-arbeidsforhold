@@ -82,7 +82,7 @@ private class AAREG_ApplicationControllerTest {
     }
 
     /**
-     * processApplication should upsert an existing application and reset status to New.
+     * processApplication should upsert an application requiring additional information and set status to In Progress.
      *
      * @since July 2026
      */
@@ -114,9 +114,9 @@ private class AAREG_ApplicationControllerTest {
 
         System.Assert.areEqual(1, result.size(), 'Application should be upserted');
         System.Assert.areEqual(
-            'New',
+            'In Progress',
             result[0].Status__c,
-            'Status should be New after processing Additional Information Required application'
+            'Status should be In Progress after processing Additional Information Required application'
         );
     }
 
