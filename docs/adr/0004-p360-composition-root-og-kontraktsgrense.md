@@ -8,6 +8,7 @@ dato: 2026-09-10
 # ADR-0004: P360 composition root og kontraktsgrense
 
 **Status:** Foreslått  
+**Beslutningsstatus:** Retninga er valt i dette arbeidet. Teamavklaring og endeleg normativ godkjenning står att.  
 **Dato:** 2026-09-10
 
 ## Kontekst
@@ -62,7 +63,7 @@ Mogleg for små testar og eksplisitte use case-instansar, men ein composition ro
 
 ## Oppfølging
 
-- Få menneskeleg godkjenning før status blir endra til `Vedtatt`.
+- Avklar avgjerda med teamet før status eventuelt blir endra til `Vedtatt`.
 - Bruk denne avgjerda som grunnlag for K3 og vidare P360-implementasjon.
 - Implementer `CreateDocument` først når SIF RPC-kontrakten er bekrefta.
 - Oppdater ADR-en dersom P360-teamet krev eit anna composition-root-mønster.
