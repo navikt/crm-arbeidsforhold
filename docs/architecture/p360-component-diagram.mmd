@@ -1,0 +1,32 @@
+---
+title: P360 component architecture
+---
+flowchart LR
+    entry[Entry point / use case caller]
+    factory[P360_AdapterFactory\ncomposition root]
+    orchestrator[AAREG_ArchiveApplicationOrchestrator]
+    domain[AAREG domain services]
+    command[AAREG_ArchiveApplicationCommand\ninternal context]
+    result[AAREG_ArchiveApplicationResult\ninternal result]
+    adapter[P360_IArchiveAdapter\nP360_ArchiveAdapter]
+    stub[P360_StubArchiveAdapter\nexplicit test/local implementation]
+    client[P360_IRpcClient\nP360_RpcClient stub]
+    dto[P360 contract DTOs]
+    transport[Unresolved SIF RPC transport\nendpoint/auth/payload pending]
+
+    entry --> factory
+    factory --> orchestrator
+    factory --> adapter
+    orchestrator --> domain
+    orchestrator --> command
+    orchestrator --> adapter
+    orchestrator --> result
+    adapter --> client
+    adapter --> dto
+    client --> transport
+    stub -. explicit injection in tests .-> orchestrator
+
+    classDef boundary fill:#e8f1fb,stroke:#245b8a,stroke-width:1px
+    classDef pending fill:#fff4e5,stroke:#a65f00,stroke-width:1px
+    class factory,orchestrator,adapter,client boundary
+    class transport pending
