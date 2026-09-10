@@ -98,6 +98,10 @@ Ei ny dokumentversjon eller ei ny arkiveringshending skal få ein ny idempotensn
 - `Last_Error_Message__c`
 - `Correlation_Id__c`
 - `Idempotency_Key__c`
+- `Manual_Release_Reason__c`
+- `Manual_Release_Type__c`: `Business`, `Technical`
+- `Manual_Released_By__c`
+- `Manual_Released_Date__c`
 
 **Tidsstempel:**
 
@@ -123,6 +127,26 @@ Etter grensa:          Manual Review
 Når ein jobb går til `In Progress`, skal `Lease_Expires_Date__c` setjast. Ein jobb kan berre takast opp att etter utløpt lease, og statusovergangen må vere atomisk nok til å hindre parallell behandling.
 
 Retrybare feil er mellombelse timeoutar, nettverksfeil, rate limiting og mellombelse serverfeil. Ugyldige requestar, mappingfeil, autentiseringsfeil, fleire sakstreff og permanente P360-feil skal ikkje retryast automatisk; dei skal gå til `Manual Review` eller kontrollert `Failed` etter endeleg teamavklaring.
+
+### Manuell frigiving
+
+`Manual Review` kan berre frigivast eksplisitt av autoriserte interne roller:
+
+- Saksbehandlar kan frigive fagleg avklarte feil (`Manual_Release_Type__c = Business`).
+- Drift/integrasjonseigar kan frigive tekniske feil, timeoutar og hengande jobbar (`Manual_Release_Type__c = Technical`).
+- Eksterne brukarar kan ikkje frigive jobbar.
+- Frigiving skal logge grunn, brukar og tidspunkt.
+- Frigiving skal ikkje slette tidlegare feilkode, feilmelding eller forsøkshistorikk.
+
+Ved manuell frigiving skal statusovergangen vere:
+
+```text
+Manual Review -> Pending -> In Progress
+```
+
+Den manuelle handlinga set jobben til `Pending`. Berre queueable/worker kan setje jobben til `In Progress`, etter atomisk krav på jobben og oppdatering av `Lease_Expires_Date__c`. Manuell frigiving skal ikkje starte eit eksternt callout direkte.
+
+Ved frigiving skal `Attempt_Count__c`, tidlegare feilkode og feilmelding bevarast. `Next_Attempt_Date__c` kan setjast til no eller eit eksplisitt valt tidspunkt. Dersom jobben feiler på nytt, går han tilbake til `Failed` eller `Manual Review` etter feilklassifisering.
 
 ## Arkiveringsreglar
 
@@ -163,6 +187,7 @@ Vi innfører ingen nye Salesforce-felt eller objekt i denne dokumentasjonsskiva.
 - Legge til eigne list views og rapportar for feila og manuelle arkiveringsjobbar.
 - Avklare om `P360_Archive_Job__c` skal vere ein historisk jobbtabell eller berre halde siste aktive jobb per entitet.
 - Avklare felt- og objekt-tilgang før metadata blir deploya.
+- Definere permission set og intern brukaroppleving for manuell frigiving.
 
 ## Ikkje del av denne avgjerda
 
