@@ -103,7 +103,21 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     }
 
     async resolveDecisionStateOnLoad(rows) {
-        this.applications = await resolveDecisionAvailability(rows, getDecisionPDF);
+        const resolved = await resolveDecisionAvailability(rows, getDecisionPDF);
+        const resolvedById = new Map(resolved.map((row) => [row.Id, row.decisionUrl]));
+
+        this.applications = (this.applications || []).map((application) => {
+            if (application.Status__c !== 'Avslag') {
+                return application;
+            }
+
+            const url = application.decisionUrl || resolvedById.get(application.Id) || null;
+            return {
+                ...application,
+                decisionUrl: url,
+                disableButton: !url
+            };
+        });
     }
 
     updateStatusFilterOptions(rows) {
