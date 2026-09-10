@@ -1,10 +1,12 @@
 ---
 tittel: P360 datamodell og asynkron arkiveringsjobb
-status: foreslått for menneskeleg godkjenning
+status: foreslått
 dato: 2026-09-10
 ---
 
 # P360 datamodell og asynkron arkiveringsjobb
+
+**Beslutningsstatus:** Retninga er valt i dette arbeidet. Teamavklaring og endeleg normativ godkjenning står att.
 
 ## Føremål
 
