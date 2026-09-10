@@ -4,7 +4,11 @@ import Id from '@salesforce/user/Id';
 import navLogo from '@salesforce/resourceUrl/logo';
 import getUsersApplications from '@salesforce/apex/AAREG_MyApplicationsController.getUsersApplications';
 import getDecisionPDF from '@salesforce/apex/AAREG_MyApplicationsController.getDecisionPDF';
-import { buildDecisionUrl, updateApplicationsWithDecisionState } from './aareg_myApplicationsUtils';
+import {
+    buildDecisionUrl,
+    resolveDecisionAvailability,
+    updateApplicationsWithDecisionState
+} from './aareg_myApplicationsUtils';
 
 const COLUMNS = [
     { label: 'Søknadsnummer', fieldName: 'Name', type: 'text', hideDefaultActions: true },
@@ -84,15 +88,22 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
     wiredGetUsersApplications(result) {
         if (result.data && result.data.length > 0) {
             this.initialApplications = result.data;
-            this.applications = JSON.parse(JSON.stringify(this.initialApplications));
-            this.applications.forEach((application) => {
-                application.disableButton = application.Status__c !== 'Avslag';
-                application.disableApplication = !['Venter på svar', 'Utkast'].includes(application.Status__c);
-            });
-            this.updateStatusFilterOptions(this.applications);
+            const rows = JSON.parse(JSON.stringify(this.initialApplications));
+            this.applications = rows.map((application) => ({
+                ...application,
+                decisionUrl: null,
+                disableButton: true,
+                disableApplication: !['Venter på svar', 'Utkast'].includes(application.Status__c)
+            }));
+            this.updateStatusFilterOptions(rows);
+            this.resolveDecisionStateOnLoad(rows);
         } else if (result.error) {
             console.error(result.error);
         }
+    }
+
+    async resolveDecisionStateOnLoad(rows) {
+        this.applications = await resolveDecisionAvailability(rows, getDecisionPDF);
     }
 
     updateStatusFilterOptions(rows) {
