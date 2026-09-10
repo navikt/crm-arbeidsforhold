@@ -153,6 +153,7 @@ Ved frigiving skal `Attempt_Count__c`, tidlegare feilkode og feilmelding bevaras
 - Utkast skal ikkje opprette arkiveringsjobb.
 - Ved innsending skal ein jobb av typen `ApplicationDocument` opprettast.
 - Ved ferdig vedtak skal ein jobb av typen `DecisionDocument` opprettast.
+- `DecisionDocument` skal berre opprettast når `Application_Decision__c.Ready_For_P360_Archive__c = true`.
 - Salesforce skal ikkje generere vedtaks-PDF for P360-arkivering; P360 skal generere og eige arkivversjonen, fortrinnsvis PDF/A.
 - `DecisionDocument` skal sende vedtaksmetadata til P360 og lagre P360 document ID og eventuelt document number som P360-referanse.
 - Salesforce skal ikkje hente eller vise PDF/A frå P360 i MVP. Salesforce viser berre arkiveringsstatus og lagra P360-referansar.
@@ -177,12 +178,13 @@ Vi innfører ingen nye Salesforce-felt eller objekt i denne dokumentasjonsskiva.
 
 1. Opprett `P360_Archive_Job__c` med obligatorisk `Access_Request__c`.
 2. Opprett nye, tydeleg namngjevne P360-felt på dei fire domeneobjekta.
-3. Opprett validering som krev `Access_Request__c` på nye relevante søknads-, vedtaks- og avtalejobbar.
-4. Implementer asynkron jobboppretting og statusovergangar.
-5. Kartlegg eksisterande `Agreement__c.Public_360_id__c` og arkivfelt.
-6. Migrer eksisterande verdiar berre etter dataanalyse, eigarskap og godkjend deployplan.
-7. Marker gamle felt som legacy først etter at rapportar, flows, Apex og integrasjonar er oppdaterte.
-8. Fjern eller avvikle gamle felt i ein separat, godkjend migreringssak.
+3. Opprett `Application_Decision__c.Ready_For_P360_Archive__c` som eksplisitt arkiveringssignal.
+4. Opprett validering som krev `Access_Request__c` på nye relevante søknads-, vedtaks- og avtalejobbar.
+5. Implementer asynkron jobboppretting og statusovergangar.
+6. Kartlegg eksisterande `Agreement__c.Public_360_id__c` og arkivfelt.
+7. Migrer eksisterande verdiar berre etter dataanalyse, eigarskap og godkjend deployplan.
+8. Marker gamle felt som legacy først etter at rapportar, flows, Apex og integrasjonar er oppdaterte.
+9. Fjern eller avvikle gamle felt i ein separat, godkjend migreringssak.
 
 ## Forbetringar som bør vurderast seinare
 
