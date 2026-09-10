@@ -48,6 +48,16 @@ Det eksisterande `Agreement__c.Public_360_id__c` blir ikkje gjenbrukt i denne sk
 
 `P360_Archive_Job__c` er eit eige teknisk objekt for éi asynkron arkiveringshending. Objektet eig jobbstatus, retry, feilkontekst og korrelasjon. Det eig ikkje dei autoritative P360-identifikatorane.
 
+Det skal opprettast éin jobb per konkret arkiveringshending, ikkje éin jobb per `Application__c` eller per `Access_Request__c`:
+
+| Salesforce-kontekst                         | Jobbtype              | Idempotensnøkkel                            |
+| ------------------------------------------- | --------------------- | ------------------------------------------- |
+| `Application__c` + søknadsdokument          | `ApplicationDocument` | `APPLICATION_DOCUMENT:{ApplicationId}`      |
+| `Application_Decision__c` + vedtaksdokument | `DecisionDocument`    | `DECISION_DOCUMENT:{ApplicationDecisionId}` |
+| `Agreement__c` + avtaledokument             | `AgreementDocument`   | `AGREEMENT_DOCUMENT:{AgreementId}`          |
+
+Idempotensnøkkelen skal vere unik på `P360_Archive_Job__c`. Aa-register-nummeret skal framleis brukast til domenekopling og P360-søk, men ikkje åleine som teknisk jobbidentitet.
+
 ### Relasjonar
 
 `Access_Request__c` skal vere obligatorisk Lookup på jobben. Jobben kan i tillegg peike til den konkrete kjelda:
