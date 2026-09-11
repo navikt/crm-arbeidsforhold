@@ -58,6 +58,21 @@ P360-referansar skal lagrast på objektet som eig den eksterne entiteten. Felta 
 
 Det eksisterande `Agreement__c.Public_360_id__c` blir ikkje gjenbrukt i denne skiva. Det skal vurderast separat før eventuell migrering.
 
+### Invariants for P360-referansar
+
+For MVP gjeld desse reglane for dei nye P360-referansefelta:
+
+- Referansefelta kan skrivast av den autoriserte P360-arkiveringsflyten.
+- Same ikkje-blanke verdi kan skrivast på nytt ved idempotent retry.
+- Ein ny, ikkje-blank verdi kan erstatte ein eksisterande verdi berre gjennom autorisert P360-flyt.
+- Referansefelta skal aldri blankast som del av retry, feilhandtering eller ordinær brukaroppdatering.
+- Vanlege brukarar og UI skal ikkje kunne endre P360-referansar manuelt.
+- Ei manglande referanse skal ikkje tolkast som at arkiveringa er vellukka; jobbstatusen på `P360_Archive_Job__c` er kjelda for teknisk resultat.
+- P360-referansar skal ikkje brukast som teknisk retry-status eller som erstatning for `P360_Archive_Job__c`.
+- Søknad og alle tilhøyrande vedlegg skal bruke same `P360_Case_Id__c` og `P360_Case_Number__c` på `Access_Request__c`.
+- Ei ny dokumentversjon eller ei ny arkiveringshending skal få ny idempotensnøkkel, sjølv om den skriv ein ny referanse på same domeneobjekt.
+- `Agreement__c.Public_360_id__c` er eit legacy-felt og er ikkje omfatta av desse reglane før separat analyse og migreringsbeslutning.
+
 ## `P360_Archive_Job__c`
 
 `P360_Archive_Job__c` er eit eige teknisk objekt for éi asynkron arkiveringshending. Objektet eig jobbstatus, retry, feilkontekst og korrelasjon. Det eig ikkje dei autoritative P360-identifikatorane.
