@@ -14,7 +14,7 @@ private class CorrelationContextTest {
      */
     @IsTest
     static void suppliedCorrelationIdIsPreserved() {
-        User minimumAccessUser = createMinimumAccessUser();
+        User minimumAccessUser = Integration_TestDataFactory.createMinimumAccessUser();
 
         System.runAs(minimumAccessUser) {
             CorrelationContext context = new CorrelationContext('correlation-supplied');
@@ -34,37 +34,12 @@ private class CorrelationContextTest {
      */
     @IsTest
     static void missingCorrelationIdIsGenerated() {
-        User minimumAccessUser = createMinimumAccessUser();
+        User minimumAccessUser = Integration_TestDataFactory.createMinimumAccessUser();
 
         System.runAs(minimumAccessUser) {
             CorrelationContext context = new CorrelationContext(null);
 
             System.Assert.isTrue(String.isNotBlank(context.correlationId), 'Expected a generated correlation id.');
         }
-    }
-
-    private static User createMinimumAccessUser() {
-        Profile minimumAccessProfile = [
-            SELECT Id
-            FROM Profile
-            WHERE Name = 'Minimum Access - Salesforce'
-            LIMIT 1
-        ];
-
-        User minimumAccessUser = new User(
-            FirstName = 'Correlation',
-            LastName = 'Tester',
-            Email = 'correlation.context@example.com',
-            Username = 'correlation.context.' + System.currentTimeMillis() + '@example.com',
-            Alias = 'corrctx',
-            LanguageLocaleKey = 'en_US',
-            LocaleSidKey = 'en_US',
-            TimeZoneSidKey = 'Europe/Oslo',
-            EmailEncodingKey = 'UTF-8',
-            ProfileId = minimumAccessProfile.Id
-        );
-
-        insert minimumAccessUser;
-        return minimumAccessUser;
     }
 }

@@ -8,7 +8,7 @@
 private class P360_ArchiveJobMetadataTest {
     @IsTest
     static void archiveJobExposesRequiredContractFields() {
-        User minimumAccessUser = createMinimumAccessUser();
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
 
         System.runAs(minimumAccessUser) {
             Schema.SObjectType archiveJobType = Schema.getGlobalDescribe().get('P360_Archive_Job__c');
@@ -64,30 +64,5 @@ private class P360_ArchiveJobMetadataTest {
                 'Missing P360 reference field ' + objectName + '.' + fieldName
             );
         }
-    }
-
-    private static User createMinimumAccessUser() {
-        Profile minimumAccessProfile = [
-            SELECT Id
-            FROM Profile
-            WHERE Name = 'Minimum Access - Salesforce'
-            LIMIT 1
-        ];
-
-        User minimumAccessUser = new User(
-            FirstName = 'P360',
-            LastName = 'Archive Job Tester',
-            Email = 'p360.archive.job@example.com',
-            Username = 'p360.archive.job.' + System.currentTimeMillis() + '@example.com',
-            Alias = 'p360job',
-            LanguageLocaleKey = 'en_US',
-            LocaleSidKey = 'en_US',
-            TimeZoneSidKey = 'Europe/Oslo',
-            EmailEncodingKey = 'UTF-8',
-            ProfileId = minimumAccessProfile.Id
-        );
-
-        insert minimumAccessUser;
-        return minimumAccessUser;
     }
 }

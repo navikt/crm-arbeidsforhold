@@ -14,7 +14,7 @@ private class IntegrationLogContextTest {
      */
     @IsTest
     static void suppliedTechnicalContextIsPreserved() {
-        User minimumAccessUser = createMinimumAccessUser();
+        User minimumAccessUser = Integration_TestDataFactory.createMinimumAccessUser();
 
         System.runAs(minimumAccessUser) {
             IntegrationLogContext context = new IntegrationLogContext('P360', 'CreateDocument', 'Started')
@@ -34,7 +34,7 @@ private class IntegrationLogContextTest {
      */
     @IsTest
     static void missingCorrelationIdIsGenerated() {
-        User minimumAccessUser = createMinimumAccessUser();
+        User minimumAccessUser = Integration_TestDataFactory.createMinimumAccessUser();
 
         System.runAs(minimumAccessUser) {
             IntegrationLogContext context = new IntegrationLogContext('P360', 'CreateDocument', 'Failed');
@@ -43,30 +43,5 @@ private class IntegrationLogContextTest {
             System.Assert.isTrue(String.isNotBlank(context.correlationId), 'Expected a non-blank correlation id.');
             System.Assert.areEqual('Failed', context.status, 'Expected the status.');
         }
-    }
-
-    private static User createMinimumAccessUser() {
-        Profile minimumAccessProfile = [
-            SELECT Id
-            FROM Profile
-            WHERE Name = 'Minimum Access - Salesforce'
-            LIMIT 1
-        ];
-
-        User minimumAccessUser = new User(
-            FirstName = 'Integration',
-            LastName = 'Log Tester',
-            Email = 'integration.log.context@example.com',
-            Username = 'integration.log.context.' + System.currentTimeMillis() + '@example.com',
-            Alias = 'intlog',
-            LanguageLocaleKey = 'en_US',
-            LocaleSidKey = 'en_US',
-            TimeZoneSidKey = 'Europe/Oslo',
-            EmailEncodingKey = 'UTF-8',
-            ProfileId = minimumAccessProfile.Id
-        );
-
-        insert minimumAccessUser;
-        return minimumAccessUser;
     }
 }
