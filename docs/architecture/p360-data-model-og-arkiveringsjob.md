@@ -38,7 +38,7 @@ P360-referansar skal lagrast på objektet som eig den eksterne entiteten:
 | Salesforce-objekt         | P360-entitet                                   | Referansar som skal innførast seinare                  |
 | ------------------------- | ---------------------------------------------- | ------------------------------------------------------ |
 | `Access_Request__c`       | P360-sak                                       | P360 case ID og case number                            |
-| `Application__c`          | Inngåande søknadsdokument                      | P360 document ID, eventuelt document number og file ID |
+| `Application__c`          | Inngåande søknadsdokument og søknadsvedlegg    | P360 document ID, eventuelt document number og file ID |
 | `Application_Decision__c` | Utgåande vedtaksdokument                       | P360 document ID, eventuelt document number og file ID |
 | `Agreement__c`            | Avtaledokument, dersom avtalar skal arkiverast | P360 document ID, eventuelt document number og file ID |
 
@@ -50,15 +50,28 @@ Det eksisterande `Agreement__c.Public_360_id__c` blir ikkje gjenbrukt i denne sk
 
 Det skal opprettast éin jobb per konkret arkiveringshending, ikkje éin jobb per `Application__c` eller per `Access_Request__c`:
 
-| Salesforce-kontekst                         | Jobbtype              | Idempotensnøkkel                            |
-| ------------------------------------------- | --------------------- | ------------------------------------------- |
-| `Application__c` + søknadsdokument          | `ApplicationDocument` | `APPLICATION_DOCUMENT:{ApplicationId}`      |
-| `Application_Decision__c` + vedtaksdokument | `DecisionDocument`    | `DECISION_DOCUMENT:{ApplicationDecisionId}` |
-| `Agreement__c` + avtaledokument             | `AgreementDocument`   | `AGREEMENT_DOCUMENT:{AgreementId}`          |
+| Salesforce-kontekst                         | Jobbtype                | Idempotensnøkkel                                            |
+| ------------------------------------------- | ----------------------- | ----------------------------------------------------------- |
+| `Application__c` + søknadsdokument          | `ApplicationDocument`   | `APPLICATION_DOCUMENT:{ApplicationId}`                      |
+| `Application__c` + kvart søknadsvedlegg     | `ApplicationAttachment` | `APPLICATION_ATTACHMENT:{ApplicationId}:{ContentVersionId}` |
+| `Application_Decision__c` + vedtaksdokument | `DecisionDocument`      | `DECISION_DOCUMENT:{ApplicationDecisionId}`                 |
+| `Agreement__c` + avtaledokument             | `AgreementDocument`     | `AGREEMENT_DOCUMENT:{AgreementId}`                          |
 
 Idempotensnøkkelen skal vere unik på `P360_Archive_Job__c`. Aa-register-nummeret skal framleis brukast til domenekopling og P360-søk, men ikkje åleine som teknisk jobbidentitet.
 
 Retry skal alltid gjenbruke jobben med same idempotensnøkkel. Det skal ikkje opprettast ein ny jobb for same arkiveringshending.
+
+### Søknad og vedlegg under same P360-sak
+
+Når `ApplicationDocument` blir arkivert, skal hovudsøknaden og alle relevante vedlegg arkiverast under same P360-saksnummer. `Access_Request__c` er den felles Salesforce-konteksten for søknad og vedlegg, og P360 case ID/number skal hentast eller opprettast før dokumenthendingane blir sende.
+
+- Hovudsøknaden får éi `ApplicationDocument`-hending.
+- Kvart relevant søknadsvedlegg får éi `ApplicationAttachment`-hending.
+- Vedlegga skal referere til same P360 case ID/number som hovudsøknaden.
+- Kvart vedlegg skal ha eigen idempotensnøkkel basert på `Application__c` og den konkrete `ContentVersion__c`, slik at retry ikkje dupliserer vedlegget.
+- Søknadsjobben skal ikkje markerast som vellukka før hovudsøknaden og alle vedlegg som høyrer til innsendinga er behandla etter avtalt suksess- og feilstrategi.
+- Nye eller endra vedlegg etter innsending skal vere nye arkiveringshendingar med nye idempotensnøklar, men framleis under same P360-sak.
+- Eit vedlegg som ikkje kan arkiverast skal vere synleg som eiga feila hending og ikkje skjulast ved å markere berre hovudsøknaden som feila.
 
 | Eksisterande status | Retry-åtferd                                                                             |
 | ------------------- | ---------------------------------------------------------------------------------------- |
