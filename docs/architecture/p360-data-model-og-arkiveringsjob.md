@@ -213,6 +213,8 @@ Ved frigiving skal `Attempt_Count__c`, tidlegare feilkode og feilmelding bevaras
 - `Ready_For_P360_Archive__c` skal vere eit eingongssignal. Når feltet er sett til `true`, kan det ikkje setjast tilbake til `false`.
 - Når signalet er sett til `true`, skal vedtaksdata som inngår i arkiveringa låsast for ordinære endringar. Nye forsøk på å endre vedtaket skal avvisast, også medan arkiveringsjobben står i `Pending`, `In Progress`, `Failed` eller `Manual Review`.
 - Retry skal berre gjenta arkiveringa av same låste vedtaksinnhald. Retry skal ikkje opne vedtaket eller tillate at ein ny versjon blir arkivert på same `DecisionDocument`-nøkkel.
+- Tekniske P360-felt, inkludert P360-referansar, kan oppdaterast av autorisert arkiveringsflyt etter frigiving. Oppdateringa kan berre skrive same verdi på nytt eller ein ny ikkje-blank verdi; ho kan aldri blanke feltet.
+- Tekniske P360-felt skal ikkje kunne oppdaterast av ordinær brukar eller UI etter frigiving.
 - Korrigering etter frigiving krev ein separat, kontrollert prosess for ny vedtaksversjon og ny idempotensnøkkel. Det skal ikkje løysast ved å nullstille eller overskrive det opphavlege eingongssignalet.
 - Salesforce skal ikkje generere vedtaks-PDF for P360-arkivering; P360 skal generere og eige arkivversjonen, fortrinnsvis PDF/A.
 - `DecisionDocument` skal sende vedtaksmetadata til P360 og lagre P360 document ID og eventuelt document number som P360-referanse.
@@ -236,6 +238,8 @@ Følgjande modell er vald for denne fasen:
 - Frigivinga skal logge brukar og tidspunkt.
 - Når feltet er sett til `true`, er vedtaket låst for ordinære endringar og signalet kan ikkje setjast tilbake til `false`.
 - Retry av arkiveringsjobben skal ikkje oppheve låsen eller endre vedtaksinnhaldet.
+- Autoriserte tekniske oppdateringar er avgrensa til P360-referansar og andre eksplisitt tillatne integrasjonsfelt. Faglege vedtaksfelt er ikkje ein del av allowlista.
+- Låsing skal handhevast i Apex før-DML/handler. Eit service-lag for frigiving er nødvendig, men skal ikkje vere einaste sikkerheitsbarriere.
 - Korrigering etter frigiving krev ein separat, kontrollert prosess for ny vedtaksversjon og ny idempotensnøkkel.
 
 Dette er ei arbeidsavgjerd for vidare design og implementering. Metadata og låsemekanisme kan implementerast på dette grunnlaget. Endeleg tilgangsmodell, permission set og fagleg godkjenning skal likevel avklarast før produksjonssetting, og større avvik skal behandlast som ei ny endringsavgjerd.
