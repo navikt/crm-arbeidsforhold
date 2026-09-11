@@ -184,7 +184,7 @@ force-app/integration/p360/classes/
 
 Exception-klassane er tomme `extends Exception` med kommentaren `TODO F5` — medvitne placeholders frå CRMAAREG-321, ikkje ferdig arbeid.
 
-`force-app/integration/common/` finst, men inneheld berre README-filer. `force-app/tests/` finst ikkje.
+`force-app/integration/common/` inneheld felles integrasjonsklasser og README-filer. Testklasser og testutilities ligg samla under `force-app/tests/`.
 
 Sjå [jira-deloppgaver.md](jira-deloppgaver.md) for deloppgåvenivå.
 

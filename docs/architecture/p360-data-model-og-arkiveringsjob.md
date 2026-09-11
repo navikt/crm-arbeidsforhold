@@ -14,6 +14,18 @@ dato: 2026-09-10
 
 Dette dokumentet fastset den førebelse datamodellen for P360-arkivering i Salesforce. Modellen byggjer på eksisterande relasjonar mellom `Access_Request__c`, `Application__c`, `Application_Decision__c` og `Agreement__c`, men innfører ikkje nye Salesforce-felt i denne skiva.
 
+## Metadata-eigarskap
+
+P360-spesifikke custom objects og custom fields skal liggje under `force-app/integration/p360/objects/`, også når eit felt utvidar eit eksisterande Aa-registeret-objekt som `Application__c`, `Application_Decision__c`, `Agreement__c` eller `Access_Request__c`.
+
+Dette skil metadata-eigarskap frå dataeigarskap:
+
+- Aa-registeret eig sjølve domenedataene og livsløpet for Application, Decision og Agreement.
+- P360-integrasjonen eig P360-referansar, arkiveringssignal og teknisk jobbmetadata.
+- `P360_Archive_Job__c` eig jobbstatus, retry, lease, feilkontekst og korrelasjon.
+- P360-felt på domenobjekt skal ikkje brukast som generell domene- eller jobbstatus.
+- Nye P360-referansefelt skal ikkje leggjast tilbake i `force-app/main/default/objects`.
+
 ## Vedteken domenehierarki
 
 `Access_Request__c` er overbygget for éi tilgangssak. Under overbygget ligg livsløpet for søknad, vedtak og avtale:
@@ -35,7 +47,7 @@ Den faktiske metadataen har desse relasjonane:
 
 ## Eigarskap til P360-referansar
 
-P360-referansar skal lagrast på objektet som eig den eksterne entiteten:
+P360-referansar skal lagrast på objektet som eig den eksterne entiteten. Felta er likevel P360-eigde metadata og skal fysisk liggje under P360-integrasjonen:
 
 | Salesforce-objekt         | P360-entitet                                   | Referansar som skal innførast seinare                  |
 | ------------------------- | ---------------------------------------------- | ------------------------------------------------------ |

@@ -58,11 +58,11 @@ README-struktur og dokumentasjonsstandarder håndheves gjennom repository-instru
 
 ## Dokumenter i dette området
 
-| Dokument                                                                                           | Innhold                                                            | Status    |
-| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | --------- |
-| [Arkitekturprinsipp, lagdeling og namnestandard](arkitekturprinsipp-lagdeling-og-namnestandard.md) | Normativ side for lagdeling, designprinsipp og navnestandard       | Speilkopi |
-| [Repositorystruktur](repositorystruktur.md)                                                        | `domain/`, `integration/`, `surfaces/`, `tests/` under `force-app` | UTKAST    |
-| [P360 datamodell og asynkron arkiveringsjobb](p360-data-model-og-arkiveringsjob.md)                | `Access_Request__c`-hierarki og framtidig P360-jobbmodell          | Foreslått |
+| Dokument                                                                                           | Innhold                                                            | Status                  |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------- |
+| [Arkitekturprinsipp, lagdeling og namnestandard](arkitekturprinsipp-lagdeling-og-namnestandard.md) | Normativ side for lagdeling, designprinsipp og navnestandard       | Speilkopi               |
+| [Repositorystruktur](repositorystruktur.md)                                                        | `domain/`, `integration/`, `surfaces/`, `tests/` under `force-app` | UTKAST                  |
+| [P360 datamodell og asynkron arkiveringsjobb](p360-data-model-og-arkiveringsjob.md)                | `Access_Request__c`-hierarki og P360-jobbmodell                    | Implementeringsgrunnlag |
 
 Integrasjonsspesifikk dokumentasjon ligger under [docs/integrations/](../integrations/README.md).
 Domenedokumentasjon ligger under [docs/domain/](../domain/README.md), brukerflater under [docs/surfaces/](../surfaces/README.md) og utviklingsstandarder i [docs/utviklingsstandarder.md](../utviklingsstandarder.md).
