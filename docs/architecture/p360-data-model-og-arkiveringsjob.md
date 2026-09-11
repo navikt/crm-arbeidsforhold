@@ -1,12 +1,14 @@
 ---
 tittel: P360 datamodell og asynkron arkiveringsjobb
-status: foreslått
+status: implementeringsgrunnlag
 dato: 2026-09-10
 ---
 
 # P360 datamodell og asynkron arkiveringsjobb
 
-**Beslutningsstatus:** Retninga er valt i dette arbeidet. Teamavklaring og endeleg normativ godkjenning står att.
+**Beslutningsstatus:** Retninga er valt som implementeringsgrunnlag. Endeleg teamgodkjenning står att.
+
+**Implementeringsføresetnad:** Vidare implementering startar før teamet har landa alle vala. Dette er ein medviten risiko fordi modellen kan måtte justerast etter teamavklaring. Større endringar skal handterast som ein eksplisitt endringsbeslutning med oppdatert dokumentasjon, migreringsvurdering og relevante regresjonstestar.
 
 ## Føremål
 
@@ -209,7 +211,7 @@ Følgjande modell er vald for denne fasen:
 - Retry av arkiveringsjobben skal ikkje oppheve låsen eller endre vedtaksinnhaldet.
 - Korrigering etter frigiving krev ein separat, kontrollert prosess for ny vedtaksversjon og ny idempotensnøkkel.
 
-Dette er ei lokal arbeidsavgjerd for vidare design og implementering. Endeleg tilgangsmodell, permission set og fagleg godkjenning må stadfestast av teamet før metadata og låsemekanisme blir oppretta.
+Dette er ei arbeidsavgjerd for vidare design og implementering. Metadata og låsemekanisme kan implementerast på dette grunnlaget. Endeleg tilgangsmodell, permission set og fagleg godkjenning skal likevel avklarast før produksjonssetting, og større avvik skal behandlast som ei ny endringsavgjerd.
 
 ## Status og eksisterande felt
 
