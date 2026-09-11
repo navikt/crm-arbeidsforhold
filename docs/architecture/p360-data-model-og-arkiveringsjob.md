@@ -108,6 +108,20 @@ Ei ny dokumentversjon eller ei ny arkiveringshending skal få ein ny idempotensn
 - `Queued_Date__c`
 - `Started_Date__c`
 - `Lease_Expires_Date__c`
+
+### Frigivingsvalidering for vedtak
+
+`Ready_For_P360_Archive__c` kan berre setjast til `true` når eit felles minimumssett er oppfylt, og når eventuelle tilleggskrav for den aktuelle vedtakstypen er oppfylte.
+
+Det felles minimumssettet skal minst omfatte:
+
+- gyldig kopling til `Application__c` og `Access_Request__c`
+- vedtaksstatus, vedtaksdato og vedtaksgrunngiving
+- vedtaksdetaljar med godkjenningsstatus, tilgangstype, heimel, føremål og behandlingsgrunnlag
+- organisasjonsnummer, Aa-register-nummer og anna nødvendig P360-kontekst
+
+Vedtakstype-spesifikk validering skal kunne krevje eller avvise felt og detaljar som ikkje gjeld alle vedtakstypar. Salesforce skal stoppe frigiving når minimumsvalideringa feilar. P360 kan i tillegg avvise førespurnaden dersom den endelege SIF-kontrakten har strengare transport- eller kodeverkskrav.
+
 - `Succeeded_Date__c`
 - `Failed_Date__c`
 
