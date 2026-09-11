@@ -170,6 +170,20 @@ Ved frigiving skal `Attempt_Count__c`, tidlegare feilkode og feilmelding bevaras
 - Fleire treff stoppar jobben med `Manual Review`.
 - Nye P360-referansar skal skrivast både til rett domeneobjekt og jobbresultatet dersom jobbobjektet skal vere søkbart i drift.
 
+## Frigiving av vedtak til arkivering
+
+Følgjande modell er vald for denne fasen:
+
+- Automasjon skal validere at alle obligatoriske vedtaksdata og P360-metadata er komplette.
+- Berre ein autorisert intern saksbehandlar skal kunne setje `Ready_For_P360_Archive__c = true` og frigi vedtaket til arkivering.
+- Eksterne brukarar skal ikkje kunne setje eller endre feltet.
+- Frigivinga skal logge brukar og tidspunkt.
+- Når feltet er sett til `true`, er vedtaket låst for ordinære endringar og signalet kan ikkje setjast tilbake til `false`.
+- Retry av arkiveringsjobben skal ikkje oppheve låsen eller endre vedtaksinnhaldet.
+- Korrigering etter frigiving krev ein separat, kontrollert prosess for ny vedtaksversjon og ny idempotensnøkkel.
+
+Dette er ei lokal arbeidsavgjerd for vidare design og implementering. Endeleg tilgangsmodell, permission set og fagleg godkjenning må stadfestast av teamet før metadata og låsemekanisme blir oppretta.
+
 ## Status og eksisterande felt
 
 Eksisterande felt som `AA_ApplicationArchived__c`, `AA_ApplicationArchivedDate__c`, `AA_DecisionArchived__c` og `AA_DecisionArchivedDate__c` skal ikkje fjernast eller endrast i denne skiva. Dei skal vere forretningsindikatorar for vellukka arkivering.
