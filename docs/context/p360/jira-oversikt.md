@@ -136,6 +136,8 @@ Berre F1 er levert. F2 er i arbeid. Alt anna ligg i backlog.
 
 Kjelde: `issuelinks` i XML-eksporten av CRMAAREG-84, og eksplisitte referansar i historiebeskrivingane.
 
+Diagramkjelde: [P360 Jira dependencies](diagrams/p360-jira-dependencies.mmd)
+
 ```mermaid
 graph LR
     F1["F1 · 84<br/>Kontraktar og namnestandard<br/>FERDIG"]

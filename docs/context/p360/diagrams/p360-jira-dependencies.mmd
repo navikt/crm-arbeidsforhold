@@ -1,0 +1,28 @@
+---
+title: P360 Jira dependencies
+---
+graph LR
+    F1["F1 · 84<br/>Kontraktar og namnestandard<br/>FERDIG"]
+    F2["F2 · 89<br/>Interfaces og skeletons<br/>UNDER ARBEID"]
+    F3["F3 · 101<br/>DTO-ar"]
+    F5["F5 · 121<br/>Exception hierarchy"]
+    K1["K1 · 143<br/>Custom Metadata-modell"]
+    X1["X1 · 255<br/>External ID-strategi"]
+    X3["X3 · 266<br/>Recovery-oppslag<br/>fase 2+"]
+    D1["D1 · 310<br/>Arkitekturdokumentasjon"]
+
+    F1 --> F2
+    F1 --> F3
+    F1 --> F5
+    F1 --> K1
+    F1 --> X1
+    F1 --> D1
+
+    F3 -.->|DTO-ar for external ID| F2
+    X1 -.->|full strategi| F2
+    X3 -.->|implementasjon| F2
+
+    classDef done fill:#d4f4dd,stroke:#2d7a3e
+    classDef wip fill:#fff3cd,stroke:#b8860b
+    class F1 done
+    class F2 wip

@@ -40,6 +40,8 @@ Ikkje implementert:
 
 ## Lag og ansvar
 
+Diagramkjelde: [P360 current architecture](diagrams/p360-current-architecture.mmd)
+
 ```mermaid
 graph LR
     subgraph Salesforce[Salesforce - implementert grunnmur]
@@ -90,6 +92,8 @@ Den heiltrukne delen viser kode som finst. Stipla overgangar viser planlagde ell
 
 Begge triggerregistreringane har `IsBypassAllowed__c = false`. Frigivings- og låsekontrollen kan derfor ikkje koplast ut gjennom den generelle MyTriggers bypass-permissionen.
 
+Diagramkjelde: [P360 decision release sequence](diagrams/p360-decision-release-sequence.mmd)
+
 ```mermaid
 sequenceDiagram
     actor User as Saksbehandlar
@@ -139,6 +143,8 @@ Manglande ID-ar gir `P360_ContractException`. Nøklane identifiserer Salesforce-
 
 Berre `ApplicationDocument` er kopla til jobbservice no.
 
+Diagramkjelde: [P360 idempotent archive job creation](diagrams/p360-idempotent-job-creation-sequence.mmd)
+
 ```mermaid
 sequenceDiagram
     participant Caller
@@ -181,6 +187,8 @@ Ein ny jobb får:
 Retry med same nøkkel returnerer den eksisterande jobben og overskriv ikkje status eller opphavleg korrelasjonskontekst.
 
 ## Jobbstatus og framtidig worker
+
+Diagramkjelde: [P360 archive job state model](diagrams/p360-archive-job-state.mmd)
 
 ```mermaid
 stateDiagram-v2

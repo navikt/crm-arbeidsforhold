@@ -1,0 +1,25 @@
+---
+title: P360 decision release sequence
+---
+sequenceDiagram
+    actor User as Saksbehandlar
+    participant Decision as Application_Decision__c
+    participant Trigger as P360 trigger
+    participant Framework as MyTriggers
+    participant Guard as Archive guard
+    participant Permission as Custom permission
+
+    User->>Decision: Set Ready_For_P360_Archive__c = true
+    Decision->>Trigger: before update
+    Trigger->>Framework: run()
+    Framework->>Guard: onBeforeUpdate(oldMap)
+    Guard->>Permission: check P360_Archive_Release
+    alt Permission missing
+        Guard-->>Decision: addError
+    else Permission granted
+        Guard-->>Decision: allow one-way release
+    end
+
+    Note over Guard,Decision: After release, regular fields are locked.
+    Note over Guard,Decision: P360_Document_Id__c, P360_Document_Number__c and P360_File_Id__c remain writable.
+    Note over Decision: Business-completeness validation and automatic DecisionDocument job creation are not implemented.

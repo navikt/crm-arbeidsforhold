@@ -1,0 +1,12 @@
+---
+title: P360 archive job state model
+---
+stateDiagram-v2
+    [*] --> Pending: Implementert jobboppretting
+    Pending --> InProgress: Planlagt lease claim
+    InProgress --> Succeeded: Planlagt vellukka arkivering
+    InProgress --> Failed: Planlagt retrybar feil
+    Failed --> Pending: Planlagt retry etter backoff
+    Failed --> ManualReview: Planlagt forsoksgrense
+    ManualReview --> Pending: Planlagt manuell frigiving
+    Succeeded --> [*]
