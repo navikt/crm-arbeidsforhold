@@ -67,6 +67,89 @@ Den faktiske metadataen har desse relasjonane:
 - `Agreement__c.Application__c` er optional Lookup til `Application__c`.
 - `Agreement__c.Access_Request__c` er optional Lookup til `Access_Request__c`.
 
+### Relasjonsdiagram
+
+Diagramkjelde: [P360 data model relationships](p360-data-model-relationships.mmd)
+
+```mermaid
+erDiagram
+	ACCESS_REQUEST o|--o{ APPLICATION : "optional lookup"
+	ACCESS_REQUEST o|--o{ AGREEMENT : "optional lookup"
+	APPLICATION ||--o{ APPLICATION_DECISION : "master-detail"
+	APPLICATION o|--o{ AGREEMENT : "optional lookup"
+	AGREEMENT o|--o{ APPLICATION_DECISION : "optional lookup"
+
+	ACCESS_REQUEST ||--o{ P360_ARCHIVE_JOB : "required context"
+	APPLICATION o|--o{ P360_ARCHIVE_JOB : "application source"
+	APPLICATION_DECISION o|--o{ P360_ARCHIVE_JOB : "decision source"
+	AGREEMENT o|--o{ P360_ARCHIVE_JOB : "agreement source"
+	USER o|--o{ P360_ARCHIVE_JOB : "manual release"
+
+	USER {
+		Id Id PK
+	}
+
+	ACCESS_REQUEST {
+		Id Id PK
+		string P360_Case_Id__c
+		string P360_Case_Number__c
+	}
+
+	APPLICATION {
+		Id Id PK
+		Id Access_Request__c FK
+		string P360_Document_Id__c
+		string P360_Document_Number__c
+		string P360_File_Id__c
+	}
+
+	APPLICATION_DECISION {
+		Id Id PK
+		Id Application__c FK
+		Id Agreement__c FK
+		boolean Ready_For_P360_Archive__c
+		string P360_Document_Id__c
+		string P360_Document_Number__c
+		string P360_File_Id__c
+	}
+
+	AGREEMENT {
+		Id Id PK
+		Id Access_Request__c FK
+		Id Application__c FK
+		string P360_Document_Id__c
+		string P360_Document_Number__c
+		string P360_File_Id__c
+		string Public_360_id__c "legacy"
+	}
+
+	P360_ARCHIVE_JOB {
+		Id Id PK
+		Id Access_Request__c FK "required"
+		Id Application__c FK "optional"
+		Id Application_Decision__c FK "optional"
+		Id Agreement__c FK "optional"
+		string Archive_Event_Type__c "required"
+		string Status__c "required"
+		number Attempt_Count__c "required"
+		string Correlation_Id__c "required"
+		string Idempotency_Key__c UK "required external id"
+		datetime Queued_Date__c
+		datetime Started_Date__c
+		datetime Last_Attempt_Date__c
+		datetime Next_Attempt_Date__c
+		datetime Lease_Expires_Date__c
+		string Last_Error_Code__c
+		string Last_Error_Message__c
+		string Manual_Release_Reason__c
+		string Manual_Release_Type__c
+		Id Manual_Released_By__c FK
+		datetime Manual_Released_Date__c
+	}
+```
+
+Diagrammet viser persisterte Salesforce-relasjonar. `ContentVersionId` for `ApplicationAttachment` er del av `Idempotency_Key__c`, men er ikkje eit eige lookup-felt på `P360_Archive_Job__c` i gjeldande metadata.
+
 ## Eigarskap til P360-referansar
 
 P360-referansar skal lagrast på objektet som eig den eksterne entiteten. Felta er likevel P360-eigde metadata og skal fysisk liggje under P360-integrasjonen:
