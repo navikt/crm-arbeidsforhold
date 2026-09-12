@@ -1,0 +1,42 @@
+---
+title: P360 current architecture and boundaries
+---
+graph LR
+    subgraph Salesforce[Salesforce - implementert grunnmur]
+        Decision[Application_Decision__c]
+        Trigger[P360 trigger]
+        MyTriggers[MyTriggers]
+        Guard[P360_ApplicationDecisionArchiveGuard]
+        Key[P360_IdempotencyKey]
+        JobService[P360_ArchiveJobService]
+        Job[(P360_Archive_Job__c)]
+        Domain[AAREG domain services]
+        Orchestrator[AAREG orchestrator]
+        Factory[P360_AdapterFactory]
+        Adapter[P360 adapter boundary]
+        Rpc[P360 RPC boundary]
+    end
+
+    subgraph Future[Planlagt eller eksternt blokkert]
+        Worker[Queueable worker]
+        Mapper[Salesforce to SIF mapper]
+        Auth[Named Credential and auth]
+        P360[Public 360 SIF RPC]
+    end
+
+    Decision --> Trigger --> MyTriggers --> Guard
+    JobService --> Key
+    JobService --> Job
+    Job -.-> Worker
+    Worker -.-> Domain
+    Domain -.-> Orchestrator
+    Orchestrator --> Factory --> Adapter --> Rpc
+    Rpc -.-> Auth -.-> P360
+    Mapper -.-> Adapter
+
+    classDef implemented fill:#d4f4dd,stroke:#2d7a3e,color:#111
+    classDef contract fill:#fff3cd,stroke:#946200,color:#111
+    classDef blocked fill:#f8d7da,stroke:#9b2c2c,color:#111
+    class Decision,Trigger,MyTriggers,Guard,Key,JobService,Job implemented
+    class Domain,Orchestrator,Factory,Adapter,Rpc contract
+    class Worker,Mapper,Auth,P360 blocked

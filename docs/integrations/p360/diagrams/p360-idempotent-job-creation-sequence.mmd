@@ -1,0 +1,28 @@
+---
+title: P360 idempotent archive job creation
+---
+sequenceDiagram
+    participant Caller
+    participant Service as P360_ArchiveJobService
+    participant Key as P360_IdempotencyKey
+    participant Store as P360_Archive_Job__c
+
+    Caller->>Service: getOrCreateApplicationDocumentJob(context)
+    Service->>Service: validate required context
+    Service->>Key: forApplicationDocument(applicationId)
+    Key-->>Service: APPLICATION_DOCUMENT:{id}
+    Service->>Store: query unique Idempotency_Key__c
+    alt Existing job
+        Store-->>Service: existing job
+        Service-->>Caller: same job, unchanged
+    else No job
+        Service->>Store: insert Pending job
+        alt Insert succeeds
+            Store-->>Service: new job
+            Service-->>Caller: new job
+        else DUPLICATE_VALUE race
+            Service->>Store: query same key again
+            Store-->>Service: winning job
+            Service-->>Caller: existing job
+        end
+    end

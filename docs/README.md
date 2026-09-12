@@ -27,6 +27,24 @@ P360-dokumentasjonen ligg under [integrations/p360](integrations/p360/README.md)
 - [P360 SIF API-kontraktar](integrations/p360/sif-api-kontrakter.md)
 - [Lokal implementasjonsstatus mot Jira](context/p360/lokal-implementasjonsstatus.md)
 
+## Diagramregister
+
+Alle Mermaid-diagram er lagra som sjølvstendige `.mmd`-kjelder. Diagram som også er viste inne i eit Markdown-dokument, har i tillegg ei lokal kjeldelenkje ved diagrammet.
+
+| Diagram                                 | Kjelde                                                                                                            |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| AAREG e-postflyt                        | [AAREG_emailFlow.mmd](AAREG_emailFlow.mmd)                                                                        |
+| AAREG kodebaseflyt                      | [AAREG_codebaseFlowchart.mmd](AAREG_codebaseFlowchart.mmd)                                                        |
+| Application-datamodell                  | [AAREGerDiagramApplication.mmd](AAREGerDiagramApplication.mmd)                                                    |
+| Ny Application-datamodell               | [AAREGerDiagramApplicationNew.mmd](AAREGerDiagramApplicationNew.mmd)                                              |
+| P360 component architecture             | [p360-component-diagram.mmd](architecture/p360-component-diagram.mmd)                                             |
+| P360 archive contract-boundary sequence | [p360-archive-sequence.mmd](architecture/p360-archive-sequence.mmd)                                               |
+| P360 noverande arkitektur               | [p360-current-architecture.mmd](integrations/p360/diagrams/p360-current-architecture.mmd)                         |
+| P360 frigivingssekvens                  | [p360-decision-release-sequence.mmd](integrations/p360/diagrams/p360-decision-release-sequence.mmd)               |
+| P360 idempotent jobboppretting          | [p360-idempotent-job-creation-sequence.mmd](integrations/p360/diagrams/p360-idempotent-job-creation-sequence.mmd) |
+| P360 jobbstatus                         | [p360-archive-job-state.mmd](integrations/p360/diagrams/p360-archive-job-state.mmd)                               |
+| P360 Jira-avhengigheiter                | [p360-jira-dependencies.mmd](context/p360/diagrams/p360-jira-dependencies.mmd)                                    |
+
 ## Kjeldehierarki
 
 - ADR-ar er repoet si normative kjelde for arkitekturbeslutningar.
