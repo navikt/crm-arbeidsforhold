@@ -12,6 +12,7 @@
     <testClassName>P360_ApplicationDecisionArchiveGuardTest</testClassName>
     <testClassName>P360_ArchiveAdapterTest</testClassName>
     <testClassName>P360_ArchiveJobMetadataTest</testClassName>
+    <testClassName>P360_ArchiveJobServiceTest</testClassName>
     <testClassName>P360_ArchiveRequestDtoTest</testClassName>
     <testClassName>P360_ArchiveResponseDtoTest</testClassName>
     <testClassName>P360_CaseContactResultDtoTest</testClassName>
@@ -35,6 +36,7 @@
     <testClassName>P360_GetCasesResponseDtoTest</testClassName>
     <testClassName>P360_GetDocumentsRequestDtoTest</testClassName>
     <testClassName>P360_GetDocumentsResponseDtoTest</testClassName>
+    <testClassName>P360_IdempotencyKeyTest</testClassName>
     <testClassName>P360_PermissionParameterDtoTest</testClassName>
     <testClassName>P360_RpcClientTest</testClassName>
     <testClassName>P360_StubArchiveAdapterTest</testClassName>
