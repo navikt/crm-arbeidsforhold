@@ -1,6 +1,6 @@
 ---
 slug: p360-f2-validation-status
-status: active
+status: completed
 jira-epic: CRMAAREG-83
 jira-user-story: CRMAAREG-89
 jira-subtask: CRMAAREG-100
@@ -31,13 +31,15 @@ The P360 F2 skeleton boundaries are implemented and focused-test validated. The 
 - Full focused test run: `707RR00001XXAp3`
 - Result: 22 passed, 0 failed
 
+This run is the historical completion evidence for the F2 boundary. Newer P360 tests are maintained through the `P360` Apex test suite and have separate run evidence.
+
 ## Remaining implementation blockers
 
-- Final operation-specific P360/SIF DTO contract.
+- Environment-confirmed P360/SIF wire contract for the implemented DTOs.
 - Endpoint and RPC envelope.
 - Auth header and Entra audience/scope contract.
 - Mapping between Salesforce Application/Agreement and P360 case/document model.
-- Error codes, idempotency and retry semantics.
+- External error codes, duplicate semantics and retry recovery. Internal idempotency keys and the first archive-job creation slice are implemented.
 
 ## Rule
 

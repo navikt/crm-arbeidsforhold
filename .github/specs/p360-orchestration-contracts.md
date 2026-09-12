@@ -1,6 +1,6 @@
 ---
 slug: p360-orchestration-contracts
-status: active
+status: completed
 jira-epic: CRMAAREG-83
 jira-user-story: CRMAAREG-89
 jira-subtasks: CRMAAREG-98, CRMAAREG-99

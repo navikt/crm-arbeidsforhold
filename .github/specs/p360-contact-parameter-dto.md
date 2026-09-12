@@ -1,6 +1,6 @@
 ---
 slug: p360-contact-parameter-dto
-status: active
+status: completed
 jira-epic: CRMAAREG-83
 jira-user-story: CRMAAREG-101
 jira-subtasks: CRMAAREG-102, CRMAAREG-103, CRMAAREG-104, CRMAAREG-117

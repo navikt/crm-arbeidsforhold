@@ -1,6 +1,7 @@
 /**
  * Verifies the metadata contract for asynchronous P360 archive jobs.
  *
+ * @author Kenneth Sørensen
  * @since 2026-09
  * @group P360 Archive Job
  */

@@ -2,7 +2,7 @@
 
 Denne mappa inneheld all metadata og kode som høyrer til Public 360-integrasjonen for Aa-registeret.
 
-P360-integrasjonen handterer arkivering frå Salesforce til Public 360, inkludert teknisk flyt, mapping, adapter, RPC-klient, kontraktar, feilhandtering, brukarflate og relevant konfigurasjon.
+P360-området eig den interne grunnmuren for arkivering frå Salesforce til Public 360. DTO-ar, kontraktgrenser, metadata, frigivingsvern, idempotens og første jobbopprettingsslice er implementerte. Mapping, autentisering, RPC-transport, worker og brukarflate er framleis planlagde.
 
 ## Innhald
 
@@ -23,20 +23,18 @@ Denne mappa kan innehalde:
 ```text
 p360/
   classes/
-  lwc/
+  classes/job/
   objects/
   customMetadata/
   permissionsets/
-  namedCredentials/
-  externalCredentials/
-  flows/
+  triggers/
 ```
 
 ## Ansvar
 
 P360-området eig integrasjonsansvaret mot Public 360.
 
-Det betyr:
+Det betyr ansvar for:
 
 - orkestrering av arkiveringsflyt
 - mapping frå Aa-registeret-domene til P360-kontrakt
@@ -46,6 +44,8 @@ Det betyr:
 - P360-spesifikke exceptions
 - P360-relatert brukarflate
 - P360-relatert metadata og konfigurasjon
+
+Implementert status og flytdiagram er dokumentert i `docs/integrations/p360/teknisk-oversikt.md`.
 
 ## Skal ikkje
 

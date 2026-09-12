@@ -26,16 +26,18 @@ Custom metadata her skal ikkje:
 - innehalde sensitiv personinformasjon
 - brukast til miljøspesifikke secrets
 
-## Typiske records
+## Gjeldande records
 
 ```text
-P360_Code_Table_Value.CaseStatus_Draft.md-meta.xml
-P360_Code_Table_Value.DocumentStatus_Closed.md-meta.xml
+MyTriggerSetting.P360_ArchiveGuard_I.md-meta.xml
+MyTriggerSetting.P360_ArchiveGuard_U.md-meta.xml
 ```
 
 ## Eigarskap
 
-P360-relatert kodeverk skal ha tydeleg eigarskap.
+Desse recordane registrerer `P360_ArchiveGuardHandler` for `BEFORE_INSERT` og `BEFORE_UPDATE` på `Application_Decision__c` gjennom MyTriggers.
+
+Framtidig P360-relatert kodeverk skal ha tydeleg eigarskap.
 
 Endringar i kodeverk eller mappingverdiar skal vurderast mot:
 

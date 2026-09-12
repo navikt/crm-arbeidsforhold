@@ -1,6 +1,6 @@
 ---
 slug: p360-test-utilities
-status: active
+status: completed
 jira-epic: CRMAAREG-295
 jira-user-story: CRMAAREG-296
 jira-related-story: CRMAAREG-135

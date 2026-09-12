@@ -1,18 +1,40 @@
 ---
 tittel: P360 datamodell og asynkron arkiveringsjobb
-status: implementeringsgrunnlag
-dato: 2026-09-10
+status: delvis implementert
+dato: 2026-09-12
 ---
 
 # P360 datamodell og asynkron arkiveringsjobb
 
-**Beslutningsstatus:** Retninga er valt som implementeringsgrunnlag. Endeleg teamgodkjenning står att.
+**Beslutningsstatus:** Datamodell, frigivingsvern, idempotensnøklar og første jobbopprettingsslice er implementerte og testa. Worker, retry, vedlegg og endeleg teamgodkjenning står att.
 
 **Implementeringsføresetnad:** Vidare implementering startar før teamet har landa alle vala. Dette er ein medviten risiko fordi modellen kan måtte justerast etter teamavklaring. Større endringar skal handterast som ein eksplisitt endringsbeslutning med oppdatert dokumentasjon, migreringsvurdering og relevante regresjonstestar.
 
 ## Føremål
 
-Dette dokumentet fastset den førebelse datamodellen for P360-arkivering i Salesforce. Modellen byggjer på eksisterande relasjonar mellom `Access_Request__c`, `Application__c`, `Application_Decision__c` og `Agreement__c`, men innfører ikkje nye Salesforce-felt i denne skiva.
+Dette dokumentet fastset datamodellen for P360-arkivering i Salesforce. Modellen byggjer på eksisterande relasjonar mellom `Access_Request__c`, `Application__c`, `Application_Decision__c` og `Agreement__c` og er delvis realisert som P360-eigd metadata.
+
+## Implementeringsstatus
+
+Implementert og org-validert:
+
+- `P360_Archive_Job__c` med status-, korrelasjons-, idempotens-, retry- og leasefelt
+- P360 case-, dokument- og filreferansar på domeneobjekta
+- `Application_Decision__c.Ready_For_P360_Archive__c`
+- MyTriggers-basert frigivingsvern og låsing etter frigiving
+- `P360_Archive_Release` og `P360_Archive_Job_Processing`
+- deterministiske idempotensnøklar for fire arkivhendingar
+- idempotent oppretting av `ApplicationDocument`-jobb med status `Pending`
+
+Planlagt, men ikkje implementert:
+
+- komplettheitsvalidering av vedtak før frigiving
+- automatisk `DecisionDocument`-, `ApplicationAttachment`- og `AgreementDocument`-jobb
+- worker, lease claim, retry, manuell frigiving og endelege statusovergangar
+- `Succeeded_Date__c` og `Failed_Date__c`
+- P360/SIF-mapping, transport og autentisering
+
+Sjå [teknisk oversikt](../integrations/p360/teknisk-oversikt.md) for diagram og runtime-flyt.
 
 ## Metadata-eigarskap
 
@@ -49,7 +71,7 @@ Den faktiske metadataen har desse relasjonane:
 
 P360-referansar skal lagrast på objektet som eig den eksterne entiteten. Felta er likevel P360-eigde metadata og skal fysisk liggje under P360-integrasjonen:
 
-| Salesforce-objekt         | P360-entitet                                   | Referansar som skal innførast seinare                  |
+| Salesforce-objekt         | P360-entitet                                   | Implementerte referansar                               |
 | ------------------------- | ---------------------------------------------- | ------------------------------------------------------ |
 | `Access_Request__c`       | P360-sak                                       | P360 case ID og case number                            |
 | `Application__c`          | Inngåande søknadsdokument og søknadsvedlegg    | P360 document ID, eventuelt document number og file ID |
@@ -164,8 +186,7 @@ Det felles minimumssettet skal minst omfatte:
 
 Vedtakstype-spesifikk validering skal kunne krevje eller avvise felt og detaljar som ikkje gjeld alle vedtakstypar. Salesforce skal stoppe frigiving når minimumsvalideringa feilar. P360 kan i tillegg avvise førespurnaden dersom den endelege SIF-kontrakten har strengare transport- eller kodeverkskrav.
 
-- `Succeeded_Date__c`
-- `Failed_Date__c`
+Felta `Succeeded_Date__c` og `Failed_Date__c` er føreslegne, men ikkje oppretta. Inntil vidare må tidspunkt utleiast frå jobbstatus og standard audit-felt.
 
 ### Førebels MVP-retrypolicy
 
@@ -253,9 +274,9 @@ Eksisterande felt som `AA_ApplicationArchived__c`, `AA_ApplicationArchivedDate__
 
 Dei skal ikkje brukast som full teknisk jobbstatus. `P360_Archive_Job__c` skal vere kjelde for `Pending`, `In Progress`, `Failed` og `Manual Review`.
 
-## Framtidig modellforbetring og migrering
+## Implementert rekkjefølgje og vidare migrering
 
-Vi innfører ingen nye Salesforce-felt eller objekt i denne dokumentasjonsskiva. Når metadataarbeidet startar, skal det følgje denne rekkefølgja:
+Steg 1–4 er implementerte. Steg 5 er delvis dekt gjennom jobbservicevalidering. Steg 6–10 står att:
 
 1. Opprett `P360_Archive_Job__c` med obligatorisk `Access_Request__c`.
 2. Opprett nye, tydeleg namngjevne P360-felt på dei fire domeneobjekta.

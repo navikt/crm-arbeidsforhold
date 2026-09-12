@@ -25,20 +25,19 @@ Objekt her skal ikkje:
 - lagre dokumentinnhald dersom dette ikkje er eksplisitt avklart
 - lagre sensitiv informasjon utan konkret behov
 
-## Typiske objekt
+## Gjeldande objekt
 
 ```text
-P360_Archive_Request__c
-P360_Archive_Document__c
-P360_Integration_Log__c
-P360_Code_Table_Value__mdt
+P360_Archive_Job__c
 ```
 
 ## Namnestandard
 
 Bruk `P360_` for objekt og metadata types som primært høyrer til P360-integrasjonen.
 
-Eksempel:
+`P360_Archive_Job__c` eig teknisk jobbstatus, idempotensnøkkel, korrelasjon, retry-, lease- og feilkontekst. P360-referansefelt på `Access_Request__c`, `Application__c`, `Application_Decision__c` og `Agreement__c` ligg også i denne mappa fordi integrasjonen eig metadataen.
+
+Namneeksempel for framtidig metadata:
 
 ```text
 P360_Archive_Request__c

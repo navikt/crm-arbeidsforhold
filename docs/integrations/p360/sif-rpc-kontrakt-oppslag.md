@@ -1,8 +1,8 @@
 ---
 tittel: P360 SIF RPC kontraktsoppslag
-status: extracted contract with environment-specific open questions
+status: PDF-derived DTO contract implemented; environment contract open
 kilde: Repo-local architecture, Jira/Confluence mirrors and supplied SIF API PDF
-hentet: 2026-09-08
+hentet: 2026-09-12
 ---
 
 # P360 SIF RPC kontraktsoppslag
@@ -23,15 +23,20 @@ Dette dokumentet er et samlet oppslag for hva repoet faktisk vet om P360/SIF RPC
 - Korrelasjons-ID skal følge flyten og brukes for sporbarhet og trygg retry.
 - Dokumentinnhold og sensitive data skal ikke logges.
 - Case, Document og File service-kontrakter er dokumentert i [sif-api-kontrakter.md](sif-api-kontrakter.md).
+- PDF-avleidde DTO-ar for Case-, Document- og File-kontraktar er implementerte og har round-trip-testar.
+- Interne idempotensnøklar er implementerte for søknadsdokument, vedlegg, vedtaksdokument og avtaledokument.
+- `ApplicationDocument` har idempotent oppretting av `P360_Archive_Job__c`.
 
 ## Operasjoner som er nevnt
 
-| Tjeneste          | Operasjon                | Fase         | Status                                                         |
-| ----------------- | ------------------------ | ------------ | -------------------------------------------------------------- |
-| `DocumentService` | `CreateDocument`         | MVP-kandidat | Navn og formål er kjent; full kontrakt mangler                 |
-| `SupportService`  | `GetCodeTableRows`       | Senere fase  | Ikke implementer før kodeverk- og responskontrakt er bekreftet |
-| Ikke bekreftet    | `GetEntitiesExternalIds` | Senere fase  | Tjeneste, request, response og recovery-strategi mangler       |
-| Ikke bekreftet    | `UploadStream`           | Senere fase  | Storfilstrategi og transportkontrakt mangler                   |
+| Tjeneste          | Operasjon                              | Fase         | Status                                                         |
+| ----------------- | -------------------------------------- | ------------ | -------------------------------------------------------------- |
+| `CaseService`     | `CreateCase`, `UpdateCase`, `GetCases` | MVP/recovery | PDF-avleidde DTO-ar finst; runtime manglar                     |
+| `DocumentService` | `CreateDocument`, `GetDocuments`       | MVP/recovery | PDF-avleidde DTO-ar finst; runtime manglar                     |
+| `FileService`     | `Upload`                               | MVP-kandidat | Filparameter finst; transport manglar                          |
+| `SupportService`  | `GetCodeTableRows`                     | Senere fase  | Ikke implementer før kodeverk- og responskontrakt er bekreftet |
+| Ikke bekreftet    | `GetEntitiesExternalIds`               | Senere fase  | Tjeneste, request, response og recovery-strategi mangler       |
+| Ikke bekreftet    | `UploadStream`                         | Senere fase  | Storfilstrategi og transportkontrakt mangler                   |
 
 ## Dette trenger vi bekreftet før implementasjon
 
@@ -64,7 +69,7 @@ Dette dokumentet er et samlet oppslag for hva repoet faktisk vet om P360/SIF RPC
 - Skillet mellom validerings-, kontrakt-, auth-, timeout-, transport- og funksjonelle feil.
 - Hvilke feil som kan retries.
 - Timeout, rate limit, backoff og eventuell Retry-After-semantikk.
-- Idempotensnøkkel, duplikatrespons og trygg gjenopptaking.
+- P360-duplikatrespons og trygg ekstern gjenopptaking. Salesforce-nøkkel og unik jobb er implementert internt.
 
 ### Auth og headers
 
@@ -112,4 +117,4 @@ For å starte en ekte `CreateDocument`-implementasjon trenger teamet en versjone
 
 ## Arbeidsregel
 
-Inntil kontraktpakken er bekreftet, kan vi fortsette med testutilities, validering, exception-taxonomi og eksplisitte adaptergrenser. Vi skal ikke implementere eller anta ekte RPC-payload, mapping, auth-header eller retrylogikk.
+Inntil kontraktpakken er bekrefta, kan vi vidareutvikle intern jobb-, worker- og retrylogikk bak eksisterande adaptergrense. Vi skal ikkje implementere eller anta ekte RPC-envelope, mapping, auth-header eller P360-feilkodar.

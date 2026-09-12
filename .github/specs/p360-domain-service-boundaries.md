@@ -1,6 +1,6 @@
 ---
 slug: p360-domain-service-boundaries
-status: active
+status: completed
 jira-epic: CRMAAREG-83
 jira-user-story: CRMAAREG-89
 jira-subtasks: CRMAAREG-95, CRMAAREG-96
