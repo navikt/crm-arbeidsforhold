@@ -550,6 +550,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Application_Decision__c.Ready_For_P360_Archive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Application_Decision__c.Extract_access_count__c</field>
         <readable>true</readable>
