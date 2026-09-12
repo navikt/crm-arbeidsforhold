@@ -36,6 +36,7 @@ ORG_AVAILABLE_FOR_READ="${ORG_AVAILABLE_FOR_READ:-true}"
 SELF_CHECK_ONLY="${SELF_CHECK_ONLY:-false}"
 DRY_RUN="${DRY_RUN:-false}"
 PACKAGE_PLAN_ONLY="${PACKAGE_PLAN_ONLY:-false}"
+REFRESH_DEPENDENCY_SOURCES="${REFRESH_DEPENDENCY_SOURCES:-false}"
 
 REQUESTED_RUN_ORG_CREATE=""
 REQUESTED_RUN_PACKAGES=""
@@ -203,6 +204,7 @@ print_run_summary() {
     echo "- Self-check only:        $SELF_CHECK_ONLY"
     echo "- Dry-run:                $DRY_RUN"
     echo "- Package plan only:      $PACKAGE_PLAN_ONLY"
+    echo "- Refresh dependencies:   $REFRESH_DEPENDENCY_SOURCES"
     echo "- Post steps:             $POST_STEPS"
     echo ""
     echo "Org:"
@@ -305,6 +307,7 @@ Options:
   --self-check                        Validate setup and configuration only.
   --dry-run                           Print mutating commands instead of executing them.
   --package-plan                      Check installed packages and print what would change.
+    --refresh-dependency-sources        Clear dependency source folders before setup and retrieve them again afterward.
   --skip-org                          Do not delete/create/fetch scratch org.
   --skip-packages                     Do not install packages.
   --skip-version-check                Do not warn when dependency versions are not latest released versions.
@@ -324,6 +327,7 @@ Examples:
   ./create-scratch-org.sh --dry-run
   ./create-scratch-org.sh --package-plan
   ./create-scratch-org.sh --package-plan --install-latest
+    ./create-scratch-org.sh --refresh-dependency-sources
   ./create-scratch-org.sh --use-pool --pool-tag dev --pool-devhub "NAV DevHub"
   ./create-scratch-org.sh --update-packages --install-latest
   ./create-scratch-org.sh --delete-org-only
@@ -1145,6 +1149,134 @@ delete_existing_scratch_org() {
     fi
 }
 
+read_dependency_package_names() {
+    jq -r '.packageDirectories[0].dependencies // [] | map(.package // empty) | map(select(length > 0)) | unique[]' "$PROJECT_FILE" 2>/dev/null || true
+}
+
+clear_dependency_package_directories() {
+    local package_names=()
+    local package_name=""
+    local package_dir=""
+
+    while IFS= read -r package_name; do
+        [[ -z "$package_name" ]] && continue
+        package_names+=("$package_name")
+    done < <(read_dependency_package_names)
+
+    if [[ ${#package_names[@]} -eq 0 ]]; then
+        echo ""
+        echo "No dependency package directories to clear."
+        return 0
+    fi
+
+    echo ""
+    echo "Clearing dependency package directories before scratch org creation..."
+
+    for package_name in "${package_names[@]}"; do
+        package_dir="${package_name}"
+
+        if [[ ! -d "$package_dir" ]]; then
+            echo "- Skipping missing directory: $package_dir"
+            continue
+        fi
+
+        if [[ "$DRY_RUN" == "true" ]]; then
+            echo "- Dry-run: would clear contents of $package_dir while keeping $package_dir/README.md"
+            continue
+        fi
+
+        find "$package_dir" -mindepth 1 ! -path "$package_dir/README.md" -exec rm -rf -- {} +
+        echo "- Cleared contents of $package_dir while keeping README.md"
+    done
+
+    add_action "Cleared dependency package directories before scratch org creation"
+}
+
+temporarily_disable_forceignore() {
+    local forceignore_path=".forceignore"
+    local backup_path=".forceignore.disabled"
+
+    if [[ ! -f "$forceignore_path" ]]; then
+        echo "- No .forceignore file present; nothing to disable."
+        return 0
+    fi
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo "- Dry-run: would temporarily disable $forceignore_path"
+        return 0
+    fi
+
+    if [[ -f "$backup_path" ]]; then
+        rm -f "$backup_path"
+    fi
+
+    mv "$forceignore_path" "$backup_path"
+    echo "- Temporarily disabled $forceignore_path"
+}
+
+restore_forceignore() {
+    local forceignore_path=".forceignore"
+    local backup_path=".forceignore.disabled"
+
+    if [[ ! -f "$backup_path" ]]; then
+        if [[ -f "$forceignore_path" ]]; then
+            echo "- .forceignore already active; nothing to restore."
+        fi
+        return 0
+    fi
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo "- Dry-run: would restore $backup_path to $forceignore_path"
+        return 0
+    fi
+
+    mv "$backup_path" "$forceignore_path"
+    echo "- Restored $forceignore_path"
+}
+
+retrieve_dependency_packages() {
+    local package_names=()
+    local package_name=""
+
+    while IFS= read -r package_name; do
+        [[ -z "$package_name" ]] && continue
+        package_names+=("$package_name")
+    done < <(read_dependency_package_names)
+
+    if [[ ${#package_names[@]} -eq 0 ]]; then
+        echo ""
+        echo "No dependency packages available for retrieve."
+        return 0
+    fi
+
+    echo ""
+    echo "Retrieving dependency package metadata after setup..."
+
+    temporarily_disable_forceignore
+
+    for package_name in "${package_names[@]}"; do
+        echo ""
+        echo "Retrieving package: $package_name"
+
+        if [[ "$DRY_RUN" == "true" ]]; then
+            echo "- Dry-run: would run sf project retrieve start --target-org $TARGET_ORG -n $package_name"
+            continue
+        fi
+
+        if ! sf project retrieve start \
+            --target-org "$TARGET_ORG" \
+            -n "$package_name"; then
+            restore_forceignore
+            error 1 "Failed to retrieve package $package_name from org: $TARGET_ORG"
+        fi
+
+        echo "- Retrieved package: $package_name"
+    done
+
+    restore_forceignore
+    add_action "Retrieved dependency packages into source with temporary .forceignore disable"
+}
+
 create_scratch_org() {
     echo ""
     echo "Creating scratch org: $ORG_ALIAS"
@@ -1172,6 +1304,10 @@ setup_org() {
         echo ""
         echo "Skipping scratch org delete/create/fetch."
         return 0
+    fi
+
+    if [[ "$REFRESH_DEPENDENCY_SOURCES" == "true" ]]; then
+        clear_dependency_package_directories
     fi
 
     if [[ "$USE_POOL" == "true" ]]; then
@@ -1820,6 +1956,7 @@ print_settings() {
     echo "Self-check only:               $SELF_CHECK_ONLY"
     echo "Dry-run:                       $DRY_RUN"
     echo "Package plan only:             $PACKAGE_PLAN_ONLY"
+    echo "Refresh dependency sources:    $REFRESH_DEPENDENCY_SOURCES"
     echo "Packages not requiring key:    $PACKAGES_NOT_REQUIRING_INSTALL_KEY"
     echo ""
 }
@@ -1914,6 +2051,10 @@ while [[ $# -gt 0 ]]; do
             PACKAGE_PLAN_ONLY=true
             shift
             ;;
+        --refresh-dependency-sources)
+            REFRESH_DEPENDENCY_SOURCES=true
+            shift
+            ;;
         --skip-org)
             RUN_ORG_CREATE=false
             shift
@@ -2002,6 +2143,7 @@ validate_boolean "$FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY" "FALLBACK_TO_SCRATC
 validate_boolean "$SELF_CHECK_ONLY" "SELF_CHECK_ONLY"
 validate_boolean "$DRY_RUN" "DRY_RUN"
 validate_boolean "$PACKAGE_PLAN_ONLY" "PACKAGE_PLAN_ONLY"
+validate_boolean "$REFRESH_DEPENDENCY_SOURCES" "REFRESH_DEPENDENCY_SOURCES"
 
 validate_post_steps
 
@@ -2104,6 +2246,10 @@ if should_run_post_step "community"; then
 else
     echo "Skipping community publish."
     add_post_step_skipped "community"
+fi
+
+if [[ "$REFRESH_DEPENDENCY_SOURCES" == "true" ]]; then
+    retrieve_dependency_packages
 fi
 
 if [[ "$RUN_PACKAGES" == "true" || "$UPDATE_PACKAGES_ONLY" == "true" ]]; then
