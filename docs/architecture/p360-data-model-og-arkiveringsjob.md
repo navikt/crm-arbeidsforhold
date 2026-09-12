@@ -238,7 +238,10 @@ Følgjande modell er vald for denne fasen:
 - Frigivinga skal logge brukar og tidspunkt.
 - Når feltet er sett til `true`, er vedtaket låst for ordinære endringar og signalet kan ikkje setjast tilbake til `false`.
 - Retry av arkiveringsjobben skal ikkje oppheve låsen eller endre vedtaksinnhaldet.
-- Autoriserte tekniske oppdateringar er avgrensa til P360-referansar og andre eksplisitt tillatne integrasjonsfelt. Faglege vedtaksfelt er ikkje ein del av allowlista.
+- Autoriserte tekniske oppdateringar på `Application_Decision__c` er avgrensa til `P360_Document_Id__c`, `P360_Document_Number__c` og `P360_File_Id__c`.
+- Nye tekniske felt kan berre leggjast til etter ei eksplisitt endring av allowlista og tilhøyrande testar.
+- `Decision_description__c`, `Decision_date__c`, `Status__c`, `Application__c`, `Agreement__c` og vedtaksdetaljar er ikkje tillatne etter låsing.
+- Jobbstatus, retry, lease, feilkode og feilmelding skal oppdaterast på `P360_Archive_Job__c`, ikkje på vedtaksobjektet.
 - Låsing skal handhevast i Apex før-DML/handler. Eit service-lag for frigiving er nødvendig, men skal ikkje vere einaste sikkerheitsbarriere.
 - Korrigering etter frigiving krev ein separat, kontrollert prosess for ny vedtaksversjon og ny idempotensnøkkel.
 
