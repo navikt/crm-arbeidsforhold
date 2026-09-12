@@ -2,17 +2,18 @@
 jira: CRMAAREG-142
 tittel: Kodeverk, metadata-adapter og dependency injection
 type: Epic
-status: Backlog
+status: Under arbeid
 prioritet: Medium
 opprettet: 2026-03-17
 kilde: Jira — CRMAAREG (CSV-eksport + XML)
 kilde-url: https://nav.atlassian.net/browse/CRMAAREG-142
+hentet: 2026-09-13
 speilkopi: ja
 ---
 
 # CRMAAREG-142 — Kodeverk, metadata-adapter og dependency injection
 
-**Type:** Epic · **Status:** Backlog · **Prioritet:** Medium
+**Type:** Epic · **Status:** Under arbeid · **Prioritet:** Medium
 **Epicnamn i Jira:** `SF/P360 - Kodeverk, metadata-adapter og dependency injection`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-142)
 
@@ -87,7 +88,7 @@ Avheng av: CRMAAREG-84 (F1)
 
 ## CRMAAREG-163 · K3 — Etablere dependency injection / service locator for adapterar
 
-**Status:** Backlog · **Prioritet:** A - Kritisk · **Estimat:** S
+**Status:** Under arbeid · **Prioritet:** A - Kritisk · **Estimat:** S
 **Etikettar:** `adapter` `di` `foundation` `service-locator`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-163)
 

@@ -2,14 +2,14 @@
 tittel: Jira-saker for P360-integrasjonen
 kilde: Jira — CRMAAREG (CSV-eksport + XML per epic)
 kilde-url: https://nav.atlassian.net/browse/CRMAAREG-83
-hentet: 2026-09-08
+hentet: 2026-09-13
 speilkopi: ja
 merknad: Tildelte personar og account-ID-ar er utelatne ved speiling.
 ---
 
 # Jira-saker for P360-integrasjonen
 
-Full tekst for alle epicar og historier i `CRMAAREG`, slik at innhaldet er tilgjengeleg utan Jira-tilgang.
+Full tekst for alle epicar og historier i `CRMAAREG`, slik at innhaldet er tilgjengeleg utan Jira-tilgang. Statusane er synkroniserte frå CSV-eksporten `Jira (1).csv` 2026-09-13; beskrivingsteksten byggjer framleis på den tidlegare CSV/XML-speilinga.
 
 Éi fil per epic. Kvar historie er ei underoverskrift og kan lenkjast direkte.
 

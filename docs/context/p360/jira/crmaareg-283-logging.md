@@ -2,17 +2,18 @@
 jira: CRMAAREG-283
 tittel: Logging, overvaking og drift
 type: Epic
-status: Backlog
+status: Under arbeid
 prioritet: Medium
 opprettet: 2026-03-23
 kilde: Jira — CRMAAREG (CSV-eksport + XML)
 kilde-url: https://nav.atlassian.net/browse/CRMAAREG-283
+hentet: 2026-09-13
 speilkopi: ja
 ---
 
 # CRMAAREG-283 — Logging, overvaking og drift
 
-**Type:** Epic · **Status:** Backlog · **Prioritet:** Medium
+**Type:** Epic · **Status:** Under arbeid · **Prioritet:** Medium
 **Epicnamn i Jira:** `SF/P360 - Logging, overvaking og drift`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-283)
 
@@ -28,7 +29,7 @@ Utan observabilitet blir kvar feil ei lita privat detektivforteljing.
 
 ## CRMAAREG-284 · O1 — Instrumentere alle hovudflytar med strukturert logging
 
-**Status:** Backlog · **Prioritet:** B - Viktig · **Estimat:** M
+**Status:** Under arbeid · **Prioritet:** B - Viktig · **Estimat:** M
 **Etikettar:** `logging` `observability` `operations`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-284)
 

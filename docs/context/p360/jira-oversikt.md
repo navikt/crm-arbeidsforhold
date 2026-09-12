@@ -2,7 +2,7 @@
 tittel: Jira-oversikt for P360-integrasjonen
 kilde: Jira — CRMAAREG (CSV-eksport + XML per epic)
 kilde-url: https://nav.atlassian.net/browse/CRMAAREG-83
-hentet: 2026-09-08
+hentet: 2026-09-13
 speilkopi: ja
 merknad: Tildelte personar og account-ID-ar er utelatne ved speiling.
 ---
@@ -19,27 +19,27 @@ Alle epicar har prefikset `SF/P360 - ` i Jira-feltet «Navn på epic», men ikkj
 
 | Status       | Tal |
 | ------------ | --- |
-| Ferdig       | 1   |
-| Under arbeid | 1   |
-| Backlog      | 43  |
+| Ferdig       | 3   |
+| Under arbeid | 20  |
+| Backlog      | 22  |
 
-Berre F1 er levert. F2 er i arbeid. Alt anna ligg i backlog.
+Tala omfattar 11 epicar og 34 historier i eksporten. Tre historier er ferdige, 13 historier er under arbeid og 18 historier ligg i backlog. Sju epicar er under arbeid og fire ligg i backlog.
 
 ## Epicar
 
-| Epic                                                          | Tittel                                             | Prioritet   | Historier |
-| ------------------------------------------------------------- | -------------------------------------------------- | ----------- | --------- |
-| [CRMAAREG-83](https://nav.atlassian.net/browse/CRMAAREG-83)   | Teknisk grunnmur og integrasjonskontraktar         | A - Kritisk | F1–F7     |
-| [CRMAAREG-142](https://nav.atlassian.net/browse/CRMAAREG-142) | Kodeverk, metadata-adapter og dependency injection | Medium      | K1–K5     |
-| [CRMAAREG-180](https://nav.atlassian.net/browse/CRMAAREG-180) | Sikkerheit, autentisering og konfigurasjon         | Medium      | S1–S2     |
-| [CRMAAREG-194](https://nav.atlassian.net/browse/CRMAAREG-194) | Sakssynk mellom Salesforce og P360                 | Medium      | C1–C3     |
-| [CRMAAREG-215](https://nav.atlassian.net/browse/CRMAAREG-215) | Journalpost som document metadata-flyt             | Medium      | J1–J3     |
-| [CRMAAREG-236](https://nav.atlassian.net/browse/CRMAAREG-236) | Filhandtering og vedleggsflyt                      | Medium      | FLS1–FLS3 |
-| [CRMAAREG-254](https://nav.atlassian.net/browse/CRMAAREG-254) | External ID-strategi og oppslag                    | Medium      | X1–X3     |
-| [CRMAAREG-267](https://nav.atlassian.net/browse/CRMAAREG-267) | Feilhåndtering, idempotens og retry                | Medium      | R1–R2     |
-| [CRMAAREG-283](https://nav.atlassian.net/browse/CRMAAREG-283) | Logging, overvaking og drift                       | Medium      | O1–O2     |
-| [CRMAAREG-295](https://nav.atlassian.net/browse/CRMAAREG-295) | Test, kvalitet og verifikasjon                     | Medium      | T1–T2     |
-| [CRMAAREG-309](https://nav.atlassian.net/browse/CRMAAREG-309) | Arkitektur, dokumentasjon og overlevering          | Medium      | D1–D2     |
+| Epic                                                          | Tittel                                             | Status       | Prioritet   | Historier |
+| ------------------------------------------------------------- | -------------------------------------------------- | ------------ | ----------- | --------- |
+| [CRMAAREG-83](https://nav.atlassian.net/browse/CRMAAREG-83)   | Teknisk grunnmur og integrasjonskontraktar         | Under arbeid | A - Kritisk | F1–F7     |
+| [CRMAAREG-142](https://nav.atlassian.net/browse/CRMAAREG-142) | Kodeverk, metadata-adapter og dependency injection | Under arbeid | Medium      | K1–K5     |
+| [CRMAAREG-180](https://nav.atlassian.net/browse/CRMAAREG-180) | Sikkerheit, autentisering og konfigurasjon         | Backlog      | Medium      | S1–S2     |
+| [CRMAAREG-194](https://nav.atlassian.net/browse/CRMAAREG-194) | Sakssynk mellom Salesforce og P360                 | Backlog      | Medium      | C1–C3     |
+| [CRMAAREG-215](https://nav.atlassian.net/browse/CRMAAREG-215) | Journalpost som document metadata-flyt             | Backlog      | Medium      | J1–J3     |
+| [CRMAAREG-236](https://nav.atlassian.net/browse/CRMAAREG-236) | Filhandtering og vedleggsflyt                      | Backlog      | Medium      | FLS1–FLS3 |
+| [CRMAAREG-254](https://nav.atlassian.net/browse/CRMAAREG-254) | External ID-strategi og oppslag                    | Under arbeid | Medium      | X1–X3     |
+| [CRMAAREG-267](https://nav.atlassian.net/browse/CRMAAREG-267) | Feilhåndtering, idempotens og retry                | Under arbeid | Medium      | R1–R2     |
+| [CRMAAREG-283](https://nav.atlassian.net/browse/CRMAAREG-283) | Logging, overvaking og drift                       | Under arbeid | Medium      | O1–O2     |
+| [CRMAAREG-295](https://nav.atlassian.net/browse/CRMAAREG-295) | Test, kvalitet og verifikasjon                     | Under arbeid | Medium      | T1–T2     |
+| [CRMAAREG-309](https://nav.atlassian.net/browse/CRMAAREG-309) | Arkitektur, dokumentasjon og overlevering          | Under arbeid | Medium      | D1–D2     |
 
 ## Historier
 
@@ -48,29 +48,29 @@ Berre F1 er levert. F2 er i arbeid. Alt anna ligg i backlog.
 | Nøkkel                                                        | ID  | Tittel                                                        | Status           | Prioritet   | Estimat |
 | ------------------------------------------------------------- | --- | ------------------------------------------------------------- | ---------------- | ----------- | ------- |
 | [CRMAAREG-84](https://nav.atlassian.net/browse/CRMAAREG-84)   | F1  | Etablere integrasjonskontraktar og namnestandard              | **Ferdig**       | A - Kritisk | S       |
-| [CRMAAREG-89](https://nav.atlassian.net/browse/CRMAAREG-89)   | F2  | Opprette domeneinterfaces og service skeletons                | **Under arbeid** | A - Kritisk | M       |
-| [CRMAAREG-101](https://nav.atlassian.net/browse/CRMAAREG-101) | F3  | Opprette request/response DTO-ar og interne Apex data classes | Backlog          | A - Kritisk | M       |
+| [CRMAAREG-89](https://nav.atlassian.net/browse/CRMAAREG-89)   | F2  | Opprette domeneinterfaces og service skeletons                | **Ferdig**       | A - Kritisk | M       |
+| [CRMAAREG-101](https://nav.atlassian.net/browse/CRMAAREG-101) | F3  | Opprette request/response DTO-ar og interne Apex data classes | **Under arbeid** | A - Kritisk | M       |
 | [CRMAAREG-115](https://nav.atlassian.net/browse/CRMAAREG-115) | F4  | Opprette omformar (mapper) skeletons                          | Backlog          | A - Kritisk | S/M     |
-| [CRMAAREG-121](https://nav.atlassian.net/browse/CRMAAREG-121) | F5  | Etablere exception hierarchy og feilmodell                    | Backlog          | A - Kritisk | S       |
-| [CRMAAREG-129](https://nav.atlassian.net/browse/CRMAAREG-129) | F6  | Etablere logging helper og correlation ID-støtte              | Backlog          | A - Kritisk | M       |
-| [CRMAAREG-135](https://nav.atlassian.net/browse/CRMAAREG-135) | F7  | Opprette mock/fake services og basis test classes             | Backlog          | A - Kritisk | M       |
+| [CRMAAREG-121](https://nav.atlassian.net/browse/CRMAAREG-121) | F5  | Etablere exception hierarchy og feilmodell                    | **Under arbeid** | A - Kritisk | S       |
+| [CRMAAREG-129](https://nav.atlassian.net/browse/CRMAAREG-129) | F6  | Etablere logging helper og correlation ID-støtte              | **Under arbeid** | A - Kritisk | M       |
+| [CRMAAREG-135](https://nav.atlassian.net/browse/CRMAAREG-135) | F7  | Opprette mock/fake services og basis test classes             | **Under arbeid** | A - Kritisk | M       |
 
 ### CRMAAREG-142 — Kodeverk, metadata-adapter og dependency injection
 
-| Nøkkel                                                        | ID  | Tittel                                                        | Status  | Prioritet         | Estimat |
-| ------------------------------------------------------------- | --- | ------------------------------------------------------------- | ------- | ----------------- | ------- |
-| [CRMAAREG-143](https://nav.atlassian.net/browse/CRMAAREG-143) | K1  | Etablere Custom Metadata-modell for P360-kodeverk             | Backlog | A - Kritisk       | S       |
-| [CRMAAREG-155](https://nav.atlassian.net/browse/CRMAAREG-155) | K2  | Implementere metadata-basert code table service               | Backlog | A - Kritisk       | M       |
-| [CRMAAREG-163](https://nav.atlassian.net/browse/CRMAAREG-163) | K3  | Etablere dependency injection / service locator for adapterar | Backlog | A - Kritisk       | S       |
-| [CRMAAREG-169](https://nav.atlassian.net/browse/CRMAAREG-169) | K4  | Laste initiale kodeverk-verdiar i Salesforce                  | Backlog | A - Kritisk       | M       |
-| [CRMAAREG-175](https://nav.atlassian.net/browse/CRMAAREG-175) | K5  | Planleggje RPC-basert code table adapter for seinare fase     | Backlog | C - Mindre viktig | S       |
+| Nøkkel                                                        | ID  | Tittel                                                        | Status           | Prioritet         | Estimat |
+| ------------------------------------------------------------- | --- | ------------------------------------------------------------- | ---------------- | ----------------- | ------- |
+| [CRMAAREG-143](https://nav.atlassian.net/browse/CRMAAREG-143) | K1  | Etablere Custom Metadata-modell for P360-kodeverk             | Backlog          | A - Kritisk       | S       |
+| [CRMAAREG-155](https://nav.atlassian.net/browse/CRMAAREG-155) | K2  | Implementere metadata-basert code table service               | Backlog          | A - Kritisk       | M       |
+| [CRMAAREG-163](https://nav.atlassian.net/browse/CRMAAREG-163) | K3  | Etablere dependency injection / service locator for adapterar | **Under arbeid** | A - Kritisk       | S       |
+| [CRMAAREG-169](https://nav.atlassian.net/browse/CRMAAREG-169) | K4  | Laste initiale kodeverk-verdiar i Salesforce                  | Backlog          | A - Kritisk       | M       |
+| [CRMAAREG-175](https://nav.atlassian.net/browse/CRMAAREG-175) | K5  | Planleggje RPC-basert code table adapter for seinare fase     | Backlog          | C - Mindre viktig | S       |
 
 ### CRMAAREG-180 — Sikkerheit, autentisering og konfigurasjon
 
-| Nøkkel                                                        | ID  | Tittel                                                 | Status  | Prioritet   | Estimat |
-| ------------------------------------------------------------- | --- | ------------------------------------------------------ | ------- | ----------- | ------- |
-| [CRMAAREG-181](https://nav.atlassian.net/browse/CRMAAREG-181) | S1  | Etablere Named Credential / auth-strategi for P360 RPC | Backlog | A - Kritisk | M       |
-| [CRMAAREG-188](https://nav.atlassian.net/browse/CRMAAREG-188) | S2  | Etablere integrasjonsbrukar, tilgang og audit-prinsipp | Backlog | A - Kritisk | M       |
+| Nøkkel                                                        | ID  | Tittel                                                 | Status           | Prioritet   | Estimat |
+| ------------------------------------------------------------- | --- | ------------------------------------------------------ | ---------------- | ----------- | ------- |
+| [CRMAAREG-181](https://nav.atlassian.net/browse/CRMAAREG-181) | S1  | Etablere Named Credential / auth-strategi for P360 RPC | Backlog          | A - Kritisk | M       |
+| [CRMAAREG-188](https://nav.atlassian.net/browse/CRMAAREG-188) | S2  | Etablere integrasjonsbrukar, tilgang og audit-prinsipp | **Under arbeid** | A - Kritisk | M       |
 
 ### CRMAAREG-194 — Sakssynk mellom Salesforce og P360
 
@@ -98,39 +98,39 @@ Berre F1 er levert. F2 er i arbeid. Alt anna ligg i backlog.
 
 ### CRMAAREG-254 — External ID-strategi og oppslag
 
-| Nøkkel                                                        | ID  | Tittel                                                          | Status  | Prioritet         | Estimat |
-| ------------------------------------------------------------- | --- | --------------------------------------------------------------- | ------- | ----------------- | ------- |
-| [CRMAAREG-255](https://nav.atlassian.net/browse/CRMAAREG-255) | X1  | Etablere external ID strategy for case, journalpost og file     | Backlog | B - Viktig        | M       |
-| [CRMAAREG-261](https://nav.atlassian.net/browse/CRMAAREG-261) | X2  | Implementere lookup i Salesforce basert på lagra eksterne ID-ar | Backlog | B - Viktig        | M       |
-| [CRMAAREG-266](https://nav.atlassian.net/browse/CRMAAREG-266) | X3  | Planleggje P360 external ID recovery-oppslag for seinare fase   | Backlog | C - Mindre viktig | S       |
+| Nøkkel                                                        | ID  | Tittel                                                          | Status           | Prioritet         | Estimat |
+| ------------------------------------------------------------- | --- | --------------------------------------------------------------- | ---------------- | ----------------- | ------- |
+| [CRMAAREG-255](https://nav.atlassian.net/browse/CRMAAREG-255) | X1  | Etablere external ID strategy for case, journalpost og file     | **Under arbeid** | B - Viktig        | M       |
+| [CRMAAREG-261](https://nav.atlassian.net/browse/CRMAAREG-261) | X2  | Implementere lookup i Salesforce basert på lagra eksterne ID-ar | **Under arbeid** | B - Viktig        | M       |
+| [CRMAAREG-266](https://nav.atlassian.net/browse/CRMAAREG-266) | X3  | Planleggje P360 external ID recovery-oppslag for seinare fase   | Backlog          | C - Mindre viktig | S       |
 
 ### CRMAAREG-267 — Feilhåndtering, idempotens og retry
 
-| Nøkkel                                                        | ID  | Tittel                                                   | Status  | Prioritet  | Estimat |
-| ------------------------------------------------------------- | --- | -------------------------------------------------------- | ------- | ---------- | ------- |
-| [CRMAAREG-268](https://nav.atlassian.net/browse/CRMAAREG-268) | R1  | Etablere idempotens for oppretting av sak og journalpost | Backlog | B - Viktig | M       |
-| [CRMAAREG-274](https://nav.atlassian.net/browse/CRMAAREG-274) | R2  | Etablere retry-strategi og manuell oppfølging            | Backlog | Medium     | M       |
+| Nøkkel                                                        | ID  | Tittel                                                   | Status           | Prioritet  | Estimat |
+| ------------------------------------------------------------- | --- | -------------------------------------------------------- | ---------------- | ---------- | ------- |
+| [CRMAAREG-268](https://nav.atlassian.net/browse/CRMAAREG-268) | R1  | Etablere idempotens for oppretting av sak og journalpost | **Under arbeid** | B - Viktig | M       |
+| [CRMAAREG-274](https://nav.atlassian.net/browse/CRMAAREG-274) | R2  | Etablere retry-strategi og manuell oppfølging            | **Under arbeid** | Medium     | M       |
 
 ### CRMAAREG-283 — Logging, overvaking og drift
 
-| Nøkkel                                                        | ID  | Tittel                                                 | Status  | Prioritet  | Estimat |
-| ------------------------------------------------------------- | --- | ------------------------------------------------------ | ------- | ---------- | ------- |
-| [CRMAAREG-284](https://nav.atlassian.net/browse/CRMAAREG-284) | O1  | Instrumentere alle hovudflytar med strukturert logging | Backlog | B - Viktig | M       |
-| [CRMAAREG-290](https://nav.atlassian.net/browse/CRMAAREG-290) | O2  | Etablere overvaking, alarmar og runbook                | Backlog | B - Viktig | M       |
+| Nøkkel                                                        | ID  | Tittel                                                 | Status           | Prioritet  | Estimat |
+| ------------------------------------------------------------- | --- | ------------------------------------------------------ | ---------------- | ---------- | ------- |
+| [CRMAAREG-284](https://nav.atlassian.net/browse/CRMAAREG-284) | O1  | Instrumentere alle hovudflytar med strukturert logging | **Under arbeid** | B - Viktig | M       |
+| [CRMAAREG-290](https://nav.atlassian.net/browse/CRMAAREG-290) | O2  | Etablere overvaking, alarmar og runbook                | Backlog          | B - Viktig | M       |
 
 ### CRMAAREG-295 — Test, kvalitet og verifikasjon
 
-| Nøkkel                                                        | ID  | Tittel                                    | Status  | Prioritet   | Estimat |
-| ------------------------------------------------------------- | --- | ----------------------------------------- | ------- | ----------- | ------- |
-| [CRMAAREG-296](https://nav.atlassian.net/browse/CRMAAREG-296) | T1  | Etablere einingstestar og kontraktstestar | Backlog | A - Kritisk | M       |
-| [CRMAAREG-303](https://nav.atlassian.net/browse/CRMAAREG-303) | T2  | Etablere integrasjonstest mot miljø       | Backlog | A - Kritisk | L       |
+| Nøkkel                                                        | ID  | Tittel                                    | Status           | Prioritet   | Estimat |
+| ------------------------------------------------------------- | --- | ----------------------------------------- | ---------------- | ----------- | ------- |
+| [CRMAAREG-296](https://nav.atlassian.net/browse/CRMAAREG-296) | T1  | Etablere einingstestar og kontraktstestar | **Under arbeid** | A - Kritisk | M       |
+| [CRMAAREG-303](https://nav.atlassian.net/browse/CRMAAREG-303) | T2  | Etablere integrasjonstest mot miljø       | Backlog          | A - Kritisk | L       |
 
 ### CRMAAREG-309 — Arkitektur, dokumentasjon og overlevering
 
-| Nøkkel                                                        | ID  | Tittel                                            | Status  | Prioritet  | Estimat |
-| ------------------------------------------------------------- | --- | ------------------------------------------------- | ------- | ---------- | ------- |
-| [CRMAAREG-310](https://nav.atlassian.net/browse/CRMAAREG-310) | D1  | Dokumentere arkitektur, sekvensar og tekniske val | Backlog | B - Viktig | M       |
-| [CRMAAREG-315](https://nav.atlassian.net/browse/CRMAAREG-315) | D2  | Dokumentere drift, støtte og overlevering         | Backlog | B - Viktig | M       |
+| Nøkkel                                                        | ID  | Tittel                                            | Status           | Prioritet  | Estimat |
+| ------------------------------------------------------------- | --- | ------------------------------------------------- | ---------------- | ---------- | ------- |
+| [CRMAAREG-310](https://nav.atlassian.net/browse/CRMAAREG-310) | D1  | Dokumentere arkitektur, sekvensar og tekniske val | **Ferdig**       | B - Viktig | M       |
+| [CRMAAREG-315](https://nav.atlassian.net/browse/CRMAAREG-315) | D2  | Dokumentere drift, støtte og overlevering         | **Under arbeid** | B - Viktig | M       |
 
 ## Avhengigheiter
 
@@ -182,9 +182,9 @@ force-app/integration/p360/classes/
   exception/       P360_IntegrationException, P360_ContractException, P360_TransportException
 ```
 
-**17 klassar.** Mappestrukturen samsvarer eksakt med ADR-0001. Namnestandarden er følgd utan avvik. Klassane har ApexDoc, `with sharing` og constructor injection.
+F2-skeletonane er ferdige i Jira. P360-området har sidan blitt utvida med operation-spesifikke DTO-ar, exception-taxonomi, release-guard, idempotens og arkivjobbservice. Eit fast klassetal blir derfor ikkje vedlikehalde her; sjå [teknisk oversikt](../../integrations/p360/teknisk-oversikt.md) for gjeldande struktur og verifisert scope.
 
-Exception-klassane er tomme `extends Exception` med kommentaren `TODO F5` — medvitne placeholders frå CRMAAREG-321, ikkje ferdig arbeid.
+Exception-subklassane er medvite små fordi typen uttrykkjer klassifiseringa. Runtime-hierarkiet er verifisert i `P360_ExceptionHierarchyTest`; endeleg harmonisering av den samla feilmodellen står framleis under CRMAAREG-121.
 
 `force-app/integration/common/` inneheld felles integrasjonsklasser og README-filer. Testklasser og testutilities ligg samla under `force-app/tests/`.
 
