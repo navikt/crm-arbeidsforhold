@@ -24,18 +24,22 @@ Permission sets her skal ikkje:
 - gi tilgang til sensitiv informasjon utan avklart behov
 - brukast som snarveg for å omgå delingsmodell eller sikkerheitskrav
 
-## Typiske permission sets
+## Gjeldande permission sets
 
 ```text
-P360_Archive_User.permissionset-meta.xml
-P360_Integration_Admin.permissionset-meta.xml
+P360_Archive_Release.permissionset-meta.xml
+P360_Archive_Job_Processing.permissionset-meta.xml
 ```
 
 ## Prinsipp
 
 Bruk minste privilegium.
 
-Skil mellom:
+`P360_Archive_Release` gir custom permission for å setje frigivingssignalet på vedtak. Ordinær felttilgang kjem frå saksbehandlarsettet.
+
+`P360_Archive_Job_Processing` gir avgrensa tilgang til jobbobjektet og felta som første `ApplicationDocument`-slice bruker. Settet må utvidast eksplisitt når worker eller fleire jobbtypar blir implementerte.
+
+Skil framleis mellom:
 
 - vanleg brukar
 - superbrukar

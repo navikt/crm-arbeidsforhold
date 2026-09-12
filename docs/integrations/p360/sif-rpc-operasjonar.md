@@ -1,7 +1,7 @@
 ---
 tittel: P360 SIF RPC-operasjonar og kontraktsstatus
 kilde: Jira-speil og repo-lokal P360-arkitektur
-hentet: 2026-09-08
+hentet: 2026-09-12
 speilkopi: delvis
 status: open contract
 ---
@@ -10,16 +10,20 @@ status: open contract
 
 Dette dokumentet samler P360-operasjoner som er nevnt i Jira-materialet, og skiller mellom det som er relevant for første arkiveringsflyt og det som er fremtidig arbeid.
 
-Operasjonsnavnene under er ikke tilstrekkelige som implementasjonskontrakt. Request-/responsefelter, obligatoriske felter, feilkoder og timeout-/rate-limit-forventninger må bekreftes av P360-teamet før de brukes i produksjonskode.
+Operasjonsnamn og felt er henta frå den tilgjengelege SIF PDF-en og representerte i interne DTO-ar. Dei er ikkje åleine tilstrekkelege som produksjonskontrakt: miljø, auth, RPC-envelope, mapping, feilkodar og timeout-/rate-limit-forventningar må stadfestast av P360-teamet.
 
 ## Operasjonsinventar
 
-| Tjeneste          | Operasjon                | Kilde               | Fase         | Repo-status                                               |
-| ----------------- | ------------------------ | ------------------- | ------------ | --------------------------------------------------------- |
-| `DocumentService` | `CreateDocument`         | CRMAAREG-221 / J2   | MVP-kandidat | Navn og formål er kjent. Full kontrakt mangler.           |
-| `SupportService`  | `GetCodeTableRows`       | CRMAAREG-175 / K5   | Senere fase  | Kodeverkstyper og responsformat må avklares.              |
-| Ikke bekreftet    | `GetEntitiesExternalIds` | CRMAAREG-266 / X3   | Senere fase  | Tjeneste, request, response og recovery-strategi mangler. |
-| Ikke bekreftet    | `UploadStream`           | CRMAAREG-250 / FLS3 | Senere fase  | Storfilstrategi og transportkontrakt mangler.             |
+| Tjeneste          | Operasjon                | Kilde               | Fase         | Repo-status                                                 |
+| ----------------- | ------------------------ | ------------------- | ------------ | ----------------------------------------------------------- |
+| `CaseService`     | `CreateCase`             | CRMAAREG-200 / C2   | MVP-kandidat | PDF-avleidd DTO implementert; mapping og transport manglar. |
+| `CaseService`     | `UpdateCase`, `GetCases` | CRMAAREG-208 / X3   | Recovery     | PDF-avleidde DTO-ar implementerte; runtime manglar.         |
+| `DocumentService` | `CreateDocument`         | CRMAAREG-221 / J2   | MVP-kandidat | PDF-avleidd DTO implementert; mapping og transport manglar. |
+| `DocumentService` | `GetDocuments`           | CRMAAREG-229 / J3   | Recovery     | PDF-avleidd DTO implementert; runtime manglar.              |
+| `FileService`     | `Upload`                 | CRMAAREG-242 / FLS2 | MVP-kandidat | Filparameter er implementert; transport manglar.            |
+| `SupportService`  | `GetCodeTableRows`       | CRMAAREG-175 / K5   | Senere fase  | Kodeverkstyper og responsformat må avklares.                |
+| Ikke bekreftet    | `GetEntitiesExternalIds` | CRMAAREG-266 / X3   | Senere fase  | Tjeneste, request, response og recovery-strategi mangler.   |
+| Ikke bekreftet    | `UploadStream`           | CRMAAREG-250 / FLS3 | Senere fase  | Storfilstrategi og transportkontrakt mangler.               |
 
 ## MVP-grense
 
@@ -33,9 +37,9 @@ Første implementasjonsløp bør begrenses til den operasjonen som trengs for jo
 
 Filoverføring, kodeverksoppslag og external-ID recovery skal ikke bygges inn i denne første transportkontrakten før de respektive strategiene er avklart.
 
-## Kontrakt som mangler
+## Produksjonskontrakt som mangler
 
-Følgende må fylles inn for hver operasjon før DTO-ene kan anses som ferdige:
+Følgjande må stadfestast før DTO-ane kan brukast som wire-kontrakt i produksjon:
 
 - eksakt SIF RPC-endepunkt og tjenestenavn
 - requeststruktur og feltnavn
@@ -45,7 +49,7 @@ Følgende må fylles inn for hver operasjon før DTO-ene kan anses som ferdige:
 - betydning, tillatt bruk og kilde for `ADContextUser`
 - feilkoder og klassifisering
 - timeout og rate limits
-- idempotensnøkkel og retry-forventning
+- P360 si duplicate-, recovery- og retry-semantikk; interne Salesforce-nøklar er implementerte
 - korrelasjons-ID og eventuelle påkrevde transportheaders
 - hvordan P360-identifikatorer og document number returneres
 
@@ -67,9 +71,9 @@ Dette er en sikkerhets- og sporbarhetsavklaring i rød sone. Repoet skal ikke in
 
 ## Repo-konsekvens
 
-Inntil kontrakten er bekreftet skal repoet bruke transport- og DTO-klasser som tydelige, men ikke ferdige kontraktgrenser. Det er bedre å ha en eksplisitt uferdig kontrakt enn å gjøre antatte P360-felter til en skjult offentlig API.
+Inntil miljøkontrakten er bekrefta skal repoet bruke transportklassane som tydelege, men ikkje ferdige grenser. DTO-ane dokumenterer PDF-avleidd struktur, men skal ikkje behandlast som miljøverifisert wire-kontrakt.
 
-Den neste kodeendringen bør derfor være en testbar `CreateDocument`-kontrakt først etter at P360-teamet har levert request-/responseformatet. Frem til da skal implementasjonen ikke gjette JSON-felter eller feilkoder.
+Vidare transportarbeid skal starte med å verifisere `CreateCase`, `CreateDocument` og `Upload` mot ei versjonert kontraktpakke og testmiljø. Implementasjonen skal ikkje gjette auth, envelope, mapping eller feilkodar.
 
 ## Relaterte repo-dokumenter
 

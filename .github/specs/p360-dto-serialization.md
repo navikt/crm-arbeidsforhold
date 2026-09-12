@@ -1,6 +1,6 @@
 ---
 slug: p360-dto-serialization
-status: active
+status: completed
 jira-epic: CRMAAREG-83
 jira-user-story: CRMAAREG-101
 jira-subtask: CRMAAREG-114

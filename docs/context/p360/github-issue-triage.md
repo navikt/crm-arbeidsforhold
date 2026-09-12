@@ -1,8 +1,8 @@
 ---
 tittel: P360 GitHub issue-triage og handlingsstatus
 kilde: repo-state, kodemodell og dokumentert arkitektur
-hentet: 2026-09-08
-status: anbefalt
+hentet: 2026-09-12
+status: oppdatert
 ---
 
 # P360 GitHub issue-triage og handlingsstatus
@@ -56,13 +56,35 @@ Dette er ikke de samme som den faktiske P360-implementasjonsblokkeringen. De kan
 
 Følgende issues er ferdig behandlet og lukket som `completed`:
 
-- `#980`, `#981`, `#982`, `#987`, `#990`, `#991` og `#996`
+- [#980](https://github.com/navikt/crm-arbeidsforhold/issues/980), [#981](https://github.com/navikt/crm-arbeidsforhold/issues/981), [#982](https://github.com/navikt/crm-arbeidsforhold/issues/982), [#987](https://github.com/navikt/crm-arbeidsforhold/issues/987), [#990](https://github.com/navikt/crm-arbeidsforhold/issues/990), [#991](https://github.com/navikt/crm-arbeidsforhold/issues/991), [#995](https://github.com/navikt/crm-arbeidsforhold/issues/995) og [#996](https://github.com/navikt/crm-arbeidsforhold/issues/996)
 
 Følgende issues er gjennomgått, men står åpne fordi de krever menneskelig eller ekstern oppfølging:
 
-- `#975`, `#976`, `#977`, `#978`, `#979`, `#983`, `#984`, `#985`, `#986`, `#988`, `#989`, `#992`, `#993`, `#994`, `#995`, `#997` og `#998`
+- `#975`, `#976`, `#977`, `#978`, `#979`, `#983`, `#984`, `#985`, `#986`, `#988`, `#989`, `#992`, `#993`, `#994`, `#997` og `#998`
 
 De åpne sakene er merket med `needs-human-decision`, `needs-external-owner` eller `needs-org-validation` der det er relevant.
+
+### 3a) Kontrakt- og DTO-saker oppretta etter første triage
+
+Følgjande saker vart verifiserte og lukka som `completed` 2026-09-12 innan det eksplisitte scopet i kvar sak:
+
+| Issue                                                             | Levert scope                                         | Viktig avgrensing                        |
+| ----------------------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------- |
+| [#999](https://github.com/navikt/crm-arbeidsforhold/issues/999)   | P360 test factory, builders og testdoblar            | Ikkje produksjonstransport               |
+| [#1000](https://github.com/navikt/crm-arbeidsforhold/issues/1000) | Orchestrator-validering                              | Ingen vellukka orkestreringsflyt         |
+| [#1001](https://github.com/navikt/crm-arbeidsforhold/issues/1001) | Adapter-kontraktgrense                               | Ingen reell adaptertransport             |
+| [#1002](https://github.com/navikt/crm-arbeidsforhold/issues/1002) | RPC-klientgrense                                     | Ingen endpoint, auth eller callout       |
+| [#1003](https://github.com/navikt/crm-arbeidsforhold/issues/1003) | Application- og Agreement-domenegrenser              | Ingen datalasting eller mapping          |
+| [#1004](https://github.com/navikt/crm-arbeidsforhold/issues/1004) | Archive command/result-kontraktar                    | Ingen ende-til-ende orkestrering         |
+| [#1005](https://github.com/navikt/crm-arbeidsforhold/issues/1005) | JSON round-trip for midlertidige wrappers            | Ikkje endeleg wire-kontrakt              |
+| [#1006](https://github.com/navikt/crm-arbeidsforhold/issues/1006) | Historisk F2-valideringsstatus                       | Nyare testar har separat evidens         |
+| [#1007](https://github.com/navikt/crm-arbeidsforhold/issues/1007) | Felles correlation context                           | Ingen transportpropagering eller logging |
+| [#1008](https://github.com/navikt/crm-arbeidsforhold/issues/1008) | Uttrekk av SIF API-kontraktar frå PDF                | Miljøkontrakt og auth er ikkje stadfesta |
+| [#1009](https://github.com/navikt/crm-arbeidsforhold/issues/1009) | Case DTO-slicene knytte til saka                     | Ikkje ferdig case-integrasjon            |
+| [#1010](https://github.com/navikt/crm-arbeidsforhold/issues/1010) | CreateDocument- og File DTO-slice                    | Ingen filtransport                       |
+| [#1011](https://github.com/navikt/crm-arbeidsforhold/issues/1011) | Contact-, permission- og additional-field DTO-slicer | Ingen mapping eller autorisasjonsreglar  |
+
+[#998](https://github.com/navikt/crm-arbeidsforhold/issues/998) skal stå open. Jira-provider var ikkje kopla til utviklingsmiljøet 2026-09-12, så avhengigheiter og statusar kunne ikkje oppdaterast i Jira. Lokal kodeevidens er dokumentert i [lokal implementasjonsstatus](lokal-implementasjonsstatus.md).
 
 ### 4) Dokumentert som “ikke valgt i denne runden”
 

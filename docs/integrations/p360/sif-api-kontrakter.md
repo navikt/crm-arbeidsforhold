@@ -1,8 +1,8 @@
 ---
 tittel: P360 SIF API-kontrakter for Case, Document og File
-status: extracted from supplied SIF API PDF
+status: extracted and represented by internal DTOs; environment validation open
 kilde: docs/integrations/p360/source/sif-api.pdf
-hentet: 2026-09-09
+hentet: 2026-09-12
 github-issue: 1008
 ---
 
@@ -10,7 +10,17 @@ github-issue: 1008
 
 Dette dokumentet er et repo-lokalt oppslag basert på `sif-api.pdf`, utgitt av Tietoevry Industry for Public 360. Det beskriver kontraktene som er relevante for Aa-registeret-integrasjonen, uten å legge inn miljøspesifikke URL-er, AuthKey, tokens eller credentials.
 
-PDF-en er kilden for SIF-navn og felter. Salesforce-navnene under er foreløpige interne DTO-navn og skal ikke forveksles med den eksterne SIF-kontrakten.
+PDF-en er kjelda for SIF-namn og felt. Salesforce-namna under er implementerte interne DTO-namn med fokuserte serialiseringstestar. Dei skal ikkje forvekslast med ein miljøverifisert ekstern SIF wire-kontrakt.
+
+## Implementeringsstatus
+
+- DTO-ar for dokumenterte delar av `CreateCase`, `UpdateCase`, `GetCases`, `CreateDocument`, `GetDocuments` og File-parameteren er implementerte.
+- Kontakt-, permission-, additional-field-, case-result- og document-result-kontraktar er implementerte som avgrensa DTO-slicer.
+- Adapter og RPC-klient stoppar kontrollert før callout.
+- Endpoint, auth, RPC-envelope, mapping, code tables og P360-feilkodar er ikkje implementerte.
+- Intern Salesforce-idempotens og første `ApplicationDocument`-jobb er implementert; ekstern P360-recovery er ikkje stadfesta.
+
+Sjå [teknisk oversikt](teknisk-oversikt.md) for samanheng og diagram.
 
 ## Første integrasjonsomfang
 

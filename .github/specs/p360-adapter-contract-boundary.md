@@ -1,6 +1,6 @@
 ---
 slug: p360-adapter-contract-boundary
-status: active
+status: completed
 jira-epic: CRMAAREG-83
 jira-user-story: CRMAAREG-89
 jira-subtask: CRMAAREG-100

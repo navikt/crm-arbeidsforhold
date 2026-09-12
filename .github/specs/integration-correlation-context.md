@@ -1,6 +1,6 @@
 ---
 slug: integration-correlation-context
-status: active
+status: completed
 jira-epic: CRMAAREG-83
 jira-user-story: CRMAAREG-129
 jira-subtasks: CRMAAREG-130, CRMAAREG-133
