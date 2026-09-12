@@ -37,6 +37,7 @@ SELF_CHECK_ONLY="${SELF_CHECK_ONLY:-false}"
 DRY_RUN="${DRY_RUN:-false}"
 PACKAGE_PLAN_ONLY="${PACKAGE_PLAN_ONLY:-false}"
 REFRESH_DEPENDENCY_SOURCES="${REFRESH_DEPENDENCY_SOURCES:-false}"
+CLEAR_DEPENDENCY_SOURCES_ONLY="${CLEAR_DEPENDENCY_SOURCES_ONLY:-false}"
 
 REQUESTED_RUN_ORG_CREATE=""
 REQUESTED_RUN_PACKAGES=""
@@ -205,6 +206,7 @@ print_run_summary() {
     echo "- Dry-run:                $DRY_RUN"
     echo "- Package plan only:      $PACKAGE_PLAN_ONLY"
     echo "- Refresh dependencies:   $REFRESH_DEPENDENCY_SOURCES"
+    echo "- Clear dependencies only:$CLEAR_DEPENDENCY_SOURCES_ONLY"
     echo "- Post steps:             $POST_STEPS"
     echo ""
     echo "Org:"
@@ -308,6 +310,7 @@ Options:
   --dry-run                           Print mutating commands instead of executing them.
   --package-plan                      Check installed packages and print what would change.
     --refresh-dependency-sources        Clear dependency source folders before setup and retrieve them again afterward.
+    --clear-dependency-sources-only     Clear dependency source folders and exit without running any org or package commands.
   --skip-org                          Do not delete/create/fetch scratch org.
   --skip-packages                     Do not install packages.
   --skip-version-check                Do not warn when dependency versions are not latest released versions.
@@ -328,6 +331,7 @@ Examples:
   ./create-scratch-org.sh --package-plan
   ./create-scratch-org.sh --package-plan --install-latest
     ./create-scratch-org.sh --refresh-dependency-sources
+    ./create-scratch-org.sh --clear-dependency-sources-only
   ./create-scratch-org.sh --use-pool --pool-tag dev --pool-devhub "NAV DevHub"
   ./create-scratch-org.sh --update-packages --install-latest
   ./create-scratch-org.sh --delete-org-only
@@ -424,7 +428,7 @@ should_run_post_step() {
 }
 
 needs_project_file() {
-    if [[ "$RUN_PACKAGES" == "true" || "$UPDATE_PACKAGES_ONLY" == "true" || "$PACKAGE_PLAN_ONLY" == "true" || "$SELF_CHECK_ONLY" == "true" ]]; then
+    if [[ "$RUN_PACKAGES" == "true" || "$UPDATE_PACKAGES_ONLY" == "true" || "$PACKAGE_PLAN_ONLY" == "true" || "$SELF_CHECK_ONLY" == "true" || "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" ]]; then
         return 0
     fi
 
@@ -1170,7 +1174,7 @@ clear_dependency_package_directories() {
     fi
 
     echo ""
-    echo "Clearing dependency package directories before scratch org creation..."
+    echo "Clearing dependency package directories..."
 
     for package_name in "${package_names[@]}"; do
         package_dir="${package_name}"
@@ -1189,7 +1193,7 @@ clear_dependency_package_directories() {
         echo "- Cleared contents of $package_dir while keeping README.md"
     done
 
-    add_action "Cleared dependency package directories before scratch org creation"
+    add_action "Cleared dependency package directories"
 }
 
 temporarily_disable_forceignore() {
@@ -1957,6 +1961,7 @@ print_settings() {
     echo "Dry-run:                       $DRY_RUN"
     echo "Package plan only:             $PACKAGE_PLAN_ONLY"
     echo "Refresh dependency sources:    $REFRESH_DEPENDENCY_SOURCES"
+    echo "Clear dependency sources only: $CLEAR_DEPENDENCY_SOURCES_ONLY"
     echo "Packages not requiring key:    $PACKAGES_NOT_REQUIRING_INSTALL_KEY"
     echo ""
 }
@@ -2055,6 +2060,10 @@ while [[ $# -gt 0 ]]; do
             REFRESH_DEPENDENCY_SOURCES=true
             shift
             ;;
+        --clear-dependency-sources-only)
+            CLEAR_DEPENDENCY_SOURCES_ONLY=true
+            shift
+            ;;
         --skip-org)
             RUN_ORG_CREATE=false
             shift
@@ -2090,6 +2099,14 @@ if [[ "$DELETE_ORG_ONLY" == "true" && "$PACKAGE_PLAN_ONLY" == "true" ]]; then
     error 1 "You cannot combine --delete-org-only and --package-plan."
 fi
 
+if [[ "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" && "$REFRESH_DEPENDENCY_SOURCES" == "true" ]]; then
+    error 1 "You cannot combine --clear-dependency-sources-only and --refresh-dependency-sources."
+fi
+
+if [[ "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" && ( "$DELETE_ORG_ONLY" == "true" || "$UPDATE_PACKAGES_ONLY" == "true" || "$PACKAGE_PLAN_ONLY" == "true" || "$SELF_CHECK_ONLY" == "true" ) ]]; then
+    error 1 "You cannot combine --clear-dependency-sources-only with another exclusive mode."
+fi
+
 if [[ "$DELETE_ORG_ONLY" == "true" ]]; then
     RUN_ORG_CREATE=false
     RUN_PACKAGES=false
@@ -2107,6 +2124,13 @@ fi
 if [[ "$UPDATE_PACKAGES_ONLY" == "true" ]]; then
     RUN_ORG_CREATE=false
     RUN_PACKAGES=true
+    POST_STEPS=none
+    USE_POOL=false
+fi
+
+if [[ "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" ]]; then
+    RUN_ORG_CREATE=false
+    RUN_PACKAGES=false
     POST_STEPS=none
     USE_POOL=false
 fi
@@ -2144,8 +2168,24 @@ validate_boolean "$SELF_CHECK_ONLY" "SELF_CHECK_ONLY"
 validate_boolean "$DRY_RUN" "DRY_RUN"
 validate_boolean "$PACKAGE_PLAN_ONLY" "PACKAGE_PLAN_ONLY"
 validate_boolean "$REFRESH_DEPENDENCY_SOURCES" "REFRESH_DEPENDENCY_SOURCES"
+validate_boolean "$CLEAR_DEPENDENCY_SOURCES_ONLY" "CLEAR_DEPENDENCY_SOURCES_ONLY"
 
 validate_post_steps
+
+if [[ "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" ]]; then
+    require_command "jq"
+    validate_file_exists "$PROJECT_FILE" "Project file"
+    validate_json_file "$PROJECT_FILE"
+
+    ORG_ACTION="No org action. Dependency source cleanup only."
+    print_settings
+    clear_dependency_package_directories
+
+    echo ""
+    echo "${GREEN}Dependency source cleanup completed successfully.${RESET}"
+    echo ""
+    exit 0
+fi
 
 require_command "sf"
 
