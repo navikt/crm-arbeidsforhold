@@ -7,6 +7,7 @@ prioritet: Medium
 opprettet: 2026-03-18
 kilde: Jira — CRMAAREG (CSV-eksport + XML)
 kilde-url: https://nav.atlassian.net/browse/CRMAAREG-194
+hentet: 2026-09-13
 speilkopi: ja
 ---
 

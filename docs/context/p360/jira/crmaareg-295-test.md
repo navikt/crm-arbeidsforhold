@@ -2,17 +2,18 @@
 jira: CRMAAREG-295
 tittel: Test, kvalitet og verifikasjon
 type: Epic
-status: Backlog
+status: Under arbeid
 prioritet: Medium
 opprettet: 2026-03-23
 kilde: Jira — CRMAAREG (CSV-eksport + XML)
 kilde-url: https://nav.atlassian.net/browse/CRMAAREG-295
+hentet: 2026-09-13
 speilkopi: ja
 ---
 
 # CRMAAREG-295 — Test, kvalitet og verifikasjon
 
-**Type:** Epic · **Status:** Backlog · **Prioritet:** Medium
+**Type:** Epic · **Status:** Under arbeid · **Prioritet:** Medium
 **Epicnamn i Jira:** `SF/P360 - Test, kvalitet og verifikasjon`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-295)
 
@@ -28,7 +29,7 @@ Sikre at løysinga er testa frå einingstest til ende-til-ende.
 
 ## CRMAAREG-296 · T1 — Etablere einingstestar og kontraktstestar
 
-**Status:** Backlog · **Prioritet:** A - Kritisk · **Estimat:** M
+**Status:** Under arbeid · **Prioritet:** A - Kritisk · **Estimat:** M
 **Etikettar:** `contract-test` `test` `unit-test`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-296)
 

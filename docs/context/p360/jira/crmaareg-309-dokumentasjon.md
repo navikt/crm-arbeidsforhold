@@ -2,17 +2,18 @@
 jira: CRMAAREG-309
 tittel: Arkitektur, dokumentasjon og overlevering
 type: Epic
-status: Backlog
+status: Under arbeid
 prioritet: Medium
 opprettet: 2026-03-23
 kilde: Jira — CRMAAREG (CSV-eksport + XML)
 kilde-url: https://nav.atlassian.net/browse/CRMAAREG-309
+hentet: 2026-09-13
 speilkopi: ja
 ---
 
 # CRMAAREG-309 — Arkitektur, dokumentasjon og overlevering
 
-**Type:** Epic · **Status:** Backlog · **Prioritet:** Medium
+**Type:** Epic · **Status:** Under arbeid · **Prioritet:** Medium
 **Epicnamn i Jira:** `SF/P360 - Arkitektur, dokumentasjon og overlevering`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-309)
 
@@ -28,7 +29,7 @@ Ei løysing som berre éin person forstår er ikkje ferdig. Ho er gissel.
 
 ## CRMAAREG-310 · D1 — Dokumentere arkitektur, sekvensar og tekniske val
 
-**Status:** Backlog · **Prioritet:** B - Viktig · **Estimat:** M
+**Status:** Ferdig · **Prioritet:** B - Viktig · **Estimat:** M
 **Etikettar:** `adr` `architecture` `documentation`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-310)
 
@@ -55,20 +56,20 @@ Avheng av: CRMAAREG-84 (F1)
 
 ### Status i repoet
 
-Delvis dekt av speilingsarbeidet:
+Fullført for gjeldande D1-scope:
 
-| Akseptkriterium                            | Status                                                                                                                                                                              |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Arkitekturdiagram                          | Ikkje laga                                                                                                                                                                          |
-| Sekvensdiagram for case, journalpost, file | Ikkje laga                                                                                                                                                                          |
-| Adaptermønsteret for metadata dokumentert  | Delvis — [lagdelt-struktur-og-namnestandard.md](../../../integrations/p360/lagdelt-struktur-og-namnestandard.md) beskriv adapter og factory, men ikkje kodeverk-adapteren frå K2/K3 |
-| ADR-ar for sentrale val                    | Delvis — [ADR-0001](../../../adr/0001-arkitekturprinsipp-lagdeling-og-namnestandard.md) finst, men er `UNDER BEHANDLING`                                                            |
+| Akseptkriterium                            | Status                                                                                                                                                                                         |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Arkitekturdiagram                          | Ferdig — komponent-, no-status- og relasjonsdiagram er lenka frå [diagramregisteret](../../../README.md#diagramregister)                                                                       |
+| Sekvensdiagram for case, journalpost, file | Ferdig for dokumentert kontraktgrense og gjeldande interne flytar; diagramma skal vidareførast når ende-til-ende transport blir implementert                                                   |
+| Adaptermønsteret for metadata dokumentert  | Ferdig for gjeldande composition-root- og adapterval i [di-og-adapterval.md](../../../integrations/p360/di-og-adapterval.md)                                                                   |
+| ADR-ar for sentrale val                    | Ferdig for gjeldande scope gjennom [ADR-0001](../../../adr/0001-arkitekturprinsipp-lagdeling-og-namnestandard.md) og [ADR-0004](../../../adr/0004-p360-composition-root-og-kontraktsgrense.md) |
 
 ---
 
 ## CRMAAREG-315 · D2 — Dokumentere drift, støtte og overlevering
 
-**Status:** Backlog · **Prioritet:** B - Viktig · **Estimat:** M
+**Status:** Under arbeid · **Prioritet:** B - Viktig · **Estimat:** M
 **Etikettar:** `documentation` `handover` `operations`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-315)
 

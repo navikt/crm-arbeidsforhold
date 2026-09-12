@@ -2,17 +2,18 @@
 jira: CRMAAREG-254
 tittel: External ID-strategi og oppslag
 type: Epic
-status: Backlog
+status: Under arbeid
 prioritet: Medium
 opprettet: 2026-03-19
 kilde: Jira — CRMAAREG (CSV-eksport + XML)
 kilde-url: https://nav.atlassian.net/browse/CRMAAREG-254
+hentet: 2026-09-13
 speilkopi: ja
 ---
 
 # CRMAAREG-254 — External ID-strategi og oppslag
 
-**Type:** Epic · **Status:** Backlog · **Prioritet:** Medium
+**Type:** Epic · **Status:** Under arbeid · **Prioritet:** Medium
 **Epicnamn i Jira:** `SF/P360 - External ID-strategi og oppslag`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-254)
 
@@ -28,7 +29,7 @@ Eksterne ID-ar er limet i integrasjonen. Utan ein klar strategi blir oppslag, re
 
 ## CRMAAREG-255 · X1 — Etablere external ID strategy for case, journalpost og file
 
-**Status:** Backlog · **Prioritet:** B - Viktig · **Estimat:** M
+**Status:** Under arbeid · **Prioritet:** B - Viktig · **Estimat:** M
 **Etikettar:** `external-id` `idempotency` `technical`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-255)
 
@@ -59,7 +60,7 @@ Avheng av: CRMAAREG-84 (F1). Blokkerer i praksis F2 (CRMAAREG-89), som treng met
 
 ## CRMAAREG-261 · X2 — Implementere lookup i Salesforce basert på lagra eksterne ID-ar
 
-**Status:** Backlog · **Prioritet:** B - Viktig · **Estimat:** M
+**Status:** Under arbeid · **Prioritet:** B - Viktig · **Estimat:** M
 **Etikettar:** `external-id` `lookup` `mvp` `technical`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-261)
 

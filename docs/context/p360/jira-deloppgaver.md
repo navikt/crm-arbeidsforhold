@@ -1,7 +1,7 @@
 ---
 tittel: Deloppgåver i CRMAAREG
 kilde: Jira — CRMAAREG (CSV-eksport av deloppgåver)
-hentet: 2026-09-08
+hentet: 2026-09-13
 speilkopi: ja
 merknad: Tildelte personar og account-ID-ar er utelatne ved speiling.
 ---
@@ -17,19 +17,19 @@ For historiene sjølve, sjå [jira/](jira/README.md). For status og avvik, sjå 
 | Epic | Historie   | Deloppgåver | Ferdig | Under arbeid | Backlog |
 | ---- | ---------- | ----------- | ------ | ------------ | ------- |
 | 83   | F1 · 84    | 4           | **4**  | 0            | 0       |
-| 83   | F2 · 89    | 12          | **10** | 2            | 0       |
-| 83   | F3 · 101   | 13          | 0      | 0            | 13      |
+| 83   | F2 · 89    | 12          | **12** | 0            | 0       |
+| 83   | F3 · 101   | 13          | **7**  | 3            | 3       |
 | 83   | F4 · 115   | 5           | 0      | 0            | 5       |
-| 83   | F5 · 121   | 7           | 0      | 0            | 7       |
-| 83   | F6 · 129   | 5           | 0      | 0            | 5       |
-| 83   | F7 · 135   | 6           | 0      | 0            | 6       |
-| 142  | K1 · 143   | 10          | 0      | 0            | 10      |
+| 83   | F5 · 121   | 7           | **4**  | 3            | 0       |
+| 83   | F6 · 129   | 5           | **2**  | 1            | 2       |
+| 83   | F7 · 135   | 6           | **1**  | 0            | 5       |
+| 142  | K1 · 143   | 11          | 0      | 0            | 11      |
 | 142  | K2 · 155   | 7           | 0      | 0            | 7       |
-| 142  | K3 · 163   | 5           | 0      | 0            | 5       |
+| 142  | K3 · 163   | 5           | **2**  | 0            | 3       |
 | 142  | K4 · 169   | 5           | 0      | 0            | 5       |
 | 142  | K5 · 175   | 4           | 0      | 0            | 4       |
-| 180  | S1 · 181   | 5           | 0      | 0            | 5       |
-| 180  | S2 · 188   | 5           | 0      | 0            | 5       |
+| 180  | S1 · 181   | 6           | 0      | 1            | 5       |
+| 180  | S2 · 188   | 5           | 0      | 1            | 4       |
 | 194  | C1 · 195   | 4           | 0      | 0            | 4       |
 | 194  | C2 · 200   | 7           | 0      | 0            | 7       |
 | 194  | C3 · 208   | 6           | 0      | 0            | 6       |
@@ -39,19 +39,19 @@ For historiene sjølve, sjå [jira/](jira/README.md). For status og avvik, sjå 
 | 236  | FLS1 · 237 | 4           | 0      | 0            | 4       |
 | 236  | FLS2 · 242 | 7           | 0      | 0            | 7       |
 | 236  | FLS3 · 250 | 3           | 0      | 0            | 3       |
-| 254  | X1 · 255   | 5           | 0      | 0            | 5       |
-| 254  | X2 · 261   | 4           | 0      | 0            | 4       |
+| 254  | X1 · 255   | 5           | **1**  | 0            | 4       |
+| 254  | X2 · 261   | 4           | 0      | 4            | 0       |
 | 254  | X3 · 266   | 3           | 0      | 0            | 3       |
-| 267  | R1 · 268   | 5           | 0      | 0            | 5       |
-| 267  | R2 · 274   | 5           | 0      | 0            | 5       |
-| 283  | O1 · 284   | 5           | 0      | 0            | 5       |
+| 267  | R1 · 268   | 5           | **4**  | 1            | 0       |
+| 267  | R2 · 274   | 5           | 0      | 2            | 3       |
+| 283  | O1 · 284   | 5           | 0      | 1            | 4       |
 | 283  | O2 · 290   | 4           | 0      | 0            | 4       |
-| 295  | T1 · 296   | 6           | 0      | 0            | 6       |
+| 295  | T1 · 296   | 6           | **2**  | 0            | 4       |
 | 295  | T2 · 303   | 5           | 0      | 0            | 5       |
-| 309  | D1 · 310   | 4           | 0      | 0            | 4       |
-| 309  | D2 · 315   | 5           | 0      | 0            | 5       |
+| 309  | D1 · 310   | 4           | **4**  | 0            | 0       |
+| 309  | D2 · 315   | 5           | **1**  | 0            | 4       |
 
-**14 av 197 deloppgåver er ferdige.** Alle ligg under F1 og F2.
+Eksporten inneheld **194 P360-deloppgåver: 44 ferdige, 17 under arbeid og 133 i backlog**. Dei 19 oppgåvene under «Deloppgåver utanfor P360-arbeidet» er ikkje med i desse tala.
 
 ---
 
@@ -70,22 +70,22 @@ Alle fire ferdige 2026-04-24.
 
 ## F2 · CRMAAREG-89 — Opprette domeneinterfaces og service skeletons
 
-Ti ferdige 2026-04-26. To under arbeid.
+Alle tolv deloppgåvene er ferdige i Jira.
 
-| Nøkkel       | Tittel                                                                      | Status           | Finst i repoet |
-| ------------ | --------------------------------------------------------------------------- | ---------------- | -------------- |
-| CRMAAREG-90  | Opprette `P360_IArchiveAdapter`                                             | Ferdig           | Ja             |
-| CRMAAREG-91  | Opprette `P360_ArchiveAdapter`                                              | Ferdig           | Ja             |
-| CRMAAREG-92  | Opprette `P360_StubArchiveAdapter`                                          | Ferdig           | Ja             |
-| CRMAAREG-93  | Opprette `P360_IRpcClient`                                                  | Ferdig           | Ja             |
-| CRMAAREG-94  | Opprette `P360_RpcClient` skeleton                                          | Ferdig           | Ja             |
-| CRMAAREG-95  | Opprette `AAREG_ApplicationDomainService` skeleton                          | Ferdig           | Ja             |
-| CRMAAREG-96  | Opprette `AAREG_AgreementDomainService` skeleton                            | Ferdig           | Ja             |
-| CRMAAREG-97  | Opprette `AAREG_ArchiveApplicationOrchestrator` skeleton                    | Ferdig           | Ja             |
-| CRMAAREG-98  | Opprette `AAREG_ArchiveApplicationCommand`                                  | Ferdig           | Ja             |
-| CRMAAREG-99  | Opprette `AAREG_ArchiveApplicationResult`                                   | Ferdig           | Ja             |
-| CRMAAREG-100 | Lage stub-metodar med dokumenterte signaturar og kontrollert exception      | **Under arbeid** | Delvis         |
-| CRMAAREG-321 | Opprette minimale placeholder DTO-ar og exceptions for å støtte kompilering | **Under arbeid** | Delvis         |
+| Nøkkel       | Tittel                                                                      | Status | Finst i repoet |
+| ------------ | --------------------------------------------------------------------------- | ------ | -------------- |
+| CRMAAREG-90  | Opprette `P360_IArchiveAdapter`                                             | Ferdig | Ja             |
+| CRMAAREG-91  | Opprette `P360_ArchiveAdapter`                                              | Ferdig | Ja             |
+| CRMAAREG-92  | Opprette `P360_StubArchiveAdapter`                                          | Ferdig | Ja             |
+| CRMAAREG-93  | Opprette `P360_IRpcClient`                                                  | Ferdig | Ja             |
+| CRMAAREG-94  | Opprette `P360_RpcClient` skeleton                                          | Ferdig | Ja             |
+| CRMAAREG-95  | Opprette `AAREG_ApplicationDomainService` skeleton                          | Ferdig | Ja             |
+| CRMAAREG-96  | Opprette `AAREG_AgreementDomainService` skeleton                            | Ferdig | Ja             |
+| CRMAAREG-97  | Opprette `AAREG_ArchiveApplicationOrchestrator` skeleton                    | Ferdig | Ja             |
+| CRMAAREG-98  | Opprette `AAREG_ArchiveApplicationCommand`                                  | Ferdig | Ja             |
+| CRMAAREG-99  | Opprette `AAREG_ArchiveApplicationResult`                                   | Ferdig | Ja             |
+| CRMAAREG-100 | Lage stub-metodar med dokumenterte signaturar og kontrollert exception      | Ferdig | Ja             |
+| CRMAAREG-321 | Opprette minimale placeholder DTO-ar og exceptions for å støtte kompilering | Ferdig | Ja             |
 
 ### CRMAAREG-100 — beskriving frå Jira
 
@@ -105,7 +105,7 @@ public with sharing class P360_ArchiveAdapter implements P360_IArchiveAdapter {
 
 ### CRMAAREG-321 — placeholder-oppgåva
 
-Denne forklarer kvifor `P360_IntegrationException`, `P360_ContractException` og `P360_TransportException` er tomme `extends Exception` med kommentaren `TODO F5`. Dei er medvitne placeholders for å få F2 til å kompilere, ikkje ferdig arbeid.
+Oppgåva er ferdig i Jira. Dei minimale DTO-ane og exception-typane gav F2 stabile kompileringsgrenser. Exception-subklassane er framleis små fordi typane uttrykkjer klassifiseringa; runtime-hierarkiet er testdekt, medan full harmonisering av feilmodellen blir følgd opp under CRMAAREG-121.
 
 ---
 

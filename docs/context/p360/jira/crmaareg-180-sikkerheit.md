@@ -7,6 +7,7 @@ prioritet: Medium
 opprettet: 2026-03-18
 kilde: Jira — CRMAAREG (CSV-eksport + XML)
 kilde-url: https://nav.atlassian.net/browse/CRMAAREG-180
+hentet: 2026-09-13
 speilkopi: ja
 ---
 
@@ -64,7 +65,7 @@ Akseptkriteriet «Auth-feil gir definert exception» heng saman med F5 (CRMAAREG
 
 ## CRMAAREG-188 · S2 — Etablere integrasjonsbrukar, tilgang og audit-prinsipp
 
-**Status:** Backlog · **Prioritet:** A - Kritisk · **Estimat:** M
+**Status:** Under arbeid · **Prioritet:** A - Kritisk · **Estimat:** M
 **Etikettar:** `audit` `privacy` `security`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-188)
 

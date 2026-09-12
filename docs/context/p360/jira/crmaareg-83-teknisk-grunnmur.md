@@ -2,17 +2,18 @@
 jira: CRMAAREG-83
 tittel: Teknisk grunnmur og integrasjonskontraktar
 type: Epic
-status: Backlog
+status: Under arbeid
 prioritet: A - Kritisk
 opprettet: 2026-03-16
 kilde: Jira — CRMAAREG (CSV-eksport + XML)
 kilde-url: https://nav.atlassian.net/browse/CRMAAREG-83
+hentet: 2026-09-13
 speilkopi: ja
 ---
 
 # CRMAAREG-83 — Teknisk grunnmur og integrasjonskontraktar
 
-**Type:** Epic · **Status:** Backlog · **Prioritet:** A - Kritisk
+**Type:** Epic · **Status:** Under arbeid · **Prioritet:** A - Kritisk
 **Epicnamn i Jira:** `SF/P360 - Teknisk grunnmur og integrasjonskontraktar`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-83)
 
@@ -28,7 +29,7 @@ Utan dette får de tett kopla kode, uklar ansvarsdelding og blokkeringar mellom 
 
 ## CRMAAREG-84 · F1 — Etablere integrasjonskontraktar og namnestandard
 
-**Status:** Ferdig (Utført 2026-04-24) · **Prioritet:** A - Kritisk · **Estimat:** S
+**Status:** Ferdig · **Prioritet:** A - Kritisk · **Estimat:** S
 **Etikettar:** `architecture` `contract` `foundation`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-84)
 
@@ -90,7 +91,7 @@ F1 blir vurdert som levert. Eventuelle justeringar blir teke som endringar i des
 
 ## CRMAAREG-89 · F2 — Opprette domeneinterfaces og service skeletons
 
-**Status:** Under arbeid · **Prioritet:** A - Kritisk · **Estimat:** M
+**Status:** Ferdig · **Prioritet:** A - Kritisk · **Estimat:** M
 **Etikettar:** `apex` `foundation` `scaffold` `service`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-89)
 
@@ -129,7 +130,7 @@ Avheng av: CRMAAREG-84 (F1). Refererer til CRMAAREG-101 (F3), CRMAAREG-255 (X1),
 
 ## CRMAAREG-101 · F3 — Opprette request/response DTO-ar og interne Apex data classes
 
-**Status:** Backlog · **Prioritet:** A - Kritisk · **Estimat:** M
+**Status:** Under arbeid · **Prioritet:** A - Kritisk · **Estimat:** M
 **Etikettar:** `apex` `contract` `dto` `foundation`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-101)
 
@@ -199,7 +200,7 @@ Feltmapping må avklarast med fag og P360-reglar
 
 ## CRMAAREG-121 · F5 — Etablere exception hierarchy og feilmodell
 
-**Status:** Backlog · **Prioritet:** A - Kritisk · **Estimat:** S
+**Status:** Under arbeid · **Prioritet:** A - Kritisk · **Estimat:** S
 **Etikettar:** `error-handling` `exception` `foundation`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-121)
 
@@ -230,7 +231,7 @@ Avheng av: CRMAAREG-84 (F1)
 
 ## CRMAAREG-129 · F6 — Etablere logging helper og correlation ID-støtte
 
-**Status:** Backlog · **Prioritet:** A - Kritisk · **Estimat:** M
+**Status:** Under arbeid · **Prioritet:** A - Kritisk · **Estimat:** M
 **Etikettar:** `correlation-id` `foundation` `logging` `observability`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-129)
 
@@ -255,7 +256,7 @@ Avheng av: CRMAAREG-84 (F1)
 
 ## CRMAAREG-135 · F7 — Opprette mock/fake services og basis test classes
 
-**Status:** Backlog · **Prioritet:** A - Kritisk · **Estimat:** M
+**Status:** Under arbeid · **Prioritet:** A - Kritisk · **Estimat:** M
 **Etikettar:** `foundation` `mock` `test`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-135)
 

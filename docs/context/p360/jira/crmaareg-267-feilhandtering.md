@@ -2,17 +2,18 @@
 jira: CRMAAREG-267
 tittel: Feilhåndtering, idempotens og retry
 type: Epic
-status: Backlog
+status: Under arbeid
 prioritet: Medium
 opprettet: 2026-03-23
 kilde: Jira — CRMAAREG (CSV-eksport + XML)
 kilde-url: https://nav.atlassian.net/browse/CRMAAREG-267
+hentet: 2026-09-13
 speilkopi: ja
 ---
 
 # CRMAAREG-267 — Feilhåndtering, idempotens og retry
 
-**Type:** Epic · **Status:** Backlog · **Prioritet:** Medium
+**Type:** Epic · **Status:** Under arbeid · **Prioritet:** Medium
 **Epicnamn i Jira:** `SF/P360 - Feilhåndtering, idempotens og retry`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-267)
 
@@ -28,7 +29,7 @@ Integrasjonar lever ikkje i eit fint univers. Dei lever i nettverksfeil, timeout
 
 ## CRMAAREG-268 · R1 — Etablere idempotens for oppretting av sak og journalpost
 
-**Status:** Backlog · **Prioritet:** B - Viktig · **Estimat:** M
+**Status:** Under arbeid · **Prioritet:** B - Viktig · **Estimat:** M
 **Etikettar:** `idempotency` `resilience` `technical`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-268)
 
@@ -59,7 +60,7 @@ Heng tett saman med X1 (CRMAAREG-255), som definerer external ID-formatet idempo
 
 ## CRMAAREG-274 · R2 — Etablere retry-strategi og manuell oppfølging
 
-**Status:** Backlog · **Prioritet:** Medium · **Estimat:** M
+**Status:** Under arbeid · **Prioritet:** Medium · **Estimat:** M
 **Etikettar:** `operations` `resilience` `retry` `support`
 [Opne i Jira](https://nav.atlassian.net/browse/CRMAAREG-274)
 
