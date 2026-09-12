@@ -9,19 +9,10 @@ private class P360_ApplicationDecisionArchiveGuardTest {
     @IsTest
     static void shouldAllowReleaseFlagToBeSetByAuthorizedUser() {
         User releaseUser = createReleaseUser();
-        Application__c application = createApplication();
-
-        Application_Decision__c decision = new Application_Decision__c(
-            Application__c = application.Id,
-            Decision_date__c = Date.today(),
-            Agreement__c = null,
-            Decision_description__c = 'Approved for archive'
-        );
-        insert decision;
 
         System.runAs(releaseUser) {
-            decision.Ready_For_P360_Archive__c = true;
-            update decision;
+            Application_Decision__c decision = createDecision();
+            update new Application_Decision__c(Id = decision.Id, Ready_For_P360_Archive__c = true);
 
             Application_Decision__c savedDecision = [
                 SELECT Ready_For_P360_Archive__c
@@ -38,21 +29,12 @@ private class P360_ApplicationDecisionArchiveGuardTest {
 
     @IsTest
     static void shouldRejectReleaseFlagWhenUserLacksReleasePermission() {
-        User standardUser = P360_TestDataFactory.createMinimumAccessUser();
-        grantDecisionAccess(standardUser);
-        Application__c application = createApplication();
-
-        Application_Decision__c decision = new Application_Decision__c(
-            Application__c = application.Id,
-            Decision_date__c = Date.today(),
-            Decision_description__c = 'Approved for archive'
-        );
-        insert decision;
+        User standardUser = createStandardUser();
 
         System.runAs(standardUser) {
-            decision.Ready_For_P360_Archive__c = true;
+            Application_Decision__c decision = createDecision();
             try {
-                update decision;
+                update new Application_Decision__c(Id = decision.Id, Ready_For_P360_Archive__c = true);
                 System.Assert.fail('User without release permission must not be able to set the release flag.');
             } catch (DmlException ex) {
                 System.Assert.isTrue(
@@ -66,23 +48,11 @@ private class P360_ApplicationDecisionArchiveGuardTest {
     @IsTest
     static void shouldBlockRegularFieldChangesAfterRelease() {
         User releaseUser = createReleaseUser();
-        Application__c application = createApplication();
-
-        Application_Decision__c decision = new Application_Decision__c(
-            Application__c = application.Id,
-            Decision_date__c = Date.today(),
-            Decision_description__c = 'Approved for archive'
-        );
-        insert decision;
 
         System.runAs(releaseUser) {
-            decision.Ready_For_P360_Archive__c = true;
-            update decision;
-        }
+            Application_Decision__c decision = createDecision();
+            update new Application_Decision__c(Id = decision.Id, Ready_For_P360_Archive__c = true);
 
-        User standardUser = P360_TestDataFactory.createMinimumAccessUser();
-        grantDecisionAccess(standardUser);
-        System.runAs(standardUser) {
             Application_Decision__c toUpdate = [
                 SELECT Id, Decision_description__c
                 FROM Application_Decision__c
@@ -104,30 +74,24 @@ private class P360_ApplicationDecisionArchiveGuardTest {
     }
 
     private static User createReleaseUser() {
-        Profile profile = [
-            SELECT Id
-            FROM Profile
-            WHERE Name = 'Minimum Access - Salesforce'
-            LIMIT 1
-        ];
+        User userRecord;
+        User currentUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
+        System.runAs(currentUser) {
+            userRecord = P360_TestDataFactory.createMinimumAccessUser();
+            grantDecisionAccess(userRecord);
+            grantReleasePermission(userRecord);
+        }
 
-        User userRecord = new User(
-            FirstName = 'P360',
-            LastName = 'Release',
-            Email = 'p360.release@example.com',
-            Username = 'p360.release.' + System.currentTimeMillis() + '@example.com',
-            Alias = 'p360rel',
-            LanguageLocaleKey = 'en_US',
-            LocaleSidKey = 'en_US',
-            TimeZoneSidKey = 'Europe/Oslo',
-            EmailEncodingKey = 'UTF-8',
-            ProfileId = profile.Id
-        );
-        insert userRecord;
+        return userRecord;
+    }
 
-        grantDecisionAccess(userRecord);
-        grantReleasePermission(userRecord);
-
+    private static User createStandardUser() {
+        User userRecord;
+        User currentUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
+        System.runAs(currentUser) {
+            userRecord = P360_TestDataFactory.createMinimumAccessUser();
+            grantDecisionAccess(userRecord);
+        }
         return userRecord;
     }
 
@@ -143,5 +107,15 @@ private class P360_ApplicationDecisionArchiveGuardTest {
         Application__c application = new Application__c();
         insert application;
         return application;
+    }
+
+    private static Application_Decision__c createDecision() {
+        Application_Decision__c decision = new Application_Decision__c(
+            Application__c = createApplication().Id,
+            Decision_date__c = Date.today(),
+            Decision_description__c = 'Approved for archive'
+        );
+        insert decision;
+        return decision;
     }
 }
