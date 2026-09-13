@@ -221,7 +221,7 @@ Berre overgangen til `Pending` er implementert. Dei andre statusane finst i meta
 
 `P360_IntegrationException` kan bere ein correlation-ID vidare gjennom eit `catch`-grense via `withCorrelationId(...)`, verifisert av `P360_IntegrationExceptionCorrelationTest`. Dette gjer det mogleg å korrelere ein feil tilbake til det opphavlege loggkonteksten utan å logge nyttelast.
 
-Deploy `0AfQI00000jKxV30AK` mot `crm-arbeidsforhold`: `IntegrationLogRedactor` har 100 % dekning, 2/2 fokuserte testar bestått. Deploy `0AfQI00000jKxmn0AC`: `P360_IntegrationExceptionCorrelationTest` og eksisterande `P360_ExceptionHierarchyTest`, 4/4 testar bestått.
+Deploy `0AfQI00000jKxV30AK` mot `crm-arbeidsforhold`: `IntegrationLogRedactor` har 100 % dekning, 2/2 fokuserte testar bestått. Deploy `0AfQI00000jKxmn0AC`: `P360_IntegrationExceptionCorrelationTest` og eksisterande `P360_ExceptionHierarchyTest`, 4/4 testar bestått. Deploy `0AfQI00000jKyyz0AC`: `IntegrationLogger` byggjer eit redigert loggpayload frå `IntegrationLogContext` og `IntegrationLogRedactor`, og skriv det til debug-loggen; ikkje ein varig loggbutikk. 3/3 testar bestått.
 
 Permission set-et for jobbprosessering er ikkje eit ferdig driftssett for den framtidige workeren. Nye jobbtypar og worker-felt krev eksplisitt utviding og sikkerheitsgjennomgang.
 
