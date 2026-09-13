@@ -9,7 +9,8 @@ import { getOrgPackageStatus, installPackages, planPackages, updatePackages } fr
 import { refreshDependencies, type CommandRunner } from './refresh-dependencies.js';
 import { loadProjectConfiguration, type PostStep } from '../domain/config.js';
 import { EXIT_CODES } from '../domain/events.js';
-import { runCommand as defaultRunCommand } from '../infrastructure/command-runner.js';
+import { runCommand as defaultRunCommand, type CommandRequest } from '../infrastructure/command-runner.js';
+import { createRedactor } from '../infrastructure/redactor.js';
 import type { ProjectInfo, WebOperationRequest, WebServiceFacade } from '../web/server.js';
 import { existsSync, readFileSync } from 'node:fs';
 
@@ -139,6 +140,49 @@ function postSteps(request: WebOperationRequest, fallback: PostStep[]): PostStep
     return Array.isArray(value) ? (value as PostStep[]) : fallback;
 }
 
+function createOperationCommandRunner(
+    commandRunner: CommandRunner,
+    operationId: string,
+    emit: WebServiceFacade['execute'] extends (...args: infer Arguments) => unknown
+        ? Arguments[1]
+        : never,
+    secretValues: readonly string[]
+): CommandRunner {
+    let commandNumber = 0;
+    return async (request: CommandRequest) => {
+        commandNumber += 1;
+        const redactor = createRedactor([...secretValues, ...(request.secretValues ?? [])]);
+        const command = redactor.redact([request.executable, ...(request.arguments ?? [])].join(' '));
+        const stepId = `external-command:${commandNumber}`;
+        const report = (message: string): void => {
+            emit({
+                kind: 'progress',
+                operationId,
+                timestamp: new Date().toISOString(),
+                stepId,
+                step: 'External command',
+                message: redactor.redact(message),
+                diagnostic: true
+            });
+        };
+        const hasOutputCallbacks = request.onStdoutLine !== undefined || request.onStderrLine !== undefined;
+        report(`Running: ${command}`);
+        const result = await commandRunner({
+            ...request,
+            onStdoutLine: (line) => {
+                request.onStdoutLine?.(line);
+                if (!hasOutputCallbacks) report(`[stdout] ${line}`);
+            },
+            onStderrLine: (line) => {
+                request.onStderrLine?.(line);
+                if (!hasOutputCallbacks) report(`[stderr] ${line}`);
+            }
+        });
+        report(`Finished: ${redactor.redact(request.executable)} (exit code ${result.exitCode ?? 'unknown'}, ${result.durationMs} ms)`);
+        return result;
+    };
+}
+
 /**
  * Creates the web transport adapter over application services for one project directory.
  *
@@ -185,6 +229,12 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
             }),
         execute: async (request, emit) => {
             const configuration = await services.loadProjectConfiguration(options.projectDirectory);
+            const operationCommandRunner = createOperationCommandRunner(
+                commandRunner,
+                request.operationId,
+                emit,
+                [environment[configuration.packageInstallKeyEnvironmentVariable] ?? '']
+            );
             const common = {
                 configuration,
                 operationId: request.operationId,
@@ -203,7 +253,7 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
                         ...common,
                         ...(refreshTargetOrg === undefined ? {} : { targetOrg: refreshTargetOrg }),
                         dryRun: booleanValue(request, 'dryRun'),
-                        runCommand: commandRunner
+                        runCommand: operationCommandRunner
                     });
                 }
                 case 'packages.plan': {
@@ -211,7 +261,7 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
                     const planOptions = {
                         ...common,
                         installLatest: booleanValue(request, 'installLatest'),
-                        runCommand: commandRunner
+                        runCommand: operationCommandRunner
                     };
                     await services.planPackages(targetOrg === undefined ? planOptions : { ...planOptions, targetOrg });
                     return EXIT_CODES.SUCCESS;
@@ -227,7 +277,7 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
                         installLatest: booleanValue(request, 'installLatest'),
                         dryRun: booleanValue(request, 'dryRun'),
                         environment,
-                        runCommand: commandRunner
+                        runCommand: operationCommandRunner
                     });
                 }
                 case 'org.create': {
@@ -252,7 +302,7 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
                         refreshDependencySources: booleanValue(request, 'refreshDependencySources'),
                         dryRun: booleanValue(request, 'dryRun'),
                         environment,
-                        runCommand: commandRunner
+                        runCommand: operationCommandRunner
                     });
                 }
                 case 'org.delete': {
@@ -261,7 +311,7 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
                     const org = await services.getOrgInfo({
                         projectDirectory: options.projectDirectory,
                         alias,
-                        runCommand: commandRunner
+                        runCommand: operationCommandRunner
                     });
                     return services.deleteOrg({
                         ...common,
@@ -270,7 +320,7 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
                         confirmed: booleanValue(request, 'confirmed'),
                         ...(confirmation === undefined ? {} : { confirmation }),
                         dryRun: booleanValue(request, 'dryRun'),
-                        runCommand: commandRunner
+                        runCommand: operationCommandRunner
                     });
                 }
                 case 'project.configure': {
@@ -284,7 +334,7 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
                         ...(confirmation === undefined ? {} : { confirmation }),
                         dryRun: booleanValue(request, 'dryRun'),
                         environment,
-                        runCommand: commandRunner
+                        runCommand: operationCommandRunner
                     });
                 }
             }

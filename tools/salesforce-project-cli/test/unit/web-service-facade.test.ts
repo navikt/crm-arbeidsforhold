@@ -92,4 +92,75 @@ describe('web service facade', () => {
         expect(services.configureProject).toHaveBeenCalledWith(expect.not.objectContaining({ alias: 'undefined' }));
         expect(runCommand).not.toHaveBeenCalled();
     });
+
+    it('streams external command, stdout, stderr, and exit details to the web operation', async () => {
+        const services = {
+            ...{
+                clearDependencySources: vi.fn(async () => undefined),
+                refreshDependencies: vi.fn(async () => EXIT_CODES.SUCCESS),
+                planPackages: vi.fn(async () => ({ items: [], summary: {} }) as never),
+                installPackages: vi.fn(async () => EXIT_CODES.SUCCESS),
+                updatePackages: vi.fn(async () => EXIT_CODES.SUCCESS),
+                deleteOrg: vi.fn(async () => EXIT_CODES.SUCCESS),
+                configureProject: vi.fn(async () => EXIT_CODES.SUCCESS),
+                listOrgs: vi.fn(async () => ({ orgs: [] })),
+                getOrgPackageStatus: vi.fn(async ({ targetOrg }) => ({
+                    targetOrg,
+                    packages: [],
+                    summary: { total: 0, current: 0, updateAvailable: 0, higher: 0, missing: 0, unknown: 0 }
+                })),
+                getOrgInfo: vi.fn(async () => ({ org: { orgType: 'scratch' } }) as never),
+                loadProjectConfiguration: vi.fn(async () => configuration)
+            },
+            createOrg: vi.fn(async ({ runCommand }) => {
+                await runCommand({
+                    executable: 'sf',
+                    arguments: ['org', 'create', 'scratch', '--installation-key', 'secret-value'],
+                    cwd: '/project',
+                    secretValues: ['secret-value']
+                });
+                return EXIT_CODES.SUCCESS;
+            })
+        };
+        const runCommand = vi.fn(async (request) => {
+            request.onStdoutLine?.('Org created');
+            request.onStderrLine?.('A harmless warning');
+            return {
+                executable: request.executable,
+                arguments: [...(request.arguments ?? [])],
+                exitCode: 0,
+                failed: false,
+                timedOut: false,
+                canceled: false,
+                attempts: 1,
+                stdout: '',
+                stderr: '',
+                durationMs: 12
+            };
+        });
+        const facade = createWebServiceFacade({ projectDirectory: '/project', runCommand, services });
+        const emit = vi.fn();
+
+        await expect(
+            facade.execute({ operationId: 'operation-output', command: 'org.create', payload: { alias: 'scratch' } }, emit)
+        ).resolves.toBe(EXIT_CODES.SUCCESS);
+
+        expect(emit).toHaveBeenCalledWith(
+            expect.objectContaining({
+                kind: 'progress',
+                message: 'Running: sf org create scratch --installation-key [REDACTED]',
+                diagnostic: true
+            })
+        );
+        expect(emit).toHaveBeenCalledWith(
+            expect.objectContaining({ kind: 'progress', message: '[stdout] Org created', diagnostic: true })
+        );
+        expect(emit).toHaveBeenCalledWith(
+            expect.objectContaining({ kind: 'progress', message: '[stderr] A harmless warning', diagnostic: true })
+        );
+        expect(emit).toHaveBeenCalledWith(
+            expect.objectContaining({ kind: 'progress', message: 'Finished: sf (exit code 0, 12 ms)', diagnostic: true })
+        );
+        expect(emit.mock.calls.flat()).not.toContain('secret-value');
+    });
 });
