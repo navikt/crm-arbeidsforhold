@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Use_Mock_Transport__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Slår på kontrollert P360-mock for scratch orgar og sandkasser. Skal vere false i miljø som skal bruke ekte transport.</description>
+    <externalId>false</externalId>
+    <label>Use Mock Transport</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

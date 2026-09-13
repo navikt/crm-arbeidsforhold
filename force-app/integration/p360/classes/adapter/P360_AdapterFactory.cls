@@ -8,6 +8,7 @@
  */
 public with sharing class P360_AdapterFactory {
     private final P360_IRpcClient rpcClient;
+    private final P360_IArchiveAdapter archiveAdapter;
 
     /**
      * Creates a factory with a supplied RPC client.
@@ -16,13 +17,19 @@ public with sharing class P360_AdapterFactory {
      */
     public P360_AdapterFactory(P360_IRpcClient rpcClient) {
         this.rpcClient = rpcClient;
+        this.archiveAdapter = new P360_ArchiveAdapter(rpcClient);
     }
 
     /**
      * Creates the default factory wiring using a standard RPC client.
      */
     public P360_AdapterFactory() {
-        this(new P360_RpcClient());
+        this(resolveDefaultAdapter());
+    }
+
+    private P360_AdapterFactory(P360_IArchiveAdapter archiveAdapter) {
+        this.rpcClient = null;
+        this.archiveAdapter = archiveAdapter;
     }
 
     /**
@@ -31,6 +38,14 @@ public with sharing class P360_AdapterFactory {
      * @return P360 archive adapter instance.
      */
     public P360_IArchiveAdapter createArchiveAdapter() {
-        return new P360_ArchiveAdapter(rpcClient);
+        return archiveAdapter;
+    }
+
+    private static P360_IArchiveAdapter resolveDefaultAdapter() {
+        P360_Integration_Setting__c settings = P360_Integration_Setting__c.getOrgDefaults();
+        if (settings != null && settings.Use_Mock_Transport__c == true) {
+            return new P360_StubArchiveAdapter();
+        }
+        return new P360_ArchiveAdapter(new P360_RpcClient());
     }
 }

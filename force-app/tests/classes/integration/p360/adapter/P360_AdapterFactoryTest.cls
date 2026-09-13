@@ -58,4 +58,26 @@ private class P360_AdapterFactoryTest {
             );
         }
     }
+
+    /**
+     * Verifies that an explicit org-level mock setting selects the stub adapter without making a callout.
+     *
+     * @since 2026-09
+     */
+    @IsTest
+    static void mockSettingBuildsStubArchiveAdapter() {
+        insert new P360_Integration_Setting__c(
+            SetupOwnerId = UserInfo.getOrganizationId(),
+            Use_Mock_Transport__c = true
+        );
+
+        P360_AdapterFactory factory = new P360_AdapterFactory();
+        P360_IArchiveAdapter archiveAdapter = factory.createArchiveAdapter();
+
+        System.Assert.isInstanceOfType(
+            archiveAdapter,
+            P360_StubArchiveAdapter.class,
+            'Expected the explicit mock setting to select the stub adapter.'
+        );
+    }
 }

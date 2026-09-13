@@ -28,6 +28,8 @@ Implementert og testa:
 - Apex-testsuiten `P360` med alle P360-testklassane
 - Custom Metadata Type `P360_Code_Table_Value__mdt` (struktur, ingen data enno) og `P360_CodeTableMetadataService` for kodeverksoppslag med per-transaksjon-cache
 - miljøstyrt konfigurasjonslag for `#1017`: Custom Setting `P360_Integration_Setting__c` for kva Named Credential som skal brukast, pluss Permission Set-ar (`P360_RPC_Callout_Access`, `P360_Code_Table_Access`) samla i Permission Set Group `P360_Integration_User`
+- eksplisitt mock-transport for scratch orgar og sandkasser via `P360_Integration_Setting__c.Use_Mock_Transport__c`; når feltet er `true`, brukar `P360_AdapterFactory` `P360_StubArchiveAdapter`, medan ekte transport framleis er standard når feltet er `false` eller ikkje sett
+- R2 worker-grunnmur: `P360_ArchiveJobClaimService` for lease/claim og `P360_ArchiveJobWorker` for statusklassifisering, retry-backoff og manuell oppfølging
 - eksterne P360-ID-felt for lagring (`Access_Request__c.P360_Case_Id__c`/`P360_Case_Number__c`, `P360_Document_Id__c`/`P360_Document_Number__c`/`P360_File_Id__c` på `Application__c`/`Application_Decision__c`/`Agreement__c`)
 
 Ikkje implementert:
@@ -38,7 +40,7 @@ Ikkje implementert:
 - full orkestreringsflyt frå domeneobjekt til P360
 - automatisk `DecisionDocument`-jobb ved frigiving
 - vedleggsjobb og filopplasting
-- queueable worker, lease, retry og manuell frigiving
+- scheduler som automatisk kallar queueable worker
 - integrasjonstest mot P360-miljø
 
 ## Lag og ansvar
@@ -60,13 +62,13 @@ graph LR
         Factory[P360_AdapterFactory]
         Adapter[P360 adapter boundary]
         Rpc[P360 RPC boundary]
+        Worker[Queueable archive worker]
         CodeTable[(P360_Code_Table_Value__mdt)]
         CodeTableService[P360_CodeTableMetadataService]
         Config[P360_Integration_Setting__c]
     end
 
     subgraph Future[Planlagt eller eksternt blokkert]
-        Worker[Queueable worker]
         Mapper[Salesforce to SIF mapper]
         Auth[Named Credential and auth]
         P360[Public 360 SIF RPC]
@@ -76,7 +78,7 @@ graph LR
     JobService --> Key
     JobService --> Job
     Job -.-> Worker
-    Worker -.-> Domain
+    Worker --> Adapter
     Domain -.-> Orchestrator
     Orchestrator --> Factory --> Adapter --> Rpc
     Rpc -.-> Auth -.-> P360
@@ -90,7 +92,8 @@ graph LR
     classDef blocked fill:#f8d7da,stroke:#9b2c2c,color:#111
     class Decision,Trigger,MyTriggers,Guard,Key,JobService,Job,CodeTable,CodeTableService,Config implemented
     class Domain,Orchestrator,Factory,Adapter,Rpc contract
-    class Worker,Mapper,Auth,P360 blocked
+    class Worker,CodeTable,CodeTableService,Config implemented
+    class Mapper,Auth,P360 blocked
 ```
 
 Den heiltrukne delen viser kode som finst. Stipla overgangar viser planlagde eller blokkerte koplingar. Diagrammet skal ikkje lesast som at ein ende-til-ende arkivflyt allereie køyrer.
@@ -234,7 +237,7 @@ Berre overgangen til `Pending` er implementert. Dei andre statusane finst i meta
 
 Deploy `0AfQI00000jKxV30AK` mot `crm-arbeidsforhold`: `IntegrationLogRedactor` har 100 % dekning, 2/2 fokuserte testar bestått. Deploy `0AfQI00000jKxmn0AC`: `P360_IntegrationExceptionCorrelationTest` og eksisterande `P360_ExceptionHierarchyTest`, 4/4 testar bestått. Deploy `0AfQI00000jKyB40AK`: `IntegrationLoggerTest`, 4/4 testar bestått, inkludert verifisert `Application_Log__c`-persistens og at eit `authorization`-felt blir redigert før det når `Pay_Load__c`.
 
-Permission set-et for jobbprosessering er ikkje eit ferdig driftssett for den framtidige workeren. Nye jobbtypar og worker-felt krev eksplisitt utviding og sikkerheitsgjennomgang.
+Permission set-et for jobbprosessering gir no felt-tilgang for claim/lease og retry-status på den implementerte workeren. Nye jobbtypar og worker-felt krev eksplisitt utviding og sikkerheitsgjennomgang.
 
 ## Kontraktgrensa mot P360
 
@@ -298,6 +301,10 @@ Sjølve endepunkt-URL, autentiseringsverdiar og secrets er ikkje bygd inn i repo
 - Hierarchy Custom Setting `P360_Integration_Setting__c` (felt `Named_Credential_Name__c`) held det miljøstyrte oppslaget for kva Named Credential Apex skal bruke. Verdien er data, ikkje metadata, og blir difor ikkje overskriven av ein vanleg deploy.
 - Permission Set `P360_RPC_Callout_Access` gir tilgang til Custom Setting og `P360_RpcClient`. External Credential Principal-tilgang må leggjast til manuelt i kvart target-org etter at Named Credential/External Credential er oppretta der.
 - Permission Set Group `P360_Integration_User` samlar `P360_RPC_Callout_Access`, `P360_Archive_Job_Processing` og `P360_Code_Table_Access`. Tildeling av gruppa til ein brukar er data og blir gjort separat per miljø (prod/sit2), slik at eit vanleg deploy ikkje overskriv kven som har integrasjonstilgang.
+
+### Mock-modus for scratch orgar og sandkasser
+
+`P360_Integration_Setting__c.Use_Mock_Transport__c` er ein eksplisitt org-innstilling for miljø utan live P360-integrasjon. Når han er `true`, vel `P360_AdapterFactory` `P360_StubArchiveAdapter`, slik at arkiveringsflyten kan køyrast ende-til-ende lokalt utan callout. Standardverdien er `false`; det finst ingen skjult fallback til mock dersom ekte transport feilar. Produksjonsmiljø skal la feltet vere `false`.
 
 ### Draftforslag til P360-teamet (`#1017`)
 

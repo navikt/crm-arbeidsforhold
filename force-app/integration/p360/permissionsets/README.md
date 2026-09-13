@@ -39,9 +39,11 @@ Bruk minste privilegium.
 
 `P360_Archive_Release` gir custom permission for å setje frigivingssignalet på vedtak. Ordinær felttilgang kjem frå saksbehandlarsettet.
 
-`P360_Archive_Job_Processing` gir avgrensa tilgang til jobbobjektet og felta som første `ApplicationDocument`-slice bruker. Settet må utvidast eksplisitt når worker eller fleire jobbtypar blir implementerte.
+`P360_Archive_Job_Processing` gir avgrensa tilgang til jobbobjektet og felta som `ApplicationDocument`-slice, claim/lease og retry-worker bruker. Settet må utvidast eksplisitt når fleire jobbtypar eller worker-felt blir implementerte.
 
 `P360_RPC_Callout_Access` gir tilgang til Custom Setting `P360_Integration_Setting__c` og til `P360_RpcClient`. External Credential Principal-tilgang må leggjast til manuelt i kvart target-org etter at Named Credential/External Credential er oppretta der, sidan Principal ikkje finst i kjeldekontrollert metadata. Settet inngår i Permission Set Group `P360_Integration_User` (sjå `permissionsetgroups/`). Sjølve tildelinga av settet/gruppa til ein brukar er data, ikkje metadata, og blir difor ikkje overskriven av deploy — ho må gjerast separat per miljø (prod/sit2).
+
+I scratch orgar og sandkasser kan `P360_Integration_Setting__c.Use_Mock_Transport__c` setjast til `true` for å bruke stub-transport utan External Credential Principal. Dette gir ikkje automatisk mock-fallback i produksjon.
 
 `P360_Code_Table_Access` gir lesetilgang til Custom Metadata Type `P360_Code_Table_Value__mdt` (sjå `objects/P360_Code_Table_Value__mdt/`). Inngår òg i `P360_Integration_User`.
 

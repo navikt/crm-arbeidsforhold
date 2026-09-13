@@ -15,13 +15,13 @@ graph LR
         Factory[P360_AdapterFactory]
         Adapter[P360 adapter boundary]
         Rpc[P360 RPC boundary]
+        Worker[Queueable archive worker]
         CodeTable[(P360_Code_Table_Value__mdt)]
         CodeTableService[P360_CodeTableMetadataService]
         Config[P360_Integration_Setting__c]
     end
 
     subgraph Future[Planlagt eller eksternt blokkert]
-        Worker[Queueable worker]
         Mapper[Salesforce to SIF mapper]
         Auth[Named Credential and auth]
         P360[Public 360 SIF RPC]
@@ -31,7 +31,7 @@ graph LR
     JobService --> Key
     JobService --> Job
     Job -.-> Worker
-    Worker -.-> Domain
+    Worker --> Adapter
     Domain -.-> Orchestrator
     Orchestrator --> Factory --> Adapter --> Rpc
     Rpc -.-> Auth -.-> P360
@@ -45,4 +45,5 @@ graph LR
     classDef blocked fill:#f8d7da,stroke:#9b2c2c,color:#111
     class Decision,Trigger,MyTriggers,Guard,Key,JobService,Job,CodeTable,CodeTableService,Config implemented
     class Domain,Orchestrator,Factory,Adapter,Rpc contract
-    class Worker,Mapper,Auth,P360 blocked
+    class Worker,CodeTable,CodeTableService,Config implemented
+    class Mapper,Auth,P360 blocked
