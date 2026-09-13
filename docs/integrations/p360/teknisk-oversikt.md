@@ -259,6 +259,39 @@ Siste release-guard dry-run: `0AfRR00000g2QhN0AU`, 11/11 komponentar og 5/5 test
 
 Tidlegare specs inneheld eigne historiske deploy- og test-ID-ar. Desse dokumenterer den avgrensa slicen, ikkje dagens samla P360-suite.
 
+## Opne avgjerder
+
+Seks tidlegare opne punkt (`#994`, `#993`, `#1017`, `#1016`, `#1018`, `#1015`) er kategoriserte etter kven som faktisk kan avgjere dei:
+
+| Punkt   | Tema                                                     | Kven avgjer              | Status                                                                                        |
+| ------- | -------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------- |
+| `#994`  | Feil klassenamn i Jira-tekst (før namnestandarden fanst) | Internt (Jira-tekst)     | Må rettast i Jira, ikkje i repoet. Ikkje gjort enno.                                          |
+| `#993`  | Exception-hierarki og retrybarheit                       | Internt (arkitektur)     | **Avgjort og implementert** (sjå under).                                                      |
+| `#1017` | RPC-miljø, endepunkt, auth-modell                        | P360-teamet              | Krev ekstern stadfesting. Draftforslag under.                                                 |
+| `#1016` | Salesforce→SIF-mapping, kodeverdiar                      | P360-teamet/fagsida      | Krev ekstern stadfesting. Delvis avklart (sjå dokumentasjon over).                            |
+| `#1018` | Filstrategi (inline vs opplasting, PDF/A)                | P360-teamet/produkteigar | Krev ekstern stadfesting. "Alternativ 3" (P360 eig PDF/A) er valt internt.                    |
+| `#1015` | Idempotens/retry-detaljar (feilkodar, rate limits)       | P360-teamet              | MVP implementert internt; retry-semantikk og feilkodeklassifisering krev ekstern stadfesting. |
+
+### `#993` — retrybarheit i exception-modellen (avgjort 2026-09)
+
+Retrybarheit blir no uttrykt fleksibelt, ikkje berre gjennom klassehierarkiet:
+
+- `P360_IntegrationException.isRetryable` er ein `Boolean`-eigenskap (default `false`) sett via den flytande metoden `withRetryable(Boolean)`, same mønster som `withCorrelationId`.
+- Klassifiseringa skjer av kallaren (t.d. basert på HTTP-statuskode eller P360-feilkode), ikkje berre av exception-typen — dette matchar gjeldande Apex-praksis for callout-feilhandtering.
+- `P360_RetryableException` er behalde som eit bekvemt spesialtilfelle: han set `isRetryable = true` automatisk via ein instance-initializer-blokk, så eksisterande kode som kastar han treng ikkje endrast.
+- Verifisert: deploy `0AfQI00000jKzv30AC`, 7/7 testar (`P360_IntegrationExceptionRetryableTest`, `P360_ExceptionHierarchyTest`, `P360_IntegrationExceptionCorrelationTest`).
+
+### Draftforslag til P360-teamet (`#1017`)
+
+Kjelde: Salesforce Help stadfestar at "extensible, customizable" Named Credentials (introdusert Winter '23) er den sterkt anbefalte tilnærminga, og at gamle ("legacy") Named Credentials ikkje lenger blir oppdaterte. Forslag til P360-teamet bør difor be om:
+
+1. Kva autentiseringsprotokoll P360 sitt RPC-endepunkt støttar (OAuth 2.0 Client Credentials føretrekt om tilgjengeleg, elles API-nøkkel/sertifikat via ekstern legitimasjon).
+2. Test- og produksjonsendepunkt-URL-ar.
+3. Nøyaktige operasjonsnamn/kontraktar for kvar av dei fire arkivhendingane.
+4. Feilkodemodell (for `#1015`/`#1016`s retryklassifisering og mapping).
+
+Dette bør implementerast som ein _external credential + named credential_ (ikkje legacy named credential) når kontrakten er stadfesta.
+
 ## Vidare arbeid
 
 Rekkjefølgja bør vere:
