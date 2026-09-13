@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { runCli } from '../../src/cli-app.js';
-import type { StartedWebServer } from '../../src/web/server.js';
+import type { StartedWebServer, StartWebServerOptions } from '../../src/web/server.js';
 
 const temporaryDirectories: string[] = [];
 
@@ -74,7 +74,7 @@ describe('web start', () => {
             path.join(projectDirectory, 'sfdx-project.json'),
             JSON.stringify({ packageDirectories: [{ path: 'force-app' }] })
         );
-        const start = vi.fn(async (options: { onEvent?: (event: unknown) => void }): Promise<StartedWebServer> => {
+        const start = vi.fn(async (options: StartWebServerOptions): Promise<StartedWebServer> => {
             options.onEvent?.({
                 kind: 'operation-started',
                 operationId: 'operation-1',

@@ -64,6 +64,7 @@ export type { ClearDependencySourcesOptions } from './application/clear-dependen
 export type { CommandRunner, RefreshDependenciesOptions } from './application/refresh-dependencies.js';
 export { startWebServer } from './web/server.js';
 export type {
+    ProjectInfo,
     StartedWebServer,
     StartWebServerOptions,
     WebOperationCommand,
