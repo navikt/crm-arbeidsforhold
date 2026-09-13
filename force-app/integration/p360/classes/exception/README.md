@@ -23,6 +23,7 @@ P360_TransportException.cls
 P360_AuthenticationException.cls
 P360_ConfigException.cls
 P360_MappingException.cls
+P360_MissingCodeTableMappingException.cls
 P360_TimeoutException.cls
 P360_RetryableException.cls
 ```
