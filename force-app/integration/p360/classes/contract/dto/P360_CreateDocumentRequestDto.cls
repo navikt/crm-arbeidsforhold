@@ -24,6 +24,12 @@ public class P360_CreateDocumentRequestDto {
     /** Required journal status code or recno. */
     public String status;
 
+    /** Access code or recno for the document. */
+    public String accessCode;
+
+    /** Access group for the document. */
+    public String accessGroup;
+
     /** Case number used to connect the document. */
     public String caseNumber;
 
