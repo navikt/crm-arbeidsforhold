@@ -80,13 +80,15 @@ Recognized package-install transport failures retry with a fixed five-second del
 
 Org creation validates alias, duration, post-steps, and pool requirements before acquisition. Optional dependency clearing happens before acquisition and honors dry-run.
 
+Before acquisition, on a real (non-dry-run) execution, the workflow attempts a non-prompting deletion of the requested alias regardless of whether acquisition uses the pool or direct creation. This clears stale state from a previously fetched pool org. Deletion failure emits `ORG_NOT_FOUND_OR_DELETE_FAILED` and acquisition continues; the `org create --yes` option does not gate this preliminary deletion.
+
 ### Pool acquisition
 
 Pool use resolves the Dev Hub in this order: `--pool-devhub`, `pool.devHub`, then Salesforce CLI `target-dev-hub`. The service lists the selected pool tag. A positive parsed unused count leads to pool fetch and sets the fetched org as default. Zero or unparseable availability emits `POOL_UNAVAILABLE`; the workflow either falls back to direct creation or fails according to `fallbackToCreate`.
 
 ### Direct creation
 
-Direct creation first attempts a non-prompting deletion of the requested alias. Failure emits `ORG_NOT_FOUND_OR_DELETE_FAILED` and creation continues. It then creates a scratch org from the configured definition, duration, and alias and sets it as default. The `org create --yes` option is currently unused and does not gate this preliminary deletion.
+Direct creation creates a scratch org from the configured definition, duration, and alias and sets it as default.
 
 ### Configuration after acquisition
 
@@ -105,10 +107,11 @@ Dry-run skips org inspection and confirmation but still supplies scratch classif
 `project configure` and the post-acquisition part of `org create` execute:
 
 1. Package installation
-2. Selected post-steps in canonical order: `deploy`, `permsets`, `data`, `community`
-3. Optional dependency refresh
+2. Selected post-steps in canonical order: `deploy`, `permsets`, `data`, `community`. `deploy` runs `sf project deploy start --ignore-conflicts`, tolerating source-tracking conflicts against a reused org.
+3. When `deploy` is selected, reset local and remote source tracking (`sf project reset tracking --json`) both before the first deploy and again after all selected post-steps complete, so a stale baseline never blocks a later deploy or preview.
+4. Optional dependency refresh
 
-The canonical order applies even if the CLI list uses another order. Unselected steps emit `skipped`. Selected `permsets`, `data`, or `community` without corresponding configuration emit warnings and do not fail. Deploy always has a command. A post-step failure emits a workflow summary and stops later work.
+The canonical order applies even if the CLI list uses another order. Unselected steps emit `skipped`. Selected `permsets`, `data`, or `community` without corresponding configuration emit warnings and do not fail. Deploy always has a command. A post-step failure emits a workflow summary and stops later work; a tracking-reset failure stops the workflow the same way.
 
 Dry-run emits package intent and each post-step outcome without invoking package installation or post-step commands. Optional dependency refresh also receives dry-run.
 

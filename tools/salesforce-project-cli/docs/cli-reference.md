@@ -25,9 +25,10 @@ The package is currently marked `private`; there is no publish or release script
 
 Global options must appear before the command:
 
-| Option       | Default                    | Behavior             |
-| ------------ | -------------------------- | -------------------- |
-| `--no-color` | Color when stdout is a TTY | Disable ANSI styling |
+| Option       | Default                    | Behavior                                                                                 |
+| ------------ | -------------------------- | ---------------------------------------------------------------------------------------- |
+| `--no-color` | Color when stdout is a TTY | Disable ANSI styling                                                                     |
+| `--verbose`  | `false`                    | Include sanitized diagnostic details (executed Salesforce CLI commands and their output) |
 
 Real deletion first inspects the org and succeeds only for an authenticated scratch org with `--yes`. A non-scratch override requires `--confirm-mutation "MUTATE org.delete <alias>"`. Dry-run does not require confirmation or org inspection.
 
@@ -43,7 +44,7 @@ All `--project-dir` values default to the current working directory.
 ### `doctor`
 
 ```text
-sf-project project configure [--project-dir <path>] [--alias <alias>] [--target-org <alias>] [--post-steps <steps>] [--refresh-dependency-sources] [--dry-run] [--json] [--confirm-mutation <text>]
+sf-project doctor [--project-dir <path>] [--json]
 ```
 
 Runs read-only checks for Node.js 22, `sf`, project configuration, org-list access, and `sfp` when pool support is configured. `--json` emits NDJSON events.
@@ -51,11 +52,10 @@ Runs read-only checks for Node.js 22, `sf`, project configuration, org-list acce
 ### `web start`
 
 ```text
-sf-project packages install [--project-dir <path>] [--target-org <alias-or-username>] [--install-latest] [--dry-run] [--json] [--confirm-mutation <text>]
+sf-project web start [--project-dir <path>] [--port <port>] [--json]
 ```
 
-Real installation is restricted to scratch orgs. For another org, the exact token `MUTATE packages.install <alias-or-username>` is required.
-`--port` defaults to `1717` and accepts an integer from `0` through `65535`; `0` asks the operating system for an available port. The command binds to `127.0.0.1`, prints the loopback URL, and remains active until the process stops.
+`--port` defaults to `1717` and accepts an integer from `0` through `65535`; `0` asks the operating system for an available port. `--json` emits NDJSON events for every operation the server executes instead of human-readable text. The command binds to `127.0.0.1`, prints the loopback URL, streams every served operation's events to its own terminal, and remains active until the process stops.
 
 ### `org list`
 
@@ -63,7 +63,6 @@ Real installation is restricted to scratch orgs. For another org, the exact toke
 sf-project org list [--project-dir <path>] [--refresh] [--json]
 ```
 
-sf-project packages update [--project-dir <path>] [--target-org <alias-or-username>] [--install-latest] [--dry-run] [--json] [--confirm-mutation <text>]
 Lists normalized org summaries. `--refresh` issues a display query for every listed org with an alias or username. `--json` returns one JSON document, not NDJSON.
 
 Real updates are restricted to scratch orgs. For another org, the exact token `MUTATE packages.update <alias-or-username>` is required.
@@ -108,7 +107,7 @@ sf-project org create [options]
 | `--json`                       | `false`                                                     |
 | `--yes`                        | Declared, but currently not consumed by the create workflow |
 
-Alias precedence is `--alias`, `--target-org`, then `defaultOrgAlias`. `--post-steps` accepts `all`, `none`, or a comma-separated list of `deploy`, `permsets`, `data`, and `community`. Execution always uses canonical order regardless of list order.
+Alias precedence is `--alias`, `--target-org`, then `defaultOrgAlias`. `--post-steps` accepts `all`, `none`, or a comma-separated list of `deploy`, `permsets`, `data`, and `community`. Execution always uses canonical order regardless of list order. A selected `deploy` step runs `sf project deploy start --ignore-conflicts`, tolerating tracking conflicts against a reused pool org; source tracking is then reset (locally and remotely) both before the first deploy and again after all selected post-steps finish.
 
 ```bash
 sf-project org create --alias feature-org --duration-days 7 --post-steps deploy,permsets --dry-run
@@ -131,7 +130,7 @@ sf-project org delete --alias feature-org --yes
 ### `project configure`
 
 ```text
-sf-project project configure [--project-dir <path>] [--alias <alias>] [--target-org <alias>] [--post-steps <steps>] [--refresh-dependency-sources] [--dry-run] [--json]
+sf-project project configure [--project-dir <path>] [--alias <alias>] [--target-org <alias>] [--post-steps <steps>] [--refresh-dependency-sources] [--dry-run] [--json] [--confirm-mutation <text>]
 ```
 
 Alias and post-step precedence match `org create`. The workflow installs configured packages, executes selected post-steps, and optionally refreshes dependency sources.
@@ -150,15 +149,15 @@ This command is read-only regardless of `--dry-run`. It queries installed and re
 sf-project packages install [--project-dir <path>] [--target-org <alias-or-username>] [--install-latest] [--dry-run] [--json]
 ```
 
-Installs missing packages and upgrades older packages in declaration order. It skips equal versions and never downgrades a higher installed version. Dry-run still performs read-only Salesforce queries.
+Installs missing packages and upgrades older packages in declaration order. It skips equal versions and never downgrades a higher installed version. Dry-run still performs read-only Salesforce queries. Real installation is restricted to scratch orgs. For another org, the exact token `MUTATE packages.install <alias-or-username>` is required.
 
 ### `packages update`
 
 ```text
-sf-project packages update [--project-dir <path>] [--target-org <alias-or-username>] [--install-latest] [--dry-run] [--json]
+sf-project packages update [--project-dir <path>] [--target-org <alias-or-username>] [--install-latest] [--dry-run] [--json] [--confirm-mutation <text>]
 ```
 
-The current implementation has the same behavior as `packages install`: install missing, upgrade older, skip equal, and retain higher versions.
+The current implementation has the same behavior as `packages install`: install missing, upgrade older, skip equal, and retain higher versions. Real updates are restricted to scratch orgs. For another org, the exact token `MUTATE packages.update <alias-or-username>` is required.
 
 ### `dependencies clear`
 

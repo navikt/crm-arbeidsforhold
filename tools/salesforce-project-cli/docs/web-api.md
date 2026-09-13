@@ -9,9 +9,12 @@ Start the production dashboard with:
 ```bash
 sf-project web start --project-dir /path/to/project
 sf-project web start --project-dir /path/to/project --port 4310
+sf-project web start --project-dir /path/to/project --verbose --json
 ```
 
 The CLI loads project configuration, creates the production facade, starts the server on `127.0.0.1`, and prints only the URL. The default port is `1717`; port `0` selects an available port. Built assets default to `web-dist`. The listening server keeps the process alive. The normal CLI path does not install explicit shutdown handlers; embedded callers receive a handle whose `close()` ends SSE responses and the HTTP server.
+
+The terminal that ran `web start` also renders every served operation's events as they are published, using the same renderer as other commands. `--verbose` includes diagnostic command details (executed Salesforce CLI commands and their stdout/stderr); `--json` emits NDJSON instead of human-readable text. This terminal stream is independent of the browser dashboard's SSE stream.
 
 History is bounded process memory and disappears when the process exits.
 
@@ -62,6 +65,22 @@ When operation capacity is exceeded, the oldest operation is removed and its sub
 
 Org summaries include nullable alias, username, org ID, expiration and lifetime data; normalized org, connection, authentication, and instance classifications; default flags; source tracking; refresh timestamp; and `{sourceTracking, mutationPolicy}` capabilities. Org detail adds nullable API version, edition, creation date, and Dev Hub username. Instance URLs are classified but not returned.
 
+Project info returns the resolved project directory plus git metadata, derived read-only from the local `.git` directory and never mutating it:
+
+```json
+{
+    "projectDirectory": "/path/to/project",
+    "repositoryName": "crm-arbeidsforhold",
+    "repositoryUrl": "https://github.com/navikt/crm-arbeidsforhold",
+    "branch": "main",
+    "status": "clean",
+    "statusSummary": "Ingen endringer",
+    "isGitRepository": true
+}
+```
+
+A non-Git project directory returns `isGitRepository: false` with null repository fields and `status: "unknown"`; git command failures degrade the same way rather than failing the request.
+
 Package status returns:
 
 ```json
@@ -96,6 +115,7 @@ Operation records contain `id`, `command`, `status`, `createdAt`, optional `comp
 | `GET /`                              | `200` HTML                              | Injects bootstrap token; `404` when the web app is not built       |
 | `GET /api/v1/health`                 | `200 {"status":"ok","apiVersion":"v1"}` | No bearer token required                                           |
 | `GET /api/v1/orgs`                   | `200` org-list result                   | Facade failure is redacted `500`                                   |
+| `GET /api/v1/project-info`           | `200` project info result               | Facade failure is redacted `500`                                   |
 | `GET /api/v1/orgs/:alias`            | `200` org result                        | Alias is URI-decoded; facade failure is redacted `404`             |
 | `GET /api/v1/orgs/:alias/packages`   | `200` package status                    | Facade failure is redacted `500`                                   |
 | `GET /api/v1/operations`             | `200` operation array                   | Newest first                                                       |

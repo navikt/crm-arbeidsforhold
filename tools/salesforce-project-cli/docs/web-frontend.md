@@ -33,18 +33,21 @@ For the selected org, the dashboard loads configured, installed, and selected pa
 
 ### Operations
 
-Recent and active operations show command, lifecycle status, timestamps, exit code when available, and retained event messages. New operations are added from the returned operation ID and updated from SSE.
+Recent and active operations show command, lifecycle status, timestamps, exit code when available, and retained event messages. New operations are added from the returned operation ID and updated from SSE. Command-level diagnostics (echoed Salesforce CLI commands and raw stdout/stderr) are filtered out of the rendered event list and screen-reader announcements; that detail is terminal-only (`sf-project --verbose`).
+
+### Project overview
+
+A dedicated panel shows the resolved project directory, current branch, working-tree status summary, and a link to the repository when `GET /api/v1/project-info` reports Git metadata. Values fall back to explicit "unavailable" text when the project is not a Git repository or the request fails; the panel never invokes Git mutations.
 
 ## Command form
 
-The command form exposes these server operations:
+Scratch-org creation has its own dedicated panel next to the project overview, showing the alias field and the effective duration, pool, and post-step values that will be submitted. The generic command form below it exposes the remaining server operations:
 
 - `packages.plan` (initial selection)
 - `packages.install`
 - `packages.update`
 - `dependencies.clear`
 - `dependencies.refresh`
-- `org.create`
 - `project.configure`
 
 Org deletion is a separate destructive action and alert dialog.
