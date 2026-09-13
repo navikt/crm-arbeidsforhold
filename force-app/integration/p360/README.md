@@ -24,9 +24,13 @@ Denne mappa kan innehalde:
 p360/
   classes/
   classes/job/
+  classes/codetable/
   objects/
   customMetadata/
+  namedCredentials/
+  externalCredentials/
   permissionsets/
+  permissionsetgroups/
   triggers/
 ```
 

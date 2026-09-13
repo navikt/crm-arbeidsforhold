@@ -15,6 +15,9 @@ graph LR
         Factory[P360_AdapterFactory]
         Adapter[P360 adapter boundary]
         Rpc[P360 RPC boundary]
+        CodeTable[(P360_Code_Table_Value__mdt)]
+        CodeTableService[P360_CodeTableMetadataService]
+        Config[P360_Integration_Setting__c]
     end
 
     subgraph Future[Planlagt eller eksternt blokkert]
@@ -33,10 +36,13 @@ graph LR
     Orchestrator --> Factory --> Adapter --> Rpc
     Rpc -.-> Auth -.-> P360
     Mapper -.-> Adapter
+    CodeTableService --> CodeTable
+    Mapper -.-> CodeTableService
+    Config -.-> Auth
 
     classDef implemented fill:#d4f4dd,stroke:#2d7a3e,color:#111
     classDef contract fill:#fff3cd,stroke:#946200,color:#111
     classDef blocked fill:#f8d7da,stroke:#9b2c2c,color:#111
-    class Decision,Trigger,MyTriggers,Guard,Key,JobService,Job implemented
+    class Decision,Trigger,MyTriggers,Guard,Key,JobService,Job,CodeTable,CodeTableService,Config implemented
     class Domain,Orchestrator,Factory,Adapter,Rpc contract
     class Worker,Mapper,Auth,P360 blocked

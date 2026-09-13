@@ -16,6 +16,7 @@ classes/
   contract/
     dto/
   exception/
+  codetable/
 ```
 
 ## Plasseringsregel
@@ -51,6 +52,10 @@ Inneheld tekniske kontraktsobjekt.
 ### exception
 
 Inneheld P360-spesifikke feilklassar.
+
+### codetable
+
+Slår opp P360-kodeverk (`P360_Code_Table_Value__mdt`) via `P360_ICodeTableService`.
 
 ## Reglar
 

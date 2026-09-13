@@ -26,6 +26,9 @@ Implementert og testa:
 - deterministiske idempotensnøklar for fire arkivhendingar
 - idempotent oppretting av `ApplicationDocument`-jobbar
 - Apex-testsuiten `P360` med alle P360-testklassane
+- Custom Metadata Type `P360_Code_Table_Value__mdt` (struktur, ingen data enno) og `P360_CodeTableMetadataService` for kodeverksoppslag med per-transaksjon-cache
+- miljøstyrt konfigurasjonslag for `#1017`: Custom Setting `P360_Integration_Setting__c` for kva Named Credential som skal brukast, pluss Permission Set-ar (`P360_RPC_Callout_Access`, `P360_Code_Table_Access`) samla i Permission Set Group `P360_Integration_User`
+- eksterne P360-ID-felt for lagring (`Access_Request__c.P360_Case_Id__c`/`P360_Case_Number__c`, `P360_Document_Id__c`/`P360_Document_Number__c`/`P360_File_Id__c` på `Application__c`/`Application_Decision__c`/`Agreement__c`)
 
 Ikkje implementert:
 
@@ -57,6 +60,9 @@ graph LR
         Factory[P360_AdapterFactory]
         Adapter[P360 adapter boundary]
         Rpc[P360 RPC boundary]
+        CodeTable[(P360_Code_Table_Value__mdt)]
+        CodeTableService[P360_CodeTableMetadataService]
+        Config[P360_Integration_Setting__c]
     end
 
     subgraph Future[Planlagt eller eksternt blokkert]
@@ -75,11 +81,14 @@ graph LR
     Orchestrator --> Factory --> Adapter --> Rpc
     Rpc -.-> Auth -.-> P360
     Mapper -.-> Adapter
+    CodeTableService --> CodeTable
+    Mapper -.-> CodeTableService
+    Config -.-> Auth
 
     classDef implemented fill:#d4f4dd,stroke:#2d7a3e,color:#111
     classDef contract fill:#fff3cd,stroke:#946200,color:#111
     classDef blocked fill:#f8d7da,stroke:#9b2c2c,color:#111
-    class Decision,Trigger,MyTriggers,Guard,Key,JobService,Job implemented
+    class Decision,Trigger,MyTriggers,Guard,Key,JobService,Job,CodeTable,CodeTableService,Config implemented
     class Domain,Orchestrator,Factory,Adapter,Rpc contract
     class Worker,Mapper,Auth,P360 blocked
 ```
@@ -263,14 +272,15 @@ Tidlegare specs inneheld eigne historiske deploy- og test-ID-ar. Desse dokumente
 
 Seks tidlegare opne punkt (`#994`, `#993`, `#1017`, `#1016`, `#1018`, `#1015`) er kategoriserte etter kven som faktisk kan avgjere dei:
 
-| Punkt   | Tema                                                     | Kven avgjer              | Status                                                                                        |
-| ------- | -------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------- |
-| `#994`  | Feil klassenamn i Jira-tekst (før namnestandarden fanst) | Internt (Jira-tekst)     | Må rettast i Jira, ikkje i repoet. Ikkje gjort enno.                                          |
-| `#993`  | Exception-hierarki og retrybarheit                       | Internt (arkitektur)     | **Avgjort og implementert** (sjå under).                                                      |
-| `#1017` | RPC-miljø, endepunkt, auth-modell                        | P360-teamet              | Krev ekstern stadfesting. Draftforslag under.                                                 |
-| `#1016` | Salesforce→SIF-mapping, kodeverdiar                      | P360-teamet/fagsida      | Krev ekstern stadfesting. Delvis avklart (sjå dokumentasjon over).                            |
-| `#1018` | Filstrategi (inline vs opplasting, PDF/A)                | P360-teamet/produkteigar | Krev ekstern stadfesting. "Alternativ 3" (P360 eig PDF/A) er valt internt.                    |
-| `#1015` | Idempotens/retry-detaljar (feilkodar, rate limits)       | P360-teamet              | MVP implementert internt; retry-semantikk og feilkodeklassifisering krev ekstern stadfesting. |
+| Punkt     | Tema                                                     | Kven avgjer              | Status                                                                                                                                                  |
+| --------- | -------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `#994`    | Feil klassenamn i Jira-tekst (før namnestandarden fanst) | Internt (Jira-tekst)     | **Avgjort.** Behald `P360_`-prefiks med understrek, i tråd med eksisterande kode og ADR-0001. Jira-teksten sjølv må rettast eksternt, ikkje gjort enno. |
+| `#993`    | Exception-hierarki og retrybarheit                       | Internt (arkitektur)     | **Avgjort og implementert** (sjå under).                                                                                                                |
+| `#996`/K3 | Service locator vs. adapter factory                      | Internt (arkitektur)     | **Avgjort.** `P360_AdapterFactory` + constructor injection, ingen service locator. Sjå [dependency injection og adapterval](di-og-adapterval.md).       |
+| `#1017`   | RPC-miljø, endepunkt, auth-modell                        | P360-teamet              | Konfigurasjonslag bygd internt (sjå under). Endepunkt, auth-headerverdiar og secrets krev framleis ekstern stadfesting.                                 |
+| `#1016`   | Salesforce→SIF-mapping, kodeverdiar                      | P360-teamet/fagsida      | Krev ekstern stadfesting. Kodeverk-strukturen (`P360_Code_Table_Value__mdt`) er klar til å ta imot verdiane.                                            |
+| `#1018`   | Filstrategi (inline vs opplasting, PDF/A)                | P360-teamet/produkteigar | Krev ekstern stadfesting. "Alternativ 3" (P360 eig PDF/A) er valt internt.                                                                              |
+| `#1015`   | Idempotens/retry-detaljar (feilkodar, rate limits)       | P360-teamet              | MVP implementert internt; retry-semantikk og feilkodeklassifisering krev ekstern stadfesting.                                                           |
 
 ### `#993` — retrybarheit i exception-modellen (avgjort 2026-09)
 
@@ -280,6 +290,14 @@ Retrybarheit blir no uttrykt fleksibelt, ikkje berre gjennom klassehierarkiet:
 - Klassifiseringa skjer av kallaren (t.d. basert på HTTP-statuskode eller P360-feilkode), ikkje berre av exception-typen — dette matchar gjeldande Apex-praksis for callout-feilhandtering.
 - `P360_RetryableException` er behalde som eit bekvemt spesialtilfelle: han set `isRetryable = true` automatisk via ein instance-initializer-blokk, så eksisterande kode som kastar han treng ikkje endrast.
 - Verifisert: deploy `0AfQI00000jKzv30AC`, 7/7 testar (`P360_IntegrationExceptionRetryableTest`, `P360_ExceptionHierarchyTest`, `P360_IntegrationExceptionCorrelationTest`).
+
+### Konfigurasjonslag bygd for `#1017`
+
+Sjølve endepunkt-URL, autentiseringsverdiar og secrets er ikkje bygd inn i repoet (krev ekstern stadfesting og skal aldri liggje i Git). Det som derimot er bygd, basert på eit eksisterande sibling-oppsett (`NKS P360 Integration`) som allereie brukar OAuth 2.0 Client Credentials mot Entra ID via External Credential:
+
+- Hierarchy Custom Setting `P360_Integration_Setting__c` (felt `Named_Credential_Name__c`) held det miljøstyrte oppslaget for kva Named Credential Apex skal bruke. Verdien er data, ikkje metadata, og blir difor ikkje overskriven av ein vanleg deploy.
+- Permission Set `P360_RPC_Callout_Access` gir tilgang til Custom Setting og `P360_RpcClient`. External Credential Principal-tilgang må leggjast til manuelt i kvart target-org etter at Named Credential/External Credential er oppretta der.
+- Permission Set Group `P360_Integration_User` samlar `P360_RPC_Callout_Access`, `P360_Archive_Job_Processing` og `P360_Code_Table_Access`. Tildeling av gruppa til ein brukar er data og blir gjort separat per miljø (prod/sit2), slik at eit vanleg deploy ikkje overskriv kven som har integrasjonstilgang.
 
 ### Draftforslag til P360-teamet (`#1017`)
 
