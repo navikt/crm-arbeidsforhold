@@ -127,4 +127,61 @@ describe('create org workflow', () => {
             })
         );
     });
+
+    it('forwards Salesforce command output as diagnostic progress events', async () => {
+        const emit = vi.fn();
+        const runCommand = vi.fn(async (request) => {
+            request.onStdoutLine?.('Scratch org created: 00D000000000001');
+            request.onStderrLine?.('Warning: source tracking is unavailable');
+            return {
+                executable: request.executable,
+                arguments: [...(request.arguments ?? [])],
+                exitCode: 0,
+                failed: false,
+                timedOut: false,
+                canceled: false,
+                attempts: 1,
+                stdout: '{"result":[]}',
+                stderr: '',
+                durationMs: 0,
+                error: ''
+            };
+        });
+
+        await expect(
+            createOrg({
+                configuration,
+                alias: 'scratch-org',
+                durationDays: 14,
+                postSteps: [],
+                usePool: false,
+                poolTag: 'dev',
+                fallbackToCreate: true,
+                clearDependencySources: false,
+                refreshDependencySources: false,
+                dryRun: false,
+                environment: {},
+                operationId: 'command-output',
+                emit,
+                runCommand
+            })
+        ).resolves.toBe(EXIT_CODES.SUCCESS);
+
+        expect(emit).toHaveBeenCalledWith(
+            expect.objectContaining({
+                kind: 'progress',
+                step: 'Create scratch org',
+                message: '[stdout] Scratch org created: 00D000000000001',
+                diagnostic: true
+            })
+        );
+        expect(emit).toHaveBeenCalledWith(
+            expect.objectContaining({
+                kind: 'progress',
+                step: 'Create scratch org',
+                message: '[stderr] Warning: source tracking is unavailable',
+                diagnostic: true
+            })
+        );
+    });
 });

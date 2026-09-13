@@ -99,7 +99,7 @@ describe('org lifecycle', () => {
         ]);
     });
 
-    it('fetches an available org from the configured pool without deleting or creating', async () => {
+    it('deletes the alias before fetching an available org from the configured pool', async () => {
         const projectDirectory = await createProject({
             pool: { use: true, tag: 'team-dev', devHub: 'dev-hub', fallbackToCreate: true }
         });
@@ -119,7 +119,8 @@ describe('org lifecycle', () => {
         );
 
         expect(exitCode).toBe(0);
-        expect(requests.slice(0, 2).map((request) => [request.executable, ...(request.arguments ?? [])])).toEqual([
+        expect(requests.slice(0, 3).map((request) => [request.executable, ...(request.arguments ?? [])])).toEqual([
+            ['sf', 'org', 'delete', 'scratch', '--no-prompt', '--target-org', 'configured-org'],
             ['sfp', 'pool', 'list', '--tag', 'team-dev', '-a', '--targetdevhubusername', 'dev-hub'],
             [
                 'sfp',
@@ -134,7 +135,6 @@ describe('org lifecycle', () => {
                 '--setdefaultusername'
             ]
         ]);
-        expect(requests.some((request) => request.arguments?.includes('delete'))).toBe(false);
         expect(requests.some((request) => request.arguments?.includes('create'))).toBe(false);
     });
 
@@ -201,8 +201,17 @@ describe('org lifecycle', () => {
         );
 
         expect(exitCode).toBe(1);
-        expect(requests).toHaveLength(1);
-        expect(requests[0]?.executable).toBe('sfp');
+        expect(requests).toHaveLength(2);
+        expect(requests[0]?.executable).toBe('sf');
+        expect(requests[0]?.arguments).toEqual([
+            'org',
+            'delete',
+            'scratch',
+            '--no-prompt',
+            '--target-org',
+            'configured-org'
+        ]);
+        expect(requests[1]?.executable).toBe('sfp');
     });
 
     it('runs selected post steps in deploy, permission, data, community order', async () => {
@@ -462,7 +471,9 @@ describe('org lifecycle', () => {
         const requests: CommandRequest[] = [];
         const runner = vi.fn(async (request: CommandRequest) => {
             requests.push(request);
-            await expect(access(path.join(dependencyDirectory, 'main', 'stale.xml'))).rejects.toThrow();
+            if (!request.arguments?.includes('delete')) {
+                await expect(access(path.join(dependencyDirectory, 'main', 'stale.xml'))).rejects.toThrow();
+            }
             if (request.arguments?.[1] === 'installed') return successfulResult(request, []);
             if (request.arguments?.[1] === 'version') {
                 return successfulResult(request, [
@@ -556,10 +567,12 @@ describe('org lifecycle', () => {
         );
 
         expect(exitCode).toBe(2);
-        expect(runner).toHaveBeenCalledWith({
+        expect(runner).toHaveBeenLastCalledWith({
             executable: 'sf',
             arguments: ['config', 'get', 'target-dev-hub', '--json'],
-            cwd: projectDirectory
+            cwd: projectDirectory,
+            onStdoutLine: expect.any(Function),
+            onStderrLine: expect.any(Function)
         });
         await expect(access(path.join(dependencyDirectory, 'main', 'stale.xml'))).resolves.toBeUndefined();
     });

@@ -5,7 +5,7 @@
 import type { PostStep, ProjectConfiguration } from '../domain/config.js';
 import { EXIT_CODES, type EventSink, type ExitCode } from '../domain/events.js';
 import { isOrgMutationConfirmed, type OrgClassification } from '../domain/org-policy.js';
-import type { CommandResult } from '../infrastructure/command-runner.js';
+import type { CommandRequest, CommandResult } from '../infrastructure/command-runner.js';
 import { classifySalesforceFailure } from '../infrastructure/salesforce-errors.js';
 import { clearDependencySources } from './clear-dependency-sources.js';
 import { installPackages } from './package-operations.js';
@@ -83,6 +83,37 @@ function failed(result: CommandResult): boolean {
     return result.failed || result.exitCode !== 0;
 }
 
+function withCommandOutput(
+    options: Pick<ConfigureProjectOptions, 'emit' | 'operationId'>,
+    stepId: string,
+    step: string,
+    request: CommandRequest
+): CommandRequest {
+    const emitOutput = (stream: 'stdout' | 'stderr', line: string): void => {
+        if (line.length === 0) return;
+        options.emit({
+            kind: 'progress',
+            operationId: options.operationId,
+            timestamp: new Date().toISOString(),
+            stepId,
+            step,
+            message: `[${stream}] ${line}`,
+            diagnostic: true
+        });
+    };
+    return {
+        ...request,
+        onStdoutLine: (line) => {
+            request.onStdoutLine?.(line);
+            emitOutput('stdout', line);
+        },
+        onStderrLine: (line) => {
+            request.onStderrLine?.(line);
+            emitOutput('stderr', line);
+        }
+    };
+}
+
 function emitOrgSummary(
     options: Pick<ResolvedConfigureProjectOptions, 'alias' | 'dryRun' | 'emit' | 'operationId'>,
     acquisition: 'create' | 'pool' | 'delete' | 'configure',
@@ -115,11 +146,11 @@ async function runStep(
         step,
         attempt: 1
     });
-    const result = await options.runCommand({
+    const result = await options.runCommand(withCommandOutput(options, stepId, step, {
         executable,
         arguments: commandArguments,
         cwd: options.configuration.projectDirectory
-    });
+    }));
     if (failed(result)) {
         options.emit({
             kind: 'step-failed',
@@ -357,11 +388,11 @@ function parseUnusedPoolOrgCount(stdout: string): number | undefined {
 
 async function resolvePoolDevHub(options: CreateOrgOptions): Promise<string | undefined> {
     if (options.poolDevHub !== undefined) return options.poolDevHub;
-    const result = await options.runCommand({
+    const result = await options.runCommand(withCommandOutput(options, 'pool-devhub', 'Resolve pool Dev Hub', {
         executable: 'sf',
         arguments: ['config', 'get', 'target-dev-hub', '--json'],
         cwd: options.configuration.projectDirectory
-    });
+    }));
     if (failed(result)) return undefined;
     try {
         const payload = JSON.parse(result.stdout) as { result?: Array<Record<string, unknown>> };
@@ -389,11 +420,11 @@ async function acquireFromPool(options: CreateOrgOptions): Promise<'acquired' | 
         });
         return EXIT_CODES.INVALID_INPUT_OR_CONFIG;
     }
-    const listResult = await options.runCommand({
+    const listResult = await options.runCommand(withCommandOutput(options, 'pool-list', 'List scratch org pool', {
         executable: 'sfp',
         arguments: ['pool', 'list', '--tag', options.poolTag, '-a', '--targetdevhubusername', poolDevHub],
         cwd: options.configuration.projectDirectory
-    });
+    }));
     if (failed(listResult)) {
         options.emit({
             kind: 'step-failed',
@@ -449,11 +480,13 @@ async function deleteExistingScratchOrgIfPresent(options: CreateOrgOptions): Pro
         return;
     }
 
-    const deleteResult = await options.runCommand({
-        executable: 'sf',
-        arguments: ['org', 'delete', 'scratch', '--no-prompt', '--target-org', options.alias],
-        cwd: options.configuration.projectDirectory
-    });
+    const deleteResult = await options.runCommand(
+        withCommandOutput(options, 'org-delete-existing', 'Delete existing scratch org', {
+            executable: 'sf',
+            arguments: ['org', 'delete', 'scratch', '--no-prompt', '--target-org', options.alias],
+            cwd: options.configuration.projectDirectory
+        })
+    );
     if (failed(deleteResult)) {
         options.emit({
             kind: 'warning',
@@ -507,8 +540,21 @@ async function acquireByCreation(options: CreateOrgOptions): Promise<ExitCode> {
  * command-failure translation boundary.
  */
 export async function createOrg(options: CreateOrgOptions): Promise<ExitCode> {
-    if (options.clearDependencySources) {
-        await clearDependencySources(options);
+    const resolvedPoolDevHub = options.usePool ? await resolvePoolDevHub(options) : options.poolDevHub;
+    const resolvedOptions =
+        resolvedPoolDevHub === undefined ? options : { ...options, poolDevHub: resolvedPoolDevHub };
+    if (resolvedOptions.usePool && resolvedOptions.poolDevHub === undefined) {
+        options.emit({
+            kind: 'step-failed',
+            operationId: options.operationId,
+            timestamp: new Date().toISOString(),
+            stepId: 'pool-configuration',
+            step: 'Validate scratch org pool',
+            exitCode: null,
+            durationMs: 0,
+            error: 'Pool use requires --pool-devhub, pool.devHub, or Salesforce target-dev-hub configuration'
+        });
+        return EXIT_CODES.INVALID_INPUT_OR_CONFIG;
     }
 
     if (!options.dryRun) {
@@ -525,21 +571,8 @@ export async function createOrg(options: CreateOrgOptions): Promise<ExitCode> {
         });
     }
 
-    const resolvedPoolDevHub = options.usePool ? await resolvePoolDevHub(options) : options.poolDevHub;
-    const resolvedOptions =
-        resolvedPoolDevHub === undefined ? options : { ...options, poolDevHub: resolvedPoolDevHub };
-    if (resolvedOptions.usePool && resolvedOptions.poolDevHub === undefined) {
-        options.emit({
-            kind: 'step-failed',
-            operationId: options.operationId,
-            timestamp: new Date().toISOString(),
-            stepId: 'pool-configuration',
-            step: 'Validate scratch org pool',
-            exitCode: null,
-            durationMs: 0,
-            error: 'Pool use requires --pool-devhub, pool.devHub, or Salesforce target-dev-hub configuration'
-        });
-        return EXIT_CODES.INVALID_INPUT_OR_CONFIG;
+    if (options.clearDependencySources) {
+        await clearDependencySources(options);
     }
 
     resolvedOptions.emit({
