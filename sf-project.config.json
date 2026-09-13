@@ -1,0 +1,23 @@
+{
+    "schemaVersion": 1,
+    "defaultOrgAlias": "crm-arbeidsforhold",
+    "scratchDefinition": "config/project-scratch-def.json",
+    "scratchDurationDays": 14,
+    "permissionSets": [
+        "AAREG_Arbeidsforhold_Saksbehandling",
+        "AAREG_Arbeidsforhold_Support",
+        "AAREG_CommunityPermission"
+    ],
+    "dummyDataPlan": "dummy-data/Plan.json",
+    "communityName": "Aa-registret",
+    "postSteps": ["deploy", "permsets", "data", "community"],
+    "pool": {
+        "use": true,
+        "tag": "dev",
+        "fallbackToCreate": true
+    },
+    "packageInstallKeyEnvironmentVariable": "PACKAGE_INSTALL_KEY",
+    "dependencySourcePolicy": {
+        "preserveRootFiles": ["README.md"]
+    }
+}

@@ -89,8 +89,11 @@ async function createConfiguration(existingConfig, interactive) {
     };
     const confirm = async (question, currentValue, defaultValue) => {
         const effectiveValue = currentValue ?? defaultValue;
-        const defaultHint = effectiveValue === defaultValue ? '' : ` (default: ${defaultValue ? 'yes' : 'no'})`;
-        const answer = await interactive.question(`${question} [${effectiveValue ? 'Y/n' : 'y/N'}]${defaultHint}: `);
+        const defaultHint =
+            currentValue === undefined || currentValue === defaultValue ? '' : ` (default: ${defaultValue ? 'yes' : 'no'})`;
+        const answer = await interactive.question(
+            `${question} [${effectiveValue ? 'Y/n' : 'y/N'}]${defaultHint}: `
+        );
         const normalized = answer.trim().toLowerCase();
         if (normalized === '') return currentValue ?? defaultValue;
         return normalized === 'y' || normalized === 'yes';
