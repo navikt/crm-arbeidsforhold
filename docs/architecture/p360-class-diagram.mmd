@@ -122,9 +122,37 @@ classDiagram
     P360_ArchiveJobWorker ..> P360_Archive_Job__c
     P360_CreateDocumentRequestDto ..> P360_FileParameterDto
 
-    classDef implemented fill:#d4f4dd,stroke:#2d7a3e,color:#111
-    classDef contract fill:#fff3cd,stroke:#946200,color:#111
-    classDef pending fill:#f8d7da,stroke:#9b2c2c,color:#111
-    class P360_AdapterFactory,P360_StubArchiveAdapter,AAREG_ArchiveApplicationOrchestrator,AAREG_ApplicationDomainService,AAREG_AgreementDomainService,AAREG_ApplicationToP360CaseMapper,AAREG_ApplicationToP360DocumentMapper,AAREG_DecisionToP360DocumentMapper,AAREG_ApplicationFileToP360FileMapper,P360_CodeTableMetadataService,P360_ArchiveJobClaimService,P360_ArchiveJobService,P360_ArchiveJobWorker implemented
-    class P360_IArchiveAdapter,P360_ArchiveAdapter,P360_IRpcClient,P360_RpcClient contract
-    class P360_ArchiveRequestDto,P360_ArchiveResponseDto,P360_CreateCaseRequestDto,P360_CreateDocumentRequestDto,P360_FileParameterDto,P360_CodeTableRowDto,AAREG_ArchiveApplicationCommand,AAREG_ArchiveApplicationResult,AAREG_ApplicationArchiveContext,AAREG_AgreementArchiveContext,P360_Archive_Job__c contract
+    classDef implemented fill:#d4f4dd,stroke:#2d7a3e,color:#111;
+    classDef contract fill:#fff3cd,stroke:#946200,color:#111;
+    classDef pending fill:#f8d7da,stroke:#9b2c2c,color:#111;
+
+    class P360_AdapterFactory implemented
+    class P360_StubArchiveAdapter implemented
+    class AAREG_ArchiveApplicationOrchestrator implemented
+    class AAREG_ApplicationDomainService implemented
+    class AAREG_AgreementDomainService implemented
+    class AAREG_ApplicationToP360CaseMapper implemented
+    class AAREG_ApplicationToP360DocumentMapper implemented
+    class AAREG_DecisionToP360DocumentMapper implemented
+    class AAREG_ApplicationFileToP360FileMapper implemented
+    class P360_CodeTableMetadataService implemented
+    class P360_ArchiveJobClaimService implemented
+    class P360_ArchiveJobService implemented
+    class P360_ArchiveJobWorker implemented
+
+    class P360_IArchiveAdapter contract
+    class P360_ArchiveAdapter contract
+    class P360_IRpcClient contract
+    class P360_RpcClient contract
+
+    class P360_ArchiveRequestDto contract
+    class P360_ArchiveResponseDto contract
+    class P360_CreateCaseRequestDto contract
+    class P360_CreateDocumentRequestDto contract
+    class P360_FileParameterDto contract
+    class P360_CodeTableRowDto contract
+    class AAREG_ArchiveApplicationCommand contract
+    class AAREG_ArchiveApplicationResult contract
+    class AAREG_ApplicationArchiveContext contract
+    class AAREG_AgreementArchiveContext contract
+    class P360_Archive_Job__c contract
