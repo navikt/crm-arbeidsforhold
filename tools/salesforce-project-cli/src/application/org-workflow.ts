@@ -435,7 +435,20 @@ async function acquireFromPool(options: CreateOrgOptions): Promise<'acquired' | 
     return fetched === EXIT_CODES.SUCCESS ? 'acquired' : fetched;
 }
 
-async function acquireByCreation(options: CreateOrgOptions): Promise<ExitCode> {
+async function deleteExistingScratchOrgIfPresent(options: CreateOrgOptions): Promise<void> {
+    if (options.dryRun) {
+        options.emit({
+            kind: 'progress',
+            operationId: options.operationId,
+            timestamp: new Date().toISOString(),
+            stepId: 'org-delete-existing',
+            step: 'Delete existing scratch org',
+            message: `Would delete the existing scratch org alias ${options.alias} before acquisition to avoid stale state`,
+            dryRun: true
+        });
+        return;
+    }
+
     const deleteResult = await options.runCommand({
         executable: 'sf',
         arguments: ['org', 'delete', 'scratch', '--no-prompt', '--target-org', options.alias],
@@ -451,7 +464,20 @@ async function acquireByCreation(options: CreateOrgOptions): Promise<ExitCode> {
             message: `Could not delete existing scratch org ${options.alias}; continuing`,
             code: 'ORG_NOT_FOUND_OR_DELETE_FAILED'
         });
+        return;
     }
+
+    options.emit({
+        kind: 'progress',
+        operationId: options.operationId,
+        timestamp: new Date().toISOString(),
+        stepId: 'org-delete-existing',
+        step: 'Delete existing scratch org',
+        message: `Deleted the existing scratch org alias ${options.alias} before acquisition`
+    });
+}
+
+async function acquireByCreation(options: CreateOrgOptions): Promise<ExitCode> {
     return runStep(options, 'org-create', 'Create scratch org', 'sf', [
         'org',
         'create',
@@ -481,6 +507,24 @@ async function acquireByCreation(options: CreateOrgOptions): Promise<ExitCode> {
  * command-failure translation boundary.
  */
 export async function createOrg(options: CreateOrgOptions): Promise<ExitCode> {
+    if (options.clearDependencySources) {
+        await clearDependencySources(options);
+    }
+
+    if (!options.dryRun) {
+        await deleteExistingScratchOrgIfPresent(options);
+    } else {
+        options.emit({
+            kind: 'progress',
+            operationId: options.operationId,
+            timestamp: new Date().toISOString(),
+            stepId: 'org-delete-existing',
+            step: 'Delete existing scratch org',
+            message: `Would delete the existing scratch org alias ${options.alias} before acquisition to avoid stale state`,
+            dryRun: true
+        });
+    }
+
     const resolvedPoolDevHub = options.usePool ? await resolvePoolDevHub(options) : options.poolDevHub;
     const resolvedOptions =
         resolvedPoolDevHub === undefined ? options : { ...options, poolDevHub: resolvedPoolDevHub };
@@ -497,9 +541,17 @@ export async function createOrg(options: CreateOrgOptions): Promise<ExitCode> {
         });
         return EXIT_CODES.INVALID_INPUT_OR_CONFIG;
     }
-    if (resolvedOptions.clearDependencySources) {
-        await clearDependencySources(resolvedOptions);
-    }
+
+    resolvedOptions.emit({
+        kind: 'progress',
+        operationId: resolvedOptions.operationId,
+        timestamp: new Date().toISOString(),
+        stepId: 'create-org-workflow',
+        step: 'Create scratch org workflow',
+        message:
+            'Validate pool config, Delete the existing scratch org alias before acquisition, then fetch from pool or create a new scratch org, configure the project, run selected post steps, and refresh dependency sources.'
+    });
+
     if (resolvedOptions.dryRun) {
         emitOrgSummary(resolvedOptions, resolvedOptions.usePool ? 'pool' : 'create');
         return configureProject(resolvedOptions);
