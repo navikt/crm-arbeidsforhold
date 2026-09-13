@@ -20,10 +20,4 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm test
-      - name: Check formatting of changed files
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: >-
-          git diff --name-only --diff-filter=ACMR -z "$BASE_SHA" "$HEAD_SHA"
-          | xargs -0 --no-run-if-empty npx prettier --check --ignore-unknown --no-error-on-unmatched-pattern
+      - run: npm run prettier:check
