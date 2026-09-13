@@ -1,21 +1,25 @@
 <template>
-  <a
-    href=""
-    class="lenkepanel lenkepanel-navno lenkepanel-liste__item lenkepanel--border"
-    style="width: 100%; margin: 10px"
-    onclick={navigateToPage}
-  >
-    <div class="lenkepanel-navno__innhold">
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <h2 class="typo-undertittel lenkepanel__heading">{panelTitle}</h2>
-        <template if:true={hasUnread}>
-          <span class="slds-badge slds-badge_lightest" style="background-color: #ba3a26; color: #fff; border-color: #ba3a26;">{unreadCount}</span>
-        </template>
-      </div>
-      <div class="lenkepanel-navno__ingress">
-        <p class="typo-normal">{panelSubTitle}</p>
-      </div>
-    </div>
-    <span class="lenkepanel__indikator"></span>
-  </a>
+    <a
+        href=""
+        class="lenkepanel lenkepanel-navno lenkepanel-liste__item lenkepanel--border"
+        style="width: 100%; margin: 10px"
+        onclick={navigateToPage}
+    >
+        <div class="lenkepanel-navno__innhold">
+            <div style="display: flex; align-items: center; gap: 0.5rem">
+                <h2 class="typo-undertittel lenkepanel__heading">{panelTitle}</h2>
+                <template if:true={hasUnread}>
+                    <span
+                        class="slds-badge slds-badge_lightest"
+                        style="background-color: #ba3a26; color: #fff; border-color: #ba3a26"
+                        >{unreadCount}</span
+                    >
+                </template>
+            </div>
+            <div class="lenkepanel-navno__ingress">
+                <p class="typo-normal">{panelSubTitle}</p>
+            </div>
+        </div>
+        <span class="lenkepanel__indikator"></span>
+    </a>
 </template>
