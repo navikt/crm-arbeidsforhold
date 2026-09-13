@@ -1,0 +1,129 @@
+:root {
+    color: var(--ax-text-neutral);
+    background: var(--ax-bg-sunken);
+}
+
+body {
+    margin: var(--ax-space-0);
+    min-width: calc(var(--ax-space-80) * 4);
+}
+
+.dashboard-page {
+    min-height: 100vh;
+    background: var(--ax-bg-sunken);
+}
+
+.app-header {
+    padding-block: var(--ax-space-16);
+    color: var(--ax-text-neutral-contrast);
+    background: var(--ax-bg-neutral-strong);
+    border-bottom: var(--ax-space-4) solid var(--ax-border-accent);
+}
+
+.surface,
+.command-panel,
+.operation {
+    padding: var(--ax-space-20);
+    background: var(--ax-bg-default);
+    border: var(--ax-space-1) solid var(--ax-border-neutral-subtle);
+    border-radius: var(--ax-radius-8);
+}
+
+.command-panel {
+    position: sticky;
+    top: var(--ax-space-16);
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(calc(var(--ax-space-96) * 2), 1fr));
+    gap: var(--ax-space-16);
+    margin: var(--ax-space-0);
+}
+
+.detail-grid dd {
+    margin: var(--ax-space-2) var(--ax-space-0) var(--ax-space-0);
+}
+
+.table-scroll {
+    overflow-x: auto;
+    background: var(--ax-bg-default);
+    border: var(--ax-space-1) solid var(--ax-border-neutral-subtle);
+    border-radius: var(--ax-radius-8);
+}
+
+.table-scroll table {
+    min-width: calc(var(--ax-space-128) * 6);
+}
+
+.table-scroll caption {
+    position: absolute;
+    width: var(--ax-space-1);
+    height: var(--ax-space-1);
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+
+.operation {
+    border-inline-start: var(--ax-space-4) solid var(--ax-border-neutral);
+}
+
+.operation--running {
+    border-inline-start-color: var(--ax-border-info);
+}
+
+.operation--completed {
+    border-inline-start-color: var(--ax-border-success);
+}
+
+.operation--failed {
+    border-inline-start-color: var(--ax-border-danger);
+}
+
+.event-list {
+    display: grid;
+    gap: var(--ax-space-8);
+    margin: var(--ax-space-0);
+    padding-inline-start: var(--ax-space-24);
+}
+
+.event-list li::marker {
+    font-weight: var(--ax-font-weight-bold);
+}
+
+.read-only-note {
+    padding: var(--ax-space-12);
+    color: var(--ax-text-warning);
+    background: var(--ax-bg-warning-moderate);
+    border-inline-start: var(--ax-space-4) solid var(--ax-border-warning);
+}
+
+.loading-region {
+    min-height: var(--ax-space-80);
+}
+
+.sr-only {
+    position: absolute;
+    width: var(--ax-space-1);
+    height: var(--ax-space-1);
+    padding: var(--ax-space-0);
+    margin: calc(var(--ax-space-1) * -1);
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: var(--ax-space-0);
+}
+
+@media (max-width: 63.99rem) {
+    .command-panel {
+        position: static;
+    }
+}
+
+@media (max-width: 47.99rem) {
+    .surface,
+    .command-panel,
+    .operation {
+        padding: var(--ax-space-16);
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": ["src/index.ts"],
+    "tsconfig": "tsconfig.json",
+    "out": "api-docs",
+    "readme": "none",
+    "includeVersion": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "excludeInternal": true,
+    "cleanOutputDir": true,
+    "treatWarningsAsErrors": true,
+    "validation": {
+        "notExported": true,
+        "invalidLink": true,
+        "invalidPath": true,
+        "rewrittenLink": true,
+        "notDocumented": false,
+        "unusedMergeModuleWith": true
+    },
+    "requiredToBeDocumented": ["Variable", "Function", "Interface", "Method", "TypeAlias"]
+}

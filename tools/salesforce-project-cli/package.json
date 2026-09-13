@@ -1,0 +1,75 @@
+{
+    "name": "@navikt/salesforce-project-cli",
+    "version": "0.1.0",
+    "private": true,
+    "description": "Cross-platform Salesforce project and org tooling",
+    "type": "module",
+    "bin": {
+        "sf-project": "dist/cli.js"
+    },
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist",
+        "web-dist",
+        "docs",
+        "README.md",
+        "SECURITY.md"
+    ],
+    "engines": {
+        "node": ">=22"
+    },
+    "scripts": {
+        "build": "npm run build:web && npm run build:core",
+        "build:core": "tsup",
+        "build:web": "vite build --config web/vite.config.ts",
+        "check": "npm run docs:check && npm run typecheck && npm run test && npm run build",
+        "dev": "tsx src/cli.ts",
+        "docs:build": "typedoc --options typedoc.json",
+        "docs:check": "typedoc --options typedoc.json --emit none",
+        "setup": "npm install && npm run build && npm run setup:project -- --project-dir ../.. && npm link",
+        "setup:project": "node scripts/setup-project.mjs",
+        "link": "npm link",
+        "test:pack": "npm run build && node scripts/pack-smoke.mjs",
+        "test": "vitest run && vitest run --config web/vite.config.ts",
+        "test:core": "vitest run",
+        "test:web": "vitest run --config web/vite.config.ts",
+        "test:e2e": "playwright test --config web/playwright.config.ts",
+        "test:watch": "vitest",
+        "typecheck": "tsc --noEmit && tsc --noEmit -p web/tsconfig.json"
+    },
+    "dependencies": {
+        "commander": "^14.0.1",
+        "execa": "^9.6.0",
+        "zod": "^4.1.8"
+    },
+    "devDependencies": {
+        "@axe-core/playwright": "^4.10.2",
+        "@navikt/aksel-icons": "8.16.2",
+        "@navikt/ds-css": "8.16.2",
+        "@navikt/ds-react": "8.16.2",
+        "@playwright/test": "^1.55.0",
+        "@testing-library/jest-dom": "^6.8.0",
+        "@testing-library/react": "^16.3.0",
+        "@testing-library/user-event": "^14.6.1",
+        "@types/jest-axe": "^3.5.9",
+        "@types/node": "^24.3.1",
+        "@types/react": "^19.2.0",
+        "@types/react-dom": "^19.2.0",
+        "@vitejs/plugin-react": "^5.0.0",
+        "jest-axe": "^10.0.0",
+        "jsdom": "^27.0.0",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0",
+        "tsup": "^8.5.0",
+        "tsx": "^4.20.5",
+        "typedoc": "^0.28.20",
+        "typescript": "^5.9.2",
+        "vite": "^7.1.0",
+        "vitest": "^3.2.4"
+    }
+}

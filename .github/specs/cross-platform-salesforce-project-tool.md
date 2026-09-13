@@ -1,6 +1,6 @@
 ---
 slug: cross-platform-salesforce-project-tool
-status: planned
+status: implemented-local-validation
 github-epic: 1021
 ---
 
@@ -246,6 +246,17 @@ The frontend is an operational tool, not a marketing surface. It must support ke
 - The CI matrix passes on Ubuntu, macOS and Windows with Node.js 22.
 - The npm tarball works in an independent Salesforce fixture repository.
 - Documentation explains installation, configuration, CLI output, security boundaries, web startup and extraction.
+
+## Implementation status
+
+The module is implemented under `tools/salesforce-project-cli/` with CLI, shared application services, loopback API and operational web frontend. Local verification covers typechecking, unit and contract tests, component tests, desktop/mobile browser tests, production build, npm tarball installation, production dependency audit and security review.
+
+Two external gates remain before release:
+
+- the module-local Node.js 22 matrix must run on Ubuntu, macOS and Windows after extraction or explicit activation in the host repository;
+- authenticated Salesforce validation must run against an explicitly selected non-production org before claiming org lifecycle, package installation or deployment compatibility.
+
+Existing Bash, Batch and PowerShell tools remain unchanged until parity is accepted. The migration matrix is maintained in `tools/salesforce-project-cli/docs/legacy-behavior-matrix.md`.
 
 ## Out of scope
 
