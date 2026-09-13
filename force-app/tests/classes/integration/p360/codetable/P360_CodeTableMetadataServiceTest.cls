@@ -36,4 +36,29 @@ private class P360_CodeTableMetadataServiceTest {
             }
         }
     }
+
+    /**
+     * Verifies that the approved DefaultValueSet mapping is returned with its P360 code and label.
+     *
+     * @since 2026-09
+     */
+    @IsTest
+    static void defaultValueSetMappingReturnsConfiguredValue() {
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+        PermissionSet codeTableAccess = [
+            SELECT Id
+            FROM PermissionSet
+            WHERE Name = 'P360_Code_Table_Access'
+            LIMIT 1
+        ];
+        insert new PermissionSetAssignment(AssigneeId = minimumAccessUser.Id, PermissionSetId = codeTableAccess.Id);
+
+        System.runAs(minimumAccessUser) {
+            P360_CodeTableRowDto row = new P360_CodeTableMetadataService().getValue('DefaultValueSet', 'Default');
+
+            System.Assert.areEqual('Aa-registerSalesForce', row.p360Code, 'Expected the approved P360 value-set code.');
+            System.Assert.areEqual('Aa-registerSalesForce', row.displayLabel, 'Expected the configured display label.');
+            System.Assert.areEqual('DefaultValueSet', row.tableName, 'Expected the code table name.');
+        }
+    }
 }

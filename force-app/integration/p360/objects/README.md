@@ -41,7 +41,7 @@ Bruk `P360_` for objekt og metadata types som primært høyrer til P360-integras
 
 `P360_Integration_Setting__c` er ein Hierarchy Custom Setting som held miljøspesifikk P360-konfigurasjon. `Named_Credential_Name__c` peikar på Named Credential i miljø med live transport. `Use_Mock_Transport__c` kan setjast til `true` i scratch orgar og sandkasser for å bruke den kontrollerte `P360_StubArchiveAdapter`-flyten utan callout. Feltet har default `false`, og verdiane er data som ikkje blir overskrivne av metadata-deploy.
 
-`P360_Code_Table_Value__mdt` er ein Custom Metadata Type for oppslag mellom Salesforce- og P360-kodeverk (tabellnamn, Salesforce-nøkkel, språkkode, P360-kode, P360-recno, transportverdi, visingslabel, aktiv-status og sorteringsrekkefølgje). Berre strukturen er lagt inn her — ingen record-data, sidan konkrete kodeverdiar krev P360-fagleg avklaring (GitHub-sak #1016).
+`P360_Code_Table_Value__mdt` er ein Custom Metadata Type for oppslag mellom Salesforce- og P360-kodeverk (tabellnamn, Salesforce-nøkkel, språkkode, P360-kode, P360-recno, transportverdi, visingslabel, aktiv-status og sorteringsrekkefølgje). Ikkje-sensitive P360-standardverdiar er lagt inn som `Default`-records. Konkrete Salesforce-feltmappingar utover denne standardprofilen krev framleis fagleg avklaring (GitHub-sak #1016).
 
 Namneeksempel for framtidig metadata:
 

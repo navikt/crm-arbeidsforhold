@@ -31,7 +31,10 @@ Custom metadata her skal ikkje:
 ```text
 MyTriggerSetting.P360_ArchiveGuard_I.md-meta.xml
 MyTriggerSetting.P360_ArchiveGuard_U.md-meta.xml
+P360_Code_Table_Value.*.md-meta.xml
 ```
+
+P360-kodeverkrecordane inneheld berre godkjende, ikkje-sensitive standardverdiar frå P360-avklaringa. Dei brukar `Salesforce_Key__c = Default` som eksplisitt standardprofil. Manglande eller blanke P360-verdiar er ikkje oppretta som tomme records.
 
 ## Eigarskap
 
