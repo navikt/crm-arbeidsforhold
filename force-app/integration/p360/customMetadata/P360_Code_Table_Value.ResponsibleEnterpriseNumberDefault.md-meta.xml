@@ -3,31 +3,39 @@
     <label>Responsible enterprise number default</label>
     <protected>false</protected>
     <values>
-        <field>Table_Name__c</field>
-        <value xsi:type="xsd:string">ResponsibleEnterpriseNumber</value>
-    </values>
-    <values>
-        <field>Salesforce_Key__c</field>
-        <value xsi:type="xsd:string">Default</value>
-    </values>
-    <values>
-        <field>P360_Code__c</field>
-        <value xsi:type="xsd:string">bu700k</value>
-    </values>
-    <values>
-        <field>Transport_Value__c</field>
-        <value xsi:type="xsd:string">bu700k</value>
+        <field>Active__c</field>
+        <value xsi:type="xsd:boolean">true</value>
     </values>
     <values>
         <field>Display_Label__c</field>
         <value xsi:type="xsd:string">bu700k</value>
     </values>
     <values>
-        <field>Active__c</field>
-        <value xsi:type="xsd:boolean">true</value>
+        <field>Language_Code__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>P360_Code__c</field>
+        <value xsi:type="xsd:string">bu700k</value>
+    </values>
+    <values>
+        <field>P360_Recno__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Salesforce_Key__c</field>
+        <value xsi:type="xsd:string">Default</value>
     </values>
     <values>
         <field>Sort_Order__c</field>
-        <value xsi:type="xsd:double">1</value>
+        <value xsi:type="xsd:double">1.0</value>
+    </values>
+    <values>
+        <field>Table_Name__c</field>
+        <value xsi:type="xsd:string">ResponsibleEnterpriseNumber</value>
+    </values>
+    <values>
+        <field>Transport_Value__c</field>
+        <value xsi:type="xsd:string">bu700k</value>
     </values>
 </CustomMetadata>
