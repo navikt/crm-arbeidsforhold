@@ -43,6 +43,7 @@ body {
 
 .detail-grid dd {
     margin: var(--ax-space-2) var(--ax-space-0) var(--ax-space-0);
+    overflow-wrap: anywhere;
 }
 
 .table-scroll {
