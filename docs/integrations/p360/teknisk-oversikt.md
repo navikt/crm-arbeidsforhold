@@ -31,6 +31,7 @@ Implementert og testa:
 - første mock-baserte CreateDocument-mapping via `AAREG_ApplicationToP360DocumentMapper`, med metadataoppslag for dokumentarkiv, journalstatus, tilgangskode og tilgangsgruppe; kategori og filer er ikkje gjetta
 - første mock-baserte vedtaksdokument-mapping via `AAREG_DecisionToP360DocumentMapper`, med `Sak`, `Dokument ut`, journalstatus og tilgang frå godkjende metadata; filer er ikkje gjetta
 - file-parameter-mapping via `AAREG_ApplicationFileToP360FileMapper`, integrert i begge mock-baserte CreateDocument-mapperane, utan å velje upload-endpoint
+- mock-kompatibel `AAREG_ArchiveApplicationOrchestrator`-kopling som vidarefører `externalId`/`correlationId` til den injiserte adapteren og mappar kontrollert stub-respons tilbake til internt resultat
 - miljøstyrt konfigurasjonslag for `#1017`: Custom Setting `P360_Integration_Setting__c` for kva Named Credential som skal brukast, pluss Permission Set-ar (`P360_RPC_Callout_Access`, `P360_Code_Table_Access`) samla i Permission Set Group `P360_Integration_User`
 - eksplisitt mock-transport for scratch orgar og sandkasser via `P360_Integration_Setting__c.Use_Mock_Transport__c`; når feltet er `true`, brukar `P360_AdapterFactory` `P360_StubArchiveAdapter`, medan ekte transport framleis er standard når feltet er `false` eller ikkje sett
 - R2 worker-grunnmur: `P360_ArchiveJobClaimService` for lease/claim og `P360_ArchiveJobWorker` for statusklassifisering, retry-backoff og manuell oppfølging

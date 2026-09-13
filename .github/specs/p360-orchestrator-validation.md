@@ -21,7 +21,8 @@ The orchestrator exposes a stable validation boundary for required Salesforce ap
 
 - A null archive command raises `P360_ContractException` with the documented validation message.
 - A command without `applicationId` raises `P360_ContractException` with the documented validation message.
-- A command with a valid `applicationId` stops with the documented not-implemented orchestration exception.
+- A command with a valid `applicationId` and `externalId` is forwarded to the injected adapter and returns a mapped internal result.
+- A command without `externalId` raises `P360_ContractException` before the injected adapter is used.
 - Validation happens before the injected archive adapter is used.
 - The test runs under a minimum-access user and uses fully qualified `System.Assert.*` APIs.
 - No external P360 payload, mapping, authentication, or transport behaviour is inferred.
@@ -32,15 +33,14 @@ The orchestrator exposes a stable validation boundary for required Salesforce ap
 
 ## Out of scope
 
-- Implementing the successful orchestration path.
 - Calling the real P360 RPC client.
-- Deciding the external P360/SIF request or response contract.
+- Resolving Salesforce field mapping into the full external P360/SIF request.
 
 ## Testing decisions
 
-Use a focused Apex test against the authenticated `crm-arbeidsforhold` scratch org. The injected stub adapter is sufficient because both invalid-command cases must fail before adapter invocation.
+Use a focused Apex test against the authenticated `crm-arbeidsforhold` scratch org. The injected stub adapter verifies the internal success path without a callout, while validation tests prove invalid commands fail before adapter invocation.
 
 ## Current evidence
 
-- Focused deploy ID: `0AfRR00000fwS5z0AE`.
+- Focused deploy ID: latest mock-flow verification (3 tests passed).
 - `AAREG_ArchiveApplicationOrchestratorTest`: 3 passed, 0 failed.

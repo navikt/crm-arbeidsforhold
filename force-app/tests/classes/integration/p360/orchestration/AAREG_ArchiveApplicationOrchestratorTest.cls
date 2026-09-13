@@ -61,7 +61,7 @@ private class AAREG_ArchiveApplicationOrchestratorTest {
     }
 
     /**
-     * Verifies that a valid command stops at the explicit orchestration boundary until the use case is implemented.
+     * Verifies that a valid command is mapped to the injected stub adapter and returns its controlled response.
      *
      * @since 2026-09
      */
@@ -70,21 +70,26 @@ private class AAREG_ArchiveApplicationOrchestratorTest {
         User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
         AAREG_ArchiveApplicationCommand command = new AAREG_ArchiveApplicationCommand();
         command.applicationId = UserInfo.getUserId();
+        command.externalId = 'application-external-id';
+        command.correlationId = 'orchestration-correlation-id';
         AAREG_ArchiveApplicationOrchestrator orchestrator = new AAREG_ArchiveApplicationOrchestrator(
             new P360_StubArchiveAdapter()
         );
 
         System.runAs(minimumAccessUser) {
-            try {
-                orchestrator.archive(command);
-                System.Assert.fail('Expected a contract exception until orchestration is implemented.');
-            } catch (P360_ContractException caughtError) {
-                System.Assert.areEqual(
-                    'AAREG_ArchiveApplicationOrchestrator.archive is not implemented yet. TODO F3/F4.',
-                    caughtError.getMessage(),
-                    'Expected the explicit orchestration boundary message.'
-                );
-            }
+            AAREG_ArchiveApplicationResult result = orchestrator.archive(command);
+
+            System.Assert.areEqual(true, result.success, 'Expected the stub archive operation to succeed.');
+            System.Assert.areEqual(
+                'application-external-id',
+                result.externalCaseId,
+                'Expected the external id to be preserved by the stub adapter.'
+            );
+            System.Assert.areEqual(
+                'orchestration-correlation-id',
+                result.correlationId,
+                'Expected the correlation id to be preserved.'
+            );
         }
     }
 }
