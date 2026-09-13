@@ -104,6 +104,11 @@ function eventText(event: OperationEvent): string {
     return event.step ?? event.kind;
 }
 
+// Command-level diagnostics (raw stdout/stderr and command echoing) are terminal-only detail; hide them here.
+function isRelevantForDashboard(event: OperationEvent): boolean {
+    return !(event.kind === 'progress' && event.diagnostic === true);
+}
+
 function operationTitle(operation: Operation): string {
     const label = operationLabels[operation.command];
     if (operation.status === 'running') return `${label} køyrer`;
@@ -211,7 +216,7 @@ export function App({ api }: AppProps) {
                                       : item
                               )
                           );
-                          setAnnouncement(eventText(event));
+                          if (isRelevantForDashboard(event)) setAnnouncement(eventText(event));
                       })
                   );
                   return () => unsubscribe.forEach((stop) => stop());
@@ -559,39 +564,42 @@ function Operations({ operations }: { operations: Operation[] }) {
                 {operations.length === 0 ? (
                     <BodyShort>Ingen operasjonar i denne økta.</BodyShort>
                 ) : (
-                    operations.map((operation) => (
-                        <article className={`operation operation--${operation.status}`} key={operation.id}>
-                            <VStack gap="space-8">
-                                <HStack justify="space-between" align="center" gap="space-12" wrap>
-                                    <Heading level="3" size="small">
-                                        {operationTitle(operation)}
-                                    </Heading>
-                                    <Detail>{new Date(operation.createdAt).toLocaleString('nn-NO')}</Detail>
-                                </HStack>
-                                {operation.events.length === 0 ? (
-                                    <BodyShort>Vent på første statusoppdatering.</BodyShort>
-                                ) : (
-                                    <ol className="event-list">
-                                        {operation.events.map((event, index) => (
-                                            <li key={`${event.timestamp}:${event.kind}:${index}`}>
-                                                <BodyShort
-                                                    weight={event.kind === 'step-failed' ? 'semibold' : 'regular'}
-                                                >
-                                                    {eventText(event)}
-                                                </BodyShort>
-                                                {event.durationMs !== undefined && (
-                                                    <Detail>Varigheit: {duration(event.durationMs)}</Detail>
-                                                )}
-                                                {event.nextAction && (
-                                                    <BodyShort>Neste steg: {event.nextAction}</BodyShort>
-                                                )}
-                                            </li>
-                                        ))}
-                                    </ol>
-                                )}
-                            </VStack>
-                        </article>
-                    ))
+                    operations.map((operation) => {
+                        const visibleEvents = operation.events.filter(isRelevantForDashboard);
+                        return (
+                            <article className={`operation operation--${operation.status}`} key={operation.id}>
+                                <VStack gap="space-8">
+                                    <HStack justify="space-between" align="center" gap="space-12" wrap>
+                                        <Heading level="3" size="small">
+                                            {operationTitle(operation)}
+                                        </Heading>
+                                        <Detail>{new Date(operation.createdAt).toLocaleString('nn-NO')}</Detail>
+                                    </HStack>
+                                    {visibleEvents.length === 0 ? (
+                                        <BodyShort>Vent på første statusoppdatering.</BodyShort>
+                                    ) : (
+                                        <ol className="event-list">
+                                            {visibleEvents.map((event, index) => (
+                                                <li key={`${event.timestamp}:${event.kind}:${index}`}>
+                                                    <BodyShort
+                                                        weight={event.kind === 'step-failed' ? 'semibold' : 'regular'}
+                                                    >
+                                                        {eventText(event)}
+                                                    </BodyShort>
+                                                    {event.durationMs !== undefined && (
+                                                        <Detail>Varigheit: {duration(event.durationMs)}</Detail>
+                                                    )}
+                                                    {event.nextAction && (
+                                                        <BodyShort>Neste steg: {event.nextAction}</BodyShort>
+                                                    )}
+                                                </li>
+                                            ))}
+                                        </ol>
+                                    )}
+                                </VStack>
+                            </article>
+                        );
+                    })
                 )}
             </VStack>
         </section>
@@ -699,7 +707,7 @@ function CommandPanel({
                         {repoUrl && (
                             <BodyShort>
                                 <a href={repoUrl} target="_blank" rel="noreferrer">
-                                    {repoName}
+                                    Opne {repoName} på GitHub
                                 </a>
                             </BodyShort>
                         )}

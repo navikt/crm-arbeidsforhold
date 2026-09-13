@@ -96,6 +96,8 @@ export interface StartWebServerOptions {
     redactionSecrets?: readonly string[];
     /** Static asset root; resolved paths and symlink targets must remain contained within this directory. */
     webAssetsDirectory?: string;
+    /** Receives every redacted operation event as it is published, for terminal-side visibility of the running server. */
+    onEvent?: (event: OperationEvent) => void;
 }
 
 export interface ProjectInfo {
@@ -458,6 +460,7 @@ export async function startWebServer(options: StartWebServerOptions): Promise<St
         for (const subscriber of subscribers.get(operation.id) ?? []) {
             subscriber.write(`event: operation\ndata: ${JSON.stringify(safeEvent)}\n\n`);
         }
+        options.onEvent?.(safeEvent);
     };
     const removeOperation = (operationId: string): void => {
         for (const subscriber of subscribers.get(operationId) ?? []) subscriber.end();

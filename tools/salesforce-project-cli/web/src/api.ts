@@ -124,6 +124,10 @@ export interface OperationEvent {
     exitCode?: number | null;
     /** Operation name included by lifecycle events. */
     operation?: string;
+    /** Marks command-level diagnostics (raw output, command echoing) as terminal-only detail. */
+    diagnostic?: boolean;
+    /** Package name included by package-result and some progress events. */
+    packageName?: string;
 }
 
 /** Browser DTO representing the current server-side state and event history of an operation. */

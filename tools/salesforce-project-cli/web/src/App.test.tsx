@@ -291,4 +291,47 @@ describe('operational dashboard', () => {
         });
         expect(await screen.findByRole('heading', { name: 'Pakkeoppdatering feila' })).toBeInTheDocument();
     });
+
+    it('hides raw command diagnostics from the operation list but keeps relevant progress', async () => {
+        const operation: Operation = {
+            id: 'operation-plan',
+            command: 'packages.plan',
+            status: 'running',
+            createdAt: '2026-09-13T10:00:00.000Z',
+            events: []
+        };
+        const { api, emit } = createApi({ operations: [operation] });
+        render(<App api={api} />);
+        await screen.findByText('Pakkeplanlegging køyrer');
+
+        emit({
+            kind: 'progress',
+            operationId: operation.id,
+            timestamp: '2026-09-13T10:00:01.000Z',
+            stepId: 'external-command:1',
+            step: 'External command',
+            message: 'Running: sf package version list --json',
+            diagnostic: true
+        });
+        emit({
+            kind: 'progress',
+            operationId: operation.id,
+            timestamp: '2026-09-13T10:00:01.500Z',
+            stepId: 'external-command:1',
+            step: 'External command',
+            message: '[stdout] {"status":0,"result":[]}',
+            diagnostic: true
+        });
+        emit({
+            kind: 'package-result',
+            operationId: operation.id,
+            timestamp: '2026-09-13T10:00:02.000Z',
+            packageName: 'crm-platform-base',
+            message: 'crm-platform-base: update'
+        });
+
+        await waitFor(() => expect(screen.getAllByText('crm-platform-base: update').length).toBeGreaterThan(0));
+        expect(screen.queryByText(/Running: sf package version list/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/\[stdout\]/)).not.toBeInTheDocument();
+    });
 });

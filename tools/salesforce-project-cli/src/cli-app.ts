@@ -336,7 +336,8 @@ export async function runCli(
     web.command('start')
         .option('--project-dir <path>', 'Salesforce project root', process.cwd())
         .option('--port <port>', 'Local HTTP port', '1717')
-        .action(async (options: { projectDir: string; port: string }) => {
+        .option('--json', 'Emit newline-delimited JSON events for served operations', false)
+        .action(async (options: { projectDir: string; port: string; json: boolean }) => {
             const port = parsePort(options.port);
             const environment = cliDependencies.environment ?? process.env;
             const configuration = await loadProjectConfiguration(options.projectDir);
@@ -349,6 +350,7 @@ export async function runCli(
                 }),
                 host: '127.0.0.1',
                 port,
+                onEvent: (event) => writeEvent(event, options.json),
                 ...(installationKey === undefined ? {} : { redactionSecrets: [installationKey] })
             });
             output.stdout(`Web server listening at ${started.url}`);
@@ -514,18 +516,18 @@ export async function runCli(
                     inspected.org.authStatus === 'unauthenticated' || inspected.org.authStatus === 'expired'
                         ? EXIT_CODES.AUTH_OR_AUTHORIZATION_FAILURE
                         : await deleteOrg({
-                              configuration,
-                              alias,
-                              classification: inspected.org.orgType,
-                              confirmed: options.yes ?? false,
-                              ...(options.confirmMutation === undefined
-                                  ? {}
-                                  : { confirmation: options.confirmMutation }),
-                              dryRun: false,
-                              operationId,
-                              emit,
-                              runCommand: eventCommandRunner
-                          });
+                            configuration,
+                            alias,
+                            classification: inspected.org.orgType,
+                            confirmed: options.yes ?? false,
+                            ...(options.confirmMutation === undefined
+                                ? {}
+                                : { confirmation: options.confirmMutation }),
+                            dryRun: false,
+                            operationId,
+                            emit,
+                            runCommand: eventCommandRunner
+                        });
             }
             exitCode = deleteExitCode;
             emit({

@@ -66,4 +66,39 @@ describe('web start', () => {
         expect(start).not.toHaveBeenCalled();
         expect(stderr.join('\n')).toContain('--port');
     });
+
+    it('renders served operation events to the terminal as they are published', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-web-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({ packageDirectories: [{ path: 'force-app' }] })
+        );
+        const start = vi.fn(async (options: { onEvent?: (event: unknown) => void }): Promise<StartedWebServer> => {
+            options.onEvent?.({
+                kind: 'operation-started',
+                operationId: 'operation-1',
+                timestamp: '2026-09-13T00:00:00.000Z',
+                operation: 'org.create',
+                dryRun: false
+            });
+            return {
+                server: {} as never,
+                sessionToken: 'b'.repeat(64),
+                url: 'http://127.0.0.1:4311',
+                subscriberCount: () => 0,
+                close: async () => undefined
+            };
+        });
+        const stdout: string[] = [];
+
+        const exitCode = await runCli(
+            ['web', 'start', '--project-dir', projectDirectory, '--port', '4311'],
+            { stdout: (line) => stdout.push(line), stderr: () => undefined },
+            { startWebServer: start }
+        );
+
+        expect(exitCode).toBe(0);
+        expect(stdout).toContain('org.create');
+    });
 });
