@@ -12,6 +12,9 @@ public class P360_CreateCaseRequestDto {
     /** Required case title. */
     public String title;
 
+    /** P360 standard value set used for default case metadata. */
+    public String defaultValueSet;
+
     /** Optional title screened from public search. */
     public String unofficialTitle;
 
@@ -44,6 +47,15 @@ public class P360_CreateCaseRequestDto {
 
     /** Case type code or recno; SIF defaults to the Noark case type. */
     public String caseType;
+
+    /** Access code or recno for the case. */
+    public String accessCode;
+
+    /** Access group for the case. */
+    public String accessGroup;
+
+    /** Responsible NAV enterprise number. */
+    public String responsibleEnterpriseNumber;
 
     /** Case category code or recno. */
     public String category;

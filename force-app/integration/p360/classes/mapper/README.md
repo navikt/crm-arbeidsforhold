@@ -30,6 +30,7 @@ Mapperane skal ikkje:
 
 ```text
 AAREG_ArchiveApplicationMapper.cls
+AAREG_ApplicationToP360CaseMapper.cls
 AAREG_AgreementArchiveRequestMapper.cls
 P360_ArchiveResultMapper.cls
 ```
@@ -57,3 +58,5 @@ force-app/tests/classes/integration/p360/mapper/
 ```
 
 Mappertestar skal dekke både happy path og sad path.
+
+`AAREG_ApplicationToP360CaseMapper` er første mock-baserte CreateCase-slice. Han bruker den godkjende `Default`-profilen frå `P360_Code_Table_Value__mdt` for standard metadata, utan SOQL eller callouts i sjølve mapperen. Full Salesforce-feltmapping og live transport er framleis separate steg.
