@@ -7,10 +7,17 @@ sequenceDiagram
     participant Key as P360_IdempotencyKey
     participant Store as P360_Archive_Job__c
 
-    Caller->>Service: getOrCreateApplicationDocumentJob(context)
-    Service->>Service: validate required context
-    Service->>Key: forApplicationDocument(applicationId)
-    Key-->>Service: APPLICATION_DOCUMENT:{id}
+    alt Application document
+        Caller->>Service: getOrCreateApplicationDocumentJob(accessRequestId, applicationId, correlationId)
+        Service->>Service: validate required context
+        Service->>Key: forApplicationDocument(applicationId)
+        Key-->>Service: APPLICATION_DOCUMENT:{id}
+    else Application attachment
+        Caller->>Service: getOrCreateApplicationAttachmentJob(accessRequestId, applicationId, contentVersionId, correlationId)
+        Service->>Service: validate required context
+        Service->>Key: forApplicationAttachment(applicationId, contentVersionId)
+        Key-->>Service: APPLICATION_ATTACHMENT:{applicationId}:{contentVersionId}
+    end
     Service->>Store: query unique Idempotency_Key__c
     alt Existing job
         Store-->>Service: existing job

@@ -2,31 +2,40 @@
 title: P360 component architecture
 ---
 flowchart LR
-    entry[Entry point / use case caller]
+    entry[Entry point / queueable worker]
     factory[P360_AdapterFactory\ncomposition root]
     orchestrator[AAREG_ArchiveApplicationOrchestrator]
-    domain[AAREG domain services]
+    domain[AAREG application/agreement domain services]
     command[AAREG_ArchiveApplicationCommand\ninternal context]
     result[AAREG_ArchiveApplicationResult\ninternal result]
-    adapter[P360_IArchiveAdapter\nP360_ArchiveAdapter]
-    stub[P360_StubArchiveAdapter\nexplicit test/local implementation]
-    client[P360_IRpcClient\nP360_RpcClient stub]
+    adapter[P360_IArchiveAdapter]
+    live[P360_ArchiveAdapter]
+    stub[P360_StubArchiveAdapter\nexplicit mock mode]
+    client[P360_IRpcClient\nP360_RpcClient skeleton]
+    mapper[AAREG P360 mappers\nCase / Document / File]
+    codetable[P360_CodeTableMetadataService]
+    job[P360_ArchiveJobService\nClaimService + Worker]
     dto[P360 contract DTOs]
-    context[integration/common\nCorrelationContext + IntegrationLogContext]
-    transport[Unresolved SIF RPC transport\nendpoint/auth/payload pending]
+    context[integration/common\nCorrelationContext + logging]
+    transport[Live SIF RPC transport\nendpoint/auth/payload pending]
 
-    entry --> factory
+    entry --> job
+    job --> factory
     factory --> orchestrator
     factory --> adapter
-    orchestrator --> domain
+    factory --> stub
+    domain --> orchestrator
     orchestrator --> command
     orchestrator --> adapter
     orchestrator --> result
     orchestrator --> context
+    mapper --> codetable
+    mapper --> dto
     adapter --> client
     adapter --> dto
+    live --> client
     client --> transport
-    stub -. explicit injection in tests .-> orchestrator
+    stub -. selected when Use_Mock_Transport__c = true .-> adapter
 
     classDef boundary fill:#e8f1fb,stroke:#245b8a,stroke-width:1px
     classDef pending fill:#fff4e5,stroke:#a65f00,stroke-width:1px

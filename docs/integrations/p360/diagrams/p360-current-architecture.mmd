@@ -10,19 +10,22 @@ graph LR
         Key[P360_IdempotencyKey]
         JobService[P360_ArchiveJobService]
         Job[(P360_Archive_Job__c)]
-        Domain[AAREG domain services]
-        Orchestrator[AAREG orchestrator]
+        Domain[AAREG application/agreement domain services]
+        Orchestrator[AAREG_ArchiveApplicationOrchestrator]
         Factory[P360_AdapterFactory]
-        Adapter[P360 adapter boundary]
-        Rpc[P360 RPC boundary]
-        Worker[Queueable archive worker]
+        Adapter[P360_IArchiveAdapter]
+        LiveAdapter[P360_ArchiveAdapter]
+        StubAdapter[P360_StubArchiveAdapter]
+        Rpc[P360_IRpcClient / P360_RpcClient]
+        Worker[P360_ArchiveJobWorker]
+        Claim[P360_ArchiveJobClaimService]
         CodeTable[(P360_Code_Table_Value__mdt)]
         CodeTableService[P360_CodeTableMetadataService]
+        Mapper[Case / Document / File mappers]
         Config[P360_Integration_Setting__c]
     end
 
     subgraph Future[Planlagt eller eksternt blokkert]
-        Mapper[Salesforce to SIF mapper]
         Auth[Named Credential and auth]
         P360[Public 360 SIF RPC]
     end
@@ -30,15 +33,21 @@ graph LR
     Decision --> Trigger --> MyTriggers --> Guard
     JobService --> Key
     JobService --> Job
-    Job -.-> Worker
+    Job --> Claim --> Worker
+    Worker --> Factory
     Worker --> Adapter
-    Domain -.-> Orchestrator
-    Orchestrator --> Factory --> Adapter --> Rpc
+    Domain --> Orchestrator
+    Orchestrator --> Adapter
+    Factory --> StubAdapter
+    Factory --> LiveAdapter
+    LiveAdapter --> Rpc
+    StubAdapter --> Adapter
     Rpc -.-> Auth -.-> P360
-    Mapper -.-> Adapter
+    Mapper --> Adapter
     CodeTableService --> CodeTable
-    Mapper -.-> CodeTableService
-    Config -.-> Auth
+    Mapper --> CodeTableService
+    Config -. selects .-> StubAdapter
+    Config -. selects .-> LiveAdapter
 
     classDef implemented fill:#d4f4dd,stroke:#2d7a3e,color:#111
     classDef contract fill:#fff3cd,stroke:#946200,color:#111

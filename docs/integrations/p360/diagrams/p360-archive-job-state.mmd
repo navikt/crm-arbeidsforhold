@@ -2,11 +2,11 @@
 title: P360 archive job state model
 ---
 stateDiagram-v2
-    [*] --> Pending: Implementert jobboppretting
-    Pending --> InProgress: Planlagt lease claim
-    InProgress --> Succeeded: Planlagt vellukka arkivering
-    InProgress --> Failed: Planlagt retrybar feil
-    Failed --> Pending: Planlagt retry etter backoff
-    Failed --> ManualReview: Planlagt forsoksgrense
-    ManualReview --> Pending: Planlagt manuell frigiving
+    [*] --> Pending: Job service oppretter idempotent jobb
+    Pending --> InProgress: Claim service tek lease
+    InProgress --> Succeeded: Worker får suksess frå adapter
+    InProgress --> Failed: Worker får retrybar feil
+    Failed --> Pending: Due etter 1m / 5m / 15m / 1t / 6t
+    Failed --> ManualReview: Ikkje retrybar eller maks 5 forsøk
+    ManualReview --> Pending: Manuell frigiving
     Succeeded --> [*]

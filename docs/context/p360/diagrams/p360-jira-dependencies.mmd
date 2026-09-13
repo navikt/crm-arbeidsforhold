@@ -3,26 +3,30 @@ title: P360 Jira dependencies
 ---
 graph LR
     F1["F1 · 84<br/>Kontraktar og namnestandard<br/>FERDIG"]
-    F2["F2 · 89<br/>Interfaces og skeletons<br/>UNDER ARBEID"]
-    F3["F3 · 101<br/>DTO-ar"]
-    F5["F5 · 121<br/>Exception hierarchy"]
-    K1["K1 · 143<br/>Custom Metadata-modell"]
-    X1["X1 · 255<br/>External ID-strategi"]
+    F2["F2 · 89<br/>Interfaces, adapter og orchestrator<br/>FERDIG intern slice"]
+    F3["F3 · 101<br/>DTO-ar og domain contexts<br/>UNDER ARBEID"]
+    F4["F4 · 115<br/>Case, Document og File mapperar<br/>UNDER ARBEID"]
+    F5["F5 · 121<br/>Exception hierarchy og retry<br/>UNDER ARBEID"]
+    K1["K1 · 143<br/>Custom Metadata-modell<br/>FERDIG intern slice"]
+    X1["X1 · 255<br/>External ID-strategi<br/>UNDER ARBEID"]
     X3["X3 · 266<br/>Recovery-oppslag<br/>fase 2+"]
-    D1["D1 · 310<br/>Arkitekturdokumentasjon"]
+    D1["D1 · 310<br/>Arkitekturdokumentasjon<br/>FERDIG gjeldande scope"]
 
     F1 --> F2
     F1 --> F3
+    F1 --> F4
     F1 --> F5
     F1 --> K1
     F1 --> X1
     F1 --> D1
 
-    F3 -.->|DTO-ar for external ID| F2
-    X1 -.->|full strategi| F2
-    X3 -.->|implementasjon| F2
+    F3 -.->|DTO-ar og contexts| F4
+    K1 -.->|godkjende standardverdiar| F4
+    X1 -.->|full strategi| F4
+    X3 -.->|recovery etter kontrakt| F2
+    F4 -.->|live transport| F2
 
     classDef done fill:#d4f4dd,stroke:#2d7a3e
     classDef wip fill:#fff3cd,stroke:#b8860b
-    class F1 done
-    class F2 wip
+    class F1,K1,D1 done
+    class F2,F3,F4,F5,X1 wip

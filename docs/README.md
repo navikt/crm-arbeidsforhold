@@ -39,6 +39,7 @@ Alle Mermaid-diagram er lagra som sjølvstendige `.mmd`-kjelder. Diagram som ogs
 | Application-datamodell                  | [AAREGerDiagramApplication.mmd](AAREGerDiagramApplication.mmd)                                                    |
 | Ny Application-datamodell               | [AAREGerDiagramApplicationNew.mmd](AAREGerDiagramApplicationNew.mmd)                                              |
 | P360 component architecture             | [p360-component-diagram.mmd](architecture/p360-component-diagram.mmd)                                             |
+| P360 implementation class diagram       | [p360-class-diagram.mmd](architecture/p360-class-diagram.mmd)                                                     |
 | P360 archive contract-boundary sequence | [p360-archive-sequence.mmd](architecture/p360-archive-sequence.mmd)                                               |
 | P360 data model relationships           | [p360-data-model-relationships.mmd](architecture/p360-data-model-relationships.mmd)                               |
 | P360 noverande arkitektur               | [p360-current-architecture.mmd](integrations/p360/diagrams/p360-current-architecture.mmd)                         |

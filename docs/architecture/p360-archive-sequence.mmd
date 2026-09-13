@@ -7,17 +7,27 @@ sequenceDiagram
     participant Orchestrator as AAREG_ArchiveApplicationOrchestrator
     participant Adapter as P360_IArchiveAdapter
     participant Client as P360_IRpcClient
-    participant Boundary as Unresolved SIF RPC boundary
+    participant Boundary as Live SIF RPC boundary
 
-    Caller->>Factory: Compose standard adapter
-    Factory-->>Caller: Return injected adapter
+    Caller->>Factory: Resolve adapter from org setting
+    alt Use_Mock_Transport__c = true
+        Factory-->>Caller: P360_StubArchiveAdapter
+    else Mock mode disabled
+        Factory-->>Caller: P360_ArchiveAdapter(P360_RpcClient)
+    end
     Caller->>Orchestrator: archive(command)
-    alt command is null or applicationId is missing
+    alt command is null or required values missing
         Orchestrator-->>Caller: P360_ContractException
-    else command is structurally valid
-        Note over Orchestrator,Adapter: Current implementation stops at explicit contract boundary
-        Orchestrator-->>Caller: P360_ContractException (not implemented)
-        Note over Adapter,Client: No adapter or RPC call is made by the current orchestrator stub
+    else command is valid
+        Orchestrator->>Adapter: archive(request)
+        alt Explicit mock mode
+            Adapter-->>Orchestrator: controlled success response
+        else Live transport boundary
+            Adapter->>Client: archive RPC request
+            Client-->>Adapter: pending live response contract
+            Adapter-->>Orchestrator: response or classified exception
+        end
+        Orchestrator-->>Caller: AAREG_ArchiveApplicationResult
     end
 
-    Note over Client,Boundary: Endpoint, authentication, payload and response mapping await confirmed SIF contract
+    Note over Client,Boundary: Live endpoint, authentication, payload and response mapping remain externally blocked

@@ -82,6 +82,7 @@ Følgjande sider bør liggje under dette området:
 - [Jira-oppdateringsoversikt](../../context/p360/jira-oppdateringsoversikt.md)
 - [Dependency injection og adapterval](di-og-adapterval.md)
 - [P360 datamodell og asynkron arkiveringsjobb](../../architecture/p360-data-model-og-arkiveringsjob.md)
+- [P360 klassediagram](../../architecture/p360-class-diagram.mmd)
 - API og SIF RPC
 - Metadata og kodeverk
 - External ID-strategi

@@ -1,0 +1,130 @@
+---
+title: P360 implementation class diagram
+---
+classDiagram
+    class P360_AdapterFactory {
+        -P360_IRpcClient rpcClient
+        -P360_IArchiveAdapter archiveAdapter
+        +P360_AdapterFactory()
+        +P360_AdapterFactory(P360_IRpcClient rpcClient)
+        +createArchiveAdapter() P360_IArchiveAdapter
+    }
+
+    class P360_IArchiveAdapter {
+        <<interface>>
+        +archive(P360_ArchiveRequestDto request) P360_ArchiveResponseDto
+    }
+
+    class P360_ArchiveAdapter {
+        +archive(P360_ArchiveRequestDto request) P360_ArchiveResponseDto
+    }
+
+    class P360_StubArchiveAdapter {
+        +archive(P360_ArchiveRequestDto request) P360_ArchiveResponseDto
+    }
+
+    class P360_IRpcClient {
+        <<interface>>
+    }
+
+    class P360_RpcClient {
+        +send(P360_RpcRequest request) P360_RpcResponse
+    }
+
+    class AAREG_ArchiveApplicationOrchestrator {
+        -P360_IArchiveAdapter archiveAdapter
+        +archive(AAREG_ArchiveApplicationCommand command) AAREG_ArchiveApplicationResult
+    }
+
+    class AAREG_ApplicationDomainService {
+        +buildArchiveContext(Id applicationId) AAREG_ApplicationArchiveContext
+    }
+
+    class AAREG_AgreementDomainService {
+        +buildArchiveContext(Id agreementId) AAREG_AgreementArchiveContext
+    }
+
+    class AAREG_ApplicationToP360CaseMapper {
+        +mapToCreateCase(Input input) P360_CreateCaseRequestDto
+    }
+
+    class AAREG_ApplicationToP360DocumentMapper {
+        +mapToCreateDocument(Input input) P360_CreateDocumentRequestDto
+    }
+
+    class AAREG_DecisionToP360DocumentMapper {
+        +mapToCreateDocument(Input input) P360_CreateDocumentRequestDto
+    }
+
+    class AAREG_ApplicationFileToP360FileMapper {
+        +mapToFile(Input input) P360_FileParameterDto
+    }
+
+    class P360_ICodeTableService {
+        <<interface>>
+        +getValue(String tableName, String salesforceKey) P360_CodeTableRowDto
+    }
+
+    class P360_CodeTableMetadataService {
+        +getValue(String tableName, String salesforceKey) P360_CodeTableRowDto
+    }
+
+    class P360_ArchiveJobClaimService {
+        +claimNextBatch(Integer batchSize) List~Id~
+    }
+
+    class P360_ArchiveJobWorker {
+        -Set~Id~ jobIds
+        -P360_IArchiveAdapter adapter
+        +execute(QueueableContext context)
+    }
+
+    class P360_ArchiveJobService {
+        +getOrCreateApplicationDocumentJob(Id accessRequestId, Id applicationId, String correlationId) P360_Archive_Job__c
+        +getOrCreateApplicationAttachmentJob(Id accessRequestId, Id applicationId, Id contentVersionId, String correlationId) P360_Archive_Job__c
+    }
+
+    class P360_ArchiveRequestDto
+    class P360_ArchiveResponseDto
+    class P360_RpcRequest
+    class P360_RpcResponse
+    class P360_Archive_Job__c
+    class P360_CreateCaseRequestDto
+    class P360_CreateDocumentRequestDto
+    class P360_FileParameterDto
+    class P360_CodeTableRowDto
+    class AAREG_ArchiveApplicationCommand
+    class AAREG_ArchiveApplicationResult
+    class AAREG_ApplicationArchiveContext
+    class AAREG_AgreementArchiveContext
+
+    P360_AdapterFactory ..> P360_IArchiveAdapter : creates
+    P360_AdapterFactory ..> P360_StubArchiveAdapter : mock mode
+    P360_AdapterFactory ..> P360_ArchiveAdapter : live mode
+    P360_ArchiveAdapter ..|> P360_IArchiveAdapter
+    P360_StubArchiveAdapter ..|> P360_IArchiveAdapter
+    P360_ArchiveAdapter --> P360_IRpcClient
+    P360_RpcClient ..|> P360_IRpcClient
+    AAREG_ArchiveApplicationOrchestrator --> P360_IArchiveAdapter
+    AAREG_ArchiveApplicationOrchestrator ..> P360_ArchiveRequestDto
+    AAREG_ArchiveApplicationOrchestrator ..> P360_ArchiveResponseDto
+    AAREG_ApplicationDomainService ..> AAREG_ApplicationArchiveContext
+    AAREG_AgreementDomainService ..> AAREG_AgreementArchiveContext
+    AAREG_ApplicationToP360CaseMapper --> P360_ICodeTableService
+    AAREG_ApplicationToP360DocumentMapper --> P360_ICodeTableService
+    AAREG_DecisionToP360DocumentMapper --> P360_ICodeTableService
+    AAREG_ApplicationToP360DocumentMapper ..> AAREG_ApplicationFileToP360FileMapper
+    AAREG_DecisionToP360DocumentMapper ..> AAREG_ApplicationFileToP360FileMapper
+    P360_CodeTableMetadataService ..|> P360_ICodeTableService
+    P360_ArchiveJobClaimService ..> P360_Archive_Job__c
+    P360_ArchiveJobService ..> P360_Archive_Job__c
+    P360_ArchiveJobWorker --> P360_IArchiveAdapter
+    P360_ArchiveJobWorker ..> P360_Archive_Job__c
+    P360_CreateDocumentRequestDto ..> P360_FileParameterDto
+
+    classDef implemented fill:#d4f4dd,stroke:#2d7a3e,color:#111
+    classDef contract fill:#fff3cd,stroke:#946200,color:#111
+    classDef pending fill:#f8d7da,stroke:#9b2c2c,color:#111
+    class P360_AdapterFactory,P360_StubArchiveAdapter,AAREG_ArchiveApplicationOrchestrator,AAREG_ApplicationDomainService,AAREG_AgreementDomainService,AAREG_ApplicationToP360CaseMapper,AAREG_ApplicationToP360DocumentMapper,AAREG_DecisionToP360DocumentMapper,AAREG_ApplicationFileToP360FileMapper,P360_CodeTableMetadataService,P360_ArchiveJobClaimService,P360_ArchiveJobService,P360_ArchiveJobWorker implemented
+    class P360_IArchiveAdapter,P360_ArchiveAdapter,P360_IRpcClient,P360_RpcClient contract
+    class P360_ArchiveRequestDto,P360_ArchiveResponseDto,P360_CreateCaseRequestDto,P360_CreateDocumentRequestDto,P360_FileParameterDto,P360_CodeTableRowDto,AAREG_ArchiveApplicationCommand,AAREG_ArchiveApplicationResult,AAREG_ApplicationArchiveContext,AAREG_AgreementArchiveContext,P360_Archive_Job__c contract

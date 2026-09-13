@@ -7,11 +7,13 @@ erDiagram
     APPLICATION ||--o{ APPLICATION_DECISION : "master-detail"
     APPLICATION o|--o{ AGREEMENT : "optional lookup"
     AGREEMENT o|--o{ APPLICATION_DECISION : "optional lookup"
+    APPLICATION ||--o{ CONTENT_VERSION : "attachments"
 
     ACCESS_REQUEST ||--o{ P360_ARCHIVE_JOB : "required context"
     APPLICATION o|--o{ P360_ARCHIVE_JOB : "application source"
     APPLICATION_DECISION o|--o{ P360_ARCHIVE_JOB : "decision source"
     AGREEMENT o|--o{ P360_ARCHIVE_JOB : "agreement source"
+    CONTENT_VERSION o|--o{ P360_ARCHIVE_JOB : "attachment source"
     USER o|--o{ P360_ARCHIVE_JOB : "manual release"
 
     USER {
@@ -30,6 +32,13 @@ erDiagram
         string P360_Document_Id__c
         string P360_Document_Number__c
         string P360_File_Id__c
+    }
+
+    CONTENT_VERSION {
+        Id Id PK
+        Id FirstPublishLocationId FK
+        string Title
+        string FileType
     }
 
     APPLICATION_DECISION {

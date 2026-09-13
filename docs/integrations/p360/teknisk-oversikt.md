@@ -1,6 +1,6 @@
 # P360 teknisk oversikt
 
-Denne sida forklarer kva P360-integrasjonen i Salesforce består av per 2026-09-13, korleis dei implementerte delane verkar, og kvar grensene mot framtidig arbeid går.
+Denne sida forklarer kva P360-integrasjonen i Salesforce består av per 2026-09-14, korleis dei implementerte delane verkar, og kvar grensene mot framtidig arbeid går.
 
 ## Statusnøklar
 
@@ -28,8 +28,9 @@ Implementert og testa:
 - Apex-testsuiten `P360` med alle P360-testklassane
 - Custom Metadata Type `P360_Code_Table_Value__mdt` med godkjende, ikkje-sensitive standardrecordar (lookup-nøkkel `Default`) og `P360_CodeTableMetadataService` for kodeverksoppslag med per-transaksjon-cache
 - første mock-baserte CreateCase-mapping via `AAREG_ApplicationToP360CaseMapper`, med metadataoppslag for standard value set, status, type, tilgang og ClassCode 1
-- første mock-baserte CreateDocument-mapping via `AAREG_ApplicationToP360DocumentMapper`, med metadataoppslag for dokumentarkiv, journalstatus, tilgangskode og tilgangsgruppe; kategori og filer er ikkje gjetta
-- første mock-baserte vedtaksdokument-mapping via `AAREG_DecisionToP360DocumentMapper`, med `Sak`, `Dokument ut`, journalstatus og tilgang frå godkjende metadata; filer er ikkje gjetta
+- første mock-baserte CreateDocument-mapping via `AAREG_ApplicationToP360DocumentMapper`, med metadataoppslag for dokumentarkiv, journalstatus, tilgangskode og tilgangsgruppe
+- første mock-baserte vedtaksdokument-mapping via `AAREG_DecisionToP360DocumentMapper`, med `Sak`, `Dokument ut`, journalstatus og tilgang frå godkjende metadata
+- mock-file-parametrar blir mappa av `AAREG_ApplicationFileToP360FileMapper` og inkluderte i begge CreateDocument-requestane; ContentVersion-oppslag og upload er framleis ikkje valt
 - file-parameter-mapping via `AAREG_ApplicationFileToP360FileMapper`, integrert i begge mock-baserte CreateDocument-mapperane, utan å velje upload-endpoint
 - mock-kompatibel `AAREG_ArchiveApplicationOrchestrator`-kopling som vidarefører `externalId`/`correlationId` til den injiserte adapteren og mappar kontrollert stub-respons tilbake til internt resultat
 - schema-safe typed domain contexts for verifisert `Application__c.Id` og `Agreement__c.Id`
@@ -51,7 +52,7 @@ Ikkje implementert:
 
 ## Lag og ansvar
 
-Diagramkjelde: [P360 current architecture](diagrams/p360-current-architecture.mmd)
+Diagramkjelde: [P360 current architecture](diagrams/p360-current-architecture.mmd) · [P360 component architecture](../../architecture/p360-component-diagram.mmd) · [P360 implementation class diagram](../../architecture/p360-class-diagram.mmd)
 
 ```mermaid
 graph LR
@@ -63,19 +64,22 @@ graph LR
         Key[P360_IdempotencyKey]
         JobService[P360_ArchiveJobService]
         Job[(P360_Archive_Job__c)]
-        Domain[AAREG domain services]
-        Orchestrator[AAREG orchestrator]
+        Claim[P360_ArchiveJobClaimService]
+        Domain[AAREG application/agreement domain services]
+        Orchestrator[AAREG_ArchiveApplicationOrchestrator]
         Factory[P360_AdapterFactory]
-        Adapter[P360 adapter boundary]
-        Rpc[P360 RPC boundary]
-        Worker[Queueable archive worker]
+        Adapter[P360_IArchiveAdapter]
+        LiveAdapter[P360_ArchiveAdapter]
+        StubAdapter[P360_StubArchiveAdapter]
+        Rpc[P360_IRpcClient / P360_RpcClient]
+        Worker[P360_ArchiveJobWorker]
+        Mapper[Case / Document / File mappers]
         CodeTable[(P360_Code_Table_Value__mdt)]
         CodeTableService[P360_CodeTableMetadataService]
         Config[P360_Integration_Setting__c]
     end
 
     subgraph Future[Planlagt eller eksternt blokkert]
-        Mapper[Salesforce to SIF mapper]
         Auth[Named Credential and auth]
         P360[Public 360 SIF RPC]
     end
@@ -83,23 +87,25 @@ graph LR
     Decision --> Trigger --> MyTriggers --> Guard
     JobService --> Key
     JobService --> Job
-    Job -.-> Worker
+    Job --> Claim --> Worker
+    Worker --> Factory
     Worker --> Adapter
-    Domain -.-> Orchestrator
-    Orchestrator --> Factory --> Adapter --> Rpc
+    Domain --> Orchestrator --> Adapter
+    Factory --> StubAdapter
+    Factory --> LiveAdapter --> Rpc
     Rpc -.-> Auth -.-> P360
-    Mapper -.-> Adapter
+    Mapper --> Adapter
     CodeTableService --> CodeTable
-    Mapper -.-> CodeTableService
-    Config -.-> Auth
+    Mapper --> CodeTableService
+    Config -. selects .-> StubAdapter
+    Config -. selects .-> LiveAdapter
 
     classDef implemented fill:#d4f4dd,stroke:#2d7a3e,color:#111
     classDef contract fill:#fff3cd,stroke:#946200,color:#111
     classDef blocked fill:#f8d7da,stroke:#9b2c2c,color:#111
-    class Decision,Trigger,MyTriggers,Guard,Key,JobService,Job,CodeTable,CodeTableService,Config implemented
-    class Domain,Orchestrator,Factory,Adapter,Rpc contract
-    class Worker,CodeTable,CodeTableService,Config implemented
-    class Mapper,Auth,P360 blocked
+    class Decision,Trigger,MyTriggers,Guard,Key,JobService,Job,Claim,Worker,Mapper,CodeTable,CodeTableService,Config,StubAdapter implemented
+    class Domain,Orchestrator,Factory,Adapter,LiveAdapter,Rpc contract
+    class Auth,P360 blocked
 ```
 
 Den heiltrukne delen viser kode som finst. Stipla overgangar viser planlagde eller blokkerte koplingar. Diagrammet skal ikkje lesast som at ein ende-til-ende arkivflyt allereie køyrer.
@@ -159,7 +165,7 @@ Manglande ID-ar gir `P360_ContractException`. Nøklane identifiserer Salesforce-
 
 ## Idempotent jobboppretting
 
-Berre `ApplicationDocument` er kopla til jobbservice no.
+`ApplicationDocument` og `ApplicationAttachment` er kopla til jobbservice no; andre arkivhendingar er framleis planlagde.
 
 Diagramkjelde: [P360 idempotent archive job creation](diagrams/p360-idempotent-job-creation-sequence.mmd)
 
@@ -170,10 +176,17 @@ sequenceDiagram
     participant Key as P360_IdempotencyKey
     participant Store as P360_Archive_Job__c
 
-    Caller->>Service: getOrCreateApplicationDocumentJob(context)
-    Service->>Service: validate required context
-    Service->>Key: forApplicationDocument(applicationId)
-    Key-->>Service: APPLICATION_DOCUMENT:{id}
+    alt Application document
+        Caller->>Service: getOrCreateApplicationDocumentJob(accessRequestId, applicationId, correlationId)
+        Service->>Service: validate required context
+        Service->>Key: forApplicationDocument(applicationId)
+        Key-->>Service: APPLICATION_DOCUMENT:{id}
+    else Application attachment
+        Caller->>Service: getOrCreateApplicationAttachmentJob(accessRequestId, applicationId, contentVersionId, correlationId)
+        Service->>Service: validate required context
+        Service->>Key: forApplicationAttachment(applicationId, contentVersionId)
+        Key-->>Service: APPLICATION_ATTACHMENT:{applicationId}:{contentVersionId}
+    end
     Service->>Store: query unique Idempotency_Key__c
     alt Existing job
         Store-->>Service: existing job
@@ -204,23 +217,23 @@ Ein ny jobb får:
 
 Retry med same nøkkel returnerer den eksisterande jobben og overskriv ikkje status eller opphavleg korrelasjonskontekst.
 
-## Jobbstatus og framtidig worker
+## Jobbstatus og worker
 
 Diagramkjelde: [P360 archive job state model](diagrams/p360-archive-job-state.mmd)
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Pending: Implementert jobboppretting
-    Pending --> InProgress: Planlagt lease claim
-    InProgress --> Succeeded: Planlagt vellukka arkivering
-    InProgress --> Failed: Planlagt retrybar feil
-    Failed --> Pending: Planlagt retry etter backoff
-    Failed --> ManualReview: Planlagt forsoksgrense
-    ManualReview --> Pending: Planlagt manuell frigiving
+    [*] --> Pending: Job service oppretter idempotent jobb
+    Pending --> InProgress: Claim service tek lease
+    InProgress --> Succeeded: Worker får suksess frå adapter
+    InProgress --> Failed: Worker får retrybar feil
+    Failed --> Pending: Due etter 1m / 5m / 15m / 1t / 6t
+    Failed --> ManualReview: Ikkje retrybar eller maks 5 forsøk
+    ManualReview --> Pending: Manuell frigiving
     Succeeded --> [*]
 ```
 
-Berre overgangen til `Pending` er implementert. Dei andre statusane finst i metadata og dokumentert design, men har ingen worker eller statusservice enno.
+Claim-service og worker er implementerte og testa mot stub. Scheduler/cron og endeleg live transport er framleis ikkje kopla inn.
 
 ## Sikkerheit
 
