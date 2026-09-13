@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Samlar tilgangen ein P360-integrasjonsbrukar treng. Tildeling av gruppa til brukar/org er data og blir gjort separat per miljø, ikkje via deploy, slik at prod og sit2 ikkje blir overskrivne av kvarandre.</description>
+    <label>P360 Integration User</label>
+    <permissionSets>P360_RPC_Callout_Access</permissionSets>
+    <permissionSets>P360_Archive_Job_Processing</permissionSets>
+    <status>Updated</status>
+</PermissionSetGroup>

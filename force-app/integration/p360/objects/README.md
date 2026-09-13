@@ -29,6 +29,7 @@ Objekt her skal ikkje:
 
 ```text
 P360_Archive_Job__c
+P360_Integration_Setting__c
 ```
 
 ## Namnestandard
@@ -36,6 +37,8 @@ P360_Archive_Job__c
 Bruk `P360_` for objekt og metadata types som primært høyrer til P360-integrasjonen.
 
 `P360_Archive_Job__c` eig teknisk jobbstatus, idempotensnøkkel, korrelasjon, retry-, lease- og feilkontekst. P360-referansefelt på `Access_Request__c`, `Application__c`, `Application_Decision__c` og `Agreement__c` ligg også i denne mappa fordi integrasjonen eig metadataen.
+
+`P360_Integration_Setting__c` er ein Hierarchy Custom Setting som held det miljøstyrte oppslaget for kva Named Credential P360-integrasjonen skal bruke. Verdien er data, ikkje metadata, og blir difor ikkje overskriven av deploy — han må setjast per miljø (prod/sit2) etter at Named Credential/External Credential er oppretta der.
 
 Namneeksempel for framtidig metadata:
 

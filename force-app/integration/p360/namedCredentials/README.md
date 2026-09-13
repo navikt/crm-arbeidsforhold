@@ -37,6 +37,10 @@ Eksempel på prinsipp:
 callout:P360_RPC
 ```
 
+## Miljøstyring
+
+Sjølve Named Credential-recorden blir ikkje oppretta via kjeldekontrollert metadata i dette repoet, sidan oppsettet er miljøspesifikt og knytt til sensitiv External Credential-konfigurasjon. Kva Named Credential-namn Apex skal bruke, blir styrt via Custom Setting `P360_Integration_Setting__c` (`objects/P360_Integration_Setting__c/`), som er data og ikkje blir overskriven av deploy.
+
 ## Drift
 
 Endringar i Named Credential må koordinerast med:

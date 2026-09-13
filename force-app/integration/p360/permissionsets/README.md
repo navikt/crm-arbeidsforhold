@@ -29,6 +29,7 @@ Permission sets her skal ikkje:
 ```text
 P360_Archive_Release.permissionset-meta.xml
 P360_Archive_Job_Processing.permissionset-meta.xml
+P360_RPC_Callout_Access.permissionset-meta.xml
 ```
 
 ## Prinsipp
@@ -38,6 +39,8 @@ Bruk minste privilegium.
 `P360_Archive_Release` gir custom permission for å setje frigivingssignalet på vedtak. Ordinær felttilgang kjem frå saksbehandlarsettet.
 
 `P360_Archive_Job_Processing` gir avgrensa tilgang til jobbobjektet og felta som første `ApplicationDocument`-slice bruker. Settet må utvidast eksplisitt når worker eller fleire jobbtypar blir implementerte.
+
+`P360_RPC_Callout_Access` gir tilgang til Custom Setting `P360_Integration_Setting__c` og til `P360_RpcClient`. External Credential Principal-tilgang må leggjast til manuelt i kvart target-org etter at Named Credential/External Credential er oppretta der, sidan Principal ikkje finst i kjeldekontrollert metadata. Settet inngår i Permission Set Group `P360_Integration_User` (sjå `permissionsetgroups/`). Sjølve tildelinga av settet/gruppa til ein brukar er data, ikkje metadata, og blir difor ikkje overskriven av deploy — ho må gjerast separat per miljø (prod/sit2).
 
 Skil framleis mellom:
 
