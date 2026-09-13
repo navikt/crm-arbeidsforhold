@@ -1458,6 +1458,7 @@ deploy_metadata() {
 
     run_cmd sf project deploy start \
         --target-org "$TARGET_ORG" \
+        --ignore-conflicts \
         || error $? '"sf project deploy start" command failed.'
 
     add_action "Deployed metadata to $TARGET_ORG"
@@ -2270,7 +2271,6 @@ echo "Running selected post steps: $POST_STEPS"
 
 if should_run_post_step "deploy"; then
     deploy_metadata
-    reset_source_tracking
     add_post_step_run "deploy"
 else
     echo "Skipping metadata deploy."
@@ -2299,6 +2299,10 @@ if should_run_post_step "community"; then
 else
     echo "Skipping community publish."
     add_post_step_skipped "community"
+fi
+
+if should_run_post_step "deploy"; then
+    reset_source_tracking
 fi
 
 if [[ "$REFRESH_DEPENDENCY_SOURCES" == "true" ]]; then

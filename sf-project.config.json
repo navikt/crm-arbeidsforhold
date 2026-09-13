@@ -10,7 +10,12 @@
     ],
     "dummyDataPlan": "dummy-data/Plan.json",
     "communityName": "Aa-registret",
-    "postSteps": ["deploy", "permsets", "data", "community"],
+    "postSteps": [
+        "deploy",
+        "permsets",
+        "data",
+        "community"
+    ],
     "pool": {
         "use": true,
         "tag": "dev",
@@ -18,6 +23,8 @@
     },
     "packageInstallKeyEnvironmentVariable": "PACKAGE_INSTALL_KEY",
     "dependencySourcePolicy": {
-        "preserveRootFiles": ["README.md"]
+        "preserveRootFiles": [
+            "README.md"
+        ]
     }
 }

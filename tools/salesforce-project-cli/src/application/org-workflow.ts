@@ -179,7 +179,7 @@ async function runStep(
 function postStepCommand(configuration: ProjectConfiguration, alias: string, postStep: PostStep): string[] | undefined {
     switch (postStep) {
         case 'deploy':
-            return ['project', 'deploy', 'start', '--target-org', alias];
+            return ['project', 'deploy', 'start', '--target-org', alias, '--ignore-conflicts'];
         case 'permsets':
             return configuration.permissionSets.length === 0
                 ? undefined
@@ -288,6 +288,29 @@ async function runPostSteps(options: ResolvedConfigureProjectOptions): Promise<E
     return EXIT_CODES.SUCCESS;
 }
 
+async function resetSourceTracking(options: ResolvedConfigureProjectOptions): Promise<ExitCode> {
+    if (options.dryRun) {
+        options.emit({
+            kind: 'progress',
+            operationId: options.operationId,
+            timestamp: new Date().toISOString(),
+            stepId: 'reset-source-tracking',
+            step: 'Reset source tracking',
+            message: 'Would reset the source-tracking baseline after all post steps',
+            dryRun: true
+        });
+        return EXIT_CODES.SUCCESS;
+    }
+    return runStep(options, 'reset-source-tracking', 'Reset source tracking', 'sf', [
+        'project',
+        'reset',
+        'tracking',
+        '--target-org',
+        options.alias,
+        '--no-prompt'
+    ]);
+}
+
 async function configureResolvedProject(options: ResolvedConfigureProjectOptions): Promise<ExitCode> {
     // Compose packages, canonical post-steps, and optional dependency refresh; stop at the first failed stage.
     emitOrgSummary(options, 'configure');
@@ -335,6 +358,12 @@ async function configureResolvedProject(options: ResolvedConfigureProjectOptions
     const postStepExitCode = await runPostSteps(options);
     if (postStepExitCode !== EXIT_CODES.SUCCESS) {
         return postStepExitCode;
+    }
+    if (options.postSteps.includes('deploy')) {
+        const trackingExitCode = await resetSourceTracking(options);
+        if (trackingExitCode !== EXIT_CODES.SUCCESS) {
+            return trackingExitCode;
+        }
     }
     if (options.refreshDependencySources) {
         return refreshDependencies({
