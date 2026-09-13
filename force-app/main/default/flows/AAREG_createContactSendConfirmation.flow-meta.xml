@@ -641,10 +641,11 @@
             </value>
         </filters>
         <object>Application__c</object>
-        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <triggerOrder>500</triggerOrder>
     <variables>
         <name>templateId</name>
         <dataType>String</dataType>

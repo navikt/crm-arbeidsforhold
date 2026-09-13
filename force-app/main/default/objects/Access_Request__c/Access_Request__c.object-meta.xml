@@ -143,7 +143,6 @@
     <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>AAREG_access_request_layout</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <deprecated>false</deprecated>
     <description>Arbeidsforhold - objekt brukes på overordnet nivå.</description>
     <enableActivities>true</enableActivities>
     <enableBulkApi>false</enableBulkApi>
@@ -163,7 +162,10 @@
         <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Access Requests</pluralLabel>
-    <searchLayouts></searchLayouts>
+    <searchLayouts>
+        <searchResultsAdditionalFields>organizationsnummer__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Account__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

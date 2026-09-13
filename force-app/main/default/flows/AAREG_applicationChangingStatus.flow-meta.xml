@@ -205,6 +205,7 @@
             </value>
         </inputAssignments>
     </subflows>
+    <triggerOrder>700</triggerOrder>
     <variables>
         <name>varTaskSubject</name>
         <dataType>String</dataType>

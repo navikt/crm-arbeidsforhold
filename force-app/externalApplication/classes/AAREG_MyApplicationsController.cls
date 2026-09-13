@@ -111,6 +111,90 @@ public with sharing class AAREG_MyApplicationsController {
     }
 
     /**
+     * Retrieves available decision PDF URLs for the provided applications.
+     * Result is cacheable (`cacheable=true`); the calling LWC must invoke `refreshApex()` to
+     * force a refresh after the underlying data changes.
+     *
+     * @param applicationIds The application ids to resolve decision PDFs for.
+     * @return A map from application id to downloadable decision PDF URL for applications with an available PDF.
+     */
+    @AuraEnabled(cacheable=true)
+    public static Map<Id, String> getDecisionPDFs(List<Id> applicationIds) {
+        Map<Id, String> urlsByApplicationId = new Map<Id, String>();
+        if (applicationIds == null || applicationIds.isEmpty()) {
+            return urlsByApplicationId;
+        }
+
+        String documentTitle = 'Vedtak til søknad %';
+        try {
+            Map<Id, Id> latestDecisionByApplicationId = new Map<Id, Id>();
+            for (Application_Decision__c decision : [
+                SELECT Id, Application__c
+                FROM Application_Decision__c
+                WHERE Application__c IN :applicationIds
+                ORDER BY Application__c, CreatedDate DESC
+            ]) {
+                if (!latestDecisionByApplicationId.containsKey(decision.Application__c)) {
+                    latestDecisionByApplicationId.put(decision.Application__c, decision.Id);
+                }
+            }
+
+            if (latestDecisionByApplicationId.isEmpty()) {
+                return urlsByApplicationId;
+            }
+
+            Map<Id, Set<Id>> documentIdsByDecisionId = new Map<Id, Set<Id>>();
+            Set<Id> allDocumentIds = new Set<Id>();
+            for (ContentDocumentLink link : [
+                SELECT LinkedEntityId, ContentDocumentId
+                FROM ContentDocumentLink
+                WHERE LinkedEntityId IN :latestDecisionByApplicationId.values()
+            ]) {
+                if (!documentIdsByDecisionId.containsKey(link.LinkedEntityId)) {
+                    documentIdsByDecisionId.put(link.LinkedEntityId, new Set<Id>());
+                }
+                documentIdsByDecisionId.get(link.LinkedEntityId).add(link.ContentDocumentId);
+                allDocumentIds.add(link.ContentDocumentId);
+            }
+
+            if (allDocumentIds.isEmpty()) {
+                return urlsByApplicationId;
+            }
+
+            Set<Id> matchingDocumentIds = new Set<Id>();
+            for (ContentVersion version : [
+                SELECT ContentDocumentId
+                FROM ContentVersion
+                WHERE ContentDocumentId IN :allDocumentIds AND Title LIKE :documentTitle AND IsLatest = TRUE
+            ]) {
+                matchingDocumentIds.add(version.ContentDocumentId);
+            }
+
+            for (Id applicationId : latestDecisionByApplicationId.keySet()) {
+                Id decisionId = latestDecisionByApplicationId.get(applicationId);
+                Set<Id> decisionDocumentIds = documentIdsByDecisionId.get(decisionId);
+                if (decisionDocumentIds == null) {
+                    continue;
+                }
+
+                for (Id documentId : decisionDocumentIds) {
+                    if (matchingDocumentIds.contains(documentId)) {
+                        urlsByApplicationId.put(
+                            applicationId,
+                            '/sfc/servlet.shepherd/document/download/' + documentId + '?operationContext=S1'
+                        );
+                        break;
+                    }
+                }
+            }
+
+            return urlsByApplicationId;
+        } catch (Exception e) {
+            throw new AuraHandledException('Error retrieving PDFs: ' + e.getMessage());
+        }
+    }
+
+    /**
      * Retrieves the user's applications for the given organization, translating each
      * application's status to its Norwegian label.
      *
