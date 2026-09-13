@@ -213,6 +213,16 @@ Berre overgangen til `Pending` er implementert. Dei andre statusane finst i meta
 - Domene- og jobb-DML blir køyrd som den aktuelle testbrukaren.
 - Ingen secrets, AuthKey, token eller miljø-URL ligg i source.
 
+### Maskering av sensitive felt i logging
+
+`IntegrationLogRedactor` (`force-app/integration/common/classes/`) fjernar feltverdiar før dei kan hamne i teknisk logging. Ein felt-nøkkel blir rekna som sensitiv når nøkkelen inneheld (utan omsyn til store/små bokstavar) eitt av: `token`, `password`, `secret`, `authorization`, `cookie`, `fnr`, `ssn`, `personnummer`. Verdien blir då erstatta med `[REDACTED]`; nøkkelen og alle ikkje-sensitive verdiar er uendra. Input-mapen blir aldri mutert.
+
+`IntegrationLogContext` held berre tekniske felt (systemnamn, operasjonsnamn, correlation-ID og status) og har ingen felt for nyttelast eller dokumentinnhald, slik at desse aldri kan hamne i loggkonteksten i utgangspunktet.
+
+`P360_IntegrationException` kan bere ein correlation-ID vidare gjennom eit `catch`-grense via `withCorrelationId(...)`, verifisert av `P360_IntegrationExceptionCorrelationTest`. Dette gjer det mogleg å korrelere ein feil tilbake til det opphavlege loggkonteksten utan å logge nyttelast.
+
+Deploy `0AfQI00000jKxV30AK` mot `crm-arbeidsforhold`: `IntegrationLogRedactor` har 100 % dekning, 2/2 fokuserte testar bestått. Deploy `0AfQI00000jKxmn0AC`: `P360_IntegrationExceptionCorrelationTest` og eksisterande `P360_ExceptionHierarchyTest`, 4/4 testar bestått.
+
 Permission set-et for jobbprosessering er ikkje eit ferdig driftssett for den framtidige workeren. Nye jobbtypar og worker-felt krev eksplisitt utviding og sikkerheitsgjennomgang.
 
 ## Kontraktgrensa mot P360
