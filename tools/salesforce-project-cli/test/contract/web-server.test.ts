@@ -19,6 +19,15 @@ afterEach(async () => {
 
 function createFacade(): WebServiceFacade {
     return {
+        getProjectInfo: vi.fn(async () => ({
+            projectDirectory: process.cwd(),
+            repositoryName: 'crm-arbeidsforhold-2',
+            repositoryUrl: 'https://github.com/navikt/crm-arbeidsforhold-2',
+            branch: 'main',
+            status: 'clean' as const,
+            statusSummary: 'Ingen endringer',
+            isGitRepository: true
+        })),
         listOrgs: vi.fn(async () => ({ orgs: [] })),
         getOrgStatus: vi.fn(async (alias) => createFacade().getOrg(alias ?? 'scratch')),
         getOrgPackages: vi.fn(async (alias) => ({

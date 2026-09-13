@@ -153,6 +153,8 @@ export interface Operation {
 export interface DashboardApi {
     /** Returns summarized organizations visible to the local server. */
     listOrgs(): Promise<OrgSummary[]>;
+    /** Returns project metadata and working-tree status for the active project root. */
+    listProjectInfo(): Promise<ProjectInfo>;
     /** Returns server details for the organization identified by an alias or username. */
     getOrg(alias: string): Promise<OrgDetail>;
     /** Returns the server-calculated package status for an organization without changing it. */
@@ -173,6 +175,16 @@ export interface DashboardApi {
      * subscription is no longer needed.
      */
     subscribe(operationId: string, onEvent: (event: OperationEvent) => void): () => void;
+}
+
+export interface ProjectInfo {
+    projectDirectory: string;
+    repositoryName: string | null;
+    repositoryUrl: string | null;
+    branch: string | null;
+    status: 'clean' | 'dirty' | 'unknown';
+    statusSummary: string;
+    isGitRepository: boolean;
 }
 
 async function readJson<T>(response: Response): Promise<T> {
@@ -249,6 +261,9 @@ export const browserApi: DashboardApi = {
     async listOrgs() {
         const result = await readJson<{ orgs: OrgSummary[] }>(await authenticatedFetch('/api/v1/orgs'));
         return result.orgs;
+    },
+    async listProjectInfo() {
+        return readJson<ProjectInfo>(await authenticatedFetch('/api/v1/project-info'));
     },
     async getOrg(alias) {
         const result = await readJson<{ org: OrgDetail }>(

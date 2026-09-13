@@ -79,7 +79,7 @@ describe('create org workflow', () => {
             })
         ).resolves.toBe(EXIT_CODES.SUCCESS);
 
-        expect(runCommand.mock.calls[0][0]).toMatchObject({
+        expect(runCommand.mock.calls[0]?.[0]).toMatchObject({
             executable: 'sf',
             arguments: ['org', 'delete', 'scratch', '--no-prompt', '--target-org', 'scratch-org']
         });
