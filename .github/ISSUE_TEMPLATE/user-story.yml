@@ -1,0 +1,54 @@
+name: User story
+description: Beskriv eit behov med testbar effekt og akseptansekriterium
+title: "[Story] "
+labels:
+  - user-story
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bruk denne malen for arbeid som kan beskrivast gjennom ein brukar- eller systemeffekt.
+        Oppgåver som berre gjeld intern opprydding kan bruke ei vanleg Issue.
+  - type: textarea
+    id: story
+    attributes:
+      label: User story
+      description: Skildre aktør, behov og effekt.
+      placeholder: Som ein ..., vil eg ..., slik at ...
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Akseptansekriterium
+      description: Skriv kriterium som kan verifiserast, eitt per linje.
+      placeholder: |
+        - Gitt ..., når ..., så ...
+        - Gitt ..., når ..., så ...
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope og ut av scope
+      description: Avgrens kva som skal og ikkje skal endrast.
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Avhengigheiter og risiko
+      description: Ta med auth, personvern, integrasjonar, org-avhengigheiter og andre risikoar.
+  - type: input
+    id: spec
+    attributes:
+      label: Feature-spec eller ADR
+      description: Lenke til .github/specs/ eller docs/adr/ når det finst.
+      placeholder: https://github.com/org/repo/blob/main/.github/specs/...
+  - type: textarea
+    id: verification
+    attributes:
+      label: Planlagt verifisering
+      description: Kva testar eller lokale/org-avhengige kontrollar skal køyrast?
+    validations:
+      required: true
