@@ -33,6 +33,15 @@ const productionOrg = {
 };
 
 const facade: WebServiceFacade = {
+    getProjectInfo: async () => ({
+        projectDirectory: process.cwd(),
+        repositoryName: 'crm-arbeidsforhold-2',
+        repositoryUrl: 'https://github.com/navikt/crm-arbeidsforhold-2',
+        branch: 'main',
+        status: 'clean',
+        statusSummary: 'Ingen endringer',
+        isGitRepository: true
+    }),
     listOrgs: async () => ({ orgs: [scratchOrg, productionOrg] }),
     getOrgStatus: async (alias) => ({ org: alias === productionOrg.alias ? productionOrg : scratchOrg }),
     getOrgPackages: async (alias) => ({

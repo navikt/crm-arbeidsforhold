@@ -31,6 +31,7 @@ import type {
     OrgPackageStatusKind,
     OrgPackageStatusResult,
     OrgSummary,
+    ProjectInfo,
     WebOperationCommand
 } from './api';
 
@@ -130,8 +131,25 @@ export function App({ api }: AppProps) {
     const [operations, setOperations] = useState<Operation[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
+    const [projectInfo, setProjectInfo] = useState<ProjectInfo | null>(null);
     const [announcement, setAnnouncement] = useState('');
     const [deleteOpen, setDeleteOpen] = useState(false);
+
+    const loadProjectInfo = async () => {
+        try {
+            setProjectInfo(await api.listProjectInfo());
+        } catch (error) {
+            setProjectInfo({
+                projectDirectory: 'Ukjent prosjektmappe',
+                repositoryName: null,
+                repositoryUrl: null,
+                branch: null,
+                status: 'unknown',
+                statusSummary: 'Prosjektinformasjon er utilgjengelig',
+                isGitRepository: false
+            });
+        }
+    };
 
     const loadDashboard = async () => {
         setLoading(true);
@@ -167,6 +185,7 @@ export function App({ api }: AppProps) {
 
     useEffect(() => {
         void loadDashboard();
+        void loadProjectInfo();
     }, [api]);
 
     useEffect(() => {
@@ -359,7 +378,7 @@ export function App({ api }: AppProps) {
                             />
                             <Operations operations={operations} />
                         </VStack>
-                        <CommandPanel orgs={orgs} onStart={startCommand} />
+                        <CommandPanel orgs={orgs} onStart={startCommand} projectInfo={projectInfo} />
                     </HGrid>
                 </VStack>
             </Page.Block>
@@ -581,14 +600,17 @@ function Operations({ operations }: { operations: Operation[] }) {
 
 function CommandPanel({
     orgs,
-    onStart
+    onStart,
+    projectInfo
 }: {
     orgs: OrgSummary[];
     onStart: (command: WebOperationCommand, payload: Record<string, unknown>) => Promise<void>;
+    projectInfo: ProjectInfo | null;
 }) {
     const [command, setCommand] = useState<Exclude<WebOperationCommand, 'org.delete'>>('packages.plan');
     const [target, setTarget] = useState('');
     const [alias, setAlias] = useState('');
+    const [scratchAlias, setScratchAlias] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const needsTarget = ['dependencies.refresh', 'packages.install', 'packages.update', 'project.configure'].includes(
@@ -598,6 +620,37 @@ function CommandPanel({
     const selectedTarget = target;
     const targetOrg = orgs.find((org) => orgTarget(org) === selectedTarget);
     const readOnly = targetOrg?.capabilities.mutationPolicy === 'read-only';
+    const effectiveProjectInfo = projectInfo ?? {
+        projectDirectory: 'Ukjent prosjektmappe',
+        repositoryName: null,
+        repositoryUrl: null,
+        branch: null,
+        status: 'unknown',
+        statusSummary: 'Prosjektinformasjon er utilgjengelig',
+        isGitRepository: false
+    };
+
+    const submitScratchOrg = async () => {
+        setError(null);
+        try {
+            setSubmitting(true);
+            await onStart('org.create', {
+                alias: scratchAlias.trim(),
+                durationDays: 14,
+                dryRun: false,
+                usePool: false,
+                poolTag: 'dev',
+                fallbackToCreate: true,
+                postSteps: ['deploy']
+            });
+        } catch (submissionError) {
+            setError(submissionError instanceof Error ? submissionError.message : 'Operasjonen kunne ikkje startast');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+    const repoName = effectiveProjectInfo.repositoryName ?? 'Prosjekt';
+    const repoUrl = effectiveProjectInfo.repositoryUrl;
 
     const submit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -628,10 +681,57 @@ function CommandPanel({
             <VStack gap="space-16">
                 <div>
                     <Heading id="command-heading" level="2" size="medium">
-                        Kommandoar
+                        Opprett ny scratch org
                     </Heading>
-                    <BodyShort textColor="subtle">Berre godkjende API-kommandoar</BodyShort>
+                    <BodyShort textColor="subtle">Det mest brukte prosjektflyten for local Salesforce-utvikling</BodyShort>
                 </div>
+                <section className="surface" aria-labelledby="project-overview-heading">
+                    <VStack gap="space-12">
+                        <Heading id="project-overview-heading" level="3" size="small">
+                            Prosjektinformasjon
+                        </Heading>
+                        <dl className="detail-grid">
+                            <DetailItem label="Prosjekt" value={effectiveProjectInfo.projectDirectory} />
+                            <DetailItem label="Git-status" value={effectiveProjectInfo.statusSummary} />
+                            <DetailItem label="Branch" value={effectiveProjectInfo.branch ?? 'Ukjent'} />
+                            <DetailItem label="Repo" value={repoUrl ? (repoName || 'Repository') : repoName} />
+                        </dl>
+                        {repoUrl && (
+                            <BodyShort>
+                                <a href={repoUrl} target="_blank" rel="noreferrer">
+                                    {repoName}
+                                </a>
+                            </BodyShort>
+                        )}
+                    </VStack>
+                </section>
+                <section className="surface" aria-labelledby="scratch-org-heading">
+                    <VStack gap="space-12">
+                        <Heading id="scratch-org-heading" level="3" size="small">
+                            Ny scratch org
+                        </Heading>
+                        <TextField
+                            label="Alias"
+                            value={scratchAlias}
+                            onChange={(event) => setScratchAlias(event.target.value)}
+                            description="Alias blir brukt som organisasjonsidentifikator i Salesforce CLI-en"
+                        />
+                        <dl className="detail-grid">
+                            <DetailItem label="Varighet" value="14 dager" />
+                            <DetailItem label="Bruk pool" value="Nei" />
+                            <DetailItem label="Post steps" value="deploy" />
+                            <DetailItem label="Dev Hub" value="Default prosjektkonfigurasjon" />
+                        </dl>
+                        <Button
+                            type="button"
+                            icon={<PlayIcon aria-hidden />}
+                            loading={submitting}
+                            onClick={() => void submitScratchOrg()}
+                        >
+                            Opprett scratch org
+                        </Button>
+                    </VStack>
+                </section>
                 {error && (
                     <LocalAlert status="error" size="small" as="div">
                         <LocalAlert.Header>

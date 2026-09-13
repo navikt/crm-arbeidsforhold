@@ -47,6 +47,15 @@ function detail(org: OrgSummary): OrgDetail {
 function createApi(options: { orgs?: OrgSummary[]; operations?: Operation[] } = {}) {
     let eventListener: ((event: OperationEvent) => void) | undefined;
     const api: DashboardApi = {
+        listProjectInfo: vi.fn(async () => ({
+            projectDirectory: '/repo/arbeidsforhold',
+            repositoryName: 'crm-arbeidsforhold-2',
+            repositoryUrl: 'https://github.com/navikt/crm-arbeidsforhold-2',
+            branch: 'main',
+            status: 'clean' as const,
+            statusSummary: 'Ingen endringer',
+            isGitRepository: true
+        })),
         listOrgs: vi.fn(async () => options.orgs ?? [scratchOrg, productionOrg]),
         getOrg: vi.fn(async (alias) => detail(alias === productionOrg.alias ? productionOrg : scratchOrg)),
         getOrgPackages: vi.fn(async (alias: string) => ({
@@ -198,6 +207,48 @@ describe('operational dashboard', () => {
                 alias: 'scratch-a',
                 confirmed: true,
                 dryRun: false
+            })
+        );
+    });
+
+    it('shows a dedicated scratch-org creation form with project metadata and effective values', async () => {
+        const user = userEvent.setup();
+        const { api } = createApi();
+        const projectInfo = {
+            projectDirectory: '/repo/arbeidsforhold',
+            repositoryName: 'crm-arbeidsforhold-2',
+            repositoryUrl: 'https://github.com/navikt/crm-arbeidsforhold-2',
+            branch: 'main',
+            status: 'clean' as const,
+            statusSummary: 'Ingen endringer',
+            isGitRepository: true
+        };
+        vi.mocked(api.listProjectInfo).mockResolvedValue(projectInfo);
+
+        render(<App api={api} />);
+
+        expect(await screen.findByRole('heading', { name: 'Opprett ny scratch org' })).toBeInTheDocument();
+        expect(screen.getByText('crm-arbeidsforhold-2')).toBeInTheDocument();
+        expect(screen.getByText('Ingen endringer')).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: /crm-arbeidsforhold-2/i })).toHaveAttribute(
+            'href',
+            'https://github.com/navikt/crm-arbeidsforhold-2'
+        );
+
+        const alias = screen.getByRole('textbox', { name: 'Alias' });
+        await user.clear(alias);
+        await user.type(alias, 'ny-scratch');
+        await user.click(screen.getByRole('button', { name: 'Opprett scratch org' }));
+
+        await waitFor(() =>
+            expect(api.startOperation).toHaveBeenCalledWith('org.create', {
+                alias: 'ny-scratch',
+                durationDays: 14,
+                dryRun: false,
+                usePool: false,
+                poolTag: 'dev',
+                fallbackToCreate: true,
+                postSteps: ['deploy']
             })
         );
     });

@@ -38,6 +38,8 @@ export interface WebOperationRequest {
 export interface WebServiceFacade {
     /** @returns The normalized org list exposed by the authenticated API. */
     listOrgs(): Promise<OrgListResult>;
+    /** @returns Project metadata, repository URL, and git working-tree status for the active project root. */
+    getProjectInfo(): Promise<ProjectInfo>;
     /**
      * @param alias - Org alias or username selected by the caller.
      * @returns Normalized details for the selected org.
@@ -94,6 +96,16 @@ export interface StartWebServerOptions {
     redactionSecrets?: readonly string[];
     /** Static asset root; resolved paths and symlink targets must remain contained within this directory. */
     webAssetsDirectory?: string;
+}
+
+export interface ProjectInfo {
+    projectDirectory: string;
+    repositoryName: string | null;
+    repositoryUrl: string | null;
+    branch: string | null;
+    status: 'clean' | 'dirty' | 'unknown';
+    statusSummary: string;
+    isGitRepository: boolean;
 }
 
 /** Running loopback server resources and the bearer credential required by its private API. */
@@ -567,6 +579,14 @@ export async function startWebServer(options: StartWebServerOptions): Promise<St
         if (request.method === 'GET' && url.pathname === '/api/v1/orgs') {
             try {
                 sendJson(response, 200, sanitize(await options.facade.listOrgs()));
+            } catch (error) {
+                sendJson(response, 500, { error: redactor.redactError(error) });
+            }
+            return;
+        }
+        if (request.method === 'GET' && url.pathname === '/api/v1/project-info') {
+            try {
+                sendJson(response, 200, sanitize(await options.facade.getProjectInfo()));
             } catch (error) {
                 sendJson(response, 500, { error: redactor.redactError(error) });
             }

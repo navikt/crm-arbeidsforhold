@@ -10,7 +10,57 @@ import { refreshDependencies, type CommandRunner } from './refresh-dependencies.
 import { loadProjectConfiguration, type PostStep } from '../domain/config.js';
 import { EXIT_CODES } from '../domain/events.js';
 import { runCommand as defaultRunCommand } from '../infrastructure/command-runner.js';
-import type { WebOperationRequest, WebServiceFacade } from '../web/server.js';
+import type { ProjectInfo, WebOperationRequest, WebServiceFacade } from '../web/server.js';
+import { existsSync, readFileSync } from 'node:fs';
+
+async function getGitProjectInfo(projectDirectory: string): Promise<ProjectInfo> {
+    const gitDir = `${projectDirectory}/.git`;
+    if (!existsSync(gitDir)) {
+        return {
+            projectDirectory,
+            repositoryName: null,
+            repositoryUrl: null,
+            branch: null,
+            status: 'unknown',
+            statusSummary: 'Ikke et Git-prosjekt',
+            isGitRepository: false
+        };
+    }
+
+    const branchResult = await defaultRunCommand({
+        executable: 'git',
+        arguments: ['rev-parse', '--abbrev-ref', 'HEAD'],
+        cwd: projectDirectory,
+        retry: { maxAttempts: 1 }
+    });
+    const statusResult = await defaultRunCommand({
+        executable: 'git',
+        arguments: ['status', '--short'],
+        cwd: projectDirectory,
+        retry: { maxAttempts: 1 }
+    });
+    const remoteResult = await defaultRunCommand({
+        executable: 'git',
+        arguments: ['remote', 'get-url', 'origin'],
+        cwd: projectDirectory,
+        retry: { maxAttempts: 1 }
+    });
+
+    const branch = branchResult.exitCode === 0 ? branchResult.stdout.trim() || null : null;
+    const isDirty = statusResult.exitCode === 0 && statusResult.stdout.trim().length > 0;
+    const repoUrl = remoteResult.exitCode === 0 ? remoteResult.stdout.trim() || null : null;
+    const repositoryName = repoUrl ? repoUrl.split('/').pop()?.replace(/\.git$/, '') ?? null : null;
+
+    return {
+        projectDirectory,
+        repositoryName,
+        repositoryUrl: repoUrl,
+        branch,
+        status: isDirty ? 'dirty' : 'clean',
+        statusSummary: isDirty ? 'Endringer i arbeidskatalogen' : 'Ingen endringer',
+        isGitRepository: true
+    };
+}
 
 /** Injectable application-service set used by the web transport adapter. */
 export interface WebApplicationServices {
@@ -109,6 +159,7 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
     const environment = options.environment ?? process.env;
 
     return {
+        getProjectInfo: async () => getGitProjectInfo(options.projectDirectory),
         listOrgs: () =>
             services.listOrgs({
                 projectDirectory: options.projectDirectory,
