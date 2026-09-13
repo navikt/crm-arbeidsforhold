@@ -1,7 +1,8 @@
 /**
- * Emits a structured technical log entry for an integration flow, matching the Jira-named
- * `IntegrationLogger` helper (CRMAAREG-131). This class complements `IntegrationLogContext`,
- * which only holds the technical fields; this class is responsible for redacting and emitting them.
+ * Builds a structured, redacted technical log entry for an integration flow and persists it via
+ * the shared `LoggerUtility` / `Application_Event__e` pipeline, matching the Jira-named
+ * `IntegrationLogger` helper (CRMAAREG-131). Complements `IntegrationLogContext`, which only
+ * holds the technical fields.
  *
  * @author Kenneth Sørensen
  * @since 2026-09 issue 1021
@@ -9,10 +10,10 @@
  */
 public with sharing class IntegrationLogger {
     /**
-     * Builds the redacted, structured log payload without emitting it.
+     * Builds the redacted, structured log payload without persisting it.
      *
      * Exposed separately from {@link #log} so the payload can be verified in tests without
-     * depending on debug-log capture.
+     * depending on the platform-event pipeline.
      *
      * @param context Technical log context for the integration flow.
      * @param additionalFields Optional operation-specific fields; sensitive values are redacted.
@@ -38,16 +39,34 @@ public with sharing class IntegrationLogger {
     }
 
     /**
-     * Emits one structured, redacted log entry to the debug log.
+     * Persists one structured, redacted log entry as an Application_Log__c, using the existing
+     * `LoggerUtility` / `Application_Event__e` platform-event pipeline shared across the org.
      *
-     * This is a debug-log emitter, not a durable log store. Persistence of integration log
-     * entries is a separate, not-yet-implemented decision.
+     * Uses the existing `CRM_ApplicationDomain.Domain.AAREG` value because no P360-specific
+     * application domain is defined in the shared, package-owned value set.
      *
      * @param context Technical log context for the integration flow.
      * @param additionalFields Optional operation-specific fields; sensitive values are redacted.
+     * @param logLevel Severity used by the shared `LoggerUtility` pipeline.
      * @since 2026-09
      */
-    public static void log(IntegrationLogContext context, Map<String, Object> additionalFields) {
-        System.debug(LoggingLevel.INFO, JSON.serialize(buildLogPayload(context, additionalFields)));
+    public static void log(
+        IntegrationLogContext context,
+        Map<String, Object> additionalFields,
+        LoggerUtility.LogLevel logLevel
+    ) {
+        Map<String, Object> payload = buildLogPayload(context, additionalFields);
+
+        LoggerUtility logger = new LoggerUtility(context.systemName);
+        logger.logMessage(
+            logLevel,
+            null,
+            context.operationName,
+            context.operationName + ': ' + context.status,
+            JSON.serialize(payload),
+            null,
+            CRM_ApplicationDomain.Domain.AAREG
+        );
+        logger.publish();
     }
 }

@@ -65,22 +65,76 @@ private class IntegrationLoggerTest {
     }
 
     /**
-     * Verifies that logging without additional fields does not throw.
+     * Verifies that logging persists an Application_Log__c with the technical context, using the
+     * existing AAREG application domain since no P360-specific domain value is defined.
      *
      * @since 2026-09
      */
     @IsTest
-    static void logWithoutAdditionalFieldsDoesNotThrow() {
-        User minimumAccessUser = Integration_TestDataFactory.createMinimumAccessUser();
+    static void logPersistsAnApplicationLogWithTechnicalContext() {
+        IntegrationLogContext context = new IntegrationLogContext('P360', 'CreateDocument', 'Started')
+            .withCorrelationId('correlation-supplied');
 
-        System.runAs(minimumAccessUser) {
-            IntegrationLogContext context = new IntegrationLogContext('P360', 'CreateDocument', 'Started');
+        Test.startTest();
+        IntegrationLogger.log(context, null, LoggerUtility.LogLevel.INFO);
+        Test.stopTest();
 
-            try {
-                IntegrationLogger.log(context, null);
-            } catch (Exception unexpectedError) {
-                System.Assert.fail('Expected logging to complete without throwing: ' + unexpectedError.getMessage());
-            }
-        }
+        Application_Log__c persistedLog = [
+            SELECT Category__c, Application_Domain__c, Log_Message__c, Pay_Load__c
+            FROM Application_Log__c
+            WHERE Category__c = 'P360'
+            ORDER BY CreatedDate DESC
+            LIMIT 1
+        ];
+
+        System.Assert.areEqual('P360', persistedLog.Category__c, 'Expected the category to match the system name.');
+        System.Assert.areEqual(
+            'AAREG',
+            persistedLog.Application_Domain__c,
+            'Expected the existing AAREG application domain.'
+        );
+        System.Assert.isTrue(
+            persistedLog.Log_Message__c.contains('CreateDocument'),
+            'Expected the operation name in the log message.'
+        );
+        System.Assert.isTrue(
+            persistedLog.Pay_Load__c.contains('correlation-supplied'),
+            'Expected the correlation id in the payload.'
+        );
+    }
+
+    /**
+     * Verifies that sensitive additional fields are redacted before the log entry is persisted.
+     *
+     * @since 2026-09
+     */
+    @IsTest
+    static void logRedactsSensitiveAdditionalFieldsBeforePersisting() {
+        IntegrationLogContext context = new IntegrationLogContext('P360', 'CreateDocument', 'Failed');
+        Map<String, Object> additionalFields = new Map<String, Object>{
+            'authorization' => 'Bearer raw-secret-value',
+            'caseNumber' => '00012345'
+        };
+
+        Test.startTest();
+        IntegrationLogger.log(context, additionalFields, LoggerUtility.LogLevel.ERROR);
+        Test.stopTest();
+
+        Application_Log__c persistedLog = [
+            SELECT Pay_Load__c
+            FROM Application_Log__c
+            WHERE Category__c = 'P360'
+            ORDER BY CreatedDate DESC
+            LIMIT 1
+        ];
+
+        System.Assert.isFalse(
+            persistedLog.Pay_Load__c.contains('raw-secret-value'),
+            'Expected the raw secret value to be redacted before persisting.'
+        );
+        System.Assert.isTrue(
+            persistedLog.Pay_Load__c.contains('00012345'),
+            'Expected a non-sensitive value to remain in the payload.'
+        );
     }
 }
