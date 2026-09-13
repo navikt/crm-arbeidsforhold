@@ -11,12 +11,26 @@ public with sharing class AAREG_AgreementDomainService {
      * Loads and validates Agreement data needed by the archive use case.
      *
      * @param agreementId Salesforce Agreement record id.
-     * @return Temporary domain context placeholder. TODO F3: Replace Object with typed context.
-     * @throws P360_ContractException Until implementation is completed.
+     * @return Typed internal Agreement archive context.
+     * @throws P360_ContractException When the agreement id is missing or no Agreement exists.
      */
-    public Object getAgreementArchiveContext(Id agreementId) {
-        throw new P360_ContractException(
-            'AAREG_AgreementDomainService.getAgreementArchiveContext is not implemented yet. TODO F3.'
-        );
+    public AAREG_AgreementArchiveContext getAgreementArchiveContext(Id agreementId) {
+        if (agreementId == null) {
+            throw new P360_ContractException('Agreement id is required.');
+        }
+
+        List<Agreement__c> agreements = [
+            SELECT Id
+            FROM Agreement__c
+            WHERE Id = :agreementId
+            LIMIT 1
+        ];
+        if (agreements.isEmpty()) {
+            throw new P360_ContractException('Agreement was not found.');
+        }
+
+        AAREG_AgreementArchiveContext context = new AAREG_AgreementArchiveContext();
+        context.agreementId = agreements[0].Id;
+        return context;
     }
 }

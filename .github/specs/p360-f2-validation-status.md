@@ -18,6 +18,7 @@ The P360 F2 skeleton boundaries are implemented and focused-test validated. The 
 - Application and Agreement domain services stop at the typed-context F3 boundary.
 - Archive orchestrator validates required Application context and supports a mock-compatible injected-adapter path.
 - Application domain service returns a typed internal context containing the verified `Application__c.Id`.
+- Agreement domain service returns a typed internal context containing the verified `Agreement__c.Id`.
 - Archive adapter validates request and external ID before transport, then stops at its explicit unresolved-contract boundary.
 - Stub archive adapter returns controlled local responses without callouts.
 - RPC client stops at the unresolved transport boundary.
