@@ -3,356 +3,361 @@ import { getObjectInfo, getPicklistValuesByRecordType } from 'lightning/uiObject
 import APPLICATION_BASIS_CODE_OBJECT from '@salesforce/schema/ApplicationBasisCode__c';
 
 export default class Aareg_applicationBasis extends LightningElement {
-  @api record;
-  @api readOnly;
-  @api organizationType;
-  @track purposeOptions;
-  @track legalBasisOptions;
-  purposeFieldName;
-  legalBasisFieldName;
-  applicationBasis;
-  apiAccess;
-  extractAccess;
-  onlineAccess;
-  otherLegalBasisCharUsed = 0;
-  otherPurposeCharUsed = 0;
-  isOtherOrganizationType = false;
-  legalBasisRemovedValuePlaceholder;
+    @api record;
+    @api readOnly;
+    @api organizationType;
+    @track purposeOptions;
+    @track legalBasisOptions;
+    purposeFieldName;
+    legalBasisFieldName;
+    applicationBasis;
+    apiAccess;
+    extractAccess;
+    onlineAccess;
+    otherLegalBasisCharUsed = 0;
+    otherPurposeCharUsed = 0;
+    isOtherOrganizationType = false;
+    legalBasisRemovedValuePlaceholder;
 
-  connectedCallback() {
-    this.setPicklistFieldNames();
-    this.init();
-  }
-
-  renderedCallback() {
-    this.purpose = this.template.querySelector('[data-id="purpose"]');
-    this.legalBasis = this.template.querySelector('[data-id="legal-basis"]');
-    this.otherLegalBasis = this.template.querySelector('[data-id="other-legal-basis"]');
-    this.otherPurpose = this.template.querySelector('[data-id="other-purpose"]');
-    this.processingBasis = this.template.querySelector('[data-id="processing-basis"]');
-    this.apiAccess = this.template.querySelector('[data-id="API_Access__c"]');
-    this.extractAccess = this.template.querySelector('[data-id="Extraction_Access__c"]');
-    this.onlineAccess = this.template.querySelector('[data-id="Online_Access__c"]');
-    this.typetilgangGroup = this.template.querySelector('[data-id="type-tilgang-group"]');
-  }
-
-  get legalBasisValue() {
-    return this.applicationBasis[this.legalBasisFieldName];
-  }
-
-  get purposeValue() {
-    return this.applicationBasis[this.purposeFieldName];
-  }
-
-  get apiAccessValue() {
-    return this.applicationBasis.API_Access__c;
-  }
-  
-  get extractAccessValue() {
-    return this.applicationBasis.Extraction_Access__c;
-  }
-
-  get onlineAccessValue() { 
-    return this.applicationBasis.Online_Access__c;
-  }
-
-  get showOtherInput() {
-    return (
-      this.isOtherOrganizationType ||
-      this.applicationBasis[this.legalBasisFieldName] === 'Annet - oppgi i tekstfelt under'
-    );
-  }
-
-  get remainingOtherLegalBasisChar() {
-    return `${this.otherLegalBasisCharUsed} / 255 `;
-  }
-
-  get remainingOtherPurposeChar() {
-    return `${this.otherPurposeCharUsed} / 255 `;
-  }
-
-  init() {
-    this.applicationBasis = {
-      uuid: this.record.uuid,
-      Id: this.record.Id ? this.record.Id : null,
-      API_Access__c: this.record.API_Access__c? this.record.API_Access__c : false,
-      Extraction_Access__c: this.record.Extraction_Access__c ? this.record.Extraction_Access__c : false,
-      Online_Access__c: this.record.Online_Access__c ? this.record.Online_Access__c : false,
-      OrganizationType__c: this.organizationType,
-      LegalBasisMunicipality__c: this.record.LegalBasisMunicipality__c ? this.record.LegalBasisMunicipality__c : null,
-      PurposeMunicipality__c: this.record.PurposeMunicipality__c ? this.record.PurposeMunicipality__c : null,
-      LegalBasisCounty__c: this.record.LegalBasisCounty__c ? this.record.LegalBasisCounty__c : null,
-      PurposeCounty__c: this.record.PurposeCounty__c ? this.record.PurposeCounty__c : null,
-      LegalBasisState__c: this.record.LegalBasisState__c ? this.record.LegalBasisState__c : null,
-      PurposeState__c: this.record.PurposeState__c ? this.record.PurposeState__c : null,
-      LegalBasisPension__c: this.record.LegalBasisPension__c ? this.record.LegalBasisPension__c : null,
-      PurposePension__c: this.record.PurposePension__c ? this.record.PurposePension__c : null,
-      OtherLegalBasis__c: this.record.OtherLegalBasis__c ? this.record.OtherLegalBasis__c : null,
-      OtherPurpose__c: this.record.OtherPurpose__c ? this.record.OtherPurpose__c : null,
-      ProcessingBasis__c: this.record.ProcessingBasis__c ? this.record.ProcessingBasis__c : null,
-      LegalBasisElectricitySupervision__c: this.record.LegalBasisElectricitySupervision__c
-        ? this.record.LegalBasisElectricitySupervision__c
-        : null,
-      PurposeElectricitySupervision__c: this.record.PurposeElectricitySupervision__c
-        ? this.record.PurposeElectricitySupervision__c
-        : null
-    };
-
-    if (this.applicationBasis.OtherLegalBasis__c) {
-      this.otherLegalBasisCharUsed = this.applicationBasis.OtherLegalBasis__c.length;
+    connectedCallback() {
+        this.setPicklistFieldNames();
+        this.init();
     }
 
-    if (this.applicationBasis.OtherPurpose__c) {
-      this.otherPurposeCharUsed = this.applicationBasis.OtherPurpose__c.length;
+    renderedCallback() {
+        this.purpose = this.template.querySelector('[data-id="purpose"]');
+        this.legalBasis = this.template.querySelector('[data-id="legal-basis"]');
+        this.otherLegalBasis = this.template.querySelector('[data-id="other-legal-basis"]');
+        this.otherPurpose = this.template.querySelector('[data-id="other-purpose"]');
+        this.processingBasis = this.template.querySelector('[data-id="processing-basis"]');
+        this.apiAccess = this.template.querySelector('[data-id="API_Access__c"]');
+        this.extractAccess = this.template.querySelector('[data-id="Extraction_Access__c"]');
+        this.onlineAccess = this.template.querySelector('[data-id="Online_Access__c"]');
+        this.typetilgangGroup = this.template.querySelector('[data-id="type-tilgang-group"]');
     }
 
-    this.publishChange();
-  }
+    get legalBasisValue() {
+        return this.applicationBasis[this.legalBasisFieldName];
+    }
 
-  @wire(getObjectInfo, { objectApiName: APPLICATION_BASIS_CODE_OBJECT })
-  basisCodeInfo;
+    get purposeValue() {
+        return this.applicationBasis[this.purposeFieldName];
+    }
 
-  @wire(getPicklistValuesByRecordType, {
-    objectApiName: APPLICATION_BASIS_CODE_OBJECT,
-    recordTypeId: '$basisCodeInfo.data.defaultRecordTypeId'
-  })
-  applicationBasisPicklists({ data, error }) {
-    if (data) {
-      this.legalBasisOptions = data.picklistFieldValues[this.legalBasisFieldName].values.map((arr) => ({ ...arr }));
+    get apiAccessValue() {
+        return this.applicationBasis.API_Access__c;
+    }
 
-      this.legalBasisOptions.forEach((el, index) => {
-        if (el.value === this.applicationBasis[this.legalBasisFieldName]) {
-          this.legalBasisOptions.splice(index, 1);
-          this.legalBasisOptions.unshift(el);
+    get extractAccessValue() {
+        return this.applicationBasis.Extraction_Access__c;
+    }
+
+    get onlineAccessValue() {
+        return this.applicationBasis.Online_Access__c;
+    }
+
+    get showOtherInput() {
+        return (
+            this.isOtherOrganizationType ||
+            this.applicationBasis[this.legalBasisFieldName] === 'Annet - oppgi i tekstfelt under'
+        );
+    }
+
+    get remainingOtherLegalBasisChar() {
+        return `${this.otherLegalBasisCharUsed} / 255 `;
+    }
+
+    get remainingOtherPurposeChar() {
+        return `${this.otherPurposeCharUsed} / 255 `;
+    }
+
+    init() {
+        this.applicationBasis = {
+            uuid: this.record.uuid,
+            Id: this.record.Id ? this.record.Id : null,
+            API_Access__c: this.record.API_Access__c ? this.record.API_Access__c : false,
+            Extraction_Access__c: this.record.Extraction_Access__c ? this.record.Extraction_Access__c : false,
+            Online_Access__c: this.record.Online_Access__c ? this.record.Online_Access__c : false,
+            OrganizationType__c: this.organizationType,
+            LegalBasisMunicipality__c: this.record.LegalBasisMunicipality__c
+                ? this.record.LegalBasisMunicipality__c
+                : null,
+            PurposeMunicipality__c: this.record.PurposeMunicipality__c ? this.record.PurposeMunicipality__c : null,
+            LegalBasisCounty__c: this.record.LegalBasisCounty__c ? this.record.LegalBasisCounty__c : null,
+            PurposeCounty__c: this.record.PurposeCounty__c ? this.record.PurposeCounty__c : null,
+            LegalBasisState__c: this.record.LegalBasisState__c ? this.record.LegalBasisState__c : null,
+            PurposeState__c: this.record.PurposeState__c ? this.record.PurposeState__c : null,
+            LegalBasisPension__c: this.record.LegalBasisPension__c ? this.record.LegalBasisPension__c : null,
+            PurposePension__c: this.record.PurposePension__c ? this.record.PurposePension__c : null,
+            OtherLegalBasis__c: this.record.OtherLegalBasis__c ? this.record.OtherLegalBasis__c : null,
+            OtherPurpose__c: this.record.OtherPurpose__c ? this.record.OtherPurpose__c : null,
+            ProcessingBasis__c: this.record.ProcessingBasis__c ? this.record.ProcessingBasis__c : null,
+            LegalBasisElectricitySupervision__c: this.record.LegalBasisElectricitySupervision__c
+                ? this.record.LegalBasisElectricitySupervision__c
+                : null,
+            PurposeElectricitySupervision__c: this.record.PurposeElectricitySupervision__c
+                ? this.record.PurposeElectricitySupervision__c
+                : null
+        };
+
+        if (this.applicationBasis.OtherLegalBasis__c) {
+            this.otherLegalBasisCharUsed = this.applicationBasis.OtherLegalBasis__c.length;
         }
-      });
-      this.purposeData = data.picklistFieldValues[this.purposeFieldName];
 
-      if (this.applicationBasis[this.legalBasisFieldName]) {
-        let key = this.purposeData.controllerValues[this.applicationBasis[this.legalBasisFieldName]];
+        if (this.applicationBasis.OtherPurpose__c) {
+            this.otherPurposeCharUsed = this.applicationBasis.OtherPurpose__c.length;
+        }
+
+        this.publishChange();
+    }
+
+    @wire(getObjectInfo, { objectApiName: APPLICATION_BASIS_CODE_OBJECT })
+    basisCodeInfo;
+
+    @wire(getPicklistValuesByRecordType, {
+        objectApiName: APPLICATION_BASIS_CODE_OBJECT,
+        recordTypeId: '$basisCodeInfo.data.defaultRecordTypeId'
+    })
+    applicationBasisPicklists({ data, error }) {
+        if (data) {
+            this.legalBasisOptions = data.picklistFieldValues[this.legalBasisFieldName].values.map((arr) => ({
+                ...arr
+            }));
+
+            this.legalBasisOptions.forEach((el, index) => {
+                if (el.value === this.applicationBasis[this.legalBasisFieldName]) {
+                    this.legalBasisOptions.splice(index, 1);
+                    this.legalBasisOptions.unshift(el);
+                }
+            });
+            this.purposeData = data.picklistFieldValues[this.purposeFieldName];
+
+            if (this.applicationBasis[this.legalBasisFieldName]) {
+                let key = this.purposeData.controllerValues[this.applicationBasis[this.legalBasisFieldName]];
+                this.purposeOptions = this.purposeData.values.filter((opt) => opt.validFor.includes(key));
+
+                this.purposeOptions.forEach((el, index) => {
+                    if (el.value === this.applicationBasis[this.purposeFieldName]) {
+                        this.purposeOptions.splice(index, 1);
+                        this.purposeOptions.unshift(el);
+                    }
+                });
+            }
+        } else if (error) {
+            console.error(error);
+        }
+    }
+
+    setPicklistFieldNames() {
+        switch (this.organizationType) {
+            case 'Municipality':
+                this.purposeFieldName = 'PurposeMunicipality__c';
+                this.legalBasisFieldName = 'LegalBasisMunicipality__c';
+                break;
+            case 'County':
+                this.purposeFieldName = 'PurposeCounty__c';
+                this.legalBasisFieldName = 'LegalBasisCounty__c';
+                break;
+            case 'State':
+                this.purposeFieldName = 'PurposeState__c';
+                this.legalBasisFieldName = 'LegalBasisState__c';
+                break;
+            case 'Electricity Supervision':
+                this.purposeFieldName = 'PurposeElectricitySupervision__c';
+                this.legalBasisFieldName = 'LegalBasisElectricitySupervision__c';
+                break;
+            case 'Pension':
+                this.purposeFieldName = 'PurposePension__c';
+                this.legalBasisFieldName = 'LegalBasisPension__c';
+                break;
+            case 'Other':
+                this.isOtherOrganizationType = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    /*************** Change handlers ***************/
+
+    handleLegalBasisChange(event) {
+        let key = this.purposeData.controllerValues[event.target.value];
         this.purposeOptions = this.purposeData.values.filter((opt) => opt.validFor.includes(key));
+        this.applicationBasis[this.legalBasisFieldName] = event.target.value;
 
-        this.purposeOptions.forEach((el, index) => {
-          if (el.value === this.applicationBasis[this.purposeFieldName]) {
-            this.purposeOptions.splice(index, 1);
-            this.purposeOptions.unshift(el);
-          }
-        });
-      }
-    } else if (error) {
-      console.error(error);
-    }
-  }
+        if (event.target.value === 'Annet - oppgi i tekstfelt under') {
+            this.applicationBasis[this.purposeFieldName] = 'Annet - oppgi i tekstfelt under';
+        } else {
+            this.applicationBasis[this.purposeFieldName] = '';
+        }
 
-  setPicklistFieldNames() {
-    switch (this.organizationType) {
-      case 'Municipality':
-        this.purposeFieldName = 'PurposeMunicipality__c';
-        this.legalBasisFieldName = 'LegalBasisMunicipality__c';
-        break;
-      case 'County':
-        this.purposeFieldName = 'PurposeCounty__c';
-        this.legalBasisFieldName = 'LegalBasisCounty__c';
-        break;
-      case 'State':
-        this.purposeFieldName = 'PurposeState__c';
-        this.legalBasisFieldName = 'LegalBasisState__c';
-        break;
-      case 'Electricity Supervision':
-        this.purposeFieldName = 'PurposeElectricitySupervision__c';
-        this.legalBasisFieldName = 'LegalBasisElectricitySupervision__c';
-        break;
-      case 'Pension':
-        this.purposeFieldName = 'PurposePension__c';
-        this.legalBasisFieldName = 'LegalBasisPension__c';
-        break;
-      case 'Other':
-        this.isOtherOrganizationType = true;
-        break;
-      default:
-        break;
-    }
-  }
-
-  /*************** Change handlers ***************/
-
-  handleLegalBasisChange(event) {
-    let key = this.purposeData.controllerValues[event.target.value];
-    this.purposeOptions = this.purposeData.values.filter((opt) => opt.validFor.includes(key));
-    this.applicationBasis[this.legalBasisFieldName] = event.target.value;
-
-    if (event.target.value === 'Annet - oppgi i tekstfelt under') {
-      this.applicationBasis[this.purposeFieldName] = 'Annet - oppgi i tekstfelt under';
-    } else {
-      this.applicationBasis[this.purposeFieldName] = '';
+        this.publishChange();
     }
 
-    this.publishChange();
-  }
-
-  handlePurposeChange(event) {
-    this.applicationBasis[this.purposeFieldName] = event.target.value;
-    this.publishChange();
-  }
-
-  handleCheckboxChange(event) {
-    const selectedField = event.target.dataset.id; // Get the field name from data-id
-    const isChecked = event.target.checked; // Get the checkbox value
-
-    // Uncheck other checkboxes in the same group
-    if (isChecked) {
-      const group = event.target.dataset.group; // Get the group name
-      const checkboxes = this.template.querySelectorAll(`input[data-group="${group}"]`);
-      checkboxes.forEach(checkbox => {
-          if (checkbox.dataset.id !== selectedField) {
-              checkbox.checked = false; // Uncheck other checkboxes
-              this.applicationBasis[checkbox.dataset.id] = false; // Update applicationBasis
-          }
-      });
-  }
-
-    // Update the applicationBasis object
-    this.applicationBasis[selectedField] = isChecked;
-    this.publishChange();
-  }
-
-  handleInputChange(event) {
-    switch (event.target.dataset.id) {
-      case 'other-legal-basis':
-        this.applicationBasis.OtherLegalBasis__c = event.target.value;
-        break;
-      case 'other-purpose':
-        this.applicationBasis.OtherPurpose__c = event.target.value;
-        break;
-      case 'processing-basis':
-        this.applicationBasis.ProcessingBasis__c = event.target.value;
-        break;
-      default:
-        return;
-    }
-    this.publishChange();
-  }
-
-  publishChange() {
-    const changeEvent = new CustomEvent('applicationbasischange', { detail: this.applicationBasis });
-    this.dispatchEvent(changeEvent);
-  }
-
-  publishError() {
-    const changeEvent = new CustomEvent('validationerror', { detail: true });
-    this.dispatchEvent(changeEvent);
-  }
-
-  countOtherLegalBasisChar(event) {
-    if (event.target.value.length >= 0) {
-      this.otherLegalBasisCharUsed = event.target.value.length;
-    }
-  }
-
-  countOtherPurposeChar(event) {
-    if (event.target.value.length >= 0) {
-      this.otherPurposeCharUsed = event.target.value.length;
-    }
-  }
-
-  /*************** Validation ***************/
-
-  @api
-  validate() {
-
-    this.resetErrors();
-
-    if (!this.isOtherOrganizationType && this.checkNulls(this.applicationBasis[`${this.legalBasisFieldName}`])) {
-      this.setErrorFor(this.legalBasis, 'Obligatorisk');
-      this.legalBasis.setCustomValidity('Obligatorisk');
+    handlePurposeChange(event) {
+        this.applicationBasis[this.purposeFieldName] = event.target.value;
+        this.publishChange();
     }
 
-    if (!this.isOtherOrganizationType && this.checkNulls(this.applicationBasis[`${this.purposeFieldName}`])) {
-      this.setErrorFor(this.purpose, 'Obligatorisk');
-      this.purpose.setCustomValidity('Obligatorisk');
+    handleCheckboxChange(event) {
+        const selectedField = event.target.dataset.id; // Get the field name from data-id
+        const isChecked = event.target.checked; // Get the checkbox value
+
+        // Uncheck other checkboxes in the same group
+        if (isChecked) {
+            const group = event.target.dataset.group; // Get the group name
+            const checkboxes = this.template.querySelectorAll(`input[data-group="${group}"]`);
+            checkboxes.forEach((checkbox) => {
+                if (checkbox.dataset.id !== selectedField) {
+                    checkbox.checked = false; // Uncheck other checkboxes
+                    this.applicationBasis[checkbox.dataset.id] = false; // Update applicationBasis
+                }
+            });
+        }
+
+        // Update the applicationBasis object
+        this.applicationBasis[selectedField] = isChecked;
+        this.publishChange();
     }
 
-    if (this.checkNulls(this.applicationBasis.ProcessingBasis__c)) {
-      this.setErrorFor(this.processingBasis, 'Obligatorisk');
-      this.processingBasis.setCustomValidity('Obligatorisk');
+    handleInputChange(event) {
+        switch (event.target.dataset.id) {
+            case 'other-legal-basis':
+                this.applicationBasis.OtherLegalBasis__c = event.target.value;
+                break;
+            case 'other-purpose':
+                this.applicationBasis.OtherPurpose__c = event.target.value;
+                break;
+            case 'processing-basis':
+                this.applicationBasis.ProcessingBasis__c = event.target.value;
+                break;
+            default:
+                return;
+        }
+        this.publishChange();
     }
 
-    if (
-      (this.isOtherOrganizationType ||
-        this.applicationBasis[`${this.purposeFieldName}`] === 'Annet - oppgi i tekstfelt under') &&
-      this.checkNulls(this.applicationBasis.OtherPurpose__c)
-    ) {
-      this.setErrorFor(this.otherPurpose, 'Obligatorisk');
-      this.otherPurpose.setCustomValidity('Obligatorisk');
+    publishChange() {
+        const changeEvent = new CustomEvent('applicationbasischange', { detail: this.applicationBasis });
+        this.dispatchEvent(changeEvent);
     }
 
-    if (
-      (this.isOtherOrganizationType ||
-        this.applicationBasis[`${this.legalBasisFieldName}`] === 'Annet - oppgi i tekstfelt under') &&
-      this.checkNulls(this.applicationBasis.OtherLegalBasis__c)
-    ) {
-      this.setErrorFor(this.otherLegalBasis, 'Obligatorisk');
-      this.otherLegalBasis.setCustomValidity('Obligatorisk');
+    publishError() {
+        const changeEvent = new CustomEvent('validationerror', { detail: true });
+        this.dispatchEvent(changeEvent);
     }
 
-    if(this.applicationBasis.API_Access__c === false && this.applicationBasis.Online_Access__c === false && this.applicationBasis.Extraction_Access__c === false) {
-      const errorMessage = 'Minst én tilgangstype må velges';
-      this.setErrorFor(this.typetilgangGroup , errorMessage);
+    countOtherLegalBasisChar(event) {
+        if (event.target.value.length >= 0) {
+            this.otherLegalBasisCharUsed = event.target.value.length;
+        }
     }
-  
-  }
 
-  @api focusInput() {
-    let invalidFields = this.template.querySelector(':invalid');
-
-    if (invalidFields) {
-      invalidFields.focus();
-      return true;
+    countOtherPurposeChar(event) {
+        if (event.target.value.length >= 0) {
+            this.otherPurposeCharUsed = event.target.value.length;
+        }
     }
-    return false;
-  }
 
-  checkNulls(field) {
-    if (field === null || field === '') {
-      return true;
-    } else {
-      return false;
+    /*************** Validation ***************/
+
+    @api
+    validate() {
+        this.resetErrors();
+
+        if (!this.isOtherOrganizationType && this.checkNulls(this.applicationBasis[`${this.legalBasisFieldName}`])) {
+            this.setErrorFor(this.legalBasis, 'Obligatorisk');
+            this.legalBasis.setCustomValidity('Obligatorisk');
+        }
+
+        if (!this.isOtherOrganizationType && this.checkNulls(this.applicationBasis[`${this.purposeFieldName}`])) {
+            this.setErrorFor(this.purpose, 'Obligatorisk');
+            this.purpose.setCustomValidity('Obligatorisk');
+        }
+
+        if (this.checkNulls(this.applicationBasis.ProcessingBasis__c)) {
+            this.setErrorFor(this.processingBasis, 'Obligatorisk');
+            this.processingBasis.setCustomValidity('Obligatorisk');
+        }
+
+        if (
+            (this.isOtherOrganizationType ||
+                this.applicationBasis[`${this.purposeFieldName}`] === 'Annet - oppgi i tekstfelt under') &&
+            this.checkNulls(this.applicationBasis.OtherPurpose__c)
+        ) {
+            this.setErrorFor(this.otherPurpose, 'Obligatorisk');
+            this.otherPurpose.setCustomValidity('Obligatorisk');
+        }
+
+        if (
+            (this.isOtherOrganizationType ||
+                this.applicationBasis[`${this.legalBasisFieldName}`] === 'Annet - oppgi i tekstfelt under') &&
+            this.checkNulls(this.applicationBasis.OtherLegalBasis__c)
+        ) {
+            this.setErrorFor(this.otherLegalBasis, 'Obligatorisk');
+            this.otherLegalBasis.setCustomValidity('Obligatorisk');
+        }
+
+        if (
+            this.applicationBasis.API_Access__c === false &&
+            this.applicationBasis.Online_Access__c === false &&
+            this.applicationBasis.Extraction_Access__c === false
+        ) {
+            const errorMessage = 'Minst én tilgangstype må velges';
+            this.setErrorFor(this.typetilgangGroup, errorMessage);
+        }
     }
-  }
 
-  setErrorFor(inputField, message) {
-    if (!inputField) {
-      console.error('Input field is null or undefined:', inputField);
-      return;
+    @api focusInput() {
+        let invalidFields = this.template.querySelector(':invalid');
+
+        if (invalidFields) {
+            invalidFields.focus();
+            return true;
+        }
+        return false;
     }
-    this.publishError();
-    let formControl = inputField.parentElement;
-    let small = formControl.querySelector('small');
-    small.innerText = message;
-    formControl.className = 'form-control error';
-  }
 
-  resetErrors() {
-    try {
-      let formControl = this.template.querySelectorAll('.form-control');
-
-      formControl.forEach((element) => {
-        element.classList.remove('error');
-      });
-
-      if (this.legalBasis) this.legalBasis.setCustomValidity('');
-
-      if (this.purpose) this.purpose.setCustomValidity('');
-
-      if (this.processingBasis) this.processingBasis.setCustomValidity('');
-
-      if (this.otherLegalBasis) {
-        this.otherLegalBasis.setCustomValidity('');
-        this.otherPurpose.setCustomValidity('');
-      }
-
-    } catch (error) {
-      console.error(error);
+    checkNulls(field) {
+        if (field === null || field === '') {
+            return true;
+        } else {
+            return false;
+        }
     }
-  }
+
+    setErrorFor(inputField, message) {
+        if (!inputField) {
+            console.error('Input field is null or undefined:', inputField);
+            return;
+        }
+        this.publishError();
+        let formControl = inputField.parentElement;
+        let small = formControl.querySelector('small');
+        small.innerText = message;
+        formControl.className = 'form-control error';
+    }
+
+    resetErrors() {
+        try {
+            let formControl = this.template.querySelectorAll('.form-control');
+
+            formControl.forEach((element) => {
+                element.classList.remove('error');
+            });
+
+            if (this.legalBasis) this.legalBasis.setCustomValidity('');
+
+            if (this.purpose) this.purpose.setCustomValidity('');
+
+            if (this.processingBasis) this.processingBasis.setCustomValidity('');
+
+            if (this.otherLegalBasis) {
+                this.otherLegalBasis.setCustomValidity('');
+                this.otherPurpose.setCustomValidity('');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
 }

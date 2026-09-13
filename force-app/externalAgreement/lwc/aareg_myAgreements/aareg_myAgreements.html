@@ -1,67 +1,68 @@
 <template>
-  <c-aareg_main-banner>Aa-registeret - Mine Avtaler</c-aareg_main-banner>
-  <div class="container">
-    <div class="inner-container">
-      <div class="breadcrumbs">
-        <c-breadcrumbs url-list={breadcrumbs}></c-breadcrumbs>
-      </div>
-      <div class="slds-m-bottom_medium" if:true={hasAgreements}>
-        <lightning-combobox
-          name="statusFilter"
-          label="Filtrer på status"
-          value={selectedStatusFilter}
-          options={statusFilterOptions}
-          onchange={handleStatusFilterChange}>
-        </lightning-combobox>
-      </div>
-      <div if:true={isMobile} class="datatable-wrapper" style="height: 600px;">
-        <lightning-datatable
-          key-field="id"
-          data={filteredAgreements}
-          class="slds-max-medium-table_stacked"
-          columns={columns}
-          onrowaction={handleRowAction}
-          hide-checkbox-column="true">
-        </lightning-datatable>
-      </div>
-      <div if:false={isMobile} class="datatable-wrapper">
-        <lightning-datatable
-          key-field="id"
-          data={filteredAgreements}
-          columns={columns}
-          onrowaction={handleRowAction}
-          hide-checkbox-column="true">
-        </lightning-datatable>
-      </div>
-      <div if:false={hasAgreements} class="no-applications-container">
-        <p>Du har ingen aktive avtaler.</p>
-      </div>
-      <div if:true={showNoFilteredResults} class="no-applications-container">
-        <p>Ingen avtaler med valgt status.</p>
-      </div>
+    <c-aareg_main-banner>Aa-registeret - Mine Avtaler</c-aareg_main-banner>
+    <div class="container">
+        <div class="inner-container">
+            <div class="breadcrumbs">
+                <c-breadcrumbs url-list={breadcrumbs}></c-breadcrumbs>
+            </div>
+            <div class="slds-m-bottom_medium" if:true={hasAgreements}>
+                <lightning-combobox
+                    name="statusFilter"
+                    label="Filtrer på status"
+                    value={selectedStatusFilter}
+                    options={statusFilterOptions}
+                    onchange={handleStatusFilterChange}
+                >
+                </lightning-combobox>
+            </div>
+            <div if:true={isMobile} class="datatable-wrapper" style="height: 600px">
+                <lightning-datatable
+                    key-field="id"
+                    data={filteredAgreements}
+                    class="slds-max-medium-table_stacked"
+                    columns={columns}
+                    onrowaction={handleRowAction}
+                    hide-checkbox-column="true"
+                >
+                </lightning-datatable>
+            </div>
+            <div if:false={isMobile} class="datatable-wrapper">
+                <lightning-datatable
+                    key-field="id"
+                    data={filteredAgreements}
+                    columns={columns}
+                    onrowaction={handleRowAction}
+                    hide-checkbox-column="true"
+                >
+                </lightning-datatable>
+            </div>
+            <div if:false={hasAgreements} class="no-applications-container">
+                <p>Du har ingen aktive avtaler.</p>
+            </div>
+            <div if:true={showNoFilteredResults} class="no-applications-container">
+                <p>Ingen avtaler med valgt status.</p>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Modal: Avslutt avtale -->
-<c-aareg_modal class="end-agreement-modal">
-  <h2 class="slds-text-heading_medium slds-m-bottom_small">Avslutt avtale</h2>
-  <p class="slds-m-bottom_medium">
-    Er du sikker på at du vil avslutte avtale <strong>{selectedAgreement.avtaleNummer}</strong>?
-    Handlingen kan ikke angres.
-  </p>
+    <!-- Modal: Avslutt avtale -->
+    <c-aareg_modal class="end-agreement-modal">
+        <h2 class="slds-text-heading_medium slds-m-bottom_small">Avslutt avtale</h2>
+        <p class="slds-m-bottom_medium">
+            Er du sikker på at du vil avslutte avtale <strong>{selectedAgreement.avtaleNummer}</strong>? Handlingen kan
+            ikke angres.
+        </p>
 
-  <div class="slds-grid slds-grid_align-end slds-gutters_x-small">
-    <lightning-button
-      class="slds-m-right_x-small"
-      variant="neutral"
-      label="Avbryt"
-      onclick={closeEndAgreementModal}>
-    </lightning-button>
-    <lightning-button
-      variant="destructive"
-      label="Avslutt avtale"
-      onclick={handleConfirmEndAgreement}>
-    </lightning-button>
-  </div>
-</c-aareg_modal>
+        <div class="slds-grid slds-grid_align-end slds-gutters_x-small">
+            <lightning-button
+                class="slds-m-right_x-small"
+                variant="neutral"
+                label="Avbryt"
+                onclick={closeEndAgreementModal}
+            >
+            </lightning-button>
+            <lightning-button variant="destructive" label="Avslutt avtale" onclick={handleConfirmEndAgreement}>
+            </lightning-button>
+        </div>
+    </c-aareg_modal>
 </template>
