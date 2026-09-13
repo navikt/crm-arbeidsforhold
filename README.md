@@ -38,6 +38,50 @@ npm run prettier:check
 
 `npm test` kjører LWC Jest-testene. Apex-kompilering og Apex-tester er org-avhengige og må kjøres mot en autentisert Salesforce-org.
 
+## Salesforce Project CLI
+
+CLI-en er ein sjølvstendig lokal pakke i [tools/salesforce-project-cli](tools/salesforce-project-cli). Root-prosjektet har ingen npm-script eller dependency som startar verktøyet automatisk.
+
+Installer verktøyet frå tool-mappa. Denne eine kommandoen installerer avhengigheiter, byggjer CLI-en, opprettar prosjektkonfigurasjonen og lenkjer `sf-project` lokalt:
+
+```bash
+cd tools/salesforce-project-cli
+npm run setup
+```
+
+Setup opprettar eller gjennomgår `sf-project.config.json` ved sida av `sfdx-project.json`. Kvar innstilling viser eksisterande verdi og defaultverdi. Trykk Enter for å bevare eksisterande verdi; dersom innstillinga manglar, brukar Enter defaultverdien.
+
+Gå så tilbake til repo-rota:
+
+```bash
+cd ../..
+```
+
+Køyr deretter kommandoane frå repo-rota:
+
+```bash
+sf-project doctor
+sf-project org list
+sf-project packages plan
+sf-project web start
+```
+
+Utan global lenking kan du køyre CLI-en direkte frå tool-mappa:
+
+```bash
+cd tools/salesforce-project-cli
+npx sf-project doctor --project-dir ../..
+```
+
+Konfigurasjonen inneheld ikkje installasjonsnøklar. Nøkkelen må ligge i miljøvariabelen som står i `packageInstallKeyEnvironmentVariable`. På macOS kan ein lagre ein nøkkel i Keychain og berre eksportere han for éi køyring:
+
+```bash
+security add-generic-password -a "$USER" -s PACKAGE_INSTALL_KEY -w
+PACKAGE_INSTALL_KEY="$(security find-generic-password -a "$USER" -s PACKAGE_INSTALL_KEY -w)" sf-project packages install --target-org my-org
+```
+
+Nøklar, tokens og credentials skal ikkje skrivast til `sf-project.config.json`, shell-script eller README.
+
 ## Dokumentasjon og agentregler
 
 - [AGENTS.md](AGENTS.md) — repositoryregler og kildegrenser

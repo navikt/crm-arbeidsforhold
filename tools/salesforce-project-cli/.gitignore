@@ -1,0 +1,13 @@
+node_modules/
+dist/
+api-docs/
+web-dist/
+test-results/
+coverage/
+.vitest/
+*.tgz
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
