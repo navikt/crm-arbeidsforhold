@@ -1,6 +1,6 @@
 # P360 teknisk oversikt
 
-Denne sida forklarer kva P360-integrasjonen i Salesforce består av per 2026-09-12, korleis dei implementerte delane verkar, og kvar grensene mot framtidig arbeid går.
+Denne sida forklarer kva P360-integrasjonen i Salesforce består av per 2026-09-13, korleis dei implementerte delane verkar, og kvar grensene mot framtidig arbeid går.
 
 ## Statusnøklar
 
@@ -32,6 +32,7 @@ Implementert og testa:
 - første mock-baserte vedtaksdokument-mapping via `AAREG_DecisionToP360DocumentMapper`, med `Sak`, `Dokument ut`, journalstatus og tilgang frå godkjende metadata; filer er ikkje gjetta
 - file-parameter-mapping via `AAREG_ApplicationFileToP360FileMapper`, integrert i begge mock-baserte CreateDocument-mapperane, utan å velje upload-endpoint
 - mock-kompatibel `AAREG_ArchiveApplicationOrchestrator`-kopling som vidarefører `externalId`/`correlationId` til den injiserte adapteren og mappar kontrollert stub-respons tilbake til internt resultat
+- schema-safe typed domain contexts for verifisert `Application__c.Id` og `Agreement__c.Id`
 - miljøstyrt konfigurasjonslag for `#1017`: Custom Setting `P360_Integration_Setting__c` for kva Named Credential som skal brukast, pluss Permission Set-ar (`P360_RPC_Callout_Access`, `P360_Code_Table_Access`) samla i Permission Set Group `P360_Integration_User`
 - eksplisitt mock-transport for scratch orgar og sandkasser via `P360_Integration_Setting__c.Use_Mock_Transport__c`; når feltet er `true`, brukar `P360_AdapterFactory` `P360_StubArchiveAdapter`, medan ekte transport framleis er standard når feltet er `false` eller ikkje sett
 - R2 worker-grunnmur: `P360_ArchiveJobClaimService` for lease/claim og `P360_ArchiveJobWorker` for statusklassifisering, retry-backoff og manuell oppfølging
@@ -42,7 +43,7 @@ Ikkje implementert:
 - reelt SIF RPC-kall
 - Named Credential, autentisering og miljøkonfigurasjon
 - endeleg Salesforce-til-P360-mapping og kodeverk
-- full orkestreringsflyt frå domeneobjekt til P360
+- full orkestreringsflyt frå alle domeneobjekt til P360
 - automatisk `DecisionDocument`-jobb ved frigiving
 - vedleggsjobb og filopplasting
 - scheduler som automatisk kallar queueable worker

@@ -78,6 +78,8 @@ Følgjande sider bør liggje under dette området:
 - [SIF RPC-operasjonar og kontraktsstatus](sif-rpc-operasjonar.md)
 - [SIF API-kontrakter for Case, Document og File](sif-api-kontrakter.md)
 - [SIF RPC kontraktsoppslag](sif-rpc-kontrakt-oppslag.md)
+- [Mock-flyt og stegvis user testing](user-testing-guide.md)
+- [Jira-oppdateringsoversikt](../../context/p360/jira-oppdateringsoversikt.md)
 - [Dependency injection og adapterval](di-og-adapterval.md)
 - [P360 datamodell og asynkron arkiveringsjobb](../../architecture/p360-data-model-og-arkiveringsjob.md)
 - API og SIF RPC
