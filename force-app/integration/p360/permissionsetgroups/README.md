@@ -10,7 +10,7 @@ Ei permission set group samlar fleire permission sets slik at ein integrasjonsbr
 P360_Integration_User.permissionsetgroup-meta.xml
 ```
 
-`P360_Integration_User` samlar `P360_RPC_Callout_Access` og `P360_Archive_Job_Processing`.
+`P360_Integration_User` samlar `P360_RPC_Callout_Access`, `P360_Archive_Job_Processing` og `P360_Code_Table_Access`.
 
 ## Tildeling
 

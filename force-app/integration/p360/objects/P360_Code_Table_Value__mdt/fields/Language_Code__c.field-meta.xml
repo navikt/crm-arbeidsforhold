@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Language_Code__c</fullName>
+    <description>Språkkode for visingslabelen (t.d. nb, en), for kodeverk som er språkavhengig i P360.</description>
+    <externalId>false</externalId>
+    <label>Language Code</label>
+    <length>10</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -4,5 +4,6 @@
     <label>P360 Integration User</label>
     <permissionSets>P360_RPC_Callout_Access</permissionSets>
     <permissionSets>P360_Archive_Job_Processing</permissionSets>
+    <permissionSets>P360_Code_Table_Access</permissionSets>
     <status>Updated</status>
 </PermissionSetGroup>

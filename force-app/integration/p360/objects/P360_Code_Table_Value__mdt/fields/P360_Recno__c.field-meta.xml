@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>P360_Recno__c</fullName>
+    <description>P360 sitt interne løpenummer (recno) for kodeverdien, dersom P360 krev dette i tillegg til koden.</description>
+    <externalId>false</externalId>
+    <label>P360 Recno</label>
+    <length>40</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
