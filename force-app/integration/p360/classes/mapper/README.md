@@ -32,6 +32,7 @@ Mapperane skal ikkje:
 AAREG_ArchiveApplicationMapper.cls
 AAREG_ApplicationToP360CaseMapper.cls
 AAREG_ApplicationToP360DocumentMapper.cls
+AAREG_DecisionToP360DocumentMapper.cls
 AAREG_AgreementArchiveRequestMapper.cls
 P360_ArchiveResultMapper.cls
 ```
@@ -63,3 +64,5 @@ Mappertestar skal dekke både happy path og sad path.
 `AAREG_ApplicationToP360CaseMapper` er første mock-baserte CreateCase-slice. Han bruker den godkjende `Default`-profilen frå `P360_Code_Table_Value__mdt` for standard metadata, utan SOQL eller callouts i sjølve mapperen. Full Salesforce-feltmapping og live transport er framleis separate steg.
 
 `AAREG_ApplicationToP360DocumentMapper` er første mock-baserte CreateDocument-slice for søknadsdokument. Han mappar dokumentdato, case-nummer, ekstern identitet og dei godkjende standardverdiane for arkiv, journalstatus, tilgangskode og tilgangsgruppe. Filtransport og dokumentkategori er medvite separate avklaringar.
+
+`AAREG_DecisionToP360DocumentMapper` mappar vedtaksdokument med dei godkjende utgåande standardverdiane `Sak` og `Dokument ut`, saman med journalstatus og tilgang. Filtransport er framleis ein eigen slice.
