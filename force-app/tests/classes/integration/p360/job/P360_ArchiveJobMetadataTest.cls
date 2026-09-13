@@ -7,6 +7,11 @@
  */
 @IsTest
 private class P360_ArchiveJobMetadataTest {
+    /**
+     * Verifies that `P360_Archive_Job__c` exposes the fields the job service and worker depend on.
+     *
+     * @since 2026-09
+     */
     @IsTest
     static void archiveJobExposesRequiredContractFields() {
         User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
