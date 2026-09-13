@@ -1,6 +1,7 @@
 /**
  * Shared test data factory for common integration tests.
  *
+ * @author Kenneth Sørensen
  * @since 2026-09
  * @group Integration Common Test Utility
  */

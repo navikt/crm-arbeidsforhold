@@ -1,5 +1,9 @@
 /**
  * P360 archive release guard handler used by MyTriggers.
+ *
+ * @author Kenneth Sørensen
+ * @since 2026-04
+ * @group P360
  */
 public with sharing class P360_ArchiveGuardHandler extends MyTriggers {
     /**
