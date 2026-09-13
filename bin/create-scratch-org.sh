@@ -1471,6 +1471,7 @@ reset_source_tracking() {
     run_cmd sf project reset tracking \
         --target-org "$TARGET_ORG" \
         --no-prompt \
+        --json \
         || error $? '"sf project reset tracking" command failed.'
 
     add_action "Reset source tracking baseline for $TARGET_ORG"
@@ -2270,6 +2271,7 @@ echo ""
 echo "Running selected post steps: $POST_STEPS"
 
 if should_run_post_step "deploy"; then
+    reset_source_tracking
     deploy_metadata
     add_post_step_run "deploy"
 else

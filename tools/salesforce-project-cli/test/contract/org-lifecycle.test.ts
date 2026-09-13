@@ -95,8 +95,9 @@ describe('org lifecycle', () => {
                 'explicit-org'
             ],
             ['sf', 'package', 'installed', 'list', '--target-org', 'explicit-org', '--json'],
+            ['sf', 'project', 'reset', 'tracking', '--target-org', 'explicit-org', '--no-prompt', '--json'],
             ['sf', 'project', 'deploy', 'start', '--target-org', 'explicit-org', '--ignore-conflicts'],
-            ['sf', 'project', 'reset', 'tracking', '--target-org', 'explicit-org', '--no-prompt']
+            ['sf', 'project', 'reset', 'tracking', '--target-org', 'explicit-org', '--no-prompt', '--json']
         ]);
     });
 
@@ -248,6 +249,7 @@ describe('org lifecycle', () => {
             ['org', 'display', '--target-org', 'existing-org', '--json'],
             ['config', 'get', 'target-org', '--json'],
             ['package', 'installed', 'list', '--target-org', 'existing-org', '--json'],
+            ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json'],
             ['project', 'deploy', 'start', '--target-org', 'existing-org', '--ignore-conflicts'],
             [
                 'org',
@@ -270,7 +272,7 @@ describe('org lifecycle', () => {
                 path.join(projectDirectory, 'dummy-data/Plan.json')
             ],
             ['community', 'publish', '--target-org', 'existing-org', '--name', 'Aa-registeret'],
-            ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt']
+            ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json']
         ]);
     });
 

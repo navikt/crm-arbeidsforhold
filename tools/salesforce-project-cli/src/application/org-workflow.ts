@@ -301,14 +301,78 @@ async function resetSourceTracking(options: ResolvedConfigureProjectOptions): Pr
         });
         return EXIT_CODES.SUCCESS;
     }
-    return runStep(options, 'reset-source-tracking', 'Reset source tracking', 'sf', [
-        'project',
-        'reset',
-        'tracking',
-        '--target-org',
-        options.alias,
-        '--no-prompt'
-    ]);
+    const startedAt = Date.now();
+    const stepId = 'reset-source-tracking';
+    const step = 'Reset remote source tracking';
+    options.emit({
+        kind: 'step-started',
+        operationId: options.operationId,
+        timestamp: new Date().toISOString(),
+        stepId,
+        step,
+        attempt: 1
+    });
+    const result = await options.runCommand(withCommandOutput(options, stepId, step, {
+        executable: 'sf',
+        arguments: [
+            'project',
+            'reset',
+            'tracking',
+            '--target-org',
+            options.alias,
+            '--no-prompt',
+            '--json'
+        ],
+        cwd: options.configuration.projectDirectory
+    }));
+    if (failed(result)) {
+        options.emit({
+            kind: 'step-failed',
+            operationId: options.operationId,
+            timestamp: new Date().toISOString(),
+            stepId,
+            step,
+            exitCode: result.exitCode,
+            durationMs: Date.now() - startedAt,
+            error: result.error ?? result.stderr ?? 'Remote source tracking reset failed'
+        });
+        return classifySalesforceFailure(result, EXIT_CODES.OPERATION_FAILURE);
+    }
+
+    let sourceMembersSynced: number | undefined;
+    let localPathsSynced: number | undefined;
+    try {
+        const payload = JSON.parse(result.stdout) as {
+            result?: { sourceMembersSynced?: unknown; localPathsSynced?: unknown };
+        };
+        sourceMembersSynced =
+            typeof payload.result?.sourceMembersSynced === 'number' ? payload.result.sourceMembersSynced : undefined;
+        localPathsSynced = typeof payload.result?.localPathsSynced === 'number' ? payload.result.localPathsSynced : undefined;
+    } catch {
+        // The command succeeded; older CLI versions may not return JSON counters.
+    }
+    options.emit({
+        kind: 'progress',
+        operationId: options.operationId,
+        timestamp: new Date().toISOString(),
+        stepId,
+        step,
+        message:
+            sourceMembersSynced === undefined
+                ? 'Remote source tracking reset successfully'
+                : `Remote source tracking reset: ${sourceMembersSynced} source members synced, ${localPathsSynced ?? 0} local paths synced`,
+        diagnostic: true
+    });
+    options.emit({
+        kind: 'step-completed',
+        operationId: options.operationId,
+        timestamp: new Date().toISOString(),
+        stepId,
+        step,
+        exitCode: result.exitCode ?? 0,
+        durationMs: Date.now() - startedAt
+    });
+    return EXIT_CODES.SUCCESS;
 }
 
 async function configureResolvedProject(options: ResolvedConfigureProjectOptions): Promise<ExitCode> {
@@ -353,6 +417,13 @@ async function configureResolvedProject(options: ResolvedConfigureProjectOptions
             message: 'Would resolve and install packages',
             dryRun: true
         });
+    }
+
+    if (options.postSteps.includes('deploy')) {
+        const initialTrackingExitCode = await resetSourceTracking(options);
+        if (initialTrackingExitCode !== EXIT_CODES.SUCCESS) {
+            return initialTrackingExitCode;
+        }
     }
 
     const postStepExitCode = await runPostSteps(options);
