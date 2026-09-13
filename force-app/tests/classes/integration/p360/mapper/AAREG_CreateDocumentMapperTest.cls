@@ -30,6 +30,11 @@ private class AAREG_CreateDocumentMapperTest {
             input.caseNumber = '25/204';
             input.externalId = 'S111001-document';
             input.externalSystem = 'crm-arbeidsforhold';
+            AAREG_ApplicationFileToP360FileMapper.Input fileInput = new AAREG_ApplicationFileToP360FileMapper.Input();
+            fileInput.title = input.title;
+            fileInput.format = 'docx';
+            fileInput.base64Data = 'UEsDBA==';
+            input.files = new List<AAREG_ApplicationFileToP360FileMapper.Input>{ fileInput };
 
             P360_CreateDocumentRequestDto request = new AAREG_ApplicationToP360DocumentMapper(
                     new P360_CodeTableMetadataService()
@@ -46,7 +51,9 @@ private class AAREG_CreateDocumentMapperTest {
             System.Assert.areEqual('U', request.accessCode, 'Expected the approved access code.');
             System.Assert.areEqual('Alle ansatte i Nav', request.accessGroup, 'Expected the approved access group.');
             System.Assert.isNull(request.category, 'Expected no guessed document category.');
-            System.Assert.isNull(request.files, 'Expected file transport to remain a separate slice.');
+            System.Assert.areEqual(1, request.files.size(), 'Expected the document file to be mapped.');
+            System.Assert.areEqual('docx', request.files[0].format, 'Expected the file format.');
+            System.Assert.areEqual('UEsDBA==', request.files[0].base64Data, 'Expected the base64 file data.');
         }
     }
 }

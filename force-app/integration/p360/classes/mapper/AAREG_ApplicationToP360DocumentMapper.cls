@@ -24,6 +24,9 @@ public with sharing class AAREG_ApplicationToP360DocumentMapper {
 
         /** Salesforce system name used as the external-system identifier. */
         public String externalSystem;
+
+        /** Mock or pre-loaded file inputs to include in the document request. */
+        public List<AAREG_ApplicationFileToP360FileMapper.Input> files;
     }
 
     /**
@@ -56,7 +59,20 @@ public with sharing class AAREG_ApplicationToP360DocumentMapper {
         request.status = value('JournalStatus').p360Code;
         request.accessCode = value('AccessCode').p360Code;
         request.accessGroup = value('DocumentAccessGroup').p360Code;
+        request.files = mapFiles(input.files);
         return request;
+    }
+
+    private List<P360_FileParameterDto> mapFiles(List<AAREG_ApplicationFileToP360FileMapper.Input> inputs) {
+        if (inputs == null || inputs.isEmpty()) {
+            return null;
+        }
+        List<P360_FileParameterDto> files = new List<P360_FileParameterDto>();
+        AAREG_ApplicationFileToP360FileMapper fileMapper = new AAREG_ApplicationFileToP360FileMapper();
+        for (AAREG_ApplicationFileToP360FileMapper.Input input : inputs) {
+            files.add(fileMapper.mapToFile(input));
+        }
+        return files;
     }
 
     private P360_CodeTableRowDto value(String tableName) {
