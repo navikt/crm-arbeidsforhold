@@ -1463,6 +1463,18 @@ deploy_metadata() {
     add_action "Deployed metadata to $TARGET_ORG"
 }
 
+reset_source_tracking() {
+    echo ""
+    echo "Resetting source tracking..."
+
+    run_cmd sf project reset tracking \
+        --target-org "$TARGET_ORG" \
+        --no-prompt \
+        || error $? '"sf project reset tracking" command failed.'
+
+    add_action "Reset source tracking baseline for $TARGET_ORG"
+}
+
 assign_permission_sets() {
     echo ""
     echo "Assigning permission sets..."
@@ -2258,6 +2270,7 @@ echo "Running selected post steps: $POST_STEPS"
 
 if should_run_post_step "deploy"; then
     deploy_metadata
+    reset_source_tracking
     add_post_step_run "deploy"
 else
     echo "Skipping metadata deploy."
