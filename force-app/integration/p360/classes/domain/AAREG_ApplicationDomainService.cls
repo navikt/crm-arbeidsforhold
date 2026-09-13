@@ -11,12 +11,27 @@ public with sharing class AAREG_ApplicationDomainService {
      * Loads and validates Application data needed by the archive use case.
      *
      * @param applicationId Salesforce Application record id.
-     * @return Temporary domain context placeholder. TODO F3: Replace Object with typed context.
-     * @throws P360_ContractException Until implementation is completed.
+     * @return Typed internal Application archive context.
+     * @throws P360_ContractException When the application id is missing or no Application exists.
      */
-    public Object getApplicationArchiveContext(Id applicationId) {
-        throw new P360_ContractException(
-            'AAREG_ApplicationDomainService.getApplicationArchiveContext is not implemented yet. TODO F3.'
-        );
+    public AAREG_ApplicationArchiveContext getApplicationArchiveContext(Id applicationId) {
+        if (applicationId == null) {
+            throw new P360_ContractException('Application id is required.');
+        }
+
+        List<Application__c> applications = [
+            SELECT Id
+            FROM Application__c
+            WHERE Id = :applicationId
+            LIMIT 1
+        ];
+        if (applications.isEmpty()) {
+            throw new P360_ContractException('Application was not found.');
+        }
+
+        Application__c application = applications[0];
+        AAREG_ApplicationArchiveContext context = new AAREG_ApplicationArchiveContext();
+        context.applicationId = application.Id;
+        return context;
     }
 }

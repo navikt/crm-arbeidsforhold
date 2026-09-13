@@ -16,7 +16,8 @@ The P360 F2 skeleton boundaries are implemented and focused-test validated. The 
 ## Verified boundaries
 
 - Application and Agreement domain services stop at the typed-context F3 boundary.
-- Archive orchestrator validates required Application context and stops at its explicit TODO boundary.
+- Archive orchestrator validates required Application context and supports a mock-compatible injected-adapter path.
+- Application domain service returns a typed internal context containing the verified `Application__c.Id`.
 - Archive adapter validates request and external ID before transport, then stops at its explicit unresolved-contract boundary.
 - Stub archive adapter returns controlled local responses without callouts.
 - RPC client stops at the unresolved transport boundary.
@@ -43,4 +44,4 @@ This run is the historical completion evidence for the F2 boundary. Newer P360 t
 
 ## Rule
 
-Do not replace the controlled TODO boundaries with guessed transport or mapping behavior. Continue with tests and internal boundaries until the external contract is confirmed.
+Do not replace the controlled transport boundary with guessed RPC behavior. Continue with tests and internal boundaries until the external contract is confirmed. P360 reference fields not present in the target-org schema remain outside this domain slice.
