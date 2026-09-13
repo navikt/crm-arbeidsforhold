@@ -76,7 +76,7 @@ Dette dokumentet er et samlet oppslag for hva repoet faktisk vet om P360/SIF RPC
 - Entra ID audience og scope.
 - Eksakte header-/feltnavn for `AuthKey` og `ClientID`.
 - Om `AuthKey` og `ClientID` sendes som headers, envelope-felter eller begge deler.
-- Hvilken Named Credential/External Credential-modell som skal brukes.
+- Hvilken Named Credential/External Credential-modell som skal brukes. **Modellvalg gjort internt** (2026-09), basert på et eksisterende søsteroppsett (`NKS P360 Integration`) som allerede bruker OAuth 2.0 Client Credentials mot Entra ID via External Credential med `authkey`/`clientid` som custom headers på Named Credential. Selve endepunkt-URL, scope-verdi og secrets for denne integrasjonen er ikke bekreftet. Se `P360_Integration_Setting__c` (Custom Setting) og `P360_RPC_Callout_Access` (Permission Set) i `docs/integrations/p360/teknisk-oversikt.md`.
 - Hvilke headers som er påkrevd for correlation ID og teknisk sporbarhet.
 
 ## Ikke bekreftet og skal ikke gjettes
