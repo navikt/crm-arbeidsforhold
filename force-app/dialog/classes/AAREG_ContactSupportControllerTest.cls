@@ -245,7 +245,7 @@ public class AAREG_ContactSupportControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void test_enrichUploadedFiles_addsMissingLinks_and_skipsExisting() {
+    static void shouldEnrichUploadedFilesWithMissingLinksAndSkipExisting() {
         Inquiry__c inq1 = AAREG_TestDataFactory.getInquiry();
         Inquiry__c inq2 = AAREG_TestDataFactory.getInquiry();
         inq2.Email__c = 'other@test.no';
@@ -288,7 +288,7 @@ public class AAREG_ContactSupportControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void test_deleteFiles_deletesExisting_and_earlyReturn() {
+    static void shouldDeleteExistingFilesAndReturnEarlyWhenEmpty() {
         ContentVersion cv = new ContentVersion(
             Title = 'c',
             PathOnClient = 'c.txt',
@@ -867,7 +867,7 @@ public class AAREG_ContactSupportControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testHookedCoverage_update_final_new_delete_and_thread_message_failures() {
+    static void shouldCoverUpdateFinalNewDeleteAndThreadMessageFailures() {
         ensureThreadRecordTypeInUtility();
 
         Inquiry__c draft = AAREG_TestDataFactory.getInquiry();
@@ -984,7 +984,7 @@ public class AAREG_ContactSupportControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testInitDraftRecordAndNullMetadataSkipPaths() {
+    static void shouldHandleDraftInitializationAndMissingMetadata() {
         Id draftId = null;
         Id updatedId = null;
         Id finalId = null;
@@ -1033,7 +1033,7 @@ public class AAREG_ContactSupportControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testCreateNewInquiryAndDeleteFilesLoopHookCoverage() {
+    static void shouldCoverNewInquiryCreationAndFileDeletionLoop() {
         Inquiry__c inquiry = AAREG_TestDataFactory.getInquiry();
         AAREG_contactSupportController.FileData validFile = new AAREG_contactSupportController.FileData();
         validFile.base64 = EncodingUtil.base64Encode(Blob.valueOf('loop-hook-file'));
@@ -1080,7 +1080,7 @@ public class AAREG_ContactSupportControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testCreateThreadReturnAndMessageBranches() {
+    static void shouldCoverThreadReturnAndMessageBranches() {
         ensureThreadRecordTypeInUtility();
         Inquiry__c inquiry = AAREG_TestDataFactory.getInquiry();
         insert inquiry;
