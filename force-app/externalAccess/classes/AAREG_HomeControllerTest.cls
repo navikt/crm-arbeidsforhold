@@ -35,15 +35,17 @@ public with sharing class AAREG_HomeControllerTest {
 
         insert user;
 
-        Altinn3IntegrationSetting__c settings = new Altinn3IntegrationSetting__c();
-        settings.Name = 'Altinn3IntegrationSettings';
-        settings.CachePartitionName__c = 'TestPartition';
-        settings.CalloutName__c = 'Altinn_Test_Access_Token';
-        settings.Endpoint__c = 'Altinn_Endpoint_Test';
-        settings.CacheKeyName__c = 'altinn3CalloutService';
-        settings.SubscriptionKey__c = 'altinn3subscriptionkey';
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            Altinn3IntegrationSetting__c settings = new Altinn3IntegrationSetting__c();
+            settings.Name = 'Altinn3IntegrationSettings';
+            settings.CachePartitionName__c = 'TestPartition';
+            settings.CalloutName__c = 'Altinn_Test_Access_Token';
+            settings.Endpoint__c = 'Altinn_Endpoint_Test';
+            settings.CacheKeyName__c = 'altinn3CalloutService';
+            settings.SubscriptionKey__c = 'altinn3subscriptionkey';
 
-        insert settings;
+            insert settings;
+        }
     }
 
     /**
