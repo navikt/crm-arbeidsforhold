@@ -58,7 +58,7 @@ public class AAREG_CodeBaseListControllerTest {
      * @since May 2021
      */
     @isTest
-    static void testCodeBaseComponent() {
+    static void shouldReturnCodeBaseListWithExpectedValues() {
         Application__c appl = [SELECT id FROM Application__c LIMIT 1];
         List<ApplicationBasisCode__c> baseList = AAREG_CodeBaseListController.getCodeBaseList(appl.Id);
 
@@ -98,7 +98,7 @@ public class AAREG_CodeBaseListControllerTest {
      */
     @isTest
     /* test for apex class AAREG_createContentVersionForAgreement*/
-    static void testCreateContentVersionOnAgreement() {
+    static void shouldCopyApplicationFileToAgreement() {
         Application__c appl = [SELECT id FROM Application__c LIMIT 1];
 
         AAREG_createContentVersionForAgreement.FlowInput params = new AAREG_createContentVersionForAgreement.FlowInput();
