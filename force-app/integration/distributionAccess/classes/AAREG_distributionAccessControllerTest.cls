@@ -24,7 +24,7 @@ public class AAREG_distributionAccessControllerTest {
      * @since July 2026
      */
     @isTest
-    static void testHandleRequest_PUT_Success() {
+    static void shouldHandlePutSuccess() {
         // Arrange
         AAREG_distributionAccessController.FlowInputs input = new AAREG_distributionAccessController.FlowInputs();
         input.referenceId = UserInfo.getUserId();
@@ -56,7 +56,7 @@ public class AAREG_distributionAccessControllerTest {
      * @since July 2026
      */
     @isTest
-    static void testHandleRequest_DELETE_Success() {
+    static void shouldHandleDeleteSuccess() {
         // Arrange
         AAREG_distributionAccessController.FlowInputs input = new AAREG_distributionAccessController.FlowInputs();
         input.referenceId = UserInfo.getUserId();
@@ -88,7 +88,7 @@ public class AAREG_distributionAccessControllerTest {
      * @since July 2026
      */
     @isTest
-    static void testHandleRequest_InvalidOperationType() {
+    static void shouldRejectInvalidOperationType() {
         // Arrange
         AAREG_distributionAccessController.FlowInputs input = new AAREG_distributionAccessController.FlowInputs();
         input.referenceId = UserInfo.getUserId();
@@ -119,7 +119,7 @@ public class AAREG_distributionAccessControllerTest {
      * @since July 2026
      */
     @isTest
-    static void testHandleRequest_NullInput() {
+    static void shouldRejectNullInput() {
         // Act
         Test.startTest();
         List<AAREG_distributionAccessController.FlowOutputs> outputs = AAREG_distributionAccessController.handleRequest(
@@ -139,7 +139,7 @@ public class AAREG_distributionAccessControllerTest {
      * @since July 2026
      */
     @isTest
-    static void testHandleRequest_EmptyInput() {
+    static void shouldRejectEmptyInput() {
         // Act
         Test.startTest();
         List<AAREG_distributionAccessController.FlowOutputs> outputs = AAREG_distributionAccessController.handleRequest(
@@ -159,7 +159,7 @@ public class AAREG_distributionAccessControllerTest {
      * @since July 2026
      */
     @isTest
-    static void testHandleRequest_BlankOrganizationNumber() {
+    static void shouldRejectBlankOrganizationNumber() {
         // Arrange
         AAREG_distributionAccessController.FlowInputs input = new AAREG_distributionAccessController.FlowInputs();
         input.referenceId = UserInfo.getUserId();
@@ -189,7 +189,7 @@ public class AAREG_distributionAccessControllerTest {
      * @since July 2026
      */
     @isTest
-    static void testHandleRequest_NullInputElement() {
+    static void shouldRejectNullInputElement() {
         List<AAREG_distributionAccessController.FlowInputs> inputs = new List<AAREG_distributionAccessController.FlowInputs>{
             null
         };
@@ -211,7 +211,7 @@ public class AAREG_distributionAccessControllerTest {
      * @since July 2026
      */
     @isTest
-    static void testGenerateJson() {
+    static void shouldGenerateDistributionJson() {
         // Arrange
         String orgNumber = '123456789';
 
@@ -230,7 +230,7 @@ public class AAREG_distributionAccessControllerTest {
      * @since July 2026
      */
     @isTest
-    static void testGenerateHeaderToDistribution_HttpError() {
+    static void shouldHandleDistributionHttpError() {
         // Act
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new AAREG_DistributionAccessMock(500, 'Internal Server Error'));
@@ -246,7 +246,7 @@ public class AAREG_distributionAccessControllerTest {
      * @since July 2026
      */
     @isTest
-    static void testGenerateHeaderToDistribution_UnexpectedError() {
+    static void shouldHandleDistributionUnexpectedError() {
         Test.startTest();
         // Null referenceType causes request initialization to fail before status code handling.
         AAREG_distributionAccessRequest.generateHeaderToDistribution('123456789', null, '{}');
@@ -261,7 +261,7 @@ public class AAREG_distributionAccessControllerTest {
      * @since July 2026
      */
     @isTest
-    static void testFlowOutputsConstructors() {
+    static void shouldConstructFlowOutputs() {
         // Act & Assert
         AAREG_distributionAccessController.FlowOutputs output1 = new AAREG_distributionAccessController.FlowOutputs();
         System.Assert.isFalse(output1.success, 'Default constructor should set success to false');
