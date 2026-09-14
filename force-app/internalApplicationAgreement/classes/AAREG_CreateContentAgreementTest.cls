@@ -12,7 +12,7 @@ public class AAREG_CreateContentAgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testCreateFileSuccessfully() {
+    static void shouldCreateFileSuccessfully() {
         // Setup test data
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
@@ -54,7 +54,7 @@ public class AAREG_CreateContentAgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testCreateFileWhenApplicationHasNoContent() {
+    static void shouldHandleApplicationWithoutContent() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
 
@@ -87,7 +87,7 @@ public class AAREG_CreateContentAgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testCreateFileWhenAgreementHasNoApplication() {
+    static void shouldHandleAgreementWithoutApplication() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
 
@@ -115,7 +115,7 @@ public class AAREG_CreateContentAgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testFlowInputInstantiation() {
+    static void shouldInstantiateFlowInput() {
         Test.startTest();
         AAREG_createContentVersionForAgreement.FlowInput input = new AAREG_createContentVersionForAgreement.FlowInput();
         input.currRecId = 'TestId123';
@@ -130,7 +130,7 @@ public class AAREG_CreateContentAgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testCreateFileWithMultipleInputs() {
+    static void shouldHandleMultipleInputs() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
 
@@ -167,7 +167,7 @@ public class AAREG_CreateContentAgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testFileDataPreservation() {
+    static void shouldPreserveFileData() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
 
@@ -208,7 +208,7 @@ public class AAREG_CreateContentAgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testFileExtensionPreservation() {
+    static void shouldPreserveFileExtension() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
 
