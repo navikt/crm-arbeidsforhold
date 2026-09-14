@@ -60,7 +60,9 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 ## Neste steg
 
 - [x] Pinna repo-workflows til immutable commit-SHA: `actions/checkout` bruker `3d3c42e5aac5ba805825da76410c181273ba90b1`, og `navikt/crm-workflows-base` bruker `aad6b4f48e419d71490db436da697cd7581a2c6a`. Den gamle `installSFDX`-stien blei korrigert til upstream sin eksisterande `installSF`-action. Den separate workflowen under `tools/` blei ikkje endra.
-- [ ] Attståande naming-/kodekvalitetsoppgåver: (1) avklare produksjonsnamnet `AAREG_checkObjectTypeNameche`, (2) vurdere dei nyleg avdekte Sev2 CRUD/FLS-funna i `AAREG_HomeController` og andre klassar der blanket-PMD-undertrykking tidlegare skjulte reelle funn. Alle redigerbare legacy-testmetodar er no renamde; dei to attståande `test`-prefiksa ligg i read-only `force-app/unpackagable/` og skal ikkje endrast utan eksplisitt godkjenning. Kvar attståande oppgåve skal takast som eiga, avgrensa TDD-/review-skive.
+- [ ] Attståande naming-/kodekvalitetsoppgåver: (1) avklare produksjonsnamnet `AAREG_checkObjectTypeNameche`, (2) vurdere dei nyleg avdekte CRUD/FLS-funna i `AAREG_HomeController` og andre klassar der blanket-PMD-undertrykking tidlegare skjulte reelle funn. Alle redigerbare legacy-testmetodar er no renamde; dei to attståande `test`-prefiksa ligg i read-only `force-app/unpackagable/` og skal ikkje endrast utan eksplisitt godkjenning. Kvar attståande oppgåve skal takast som eiga, avgrensa TDD-/review-skive.
+
+Code Analyzer-validering 2026-09-14 (`sfdx-scanner 4.12.0`) mot `AAREG_HomeController.cls` fann 28 PMD-funn, inkludert 4 CRUD/FLS-funn ved User-, Agreement__c- og RelatedContact__c-operasjonar. Funna er dokumenterte, men ikkje automatisk retta: controlleren er `without sharing`, han opprettar Apex sharing records for community-brukarar, og val av `WITH USER_MODE`/CRUD-FLS-sjekk kan endre den tilsikta tilgangsmodellen. Neste skive krev autentisert org-test, tilgangseigar og eksplisitt review av security-/Well-Architected-konsekvensane.
 
 ### Første kartleggingsfunn
 
