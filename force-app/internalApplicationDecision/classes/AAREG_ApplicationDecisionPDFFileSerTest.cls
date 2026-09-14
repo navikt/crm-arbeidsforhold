@@ -60,7 +60,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      * @since July 2026
      */
     @IsTest
-    static void testCreateFilePDFGeneration() {
+    static void shouldGeneratePdfFile() {
         // Retrieve test data
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
         Application__c testApplication = [
@@ -94,7 +94,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      * @since July 2026
      */
     @IsTest
-    static void testCreateFileWithNullInput() {
+    static void shouldHandleNullInput() {
         Boolean exceptionThrown = false;
         String exceptionMessage = '';
 
@@ -116,7 +116,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      * @since July 2026
      */
     @IsTest
-    static void testCreateFileWithEmptyInput() {
+    static void shouldHandleEmptyInput() {
         Boolean exceptionThrown = false;
 
         Test.startTest();
@@ -138,7 +138,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      * @since July 2026
      */
     @IsTest
-    static void testCreateFileWithMissingDecisionId() {
+    static void shouldHandleMissingDecisionId() {
         // Retrieve test data
         Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
         Access_Request__c testAccessRequest = [SELECT Id FROM Access_Request__c LIMIT 1];
@@ -171,7 +171,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      * @since July 2026
      */
     @IsTest
-    static void testCreateFileWithMissingApplicationId() {
+    static void shouldHandleMissingApplicationId() {
         // Retrieve test data
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
         Access_Request__c testAccessRequest = [SELECT Id FROM Access_Request__c LIMIT 1];
@@ -204,7 +204,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      * @since July 2026
      */
     @IsTest
-    static void testCreateFileWithMissingFileTitle() {
+    static void shouldHandleMissingFileTitle() {
         // Retrieve test data
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
         Application__c testApplication = [
@@ -242,7 +242,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      * @since July 2026
      */
     @IsTest
-    static void testFlowInputClass() {
+    static void shouldConstructFlowInput() {
         AAREG_ApplicationDecisionPDFFileService.FlowInput input = new AAREG_ApplicationDecisionPDFFileService.FlowInput();
 
         input.decisionRecordId = 'testId1';
@@ -264,7 +264,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      * @since July 2026
      */
     @IsTest
-    static void testFlowOutputClass() {
+    static void shouldConstructFlowOutput() {
         AAREG_ApplicationDecisionPDFFileService.FlowOutput output = new AAREG_ApplicationDecisionPDFFileService.FlowOutput();
         output.contentDocumentId = 'testContentDocId';
 
@@ -277,7 +277,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      * @since August 2026
      */
     @IsTest
-    static void testCreateFile_forceContentVersionCrudDenied() {
+    static void shouldHandleContentVersionCrudDenied() {
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
         Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
         Access_Request__c testAccessRequest = [SELECT Id FROM Access_Request__c LIMIT 1];
@@ -310,7 +310,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      * @since August 2026
      */
     @IsTest
-    static void testCreateFile_forceContentVersionQueryEmpty() {
+    static void shouldHandleEmptyContentVersionQuery() {
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
         Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
         Access_Request__c testAccessRequest = [SELECT Id FROM Access_Request__c LIMIT 1];
@@ -343,7 +343,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      * @since August 2026
      */
     @IsTest
-    static void testCreateFile_forceContentDocumentLinkCrudDenied() {
+    static void shouldHandleContentDocumentLinkCrudDenied() {
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
         Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
         Access_Request__c testAccessRequest = [SELECT Id FROM Access_Request__c LIMIT 1];
@@ -376,7 +376,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
      * @since August 2026
      */
     @IsTest
-    static void testCreateFile_forceDmlExceptionPath() {
+    static void shouldHandleDmlExceptionPath() {
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
         Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
         Access_Request__c testAccessRequest = [SELECT Id FROM Access_Request__c LIMIT 1];
