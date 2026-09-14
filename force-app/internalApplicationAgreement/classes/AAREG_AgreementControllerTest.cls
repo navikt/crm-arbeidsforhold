@@ -292,7 +292,7 @@ public class AAREG_AgreementControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testForcedPermissionBranches() {
+    static void shouldCoverForcedPermissionDeniedBranches() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
         RelatedContact__c existingContact = [SELECT Id, Name, Agreement__c FROM RelatedContact__c LIMIT 1];
 
