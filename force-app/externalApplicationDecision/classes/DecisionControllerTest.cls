@@ -27,7 +27,7 @@ private class DecisionControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testWithoutHTMLTags() {
+    static void shouldLoadApplicationIdWithoutHtmlTags() {
         Application__c application = [SELECT Id FROM Application__c];
         String applicationId = (String) application.Id;
 
@@ -50,7 +50,7 @@ private class DecisionControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testWithHTMLTags() {
+    static void shouldLoadApplicationIdWithHtmlTags() {
         Application__c application = [SELECT Id, AA_CasehandlerDecisionTemplate__c FROM Application__c];
         application.AA_CasehandlerDecisionTemplate__c = 'testdata testdata testdata testdata <img src="testimg"></img> testdata testdata testdata testdata';
         update application;
@@ -75,7 +75,7 @@ private class DecisionControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testWithoutIdParameter() {
+    static void shouldLeaveApplicationNullWithoutIdParameter() {
         Test.setCurrentPage(Page.AAREG_decisionPDF);
 
         Test.startTest();
