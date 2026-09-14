@@ -6,16 +6,17 @@ Dokumentasjonen er organisert etter dokumenttype og ansvar. Start i området som
 
 ## Dokumentasjonskart
 
-| Område               | Innhald                                                                                         | Inngang                                                         |
-| -------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Arkitektur           | Overordna arkitektur, lagdeling, repositorystruktur og tekniske designval                       | [Arkitektur og design](architecture/README.md)                  |
-| ADR                  | Architecture Decision Records med kontekst, vurderte alternativ og konsekvensar                 | [ADR-register](adr/README.md)                                   |
-| Integrasjonar        | Adapterar, klientar, DTO-ar, mapping, auth, retry, logging og integrasjonsspesifikke kontraktar | [Integrasjonar](integrations/README.md)                         |
-| Domene               | Domenemodell, forretningsomgrep og domenereglar                                                 | [Domenedokumentasjon](domain/README.md)                         |
-| Brukarflater         | Dokumentasjon for Experience Cloud, interne flater og andre brukarflater                        | [Brukarflater](surfaces/README.md)                              |
-| Kontekst             | Spegla Jira-/Confluence-kontekst og prosjektspesifikke arbeidsnotat                             | [P360-kontekst](context/p360/jira/README.md)                    |
-| Utviklingsstandardar | Spegla oversikt over standardar og lenker til operativ fasit                                    | [Utviklingsstandardar](utviklingsstandarder.md)                 |
-| Arbeidsflyt          | Integrasjonsflyt, user stories, dokumentasjonsansvar og oppdateringsreglar                      | [Arbeidsflyt og dokumentasjon](arbeidsflyt-og-dokumentasjon.md) |
+| Område               | Innhald                                                                                         | Inngang                                                                            |
+| -------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Arkitektur           | Overordna arkitektur, lagdeling, repositorystruktur og tekniske designval                       | [Arkitektur og design](architecture/README.md)                                     |
+| ADR                  | Architecture Decision Records med kontekst, vurderte alternativ og konsekvensar                 | [ADR-register](adr/README.md)                                                      |
+| Integrasjonar        | Adapterar, klientar, DTO-ar, mapping, auth, retry, logging og integrasjonsspesifikke kontraktar | [Integrasjonar](integrations/README.md)                                            |
+| Domene               | Domenemodell, forretningsomgrep og domenereglar                                                 | [Domenedokumentasjon](domain/README.md)                                            |
+| Brukarflater         | Dokumentasjon for Experience Cloud, interne flater og andre brukarflater                        | [Brukarflater](surfaces/README.md)                                                 |
+| Drift                | Tekniske sjekklister for metadataopprydding og kontrollert org-endring                          | [Salesforce metadataopprydding](operations/salesforce-metadata-cleanup-runbook.md) |
+| Kontekst             | Spegla Jira-/Confluence-kontekst og prosjektspesifikke arbeidsnotat                             | [P360-kontekst](context/p360/jira/README.md)                                       |
+| Utviklingsstandardar | Spegla oversikt over standardar og lenker til operativ fasit                                    | [Utviklingsstandardar](utviklingsstandarder.md)                                    |
+| Arbeidsflyt          | Integrasjonsflyt, user stories, dokumentasjonsansvar og oppdateringsreglar                      | [Arbeidsflyt og dokumentasjon](arbeidsflyt-og-dokumentasjon.md)                    |
 
 ## P360
 
