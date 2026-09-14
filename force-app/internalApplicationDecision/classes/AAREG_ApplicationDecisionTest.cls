@@ -12,7 +12,7 @@ public class AAREG_ApplicationDecisionTest {
      * @since July 2026
      */
     @IsTest
-    static void testDecisionInstantiation() {
+    static void shouldInstantiateDecision() {
         Test.startTest();
         AAREG_ApplicationDecision decision = new AAREG_ApplicationDecision();
         Test.stopTest();
@@ -25,7 +25,7 @@ public class AAREG_ApplicationDecisionTest {
      * @since July 2026
      */
     @IsTest
-    static void testDecisionCoreProperties() {
+    static void shouldSetAndGetCoreProperties() {
         Test.startTest();
         AAREG_ApplicationDecision decision = new AAREG_ApplicationDecision();
         decision.vedtaksId = '001000000000001';
@@ -47,7 +47,7 @@ public class AAREG_ApplicationDecisionTest {
      * @since July 2026
      */
     @IsTest
-    static void testDecisionTextProperties() {
+    static void shouldSetAndGetTextProperties() {
         Test.startTest();
         AAREG_ApplicationDecision decision = new AAREG_ApplicationDecision();
         decision.klagetekst = 'Klage text content';
@@ -73,7 +73,7 @@ public class AAREG_ApplicationDecisionTest {
      * @since July 2026
      */
     @IsTest
-    static void testDecisionDateProperties() {
+    static void shouldSetAndGetDateProperties() {
         Test.startTest();
         AAREG_ApplicationDecision decision = new AAREG_ApplicationDecision();
         Date testDate = Date.today();
@@ -90,7 +90,7 @@ public class AAREG_ApplicationDecisionTest {
      * @since July 2026
      */
     @IsTest
-    static void testDecisionNumericProperties() {
+    static void shouldSetAndGetNumericProperties() {
         Test.startTest();
         AAREG_ApplicationDecision decision = new AAREG_ApplicationDecision();
         decision.webTilgang = 1;
@@ -104,7 +104,7 @@ public class AAREG_ApplicationDecisionTest {
      * @since July 2026
      */
     @IsTest
-    static void testMultipleDecisionInstances() {
+    static void shouldKeepDecisionInstancesIndependent() {
         Test.startTest();
         AAREG_ApplicationDecision decision1 = new AAREG_ApplicationDecision();
         decision1.vedtaksId = 'ID1';
@@ -126,7 +126,7 @@ public class AAREG_ApplicationDecisionTest {
      * @since July 2026
      */
     @IsTest
-    static void testDecisionNullValues() {
+    static void shouldAllowNullValues() {
         Test.startTest();
         AAREG_ApplicationDecision decision = new AAREG_ApplicationDecision();
         Test.stopTest();
@@ -142,7 +142,7 @@ public class AAREG_ApplicationDecisionTest {
      * @since July 2026
      */
     @IsTest
-    static void testDecisionCompleteDataSet() {
+    static void shouldSetCompleteDataSet() {
         Test.startTest();
         AAREG_ApplicationDecision decision = new AAREG_ApplicationDecision();
         decision.vedtaksId = 'DEC001';
@@ -170,7 +170,7 @@ public class AAREG_ApplicationDecisionTest {
      * @since July 2026
      */
     @IsTest
-    static void testDecisionPropertyModification() {
+    static void shouldAllowPropertyModification() {
         Test.startTest();
         AAREG_ApplicationDecision decision = new AAREG_ApplicationDecision();
         decision.status = 'Pending';
