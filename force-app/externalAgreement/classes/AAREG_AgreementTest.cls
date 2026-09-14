@@ -12,7 +12,7 @@ public class AAREG_AgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testAgreementInstantiation() {
+    static void shouldInstantiateAgreement() {
         Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         Test.stopTest();
@@ -25,7 +25,7 @@ public class AAREG_AgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testAgreementCoreProperties() {
+    static void shouldSetAndGetCoreProperties() {
         Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         agreement.avtaleId = '001000000000001';
@@ -45,7 +45,7 @@ public class AAREG_AgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testAgreementAccessProperties() {
+    static void shouldSetAndGetAccessProperties() {
         Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         agreement.apiTilgang = true;
@@ -63,7 +63,7 @@ public class AAREG_AgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testAgreementConsumerProperties() {
+    static void shouldSetAndGetConsumerProperties() {
         Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         agreement.konsumentId = 'K001';
@@ -91,7 +91,7 @@ public class AAREG_AgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testAgreementDataProcessorProperties() {
+    static void shouldSetAndGetDataProcessorProperties() {
         Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         agreement.databehandlerNavn = 'Data Processor AS';
@@ -117,7 +117,7 @@ public class AAREG_AgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testMultipleAgreementInstances() {
+    static void shouldKeepAgreementInstancesIndependent() {
         Test.startTest();
         AAREG_Agreement agreement1 = new AAREG_Agreement();
         agreement1.avtaleId = 'ID1';
@@ -139,7 +139,7 @@ public class AAREG_AgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testAgreementNullValues() {
+    static void shouldAllowNullValues() {
         Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         // All properties should be null initially
@@ -155,7 +155,7 @@ public class AAREG_AgreementTest {
      * @since July 2026
      */
     @IsTest
-    static void testAgreementDefaultValues() {
+    static void shouldUseDefaultValues() {
         Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         agreement.apiTilgang = false;
