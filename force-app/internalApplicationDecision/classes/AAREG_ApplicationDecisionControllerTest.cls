@@ -47,7 +47,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since January 2026
      */
     @IsTest
-    static void testGetApplicationDecision() {
+    static void shouldReturnApplicationDecisions() {
         // Retrieve the test Application
         Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
 
@@ -76,7 +76,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since January 2026
      */
     @IsTest
-    static void testCreateApplicationDecision() {
+    static void shouldCreateApplicationDecision() {
         // Retrieve the test Application
         Application__c testApplication = [SELECT Id FROM Application__c LIMIT 1];
 
@@ -123,7 +123,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since June 2026
      */
     @IsTest
-    static void testCreateApplicationDecisionWithNullId() {
+    static void shouldHandleNullApplicationId() {
         Boolean exceptionThrown = false;
 
         Test.startTest();
@@ -146,7 +146,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since January 2026
      */
     @IsTest
-    static void testCreateState() {
+    static void shouldCreateStateDecision() {
         Test.startTest();
         Account testAccount = AAREG_TestDataFactory.getAccountState();
         insert testAccount;
@@ -194,7 +194,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since January 2026
      */
     @IsTest
-    static void testCreatePension() {
+    static void shouldCreatePensionDecision() {
         Test.startTest();
         Account testAccount = AAREG_TestDataFactory.getAccountPension();
         insert testAccount;
@@ -241,7 +241,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since January 2026
      */
     @IsTest
-    static void testCreateMunicipality() {
+    static void shouldCreateMunicipalityDecision() {
         Test.startTest();
         Account testAccount = AAREG_TestDataFactory.getAccountMuncipiality();
         insert testAccount;
@@ -292,7 +292,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testCreateElectricitySu() {
+    static void shouldCreateElectricitySuDecision() {
         Test.startTest();
         Account testAccount = AAREG_TestDataFactory.getAccountEL();
         insert testAccount;
@@ -343,7 +343,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since January 2026
      */
     @IsTest
-    static void testCreateOther() {
+    static void shouldCreateOtherDecision() {
         Test.startTest();
         Account testAccount = AAREG_TestDataFactory.getAccountEL();
         insert testAccount;
@@ -423,7 +423,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testCreateCountyWithDetails() {
+    static void shouldCreateCountyDecisionWithDetails() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
 
@@ -468,7 +468,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testGetApplicationDecisionAndCreateWithoutBasisCodes() {
+    static void shouldReturnDecisionAndCreateWithoutBasisCodes() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
 
@@ -512,7 +512,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testGetApplicationDecisionWithInjectedRecords() {
+    static void shouldReturnInjectedApplicationDecisions() {
         Application_Decision__c decision = [
             SELECT Id, Name, Application__c, Status__c
             FROM Application_Decision__c
@@ -541,7 +541,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testCreateApplicationDecision_forceCreateDenied() {
+    static void shouldHandleForcedDecisionCreateDenied() {
         Application__c app = [SELECT Id FROM Application__c LIMIT 1];
         AAREG_ApplicationDecisionController.forceDecisionNotCreateable = true;
 
@@ -564,7 +564,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testCreateApplicationDecision_forceDetailCreateDenied() {
+    static void shouldHandleForcedDetailCreateDenied() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
         Application__c app = AAREG_TestDataFactory.getApplicationCounty(acct);
@@ -603,7 +603,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testForceReadDeniedPaths() {
+    static void shouldHandleForcedReadDeniedPaths() {
         Application__c app = [SELECT Id FROM Application__c LIMIT 1];
 
         Boolean decisionReadThrown = false;
@@ -638,7 +638,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testDecisionDetailMappingAndForcedExceptions() {
+    static void shouldMapDecisionDetailsAndHandleForcedExceptions() {
         ApplicationBasisCode__c state = new ApplicationBasisCode__c(
             OrganizationType__c = 'State',
             LegalBasisState__c = 'LS',
@@ -740,7 +740,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testForceDescribeDeniedBranches() {
+    static void shouldHandleForcedDescribeDeniedBranches() {
         Application__c app = [SELECT Id FROM Application__c LIMIT 1];
 
         Boolean decisionReadDescribeThrown = false;
@@ -809,7 +809,7 @@ public class AAREG_ApplicationDecisionControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testCreateApplicationDecisionSuccessPathReturnsId() {
+    static void shouldReturnIdOnSuccessfulDecisionCreation() {
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
 
