@@ -68,7 +68,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since February 2026
      */
     @isTest
-    static void testControllerInitialization() {
+    static void shouldInitializeController() {
         // Retrieve the test Application_Decision__c record
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
 
@@ -96,7 +96,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since July 2026
      */
     @isTest
-    static void testControllerInitialization_strictHappyPath() {
+    static void shouldInitializeControllerOnStrictHappyPath() {
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
         ApexPages.StandardController sc = new ApexPages.StandardController(testDecision);
         Boolean handledException = false;
@@ -124,7 +124,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since July 2026
      */
     @isTest
-    static void testGetApplicationRecord() {
+    static void shouldLoadApplicationRecord() {
         // Retrieve test data
         Application_Decision__c testDecision = [SELECT Id, Application__c FROM Application_Decision__c LIMIT 1];
         Application__c testApplication = [SELECT Id FROM Application__c WHERE Id = :testDecision.Application__c];
@@ -149,7 +149,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since July 2026
      */
     @isTest
-    static void testGetApplicationDecisionRecord() {
+    static void shouldLoadApplicationDecisionRecord() {
         // Retrieve test data
         Application_Decision__c testDecision = [
             SELECT
@@ -184,7 +184,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since July 2026
      */
     @isTest
-    static void testGetApplicationDecisionDetails() {
+    static void shouldLoadApplicationDecisionDetails() {
         // Retrieve test data
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
 
@@ -216,7 +216,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since July 2026
      */
     @isTest
-    static void testControllerWithInvalidId() {
+    static void shouldHandleInvalidId() {
         // Create a test Application for the temporary decision
         Application__c tempApplication = [SELECT Id FROM Application__c LIMIT 1];
 
@@ -246,7 +246,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since July 2026
      */
     @isTest
-    static void testPDFGenerationPrep() {
+    static void shouldPreparePdfGeneration() {
         // Retrieve test data with all fields populated
         Application_Decision__c testDecision = [
             SELECT Id, Application__c, Decision_description__c, Decision_date__c
@@ -265,7 +265,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since July 2026
      */
     @isTest
-    static void testCurrentRecordProperty() {
+    static void shouldExposeCurrentRecordProperty() {
         Application_Decision__c testDecision = [
             SELECT Id, Name, Decision_description__c, Status__c, Decision_date__c
             FROM Application_Decision__c
@@ -297,7 +297,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since July 2026
      */
     @isTest
-    static void testApplicationRecordProperty() {
+    static void shouldExposeApplicationRecordProperty() {
         Application__c testApp = [SELECT Id FROM Application__c LIMIT 1];
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
 
@@ -325,7 +325,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since July 2026
      */
     @isTest
-    static void testDecisionDetailsProperty() {
+    static void shouldExposeDecisionDetailsProperty() {
         Application_Decision__c testDecision = [SELECT Id FROM Application_Decision__c LIMIT 1];
 
         ApexPages.StandardController sc = new ApexPages.StandardController(testDecision);
@@ -364,7 +364,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since July 2026
      */
     @isTest
-    static void testDecisionWithMinimalFields() {
+    static void shouldHandleDecisionWithMinimalFields() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
 
@@ -393,7 +393,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since July 2026
      */
     @isTest
-    static void testDecisionWithoutDetails() {
+    static void shouldHandleDecisionWithoutDetails() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
 
@@ -424,7 +424,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since July 2026
      */
     @isTest
-    static void testAllApplicationDecisionFields() {
+    static void shouldMapAllApplicationDecisionFields() {
         Application_Decision__c testDecision = [
             SELECT
                 Id,
@@ -498,7 +498,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since August 2026
      */
     @isTest
-    static void testInjectedRecordsMapping() {
+    static void shouldMapInjectedRecords() {
         AAREG_ApplicationDecisionPDFController.forceDecisionReadDenied = false;
         AAREG_ApplicationDecisionPDFController.forceApplicationReadDenied = false;
         AAREG_ApplicationDecisionPDFController.forceDetailsReadDenied = false;
@@ -606,7 +606,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since August 2026
      */
     @isTest
-    static void testForcedReadDeniedBranches() {
+    static void shouldHandleForcedReadDeniedBranches() {
         Application_Decision__c testDecision = [
             SELECT
                 Id,
@@ -655,7 +655,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since August 2026
      */
     @isTest
-    static void testForcedDecisionReadDeniedBranch() {
+    static void shouldHandleForcedDecisionReadDeniedBranch() {
         Application_Decision__c testDecision = [
             SELECT
                 Id,
@@ -703,7 +703,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since August 2026
      */
     @isTest
-    static void testApplicationLoadCatchBranchWithDecisionPresent() {
+    static void shouldHandleApplicationLoadCatchBranchWithDecisionPresent() {
         Application_Decision__c decision = [
             SELECT
                 Id,
@@ -743,7 +743,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since August 2026
      */
     @isTest
-    static void testInjectedMappingStrictPath() {
+    static void shouldMapInjectedRecordsOnStrictPath() {
         Application_Decision__c decision = [
             SELECT
                 Id,
@@ -831,7 +831,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since August 2026
      */
     @isTest
-    static void testForcedDescribeDeniedBranches() {
+    static void shouldHandleForcedDescribeDeniedBranches() {
         Application_Decision__c decision = [
             SELECT
                 Id,
@@ -878,7 +878,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since August 2026
      */
     @isTest
-    static void testApplicationQueryPathWithoutInjection() {
+    static void shouldLoadApplicationThroughQueryWithoutInjection() {
         Application_Decision__c decision = [
             SELECT
                 Id,
@@ -922,7 +922,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
      * @since August 2026
      */
     @isTest
-    static void testApplicationQueryExceptionCatchPath() {
+    static void shouldHandleApplicationQueryExceptionCatchPath() {
         Application_Decision__c decision = [
             SELECT
                 Id,
