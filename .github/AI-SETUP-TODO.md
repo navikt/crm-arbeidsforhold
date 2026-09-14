@@ -59,7 +59,7 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 ## Neste steg
 
 - [x] Pinna repo-workflows til immutable commit-SHA: `actions/checkout` bruker `3d3c42e5aac5ba805825da76410c181273ba90b1`, og `navikt/crm-workflows-base` bruker `aad6b4f48e419d71490db436da697cd7581a2c6a`. Den gamle `installSFDX`-stien blei korrigert til upstream sin eksisterande `installSF`-action. Den separate workflowen under `tools/` blei ikkje endra.
-- [ ] Attståande naming-/kodekvalitetsoppgåver (basert på kartlegginga og ApexDoc-arbeidet): (1) avklare namnekonvensjonsbrota (særleg `AAREG_checkObjectTypeNameche`, som ser ut til å ha eit duplikat/nesten-duplikat i `AAREG_CheckObjectTypeNamingTest`), (2) vurdere om dei 186 legacy-testnamna skal ryddast opp gradvis, (3) vurdere dei nyleg avdekte Sev2 CRUD/FLS-funna i `AAREG_HomeController` og andre klassar der blanket-PMD-undertrykking tidlegare skjulte reelle funn. Kvar av desse skal takast som eiga, avgrensa TDD-/review-skive; ikkje masse-rename utan migreringsplan, og `force-app/unpackagable/` skal ikkje endrast utan eksplisitt godkjenning.
+- [ ] Attståande naming-/kodekvalitetsoppgåver (basert på kartlegginga og ApexDoc-arbeidet): (1) avklare namnekonvensjonsbrota, inkludert produksjonsnamnet `AAREG_checkObjectTypeNameche` og dei 186 legacy-testnamna, (2) vurdere dei nyleg avdekte Sev2 CRUD/FLS-funna i `AAREG_HomeController` og andre klassar der blanket-PMD-undertrykking tidlegare skjulte reelle funn. Kvar av desse skal takast som eiga, avgrensa TDD-/review-skive; ikkje masse-rename utan migreringsplan, og `force-app/unpackagable/` skal ikkje endrast utan eksplisitt godkjenning.
 
 ### Første kartleggingsfunn
 
