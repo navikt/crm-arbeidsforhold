@@ -140,7 +140,7 @@ sequenceDiagram
 
     Note over Guard,Decision: After release, regular fields are locked.
     Note over Guard,Decision: P360_Document_Id__c, P360_Document_Number__c and P360_File_Id__c remain writable.
-    Note over Decision: Business-completeness validation and automatic DecisionDocument job creation are not implemented.
+    Note over Decision: Automatic DecisionDocument job creation runs after authorized release; business-completeness validation remains separate work.
 ```
 
 Permission-modellen er todelt:

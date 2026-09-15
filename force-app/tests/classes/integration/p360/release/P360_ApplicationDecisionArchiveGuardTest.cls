@@ -143,6 +143,44 @@ private class P360_ApplicationDecisionArchiveGuardTest {
         }
     }
 
+    /**
+     * A released decision with an access request should create one idempotent document job.
+     *
+     * @since 2026-09
+     */
+    @IsTest
+    static void shouldCreateDecisionDocumentJobAfterRelease() {
+        User releaseUser = createReleaseProcessingUser();
+
+        System.runAs(releaseUser) {
+            Access_Request__c accessRequest = new Access_Request__c();
+            insert accessRequest;
+            Application__c application = new Application__c(Access_Request__c = accessRequest.Id);
+            insert application;
+            Application_Decision__c decision = new Application_Decision__c(
+                Application__c = application.Id,
+                Decision_date__c = Date.today(),
+                Decision_description__c = 'Approved for archive'
+            );
+            insert decision;
+
+            System.Test.startTest();
+            update new Application_Decision__c(Id = decision.Id, Ready_For_P360_Archive__c = true);
+            System.Test.stopTest();
+
+            P360_Archive_Job__c job = [
+                SELECT Application_Decision__c, Access_Request__c, Archive_Event_Type__c, Status__c
+                FROM P360_Archive_Job__c
+                WHERE Application_Decision__c = :decision.Id
+                LIMIT 1
+            ];
+            System.Assert.areEqual(decision.Id, job.Application_Decision__c);
+            System.Assert.areEqual(accessRequest.Id, job.Access_Request__c);
+            System.Assert.areEqual('DecisionDocument', job.Archive_Event_Type__c);
+            System.Assert.areEqual('Pending', job.Status__c);
+        }
+    }
+
     private static User createReleaseUser() {
         User userRecord;
         User currentUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
@@ -186,7 +224,9 @@ private class P360_ApplicationDecisionArchiveGuardTest {
     }
 
     private static Application__c createApplication() {
-        Application__c application = new Application__c();
+        Access_Request__c accessRequest = new Access_Request__c();
+        insert accessRequest;
+        Application__c application = new Application__c(Access_Request__c = accessRequest.Id);
         insert application;
         return application;
     }
