@@ -74,6 +74,8 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 
 Code Analyzer-validering 2026-09-14 (`sfdx-scanner 4.12.0`) mot `AAREG_HomeController.cls` fann 28 PMD-funn, inkludert 4 CRUD/FLS-funn ved User-, Agreement__c- og RelatedContact__c-operasjonar. Funna er dokumenterte, men ikkje automatisk retta: controlleren er `without sharing`, han opprettar Apex sharing records for community-brukarar, og val av `WITH USER_MODE`/CRUD-FLS-sjekk kan endre den tilsikta tilgangsmodellen. Neste skive krev autentisert org-test, tilgangseigar og eksplisitt review av security-/Well-Architected-konsekvensane.
 
+Dokumentasjonsskive 2026-09-15 la til `@description` på HomeController-kontraktene og dokumenterte den tilsikta `without sharing`-grensa. Code Analyzer gjekk då frå 28 til 17 funn. Dei 17 attståande er CRUD/FLS, kompleksitet, debug og test-hook/unused-variable-funn; ingen tilgangsmodell eller runtime-åtferd blei endra.
+
 `AAREG_HomeControllerTest` fekk ein lokal testoppsett-fiks som legg `Altinn3IntegrationSetting__c`-inserten i `System.runAs` for å skilje setup- og non-setup-DML. Før deployment av denne testendringa til SIT2 stoppa den eksisterande org-versjonen framleis i `MIXED_DML_OPERATION`; fokustesten må køyrast på nytt etter godkjend deployment. Ingen produksjonscontroller er endra.
 
 ### Første kartleggingsfunn
