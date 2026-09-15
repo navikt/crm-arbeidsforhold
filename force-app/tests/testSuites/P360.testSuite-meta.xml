@@ -12,8 +12,10 @@
     <testClassName>P360_ApplicationDecisionArchiveGuardTest</testClassName>
     <testClassName>P360_ArchiveAdapterTest</testClassName>
     <testClassName>P360_ArchiveJobMetadataTest</testClassName>
+    <testClassName>P360_ArchiveJobClaimServiceTest</testClassName>
     <testClassName>P360_ArchiveJobSchedulerTest</testClassName>
     <testClassName>P360_ArchiveJobServiceTest</testClassName>
+    <testClassName>P360_ArchiveJobWorkerTest</testClassName>
     <testClassName>P360_ArchiveRequestDtoTest</testClassName>
     <testClassName>P360_ArchiveResponseDtoTest</testClassName>
     <testClassName>P360_CaseContactResultDtoTest</testClassName>
