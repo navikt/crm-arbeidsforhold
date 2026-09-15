@@ -153,7 +153,9 @@ private class P360_ArchiveJobServiceTest {
         System.runAs(processingUser) {
             Access_Request__c accessRequest = new Access_Request__c();
             insert accessRequest;
-            Application_Decision__c decision = new Application_Decision__c();
+            Application__c application = new Application__c(Access_Request__c = accessRequest.Id);
+            insert application;
+            Application_Decision__c decision = new Application_Decision__c(Application__c = application.Id);
             insert decision;
 
             System.Test.startTest();
