@@ -142,6 +142,41 @@ private class P360_ArchiveJobServiceTest {
     }
 
     /**
+     * Verifies that repeated decision document requests reuse the same pending archive job.
+     *
+     * @since 2026-09
+     */
+    @IsTest
+    static void shouldReuseDecisionDocumentJobForSameArchiveEvent() {
+        User processingUser = createProcessingUser();
+
+        System.runAs(processingUser) {
+            Access_Request__c accessRequest = new Access_Request__c();
+            insert accessRequest;
+            Application_Decision__c decision = new Application_Decision__c();
+            insert decision;
+
+            System.Test.startTest();
+            P360_Archive_Job__c firstJob = P360_ArchiveJobService.getOrCreateDecisionDocumentJob(
+                accessRequest.Id,
+                decision.Id,
+                'correlation-decision-document'
+            );
+            P360_Archive_Job__c repeatedJob = P360_ArchiveJobService.getOrCreateDecisionDocumentJob(
+                accessRequest.Id,
+                decision.Id,
+                'different-correlation-id'
+            );
+            System.Test.stopTest();
+
+            System.Assert.areEqual(firstJob.Id, repeatedJob.Id);
+            System.Assert.areEqual('DECISION_DOCUMENT:' + decision.Id, firstJob.Idempotency_Key__c);
+            System.Assert.areEqual('DecisionDocument', firstJob.Archive_Event_Type__c);
+            System.Assert.areEqual('Pending', firstJob.Status__c);
+        }
+    }
+
+    /**
      * Verifies that required context is rejected before the service accesses archive-job data.
      *
      * @since 2026-09
