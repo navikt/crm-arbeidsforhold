@@ -20,6 +20,7 @@
     <testClassName>P360_ArchiveResponseDtoTest</testClassName>
     <testClassName>P360_CaseContactResultDtoTest</testClassName>
     <testClassName>P360_CaseDocumentFileResultDtoTest</testClassName>
+    <testClassName>P360_ContentVersionArchiveHandlerTest</testClassName>
     <testClassName>P360_CaseDocumentResultDtoTest</testClassName>
     <testClassName>P360_CaseResultDtoTest</testClassName>
     <testClassName>P360_ClassCodeParameterDtoTest</testClassName>
