@@ -38,8 +38,7 @@ Eller køyr det repo-eigde smoke-scriptet:
 ```bash
 sf apex run \
   --target-org crm-arbeidsforhold \
-  --file scripts/apex/p360MockArchiveFlow.apex \
-  --result-format human
+  --file scripts/apex/p360MockArchiveFlow.apex
 ```
 
 Scriptet opprettar også testdata og dispatchar scheduler. Det skal ikkje gjere eit live callout.
@@ -72,8 +71,7 @@ sf apex run test --tests AAREG_ArchiveApplicationOrchestratorTest --target-org c
 ```bash
 sf apex run \
   --target-org crm-arbeidsforhold \
-  --file scripts/apex/p360MockArchiveFlow.apex \
-  --result-format human
+  --file scripts/apex/p360MockArchiveFlow.apex
 ```
 
 Forventa output inneheld tre ID-ar:
