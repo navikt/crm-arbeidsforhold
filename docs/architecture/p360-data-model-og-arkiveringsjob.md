@@ -25,6 +25,7 @@ Implementert og org-validert:
 - `P360_Archive_Release` og `P360_Archive_Job_Processing`
 - deterministiske idempotensnøklar for fire arkivhendingar
 - idempotent oppretting av `ApplicationDocument`- og `ApplicationAttachment`-jobbar med status `Pending`
+- `ContentVersion`-after-insert kopling til `ApplicationAttachment`-jobb når fila blir publisert direkte på `Application__c`
 
 Planlagt, men ikkje implementert:
 
