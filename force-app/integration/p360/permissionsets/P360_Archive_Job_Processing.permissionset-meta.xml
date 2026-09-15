@@ -3,7 +3,37 @@
     <description>Allows the P360 archive worker to create and update archive jobs.</description>
     <fieldPermissions>
         <editable>true</editable>
+        <field>P360_Archive_Job__c.Access_Request__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>P360_Archive_Job__c.Agreement__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>P360_Archive_Job__c.Application__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>P360_Archive_Job__c.Application_Decision__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>P360_Archive_Job__c.Archive_Event_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>P360_Archive_Job__c.Attempt_Count__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>P360_Archive_Job__c.Correlation_Id__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -34,6 +64,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>P360_Archive_Job__c.Last_Error_Message__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>P360_Archive_Job__c.Status__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

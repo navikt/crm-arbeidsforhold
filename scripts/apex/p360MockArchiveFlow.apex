@@ -17,11 +17,16 @@ Set<String> requiredJobFields = new Set<String>{
     'Archive_Event_Type__c',
     'Status__c'
 };
-Set<String> availableJobFields = archiveJobType.getDescribe().fields.getMap().keySet();
-requiredJobFields.removeAll(availableJobFields);
-if (!requiredJobFields.isEmpty()) {
+Map<String, Schema.SObjectField> availableJobFields = archiveJobType.getDescribe().fields.getMap();
+List<String> missingJobFields = new List<String>();
+for (String requiredJobField : requiredJobFields) {
+    if (!availableJobFields.containsKey(requiredJobField)) {
+        missingJobFields.add(requiredJobField);
+    }
+}
+if (!missingJobFields.isEmpty()) {
     throw new P360_ContractException(
-        'P360_Archive_Job__c is missing fields: ' + String.join(new List<String>(requiredJobFields), ', ') +
+        'P360_Archive_Job__c is missing fields: ' + String.join(missingJobFields, ', ') +
         '. Deploy P360 metadata first.'
     );
 }
