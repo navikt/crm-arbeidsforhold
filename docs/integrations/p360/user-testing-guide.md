@@ -1,94 +1,165 @@
 # P360 mock-flyt: stegvis brukar-/org-test
 
-Denne testen køyrer P360-flyten utan live integrasjon. Han skal kunne brukast i scratch org og sandbox.
+Denne runbooken testar den interne P360-flyten utan live P360-kall. Han skal køyrast berre mot default scratch org `crm-arbeidsforhold`.
+
+Mock-flyten verifiserer:
+
+- at `P360_AdapterFactory` vel `P360_StubArchiveAdapter`;
+- at ApplicationDocument- og ApplicationAttachment-jobbar blir oppretta idempotent;
+- at `P360_ArchiveJobScheduler` claimar jobbar og dispatchar worker;
+- at mock-worker kan ende i `Succeeded` utan HTTP-callout;
+- at lease, attempt count og feilstiar kan observerast i `P360_Archive_Job__c`.
+
+Han verifiserer ikkje P360 endpoint, OAuth, Named Credential, wire-format, ekte upload eller eksterne feilkodar.
 
 ## Føresetnader
 
-- Du er innlogga i target-org.
-- Koden er deploya til orgen.
-- Du har tilgang til Setup og kan tildele permission sets.
-- Ingen secrets, tokens, cookies eller ekte persondata skal brukast i testen.
+- Målorg er `crm-arbeidsforhold`.
+- Koden og P360-metadata er deploya til scratch orgen.
+- Test-/integrasjonsbrukaren har `P360_Integration_User` eller minst `P360_Archive_Job_Processing`.
+- Det finst ikkje secrets, tokens, cookies eller ekte persondata i testen.
+- Bruk aldri `SIT2`, produksjon, DevHub eller annan org i denne runbooken utan eksplisitt godkjenning.
 
-## Steg 1: Slå på mock-modus
+Kontroller målorg før kommandoar:
 
-I Setup, opne Custom Settings og `P360 Integration Setting`. Opprett eller oppdater org-default:
+```bash
+sf org display --target-org crm-arbeidsforhold
+```
+
+## Steg 1: Slå på eksplisitt mock
+
+Mock-modus kan setjast i Setup under Custom Settings, `P360 Integration Setting`:
 
 - `Use Mock Transport` = `true`
 - `Named Credential Name` kan stå tomt i mock-modus
 
-Mock-modus er eksplisitt. Han blir ikkje slått på automatisk dersom ekte transport feilar.
-
-## Steg 2: Tildel tilgang
-
-Tildel `P360_Integration_User` til test-/integrasjonsbrukaren. Gruppa samlar jobbtilgang, code-table-lesing og RPC/config-tilgang.
-
-## Steg 3: Køyr fokuserte testar
+Eller køyr det repo-eigde smoke-scriptet:
 
 ```bash
-sf apex run test --tests P360_AdapterFactoryTest --target-org <org-alias> --result-format human --synchronous
-sf apex run test --tests AAREG_ApplicationToP360CaseMapperTest --target-org <org-alias> --result-format human --synchronous
-sf apex run test --tests AAREG_CreateDocumentMapperTest --target-org <org-alias> --result-format human --synchronous
-sf apex run test --tests AAREG_DecisionDocumentMapperTest --target-org <org-alias> --result-format human --synchronous
-sf apex run test --tests AAREG_FileMapperTest --target-org <org-alias> --result-format human --synchronous
-sf apex run test --tests P360_ArchiveJobClaimServiceTest --target-org <org-alias> --result-format human --synchronous
-sf apex run test --tests P360_ArchiveJobWorkerTest --target-org <org-alias> --result-format human --synchronous
-sf apex run test --tests AAREG_ArchiveApplicationOrchestratorTest --target-org <org-alias> --result-format human --synchronous
+sf apex run \
+  --target-org crm-arbeidsforhold \
+  --file scripts/apex/p360MockArchiveFlow.apex \
+  --result-format human
 ```
 
-## Forventa resultat
+Scriptet opprettar også testdata og dispatchar scheduler. Det skal ikkje gjere eit live callout.
 
-- Factory-testen viser at `Use_Mock_Transport = true` vel `P360_StubArchiveAdapter`.
-- CreateCase-testen returnerer `Aa-registerSalesForce`, status `B`, type `Sak`, tilgang `U` og ClassCode `359`.
-- Søknadsdokument-testen returnerer `Saksdokument`, `J`, `U` og `Alle ansatte i Nav`.
-- Vedtaksdokument-testen returnerer `Sak`, `Dokument ut`, `J`, `U` og `Alle ansatte i Nav`.
-- File-testane viser base64-data i `request.files`, utan callout.
-- Worker-testane viser `Pending -> In Progress -> Succeeded/Failed/Manual Review` med lease og backoff.
-- Orchestrator-testen viser stub-respons utan HTTP-callout.
+## Steg 2: Køyr fokuserte testar
 
-## Steg 4: Test faktisk jobb-flyt
+Køyr først dei interne seam-testane:
 
-Køyr anonym Apex som admin/testbrukar for å opprette og prosessere ein mock-jobb:
-
-```apex
-Access_Request__c accessRequest = new Access_Request__c();
-insert accessRequest;
-Application__c application = new Application__c(Access_Request__c = accessRequest.Id);
-insert application;
-
-P360_Archive_Job__c job = P360_ArchiveJobService.getOrCreateApplicationDocumentJob(
-    accessRequest.Id,
-    application.Id,
-    'USER-TEST-' + application.Id
-);
-List<Id> claimedIds = P360_ArchiveJobClaimService.claimNextBatch(1);
-System.enqueueJob(new P360_ArchiveJobWorker(new Set<Id>(claimedIds)));
-System.debug('Claimed job: ' + job.Id);
+```bash
+sf apex run test --tests P360_AdapterFactoryTest --target-org crm-arbeidsforhold --result-format human --synchronous
+sf apex run test --tests P360_ArchiveJobServiceTest --target-org crm-arbeidsforhold --result-format human --synchronous
+sf apex run test --tests P360_ArchiveJobClaimServiceTest --target-org crm-arbeidsforhold --result-format human --synchronous
+sf apex run test --tests P360_ArchiveJobSchedulerTest --target-org crm-arbeidsforhold --result-format human --synchronous
+sf apex run test --tests P360_ArchiveJobWorkerTest --target-org crm-arbeidsforhold --result-format human --synchronous
+sf apex run test --tests P360_ContentVersionArchiveHandlerTest --target-org crm-arbeidsforhold --result-format human --synchronous
 ```
 
-Etter queueable-jobben er ferdig, sjekk jobben i Developer Console eller Query Editor:
+Køyr deretter mapping/orchestration utan transport:
 
-```sql
-SELECT Id, Status__c, Attempt_Count__c, Lease_Expires_Date__c,
-       Last_Error_Code__c, Last_Error_Message__c
-FROM P360_Archive_Job__c
-ORDER BY CreatedDate DESC
-LIMIT 1
+```bash
+sf apex run test --tests AAREG_ApplicationToP360CaseMapperTest --target-org crm-arbeidsforhold --result-format human --synchronous
+sf apex run test --tests AAREG_CreateDocumentMapperTest --target-org crm-arbeidsforhold --result-format human --synchronous
+sf apex run test --tests AAREG_DecisionDocumentMapperTest --target-org crm-arbeidsforhold --result-format human --synchronous
+sf apex run test --tests AAREG_FileMapperTest --target-org crm-arbeidsforhold --result-format human --synchronous
+sf apex run test --tests AAREG_ArchiveApplicationOrchestratorTest --target-org crm-arbeidsforhold --result-format human --synchronous
 ```
 
-Forventa status i mock-modus er `Succeeded`.
+## Steg 3: Køyr smoke-scriptet
 
-## Steg 5: Slå av mock-modus etter testen
+```bash
+sf apex run \
+  --target-org crm-arbeidsforhold \
+  --file scripts/apex/p360MockArchiveFlow.apex \
+  --result-format human
+```
 
-Oppdater org-default Custom Setting:
+Forventa output inneheld tre ID-ar:
 
-- `Use Mock Transport` = `false` i miljø som skal bruke ekte transport
-- I scratch org/sandbox kan han stå `true` så lenge orgen ikkje skal teste live P360
+- Application-ID
+- ContentVersion-ID
+- ApplicationDocument-jobb-ID
+
+ContentVersion-triggeren opprettar i tillegg ApplicationAttachment-jobben. Begge jobbane skal ha `Pending` før scheduler claimar dei.
+
+## Steg 4: Sjå jobbstatus før og etter worker
+
+Køyr denne queryen etter smoke-scriptet:
+
+```bash
+sf data query \
+  --target-org crm-arbeidsforhold \
+  --query "SELECT Id, Archive_Event_Type__c, Status__c, Attempt_Count__c, Correlation_Id__c, Idempotency_Key__c, Started_Date__c, Lease_Expires_Date__c, Next_Attempt_Date__c, Last_Error_Code__c, Last_Error_Message__c FROM P360_Archive_Job__c ORDER BY CreatedDate DESC LIMIT 10" \
+  --result-format table
+```
+
+Forventa overgang:
+
+```text
+Pending -> In Progress -> Succeeded
+```
+
+Forklaring:
+
+1. `P360_ArchiveJobService` opprettar eller gjenbrukar jobben med stabil idempotensnøkkel.
+2. `P360_ArchiveJobClaimService` finn `Pending`, set `In Progress`, aukar `Attempt_Count__c` og set lease.
+3. `P360_ArchiveJobScheduler` enqueuear `P360_ArchiveJobWorker` når minst éin jobb blei claimet.
+4. Factoryen vel stub-adapter fordi `Use Mock Transport = true`.
+5. Stub-adapteren returnerer suksess utan callout, og worker set status `Succeeded`.
+
+## Steg 5: Verifiser idempotens
+
+Køyr smoke-scriptet fleire gonger og query same felt. Kvar ny ContentVersion får ein ny ApplicationAttachment-nøkkel, men same servicekall med same `(ApplicationId, ContentVersionId)` skal gjenbruke eksisterande jobb.
+
+Kontroller duplikat per nøkkel:
+
+```bash
+sf data query \
+  --target-org crm-arbeidsforhold \
+  --query "SELECT Idempotency_Key__c, COUNT(Id) jobCount FROM P360_Archive_Job__c GROUP BY Idempotency_Key__c HAVING COUNT(Id) > 1" \
+  --result-format table
+```
+
+Forventa resultat er ingen rader.
+
+## Steg 6: Forstå feilstiar
+
+`P360_ArchiveJobWorkerTest` dekker mockbare feilstiar. Statusmodellen er:
+
+- Retrybar feil før maks forsøk: `Failed` med `Next_Attempt_Date__c` og backoff.
+- Ikkje-retrybar feil eller maks forsøk: `Manual Review` med feilkode og melding.
+- Ny claim etter forfallen lease: jobb kan takast opp att av claim-service.
+
+Query feilstiar:
+
+```bash
+sf data query \
+  --target-org crm-arbeidsforhold \
+  --query "SELECT Id, Status__c, Attempt_Count__c, Next_Attempt_Date__c, Lease_Expires_Date__c, Last_Error_Code__c, Last_Error_Message__c FROM P360_Archive_Job__c WHERE Status__c IN ('Failed', 'Manual Review') ORDER BY Last_Attempt_Date__c DESC LIMIT 20" \
+  --result-format table
+```
+
+## Steg 7: Slå av mock etter testen
+
+Mock-modus er eksplisitt og fell ikkje automatisk tilbake frå ekte transport. Når testen er ferdig:
+
+- scratch org som berre skal brukast lokalt: la `Use Mock Transport` stå `true`;
+- org som skal klargjerast for ekte integrasjon: set `Use Mock Transport` til `false` først når auth, Named Credential og P360-kontrakt er stadfesta.
+
+Ikkje legg secrets eller miljøspesifikke verdiar i scriptet eller Git.
 
 ## Feilsøking
 
-- `sObject type ... not supported`: sjekk at testbrukaren har relevant Permission Set/Group.
-- `P360_MissingCodeTableMappingException`: sjekk at `P360_Code_Table_Value__mdt`-recorden er deploya og aktiv.
-- `P360_ContractException` frå ekte adapter: mock-modus er truleg ikkje slått på, eller testen brukar direkte `P360_ArchiveAdapter` med vilje.
-- Ingen jobb blir claima: sjekk status, `Next_Attempt_Date__c` og at jobben ikkje allereie er `Succeeded`/`Manual Review`.
+| Symptom                                   | Sjekk                                                                                                                                                |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `P360_Archive_Job__c` blir ikkje oppretta | Sjekk at Application har `Access_Request__c`, og at ContentVersion er publisert direkte på Application.                                              |
+| Jobb står `Pending`                       | Scheduler/claim er ikkje køyrd, eller brukaren manglar `P360_Archive_Job_Processing`.                                                                |
+| Jobb står `In Progress`                   | Worker køyrer asynkront, eller lease må bli forfallen før reclaim.                                                                                   |
+| Jobb blir `Manual Review`                 | Sjå `Last_Error_Code__c` og `Last_Error_Message__c`.                                                                                                 |
+| `P360_MissingCodeTableMappingException`   | Sjekk at P360-kodeverkmetadata er deploya og aktiv.                                                                                                  |
+| Ekte callout blir forsøkt                 | Kontroller `P360_Integration_Setting__c.Use_Mock_Transport__c = true` og at testen bruker factory/orchestrator, ikkje `P360_ArchiveAdapter` direkte. |
+| Testklassen blir ikkje funnen             | Koden/testen er ikkje deploya til `crm-arbeidsforhold` enno. Køyr deploy-preview først, og få eksplisitt godkjenning før faktisk deployment.         |
 
-Denne testen beviser intern mock-flyt. Han beviser ikkje at ekte P360 endpoint, auth, wire-format, upload eller feilkodar fungerer.
+Denne runbooken beviser intern mock-flyt og jobbstatus. Han beviser ikkje ekte P360 endpoint, auth, wire-format, upload eller eksterne feilkodar.
