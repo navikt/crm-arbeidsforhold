@@ -24,7 +24,7 @@ Implementert og testa:
 - frigivingssignal og låsing av `Application_Decision__c` gjennom MyTriggers
 - eigne permission sets for frigiving og jobbprosessering
 - deterministiske idempotensnøklar for fire arkivhendingar
-- idempotent oppretting av `ApplicationDocument`-jobbar
+- idempotent oppretting av `ApplicationDocument`- og `ApplicationAttachment`-jobbar med `ContentVersion`-basert nøkkel
 - Apex-testsuiten `P360` med alle P360-testklassane
 - Custom Metadata Type `P360_Code_Table_Value__mdt` med godkjende, ikkje-sensitive standardrecordar (lookup-nøkkel `Default`) og `P360_CodeTableMetadataService` for kodeverksoppslag med per-transaksjon-cache
 - første mock-baserte CreateCase-mapping via `AAREG_ApplicationToP360CaseMapper`, med metadataoppslag for standard value set, status, type, tilgang og ClassCode 1
@@ -46,7 +46,7 @@ Ikkje implementert:
 - endeleg Salesforce-til-P360-mapping og kodeverk
 - full orkestreringsflyt frå alle domeneobjekt til P360
 - automatisk `DecisionDocument`-jobb ved frigiving
-- vedleggsjobb og filopplasting
+- filopplasting og kopling frå nye ContentVersion-hendingar til jobboppretting
 - scheduler som automatisk kallar queueable worker
 - integrasjonstest mot P360-miljø
 
@@ -340,7 +340,7 @@ Dette bør implementerast som ein _external credential + named credential_ (ikkj
 
 Rekkjefølgja bør vere:
 
-1. Opprett idempotente `ApplicationAttachment`-jobbar per `ContentVersion__c`.
+1. Kople nye ContentVersion-/vedleggshendingar til den implementerte `ApplicationAttachment`-jobbopprettinga.
 2. Opprett `DecisionDocument`-jobb etter godkjend frigivings- og komplettheitsvalidering.
 3. Opprett `AgreementDocument`-jobb.
 4. Implementer worker med lease og eksplisitte statusovergangar.
