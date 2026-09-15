@@ -60,6 +60,12 @@ P360_Archive_Job__c documentJob = P360_ArchiveJobService.getOrCreateApplicationD
 
 new P360_ArchiveJobScheduler().execute(null);
 
+Map<String, String> smokeResult = new Map<String, String>{
+    'applicationId' => application.Id,
+    'attachmentId' => attachment.Id,
+    'documentJobId' => documentJob.Id
+};
+System.debug('P360_SMOKE_RESULT=' + JSON.serialize(smokeResult));
 System.debug('P360 mock application: ' + application.Id);
 System.debug('P360 mock attachment: ' + attachment.Id);
 System.debug('P360 mock document job: ' + documentJob.Id);

@@ -69,15 +69,13 @@ Mock-modus kan setjast i Setup under Custom Settings, `P360 Integration Setting`
 - `Use Mock Transport` = `true`
 - `Named Credential Name` kan stå tomt i mock-modus
 
-Eller køyr det repo-eigde smoke-scriptet:
+Eller køyr den repo-eigde smoke-runneren:
 
 ```bash
-sf apex run \
-  --target-org crm-arbeidsforhold \
-  --file scripts/apex/p360MockArchiveFlow.apex
+npm run test:p360:mock
 ```
 
-Scriptet opprettar også testdata og dispatchar scheduler. Det skal ikkje gjere eit live callout.
+Runneren opprettar også testdata, dispatchar scheduler og verifiserer sluttstatus. Det skal ikkje gjere eit live callout.
 
 ## Steg 2: Køyr fokuserte testar
 
@@ -105,22 +103,28 @@ sf apex run test --tests AAREG_ArchiveApplicationOrchestratorTest --target-org c
 ## Steg 3: Køyr smoke-scriptet
 
 ```bash
+npm run test:p360:mock
+```
+
+Runneren skriv ei kort rapport med:
+
+- Application-, ContentVersion- og ApplicationDocument-jobb-ID
+- Queueable worker-ID, status og feiltal
+- ApplicationDocument- og ApplicationAttachment-status med forsøkstal
+- kontroll av forventa jobbtypar, `Succeeded`, idempotens og mock transport
+- endeleg `Result: PASS` eller `Result: FAIL`
+
+ContentVersion-triggeren opprettar ApplicationAttachment-jobben. Runneren følgjer workeren gjennom den asynkrone overgangen og returnerer exitkode 1 dersom ein kontroll feilar. For full Apex-debuglogg kan det underliggjande scriptet framleis køyrast direkte:
+
+```bash
 sf apex run \
   --target-org crm-arbeidsforhold \
   --file scripts/apex/p360MockArchiveFlow.apex
 ```
 
-Forventa output inneheld tre ID-ar:
-
-- Application-ID
-- ContentVersion-ID
-- ApplicationDocument-jobb-ID
-
-ContentVersion-triggeren opprettar i tillegg ApplicationAttachment-jobben. Begge jobbane skal ha `Pending` før scheduler claimar dei.
-
 ## Steg 4: Sjå jobbstatus før og etter worker
 
-Køyr denne queryen etter smoke-scriptet:
+Runneren viser sluttstatus automatisk. Bruk denne queryen dersom du vil undersøkje fleire eller eldre jobbar:
 
 ```bash
 sf data query \
