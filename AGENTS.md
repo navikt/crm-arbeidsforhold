@@ -38,6 +38,13 @@ When standards conflict, preserve deployed public contracts and record the devia
 
 ## Salesforce conventions
 
+### Org safety
+
+- Use only the default `crm-arbeidsforhold` scratch org for authenticated Salesforce commands unless the user explicitly approves another org.
+- Never use SIT2, production, DevHub, or any other org merely because an authenticated alias is available. Authentication is not permission.
+- Ask the user first and explain the technical reason before using another org, deploying to any org, or running Apex tests against another org.
+- A deployment preview is read-only, but it still must target `crm-arbeidsforhold` unless the user explicitly approves a different target.
+
 - Preserve Salesforce metadata XML and source format. Do not rename metadata only to make it look cleaner.
 - Apex must follow `force-app/main/default/AGENTS.md`: use `with sharing` by default, bulkify SOQL/DML, avoid hardcoded IDs and URLs, and use the established error-logging pattern.
 - Add or update focused Apex tests and LWC Jest tests when behavior changes.
