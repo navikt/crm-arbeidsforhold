@@ -62,6 +62,16 @@ Dette er arbeidslista for agentisk utvikling i `crm-arbeidsforhold`. Status bety
 - [x] Pinna repo-workflows til immutable commit-SHA: `actions/checkout` bruker `3d3c42e5aac5ba805825da76410c181273ba90b1`, og `navikt/crm-workflows-base` bruker `aad6b4f48e419d71490db436da697cd7581a2c6a`. Den gamle `installSFDX`-stien blei korrigert til upstream sin eksisterande `installSF`-action. Den separate workflowen under `tools/` blei ikkje endra.
 - [ ] Attståande naming-/kodekvalitetsoppgåver: (1) avklare produksjonsnamnet `AAREG_checkObjectTypeNameche`, (2) vurdere dei nyleg avdekte CRUD/FLS-funna i `AAREG_HomeController` og andre klassar der blanket-PMD-undertrykking tidlegare skjulte reelle funn. Alle redigerbare legacy-testmetodar er no renamde; dei to attståande `test`-prefiksa ligg i read-only `force-app/unpackagable/` og skal ikkje endrast utan eksplisitt godkjenning. Kvar attståande oppgåve skal takast som eiga, avgrensa TDD-/review-skive.
 
+### Utanfor P360- og P360-integrasjonsarbeidet
+
+- [ ] CRUD/FLS-review av `AAREG_HomeController`: gjer direkte User-, Agreement__c- og RelatedContact__c-operasjonar meir synlege og dokumenter den tilsikta system-mode-/sharing-grensa utan å endre tilgangane i denne P360-arbeidsperioden.
+	- Avgrens scope til `AAREG_HomeController`, næraste testklasse og relevante permission sets.
+	- Ikkje endre `without sharing`, permission sets, Flow-kontraktar eller community-tilgang i denne oppgåva.
+	- Køyr Code Analyzer før/etter, og lag fokuserte testar for lesing, oppdatering og oppretting av sharing records.
+	- Bruk berre default scratch org `crm-arbeidsforhold` for org-validering. Andre orgar krev eksplisitt godkjenning.
+	- Krev review frå tilgangseigar/security før merge, fordi `WITH USER_MODE`, CRUD/FLS-sjekkar eller `stripInaccessible` kan endre ekstern brukaråtferd.
+- [ ] Avklare og eventuelt migrere produksjonsnamnet `AAREG_checkObjectTypeNameche` i ei separat metadata-/Flow-plan. Ikkje rename produksjonsklassen utan dependency-kartlegging og godkjend migrering.
+
 Code Analyzer-validering 2026-09-14 (`sfdx-scanner 4.12.0`) mot `AAREG_HomeController.cls` fann 28 PMD-funn, inkludert 4 CRUD/FLS-funn ved User-, Agreement__c- og RelatedContact__c-operasjonar. Funna er dokumenterte, men ikkje automatisk retta: controlleren er `without sharing`, han opprettar Apex sharing records for community-brukarar, og val av `WITH USER_MODE`/CRUD-FLS-sjekk kan endre den tilsikta tilgangsmodellen. Neste skive krev autentisert org-test, tilgangseigar og eksplisitt review av security-/Well-Architected-konsekvensane.
 
 `AAREG_HomeControllerTest` fekk ein lokal testoppsett-fiks som legg `Altinn3IntegrationSetting__c`-inserten i `System.runAs` for å skilje setup- og non-setup-DML. Før deployment av denne testendringa til SIT2 stoppa den eksisterande org-versjonen framleis i `MIXED_DML_OPERATION`; fokustesten må køyrast på nytt etter godkjend deployment. Ingen produksjonscontroller er endra.
