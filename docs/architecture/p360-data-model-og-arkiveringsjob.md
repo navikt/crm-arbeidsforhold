@@ -29,7 +29,7 @@ Implementert og org-validert:
 Planlagt, men ikkje implementert:
 
 - komplettheitsvalidering av vedtak før frigiving
-- automatisk `DecisionDocument`- og `AgreementDocument`-jobb
+- automatisk triggering av `DecisionDocument`- og `AgreementDocument`-jobb
 - org-schedule, automatisk triggering, manuell frigiving og endelege produksjonsstatusar
 - `Succeeded_Date__c` og `Failed_Date__c`
 - P360/SIF-mapping, transport og autentisering

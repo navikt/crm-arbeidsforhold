@@ -24,7 +24,7 @@ Implementert og testa:
 - frigivingssignal og låsing av `Application_Decision__c` gjennom MyTriggers
 - eigne permission sets for frigiving og jobbprosessering
 - deterministiske idempotensnøklar for fire arkivhendingar
-- idempotent oppretting av `ApplicationDocument`- og `ApplicationAttachment`-jobbar med `ContentVersion`-basert nøkkel
+- idempotent oppretting av alle fire jobbtypar: `ApplicationDocument`, `ApplicationAttachment`, `DecisionDocument` og `AgreementDocument`
 - Apex-testsuiten `P360` med alle P360-testklassane
 - Custom Metadata Type `P360_Code_Table_Value__mdt` med godkjende, ikkje-sensitive standardrecordar (lookup-nøkkel `Default`) og `P360_CodeTableMetadataService` for kodeverksoppslag med per-transaksjon-cache
 - første mock-baserte CreateCase-mapping via `AAREG_ApplicationToP360CaseMapper`, med metadataoppslag for standard value set, status, type, tilgang og ClassCode 1
@@ -165,7 +165,7 @@ Manglande ID-ar gir `P360_ContractException`. Nøklane identifiserer Salesforce-
 
 ## Idempotent jobboppretting
 
-`ApplicationDocument` og `ApplicationAttachment` er kopla til jobbservice no; andre arkivhendingar er framleis planlagde.
+Alle fire arkivhendingane er kopla til jobbservice no; automatisk triggering frå domenehendingar er framleis planlagt.
 
 Diagramkjelde: [P360 idempotent archive job creation](diagrams/p360-idempotent-job-creation-sequence.mmd)
 
