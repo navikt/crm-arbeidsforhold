@@ -26,6 +26,42 @@ Kontroller målorg før kommandoar:
 sf org display --target-org crm-arbeidsforhold
 ```
 
+### Metadata-preflight
+
+Mock-scriptet kan ikkje køyrast før `P360_Archive_Job__c`-metadataen i orgen inneheld minst:
+
+- `Access_Request__c`
+- `Application__c`
+- `Application_Decision__c`
+- `Agreement__c`
+- `Idempotency_Key__c`
+- `Archive_Event_Type__c`
+- `Status__c`
+
+Siste køyring stoppa i `P360_ArchiveJobService.findByIdempotencyKey` fordi `Application__c` mangla i orgen. Det betyr at orgen har gammal P360-metadata, ikkje at mock-scriptet manglar ein parameter.
+
+Preview utan org-endring:
+
+```bash
+sf project deploy preview \
+  --source-dir force-app/integration/p360 \
+  --target-org crm-arbeidsforhold \
+  --json
+```
+
+Etter godkjend deployment til default scratch org kan metadata deployast med:
+
+```bash
+sf project deploy start \
+  --source-dir force-app/integration/p360 \
+  --target-org crm-arbeidsforhold \
+  --test-level RunSpecifiedTests \
+  --tests P360_ArchiveJobServiceTest,P360_ContentVersionArchiveHandlerTest,P360_ArchiveJobSchedulerTest \
+  --wait 30
+```
+
+Deployment er ein org-mutasjon og skal køyrast som eksplisitt godkjend handling. Køyr ikkje smoke-scriptet før deploymenten har lukkast.
+
 ## Steg 1: Slå på eksplisitt mock
 
 Mock-modus kan setjast i Setup under Custom Settings, `P360 Integration Setting`:

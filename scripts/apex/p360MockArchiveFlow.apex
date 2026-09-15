@@ -1,8 +1,30 @@
 // P360 mock smoke flow for the approved default scratch org: crm-arbeidsforhold.
-// Prerequisite: the running user has P360_Archive_Job_Processing.
+// Prerequisite: the running user has P360_Archive_Job_Processing and current P360 metadata.
 // This script never performs a live P360 call. It enables the explicit mock transport,
 // creates an application and attachment, creates the document job, and dispatches the
 // scheduler. Query P360_Archive_Job__c after the async worker finishes.
+
+Schema.SObjectType archiveJobType = Schema.getGlobalDescribe().get('P360_Archive_Job__c');
+if (archiveJobType == null) {
+    throw new P360_ContractException('P360_Archive_Job__c is missing. Deploy P360 metadata first.');
+}
+Set<String> requiredJobFields = new Set<String>{
+    'Access_Request__c',
+    'Application__c',
+    'Application_Decision__c',
+    'Agreement__c',
+    'Idempotency_Key__c',
+    'Archive_Event_Type__c',
+    'Status__c'
+};
+Set<String> availableJobFields = archiveJobType.getDescribe().fields.getMap().keySet();
+requiredJobFields.removeAll(availableJobFields);
+if (!requiredJobFields.isEmpty()) {
+    throw new P360_ContractException(
+        'P360_Archive_Job__c is missing fields: ' + String.join(new List<String>(requiredJobFields), ', ') +
+        '. Deploy P360 metadata first.'
+    );
+}
 
 P360_Integration_Setting__c settings = P360_Integration_Setting__c.getOrgDefaults();
 if (settings == null) {
