@@ -47,7 +47,7 @@ Ikkje implementert:
 - full orkestreringsflyt frå alle domeneobjekt til P360
 - automatisk `DecisionDocument`-jobb ved frigiving
 - filopplasting og kopling frå nye ContentVersion-hendingar til jobboppretting
-- scheduler som automatisk kallar claim/queueable worker
+- org-schedule som automatisk kallar `P360_ArchiveJobScheduler` (schedulable dispatch seam er implementert)
 - integrasjonstest mot P360-miljø
 
 ## Lag og ansvar
@@ -343,7 +343,7 @@ Rekkjefølgja bør vere:
 1. Kople nye ContentVersion-/vedleggshendingar til den implementerte `ApplicationAttachment`-jobbopprettinga.
 2. Opprett `DecisionDocument`-jobb etter godkjend frigivings- og komplettheitsvalidering.
 3. Opprett `AgreementDocument`-jobb.
-4. Kople scheduler/claim til queueable worker og endeleg jobbtriggering.
+4. Konfigurer org-schedule og endeleg jobbtriggering for `P360_ArchiveJobScheduler`.
 5. Implementer manuell oppfølging og produksjonsstatusfelt som framleis manglar.
 6. Stadfest SIF-kontrakt, mapping, auth og miljøoppsett.
 7. Implementer adapter/RPC-transport og integrasjonstest mot P360-testmiljø.
