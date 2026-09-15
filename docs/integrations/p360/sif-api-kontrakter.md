@@ -18,7 +18,7 @@ PDF-en er kjelda for SIF-namn og felt. Salesforce-namna under er implementerte i
 - Kontakt-, permission-, additional-field-, case-result- og document-result-kontraktar er implementerte som avgrensa DTO-slicer.
 - Adapter og RPC-klient stoppar kontrollert før callout.
 - Endpoint, auth, RPC-envelope, mapping, code tables og P360-feilkodar er ikkje implementerte.
-- Intern Salesforce-idempotens og `ApplicationDocument`-/`ApplicationAttachment`-jobbar er implementerte; ekstern P360-recovery er ikkje stadfesta.
+- Intern Salesforce-idempotens og alle fire arkivjobbtypane (`ApplicationDocument`, `ApplicationAttachment`, `DecisionDocument`, `AgreementDocument`) er implementerte; ekstern P360-recovery er ikkje stadfesta.
 
 Sjå [teknisk oversikt](teknisk-oversikt.md) for samanheng og diagram.
 

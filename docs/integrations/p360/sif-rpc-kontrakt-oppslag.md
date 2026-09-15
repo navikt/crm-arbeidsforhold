@@ -25,7 +25,7 @@ Dette dokumentet er et samlet oppslag for hva repoet faktisk vet om P360/SIF RPC
 - Case, Document og File service-kontrakter er dokumentert i [sif-api-kontrakter.md](sif-api-kontrakter.md).
 - PDF-avleidde DTO-ar for Case-, Document- og File-kontraktar er implementerte og har round-trip-testar.
 - Interne idempotensnøklar er implementerte for søknadsdokument, vedlegg, vedtaksdokument og avtaledokument.
-- `ApplicationDocument` og `ApplicationAttachment` har idempotent oppretting av `P360_Archive_Job__c`.
+- Alle fire arkivhendingar har idempotent oppretting av `P360_Archive_Job__c`: `ApplicationDocument`, `ApplicationAttachment`, `DecisionDocument` og `AgreementDocument`.
 
 ## Operasjoner som er nevnt
 

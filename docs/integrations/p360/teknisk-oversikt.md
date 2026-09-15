@@ -45,7 +45,7 @@ Ikkje implementert:
 - Named Credential, autentisering og miljøkonfigurasjon
 - endeleg Salesforce-til-P360-mapping og kodeverk
 - full orkestreringsflyt frå alle domeneobjekt til P360
-- automatisk `DecisionDocument`-jobb ved frigiving
+- automatisk `DecisionDocument`-jobb ved frigiving (jobbservice er implementert; automatisk triggering er ikkje)
 - filopplasting og kopling frå nye ContentVersion-hendingar til jobboppretting
 - org-schedule som automatisk kallar `P360_ArchiveJobScheduler` (schedulable dispatch seam er implementert)
 - integrasjonstest mot P360-miljø
@@ -341,8 +341,8 @@ Dette bør implementerast som ein _external credential + named credential_ (ikkj
 Rekkjefølgja bør vere:
 
 1. Kople nye ContentVersion-/vedleggshendingar til den implementerte `ApplicationAttachment`-jobbopprettinga.
-2. Opprett `DecisionDocument`-jobb etter godkjend frigivings- og komplettheitsvalidering.
-3. Opprett `AgreementDocument`-jobb.
+2. Kople `DecisionDocument`-jobboppretting til godkjend frigivings- og komplettheitsvalidering.
+3. Kople `AgreementDocument`-jobboppretting til relevant domenehending.
 4. Konfigurer org-schedule og endeleg jobbtriggering for `P360_ArchiveJobScheduler`.
 5. Implementer manuell oppfølging og produksjonsstatusfelt som framleis manglar.
 6. Stadfest SIF-kontrakt, mapping, auth og miljøoppsett.
