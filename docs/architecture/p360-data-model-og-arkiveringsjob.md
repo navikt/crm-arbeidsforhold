@@ -6,7 +6,7 @@ dato: 2026-09-12
 
 # P360 datamodell og asynkron arkiveringsjobb
 
-**Beslutningsstatus:** Datamodell, frigivingsvern, idempotensnøklar og jobboppretting for `ApplicationDocument` og `ApplicationAttachment` er implementerte og testa. Worker, retry, ekstern filopplasting og endeleg teamgodkjenning står att.
+**Beslutningsstatus:** Datamodell, frigivingsvern, idempotensnøklar, jobboppretting, lease/claim og worker-statusklassifisering er implementerte og testa. Scheduler, ekstern filopplasting og endeleg teamgodkjenning står att.
 
 **Implementeringsføresetnad:** Vidare implementering startar før teamet har landa alle vala. Dette er ein medviten risiko fordi modellen kan måtte justerast etter teamavklaring. Større endringar skal handterast som ein eksplisitt endringsbeslutning med oppdatert dokumentasjon, migreringsvurdering og relevante regresjonstestar.
 
@@ -30,7 +30,7 @@ Planlagt, men ikkje implementert:
 
 - komplettheitsvalidering av vedtak før frigiving
 - automatisk `DecisionDocument`- og `AgreementDocument`-jobb
-- worker, lease claim, retry, manuell frigiving og endelege statusovergangar
+- scheduler, automatisk triggering, manuell frigiving og endelege produksjonsstatusar
 - `Succeeded_Date__c` og `Failed_Date__c`
 - P360/SIF-mapping, transport og autentisering
 
