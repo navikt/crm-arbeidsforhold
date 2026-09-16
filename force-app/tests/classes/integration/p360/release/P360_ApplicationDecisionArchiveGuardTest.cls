@@ -188,6 +188,7 @@ private class P360_ApplicationDecisionArchiveGuardTest {
             userRecord = P360_TestDataFactory.createMinimumAccessUser();
             grantDecisionAccess(userRecord);
             grantReleasePermission(userRecord);
+            AAREG_TestDataFactory.assignPermissionSet(userRecord.Id, 'P360_Archive_Job_Processing');
         }
 
         return userRecord;
