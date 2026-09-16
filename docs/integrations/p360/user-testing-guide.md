@@ -28,7 +28,12 @@ sf org display --target-org crm-arbeidsforhold
 
 ### Metadata-preflight
 
-Mock-scriptet kan ikkje køyrast før `P360_Archive_Job__c`-metadataen i orgen inneheld minst:
+Før smoke-testen må `P360_Archive_Job__c` vere komplett i **target orgen**, og brukaren som køyrer scriptet må ha tilgang til felta. Dette er to separate krav:
+
+1. **Metadata:** Felta må finnast på objektet i org-skjemaet.
+2. **FLS:** Felta må vere synlege for køyrande brukar. Elles blir dei filtrerte bort frå `Schema.Describe`, og scriptet kan rapportere dei som «manglande» sjølv om dei finst i orgen.
+
+Smoke-scriptet brukar metadata-preflighten til å kontrollere at desse felta er synlege på `P360_Archive_Job__c`:
 
 - `Access_Request__c`
 - `Application__c`
@@ -38,7 +43,41 @@ Mock-scriptet kan ikkje køyrast før `P360_Archive_Job__c`-metadataen i orgen i
 - `Archive_Event_Type__c`
 - `Status__c`
 
-Siste køyring stoppa i `P360_ArchiveJobService.findByIdempotencyKey` fordi `Application__c` mangla i orgen. Det betyr at orgen har gammal P360-metadata, ikkje at mock-scriptet manglar ein parameter.
+Felta har desse rollene i testen:
+
+| Felt                      | Bruk                                                                                                                       |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `Access_Request__c`       | Koplar arkivjobben til tilgangssøknaden. Påkravd ved oppretting av jobb.                                                   |
+| `Application__c`          | Identifiserer søknaden som skal arkiverast eller har vedlegget. Brukast også av smoke-scriptet for å hente dei to jobbane. |
+| `Application_Decision__c` | Identifiserer vedtaket for `DecisionDocument`-jobbar.                                                                      |
+| `Agreement__c`            | Identifiserer avtalen for `AgreementDocument`-jobbar.                                                                      |
+| `Idempotency_Key__c`      | Hindrar at same arkivhending opprettar fleire jobbar.                                                                      |
+| `Archive_Event_Type__c`   | Angir hendingstype, til dømes `ApplicationDocument` eller `ApplicationAttachment`.                                         |
+| `Status__c`               | Styrer livsløpet, til dømes `Pending`, `In Progress` og `Succeeded`.                                                       |
+
+`Application_Decision__c` og `Agreement__c` er ikkje nødvendige for akkurat den enklaste ApplicationDocument-testen, men dei er med i preflighten fordi objektet støttar alle fire arkivhendingane og service-/worker-koden spør etter eit felles jobbskjema.
+
+Kontroller først at felta finst som org-metadata:
+
+```bash
+sf data query \
+  --target-org crm-arbeidsforhold \
+  --use-tooling-api \
+  --query "SELECT QualifiedApiName FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName = 'P360_Archive_Job__c' AND QualifiedApiName IN ('Access_Request__c','Application__c','Application_Decision__c','Agreement__c','Idempotency_Key__c','Archive_Event_Type__c','Status__c')" \
+  --result-format table
+```
+
+Kontroller deretter at køyrande brukar har `P360_Archive_Job_Processing`, eller gruppa `P360_Integration_User` som inneheld dette permission set-et:
+
+```bash
+sf org assign permset \
+  --name P360_Archive_Job_Processing \
+  --target-org crm-arbeidsforhold
+```
+
+Tilordninga er ei org-endring. Køyr henne berre når det er godkjent for scratch orgen. Permission set-et gir eksplisitt read/edit-FLS for dei valfrie lookup-felta `Application__c`, `Application_Decision__c` og `Agreement__c`; required-felt får ikkje eigne `<fieldPermissions>`-oppføringar fordi Salesforce handterer dei implisitt.
+
+Tidlegare feilmeldingar må tolkast med denne skilnaden i mente: `Application__c` mangla først faktisk i org-skjemaet, men etter at feltet var deploya var dei same feilmeldingane eit resultat av manglande FLS/permission-set-tilordning. Den noverande preflight-feilen betyr derfor ikkje automatisk at metadata må deployast på nytt.
 
 Preview utan org-endring:
 
