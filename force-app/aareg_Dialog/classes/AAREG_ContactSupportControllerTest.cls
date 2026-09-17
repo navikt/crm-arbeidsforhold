@@ -35,7 +35,7 @@ public class AAREG_ContactSupportControllerTest {
     System.Test.startTest();
       try{
          // Call without file (backwards compatibility)
-         AAREG_contactSupportController.createThreadForApplication(usr.Id, testApplication.Id, 'Test Description','Endringsbehov'); 
+         AAREG_contactSupportController.createThreadForApplication(usr.Id, testApplication.Id, 'Test Description','Endringsønsker'); 
       }catch(exception e){}
           
     
@@ -72,7 +72,7 @@ public class AAREG_ContactSupportControllerTest {
       
       // Call the method
       System.Test.startTest();
-      AAREG_contactSupportController.createThreadForApplication(testUser.Id, testApplication.Id, 'Test Description','Endringsbehov');
+      AAREG_contactSupportController.createThreadForApplication(testUser.Id, testApplication.Id, 'Test Description','Endringsønsker');
       // Retrieve the test Thread__c record
       Thread__c testThread = [SELECT Id FROM Thread__c LIMIT 1];
       AAREG_checkObjectTypeNameche.CheckObjectTypeName(new List<Id>{testThread.Id});

@@ -11,14 +11,14 @@
     <filters>
         <field>TypeOfInquiry__c</field>
         <operation>equals</operation>
-        <value>Endringsbehov</value>
+        <value>Endringsønsker</value>
     </filters>
     <filters>
         <field>Status__c</field>
         <operation>equals</operation>
         <value>New,In progress</value>
     </filters>
-    <label>Aareg Brukerstøtte endringsbehov</label>
+    <label>Aareg Brukerstøtte endringsønsker</label>
     <sharedTo>
         <group>AAREG_Casehandling</group>
         <group>AAREG_Support</group>
