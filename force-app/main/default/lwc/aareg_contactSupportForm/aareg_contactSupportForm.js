@@ -478,7 +478,8 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
           this.finalRecordId = await createFinalInquiry({
             userId: this.currentUser,
             draftId: this.draftRecordId,
-            metadataJson: JSON.stringify(metadata)
+            metadataJson: JSON.stringify(metadata),
+            representingPerson: !this.isRepresentingOrganization  
           });
 
           // If files uploaded via lightning-file-upload, relink and enrich

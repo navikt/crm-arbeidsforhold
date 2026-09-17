@@ -91,14 +91,14 @@ public with sharing class AAREG_contactSupportController {
       LIMIT 1
     ];
 
-    if(representingPerson == false) {
-      // update AAREG_Epost__c on user's contact with the epost on inquiry if the user is representing an person
-      email = (String) meta.get('Email__c');
+    if(representingPerson == true) {
+      // update AAREG_Email__c on user's contact with the email on inquiry if the user is representing an person
+      String email = (String) meta.get('Email__c');
       if (String.isNotBlank(email)) {
-        // update AAREG_Epost__c on user's contact with the email from the inquiry
-        Contact userContact = [SELECT Id, AAREG_Epost__c FROM Contact WHERE Id = :getUserContactId() LIMIT 1];
+        // update AAREG_Email__c on user's contact with the email from the inquiry
+        Contact userContact = [SELECT Id, AAREG_Email__c FROM Contact WHERE Id = :getUserContactId() LIMIT 1];
         if (userContact != null) {
-          userContact.AAREG_Epost__c = email.left(255);
+          userContact.AAREG_Email__c = email.left(255);
           Database.update(userContact, AccessLevel.USER_MODE);
         } 
       } 

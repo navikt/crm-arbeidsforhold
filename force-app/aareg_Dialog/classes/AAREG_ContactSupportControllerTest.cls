@@ -151,7 +151,7 @@ public class AAREG_ContactSupportControllerTest {
     Id finalInquiryId;
     
     System.runAs(testUser){
-      finalInquiryId = AAREG_contactSupportController.createFinalInquiry(String.valueOf(UserInfo.getUserId()), draftInquiryId, meta);
+      finalInquiryId = AAREG_contactSupportController.createFinalInquiry(String.valueOf(UserInfo.getUserId()), draftInquiryId, meta, false);
     }
     System.Test.stopTest();
 
@@ -177,7 +177,7 @@ public class AAREG_ContactSupportControllerTest {
 
     System.Test.startTest();
     try {
-      AAREG_contactSupportController.createFinalInquiry(String.valueOf(UserInfo.getUserId()), null, meta);
+      AAREG_contactSupportController.createFinalInquiry(String.valueOf(UserInfo.getUserId()), null, meta, false);
       System.assert(false, 'Should have thrown AuraHandledException');
     } catch (Exception e) {
       System.assert(true, 'Exception was properly caught and handled');
