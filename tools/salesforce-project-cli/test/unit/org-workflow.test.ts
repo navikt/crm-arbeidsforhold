@@ -126,9 +126,11 @@ describe('configure project', () => {
 
         await expect(
             configureProject({
-                configuration: { ...configuration, customPostSteps: [
-                    { name: 'seed-data', executable: 'sf', arguments: ['apex', 'run', '--file', 'scripts/seed.apex'] }
-                ] },
+                configuration: {
+                    ...configuration, customPostSteps: [
+                        { name: 'seed-data', executable: 'sf', arguments: ['apex', 'run', '--file', 'scripts/seed.apex'] }
+                    ]
+                },
                 alias: 'configured-org',
                 postSteps: ['seed-data'],
                 skipPackages: true,
