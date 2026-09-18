@@ -276,6 +276,56 @@ describe('org lifecycle', () => {
         ]);
     });
 
+    it('skips package installation and runs only post-steps with --skip-packages', async () => {
+        const projectDirectory = await createProject({
+            permissionSets: ['Permission_One'],
+            postSteps: ['deploy', 'permsets']
+        });
+        const requests: CommandRequest[] = [];
+        const runner = vi.fn(async (request: CommandRequest) => {
+            requests.push(request);
+            return successfulResult(request);
+        });
+        const stdout: string[] = [];
+
+        const exitCode = await runCli(
+            [
+                'project',
+                'configure',
+                '--project-dir',
+                projectDirectory,
+                '--target-org',
+                'existing-org',
+                '--skip-packages',
+                '--confirm-mutation',
+                'MUTATE project.configure existing-org',
+                '--json'
+            ],
+            { stdout: (line) => stdout.push(line), stderr: () => undefined },
+            { runCommand: runner }
+        );
+
+        expect(exitCode).toBe(0);
+        // No "package installed list" call, unlike the equivalent test without --skip-packages.
+        expect(requests.map((request) => request.arguments)).toEqual([
+            ['org', 'display', '--target-org', 'existing-org', '--json'],
+            ['config', 'get', 'target-org', '--json'],
+            ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json'],
+            ['project', 'deploy', 'start', '--target-org', 'existing-org', '--ignore-conflicts'],
+            ['org', 'assign', 'permset', '--target-org', 'existing-org', '--name', 'Permission_One'],
+            ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json']
+        ]);
+        expect(stdout.map((line) => JSON.parse(line))).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    kind: 'progress',
+                    stepId: 'packages:install',
+                    message: 'Package installation skipped (--skip-packages)'
+                })
+            ])
+        );
+    });
+
     it('does not invoke any command runner in a complete dry run', async () => {
         const projectDirectory = await createProject({ postSteps: ['deploy', 'permsets'] });
         const runner = vi.fn(async (request: CommandRequest) => successfulResult(request));

@@ -40,6 +40,47 @@ describe('configure project', () => {
         expect(emit).toHaveBeenCalledWith(expect.objectContaining({ kind: 'org-summary', alias: 'configured-org' }));
         expect(runCommand).not.toHaveBeenCalled();
     });
+
+    it('skips package installation and issues no package command when skipPackages is set', async () => {
+        const emit = vi.fn();
+        const runCommand = vi.fn(async () => ({
+            executable: 'sf',
+            arguments: [] as string[],
+            exitCode: 0,
+            failed: false,
+            stdout: '',
+            stderr: '',
+            durationMs: 0,
+            timedOut: false,
+            canceled: false,
+            attempts: 1,
+            error: ''
+        }));
+
+        await expect(
+            configureProject({
+                configuration,
+                alias: 'configured-org',
+                postSteps: [],
+                skipPackages: true,
+                refreshDependencySources: false,
+                dryRun: false,
+                environment: {},
+                operationId: 'configure-skip-packages',
+                emit,
+                runCommand
+            })
+        ).resolves.toBe(EXIT_CODES.SUCCESS);
+
+        expect(emit).toHaveBeenCalledWith(
+            expect.objectContaining({
+                kind: 'progress',
+                stepId: 'packages:install',
+                message: 'Package installation skipped (--skip-packages)'
+            })
+        );
+        expect(runCommand).not.toHaveBeenCalled();
+    });
 });
 
 describe('create org workflow', () => {

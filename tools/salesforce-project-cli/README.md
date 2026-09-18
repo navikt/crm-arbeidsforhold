@@ -177,15 +177,16 @@ For operation commands, `--json` writes one JSON event per line to stdout and en
 
 Prefer the new CLI for new automation. Typical mappings are:
 
-| Legacy invocation                                       | CLI equivalent                             |
-| ------------------------------------------------------- | ------------------------------------------ |
-| `create-scratch-org.sh --self-check`                    | `sf-project doctor`                        |
-| `create-scratch-org.sh --clear-dependency-sources-only` | `sf-project dependencies clear`            |
-| `create-scratch-org.sh --package-plan`                  | `sf-project packages plan`                 |
-| `create-scratch-org.sh --update-packages`               | `sf-project packages update`               |
-| `create-scratch-org.sh --delete-org-only --alias NAME`  | `sf-project org delete --alias NAME --yes` |
-| `create-scratch-org.sh --dry-run`                       | `sf-project org create --dry-run`          |
+| Legacy invocation                                                                          | CLI equivalent                                 |
+| ------------------------------------------------------------------------------------------ | ---------------------------------------------- |
+| `create-scratch-org.sh --self-check`                                                       | `sf-project doctor`                            |
+| `create-scratch-org.sh --clear-dependency-sources-only`                                    | `sf-project dependencies clear`                |
+| `create-scratch-org.sh --package-plan`                                                     | `sf-project packages plan`                     |
+| `create-scratch-org.sh --update-packages`                                                  | `sf-project packages update`                   |
+| `create-scratch-org.sh --delete-org-only --alias NAME`                                     | `sf-project org delete --alias NAME --yes`     |
+| `create-scratch-org.sh --dry-run`                                                          | `sf-project org create --dry-run`              |
+| `create-scratch-org.sh --skip-org --skip-packages` (also available as `--post-steps-only`) | `sf-project project configure --skip-packages` |
 
-The Bash script remains the authoritative compatibility implementation for now. It has options and environment behavior without safe one-to-one CLI mappings, including custom project/definition files, macOS Keychain install-key lookup, version-check suppression, and combinations of `--skip-org`, `--skip-packages`, and post-step selection. Converting it to a forwarding wrapper before those contracts have parity tests would lose behavior. Batch and PowerShell entry points are likewise unchanged.
+The Bash script remains the authoritative compatibility implementation for now. It has options and environment behavior without safe one-to-one CLI mappings, including custom project/definition files, macOS Keychain install-key lookup, and version-check suppression. Converting it to a forwarding wrapper before those contracts have parity tests would lose behavior. Batch and PowerShell entry points are likewise unchanged.
 
 Migration is complete only when a legacy invocation has an explicit equivalent and matching argument, environment, summary, and exit-code tests. Until then, existing automation may continue using the script while new workflows adopt `sf-project` directly.

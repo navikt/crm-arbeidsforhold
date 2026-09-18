@@ -330,6 +330,7 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
                         ...common,
                         ...(alias === undefined ? {} : { alias }),
                         postSteps: postSteps(request, configuration.postSteps),
+                        skipPackages: booleanValue(request, 'skipPackages'),
                         refreshDependencySources: booleanValue(request, 'refreshDependencySources'),
                         ...(confirmation === undefined ? {} : { confirmation }),
                         dryRun: booleanValue(request, 'dryRun'),

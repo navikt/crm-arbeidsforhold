@@ -82,6 +82,7 @@ interface ProjectConfigureOptions extends ClearOptions {
     alias?: string;
     targetOrg?: string;
     postSteps?: string;
+    skipPackages?: boolean;
     refreshDependencySources?: boolean;
     confirmMutation?: string;
 }
@@ -548,6 +549,7 @@ export async function runCli(
         .option('--alias <alias>', 'Target org alias')
         .option('--target-org <alias>', 'Target org alias')
         .option('--post-steps <steps>', 'Comma-separated post steps')
+        .option('--skip-packages', 'Skip package resolution and installation; run only the selected post-steps', false)
         .option('--refresh-dependency-sources', 'Retrieve dependency sources after project setup')
         .option('--dry-run', 'Plan without mutating an org', false)
         .option('--json', 'Emit newline-delimited JSON events', false)
@@ -579,6 +581,7 @@ export async function runCli(
                 configuration,
                 alias,
                 postSteps: parsePostSteps(options.postSteps, configuration),
+                skipPackages: options.skipPackages ?? false,
                 refreshDependencySources: options.refreshDependencySources ?? false,
                 dryRun: options.dryRun,
                 environment: cliDependencies.environment ?? process.env,

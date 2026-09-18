@@ -130,10 +130,16 @@ sf-project org delete --alias feature-org --yes
 ### `project configure`
 
 ```text
-sf-project project configure [--project-dir <path>] [--alias <alias>] [--target-org <alias>] [--post-steps <steps>] [--refresh-dependency-sources] [--dry-run] [--json] [--confirm-mutation <text>]
+sf-project project configure [--project-dir <path>] [--alias <alias>] [--target-org <alias>] [--post-steps <steps>] [--skip-packages] [--refresh-dependency-sources] [--dry-run] [--json] [--confirm-mutation <text>]
 ```
 
 Alias and post-step precedence match `org create`. The workflow installs configured packages, executes selected post-steps, and optionally refreshes dependency sources.
+
+`--skip-packages` skips package resolution and installation entirely and runs only the selected post-steps against the resolved target org. This is the way to iterate on post-step configuration (redeploying metadata, re-importing dummy data, re-assigning permission sets) against an org that is already created and already has its packages installed, without a package plan/install/update command running. `--dry-run` reports the same step plan as without the flag, minus the package-installation step.
+
+```bash
+sf-project project configure --target-org feature-org --post-steps data,permsets --skip-packages
+```
 
 ### `packages plan`
 

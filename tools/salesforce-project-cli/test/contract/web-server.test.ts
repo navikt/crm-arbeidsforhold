@@ -260,6 +260,29 @@ describe('web server', () => {
         );
     });
 
+    it('accepts project.configure with skipPackages', async () => {
+        const facade = createFacade();
+        const started = await start(facade);
+        const response = await fetch(`${started.baseUrl}/api/v1/operations`, {
+            method: 'POST',
+            headers: {
+                authorization: `Bearer ${started.sessionToken}`,
+                'content-type': 'application/json',
+                origin: started.baseUrl
+            },
+            body: JSON.stringify({ command: 'project.configure', payload: { dryRun: true, skipPackages: true } })
+        });
+
+        expect(response.status).toBe(202);
+        expect(facade.execute).toHaveBeenCalledWith(
+            expect.objectContaining({
+                command: 'project.configure',
+                payload: { dryRun: true, skipPackages: true }
+            }),
+            expect.any(Function)
+        );
+    });
+
     it('rejects a package mutation when the resolved default org is read-only', async () => {
         const facade = createFacade();
         facade.getOrgStatus = vi.fn(async () => ({

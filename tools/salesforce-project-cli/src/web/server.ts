@@ -358,9 +358,17 @@ function validPayload(command: WebOperationCommand, payload: Record<string, unkn
             );
         case 'project.configure':
             return (
-                hasOnlyKeys(payload, ['alias', 'postSteps', 'refreshDependencySources', 'dryRun', 'confirmMutation']) &&
+                hasOnlyKeys(payload, [
+                    'alias',
+                    'postSteps',
+                    'skipPackages',
+                    'refreshDependencySources',
+                    'dryRun',
+                    'confirmMutation'
+                ]) &&
                 optionalString(payload, 'alias') &&
                 validPostSteps(payload.postSteps) &&
+                optionalBoolean(payload, 'skipPackages') &&
                 optionalBoolean(payload, 'refreshDependencySources') &&
                 optionalBoolean(payload, 'dryRun') &&
                 optionalString(payload, 'confirmMutation')

@@ -25,6 +25,11 @@ export interface ConfigureProjectOptions {
     postSteps: PostStep[];
     /** Whether dependency sources are refreshed after successful project configuration. */
     refreshDependencySources: boolean;
+    /**
+     * When `true`, skips package resolution and installation entirely and runs only the selected
+     * post-steps against the resolved target org. Defaults to `false`.
+     */
+    skipPackages?: boolean;
     /** When `true`, emits planned work without installing packages or invoking post-step commands. */
     dryRun: boolean;
     /** Environment used to resolve package installation keys without reading globals directly. */
@@ -378,7 +383,17 @@ async function resetSourceTracking(options: ResolvedConfigureProjectOptions): Pr
 async function configureResolvedProject(options: ResolvedConfigureProjectOptions): Promise<ExitCode> {
     // Compose packages, canonical post-steps, and optional dependency refresh; stop at the first failed stage.
     emitOrgSummary(options, 'configure');
-    if (!options.dryRun) {
+    if (options.skipPackages) {
+        options.emit({
+            kind: 'progress',
+            operationId: options.operationId,
+            timestamp: new Date().toISOString(),
+            stepId: 'packages:install',
+            step: 'Install packages',
+            message: 'Package installation skipped (--skip-packages)',
+            dryRun: options.dryRun
+        });
+    } else if (!options.dryRun) {
         let packageExitCode: ExitCode;
         try {
             packageExitCode = await installPackages({
@@ -454,8 +469,10 @@ async function configureResolvedProject(options: ResolvedConfigureProjectOptions
  * order, and optionally refreshing dependency sources.
  *
  * Dry-run mode emits package and post-step intent and delegates refresh in dry-run mode; it does
- * not invoke package installation or post-step commands. Expected failures are returned as stable
- * exit codes. A missing explicit and default alias returns
+ * not invoke package installation or post-step commands. Setting `skipPackages` skips package
+ * resolution and installation entirely (in both dry-run and real runs) so only the selected
+ * post-steps run against an already-configured target org. Expected failures are returned as
+ * stable exit codes. A missing explicit and default alias returns
  * `EXIT_CODES.INVALID_INPUT_OR_CONFIG`.
  *
  * @param options - Configuration workflow inputs, event sink, environment, and command runner.
