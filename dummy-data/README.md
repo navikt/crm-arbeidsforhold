@@ -114,35 +114,27 @@ All data is automatically imported using the init scripts for macOS or Windows, 
 
 ## Test users (`User.json`)
 
-`User.json` is **not** part of `Plan.json` and is **not** auto-imported by `bin/create-scratch-org.sh`. Record Ids (including `ProfileId`) are org-specific, so a `ProfileId` exported from one org will not exist in a freshly created scratch org. Import it manually once you've confirmed the right `ProfileId` for the target org:
+`User.json` is **not** part of `Plan.json` (Record Ids such as `ProfileId` are org-specific, so a `ProfileId` exported from one org would not exist in a freshly created scratch org). Instead, `bin/create-scratch-org.sh` imports it as its own step whenever the `data` post step runs (`--post-steps data`, `--post-steps all`, or the default):
 
-```bash
-sf data query --query "SELECT Id, Name FROM Profile WHERE Name = 'Standard User'" --target-org <alias>
-```
-
-(`Profile.sql` in this folder holds that same lookup query.) Update `ProfileId` in `User.json` if it differs from `00eJX00000Dz9TeYAJ`, then import:
-
-```bash
-sf data import tree --target-org <alias> --files dummy-data/User.json
-```
+1. Resolves the `Standard User` profile Id dynamically for the target org (no hardcoded Id involved).
+2. Imports only the users from `User.json` that don't already exist in the target org (matched by `Username`), so the step is safe to re-run.
+3. Assigns the correct permission sets to each user via `sf org assign permset --on-behalf-of`, skipping any assignment that already exists.
 
 `User.json` contains four test users, split by role:
 
-| User                  | Username                     | Role          | Permission sets to assign                                                |
+| User                  | Username                     | Role          | Permission sets assigned                                                 |
 | --------------------- | ---------------------------- | ------------- | ------------------------------------------------------------------------ |
 | Per Saksbehandler 1   | `persaksbehandler1@nav.no`   | Saksbehandler | `AAREG_Arbeidsforhold_Saksbehandling`                                    |
 | Hanna Saksbehandler 2 | `hannasaksbehandler2@nav.no` | Saksbehandler | `AAREG_Arbeidsforhold_Saksbehandling`                                    |
 | Kari Brukerstøtte 1   | `karibrukerstotte1@nav.no`   | Brukerstøtte  | `AAREG_Arbeidsforhold_Support`, `AAREG_Arbeidsforhold_Support_Read_Only` |
 | Ola Brukerstøtte 2    | `olabrukerstotte2@nav.no`    | Brukerstøtte  | `AAREG_Arbeidsforhold_Support`, `AAREG_Arbeidsforhold_Support_Read_Only` |
 
-All four users share the `Standard User` profile; access is granted through permission sets, not the profile. Assign the permission sets per user with `--on-behalf-of` (this does not require the org's default user, unlike the `permsets` post step in `bin/create-scratch-org.sh`, which only assigns permission sets to the org's own default admin user):
+All four users share the `Standard User` profile; access is granted through permission sets, not the profile. The usernames, profile name and permission set names are all overridable via environment variables — see `./bin/create-scratch-org.sh --help` (`DUMMY_USER_FILE`, `DUMMY_USER_PROFILE_NAME`, `DUMMY_SAKSBEHANDLER_PERMSET`, `DUMMY_SAKSBEHANDLER_USERNAMES`, `DUMMY_SUPPORT_PERMSETS`, `DUMMY_SUPPORT_USERNAMES`).
+
+To run just this step against an already-existing org, without recreating the org or reinstalling packages:
 
 ```bash
-sf org assign permset --target-org <alias> \
-  --name AAREG_Arbeidsforhold_Saksbehandling \
-  --on-behalf-of persaksbehandler1@nav.no hannasaksbehandler2@nav.no
-
-sf org assign permset --target-org <alias> \
-  --name AAREG_Arbeidsforhold_Support --name AAREG_Arbeidsforhold_Support_Read_Only \
-  --on-behalf-of karibrukerstotte1@nav.no olabrukerstotte2@nav.no
+./bin/create-scratch-org.sh --alias <alias> --post-steps-only --post-steps data
 ```
+
+`--post-steps-only` is a shortcut for `--skip-org --skip-packages` that runs only the requested post steps (`deploy`, `permsets`, `data`, `community`).
