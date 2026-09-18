@@ -36,7 +36,9 @@ async function assertStableDependencyRoot(dependencyDirectory: string, expectedR
 /**
  * Removes non-preserved entries from each configured dependency source directory.
  *
- * Missing dependency directories are skipped. Existing roots and children must remain
+ * Missing dependency directories are skipped. A dependency with no declared source directory
+ * at all (only possible when `dependencySourcePolicy.requireLocalDirectories` is `false`) emits
+ * a warning and is skipped without being enumerated. Existing roots and children must remain
  * real, contained, non-symbolic-link paths throughout cleanup to prevent deletion outside
  * the project. A dry run emits the same per-directory intent but performs no directory
  * enumeration or mutation.
@@ -48,6 +50,18 @@ async function assertStableDependencyRoot(dependencyDirectory: string, expectedR
  */
 export async function clearDependencySources(options: ClearDependencySourcesOptions): Promise<void> {
     const projectRealPath = await realpath(options.configuration.projectDirectory);
+
+    for (const packageName of options.configuration.unresolvedDependencyNames) {
+        options.emit({
+            kind: 'warning',
+            operationId: options.operationId,
+            timestamp: new Date().toISOString(),
+            stepId: `clear-dependency-source:${packageName}`,
+            step: 'Clear dependency source',
+            message: `No configured source directory for ${packageName}; skipping`,
+            code: 'DEPENDENCY_DIRECTORY_NOT_CONFIGURED'
+        });
+    }
 
     for (const dependency of options.configuration.dependencySources) {
         // Validate declared and resolved paths, then recheck the root around each deletion to resist symlink swaps.

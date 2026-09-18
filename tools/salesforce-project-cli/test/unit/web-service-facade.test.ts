@@ -7,6 +7,7 @@ const configuration: ProjectConfiguration = {
     projectDirectory: '/project',
     preserveRootFiles: ['README.md'],
     dependencySources: [],
+    unresolvedDependencyNames: [],
     packageDependencies: [],
     packageInstallKeyEnvironmentVariable: 'PACKAGE_INSTALL_KEY',
     scratchDefinition: '/project/config/project-scratch-def.json',

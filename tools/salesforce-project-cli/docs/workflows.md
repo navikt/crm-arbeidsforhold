@@ -6,13 +6,14 @@ Application services compose small, ordered operations and return stable exit co
 
 `dependencies clear` derives dependency source roots from `sfdx-project.json` and processes them in deduplicated dependency-name order.
 
-1. Resolve the project and dependency root real paths.
-2. Reject a root outside the project, a symbolic-link root, or a root whose real path escapes the project.
-3. Skip a missing root.
-4. Emit the root, package name, preserved entries, and dry-run state.
-5. In a real run, enumerate root children other than configured preserved names.
-6. Before each deletion, revalidate that the root has not changed.
-7. Reject symbolic-link or escaping children; recursively remove validated children.
+1. Emit a `warning` for each name in `unresolvedDependencyNames` (a dependency with no matching package directory, only possible when `dependencySourcePolicy.requireLocalDirectories` is `false`) and skip it; this runs the same way in dry-run and real runs.
+2. Resolve the project and dependency root real paths.
+3. Reject a root outside the project, a symbolic-link root, or a root whose real path escapes the project.
+4. Skip a missing root.
+5. Emit the root, package name, preserved entries, and dry-run state.
+6. In a real run, enumerate root children other than configured preserved names.
+7. Before each deletion, revalidate that the root has not changed.
+8. Reject symbolic-link or escaping children; recursively remove validated children.
 
 Dry-run validates each existing root and emits intent, but does not enumerate or delete its children. The operation does not prompt for confirmation.
 

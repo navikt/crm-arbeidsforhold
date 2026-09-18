@@ -44,9 +44,10 @@ const toolConfigSchema = z.object({
     packageInstallKeyEnvironmentVariable: z.string().min(1).default('PACKAGE_INSTALL_KEY'),
     dependencySourcePolicy: z
         .object({
-            preserveRootFiles: z.array(z.string().min(1)).default(['README.md'])
+            preserveRootFiles: z.array(z.string().min(1)).default(['README.md']),
+            requireLocalDirectories: z.boolean().default(true)
         })
-        .default({ preserveRootFiles: ['README.md'] })
+        .default({ preserveRootFiles: ['README.md'], requireLocalDirectories: true })
 });
 
 /** A package dependency whose retrieved metadata is stored inside the project. */
@@ -70,6 +71,12 @@ export interface ProjectConfiguration {
     preserveRootFiles: string[];
     /** Declared package dependencies that have local source directories. */
     dependencySources: DependencySource[];
+    /**
+     * Dependency package names with no matching local package directory, present only when
+     * `dependencySourcePolicy.requireLocalDirectories` is `false`. `dependencies clear` and
+     * `dependencies refresh` report each as a warning and skip it rather than failing.
+     */
+    unresolvedDependencyNames: string[];
     /** Package dependencies in installation order. */
     packageDependencies: PackageDependency[];
     /** Environment variable from which package installation keys are read. */
@@ -121,7 +128,8 @@ async function readJson(filePath: string): Promise<unknown> {
  * @returns A validated configuration with absolute filesystem paths.
  * @throws `SyntaxError` When a configuration file is not valid JSON.
  * @throws `z.ZodError` When either configuration violates its schema.
- * @throws `Error` When a dependency has no declared package directory.
+ * @throws `Error` When a dependency has no declared package directory and
+ * `dependencySourcePolicy.requireLocalDirectories` is `true` (the default).
  */
 export async function loadProjectConfiguration(projectDirectory: string): Promise<ProjectConfiguration> {
     const resolvedProjectDirectory = path.resolve(projectDirectory);
@@ -158,25 +166,33 @@ export async function loadProjectConfiguration(projectDirectory: string): Promis
         })
     );
 
-    const dependencySources = dependencyNames.map((packageName) => {
+    const requireLocalDirectories = toolConfig.dependencySourcePolicy.requireLocalDirectories;
+    const dependencySources: DependencySource[] = [];
+    const unresolvedDependencyNames: string[] = [];
+    for (const packageName of dependencyNames) {
         const packageDirectory = project.packageDirectories.find((candidate) => {
             return candidate.package === packageName || path.basename(candidate.path) === packageName;
         });
 
         if (!packageDirectory) {
-            throw new Error(`Dependency package directory is not declared: ${packageName}`);
+            if (requireLocalDirectories) {
+                throw new Error(`Dependency package directory is not declared: ${packageName}`);
+            }
+            unresolvedDependencyNames.push(packageName);
+            continue;
         }
 
-        return {
+        dependencySources.push({
             packageName,
             directory: path.resolve(resolvedProjectDirectory, packageDirectory.path)
-        };
-    });
+        });
+    }
 
     return {
         projectDirectory: resolvedProjectDirectory,
         preserveRootFiles: toolConfig.dependencySourcePolicy.preserveRootFiles,
         dependencySources,
+        unresolvedDependencyNames,
         packageDependencies,
         packageInstallKeyEnvironmentVariable: toolConfig.packageInstallKeyEnvironmentVariable,
         scratchDefinition: path.resolve(resolvedProjectDirectory, toolConfig.scratchDefinition),

@@ -93,4 +93,74 @@ describe('project configuration', () => {
 
         await expect(loadProjectConfiguration(projectDirectory)).rejects.toThrow();
     });
+
+    it('fails to load when a dependency has no matching package directory by default', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({
+                packageDirectories: [
+                    { path: 'force-app', dependencies: [{ package: 'shared-package' }] }
+                ]
+            })
+        );
+
+        await expect(loadProjectConfiguration(projectDirectory)).rejects.toThrow(
+            'Dependency package directory is not declared: shared-package'
+        );
+    });
+
+    it('skips an undeclared dependency directory without failing when requireLocalDirectories is false', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({
+                packageDirectories: [
+                    { path: 'force-app', dependencies: [{ package: 'shared-package' }] }
+                ]
+            })
+        );
+        await writeFile(
+            path.join(projectDirectory, 'sf-project.config.json'),
+            JSON.stringify({
+                schemaVersion: 1,
+                dependencySourcePolicy: { requireLocalDirectories: false }
+            })
+        );
+
+        const configuration = await loadProjectConfiguration(projectDirectory);
+
+        expect(configuration.dependencySources).toEqual([]);
+        expect(configuration.unresolvedDependencyNames).toEqual(['shared-package']);
+    });
+
+    it('still resolves a declared dependency directory when requireLocalDirectories is false', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({
+                packageDirectories: [
+                    { path: 'force-app', dependencies: [{ package: 'shared-package' }] },
+                    { path: 'shared-package', package: 'shared-package' }
+                ]
+            })
+        );
+        await writeFile(
+            path.join(projectDirectory, 'sf-project.config.json'),
+            JSON.stringify({
+                schemaVersion: 1,
+                dependencySourcePolicy: { requireLocalDirectories: false }
+            })
+        );
+
+        const configuration = await loadProjectConfiguration(projectDirectory);
+
+        expect(configuration.dependencySources).toEqual([
+            { packageName: 'shared-package', directory: path.join(projectDirectory, 'shared-package') }
+        ]);
+        expect(configuration.unresolvedDependencyNames).toEqual([]);
+    });
 });

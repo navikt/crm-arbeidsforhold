@@ -112,6 +112,48 @@ describe('dependencies clear', () => {
         await expect(access(path.join(dependencyDirectory, 'main'))).rejects.toThrow();
     });
 
+    it('warns and skips an undeclared dependency directory when requireLocalDirectories is false', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-clear-'));
+        temporaryDirectories.push(projectDirectory);
+
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({
+                packageDirectories: [
+                    {
+                        path: 'force-app',
+                        dependencies: [{ package: 'shared-package' }]
+                    }
+                ]
+            })
+        );
+        await writeFile(
+            path.join(projectDirectory, 'sf-project.config.json'),
+            JSON.stringify({
+                schemaVersion: 1,
+                dependencySourcePolicy: { requireLocalDirectories: false }
+            })
+        );
+
+        const stdout: string[] = [];
+        const exitCode = await runCli(
+            ['dependencies', 'clear', '--project-dir', projectDirectory, '--dry-run', '--json'],
+            { stdout: (line) => stdout.push(line), stderr: () => undefined }
+        );
+
+        expect(exitCode).toBe(0);
+        expect(stdout.map((line) => JSON.parse(line))).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    kind: 'warning',
+                    message: 'No configured source directory for shared-package; skipping',
+                    code: 'DEPENDENCY_DIRECTORY_NOT_CONFIGURED'
+                }),
+                expect.objectContaining({ kind: 'operation-completed', exitCode: 0 })
+            ])
+        );
+    });
+
     it('rejects a declared dependency directory outside the project root', async () => {
         const parentDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-clear-'));
         temporaryDirectories.push(parentDirectory);
