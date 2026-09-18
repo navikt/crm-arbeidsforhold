@@ -326,6 +326,76 @@ describe('org lifecycle', () => {
         );
     });
 
+    it('runs a project-declared custom post-step alongside built-in steps', async () => {
+        const projectDirectory = await createProject({
+            postSteps: ['deploy', 'seed-data'],
+            customPostSteps: [
+                {
+                    name: 'seed-data',
+                    executable: 'sf',
+                    arguments: ['apex', 'run', '--file', 'scripts/seed.apex'],
+                    label: 'Seed reference data'
+                }
+            ]
+        });
+        const requests: CommandRequest[] = [];
+        const runner = vi.fn(async (request: CommandRequest) => {
+            requests.push(request);
+            return successfulResult(request);
+        });
+
+        const exitCode = await runCli(
+            [
+                'project',
+                'configure',
+                '--project-dir',
+                projectDirectory,
+                '--target-org',
+                'existing-org',
+                '--skip-packages',
+                '--confirm-mutation',
+                'MUTATE project.configure existing-org'
+            ],
+            { stdout: () => undefined, stderr: () => undefined },
+            { runCommand: runner }
+        );
+
+        expect(exitCode).toBe(0);
+        expect(requests.map((request) => request.arguments)).toEqual([
+            ['org', 'display', '--target-org', 'existing-org', '--json'],
+            ['config', 'get', 'target-org', '--json'],
+            ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json'],
+            ['project', 'deploy', 'start', '--target-org', 'existing-org', '--ignore-conflicts'],
+            ['apex', 'run', '--file', 'scripts/seed.apex'],
+            ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json']
+        ]);
+    });
+
+    it('rejects an unrecognized --post-steps value before any command runs', async () => {
+        const projectDirectory = await createProject();
+        const runner = vi.fn(async (request: CommandRequest) => successfulResult(request));
+
+        const exitCode = await runCli(
+            [
+                'project',
+                'configure',
+                '--project-dir',
+                projectDirectory,
+                '--target-org',
+                'existing-org',
+                '--post-steps',
+                'not-a-real-step',
+                '--confirm-mutation',
+                'MUTATE project.configure existing-org'
+            ],
+            { stdout: () => undefined, stderr: () => undefined },
+            { runCommand: runner }
+        );
+
+        expect(exitCode).toBe(2);
+        expect(runner).not.toHaveBeenCalled();
+    });
+
     it('does not invoke any command runner in a complete dry run', async () => {
         const projectDirectory = await createProject({ postSteps: ['deploy', 'permsets'] });
         const runner = vi.fn(async (request: CommandRequest) => successfulResult(request));

@@ -170,7 +170,6 @@ const ALLOWED_COMMANDS = new Set<WebOperationCommand>([
     'org.delete',
     'project.configure'
 ]);
-const POST_STEPS = new Set(['deploy', 'permsets', 'data', 'community']);
 const CONTENT_SECURITY_POLICY = [
     "default-src 'self'",
     "script-src 'self'",
@@ -287,10 +286,9 @@ function requiredString(record: Record<string, unknown>, key: string): boolean {
 }
 
 function validPostSteps(value: unknown): boolean {
-    return (
-        value === undefined ||
-        (Array.isArray(value) && value.every((step) => validString(step) && POST_STEPS.has(step)))
-    );
+    // Step names are project-declared (custom post-steps), so only shape is validated here;
+    // `configureProject` rejects any name that is neither built-in nor a declared custom step.
+    return value === undefined || (Array.isArray(value) && value.every((step) => validString(step)));
 }
 
 function validPayload(command: WebOperationCommand, payload: Record<string, unknown>): boolean {

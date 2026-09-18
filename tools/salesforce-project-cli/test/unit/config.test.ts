@@ -163,4 +163,97 @@ describe('project configuration', () => {
         ]);
         expect(configuration.unresolvedDependencyNames).toEqual([]);
     });
+
+    it('accepts postSteps referencing a declared custom post-step', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({ packageDirectories: [{ path: 'force-app' }] })
+        );
+        await writeFile(
+            path.join(projectDirectory, 'sf-project.config.json'),
+            JSON.stringify({
+                schemaVersion: 1,
+                postSteps: ['deploy', 'seed-data'],
+                customPostSteps: [
+                    {
+                        name: 'seed-data',
+                        executable: 'sf',
+                        arguments: ['apex', 'run', '--file', 'scripts/seed.apex'],
+                        label: 'Seed reference data'
+                    }
+                ]
+            })
+        );
+
+        const configuration = await loadProjectConfiguration(projectDirectory);
+
+        expect(configuration.postSteps).toEqual(['deploy', 'seed-data']);
+        expect(configuration.customPostSteps).toEqual([
+            {
+                name: 'seed-data',
+                executable: 'sf',
+                arguments: ['apex', 'run', '--file', 'scripts/seed.apex'],
+                label: 'Seed reference data'
+            }
+        ]);
+    });
+
+    it('rejects postSteps referencing an unknown step name', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({ packageDirectories: [{ path: 'force-app' }] })
+        );
+        await writeFile(
+            path.join(projectDirectory, 'sf-project.config.json'),
+            JSON.stringify({
+                schemaVersion: 1,
+                postSteps: ['deploy', 'unknown-step']
+            })
+        );
+
+        await expect(loadProjectConfiguration(projectDirectory)).rejects.toThrow();
+    });
+
+    it('rejects a custom post-step name that collides with a built-in step', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({ packageDirectories: [{ path: 'force-app' }] })
+        );
+        await writeFile(
+            path.join(projectDirectory, 'sf-project.config.json'),
+            JSON.stringify({
+                schemaVersion: 1,
+                customPostSteps: [{ name: 'deploy', executable: 'sf', arguments: [] }]
+            })
+        );
+
+        await expect(loadProjectConfiguration(projectDirectory)).rejects.toThrow();
+    });
+
+    it('rejects duplicate custom post-step names', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({ packageDirectories: [{ path: 'force-app' }] })
+        );
+        await writeFile(
+            path.join(projectDirectory, 'sf-project.config.json'),
+            JSON.stringify({
+                schemaVersion: 1,
+                customPostSteps: [
+                    { name: 'seed-data', executable: 'sf', arguments: [] },
+                    { name: 'seed-data', executable: 'sf', arguments: ['--other'] }
+                ]
+            })
+        );
+
+        await expect(loadProjectConfiguration(projectDirectory)).rejects.toThrow();
+    });
 });

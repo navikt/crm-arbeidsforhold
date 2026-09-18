@@ -16,6 +16,7 @@ const configuration: ProjectConfiguration = {
     dummyDataPlan: null,
     communityName: null,
     postSteps: ['deploy'],
+    customPostSteps: [],
     pool: { use: false, tag: 'dev', fallbackToCreate: true },
     defaultOrgAlias: 'configured-org'
 };
@@ -81,6 +82,74 @@ describe('configure project', () => {
             })
         );
         expect(runCommand).not.toHaveBeenCalled();
+    });
+
+    it('rejects an unknown post-step without invoking the command runner', async () => {
+        const emit = vi.fn();
+        const runCommand = vi.fn();
+
+        await expect(
+            configureProject({
+                configuration,
+                alias: 'configured-org',
+                postSteps: ['not-a-real-step'],
+                refreshDependencySources: false,
+                dryRun: false,
+                environment: {},
+                operationId: 'configure-unknown-step',
+                emit,
+                runCommand
+            })
+        ).resolves.toBe(EXIT_CODES.INVALID_INPUT_OR_CONFIG);
+
+        expect(emit).toHaveBeenCalledWith(
+            expect.objectContaining({ kind: 'step-failed', stepId: 'configure:post-steps' })
+        );
+        expect(runCommand).not.toHaveBeenCalled();
+    });
+
+    it('runs a declared custom post-step with its configured executable and arguments', async () => {
+        const emit = vi.fn();
+        const runCommand = vi.fn(async () => ({
+            executable: 'sf',
+            arguments: [] as string[],
+            exitCode: 0,
+            failed: false,
+            stdout: '',
+            stderr: '',
+            durationMs: 0,
+            timedOut: false,
+            canceled: false,
+            attempts: 1,
+            error: ''
+        }));
+
+        await expect(
+            configureProject({
+                configuration: { ...configuration, customPostSteps: [
+                    { name: 'seed-data', executable: 'sf', arguments: ['apex', 'run', '--file', 'scripts/seed.apex'] }
+                ] },
+                alias: 'configured-org',
+                postSteps: ['seed-data'],
+                skipPackages: true,
+                refreshDependencySources: false,
+                dryRun: false,
+                environment: {},
+                operationId: 'configure-custom-step',
+                emit,
+                runCommand
+            })
+        ).resolves.toBe(EXIT_CODES.SUCCESS);
+
+        expect(runCommand).toHaveBeenCalledWith(
+            expect.objectContaining({
+                executable: 'sf',
+                arguments: ['apex', 'run', '--file', 'scripts/seed.apex']
+            })
+        );
+        expect(emit).toHaveBeenCalledWith(
+            expect.objectContaining({ kind: 'post-step-result', postStep: 'seed-data', status: 'run' })
+        );
     });
 });
 

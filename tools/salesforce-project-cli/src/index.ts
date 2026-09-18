@@ -12,8 +12,14 @@ export { runDoctor } from './application/doctor.js';
 export type { DoctorOptions } from './application/doctor.js';
 export { recoverForceignoreTransaction } from './application/forceignore-transaction.js';
 export type { RecoverForceignoreOptions } from './application/forceignore-transaction.js';
-export { loadProjectConfiguration } from './domain/config.js';
-export type { ProjectConfiguration, DependencySource, PoolConfiguration, PostStep } from './domain/config.js';
+export { BUILTIN_POST_STEPS, loadProjectConfiguration } from './domain/config.js';
+export type {
+    ProjectConfiguration,
+    DependencySource,
+    PoolConfiguration,
+    PostStep,
+    CustomPostStep
+} from './domain/config.js';
 export { configureProject, createOrg, deleteOrg } from './application/org-workflow.js';
 export type { ConfigureProjectOptions, CreateOrgOptions, DeleteOrgOptions } from './application/org-workflow.js';
 export { getOrgInfo, getOrgStatus, listOrgs, renderOrgInfo, renderOrgSummary } from './application/org-inspection.js';

@@ -107,7 +107,7 @@ sf-project org create [options]
 | `--json`                       | `false`                                                     |
 | `--yes`                        | Declared, but currently not consumed by the create workflow |
 
-Alias precedence is `--alias`, `--target-org`, then `defaultOrgAlias`. `--post-steps` accepts `all`, `none`, or a comma-separated list of `deploy`, `permsets`, `data`, and `community`. Execution always uses canonical order regardless of list order. A selected `deploy` step runs `sf project deploy start --ignore-conflicts`, tolerating tracking conflicts against a reused pool org; source tracking is then reset (locally and remotely) both before the first deploy and again after all selected post-steps finish.
+Alias precedence is `--alias`, `--target-org`, then `defaultOrgAlias`. `--post-steps` accepts `all`, `none`, or a comma-separated list of the built-in steps (`deploy`, `permsets`, `data`, `community`) plus any project-declared `customPostSteps[].name` value (see [Configuration](configuration.md#sf-projectconfigjson)). Execution always uses canonical order regardless of list order: built-in steps first, then declared custom steps in configuration order. A selected `deploy` step runs `sf project deploy start --ignore-conflicts`, tolerating tracking conflicts against a reused pool org; source tracking is then reset (locally and remotely) both before the first deploy and again after all selected post-steps finish. An unrecognized post-step name (neither built-in nor declared) is rejected before any org, package, or step command runs.
 
 ```bash
 sf-project org create --alias feature-org --duration-days 7 --post-steps deploy,permsets --dry-run

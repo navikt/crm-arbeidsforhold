@@ -7,6 +7,9 @@ import path from 'node:path';
 import { z } from 'zod';
 import type { PackageDependency } from './packages.js';
 
+/** Built-in post-steps every project can select; a project may declare additional named steps. */
+export const BUILTIN_POST_STEPS = ['deploy', 'permsets', 'data', 'community'] as const;
+
 const dependencySchema = z.object({
     package: z.string().min(1),
     versionNumber: z.string().optional()
@@ -24,31 +27,70 @@ const sfdxProjectSchema = z.object({
     packageKeyConfig: z.record(z.string(), z.boolean()).default({})
 });
 
-const toolConfigSchema = z.object({
-    schemaVersion: z.literal(1).default(1),
-    defaultOrgAlias: z.string().min(1).optional(),
-    scratchDefinition: z.string().min(1).default('config/project-scratch-def.json'),
-    scratchDurationDays: z.number().int().min(1).max(30).default(14),
-    permissionSets: z.array(z.string().min(1)).default([]),
-    dummyDataPlan: z.string().min(1).nullable().default(null),
-    communityName: z.string().min(1).nullable().default(null),
-    postSteps: z.array(z.enum(['deploy', 'permsets', 'data', 'community'])).default(['deploy']),
-    pool: z
-        .object({
-            use: z.boolean().default(false),
-            tag: z.string().min(1).default('dev'),
-            devHub: z.string().min(1).optional(),
-            fallbackToCreate: z.boolean().default(true)
-        })
-        .default({ use: false, tag: 'dev', fallbackToCreate: true }),
-    packageInstallKeyEnvironmentVariable: z.string().min(1).default('PACKAGE_INSTALL_KEY'),
-    dependencySourcePolicy: z
-        .object({
-            preserveRootFiles: z.array(z.string().min(1)).default(['README.md']),
-            requireLocalDirectories: z.boolean().default(true)
-        })
-        .default({ preserveRootFiles: ['README.md'], requireLocalDirectories: true })
+const customPostStepSchema = z.object({
+    name: z.string().min(1),
+    executable: z.string().min(1),
+    arguments: z.array(z.string()).default([]),
+    label: z.string().min(1).optional()
 });
+
+const toolConfigSchema = z
+    .object({
+        schemaVersion: z.literal(1).default(1),
+        defaultOrgAlias: z.string().min(1).optional(),
+        scratchDefinition: z.string().min(1).default('config/project-scratch-def.json'),
+        scratchDurationDays: z.number().int().min(1).max(30).default(14),
+        permissionSets: z.array(z.string().min(1)).default([]),
+        dummyDataPlan: z.string().min(1).nullable().default(null),
+        communityName: z.string().min(1).nullable().default(null),
+        postSteps: z.array(z.string().min(1)).default(['deploy']),
+        customPostSteps: z.array(customPostStepSchema).default([]),
+        pool: z
+            .object({
+                use: z.boolean().default(false),
+                tag: z.string().min(1).default('dev'),
+                devHub: z.string().min(1).optional(),
+                fallbackToCreate: z.boolean().default(true)
+            })
+            .default({ use: false, tag: 'dev', fallbackToCreate: true }),
+        packageInstallKeyEnvironmentVariable: z.string().min(1).default('PACKAGE_INSTALL_KEY'),
+        dependencySourcePolicy: z
+            .object({
+                preserveRootFiles: z.array(z.string().min(1)).default(['README.md']),
+                requireLocalDirectories: z.boolean().default(true)
+            })
+            .default({ preserveRootFiles: ['README.md'], requireLocalDirectories: true })
+    })
+    .superRefine((config, ctx) => {
+        const customNames = config.customPostSteps.map((step) => step.name);
+        for (const name of customNames) {
+            if ((BUILTIN_POST_STEPS as readonly string[]).includes(name)) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['customPostSteps'],
+                    message: `customPostSteps name collides with a built-in post-step: ${name}`
+                });
+            }
+        }
+        const duplicateCustomNames = customNames.filter((name, index) => customNames.indexOf(name) !== index);
+        for (const name of new Set(duplicateCustomNames)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['customPostSteps'],
+                message: `customPostSteps declares the same name more than once: ${name}`
+            });
+        }
+        const knownStepNames = new Set<string>([...BUILTIN_POST_STEPS, ...customNames]);
+        for (const step of config.postSteps) {
+            if (!knownStepNames.has(step)) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['postSteps'],
+                    message: `postSteps references an unknown step: ${step}`
+                });
+            }
+        }
+    });
 
 /** A package dependency whose retrieved metadata is stored inside the project. */
 export interface DependencySource {
@@ -91,16 +133,30 @@ export interface ProjectConfiguration {
     dummyDataPlan: string | null;
     /** Experience Cloud community name, or `null` when publishing is disabled. */
     communityName: string | null;
-    /** Ordered project configuration steps. */
+    /** Ordered project configuration steps. Values are built-in step names or declared `customPostSteps[].name` values. */
     postSteps: PostStep[];
+    /** Project-declared post-steps beyond the built-in `deploy`, `permsets`, `data`, and `community` steps. */
+    customPostSteps: CustomPostStep[];
     /** Scratch-org pool defaults. */
     pool: PoolConfiguration;
     /** Default target org alias used when a command does not provide one. */
     defaultOrgAlias?: string;
 }
 
-/** Supported project post-configuration steps. */
-export type PostStep = 'deploy' | 'permsets' | 'data' | 'community';
+/** Post-configuration step name: a built-in step or a project-declared custom step name. */
+export type PostStep = string;
+
+/** A project-declared post-step run as an external command in canonical order after the built-in steps. */
+export interface CustomPostStep {
+    /** Step name used in `postSteps` selections; must not collide with a built-in step name. */
+    name: string;
+    /** Executable invoked for this step, using the same command-runner boundary as built-in steps. */
+    executable: string;
+    /** Literal argument vector passed to the executable. */
+    arguments: string[];
+    /** Human-readable label shown in interactive output; defaults to the step name. */
+    label?: string;
+}
 
 /** Defaults for optional scratch-org pool acquisition. */
 export interface PoolConfiguration {
@@ -202,6 +258,12 @@ export async function loadProjectConfiguration(projectDirectory: string): Promis
             toolConfig.dummyDataPlan === null ? null : path.resolve(resolvedProjectDirectory, toolConfig.dummyDataPlan),
         communityName: toolConfig.communityName,
         postSteps: toolConfig.postSteps,
+        customPostSteps: toolConfig.customPostSteps.map((step) => ({
+            name: step.name,
+            executable: step.executable,
+            arguments: step.arguments,
+            ...(step.label === undefined ? {} : { label: step.label })
+        })),
         pool: {
             use: toolConfig.pool.use,
             tag: toolConfig.pool.tag,

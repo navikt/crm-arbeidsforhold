@@ -16,6 +16,7 @@ const configuration: ProjectConfiguration = {
     dummyDataPlan: null,
     communityName: null,
     postSteps: ['deploy'],
+    customPostSteps: [],
     pool: { use: false, tag: 'dev', fallbackToCreate: true }
 };
 

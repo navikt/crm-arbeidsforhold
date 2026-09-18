@@ -107,12 +107,13 @@ Dry-run skips org inspection and confirmation but still supplies scratch classif
 
 `project configure` and the post-acquisition part of `org create` execute:
 
-1. Package installation, unless `project configure --skip-packages` is set, in which case this step is skipped and reported as skipped in both `--dry-run` and real runs.
-2. Selected post-steps in canonical order: `deploy`, `permsets`, `data`, `community`. `deploy` runs `sf project deploy start --ignore-conflicts`, tolerating source-tracking conflicts against a reused org.
-3. When `deploy` is selected, reset local and remote source tracking (`sf project reset tracking --json`) both before the first deploy and again after all selected post-steps complete, so a stale baseline never blocks a later deploy or preview.
-4. Optional dependency refresh
+1. Validate every requested post-step against the canonical catalog (built-in steps plus declared `customPostSteps`); an unrecognized name is rejected with `EXIT_CODES.INVALID_INPUT_OR_CONFIG` before any org, package, or step command runs.
+2. Package installation, unless `project configure --skip-packages` is set, in which case this step is skipped and reported as skipped in both `--dry-run` and real runs.
+3. Selected post-steps in canonical order: the built-in steps `deploy`, `permsets`, `data`, `community`, followed by any project-declared `customPostSteps` in the order they are configured. `deploy` runs `sf project deploy start --ignore-conflicts`, tolerating source-tracking conflicts against a reused org. A custom step runs its configured `executable`/`arguments` exactly as declared.
+4. When `deploy` is selected, reset local and remote source tracking (`sf project reset tracking --json`) both before the first deploy and again after all selected post-steps complete, so a stale baseline never blocks a later deploy or preview.
+5. Optional dependency refresh
 
-The canonical order applies even if the CLI list uses another order. Unselected steps emit `skipped`. Selected `permsets`, `data`, or `community` without corresponding configuration emit warnings and do not fail. Deploy always has a command. A post-step failure emits a workflow summary and stops later work; a tracking-reset failure stops the workflow the same way.
+The canonical order applies even if the CLI list uses another order. Unselected steps emit `skipped`. Selected `permsets`, `data`, or `community` without corresponding configuration emit warnings and do not fail; a custom step always has a command, since it is only selectable when declared. Deploy always has a command. A post-step failure emits a workflow summary and stops later work; a tracking-reset failure stops the workflow the same way.
 
 Dry-run emits package intent and each post-step outcome without invoking package installation or post-step commands. Optional dependency refresh also receives dry-run. `--skip-packages` is only available on `project configure` (not `org create`, which always acquires an org and therefore always resolves packages for it) and is the supported way to run only post-steps against an already-configured org.
 

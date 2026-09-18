@@ -14,7 +14,7 @@ import { configureProject, createOrg, deleteOrg } from './application/org-workfl
 import { installPackages, planPackages, updatePackages } from './application/package-operations.js';
 import { refreshDependencies, type CommandRunner } from './application/refresh-dependencies.js';
 import { createWebServiceFacade } from './application/web-service-facade.js';
-import { loadProjectConfiguration, type PostStep, type ProjectConfiguration } from './domain/config.js';
+import { BUILTIN_POST_STEPS, loadProjectConfiguration, type PostStep, type ProjectConfiguration } from './domain/config.js';
 import { EXIT_CODES, type ExitCode, type OperationEvent } from './domain/events.js';
 import { runCommand } from './infrastructure/command-runner.js';
 import { createEventWriter } from './infrastructure/output.js';
@@ -200,22 +200,23 @@ function parsePort(value: string): number {
 }
 
 function parsePostSteps(value: string | undefined, configuration: ProjectConfiguration): PostStep[] {
+    const customStepNames = configuration.customPostSteps.map((step) => step.name);
     if (value === undefined) {
         return configuration.postSteps;
     }
     if (value === 'all') {
-        return ['deploy', 'permsets', 'data', 'community'];
+        return [...BUILTIN_POST_STEPS, ...customStepNames];
     }
     if (value === 'none') {
         return [];
     }
     const postSteps = value.split(',').filter(Boolean);
-    const validPostSteps: readonly string[] = ['deploy', 'permsets', 'data', 'community'];
+    const validPostSteps: readonly string[] = [...BUILTIN_POST_STEPS, ...customStepNames];
     if (postSteps.some((postStep) => !validPostSteps.includes(postStep))) {
         throw new CommanderError(
             EXIT_CODES.INVALID_INPUT_OR_CONFIG,
             'sf-project.invalidPostSteps',
-            '--post-steps accepts all, none, deploy, permsets, data, and community'
+            `--post-steps accepts all, none, or a comma-separated list of: ${validPostSteps.join(', ')}`
         );
     }
     return postSteps as PostStep[];
@@ -560,6 +561,7 @@ export async function runCli(
             const startedAt = Date.now();
             const configuration = await loadProjectConfiguration(options.projectDir);
             const alias = requireAlias(options, configuration);
+            const postSteps = parsePostSteps(options.postSteps, configuration);
             const emit = createRedactingEventSink(createRedactor(), (event) => writeEvent(event, options.json));
             emit({
                 kind: 'operation-started',
@@ -580,7 +582,7 @@ export async function runCli(
             const configureExitCode = await configureProject({
                 configuration,
                 alias,
-                postSteps: parsePostSteps(options.postSteps, configuration),
+                postSteps,
                 skipPackages: options.skipPackages ?? false,
                 refreshDependencySources: options.refreshDependencySources ?? false,
                 dryRun: options.dryRun,

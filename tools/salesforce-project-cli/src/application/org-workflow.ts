@@ -2,7 +2,7 @@
  * Orchestrates org acquisition, configuration, post-steps, and deletion across application services.
  * Mutation requires an allowed org classification, and real deletion additionally requires explicit confirmation.
  */
-import type { PostStep, ProjectConfiguration } from '../domain/config.js';
+import { BUILTIN_POST_STEPS, type PostStep, type ProjectConfiguration } from '../domain/config.js';
 import { EXIT_CODES, type EventSink, type ExitCode } from '../domain/events.js';
 import { isOrgMutationConfirmed, type OrgClassification } from '../domain/org-policy.js';
 import type { CommandRequest, CommandResult } from '../infrastructure/command-runner.js';
@@ -11,7 +11,10 @@ import { clearDependencySources } from './clear-dependency-sources.js';
 import { installPackages } from './package-operations.js';
 import { refreshDependencies, type CommandRunner } from './refresh-dependencies.js';
 
-const POST_STEP_ORDER: readonly PostStep[] = ['deploy', 'permsets', 'data', 'community'];
+/** Built-in steps followed by project-declared custom steps, in the order they always execute. */
+function canonicalPostStepOrder(configuration: ProjectConfiguration): readonly PostStep[] {
+    return [...BUILTIN_POST_STEPS, ...configuration.customPostSteps.map((step) => step.name)];
+}
 
 /** Shared inputs and injected dependencies for configuring an existing org. */
 export interface ConfigureProjectOptions {
@@ -181,39 +184,62 @@ async function runStep(
     return EXIT_CODES.SUCCESS;
 }
 
-function postStepCommand(configuration: ProjectConfiguration, alias: string, postStep: PostStep): string[] | undefined {
+interface PostStepCommand {
+    executable: string;
+    arguments: string[];
+}
+
+function postStepCommand(configuration: ProjectConfiguration, alias: string, postStep: PostStep): PostStepCommand | undefined {
     switch (postStep) {
         case 'deploy':
-            return ['project', 'deploy', 'start', '--target-org', alias, '--ignore-conflicts'];
+            return { executable: 'sf', arguments: ['project', 'deploy', 'start', '--target-org', alias, '--ignore-conflicts'] };
         case 'permsets':
             return configuration.permissionSets.length === 0
                 ? undefined
-                : [
-                    'org',
-                    'assign',
-                    'permset',
-                    '--target-org',
-                    alias,
-                    ...configuration.permissionSets.flatMap((permissionSet) => ['--name', permissionSet])
-                ];
+                : {
+                    executable: 'sf',
+                    arguments: [
+                        'org',
+                        'assign',
+                        'permset',
+                        '--target-org',
+                        alias,
+                        ...configuration.permissionSets.flatMap((permissionSet) => ['--name', permissionSet])
+                    ]
+                };
         case 'data':
             return configuration.dummyDataPlan === null
                 ? undefined
-                : ['data', 'import', 'tree', '--target-org', alias, '--plan', configuration.dummyDataPlan];
+                : {
+                    executable: 'sf',
+                    arguments: ['data', 'import', 'tree', '--target-org', alias, '--plan', configuration.dummyDataPlan]
+                };
         case 'community':
             return configuration.communityName === null
                 ? undefined
-                : ['community', 'publish', '--target-org', alias, '--name', configuration.communityName];
+                : {
+                    executable: 'sf',
+                    arguments: ['community', 'publish', '--target-org', alias, '--name', configuration.communityName]
+                };
+        default: {
+            const customStep = configuration.customPostSteps.find((candidate) => candidate.name === postStep);
+            return customStep === undefined
+                ? undefined
+                : { executable: customStep.executable, arguments: customStep.arguments };
+        }
     }
 }
 
-function postStepLabel(postStep: PostStep): string {
-    return {
+function postStepLabel(configuration: ProjectConfiguration, postStep: PostStep): string {
+    const builtinLabels: Record<string, string> = {
         deploy: 'Deploy metadata',
         permsets: 'Assign permission sets',
         data: 'Import dummy data',
         community: 'Publish community'
-    }[postStep];
+    };
+    const builtinLabel = builtinLabels[postStep];
+    if (builtinLabel !== undefined) return builtinLabel;
+    return configuration.customPostSteps.find((candidate) => candidate.name === postStep)?.label ?? postStep;
 }
 
 function emitPostStepResult(
@@ -233,19 +259,32 @@ function emitPostStepResult(
     });
 }
 
+/**
+ * Validates that every requested post-step matches a built-in step or a project-declared
+ * `customPostSteps[].name`. Both the CLI and web adapters funnel through this check so an
+ * unrecognized step name is always rejected before any step, package, or org command runs.
+ *
+ * @param options - Resolved configuration and the requested post-steps.
+ * @returns The first unrecognized step name, or `undefined` when every requested step is known.
+ */
+function findUnknownPostStep(options: Pick<ConfigureProjectOptions, 'configuration' | 'postSteps'>): string | undefined {
+    const knownSteps = new Set(canonicalPostStepOrder(options.configuration));
+    return options.postSteps.find((postStep) => !knownSteps.has(postStep));
+}
+
 async function runPostSteps(options: ResolvedConfigureProjectOptions): Promise<ExitCode> {
     let run = 0;
     let skipped = 0;
     let warnings = 0;
 
-    for (const postStep of POST_STEP_ORDER) {
+    for (const postStep of canonicalPostStepOrder(options.configuration)) {
         if (!options.postSteps.includes(postStep)) {
             skipped += 1;
             emitPostStepResult(options, postStep, 'skipped', `${postStep} was not selected`);
             continue;
         }
-        const commandArguments = postStepCommand(options.configuration, options.alias, postStep);
-        if (commandArguments === undefined) {
+        const command = postStepCommand(options.configuration, options.alias, postStep);
+        if (command === undefined) {
             warnings += 1;
             emitPostStepResult(options, postStep, 'warning', `${postStep} has no configured value`);
             continue;
@@ -258,9 +297,9 @@ async function runPostSteps(options: ResolvedConfigureProjectOptions): Promise<E
         const stepExitCode = await runStep(
             options,
             `post-step:${postStep}`,
-            postStepLabel(postStep),
-            'sf',
-            commandArguments
+            postStepLabel(options.configuration, postStep),
+            command.executable,
+            command.arguments
         );
         if (stepExitCode !== EXIT_CODES.SUCCESS) {
             emitPostStepResult(options, postStep, 'failure', `${postStep} failed`);
@@ -481,6 +520,20 @@ async function configureResolvedProject(options: ResolvedConfigureProjectOptions
  * package-install stage.
  */
 export async function configureProject(options: ConfigureProjectOptions): Promise<ExitCode> {
+    const unknownPostStep = findUnknownPostStep(options);
+    if (unknownPostStep !== undefined) {
+        options.emit({
+            kind: 'step-failed',
+            operationId: options.operationId,
+            timestamp: new Date().toISOString(),
+            stepId: 'configure:post-steps',
+            step: 'Validate post-steps',
+            exitCode: null,
+            durationMs: 0,
+            error: `Unknown post-step: ${unknownPostStep}. Expected a built-in step or a declared customPostSteps[].name.`
+        });
+        return EXIT_CODES.INVALID_INPUT_OR_CONFIG;
+    }
     const alias = options.alias ?? options.configuration.defaultOrgAlias;
     if (alias === undefined) {
         options.emit({

@@ -127,7 +127,7 @@ export type OperationEvent =
   })
   | (EventBase & {
     kind: 'post-step-result';
-    postStep: 'deploy' | 'permsets' | 'data' | 'community';
+    postStep: string;
     status: 'run' | 'skipped' | 'warning' | 'failure';
     message: string;
     dryRun: boolean;
