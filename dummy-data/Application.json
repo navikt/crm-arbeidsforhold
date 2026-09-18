@@ -20,7 +20,6 @@
             "Email__c": "Pensjon@test.no",
             "Casehandler_Status__c": "New",
             "Status__c": "New"
-           
         },
         {
             "attributes": {
@@ -28,7 +27,7 @@
                 "referenceId": "Application__cRef2"
             },
             "AccountName__c": "KRAFTNETT",
-            "Access_Request__c":"@Access_Request__cRef2",
+            "Access_Request__c": "@Access_Request__cRef2",
             "Account__c": "@AccountRef2",
             "ApplicationSubmittedDate__c": "2026-01-15",
             "OrganizationNumber__c": "923934138",
@@ -42,7 +41,6 @@
             "Email__c": "kraftnett@test.no",
             "Casehandler_Status__c": "New",
             "Status__c": "New"
-           
         },
         {
             "attributes": {
@@ -64,7 +62,6 @@
             "Email__c": "Kommune@test.no",
             "Casehandler_Status__c": "New",
             "Status__c": "New"
-            
         },
         {
             "attributes": {
@@ -86,6 +83,174 @@
             "Email__c": "fylkeskommune@test.no",
             "Casehandler_Status__c": "New",
             "Status__c": "New"
+        },
+        {
+            "attributes": {
+                "type": "Application__c",
+                "referenceId": "Application__cRef5"
+            },
+            "AccountName__c": "STATENS PENSJONSKASSE",
+            "Access_Request__c": "@Access_Request__cRef5",
+            "Account__c": "@AccountRef5",
+            "ApplicationSubmittedDate__c": "2026-02-03",
+            "OrganizationNumber__c": "982583462",
+            "MailingAddress__c": "Karl Johans gate 12",
+            "MailingCity__c": "OSLO",
+            "MailingPostalCode__c": "0154",
+            "OrganizationStructure__c": "ORGL",
+            "TermsOfUse__c": true,
+            "DataProcessorName__c": "Pensjonsdata AS",
+            "DataProcessorOrganizationNumber__c": "988112233",
+            "Email__c": "statenspensjonskasse@test.no",
+            "Casehandler_Status__c": "In Progress",
+            "Status__c": "In Progress"
+        },
+        {
+            "attributes": {
+                "type": "Application__c",
+                "referenceId": "Application__cRef6"
+            },
+            "AccountName__c": "NETTSELSKAPET AS",
+            "Access_Request__c": "@Access_Request__cRef6",
+            "Account__c": "@AccountRef6",
+            "ApplicationSubmittedDate__c": "2026-02-10",
+            "OrganizationNumber__c": "917422891",
+            "MailingAddress__c": "Industriveien 4",
+            "MailingCity__c": "BERGEN",
+            "MailingPostalCode__c": "5008",
+            "OrganizationStructure__c": "AS",
+            "TermsOfUse__c": true,
+            "DataProcessorName__c": "Nettdrift Behandler AS",
+            "DataProcessorOrganizationNumber__c": "988223344",
+            "Email__c": "nettselskapet@test.no",
+            "Casehandler_Status__c": "Additional Information Required",
+            "Status__c": "Additional Information Required"
+        },
+        {
+            "attributes": {
+                "type": "Application__c",
+                "referenceId": "Application__cRef7"
+            },
+            "AccountName__c": "BYKOMMUNE",
+            "Access_Request__c": "@Access_Request__cRef7",
+            "Account__c": "@AccountRef7",
+            "ApplicationSubmittedDate__c": "2026-02-18",
+            "OrganizationNumber__c": "964338531",
+            "MailingAddress__c": "Rådhusplassen 1",
+            "MailingCity__c": "TRONDHEIM",
+            "MailingPostalCode__c": "7011",
+            "OrganizationStructure__c": "KOMM",
+            "TermsOfUse__c": true,
+            "DataProcessorName__c": "Kommunal Databehandler AS",
+            "DataProcessorOrganizationNumber__c": "988334455",
+            "Email__c": "bykommune@test.no",
+            "Casehandler_Status__c": "Approved Partially",
+            "Status__c": "Approved Partially"
+        },
+        {
+            "attributes": {
+                "type": "Application__c",
+                "referenceId": "Application__cRef8"
+            },
+            "AccountName__c": "INNLANDET FYLKESKOMMUNE",
+            "Access_Request__c": "@Access_Request__cRef8",
+            "Account__c": "@AccountRef8",
+            "ApplicationSubmittedDate__c": "2026-02-24",
+            "OrganizationNumber__c": "920717152",
+            "MailingAddress__c": "Fylkeshuset 3",
+            "MailingCity__c": "HAMAR",
+            "MailingPostalCode__c": "2325",
+            "OrganizationStructure__c": "FYLK",
+            "TermsOfUse__c": true,
+            "DataProcessorName__c": "Fylkesdata Behandler AS",
+            "DataProcessorOrganizationNumber__c": "988445566",
+            "Email__c": "innlandetfylke@test.no",
+            "Casehandler_Status__c": "Approved",
+            "Status__c": "Approved"
+        },
+        {
+            "attributes": {
+                "type": "Application__c",
+                "referenceId": "Application__cRef9"
+            },
+            "AccountName__c": "ARBEIDSTILSYNET",
+            "Access_Request__c": "@Access_Request__cRef9",
+            "Account__c": "@AccountRef9",
+            "ApplicationSubmittedDate__c": "2026-03-02",
+            "OrganizationNumber__c": "974761211",
+            "MailingAddress__c": "Statens Hus 7",
+            "MailingCity__c": "TRONDHEIM",
+            "MailingPostalCode__c": "7468",
+            "OrganizationStructure__c": "STAT",
+            "TermsOfUse__c": true,
+            "DataProcessorName__c": "Statlig Databehandler AS",
+            "DataProcessorOrganizationNumber__c": "988556677",
+            "Email__c": "arbeidstilsynet@test.no",
+            "Casehandler_Status__c": "Declined",
+            "Status__c": "Declined"
+        },
+        {
+            "attributes": {
+                "type": "Application__c",
+                "referenceId": "Application__cRef10"
+            },
+            "AccountName__c": "DIREKTORATET FOR FORVALTNING",
+            "Access_Request__c": "@Access_Request__cRef10",
+            "Account__c": "@AccountRef10",
+            "ApplicationSubmittedDate__c": "2026-03-09",
+            "OrganizationNumber__c": "991825827",
+            "MailingAddress__c": "Grev Wedels plass 9",
+            "MailingCity__c": "OSLO",
+            "MailingPostalCode__c": "0151",
+            "OrganizationStructure__c": "STAT",
+            "TermsOfUse__c": true,
+            "DataProcessorName__c": "Forvaltningsdata AS",
+            "DataProcessorOrganizationNumber__c": "988667788",
+            "Email__c": "direktoratet@test.no",
+            "Casehandler_Status__c": "New",
+            "Status__c": "Draft"
+        },
+        {
+            "attributes": {
+                "type": "Application__c",
+                "referenceId": "Application__cRef11"
+            },
+            "AccountName__c": "SPAREBANK PENSJON",
+            "Access_Request__c": "@Access_Request__cRef11",
+            "Account__c": "@AccountRef11",
+            "ApplicationSubmittedDate__c": "2026-03-16",
+            "OrganizationNumber__c": "913448276",
+            "MailingAddress__c": "Bankgata 5",
+            "MailingCity__c": "STAVANGER",
+            "MailingPostalCode__c": "4006",
+            "OrganizationStructure__c": "AS",
+            "TermsOfUse__c": true,
+            "DataProcessorName__c": "Sparebank Databehandler AS",
+            "DataProcessorOrganizationNumber__c": "988778899",
+            "Email__c": "sparebankpensjon@test.no",
+            "Casehandler_Status__c": "Closed",
+            "Status__c": "Suspension"
+        },
+        {
+            "attributes": {
+                "type": "Application__c",
+                "referenceId": "Application__cRef12"
+            },
+            "AccountName__c": "TRØNDELAG FYLKESKOMMUNE",
+            "Access_Request__c": "@Access_Request__cRef12",
+            "Account__c": "@AccountRef12",
+            "ApplicationSubmittedDate__c": "2026-03-23",
+            "OrganizationNumber__c": "917621677",
+            "MailingAddress__c": "Fylkesvegen 22",
+            "MailingCity__c": "STEINKJER",
+            "MailingPostalCode__c": "7713",
+            "OrganizationStructure__c": "FYLK",
+            "TermsOfUse__c": true,
+            "DataProcessorName__c": "Trøndelag Databehandler AS",
+            "DataProcessorOrganizationNumber__c": "988889900",
+            "Email__c": "trondelagfylke@test.no",
+            "Casehandler_Status__c": "In Progress",
+            "Status__c": "In Process"
         }
     ]
 }

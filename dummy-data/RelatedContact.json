@@ -8,8 +8,8 @@
             "Application__c": "@Application__cRef1",
             "AgreementNotifications__c": true,
             "ChangeNotifications__c": true,
-            "Email__c":"Related.Contact1@test.no",
-            "Phone__c":"12345678"
+            "Email__c": "Related.Contact1@test.no",
+            "Phone__c": "12345678"
         },
         {
             "attributes": {
@@ -19,8 +19,8 @@
             "Application__c": "@Application__cRef1",
             "ErrorMessageNotifications__c": true,
             "SecurityNotifications__c": true,
-            "Email__c":"Related.Contact2@test.no",
-            "Phone__c":"52345678"
+            "Email__c": "Related.Contact2@test.no",
+            "Phone__c": "52345678"
         },
         {
             "attributes": {
@@ -30,8 +30,8 @@
             "Application__c": "@Application__cRef2",
             "AgreementNotifications__c": true,
             "ChangeNotifications__c": true,
-            "Email__c":"Related.Contact1@test.no",
-            "Phone__c":"12345678"
+            "Email__c": "Related.Contact1@test.no",
+            "Phone__c": "12345678"
         },
         {
             "attributes": {
@@ -41,8 +41,8 @@
             "Application__c": "@Application__cRef2",
             "ErrorMessageNotifications__c": true,
             "SecurityNotifications__c": true,
-            "Email__c":"Related.Contact2@test.no",
-            "Phone__c":"52345678"
+            "Email__c": "Related.Contact2@test.no",
+            "Phone__c": "52345678"
         },
         {
             "attributes": {
@@ -52,8 +52,8 @@
             "Application__c": "@Application__cRef3",
             "AgreementNotifications__c": true,
             "ChangeNotifications__c": true,
-            "Email__c":"Related.Contact1@test.no",
-            "Phone__c":"12345678"
+            "Email__c": "Related.Contact1@test.no",
+            "Phone__c": "12345678"
         },
         {
             "attributes": {
@@ -63,8 +63,8 @@
             "Application__c": "@Application__cRef3",
             "ErrorMessageNotifications__c": true,
             "SecurityNotifications__c": true,
-            "Email__c":"Related.Contact2@test.no",
-            "Phone__c":"52345678"
+            "Email__c": "Related.Contact2@test.no",
+            "Phone__c": "52345678"
         },
         {
             "attributes": {
@@ -74,8 +74,8 @@
             "Application__c": "@Application__cRef4",
             "AgreementNotifications__c": true,
             "ChangeNotifications__c": true,
-            "Email__c":"Related.Contact1@test.no",
-            "Phone__c":"12345678"
+            "Email__c": "Related.Contact1@test.no",
+            "Phone__c": "12345678"
         },
         {
             "attributes": {
@@ -85,9 +85,184 @@
             "Application__c": "@Application__cRef4",
             "ErrorMessageNotifications__c": true,
             "SecurityNotifications__c": true,
-            "Email__c":"Related.Contact2@test.no",
-            "Phone__c":"52345678"
+            "Email__c": "Related.Contact2@test.no",
+            "Phone__c": "52345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef9"
+            },
+            "Application__c": "@Application__cRef5",
+            "AgreementNotifications__c": true,
+            "ChangeNotifications__c": true,
+            "Email__c": "Related.Contact1@test.no",
+            "Phone__c": "12345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef10"
+            },
+            "Application__c": "@Application__cRef5",
+            "ErrorMessageNotifications__c": true,
+            "SecurityNotifications__c": true,
+            "Email__c": "Related.Contact2@test.no",
+            "Phone__c": "52345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef11"
+            },
+            "Application__c": "@Application__cRef6",
+            "AgreementNotifications__c": true,
+            "ChangeNotifications__c": true,
+            "Email__c": "Related.Contact1@test.no",
+            "Phone__c": "12345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef12"
+            },
+            "Application__c": "@Application__cRef6",
+            "ErrorMessageNotifications__c": true,
+            "SecurityNotifications__c": true,
+            "Email__c": "Related.Contact2@test.no",
+            "Phone__c": "52345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef13"
+            },
+            "Application__c": "@Application__cRef7",
+            "AgreementNotifications__c": true,
+            "ChangeNotifications__c": true,
+            "Email__c": "Related.Contact1@test.no",
+            "Phone__c": "12345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef14"
+            },
+            "Application__c": "@Application__cRef7",
+            "ErrorMessageNotifications__c": true,
+            "SecurityNotifications__c": true,
+            "Email__c": "Related.Contact2@test.no",
+            "Phone__c": "52345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef15"
+            },
+            "Application__c": "@Application__cRef8",
+            "AgreementNotifications__c": true,
+            "ChangeNotifications__c": true,
+            "Email__c": "Related.Contact1@test.no",
+            "Phone__c": "12345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef16"
+            },
+            "Application__c": "@Application__cRef8",
+            "ErrorMessageNotifications__c": true,
+            "SecurityNotifications__c": true,
+            "Email__c": "Related.Contact2@test.no",
+            "Phone__c": "52345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef17"
+            },
+            "Application__c": "@Application__cRef9",
+            "AgreementNotifications__c": true,
+            "ChangeNotifications__c": true,
+            "Email__c": "Related.Contact1@test.no",
+            "Phone__c": "12345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef18"
+            },
+            "Application__c": "@Application__cRef9",
+            "ErrorMessageNotifications__c": true,
+            "SecurityNotifications__c": true,
+            "Email__c": "Related.Contact2@test.no",
+            "Phone__c": "52345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef19"
+            },
+            "Application__c": "@Application__cRef10",
+            "AgreementNotifications__c": true,
+            "ChangeNotifications__c": true,
+            "Email__c": "Related.Contact1@test.no",
+            "Phone__c": "12345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef20"
+            },
+            "Application__c": "@Application__cRef10",
+            "ErrorMessageNotifications__c": true,
+            "SecurityNotifications__c": true,
+            "Email__c": "Related.Contact2@test.no",
+            "Phone__c": "52345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef21"
+            },
+            "Application__c": "@Application__cRef11",
+            "AgreementNotifications__c": true,
+            "ChangeNotifications__c": true,
+            "Email__c": "Related.Contact1@test.no",
+            "Phone__c": "12345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef22"
+            },
+            "Application__c": "@Application__cRef11",
+            "ErrorMessageNotifications__c": true,
+            "SecurityNotifications__c": true,
+            "Email__c": "Related.Contact2@test.no",
+            "Phone__c": "52345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef23"
+            },
+            "Application__c": "@Application__cRef12",
+            "AgreementNotifications__c": true,
+            "ChangeNotifications__c": true,
+            "Email__c": "Related.Contact1@test.no",
+            "Phone__c": "12345678"
+        },
+        {
+            "attributes": {
+                "type": "RelatedContact__c",
+                "referenceId": "RelatedContact__cRef24"
+            },
+            "Application__c": "@Application__cRef12",
+            "ErrorMessageNotifications__c": true,
+            "SecurityNotifications__c": true,
+            "Email__c": "Related.Contact2@test.no",
+            "Phone__c": "52345678"
         }
-       
     ]
 }

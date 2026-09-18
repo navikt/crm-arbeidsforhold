@@ -154,6 +154,108 @@
             "PurposeCounty__c": "Kontroll av helsepersonell - tilsynssaker",
             "OrganizationType__c": "County",
             "ProcessingBasis__c": "opplæringsloven § 9-4 j.f  opplæringsforskriften §8-3 sammenholdt med opplæringsloven 25-1 første ledd"
+        },
+        {
+            "attributes": {
+                "type": "ApplicationBasisCode__c",
+                "referenceId": "ApplicationBasisCode__cRef13"
+            },
+            "Application__c": "@Application__cRef5",
+            "API_Access__c": true,
+            "LegalBasisPension__c": "FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 første ledd bokstav c",
+            "PurposePension__c": "Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven",
+            "OrganizationType__c": "Pension",
+            "ProcessingBasis__c": "Lov om Statens pensjonskasse §5"
+        },
+        {
+            "attributes": {
+                "type": "ApplicationBasisCode__c",
+                "referenceId": "ApplicationBasisCode__cRef14"
+            },
+            "Application__c": "@Application__cRef6",
+            "Online_Access__c": true,
+            "LegalBasisElectricitySupervision__c": "FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f",
+            "PurposeElectricitySupervision__c": "Tilsyn med elektriske anlegg og elektrisk utstyr",
+            "OrganizationType__c": "Electricity Supervision",
+            "ProcessingBasis__c": "Eltilsynsloven §5"
+        },
+        {
+            "attributes": {
+                "type": "ApplicationBasisCode__c",
+                "referenceId": "ApplicationBasisCode__cRef15"
+            },
+            "Application__c": "@Application__cRef7",
+            "API_Access__c": true,
+            "LegalBasisMunicipality__c": "FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f",
+            "PurposeMunicipality__c": "Salg- og skjenkebevilling",
+            "OrganizationType__c": "Municipality",
+            "ProcessingBasis__c": "alkoholloven kap 4"
+        },
+        {
+            "attributes": {
+                "type": "ApplicationBasisCode__c",
+                "referenceId": "ApplicationBasisCode__cRef16"
+            },
+            "Application__c": "@Application__cRef8",
+            "Online_Access__c": true,
+            "LegalBasisCounty__c": "FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f",
+            "PurposeCounty__c": "Kontroll av helsepersonell - tilsynssaker",
+            "OrganizationType__c": "County",
+            "ProcessingBasis__c": "opplæringsloven § 9-4 j.f  opplæringsforskriften §8-3"
+        },
+        {
+            "attributes": {
+                "type": "ApplicationBasisCode__c",
+                "referenceId": "ApplicationBasisCode__cRef17"
+            },
+            "Application__c": "@Application__cRef9",
+            "API_Access__c": true,
+            "LegalBasisState__c": "Annet - oppgi i tekstfelt under",
+            "PurposeState__c": "Annet - oppgi i tekstfelt under",
+            "OrganizationType__c": "State",
+            "OtherLegalBasis__c": "Arbeidsmiljøloven § 18-5",
+            "OtherPurpose__c": "Tilsyn med arbeidsmiljø og HMS hos virksomheter",
+            "ProcessingBasis__c": "Arbeidsmiljøloven kap 18"
+        },
+        {
+            "attributes": {
+                "type": "ApplicationBasisCode__c",
+                "referenceId": "ApplicationBasisCode__cRef18"
+            },
+            "Application__c": "@Application__cRef10",
+            "Online_Access__c": true,
+            "LegalBasisState__c": "Annet - oppgi i tekstfelt under",
+            "PurposeState__c": "Annet - oppgi i tekstfelt under",
+            "OrganizationType__c": "State",
+            "OtherLegalBasis__c": "Forvaltningsloven § 13",
+            "OtherPurpose__c": "Forvaltningsutvikling og kartlegging av statlige virksomheter",
+            "ProcessingBasis__c": "Forvaltningsloven kap 2"
+        },
+        {
+            "attributes": {
+                "type": "ApplicationBasisCode__c",
+                "referenceId": "ApplicationBasisCode__cRef19"
+            },
+            "Application__c": "@Application__cRef11",
+            "API_Access__c": true,
+            "LegalBasisPension__c": "FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 første ledd bokstav c",
+            "PurposePension__c": "Til bruk i arbeidet med pensjonsordning etter innskudds-,foretak- eller tjenestepensjonsloven",
+            "OrganizationType__c": "Pension",
+            "ProcessingBasis__c": "Foretakspensjonsloven §2"
+        },
+        {
+            "attributes": {
+                "type": "ApplicationBasisCode__c",
+                "referenceId": "ApplicationBasisCode__cRef20"
+            },
+            "Application__c": "@Application__cRef12",
+            "Online_Access__c": true,
+            "LegalBasisCounty__c": "Annet - oppgi i tekstfelt under",
+            "PurposeCounty__c": "Annet - oppgi i tekstfelt under",
+            "OrganizationType__c": "County",
+            "OtherLegalBasis__c": "Aa-registerforskriften §10 bokstav e",
+            "OtherPurpose__c": "Oppfølgingstjenesten (OT) kartlegging av ungdom i målgruppen",
+            "ProcessingBasis__c": "opplæringsloven § 9-4"
         }
     ]
 }

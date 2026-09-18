@@ -1,33 +1,44 @@
 [
-   {
-       "sobject": "Account", 
-       "saveRefs": true,
-       "resolveRefs": false,
-       "files": ["Account.json"]
+    {
+        "sobject": "Account",
+        "saveRefs": true,
+        "resolveRefs": false,
+        "files": ["Account.json"]
     },
     {
-      "sobject": "Access_Request__c", 
-      "saveRefs": true,
-      "resolveRefs": false,
-      "files": ["AccessRequest.json"]
+        "sobject": "Access_Request__c",
+        "saveRefs": true,
+        "resolveRefs": false,
+        "files": ["AccessRequest.json"]
     },
     {
-       "sobject": "Application__c", 
-       "saveRefs": true,
-       "resolveRefs": false,
-       "files": ["Application.json"]
+        "sobject": "Application__c",
+        "saveRefs": true,
+        "resolveRefs": false,
+        "files": ["Application.json"]
     },
     {
-       "sobject": "ApplicationBasisCode__c", 
-       "saveRefs": true,
-       "resolveRefs": false,
-       "files": ["CodeBase.json"]
+        "sobject": "ApplicationBasisCode__c",
+        "saveRefs": true,
+        "resolveRefs": false,
+        "files": ["CodeBase.json"]
     },
     {
-      "sobject": "RelatedContact__c", 
-      "saveRefs": true,
-      "resolveRefs": false,
-      "files": ["RelatedContact.json"]
-   }
-
+        "sobject": "RelatedContact__c",
+        "saveRefs": true,
+        "resolveRefs": false,
+        "files": ["RelatedContact.json"]
+    },
+    {
+        "sobject": "Agreement__c",
+        "saveRefs": true,
+        "resolveRefs": true,
+        "files": ["Agreement.json"]
+    },
+    {
+        "sobject": "Application_Decision__c",
+        "saveRefs": true,
+        "resolveRefs": true,
+        "files": ["ApplicationDecision.json"]
+    }
 ]
