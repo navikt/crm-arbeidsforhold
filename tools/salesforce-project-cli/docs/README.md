@@ -4,16 +4,17 @@ This handbook describes the current implementation of `@navikt/salesforce-projec
 
 ## Choose a guide
 
-| Audience            | Start here                                                                                        | Use it for                                                                                     |
-| ------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| CLI users           | [CLI reference](cli-reference.md)                                                                 | Exact commands, options, output contracts, exit codes, and confirmation rules                  |
-| Project maintainers | [Configuration](configuration.md)                                                                 | `sfdx-project.json`, `sf-project.config.json`, environment variables, defaults, and validation |
-| Operators           | [Workflows](workflows.md) and [operations and troubleshooting](operations-and-troubleshooting.md) | Ordering, side effects, dry runs, recovery, diagnostics, and failure handling                  |
-| API consumers       | [Web API](web-api.md)                                                                             | Loopback security, endpoints, payloads, SSE, retention, and errors                             |
-| Frontend developers | [Web frontend](web-frontend.md)                                                                   | Dashboard state, forms, policy behavior, Aksel, accessibility, and responsive layout           |
-| Contributors        | [Development and testing](development-and-testing.md)                                             | Local setup, scripts, test doubles, validation, and extension patterns                         |
-| Package owners      | [Packaging and extraction](packaging-and-extraction.md)                                           | npm contents, pack smoke, CI, repository extraction, and release gates                         |
-| Architects          | [Architecture](architecture.md)                                                                   | Layers, dependency direction, event lifecycle, adapters, and tradeoffs                         |
+| Audience                    | Start here                                                                                        | Use it for                                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| CLI users                   | [CLI reference](cli-reference.md)                                                                 | Exact commands, options, output contracts, exit codes, and confirmation rules                       |
+| Project maintainers         | [Configuration](configuration.md)                                                                 | `sfdx-project.json`, `sf-project.config.json`, environment variables, defaults, and validation      |
+| Adopters in another project | [Portability guide](portability-guide.md)                                                         | Minimal configuration, which defaults are required versus repository-specific, incremental adoption |
+| Operators                   | [Workflows](workflows.md) and [operations and troubleshooting](operations-and-troubleshooting.md) | Ordering, side effects, dry runs, recovery, diagnostics, and failure handling                       |
+| API consumers               | [Web API](web-api.md)                                                                             | Loopback security, endpoints, payloads, SSE, retention, and errors                                  |
+| Frontend developers         | [Web frontend](web-frontend.md)                                                                   | Dashboard state, forms, policy behavior, Aksel, accessibility, and responsive layout                |
+| Contributors                | [Development and testing](development-and-testing.md)                                             | Local setup, scripts, test doubles, validation, and extension patterns                              |
+| Package owners              | [Packaging and extraction](packaging-and-extraction.md)                                           | npm contents, pack smoke, CI, repository extraction, and release gates                              |
+| Architects                  | [Architecture](architecture.md)                                                                   | Layers, dependency direction, event lifecycle, adapters, and tradeoffs                              |
 
 ## Governing and historical documents
 

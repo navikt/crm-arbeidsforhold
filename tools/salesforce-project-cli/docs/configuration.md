@@ -2,6 +2,8 @@
 
 Every command that loads project configuration requires `sfdx-project.json` in the resolved project root. `sf-project.config.json` is optional. Values are normalized once into absolute paths and typed workflow settings.
 
+Adopting this tool in a project shaped differently than `crm-arbeidsforhold`? See the [portability guide](portability-guide.md) for the minimal configuration and which defaults are required versus repository-specific conveniences.
+
 ## Precedence
 
 1. Relevant CLI option

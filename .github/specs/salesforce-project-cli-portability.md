@@ -1,6 +1,6 @@
 ---
 slug: salesforce-project-cli-portability
-status: proposed
+status: implemented-local-validation
 github-epic: 1040
 ---
 
@@ -87,3 +87,9 @@ Steps are independent of each other and may be delivered in any order; the numbe
 
 - Epic: #1040
 - Delivery issues: #1041, #1042, #1043, #1044
+
+## Implementation status
+
+All four delivery issues are implemented and closed. `npm run check` (docs:check, typecheck, full unit+contract+web test suite, build) passes with 140 core tests and 16 web tests. `crm-arbeidsforhold`'s own `sf-project.config.json` and default behavior are unchanged; every new capability (`--skip-packages`, `dependencySourcePolicy.requireLocalDirectories`, `customPostSteps`) is opt-in.
+
+Authenticated verification against a disposable scratch org was not run as part of this work and is not claimed as passed; it remains available per the existing [release validation gates](../../tools/salesforce-project-cli/docs/packaging-and-extraction.md#release-validation-gates).
