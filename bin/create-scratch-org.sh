@@ -12,6 +12,12 @@ SCRATCH_DEF_FILE="${SCRATCH_DEF_FILE:-config/project-scratch-def.json}"
 PROJECT_FILE="${PROJECT_FILE:-sfdx-project.json}"
 COMMUNITY_NAME="${COMMUNITY_NAME:-Aa-registret}"
 DUMMY_DATA_PLAN="${DUMMY_DATA_PLAN:-dummy-data/plan.json}"
+DUMMY_USER_FILE="${DUMMY_USER_FILE:-dummy-data/User.json}"
+DUMMY_USER_PROFILE_NAME="${DUMMY_USER_PROFILE_NAME:-Standard User}"
+DUMMY_SAKSBEHANDLER_PERMSET="${DUMMY_SAKSBEHANDLER_PERMSET:-AAREG_Arbeidsforhold_Saksbehandling}"
+DUMMY_SAKSBEHANDLER_USERNAMES="${DUMMY_SAKSBEHANDLER_USERNAMES:-persaksbehandler1@nav.no hannasaksbehandler2@nav.no}"
+DUMMY_SUPPORT_PERMSETS="${DUMMY_SUPPORT_PERMSETS:-AAREG_Arbeidsforhold_Support AAREG_Arbeidsforhold_Support_Read_Only}"
+DUMMY_SUPPORT_USERNAMES="${DUMMY_SUPPORT_USERNAMES:-karibrukerstotte1@nav.no olabrukerstotte2@nav.no}"
 PACKAGE_WAIT_MINUTES="${PACKAGE_WAIT_MINUTES:-10}"
 PACKAGE_INSTALL_MAX_ATTEMPTS="${PACKAGE_INSTALL_MAX_ATTEMPTS:-3}"
 PACKAGE_INSTALL_RETRY_DELAY_SECONDS="${PACKAGE_INSTALL_RETRY_DELAY_SECONDS:-5}"
@@ -26,6 +32,7 @@ VERIFY_PACKAGE_VERSIONS="${VERIFY_PACKAGE_VERSIONS:-true}"
 INSTALL_LATEST_PACKAGES="${INSTALL_LATEST_PACKAGES:-false}"
 DELETE_ORG_ONLY="${DELETE_ORG_ONLY:-false}"
 UPDATE_PACKAGES_ONLY="${UPDATE_PACKAGES_ONLY:-false}"
+POST_STEPS_ONLY_MODE="${POST_STEPS_ONLY_MODE:-false}"
 
 USE_POOL="${USE_POOL:-false}"
 POOL_TAG="${POOL_TAG:-dev}"
@@ -46,6 +53,7 @@ REQUESTED_USE_POOL=""
 REQUESTED_UPDATE_PACKAGES_ONLY=""
 REQUESTED_PACKAGE_PLAN_ONLY=""
 REQUESTED_INSTALL_LATEST_PACKAGES=""
+REQUESTED_POST_STEPS_ONLY_MODE=""
 ORG_ALIAS_SET_EXPLICITLY=false
 TARGET_ORG=""
 TARGET_ORG_SOURCE=""
@@ -207,6 +215,7 @@ print_run_summary() {
     echo "- Package plan only:      $PACKAGE_PLAN_ONLY"
     echo "- Refresh dependencies:   $REFRESH_DEPENDENCY_SOURCES"
     echo "- Clear dependencies only:$CLEAR_DEPENDENCY_SOURCES_ONLY"
+    echo "- Post steps only:        $POST_STEPS_ONLY_MODE"
     echo "- Post steps:             $POST_STEPS"
     echo ""
     echo "Org:"
@@ -267,6 +276,13 @@ run_cmd() {
     "$@"
 }
 
+# Runs an `sf ... --json` command and strips any non-JSON banner text
+# (e.g. the CLI telemetry consent notice) that some sf versions print to stdout
+# before the JSON payload, so the result can be piped straight into jq.
+sf_json() {
+    "$@" --json 2>&1 | sed -n '/^{/,$p'
+}
+
 is_retryable_package_install_failure() {
     local output="$1"
 
@@ -311,6 +327,8 @@ Options:
   --package-plan                      Check installed packages and print what would change.
     --refresh-dependency-sources        Clear dependency source folders before setup and retrieve them again afterward.
     --clear-dependency-sources-only     Clear dependency source folders and exit without running any org or package commands.
+  --post-steps-only                   Run only post steps against an existing org. Shortcut for --skip-org --skip-packages.
+                                      Combine with --post-steps to select specific steps, e.g. --post-steps-only --post-steps data.
   --skip-org                          Do not delete/create/fetch scratch org.
   --skip-packages                     Do not install packages.
   --skip-version-check                Do not warn when dependency versions are not latest released versions.
@@ -323,6 +341,12 @@ Environment variables:
     PACKAGE_INSTALL_KEYCHAIN_SERVICE      macOS Keychain service name for install key lookup.
     PACKAGE_INSTALL_KEYCHAIN_ACCOUNT      Optional macOS Keychain account name for lookup.
   PACKAGES_NOT_REQUIRING_INSTALL_KEY  Comma-separated list of packages that do NOT require install key.
+  DUMMY_USER_FILE                     Dummy user tree file imported as part of the data post step. Default: dummy-data/User.json
+  DUMMY_USER_PROFILE_NAME              Profile assigned to dummy users, resolved per target org. Default: Standard User
+  DUMMY_SAKSBEHANDLER_PERMSET          Permission set assigned to dummy saksbehandler users. Default: AAREG_Arbeidsforhold_Saksbehandling
+  DUMMY_SAKSBEHANDLER_USERNAMES        Space-separated saksbehandler usernames. Default: persaksbehandler1@nav.no hannasaksbehandler2@nav.no
+  DUMMY_SUPPORT_PERMSETS               Space-separated permission sets assigned to dummy support users. Default: AAREG_Arbeidsforhold_Support AAREG_Arbeidsforhold_Support_Read_Only
+  DUMMY_SUPPORT_USERNAMES              Space-separated brukerstøtte usernames. Default: karibrukerstotte1@nav.no olabrukerstotte2@nav.no
 
 Examples:
   ./create-scratch-org.sh
@@ -336,6 +360,8 @@ Examples:
   ./create-scratch-org.sh --update-packages --install-latest
   ./create-scratch-org.sh --delete-org-only
   ./create-scratch-org.sh --skip-org --skip-packages --post-steps deploy
+  ./create-scratch-org.sh --post-steps-only
+  ./create-scratch-org.sh --post-steps-only --post-steps data
 EOF_USAGE
 }
 
@@ -1501,6 +1527,129 @@ import_dummy_data() {
         || error $? '"sf data import tree" command failed.'
 
     add_action "Imported dummy data using $DUMMY_DATA_PLAN"
+
+    import_dummy_users
+    assign_dummy_user_permission_sets
+}
+
+import_dummy_users() {
+    echo ""
+    echo "Importing dummy users..."
+
+    if [[ ! -f "$DUMMY_USER_FILE" ]]; then
+        echo "No dummy user file found at $DUMMY_USER_FILE. Skipping dummy user import."
+        return 0
+    fi
+
+    require_command jq
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo "${YELLOW}[dry-run] Would resolve profile '${DUMMY_USER_PROFILE_NAME}' and import missing users from $DUMMY_USER_FILE${RESET}"
+        return 0
+    fi
+
+    local profile_id
+    profile_id="$(sf_json sf data query \
+        --target-org "$TARGET_ORG" \
+        --query "SELECT Id FROM Profile WHERE Name = '${DUMMY_USER_PROFILE_NAME}' LIMIT 1" \
+        | jq -r '.result.records[0].Id // empty')"
+
+    if [[ -z "$profile_id" ]]; then
+        warning "Could not resolve profile '${DUMMY_USER_PROFILE_NAME}' in $TARGET_ORG. Skipping dummy user import."
+        return 0
+    fi
+
+    local username_in_clause
+    username_in_clause="$(jq -r '[.records[].Username] | map("\u0027" + . + "\u0027") | join(",")' "$DUMMY_USER_FILE")"
+
+    local existing_usernames_json
+    existing_usernames_json="$(sf_json sf data query \
+        --target-org "$TARGET_ORG" \
+        --query "SELECT Username FROM User WHERE Username IN (${username_in_clause})" \
+        | jq -c '[.result.records[].Username]')"
+
+    local tmp_user_file
+    tmp_user_file="$(mktemp)"
+
+    jq --arg pid "$profile_id" --argjson existing "$existing_usernames_json" '
+        .records |= map(select((.Username as $u | $existing | index($u)) | not)) |
+        .records[].ProfileId = $pid
+    ' "$DUMMY_USER_FILE" > "$tmp_user_file"
+
+    local remaining
+    remaining="$(jq '.records | length' "$tmp_user_file")"
+
+    if [[ "$remaining" -eq 0 ]]; then
+        echo "All dummy users already exist in $TARGET_ORG. Skipping creation."
+        rm -f "$tmp_user_file"
+        return 0
+    fi
+
+    echo "Creating $remaining dummy user(s) with profile '${DUMMY_USER_PROFILE_NAME}' ($profile_id)..."
+
+    if ! sf data import tree --target-org "$TARGET_ORG" --files "$tmp_user_file"; then
+        rm -f "$tmp_user_file"
+        error $? '"sf data import tree" command failed for dummy users.'
+    fi
+
+    rm -f "$tmp_user_file"
+    add_action "Imported $remaining dummy user(s) into $TARGET_ORG"
+}
+
+assign_permset_to_users() {
+    local permset_list="$1"
+    local username_list="$2"
+    local name
+    local username
+    local -a name_flags=()
+    local -a behalf_flags=()
+
+    for name in $permset_list; do
+        name_flags+=(--name "$name")
+    done
+    for username in $username_list; do
+        behalf_flags+=(--on-behalf-of "$username")
+    done
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo "${YELLOW}[dry-run] Would run:${RESET} $(format_command sf org assign permset --target-org "$TARGET_ORG" "${name_flags[@]}" "${behalf_flags[@]}")"
+        return 0
+    fi
+
+    local output
+    local exit_code=0
+    output="$(sf org assign permset --target-org "$TARGET_ORG" "${name_flags[@]}" "${behalf_flags[@]}" --json 2>&1 | sed -n '/^{/,$p')" || exit_code=$?
+
+    if [[ "$exit_code" -eq 0 ]]; then
+        add_action "Assigned permission set(s) [$permset_list] to: $username_list"
+        return 0
+    fi
+
+    local non_duplicate_failures
+    non_duplicate_failures="$(echo "$output" | jq -r '[.result.failures[]?.message // empty] | map(select(contains("Duplicate PermissionSetAssignment") | not)) | length' 2>/dev/null || echo "1")"
+
+    if [[ "$non_duplicate_failures" == "0" ]]; then
+        echo "Permission set(s) [$permset_list] already assigned to some/all of: $username_list. Skipping."
+        return 0
+    fi
+
+    echo "$output"
+    error "$exit_code" '"sf org assign permset" command failed for dummy users.'
+}
+
+assign_dummy_user_permission_sets() {
+    echo ""
+    echo "Assigning permission sets to dummy users..."
+
+    if [[ ! -f "$DUMMY_USER_FILE" ]]; then
+        echo "No dummy user file found at $DUMMY_USER_FILE. Skipping dummy user permission set assignment."
+        return 0
+    fi
+
+    require_command jq
+
+    assign_permset_to_users "$DUMMY_SAKSBEHANDLER_PERMSET" "$DUMMY_SAKSBEHANDLER_USERNAMES"
+    assign_permset_to_users "$DUMMY_SUPPORT_PERMSETS" "$DUMMY_SUPPORT_USERNAMES"
 }
 
 publish_community() {
@@ -1585,6 +1734,7 @@ run_self_check() {
     echo "Project file:              $PROJECT_FILE"
     echo "Scratch definition file:   $SCRATCH_DEF_FILE"
     echo "Post steps:                $POST_STEPS"
+    echo "Post steps only mode:      $POST_STEPS_ONLY_MODE"
     echo "Use pool:                  $USE_POOL"
     echo "Install latest packages:   $INSTALL_LATEST_PACKAGES"
     echo ""
@@ -2078,6 +2228,10 @@ while [[ $# -gt 0 ]]; do
             CLEAR_DEPENDENCY_SOURCES_ONLY=true
             shift
             ;;
+        --post-steps-only)
+            POST_STEPS_ONLY_MODE=true
+            shift
+            ;;
         --skip-org)
             RUN_ORG_CREATE=false
             shift
@@ -2121,6 +2275,10 @@ if [[ "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" && ( "$DELETE_ORG_ONLY" == "tru
     error 1 "You cannot combine --clear-dependency-sources-only with another exclusive mode."
 fi
 
+if [[ "$POST_STEPS_ONLY_MODE" == "true" && ( "$DELETE_ORG_ONLY" == "true" || "$UPDATE_PACKAGES_ONLY" == "true" || "$PACKAGE_PLAN_ONLY" == "true" || "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" ) ]]; then
+    error 1 "You cannot combine --post-steps-only with another exclusive mode."
+fi
+
 if [[ "$DELETE_ORG_ONLY" == "true" ]]; then
     RUN_ORG_CREATE=false
     RUN_PACKAGES=false
@@ -2149,6 +2307,12 @@ if [[ "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" ]]; then
     USE_POOL=false
 fi
 
+if [[ "$POST_STEPS_ONLY_MODE" == "true" ]]; then
+    RUN_ORG_CREATE=false
+    RUN_PACKAGES=false
+    USE_POOL=false
+fi
+
 REQUESTED_RUN_ORG_CREATE="$RUN_ORG_CREATE"
 REQUESTED_RUN_PACKAGES="$RUN_PACKAGES"
 REQUESTED_POST_STEPS="$POST_STEPS"
@@ -2156,6 +2320,7 @@ REQUESTED_USE_POOL="$USE_POOL"
 REQUESTED_UPDATE_PACKAGES_ONLY="$UPDATE_PACKAGES_ONLY"
 REQUESTED_PACKAGE_PLAN_ONLY="$PACKAGE_PLAN_ONLY"
 REQUESTED_INSTALL_LATEST_PACKAGES="$INSTALL_LATEST_PACKAGES"
+REQUESTED_POST_STEPS_ONLY_MODE="$POST_STEPS_ONLY_MODE"
 
 # -----------------------------
 # Validation
