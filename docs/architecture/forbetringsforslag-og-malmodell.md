@@ -24,6 +24,8 @@ Løysinga har eit sterkt funksjonelt fundament og mange etablerte plattformkompo
 
 Den viktigaste overordna anbefalinga er derfor ikkje ein total omskriving. Det tryggaste målbiletet er ei **gradvis konvergering** mot tydelegare grenser, sterkare datainvariantar og meir eksplisitt async-/integrasjonsstatus, samtidig som eksisterande offentlege Salesforce-kontraktar blir bevarte.
 
+Ein sentral presisering for datamodellen er at `Access_Request__c` bør vere aggregate root for éi tilgangssak. Søknad, vedtak, avtale og overordna arkivinformasjon bør kunne lesast frå denne posten. Tekniske arkiveringsjobbar og retry-forsøk bør framleis vere eigne barn, fordi éi tilgangssak kan ha mange dokumenthendingar og mange forsøk.
+
 ```mermaid
 flowchart LR
     Current[Dagens hybride løysing]
@@ -50,7 +52,7 @@ Datamodellen bør gjere følgjande tydeleg:
 - kven som eig relasjonen;
 - kva som er slettbart og kva som må bevarast av arkiv- eller revisjonsomsyn.
 
-I dag er noko av dette uttrykt i relasjonar, noko i Flow, noko i formula-/rollup-felt og noko i tekniske P360-jobbar. Det fungerer, men gjer konsekvensane av ein statusendring vanskelege å sjå frå eitt objekt.
+I denne domenemodellen er `Access_Request__c` den naturlege samlingsposten for ei tilgangssak. I dag er noko av dette uttrykt i relasjonar, noko i Flow, noko i formula-/rollup-felt og noko i tekniske P360-jobbar. Det fungerer, men gjer konsekvensane av ein statusendring vanskelege å sjå frå eitt objekt.
 
 ### 1.2 Foreslått konseptuell modell
 
@@ -60,16 +62,12 @@ erDiagram
     ACCESS_REQUEST ||--o{ APPLICATION : "søknad"
     APPLICATION ||--o{ APPLICATION_BASIS_CODE : "grunnlag"
     APPLICATION ||--o{ RELATED_CONTACT : "kontaktar"
-    APPLICATION ||--o{ APPLICATION_VERSION : "versjonar"
     APPLICATION ||--o{ APPLICATION_DECISION : "vedtak"
     APPLICATION_DECISION ||--o{ APPLICATION_DECISION_DETAILS : "detaljar"
     APPLICATION_DECISION ||--o| AGREEMENT : "resultat"
     AGREEMENT ||--o{ AGREEMENT_VERSION : "endringar"
-    ARCHIVE_CASE ||--o{ ARCHIVE_ITEM : "arkiverte entitetar"
+    ACCESS_REQUEST ||--o{ ARCHIVE_ITEM : "arkiveringshendingar"
     ARCHIVE_ITEM ||--o{ ARCHIVE_ATTEMPT : "forsøk"
-    APPLICATION ||--o{ ARCHIVE_ITEM : "søknad"
-    APPLICATION_DECISION ||--o{ ARCHIVE_ITEM : "vedtak"
-    AGREEMENT ||--o{ ARCHIVE_ITEM : "avtale"
 
     ACCOUNT {
         Id Id PK
@@ -78,18 +76,15 @@ erDiagram
     ACCESS_REQUEST {
         Id Id PK
         string LifecycleStatus
+        string P360CaseId
+        string P360CaseNumber
+        string ArchiveStatusSummary
     }
     APPLICATION {
         Id Id PK
         Id Access_Request FK
         string LifecycleStatus
         date SubmittedDate
-    }
-    APPLICATION_VERSION {
-        Id Id PK
-        Id Application FK
-        number VersionNumber
-        string VersionStatus
     }
     APPLICATION_DECISION {
         Id Id PK
@@ -110,15 +105,12 @@ erDiagram
         number VersionNumber
         string VersionStatus
     }
-    ARCHIVE_CASE {
-        Id Id PK
-        Id Access_Request FK
-        string ExternalCaseId
-        string Status
-    }
     ARCHIVE_ITEM {
         Id Id PK
-        Id Archive_Case FK
+        Id Access_Request FK
+        Id Application FK
+        Id Application_Decision FK
+        Id Agreement FK
         string EventType
         string IdempotencyKey UK
         string Status
@@ -132,7 +124,7 @@ erDiagram
     }
 ```
 
-Diagrammet er eit målkonsept, ikkje eit forslag om å opprette alle objekta no.
+Diagrammet er eit målkonsept, ikkje eit forslag om å opprette alle objekta no. `ARCHIVE_ITEM` svarer i dagens implementasjon til `P360_Archive_Job__c`; namnet i diagrammet viser rolla, ikkje eit krav om å rename objektet.
 
 ### 1.3 Konkrete datamodellforbetringar
 
@@ -148,7 +140,50 @@ Diagrammet er eit målkonsept, ikkje eit forslag om å opprette alle objekta no.
 
 **Prioritet:** P0/P1.
 
-#### B. Vurder eksplisitt historikk for søknad og avtale
+#### B. Bruk `Access_Request__c` som aggregate root
+
+**Observasjon:** `Application__c.Access_Request__c` og `Agreement__c.Access_Request__c` peikar allereie til `Access_Request__c`, medan `Application_Decision__c` ligg under `Application__c` via master-detail. `P360_Archive_Job__c.Access_Request__c` er obligatorisk i jobbmodellen. Den faktiske domenestrukturen støttar derfor ei samla tilgangssak, men relasjonane er ikkje fullt ut handheva som éin aggregate root.
+
+**Forslag:** Gjer `Access_Request__c` til den autoritative samlingsposten for éi tilgangssak:
+
+```text
+Access_Request__c
+├── Application__c
+│   └── Application_Decision__c
+├── Agreement__c
+├── P360-saks-ID og saksnummer
+├── overordna arkiveringsstatus
+└── P360_Archive_Job__c
+    └── retry-/forsøkshistorikk
+```
+
+På `Access_Request__c` bør ein kunne sjå hovudinformasjonen for saka utan å leite gjennom fleire objekt:
+
+- aktuell søknad og søknadsstatus;
+- aktuelt vedtak og vedtaksstatus;
+- aktuell avtale og avtale-status;
+- P360 case ID og case number;
+- overordna arkiveringsstatus, siste feil og siste resultat;
+- lenkje/relasjonar til tekniske arkiveringsjobbar.
+
+Dette betyr ikkje at alle detaljar skal kopierast til `Access_Request__c`. Vedtaksdetaljar, avtaletilgangar, vedlegg, mapping og retry-forsøk skal framleis eigast av respektive barn eller tekniske objekt.
+
+**Viktig avgrensing:** `Access_Request__c` skal ikkje innehalde kvar enkelt callout, payload, retry eller feilmelding. Ei tilgangssak kan ha mange arkiveringshendingar. `P360_Archive_Job__c` må derfor framleis vere eit eige teknisk barn med éin rad per hending og eigne forsøk.
+
+**Datainvariantar:**
+
+- Ein innsende søknad skal ha `Access_Request__c`.
+- Eit vedtak skal tilhøyre søknaden som tilhøyrer same tilgangssak.
+- Ei avtale skal ikkje peike på ein annan tilgangssak enn søknaden ho kjem frå.
+- Alle arkiveringsjobbar for saka skal ha same `Access_Request__c`.
+- P360 case ID/number på `Access_Request__c` er felles saksidentitet for søknad og vedlegg.
+- Vanlege brukarar skal ikkje kunne endre arkivreferansar eller teknisk arkiveringsstatus.
+
+**Salesforce Best Practice:** Tillat eventuelt null `Access_Request__c` under tidleg utkastfase dersom eksisterande flyt krev det, men handhev at feltet finst ved innsending. Då bevarer ein brukaropplevinga utan å tillate foreldrelause produksjonssaker.
+
+**Prioritet:** P0/P1.
+
+#### C. Vurder eksplisitt historikk for søknad og avtale
 
 **Observasjon:** Avtaleendringar og revisjonsoppgåver finst, men livsløpet er spreidd mellom `Agreement__c`, Tasks, Flow og brukarflate.
 
@@ -164,7 +199,7 @@ Diagrammet er eit målkonsept, ikkje eit forslag om å opprette alle objekta no.
 
 **Prioritet:** P1.
 
-#### C. Gjer organisasjonsidentitet eksplisitt og konsistent
+#### D. Gjer organisasjonsidentitet eksplisitt og konsistent
 
 **Observasjon:** `Account` er sentral, medan organisasjonsnummer og organisasjonsstruktur blir brukt på tvers av Application, Agreement og Experience Cloud. Personkonto-/kontaktmodell er framleis delvis føreslått i ADR-0002/0003.
 
@@ -176,7 +211,7 @@ Diagrammet er eit målkonsept, ikkje eit forslag om å opprette alle objekta no.
 
 **Prioritet:** P0.
 
-#### D. Standardiser integrasjonsreferansar
+#### E. Standardiser integrasjonsreferansar
 
 **Observasjon:** P360 har nye eigne referansefelt, medan `Agreement__c.Public_360_id__c` er merka legacy. Andre integrasjonar har eldre ID-felt og eigne mønster.
 
