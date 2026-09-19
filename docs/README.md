@@ -21,6 +21,7 @@ Dokumentasjonen er organisert etter dokumenttype og ansvar. Start i området som
 ## P360
 
 For ei samla forklaring av heile løysinga, sjå [Heile løysinga: arkitektur og flyt](architecture/hele-loysinga.md).
+For prioriterte tekniske forbetringar og målmodell, sjå [Forbetringsforslag og målmodell](architecture/forbetringsforslag-og-malmodell.md).
 
 P360-dokumentasjonen ligg under [integrations/p360](integrations/p360/README.md). Viktige repo-eigde dokument er:
 

@@ -58,11 +58,13 @@ README-struktur og dokumentasjonsstandarder håndheves gjennom repository-instru
 
 ## Dokumenter i dette området
 
-| Dokument                                                                                           | Innhold                                                            | Status              |
-| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------- |
-| [Arkitekturprinsipp, lagdeling og namnestandard](arkitekturprinsipp-lagdeling-og-namnestandard.md) | Normativ side for lagdeling, designprinsipp og navnestandard       | Speilkopi           |
-| [Repositorystruktur](repositorystruktur.md)                                                        | `domain/`, `integration/`, `surfaces/`, `tests/` under `force-app` | UTKAST              |
-| [P360 datamodell og asynkron arkiveringsjobb](p360-data-model-og-arkiveringsjob.md)                | `Access_Request__c`-hierarki og P360-jobbmodell                    | Delvis implementert |
+| Dokument                                                                                           | Innhold                                                                                          | Status              |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------- |
+| [Heile løysinga: arkitektur og flyt](hele-loysinga.md)                                             | Samla oversikt over repository, domene, brukarjourneys, integrasjonar, testar og edge cases      | Repo-eigd oversikt  |
+| [Forbetringsforslag og målmodell](forbetringsforslag-og-malmodell.md)                              | Prioriterte forslag til data, sikkerheit, automasjon, integrasjon og Well-Architected-forbetring | Forslag             |
+| [Arkitekturprinsipp, lagdeling og namnestandard](arkitekturprinsipp-lagdeling-og-namnestandard.md) | Normativ side for lagdeling, designprinsipp og navnestandard                                     | Speilkopi           |
+| [Repositorystruktur](repositorystruktur.md)                                                        | `domain/`, `integration/`, `surfaces/`, `tests/` under `force-app`                               | UTKAST              |
+| [P360 datamodell og asynkron arkiveringsjobb](p360-data-model-og-arkiveringsjob.md)                | `Access_Request__c`-hierarki og P360-jobbmodell                                                  | Delvis implementert |
 
 Integrasjonsspesifikk dokumentasjon ligger under [docs/integrations/](../integrations/README.md).
 Domenedokumentasjon ligger under [docs/domain/](../domain/README.md), brukerflater under [docs/surfaces/](../surfaces/README.md) og utviklingsstandarder i [docs/utviklingsstandarder.md](../utviklingsstandarder.md).
