@@ -72,7 +72,7 @@ sequenceDiagram
     Service-->>Adapter: step-started / progress
     Service->>Runner: executable + literal argument array
     Runner->>SF: shell: false
-    alt transient package transport failure
+    alt transient transport failure on a mutating command
         Runner-->>Adapter: retrying
         Runner->>SF: retry, at most 3 attempts
     end
@@ -96,7 +96,13 @@ Step IDs and parent IDs allow consumers to reconstruct hierarchy without parsing
 
 ### Command runner
 
-External processes receive an executable and an argument array with `shell: false`. Output is decoded as UTF-8, streamed by line when requested, and captured in a normalized result. Optional cancellation, timeout, secret redaction, and bounded retry behavior live at this boundary. Package installation retries only recognized transient transport signatures.
+External processes receive an executable and an argument array with `shell: false`. Output is decoded as UTF-8, streamed by line when requested, and captured in a normalized result. Cancellation, timeout, secret redaction, and bounded retry behavior all live at this boundary:
+
+- **Timeout:** every invocation carries a `timeoutMs`, either set explicitly by the caller or applied by the `withDefaultTimeout` wrapper using `commandTimeouts.readMs`/`commandTimeouts.mutationMs` (overridable per invocation by the CLI's global `--timeout <seconds>`). A command that exceeds its timeout is terminated and reported as `timedOut: true` rather than hanging the process.
+- **Retry:** a shared classifier, `isTransientCommandFailure`, recognizes transport signatures (`TypeError: terminated`, `ECONNRESET`, `socket hang up`, `ETIMEDOUT`, `ENOTFOUND`, `UND_ERR_`) and drives a bounded retry policy (three attempts, five-second delay) for mutating operations — package install, org create/delete, project configuration's post-steps, remote source-tracking reset, and dependency retrieval. Read-only inspection commands remain single-attempt.
+- **Cancellation:** an `AbortSignal` optionally threaded into a request aborts the underlying process. The web server creates one `AbortController` per operation and aborts it when `POST /api/v1/operations/:id/cancel` targets a `running` operation; the same signal is forwarded through the mutating application services (`ConfigureProjectOptions`, `CreateOrgOptions`, `DeleteOrgOptions`, `PlanPackagesOptions`, `MutatePackagesOptions`, `RefreshDependenciesOptions`) down to every command they issue.
+
+See [Timeout, retry, and cancellation flow](#timeout-retry-and-cancellation-flow) below for how these three behaviors compose around one command invocation.
 
 ### Salesforce boundary
 
@@ -109,6 +115,34 @@ The server binds only to `127.0.0.1`. It authenticates private API and SSE reque
 ### Filesystem boundary
 
 Dependency cleanup resolves real paths, rejects escapes and symbolic links, and rechecks roots around deletion. Dependency refresh temporarily removes `.forceignore` through a durable marker/backup transaction and restores it in `finally` and on interruption signals.
+
+## Timeout, retry, and cancellation flow
+
+This diagram shows how one mutating command invocation is bounded by a timeout, may be retried on a transient failure, and can be aborted mid-flight by a web cancellation request — the three behaviors compose at the same command-runner boundary rather than being three separate mechanisms.
+
+```mermaid
+flowchart TD
+    Start([Application service builds a CommandRequest]) --> Timeout{timeoutMs set?}
+    Timeout -->|no, wrapped by withDefaultTimeout| ApplyDefault[Apply commandTimeouts.readMs/mutationMs\nor --timeout override]
+    Timeout -->|yes, explicit| Run
+    ApplyDefault --> Run[runCommand executes sf/git via execa]
+    Run --> Signal{AbortSignal aborted?\ne.g. web cancel endpoint}
+    Signal -->|yes| Canceled[Process killed\ncanceled: true]
+    Signal -->|no| Outcome{Command outcome}
+    Outcome -->|success| Success[failed: false\nstep-completed event]
+    Outcome -->|timed out| TimedOut[timedOut: true\nstep-failed: "did not respond in time"]
+    Outcome -->|failed, transient signature,\nmutating op, attempts remain| Retry[retrying event\n5s delay, up to 3 attempts]
+    Outcome -->|failed, not retryable\nor read-only op| Failed[step-failed with classified exit code]
+    Retry --> Run
+    Canceled --> CanceledEvent[step-failed: "Operation was canceled"\noperation-completed]
+
+    classDef terminal fill:#d4f4dd,stroke:#2d7a3e,color:#111
+    classDef failure fill:#f8d7da,stroke:#9b2c2c,color:#111
+    classDef retrying fill:#fff3cd,stroke:#946200,color:#111
+    class Success terminal
+    class TimedOut,Failed,CanceledEvent failure
+    class Retry retrying
+```
 
 ## Design tradeoffs
 
@@ -123,4 +157,4 @@ Dependency cleanup resolves real paths, rejects escapes and symbolic links, and 
 
 ## Known implementation limits
 
-The standard facade does not implement cancellation. SSE has no heartbeat, event ID, resume cursor, or automatic reconnect. Stored events can be replayed after the frontend has already loaded them, and the frontend does not deduplicate them. Operation history is process-local. The server does not provide TLS or non-loopback binding. These are current constraints, not promised behavior.
+SSE has no heartbeat, event ID, resume cursor, or automatic reconnect. Stored events can be replayed after the frontend has already loaded them, and the frontend does not deduplicate them. Operation history is process-local. The server does not provide TLS or non-loopback binding. Cancellation targets the web API's mutating operations only — there is no CLI-side Ctrl+C/SIGINT cancellation contract, and read-only inspection calls (`org display`/`org list`/`org status`) are not cancellable. These are current constraints, not promised behavior.

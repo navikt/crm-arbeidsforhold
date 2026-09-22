@@ -75,7 +75,7 @@ Install and update currently share one implementation:
 
 Mutations run sequentially and stop at the first failure. A required key is read from the configured environment variable only when that package reaches a real install. Successful earlier installs followed by failure produce partial completion unless the failure is classified as authentication/authorization.
 
-Recognized package-install transport failures retry with a fixed five-second delay for at most three attempts. Signatures are `TypeError: terminated`, `ECONNRESET`, `socket hang up`, `ETIMEDOUT`, `ENOTFOUND`, and `UND_ERR_`. Package, authorization, and unrecognized failures are single-attempt. Dry-run performs the installed and released version queries but issues no install commands and does not read the installation key.
+Recognized transient transport failures retry with a fixed five-second delay for at most three attempts, using the shared classifier `isTransientCommandFailure`. Signatures are `TypeError: terminated`, `ECONNRESET`, `socket hang up`, `ETIMEDOUT`, `ENOTFOUND`, and `UND_ERR_`. Package, authorization, and unrecognized failures are single-attempt. Dry-run performs the installed and released version queries but issues no install commands and does not read the installation key.
 
 ## Org creation
 
@@ -129,11 +129,13 @@ Dry-run emits package intent and each post-step outcome without invoking package
 
 Aggregate failure precedence is missing prerequisite (`3`), invalid configuration (`2`), then authentication/authorization (`4`). Verbose mode emits sanitized attempted command lines.
 
-## Ordering, retries, and partial completion
+## Ordering, timeouts, retries, and partial completion
 
 Package declarations, package mutation, and dependency retrieval are sequential and preserve configuration order. Post-steps have a service-defined canonical order. There is no parallel mutation.
 
-Only package installation has an application-level retry policy. Other command failures stop their current workflow. Partial completion means earlier side effects may exist; it does not imply rollback. Safe continuation depends on the workflow:
+Every `sf` invocation runs with a bounded timeout (`commandTimeouts.readMs` for read-only inspection, `commandTimeouts.mutationMs` for mutations, both overridable by the global `--timeout <seconds>` flag; see [Configuration](configuration.md#sf-projectconfigjson)). A command that exceeds its timeout is terminated and reported as a normal step failure rather than hanging the process.
+
+Package installation, org creation and deletion, project configuration's post-steps (built-in and custom), remote source-tracking reset, and dependency retrieval all use the same bounded retry policy: up to three attempts with a five-second delay between attempts, retrying only recognized transient transport signatures (see above). Read-only inspection commands (`org display`, `org list`, `org status`, `config get`) and the best-effort pre-acquisition deletion of an existing same-alias scratch org remain single-attempt by design — a hang is solved by the timeout, not a retry, and re-querying or re-deleting is cheap. Other command failures stop their current workflow. Partial completion means earlier side effects may exist; it does not imply rollback. Safe continuation depends on the workflow:
 
 - package operations can be rerun because current and higher versions are skipped
 - project configuration can be rerun, but already completed external side effects must be reviewed

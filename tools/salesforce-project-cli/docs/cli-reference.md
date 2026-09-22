@@ -25,15 +25,19 @@ The package is currently marked `private`; there is no publish or release script
 
 Global options must appear before the command:
 
-| Option       | Default                    | Behavior                                                                                 |
-| ------------ | -------------------------- | ---------------------------------------------------------------------------------------- |
-| `--no-color` | Color when stdout is a TTY | Disable ANSI styling                                                                     |
-| `--verbose`  | `false`                    | Include sanitized diagnostic details (executed Salesforce CLI commands and their output) |
+| Option                | Default                    | Behavior                                                                                                               |
+| --------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `--no-color`          | Color when stdout is a TTY | Disable ANSI styling                                                                                                   |
+| `--verbose`           | `false`                    | Include sanitized diagnostic details (executed Salesforce CLI commands and their output)                               |
+| `--timeout <seconds>` | `commandTimeouts` config   | Override the default per-command timeout, in seconds, for both read-only and mutating `sf` invocations in this process |
+
+Every `sf` invocation runs with a bounded timeout instead of running unbounded: read-only inspection commands (`org display`, `org list`, `org status`) default to `commandTimeouts.readMs` (30 seconds), and mutating commands (`org create`, `org delete`, `project configure`, package operations, dependency retrieval) default to `commandTimeouts.mutationMs` (600 seconds). `--timeout` overrides both defaults for the current invocation; see [Configuration](configuration.md#sf-projectconfigjson) to change the project-wide defaults instead. A command that exceeds its timeout is reported as a normal step failure ("did not respond in time"), not a hang.
 
 Real deletion first inspects the org and succeeds only for an authenticated scratch org with `--yes`. A non-scratch override requires `--confirm-mutation "MUTATE org.delete <alias>"`. Dry-run does not require confirmation or org inspection.
 
 ```bash
 sf-project --no-color --verbose packages plan --target-org my-scratch-org
+sf-project --timeout 120 org create --alias slow-network-org
 sf-project org delete --alias sandbox-org --confirm-mutation "MUTATE org.delete sandbox-org"
 ```
 

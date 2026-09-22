@@ -75,24 +75,26 @@ The Keychain command is an operator convenience; the CLI still receives the secr
 
 The complete implemented schema is:
 
-| Field                                            | Type                       | Default                           | Meaning                                                                                                                                           |
-| ------------------------------------------------ | -------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `schemaVersion`                                  | Literal `1`                | `1`                               | Configuration contract version                                                                                                                    |
-| `defaultOrgAlias`                                | Non-empty string           | None                              | Default target for create, delete, configure, and package operations                                                                              |
-| `scratchDefinition`                              | Non-empty string           | `config/project-scratch-def.json` | Scratch definition path                                                                                                                           |
-| `scratchDurationDays`                            | Integer `1..30`            | `14`                              | Scratch-org lifetime                                                                                                                              |
-| `permissionSets`                                 | Non-empty string array     | `[]`                              | Permission sets assigned by the `permsets` post-step                                                                                              |
-| `dummyDataPlan`                                  | Non-empty string or `null` | `null`                            | Data tree import plan; `null` disables configured data import                                                                                     |
-| `communityName`                                  | Non-empty string or `null` | `null`                            | Experience Cloud community to publish                                                                                                             |
-| `postSteps`                                      | Non-empty string array     | `["deploy"]`                      | Selected project configuration steps: built-in step names or declared `customPostSteps[].name` values                                             |
-| `customPostSteps`                                | Array of step objects      | `[]`                              | Project-declared post-steps beyond `deploy`/`permsets`/`data`/`community`; see below                                                              |
-| `pool.use`                                       | Boolean                    | `false`                           | Try `sfp` pool acquisition                                                                                                                        |
-| `pool.tag`                                       | Non-empty string           | `dev`                             | Pool tag                                                                                                                                          |
-| `pool.devHub`                                    | Non-empty string           | Salesforce `target-dev-hub`       | Optional explicit Dev Hub alias or username; falls back to `sf config get target-dev-hub --json`                                                  |
-| `pool.fallbackToCreate`                          | Boolean                    | `true`                            | Create directly when pool availability cannot be established                                                                                      |
-| `packageInstallKeyEnvironmentVariable`           | Non-empty string           | `PACKAGE_INSTALL_KEY`             | Name of the environment variable holding installation keys                                                                                        |
-| `dependencySourcePolicy.preserveRootFiles`       | Non-empty string array     | `["README.md"]`                   | Root entry names retained during dependency cleanup                                                                                               |
-| `dependencySourcePolicy.requireLocalDirectories` | Boolean                    | `true`                            | When `false`, a dependency with no matching package directory is reported in `unresolvedDependencyNames` instead of failing configuration loading |
+| Field                                            | Type                       | Default                           | Meaning                                                                                                                                                     |
+| ------------------------------------------------ | -------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `schemaVersion`                                  | Literal `1`                | `1`                               | Configuration contract version                                                                                                                              |
+| `defaultOrgAlias`                                | Non-empty string           | None                              | Default target for create, delete, configure, and package operations                                                                                        |
+| `scratchDefinition`                              | Non-empty string           | `config/project-scratch-def.json` | Scratch definition path                                                                                                                                     |
+| `scratchDurationDays`                            | Integer `1..30`            | `14`                              | Scratch-org lifetime                                                                                                                                        |
+| `permissionSets`                                 | Non-empty string array     | `[]`                              | Permission sets assigned by the `permsets` post-step                                                                                                        |
+| `dummyDataPlan`                                  | Non-empty string or `null` | `null`                            | Data tree import plan; `null` disables configured data import                                                                                               |
+| `communityName`                                  | Non-empty string or `null` | `null`                            | Experience Cloud community to publish                                                                                                                       |
+| `postSteps`                                      | Non-empty string array     | `["deploy"]`                      | Selected project configuration steps: built-in step names or declared `customPostSteps[].name` values                                                       |
+| `customPostSteps`                                | Array of step objects      | `[]`                              | Project-declared post-steps beyond `deploy`/`permsets`/`data`/`community`; see below                                                                        |
+| `pool.use`                                       | Boolean                    | `false`                           | Try `sfp` pool acquisition                                                                                                                                  |
+| `pool.tag`                                       | Non-empty string           | `dev`                             | Pool tag                                                                                                                                                    |
+| `pool.devHub`                                    | Non-empty string           | Salesforce `target-dev-hub`       | Optional explicit Dev Hub alias or username; falls back to `sf config get target-dev-hub --json`                                                            |
+| `pool.fallbackToCreate`                          | Boolean                    | `true`                            | Create directly when pool availability cannot be established                                                                                                |
+| `packageInstallKeyEnvironmentVariable`           | Non-empty string           | `PACKAGE_INSTALL_KEY`             | Name of the environment variable holding installation keys                                                                                                  |
+| `commandTimeouts.readMs`                         | Positive integer           | `30000`                           | Default timeout, in milliseconds, for read-only inspection commands (`org display`, `org list`, `org status`, `config get`)                                 |
+| `commandTimeouts.mutationMs`                     | Positive integer           | `600000`                          | Default timeout, in milliseconds, for mutating commands (org create/delete, project configure and its post-steps, package operations, dependency retrieval) |
+| `dependencySourcePolicy.preserveRootFiles`       | Non-empty string array     | `["README.md"]`                   | Root entry names retained during dependency cleanup                                                                                                         |
+| `dependencySourcePolicy.requireLocalDirectories` | Boolean                    | `true`                            | When `false`, a dependency with no matching package directory is reported in `unresolvedDependencyNames` instead of failing configuration loading           |
 
 Each `customPostSteps` entry has:
 
@@ -132,6 +134,10 @@ Example:
         "fallbackToCreate": true
     },
     "packageInstallKeyEnvironmentVariable": "PACKAGE_INSTALL_KEY",
+    "commandTimeouts": {
+        "readMs": 30000,
+        "mutationMs": 600000
+    },
     "dependencySourcePolicy": {
         "preserveRootFiles": ["README.md"],
         "requireLocalDirectories": true
@@ -172,6 +178,7 @@ Dry-run package mutation does not read the key. Real installation fails if a req
 - Explicit aliases override `defaultOrgAlias` where that config field participates.
 - `--install-latest` changes package version selection from the configured version family to the greatest released version.
 - `--refresh-dependency-sources` and `--clear-dependency-sources` are command flags and have no config defaults.
+- The global `--timeout <seconds>` overrides both `commandTimeouts.readMs` and `commandTimeouts.mutationMs` for the current invocation.
 
 ## Validation failures
 

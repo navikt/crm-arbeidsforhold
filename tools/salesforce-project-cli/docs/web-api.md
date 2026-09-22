@@ -110,19 +110,19 @@ Operation records contain `id`, `command`, `status`, `createdAt`, optional `comp
 
 ## Endpoints
 
-| Method and path                      | Success                                 | Behavior and failures                                              |
-| ------------------------------------ | --------------------------------------- | ------------------------------------------------------------------ |
-| `GET /`                              | `200` HTML                              | Injects bootstrap token; `404` when the web app is not built       |
-| `GET /api/v1/health`                 | `200 {"status":"ok","apiVersion":"v1"}` | No bearer token required                                           |
-| `GET /api/v1/orgs`                   | `200` org-list result                   | Facade failure is redacted `500`                                   |
-| `GET /api/v1/project-info`           | `200` project info result               | Facade failure is redacted `500`                                   |
-| `GET /api/v1/orgs/:alias`            | `200` org result                        | Alias is URI-decoded; facade failure is redacted `404`             |
-| `GET /api/v1/orgs/:alias/packages`   | `200` package status                    | Facade failure is redacted `500`                                   |
-| `GET /api/v1/operations`             | `200` operation array                   | Newest first                                                       |
-| `GET /api/v1/operations/:id`         | `200` operation                         | Unknown ID is `404`                                                |
-| `GET /api/v1/operations/:id/events`  | `200` SSE                               | Unknown ID is `404`; capacity is `429`                             |
-| `POST /api/v1/operations`            | `202 {"id":"..."}`                      | Invalid payload `400`; oversized body `413`; denied mutation `403` |
-| `POST /api/v1/operations/:id/cancel` | `202 {"cancelled":true}`                | Unsupported or refused cancellation is `409`                       |
+| Method and path                      | Success                                 | Behavior and failures                                                                     |
+| ------------------------------------ | --------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `GET /`                              | `200` HTML                              | Injects bootstrap token; `404` when the web app is not built                              |
+| `GET /api/v1/health`                 | `200 {"status":"ok","apiVersion":"v1"}` | No bearer token required                                                                  |
+| `GET /api/v1/orgs`                   | `200` org-list result                   | Facade failure is redacted `500`                                                          |
+| `GET /api/v1/project-info`           | `200` project info result               | Facade failure is redacted `500`                                                          |
+| `GET /api/v1/orgs/:alias`            | `200` org result                        | Alias is URI-decoded; facade failure is redacted `404`                                    |
+| `GET /api/v1/orgs/:alias/packages`   | `200` package status                    | Facade failure is redacted `500`                                                          |
+| `GET /api/v1/operations`             | `200` operation array                   | Newest first                                                                              |
+| `GET /api/v1/operations/:id`         | `200` operation                         | Unknown ID is `404`                                                                       |
+| `GET /api/v1/operations/:id/events`  | `200` SSE                               | Unknown ID is `404`; capacity is `429`                                                    |
+| `POST /api/v1/operations`            | `202 {"id":"..."}`                      | Invalid payload `400`; oversized body `413`; denied mutation `403`                        |
+| `POST /api/v1/operations/:id/cancel` | `202 {"cancelled":true}`                | Unknown ID or non-`running` operation is `409 {"cancelled":false}`; denied mutation `403` |
 
 Unknown routes and disallowed static assets return `404`. Request `Content-Type` is not enforced, but the body must parse as JSON for operation creation.
 
@@ -167,6 +167,19 @@ curl --fail-with-body \
   "$BASE_URL/api/v1/operations"
 ```
 
+Example cancellation of a running operation:
+
+```bash
+OPERATION_ID='<id-returned-by-operation-create>'
+curl --fail-with-body \
+  -X POST \
+  -H "Authorization: Bearer $SESSION_TOKEN" \
+  -H "Origin: $BASE_URL" \
+  "$BASE_URL/api/v1/operations/$OPERATION_ID/cancel"
+```
+
+The server aborts the operation's in-flight command through the same `AbortSignal` threaded into the application service that is running; the operation then reaches a terminal state with a "canceled" message rather than a raw command error. Canceling an operation that is unknown or already `completed`/`failed` returns `409 {"cancelled":false}` without side effects.
+
 ## Mutation authorization
 
 Dry runs, package plan, dependency clear, and org creation do not trigger target preauthorization in the HTTP adapter. Real package install/update and dependency refresh resolve `targetOrg` or the configured default; project configure resolves its payload alias or configured default; org delete resolves its required alias. The server calls `getOrgStatus` and allows dispatch only when mutation policy is `allowed`.
@@ -184,7 +197,7 @@ event: operation
 data: {"kind":"progress","operationId":"...","timestamp":"..."}
 ```
 
-Every accepted operation receives server-owned `operation-started` and exactly one replayable `operation-completed`. A rejected facade promise also produces a redacted `step-failed` followed by terminal failure. The standard facade has no cancellation implementation.
+Every accepted operation receives server-owned `operation-started` and exactly one replayable `operation-completed`. A rejected facade promise also produces a redacted `step-failed` followed by terminal failure. A canceled operation follows the same `step-failed`/`operation-completed` shape, but with a "canceled" message instead of a raw command diagnostic — see [Timeouts, retries, and cancellation](operations-and-troubleshooting.md#timeouts-retries-and-cancellation).
 
 The stream has no heartbeat, SSE `id`, `Last-Event-ID` support, resume cursor, or automatic reconnect contract. Clients should treat disconnect as loss of the live stream and refetch operation history when appropriate.
 

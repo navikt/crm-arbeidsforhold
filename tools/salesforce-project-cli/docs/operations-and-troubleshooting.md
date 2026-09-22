@@ -90,7 +90,7 @@ Planning fails when a dependency lacks a package alias or configured version, no
 
 A required installation key must exist in the configured environment variable. Do not print it while diagnosing. The tool redacts known secret values, but Salesforce CLI receives the key as a process argument and same-user process inspection remains a residual risk.
 
-Recognized transient transport signatures retry up to three total attempts with five-second delays. Other failures are not retried. Package mutations are ordered and stop on first failure; rerunning is normally safe because current and higher installed versions are skipped, but review the package summary and target org first.
+Recognized transient transport signatures retry up to three total attempts with five-second delays for package installation, org create/delete, project configuration's post-steps, remote source-tracking reset, and dependency retrieval. Other failures are not retried. Package mutations are ordered and stop on first failure; rerunning is normally safe because current and higher installed versions are skipped, but review the package summary and target org first.
 
 ## Pool and org creation failures
 
@@ -117,7 +117,7 @@ The server accepts only `127.0.0.1`. Requests with a hostname, IPv6 loopback, pr
 - `403 Mutation is not allowed for this org`: target policy is read-only.
 - `400 Invalid operation request`: unknown command/field, wrong type, invalid string, duration, post-step, or missing delete confirmation.
 - `413 Request body is too large`: body exceeded 64 KiB.
-- `409 Cancellation is not supported`: expected with the standard facade.
+- `409 {"cancelled":false}`: the operation ID is unknown or the operation already reached a terminal state; only a `running` operation can be canceled.
 
 Reload the server-served page after restart so the frontend receives the new bootstrap token. Never place the token in a URL, file, issue, terminal history intended for sharing, or browser storage.
 
@@ -126,6 +126,14 @@ Reload the server-served page after restart so the frontend receives the new boo
 An unknown operation ID returns `404`. Subscriber limits return `429`; close stale tabs or streams before retrying. The standard limits are 32 total and four per operation. The stream has no heartbeat or resume ID, so network interruption requires refetching operation history and opening a new stream. History contains at most 100 operations and 500 events per operation and is lost at process exit.
 
 The current frontend may append replayed events already loaded in operation history. Duplicate display entries are a known client limitation, not evidence that the underlying command ran twice. Confirm operation ID and server-side status before taking recovery action.
+
+## Timeouts, retries, and cancellation
+
+Every `sf` invocation runs with a bounded timeout instead of hanging indefinitely (`commandTimeouts.readMs`/`commandTimeouts.mutationMs`, or the global `--timeout <seconds>` override; see [Configuration](configuration.md#sf-projectconfigjson) and [CLI reference](cli-reference.md#global-options)). A timed-out command is reported as a normal `step-failed` event with a plain-language message ("did not respond in time"); the underlying diagnostic remains available only with `--verbose` or `--json`.
+
+Mutating operations (org create/delete, project configure and its post-steps, package install/update, dependency retrieval) retry a recognized transient transport failure up to three total attempts with a five-second delay; a `retrying` event is emitted before each retry. Read-only inspection commands do not retry — if one times out or fails, re-run the command; it is cheap and side-effect free.
+
+A `POST /api/v1/operations/:id/cancel` request against a `running` operation aborts its in-flight command through the same `AbortSignal` mechanism the timeout uses, and the operation transitions to a terminal state with a "canceled" message rather than a raw error. Canceling an already-terminal or unknown operation ID is a no-op that returns `409`. Cancellation currently targets the web API only; there is no CLI-side Ctrl+C/SIGINT cancellation contract, and read-only inspection calls are not cancellable.
 
 ## Safe diagnostics and redaction
 
