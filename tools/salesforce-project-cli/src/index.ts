@@ -63,6 +63,8 @@ export { isOrgMutationAllowed, isOrgMutationConfirmed, mutationConfirmationToken
 export type { OrgClassification } from './domain/org-policy.js';
 export { runCommand, withDefaultTimeout } from './infrastructure/command-runner.js';
 export type { AsyncDelay, CommandRequest, CommandResult, RetryOptions } from './infrastructure/command-runner.js';
+export { DEFAULT_HEARTBEAT_INTERVAL_MS, withProgressHeartbeat } from './infrastructure/progress-heartbeat.js';
+export type { HeartbeatOptions } from './infrastructure/progress-heartbeat.js';
 export {
     classifySalesforceFailure,
     describeCommandFailure,

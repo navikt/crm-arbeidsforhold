@@ -92,6 +92,8 @@ The event union includes:
 
 Step IDs and parent IDs allow consumers to reconstruct hierarchy without parsing rendered text. The CLI renders these events for humans or emits NDJSON. The web server redacts, retains, replays, and broadcasts the same events.
 
+Long-running steps (package install, org create/delete, project configure's post-steps, dependency retrieval) also emit a periodic, non-diagnostic `progress` heartbeat every 15 seconds while their command is in flight, via `withProgressHeartbeat` in `src/infrastructure/progress-heartbeat.ts`. This keeps non-verbose output from going silent during a slow command; it is a plain new event per tick, not a redrawn spinner, so it fits the existing line-based, testable output model unchanged.
+
 ## Adapters and boundaries
 
 ### Command runner

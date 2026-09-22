@@ -17,6 +17,7 @@ import {
     type PackageVersion
 } from '../domain/packages.js';
 import type { CommandRunner } from './refresh-dependencies.js';
+import { withProgressHeartbeat } from '../infrastructure/progress-heartbeat.js';
 import { classifySalesforceFailure, describeCommandFailure, isTransientCommandFailure } from '../infrastructure/salesforce-errors.js';
 
 /** Inputs and injected dependencies for resolving a package plan. */
@@ -378,33 +379,43 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
         }
         arguments_.push('--json');
         const stepId = `install:${item.dependency.packageName}`;
-        const result = await options.runCommand({
-            executable: 'sf',
-            arguments: arguments_,
-            cwd: options.configuration.projectDirectory,
-            ...(installationKey === undefined ? {} : { secretValues: [installationKey] }),
-            ...(options.signal === undefined ? {} : { signal: options.signal }),
-            // Retry only recognized transport failures; package or authorization failures remain single-attempt.
-            retry: {
-                maxAttempts: 3,
-                delayMs: 5_000,
-                shouldRetry: isRetryablePackageInstallFailure,
-                onRetry: (failure, nextAttempt, delayMs) =>
-                    options.emit({
-                        kind: 'retrying',
-                        operationId: options.operationId,
-                        timestamp: new Date().toISOString(),
-                        stepId,
-                        step: 'Install package',
-                        attempt: nextAttempt - 1,
-                        nextAttempt,
+        const result = await withProgressHeartbeat(
+            {
+                emit: options.emit,
+                operationId: options.operationId,
+                stepId,
+                step: 'Install package',
+                message: (elapsedSeconds) => `Installing ${item.dependency.packageName} (${elapsedSeconds}s)`
+            },
+            () =>
+                options.runCommand({
+                    executable: 'sf',
+                    arguments: arguments_,
+                    cwd: options.configuration.projectDirectory,
+                    ...(installationKey === undefined ? {} : { secretValues: [installationKey] }),
+                    ...(options.signal === undefined ? {} : { signal: options.signal }),
+                    // Retry only recognized transport failures; package or authorization failures remain single-attempt.
+                    retry: {
                         maxAttempts: 3,
-                        delayMs,
-                        message: `Retrying ${item.dependency.packageName}`,
-                        error: failure.error ?? failure.stderr
-                    })
-            }
-        });
+                        delayMs: 5_000,
+                        shouldRetry: isRetryablePackageInstallFailure,
+                        onRetry: (failure, nextAttempt, delayMs) =>
+                            options.emit({
+                                kind: 'retrying',
+                                operationId: options.operationId,
+                                timestamp: new Date().toISOString(),
+                                stepId,
+                                step: 'Install package',
+                                attempt: nextAttempt - 1,
+                                nextAttempt,
+                                maxAttempts: 3,
+                                delayMs,
+                                message: `Retrying ${item.dependency.packageName}`,
+                                error: failure.error ?? failure.stderr
+                            })
+                    }
+                })
+        );
 
         if (result.failed || result.exitCode !== 0) {
             summary.failed += 1;

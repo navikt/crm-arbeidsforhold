@@ -5,6 +5,7 @@
 import type { ProjectConfiguration } from '../domain/config.js';
 import { EXIT_CODES, type EventSink, type ExitCode } from '../domain/events.js';
 import type { CommandRequest, CommandResult } from '../infrastructure/command-runner.js';
+import { withProgressHeartbeat } from '../infrastructure/progress-heartbeat.js';
 import { classifySalesforceFailure, describeCommandFailure, isTransientCommandFailure } from '../infrastructure/salesforce-errors.js';
 import { clearDependencySources } from './clear-dependency-sources.js';
 import { disableForceignore, recoverForceignoreTransaction, type ForceignoreLease } from './forceignore-transaction.js';
@@ -135,31 +136,41 @@ async function retrieveDependencies(options: RefreshDependenciesOptions): Promis
         }
         commandArguments.push('-n', dependency.packageName);
 
-        const result = await options.runCommand({
-            executable: 'sf',
-            arguments: commandArguments,
-            cwd: options.configuration.projectDirectory,
-            ...(options.signal === undefined ? {} : { signal: options.signal }),
-            retry: {
-                maxAttempts: 3,
-                delayMs: 5_000,
-                shouldRetry: isTransientCommandFailure,
-                onRetry: (failure, nextAttempt, delayMs) =>
-                    options.emit({
-                        kind: 'retrying',
-                        operationId: options.operationId,
-                        timestamp: new Date().toISOString(),
-                        stepId,
-                        step: 'Retrieve dependency',
-                        attempt: nextAttempt - 1,
-                        nextAttempt,
+        const result = await withProgressHeartbeat(
+            {
+                emit: options.emit,
+                operationId: options.operationId,
+                stepId,
+                step: 'Retrieve dependency',
+                message: (elapsedSeconds) => `Retrieving ${dependency.packageName} (${elapsedSeconds}s)`
+            },
+            () =>
+                options.runCommand({
+                    executable: 'sf',
+                    arguments: commandArguments,
+                    cwd: options.configuration.projectDirectory,
+                    ...(options.signal === undefined ? {} : { signal: options.signal }),
+                    retry: {
                         maxAttempts: 3,
-                        delayMs,
-                        message: `Retrying ${dependency.packageName}`,
-                        error: failure.error ?? failure.stderr
-                    })
-            }
-        });
+                        delayMs: 5_000,
+                        shouldRetry: isTransientCommandFailure,
+                        onRetry: (failure, nextAttempt, delayMs) =>
+                            options.emit({
+                                kind: 'retrying',
+                                operationId: options.operationId,
+                                timestamp: new Date().toISOString(),
+                                stepId,
+                                step: 'Retrieve dependency',
+                                attempt: nextAttempt - 1,
+                                nextAttempt,
+                                maxAttempts: 3,
+                                delayMs,
+                                message: `Retrying ${dependency.packageName}`,
+                                error: failure.error ?? failure.stderr
+                            })
+                    }
+                })
+        );
 
         if (result.failed || result.exitCode !== 0) {
             options.emit({

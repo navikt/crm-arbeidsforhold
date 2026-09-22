@@ -6,6 +6,7 @@ import { BUILTIN_POST_STEPS, type PostStep, type ProjectConfiguration } from '..
 import { EXIT_CODES, type EventSink, type ExitCode } from '../domain/events.js';
 import { isOrgMutationConfirmed, type OrgClassification } from '../domain/org-policy.js';
 import type { CommandRequest, CommandResult } from '../infrastructure/command-runner.js';
+import { withProgressHeartbeat } from '../infrastructure/progress-heartbeat.js';
 import { classifySalesforceFailure, describeCommandFailure, isTransientCommandFailure } from '../infrastructure/salesforce-errors.js';
 import { clearDependencySources } from './clear-dependency-sources.js';
 import { installPackages } from './package-operations.js';
@@ -159,31 +160,41 @@ async function runStep(
         step,
         attempt: 1
     });
-    const result = await options.runCommand(withCommandOutput(options, stepId, step, {
-        executable,
-        arguments: commandArguments,
-        cwd: options.configuration.projectDirectory,
-        // Retry only recognized transient transport failures; other failures (auth, invalid input) stay single-attempt.
-        retry: {
-            maxAttempts: 3,
-            delayMs: 5_000,
-            shouldRetry: isTransientCommandFailure,
-            onRetry: (failure, nextAttempt, delayMs) =>
-                options.emit({
-                    kind: 'retrying',
-                    operationId: options.operationId,
-                    timestamp: new Date().toISOString(),
-                    stepId,
-                    step,
-                    attempt: nextAttempt - 1,
-                    nextAttempt,
+    const result = await withProgressHeartbeat(
+        {
+            emit: options.emit,
+            operationId: options.operationId,
+            stepId,
+            step,
+            message: (elapsedSeconds) => `${step} is still running (${elapsedSeconds}s)`
+        },
+        () =>
+            options.runCommand(withCommandOutput(options, stepId, step, {
+                executable,
+                arguments: commandArguments,
+                cwd: options.configuration.projectDirectory,
+                // Retry only recognized transient transport failures; other failures (auth, invalid input) stay single-attempt.
+                retry: {
                     maxAttempts: 3,
-                    delayMs,
-                    message: `Retrying ${step}`,
-                    error: failure.error ?? failure.stderr
-                })
-        }
-    }));
+                    delayMs: 5_000,
+                    shouldRetry: isTransientCommandFailure,
+                    onRetry: (failure, nextAttempt, delayMs) =>
+                        options.emit({
+                            kind: 'retrying',
+                            operationId: options.operationId,
+                            timestamp: new Date().toISOString(),
+                            stepId,
+                            step,
+                            attempt: nextAttempt - 1,
+                            nextAttempt,
+                            maxAttempts: 3,
+                            delayMs,
+                            message: `Retrying ${step}`,
+                            error: failure.error ?? failure.stderr
+                        })
+                }
+            }))
+    );
     if (failed(result)) {
         options.emit({
             kind: 'step-failed',
@@ -381,38 +392,48 @@ async function resetSourceTracking(options: ResolvedConfigureProjectOptions): Pr
         step,
         attempt: 1
     });
-    const result = await options.runCommand(withCommandOutput(options, stepId, step, {
-        executable: 'sf',
-        arguments: [
-            'project',
-            'reset',
-            'tracking',
-            '--target-org',
-            options.alias,
-            '--no-prompt',
-            '--json'
-        ],
-        cwd: options.configuration.projectDirectory,
-        retry: {
-            maxAttempts: 3,
-            delayMs: 5_000,
-            shouldRetry: isTransientCommandFailure,
-            onRetry: (failure, nextAttempt, delayMs) =>
-                options.emit({
-                    kind: 'retrying',
-                    operationId: options.operationId,
-                    timestamp: new Date().toISOString(),
-                    stepId,
-                    step,
-                    attempt: nextAttempt - 1,
-                    nextAttempt,
+    const result = await withProgressHeartbeat(
+        {
+            emit: options.emit,
+            operationId: options.operationId,
+            stepId,
+            step,
+            message: (elapsedSeconds) => `${step} is still running (${elapsedSeconds}s)`
+        },
+        () =>
+            options.runCommand(withCommandOutput(options, stepId, step, {
+                executable: 'sf',
+                arguments: [
+                    'project',
+                    'reset',
+                    'tracking',
+                    '--target-org',
+                    options.alias,
+                    '--no-prompt',
+                    '--json'
+                ],
+                cwd: options.configuration.projectDirectory,
+                retry: {
                     maxAttempts: 3,
-                    delayMs,
-                    message: `Retrying ${step}`,
-                    error: failure.error ?? failure.stderr
-                })
-        }
-    }));
+                    delayMs: 5_000,
+                    shouldRetry: isTransientCommandFailure,
+                    onRetry: (failure, nextAttempt, delayMs) =>
+                        options.emit({
+                            kind: 'retrying',
+                            operationId: options.operationId,
+                            timestamp: new Date().toISOString(),
+                            stepId,
+                            step,
+                            attempt: nextAttempt - 1,
+                            nextAttempt,
+                            maxAttempts: 3,
+                            delayMs,
+                            message: `Retrying ${step}`,
+                            error: failure.error ?? failure.stderr
+                        })
+                }
+            }))
+    );
     if (failed(result)) {
         options.emit({
             kind: 'step-failed',
