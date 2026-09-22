@@ -88,7 +88,8 @@ describe('org inspection', () => {
             {
                 executable: 'sf',
                 arguments: ['org', 'list', '--json'],
-                cwd: projectDirectory
+                cwd: projectDirectory,
+                timeoutMs: 30_000
             }
         ]);
         expect(stdout).toHaveLength(1);

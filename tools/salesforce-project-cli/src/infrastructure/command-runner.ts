@@ -186,3 +186,18 @@ export async function runCommand(request: CommandRequest): Promise<CommandResult
 
     throw new Error('Command runner exhausted attempts without a result');
 }
+
+/**
+ * Wraps a command runner so every request that omits `timeoutMs` uses the given default instead of
+ * running unbounded. A request that already sets `timeoutMs` is passed through unchanged.
+ *
+ * @param runner - The command runner to wrap.
+ * @param timeoutMs - Default timeout applied to requests that do not specify one.
+ * @returns A command runner with the same signature that applies the default timeout.
+ */
+export function withDefaultTimeout(
+    runner: (request: CommandRequest) => Promise<CommandResult>,
+    timeoutMs: number
+): (request: CommandRequest) => Promise<CommandResult> {
+    return (request) => runner(request.timeoutMs === undefined ? { ...request, timeoutMs } : request);
+}

@@ -10,6 +10,7 @@ const configuration: ProjectConfiguration = {
     unresolvedDependencyNames: [],
     packageDependencies: [],
     packageInstallKeyEnvironmentVariable: 'PACKAGE_INSTALL_KEY',
+    commandTimeouts: { readMs: 30_000, mutationMs: 600_000 },
     scratchDefinition: '/project/config/project-scratch-def.json',
     scratchDurationDays: 14,
     permissionSets: [],
@@ -77,7 +78,7 @@ describe('web service facade', () => {
         expect(services.getOrgPackageStatus).toHaveBeenCalledWith({
             configuration,
             targetOrg: 'scratch',
-            runCommand
+            runCommand: expect.any(Function)
         });
         expect(services.refreshDependencies).toHaveBeenCalledOnce();
         expect(services.planPackages).toHaveBeenCalledOnce();

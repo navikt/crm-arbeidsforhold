@@ -10,6 +10,17 @@ import type { PackageDependency } from './packages.js';
 /** Built-in post-steps every project can select; a project may declare additional named steps. */
 export const BUILTIN_POST_STEPS = ['deploy', 'permsets', 'data', 'community'] as const;
 
+/**
+ * Default per-command timeouts applied when neither `sf-project.config.json` nor a CLI flag
+ * overrides them. Read-only inspection commands fail fast; mutating commands (org lifecycle,
+ * package operations, dependency retrieval, post-steps) allow enough time for Salesforce CLI
+ * operations that can legitimately take minutes.
+ */
+export const DEFAULT_COMMAND_TIMEOUTS = Object.freeze({
+    readMs: 30_000,
+    mutationMs: 600_000
+});
+
 const dependencySchema = z.object({
     package: z.string().min(1),
     versionNumber: z.string().optional()
@@ -54,6 +65,12 @@ const toolConfigSchema = z
             })
             .default({ use: false, tag: 'dev', fallbackToCreate: true }),
         packageInstallKeyEnvironmentVariable: z.string().min(1).default('PACKAGE_INSTALL_KEY'),
+        commandTimeouts: z
+            .object({
+                readMs: z.number().int().positive().default(DEFAULT_COMMAND_TIMEOUTS.readMs),
+                mutationMs: z.number().int().positive().default(DEFAULT_COMMAND_TIMEOUTS.mutationMs)
+            })
+            .default({ ...DEFAULT_COMMAND_TIMEOUTS }),
         dependencySourcePolicy: z
             .object({
                 preserveRootFiles: z.array(z.string().min(1)).default(['README.md']),
@@ -123,6 +140,8 @@ export interface ProjectConfiguration {
     packageDependencies: PackageDependency[];
     /** Environment variable from which package installation keys are read. */
     packageInstallKeyEnvironmentVariable: string;
+    /** Per-command timeout defaults; a CLI flag or explicit request value may override these. */
+    commandTimeouts: CommandTimeouts;
     /** Absolute path to the scratch-org definition. */
     scratchDefinition: string;
     /** Default scratch-org lifetime, constrained to Salesforce limits. */
@@ -145,6 +164,14 @@ export interface ProjectConfiguration {
 
 /** Post-configuration step name: a built-in step or a project-declared custom step name. */
 export type PostStep = string;
+
+/** Resolved default timeouts, in milliseconds, applied to commands that do not set their own. */
+export interface CommandTimeouts {
+    /** Default timeout for read-only inspection commands (org display/list/status, config get). */
+    readMs: number;
+    /** Default timeout for mutating commands (org lifecycle, packages, dependency retrieval, post-steps). */
+    mutationMs: number;
+}
 
 /** A project-declared post-step run as an external command in canonical order after the built-in steps. */
 export interface CustomPostStep {
@@ -251,6 +278,7 @@ export async function loadProjectConfiguration(projectDirectory: string): Promis
         unresolvedDependencyNames,
         packageDependencies,
         packageInstallKeyEnvironmentVariable: toolConfig.packageInstallKeyEnvironmentVariable,
+        commandTimeouts: { ...toolConfig.commandTimeouts },
         scratchDefinition: path.resolve(resolvedProjectDirectory, toolConfig.scratchDefinition),
         scratchDurationDays: toolConfig.scratchDurationDays,
         permissionSets: toolConfig.permissionSets,

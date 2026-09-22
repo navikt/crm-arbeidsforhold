@@ -6,7 +6,7 @@ import { BUILTIN_POST_STEPS, type PostStep, type ProjectConfiguration } from '..
 import { EXIT_CODES, type EventSink, type ExitCode } from '../domain/events.js';
 import { isOrgMutationConfirmed, type OrgClassification } from '../domain/org-policy.js';
 import type { CommandRequest, CommandResult } from '../infrastructure/command-runner.js';
-import { classifySalesforceFailure } from '../infrastructure/salesforce-errors.js';
+import { classifySalesforceFailure, describeCommandFailure, isTransientCommandFailure } from '../infrastructure/salesforce-errors.js';
 import { clearDependencySources } from './clear-dependency-sources.js';
 import { installPackages } from './package-operations.js';
 import { refreshDependencies, type CommandRunner } from './refresh-dependencies.js';
@@ -43,6 +43,8 @@ export interface ConfigureProjectOptions {
     emit: EventSink;
     /** Injected runner used for every external command in the composed workflow. */
     runCommand: CommandRunner;
+    /** Optional cancellation signal aborting any in-flight command issued by this workflow. */
+    signal?: AbortSignal;
 }
 
 type ResolvedConfigureProjectOptions = ConfigureProjectOptions & { alias: string };
@@ -85,6 +87,8 @@ export interface DeleteOrgOptions {
     emit: EventSink;
     /** Injected runner used for the delete command. */
     runCommand: CommandRunner;
+    /** Optional cancellation signal aborting the delete command. */
+    signal?: AbortSignal;
 }
 
 function failed(result: CommandResult): boolean {
@@ -92,7 +96,7 @@ function failed(result: CommandResult): boolean {
 }
 
 function withCommandOutput(
-    options: Pick<ConfigureProjectOptions, 'emit' | 'operationId'>,
+    options: Pick<ConfigureProjectOptions, 'emit' | 'operationId' | 'signal'>,
     stepId: string,
     step: string,
     request: CommandRequest
@@ -111,6 +115,7 @@ function withCommandOutput(
     };
     return {
         ...request,
+        ...(options.signal === undefined ? {} : { signal: options.signal }),
         onStdoutLine: (line) => {
             request.onStdoutLine?.(line);
             emitOutput('stdout', line);
@@ -157,7 +162,27 @@ async function runStep(
     const result = await options.runCommand(withCommandOutput(options, stepId, step, {
         executable,
         arguments: commandArguments,
-        cwd: options.configuration.projectDirectory
+        cwd: options.configuration.projectDirectory,
+        // Retry only recognized transient transport failures; other failures (auth, invalid input) stay single-attempt.
+        retry: {
+            maxAttempts: 3,
+            delayMs: 5_000,
+            shouldRetry: isTransientCommandFailure,
+            onRetry: (failure, nextAttempt, delayMs) =>
+                options.emit({
+                    kind: 'retrying',
+                    operationId: options.operationId,
+                    timestamp: new Date().toISOString(),
+                    stepId,
+                    step,
+                    attempt: nextAttempt - 1,
+                    nextAttempt,
+                    maxAttempts: 3,
+                    delayMs,
+                    message: `Retrying ${step}`,
+                    error: failure.error ?? failure.stderr
+                })
+        }
     }));
     if (failed(result)) {
         options.emit({
@@ -168,7 +193,7 @@ async function runStep(
             step,
             exitCode: result.exitCode,
             durationMs: Date.now() - startedAt,
-            error: result.error ?? result.stderr ?? `${step} failed`
+            error: describeCommandFailure(result, `${step} failed`)
         });
         return classifySalesforceFailure(result, EXIT_CODES.OPERATION_FAILURE);
     }
@@ -367,7 +392,26 @@ async function resetSourceTracking(options: ResolvedConfigureProjectOptions): Pr
             '--no-prompt',
             '--json'
         ],
-        cwd: options.configuration.projectDirectory
+        cwd: options.configuration.projectDirectory,
+        retry: {
+            maxAttempts: 3,
+            delayMs: 5_000,
+            shouldRetry: isTransientCommandFailure,
+            onRetry: (failure, nextAttempt, delayMs) =>
+                options.emit({
+                    kind: 'retrying',
+                    operationId: options.operationId,
+                    timestamp: new Date().toISOString(),
+                    stepId,
+                    step,
+                    attempt: nextAttempt - 1,
+                    nextAttempt,
+                    maxAttempts: 3,
+                    delayMs,
+                    message: `Retrying ${step}`,
+                    error: failure.error ?? failure.stderr
+                })
+        }
     }));
     if (failed(result)) {
         options.emit({

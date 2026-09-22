@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { runCommand } from '../../src/infrastructure/command-runner.js';
+import { runCommand, withDefaultTimeout, type CommandRequest, type CommandResult } from '../../src/infrastructure/command-runner.js';
 
 const temporaryDirectories: string[] = [];
 
@@ -148,5 +148,25 @@ describe('runCommand', () => {
         expect(result).toMatchObject({ exitCode: 8, failed: true, attempts: 1 });
         expect(shouldRetry).toHaveBeenCalledOnce();
         expect(delay).not.toHaveBeenCalled();
+    });
+});
+
+describe('withDefaultTimeout', () => {
+    it('applies the default timeout to a request that does not specify one', async () => {
+        const runner = vi.fn(async (request: CommandRequest) => ({ request }) as unknown as CommandResult);
+        const wrapped = withDefaultTimeout(runner, 5_000);
+
+        await wrapped({ executable: 'sf', arguments: ['org', 'list'] });
+
+        expect(runner).toHaveBeenCalledWith({ executable: 'sf', arguments: ['org', 'list'], timeoutMs: 5_000 });
+    });
+
+    it('leaves an explicit timeout on the request untouched', async () => {
+        const runner = vi.fn(async (request: CommandRequest) => ({ request }) as unknown as CommandResult);
+        const wrapped = withDefaultTimeout(runner, 5_000);
+
+        await wrapped({ executable: 'sf', arguments: ['org', 'list'], timeoutMs: 1_000 });
+
+        expect(runner).toHaveBeenCalledWith({ executable: 'sf', arguments: ['org', 'list'], timeoutMs: 1_000 });
     });
 });

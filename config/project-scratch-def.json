@@ -1,12 +1,18 @@
 {
     "orgName": "crm-arbeidsforhold",
+    "country": "NO",
+    "language": "en_US",
     "edition": "Enterprise",
-    "adminEmail": "fakeemail@nav.no.scratchorg",
+    "description": "Dette er ein utviklings scratch-org brukt for å utvikle løsninger til Arbeidsforhold.",
     "features": [
         "AddCustomApps:30",
+        "AddCustomObjects:30",
+        "ApexGuruCodeAnalyzer",
         "API",
         "Communities",
         "ContactsToMultipleAccounts",
+        "DebugApex",
+        "EventLogFile",
         "FieldService:5",
         "FieldServiceDispatcherUser:5",
         "FieldServiceMobileUser:5",
@@ -18,18 +24,20 @@
         "PersonAccounts",
         "PlatformCache",
         "ProcessBuilder",
+        "SecurityEventEnabled",
         "ServiceCloud",
         "ServiceUser",
         "Sites",
         "SurveyAdvancedFeatures",
         "LiveMessage"
     ],
-    "country": "NO",
-    "language": "en_US",
     "settings": {
         "accountSettings": {
             "enableAccountTeams": true,
-            "enableRelateContactToMultipleAccounts": true
+            "enableAccountHistoryTracking": true,
+            "enableContactHistoryTracking": true,
+            "enableRelateContactToMultipleAccounts": true,
+            "showViewHierarchyLink": true
         },
         "chatterSettings": {
             "enableChatter": true,
@@ -112,6 +120,10 @@
             "enableProfileFiltering": true,
             "enableScrambleUserData": false,
             "enableUserSelfDeactivate": false,
+            "enhancedPermSetList": true,
+            "enhancedUserListView": true,
+            "enhancedUserRoleListView": true,
+            "groupSummaryUIEnhancement": true,
             "permsetsInFieldCreation": true,
             "psaExpirationUIEnabled": true,
             "restrictedProfileCloning": false

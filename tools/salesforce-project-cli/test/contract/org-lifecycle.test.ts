@@ -696,8 +696,51 @@ describe('org lifecycle', () => {
             arguments: ['config', 'get', 'target-dev-hub', '--json'],
             cwd: projectDirectory,
             onStdoutLine: expect.any(Function),
-            onStderrLine: expect.any(Function)
+            onStderrLine: expect.any(Function),
+            timeoutMs: 600_000
         });
         await expect(access(path.join(dependencyDirectory, 'main', 'stale.xml'))).resolves.toBeUndefined();
+    });
+
+    it('retries scratch org creation on a recognized transient transport failure', async () => {
+        const projectDirectory = await createProject();
+        let orgCreateAttempts = 0;
+        const runner = vi.fn(async (request: CommandRequest) => {
+            if (request.arguments?.[0] === 'org' && request.arguments?.[1] === 'create') {
+                orgCreateAttempts += 1;
+                if (orgCreateAttempts === 1) {
+                    expect(await request.retry?.shouldRetry?.({ ...successfulResult(request), stderr: 'ECONNRESET' })).toBe(
+                        true
+                    );
+                    expect(
+                        await request.retry?.shouldRetry?.({
+                            ...successfulResult(request),
+                            stderr: 'INVALID_CROSS_REFERENCE_KEY'
+                        })
+                    ).toBe(false);
+                    request.retry?.onRetry?.(successfulResult(request), 2, request.retry.delayMs ?? 0);
+                }
+                return successfulResult(request, { username: 'scratch@example.test' });
+            }
+            return successfulResult(request, request.arguments?.[0] === 'package' ? [] : {});
+        });
+        const stdout: string[] = [];
+
+        const exitCode = await runCli(
+            ['org', 'create', '--project-dir', projectDirectory, '--alias', 'retry-org', '--post-steps', 'none', '--json'],
+            { stdout: (line) => stdout.push(line), stderr: () => undefined },
+            { runCommand: runner }
+        );
+
+        expect(exitCode).toBe(0);
+        expect(orgCreateAttempts).toBe(1);
+        expect(stdout.map((line) => JSON.parse(line))).toContainEqual(
+            expect.objectContaining({
+                kind: 'retrying',
+                stepId: 'org-create',
+                attempt: 1,
+                nextAttempt: 2
+            })
+        );
     });
 });

@@ -38,3 +38,42 @@ export function isSalesforceAuthFailure(value: unknown): boolean {
 export function classifySalesforceFailure(value: unknown, fallback: ExitCode): ExitCode {
     return isSalesforceAuthFailure(value) ? EXIT_CODES.AUTH_OR_AUTHORIZATION_FAILURE : fallback;
 }
+
+const TRANSIENT_COMMAND_FAILURE_SIGNATURES = [
+    'TypeError: terminated',
+    'ECONNRESET',
+    'socket hang up',
+    'ETIMEDOUT',
+    'ENOTFOUND',
+    'UND_ERR_'
+] as const;
+
+/**
+ * Identifies command failures eligible for a bounded transport retry: recognized transient
+ * network/timeout signatures, shared by every mutating `sf` invocation's retry policy.
+ *
+ * @param result - Captured command output and optional normalized error text.
+ * @returns `true` only when output contains a recognized transient network signature.
+ */
+export function isTransientCommandFailure(result: { stdout: string; stderr: string; error?: string }): boolean {
+    const output = `${result.stdout}\n${result.stderr}\n${result.error ?? ''}`;
+    return TRANSIENT_COMMAND_FAILURE_SIGNATURES.some((signature) => output.includes(signature));
+}
+
+/**
+ * Renders a human-readable failure message that distinguishes a canceled command from any other
+ * failure, instead of reporting a canceled command with the same wording as a real error.
+ *
+ * @param result - Captured command output, cancellation state, and optional normalized error text.
+ * @param fallback - Message used when the command failed for a reason other than cancellation and
+ * neither `error` nor `stderr` is available.
+ * @returns `'Operation was canceled'` when `result.canceled` is `true`; otherwise the command's error,
+ * stderr, or the given fallback.
+ */
+export function describeCommandFailure(
+    result: { canceled: boolean; error?: string; stderr: string },
+    fallback: string
+): string {
+    if (result.canceled) return 'Operation was canceled';
+    return result.error ?? result.stderr ?? fallback;
+}

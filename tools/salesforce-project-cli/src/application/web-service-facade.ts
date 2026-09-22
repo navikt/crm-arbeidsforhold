@@ -7,9 +7,9 @@ import { getOrgInfo, getOrgStatus, listOrgs } from './org-inspection.js';
 import { configureProject, createOrg, deleteOrg } from './org-workflow.js';
 import { getOrgPackageStatus, installPackages, planPackages, updatePackages } from './package-operations.js';
 import { refreshDependencies, type CommandRunner } from './refresh-dependencies.js';
-import { loadProjectConfiguration, type PostStep } from '../domain/config.js';
+import { loadProjectConfiguration, DEFAULT_COMMAND_TIMEOUTS, type PostStep } from '../domain/config.js';
 import { EXIT_CODES } from '../domain/events.js';
-import { runCommand as defaultRunCommand, type CommandRequest } from '../infrastructure/command-runner.js';
+import { runCommand as defaultRunCommand, withDefaultTimeout, type CommandRequest } from '../infrastructure/command-runner.js';
 import { createRedactor } from '../infrastructure/redactor.js';
 import type { ProjectInfo, WebOperationRequest, WebServiceFacade } from '../web/server.js';
 import { existsSync, readFileSync } from 'node:fs';
@@ -200,6 +200,9 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
     // Capture one composed dependency set so every endpoint in this facade uses the same injected boundary.
     const services: WebApplicationServices = { ...defaultServices, ...options.services };
     const commandRunner = options.runCommand ?? defaultRunCommand;
+    // Read-only endpoints run before configuration is loaded, so they use the built-in default rather
+    // than a per-project override; mutating operations apply the project's configured timeout below.
+    const readCommandRunner = withDefaultTimeout(commandRunner, DEFAULT_COMMAND_TIMEOUTS.readMs);
     const environment = options.environment ?? process.env;
 
     return {
@@ -207,30 +210,30 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
         listOrgs: () =>
             services.listOrgs({
                 projectDirectory: options.projectDirectory,
-                runCommand: commandRunner
+                runCommand: readCommandRunner
             }),
         getOrg: (alias) =>
             services.getOrgInfo({
                 projectDirectory: options.projectDirectory,
                 alias,
-                runCommand: commandRunner
+                runCommand: readCommandRunner
             }),
         getOrgStatus: (alias) =>
             services.getOrgStatus({
                 projectDirectory: options.projectDirectory,
                 ...(alias === undefined ? {} : { alias }),
-                runCommand: commandRunner
+                runCommand: readCommandRunner
             }),
         getOrgPackages: async (alias) =>
             services.getOrgPackageStatus({
                 configuration: await services.loadProjectConfiguration(options.projectDirectory),
                 targetOrg: alias,
-                runCommand: commandRunner
+                runCommand: readCommandRunner
             }),
         execute: async (request, emit) => {
             const configuration = await services.loadProjectConfiguration(options.projectDirectory);
             const operationCommandRunner = createOperationCommandRunner(
-                commandRunner,
+                withDefaultTimeout(commandRunner, configuration.commandTimeouts.mutationMs),
                 request.operationId,
                 emit,
                 [environment[configuration.packageInstallKeyEnvironmentVariable] ?? '']
@@ -238,7 +241,8 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
             const common = {
                 configuration,
                 operationId: request.operationId,
-                emit
+                emit,
+                ...(request.signal === undefined ? {} : { signal: request.signal })
             };
             switch (request.command) {
                 case 'dependencies.clear':

@@ -17,7 +17,7 @@ import {
     type PackageVersion
 } from '../domain/packages.js';
 import type { CommandRunner } from './refresh-dependencies.js';
-import { classifySalesforceFailure } from '../infrastructure/salesforce-errors.js';
+import { classifySalesforceFailure, describeCommandFailure, isTransientCommandFailure } from '../infrastructure/salesforce-errors.js';
 
 /** Inputs and injected dependencies for resolving a package plan. */
 export interface PlanPackagesOptions {
@@ -33,6 +33,8 @@ export interface PlanPackagesOptions {
     emit: EventSink;
     /** Injected runner used for all read-only and mutating Salesforce CLI commands. */
     runCommand: CommandRunner;
+    /** Optional cancellation signal aborting any in-flight command issued while planning or mutating packages. */
+    signal?: AbortSignal;
 }
 
 /** Inputs for package installation or update workflows. */
@@ -140,7 +142,8 @@ async function querySelectedVersion(
             'CreatedDate',
             '--json'
         ],
-        cwd: options.configuration.projectDirectory
+        cwd: options.configuration.projectDirectory,
+        ...(options.signal === undefined ? {} : { signal: options.signal })
     });
     if (result.failed || result.exitCode !== 0) {
         throw new Error(result.error ?? result.stderr ?? `Failed to query ${dependency.packageName} versions`);
@@ -208,7 +211,8 @@ async function queryInstalledPackages(options: PlanPackagesOptions): Promise<Map
     const result = await options.runCommand({
         executable: 'sf',
         arguments: arguments_,
-        cwd: options.configuration.projectDirectory
+        cwd: options.configuration.projectDirectory,
+        ...(options.signal === undefined ? {} : { signal: options.signal })
     });
     if (result.failed || result.exitCode !== 0) {
         throw new Error(result.error ?? result.stderr ?? 'Failed to query installed packages');
@@ -320,24 +324,16 @@ export async function planPackages(options: PlanPackagesOptions): Promise<Packag
     return items;
 }
 
-const TRANSIENT_PACKAGE_INSTALL_SIGNATURES = [
-    'TypeError: terminated',
-    'ECONNRESET',
-    'socket hang up',
-    'ETIMEDOUT',
-    'ENOTFOUND',
-    'UND_ERR_'
-] as const;
-
 /**
  * Identifies package-install failures eligible for the bounded transport retry policy.
  *
  * @param result - Captured command output and optional normalized error text.
  * @returns `true` only when output contains a recognized transient network signature.
+ * @deprecated Use {@link isTransientCommandFailure} directly; retained as a thin alias so existing
+ * imports and behavior are unaffected.
  */
 export function isRetryablePackageInstallFailure(result: { stdout: string; stderr: string; error?: string }): boolean {
-    const output = `${result.stdout}\n${result.stderr}\n${result.error ?? ''}`;
-    return TRANSIENT_PACKAGE_INSTALL_SIGNATURES.some((signature) => output.includes(signature));
+    return isTransientCommandFailure(result);
 }
 
 async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode> {
@@ -387,6 +383,7 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
             arguments: arguments_,
             cwd: options.configuration.projectDirectory,
             ...(installationKey === undefined ? {} : { secretValues: [installationKey] }),
+            ...(options.signal === undefined ? {} : { signal: options.signal }),
             // Retry only recognized transport failures; package or authorization failures remain single-attempt.
             retry: {
                 maxAttempts: 3,
@@ -425,7 +422,7 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
                 ...(item.installedVersion === undefined
                     ? {}
                     : { installedVersion: item.installedVersion.versionNumber }),
-                message: result.error ?? result.stderr ?? `Failed to install ${item.dependency.packageName}`
+                message: describeCommandFailure(result, `Failed to install ${item.dependency.packageName}`)
             });
             emitSummary(options, summary);
             return classifySalesforceFailure(

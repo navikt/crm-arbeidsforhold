@@ -665,7 +665,7 @@ describe('web server', () => {
         expect(started.facade.execute).not.toHaveBeenCalled();
     });
 
-    it('rejects cancellation when the facade does not support it', async () => {
+    it('rejects cancellation of an unknown operation', async () => {
         const started = await start();
         const response = await fetch(`${started.baseUrl}/api/v1/operations/missing/cancel`, {
             method: 'POST',
@@ -676,7 +676,56 @@ describe('web server', () => {
         });
 
         expect(response.status).toBe(409);
-        await expect(response.json()).resolves.toEqual({ error: 'Cancellation is not supported' });
+        await expect(response.json()).resolves.toEqual({ cancelled: false });
+    });
+
+    it('cancels a running operation and aborts the shared signal passed to the facade', async () => {
+        let capturedSignal: AbortSignal | undefined;
+        const facade: WebServiceFacade = {
+            ...createFacade(),
+            execute: vi.fn(async (request) => {
+                capturedSignal = request.signal;
+                await new Promise<void>((resolve) => {
+                    if (request.signal?.aborted) {
+                        resolve();
+                        return;
+                    }
+                    request.signal?.addEventListener('abort', () => resolve(), { once: true });
+                });
+                return EXIT_CODES.OPERATION_FAILURE;
+            })
+        };
+        const started = await start(facade);
+        const authorization = `Bearer ${started.sessionToken}`;
+
+        const createResponse = await fetch(`${started.baseUrl}/api/v1/operations`, {
+            method: 'POST',
+            headers: { authorization, 'content-type': 'application/json', origin: started.baseUrl },
+            body: JSON.stringify({ command: 'dependencies.clear', payload: { dryRun: true } })
+        });
+        const { id } = (await createResponse.json()) as { id: string };
+
+        const cancelResponse = await fetch(`${started.baseUrl}/api/v1/operations/${id}/cancel`, {
+            method: 'POST',
+            headers: { authorization, origin: started.baseUrl }
+        });
+
+        expect(cancelResponse.status).toBe(202);
+        await expect(cancelResponse.json()).resolves.toEqual({ cancelled: true });
+        expect(capturedSignal?.aborted).toBe(true);
+
+        await vi.waitFor(async () => {
+            const detail = await fetch(`${started.baseUrl}/api/v1/operations/${id}`, { headers: { authorization } });
+            const body = (await detail.json()) as { status: string };
+            expect(body.status).toBe('failed');
+        });
+
+        const secondCancel = await fetch(`${started.baseUrl}/api/v1/operations/${id}/cancel`, {
+            method: 'POST',
+            headers: { authorization, origin: started.baseUrl }
+        });
+        expect(secondCancel.status).toBe(409);
+        await expect(secondCancel.json()).resolves.toEqual({ cancelled: false });
     });
 
     it('rejects non-loopback binding', async () => {

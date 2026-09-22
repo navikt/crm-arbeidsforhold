@@ -32,6 +32,8 @@ export interface WebOperationRequest {
     command: WebOperationCommand;
     /** Command-specific, validated input with sensitive or unknown fields rejected at the HTTP boundary. */
     payload: Readonly<Record<string, unknown>>;
+    /** Server-owned cancellation signal; aborted when a client requests cancellation of this operation. */
+    signal?: AbortSignal;
 }
 
 /** Injected application boundary used by the HTTP server for reads, mutations, events, and cancellation. */
@@ -72,6 +74,8 @@ export interface WebServiceFacade {
      *
      * @param operationId - Server-generated operation identifier.
      * @returns `true` when cancellation was accepted, otherwise `false`.
+     * @deprecated Cancellation is now handled directly by the server through the `AbortController` threaded
+     * into {@link WebOperationRequest.signal}; this hook is no longer invoked.
      */
     cancel?(operationId: string): Promise<boolean>;
 }
@@ -139,6 +143,8 @@ interface StoredOperation {
     completedAt?: string;
     exitCode?: ExitCode;
     events: OperationEvent[];
+    /** Aborts the in-flight command(s) for this operation; each operation owns exactly one controller. */
+    controller: AbortController;
 }
 
 const LOOPBACK_HOST = '127.0.0.1';
@@ -407,8 +413,11 @@ function omitSensitiveFields(value: unknown): unknown {
     );
 }
 
-function publicOperation(operation: StoredOperation): StoredOperation {
-    return { ...operation, events: [...operation.events] };
+function publicOperation(operation: StoredOperation): Omit<StoredOperation, 'controller'> {
+    // The AbortController is an internal cancellation handle; it is never serialized to API clients.
+    const { controller, ...rest } = operation;
+    void controller;
+    return { ...rest, events: [...operation.events] };
 }
 
 /**
@@ -491,12 +500,14 @@ export async function startWebServer(options: StartWebServerOptions): Promise<St
     const beginOperation = (request: Omit<WebOperationRequest, 'operationId'>, response: ServerResponse): void => {
         const operationId = randomUUID();
         const createdAt = new Date().toISOString();
+        const controller = new AbortController();
         const operation: StoredOperation = {
             id: operationId,
             command: request.command,
             status: 'running',
             createdAt,
-            events: []
+            events: [],
+            controller
         };
         retainOperation(operation);
         publish(operation, {
@@ -508,7 +519,7 @@ export async function startWebServer(options: StartWebServerOptions): Promise<St
         });
         const startedAt = Date.now();
         void options.facade
-            .execute({ ...request, operationId }, (event) => publish(operation, event))
+            .execute({ ...request, operationId, signal: controller.signal }, (event) => publish(operation, event))
             .then((exitCode) => {
                 operation.status = exitCode === EXIT_CODES.SUCCESS ? 'completed' : 'failed';
                 operation.exitCode = exitCode;
@@ -666,11 +677,10 @@ export async function startWebServer(options: StartWebServerOptions): Promise<St
         const cancellationMatch = url.pathname.match(/^\/api\/v1\/operations\/([^/]+)\/cancel$/);
         if (request.method === 'POST' && cancellationMatch !== null) {
             if (!authorizeMutation(request, response)) return;
-            if (options.facade.cancel === undefined) {
-                sendJson(response, 409, { error: 'Cancellation is not supported' });
-                return;
-            }
-            const cancelled = await options.facade.cancel(cancellationMatch[1] ?? '');
+            const operation = operations.get(cancellationMatch[1] ?? '');
+            // Only a running operation can be aborted; unknown or already-terminal operations report 409.
+            const cancelled = operation !== undefined && operation.status === 'running';
+            if (cancelled) operation.controller.abort();
             sendJson(response, cancelled ? 202 : 409, { cancelled });
             return;
         }

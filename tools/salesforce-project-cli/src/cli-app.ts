@@ -14,9 +14,9 @@ import { configureProject, createOrg, deleteOrg } from './application/org-workfl
 import { installPackages, planPackages, updatePackages } from './application/package-operations.js';
 import { refreshDependencies, type CommandRunner } from './application/refresh-dependencies.js';
 import { createWebServiceFacade } from './application/web-service-facade.js';
-import { BUILTIN_POST_STEPS, loadProjectConfiguration, type PostStep, type ProjectConfiguration } from './domain/config.js';
+import { BUILTIN_POST_STEPS, DEFAULT_COMMAND_TIMEOUTS, loadProjectConfiguration, type PostStep, type ProjectConfiguration } from './domain/config.js';
 import { EXIT_CODES, type ExitCode, type OperationEvent } from './domain/events.js';
-import { runCommand } from './infrastructure/command-runner.js';
+import { runCommand, withDefaultTimeout } from './infrastructure/command-runner.js';
 import { createEventWriter } from './infrastructure/output.js';
 import { createRedactingEventSink, createRedactor } from './infrastructure/redactor.js';
 import { classifySalesforceFailure } from './infrastructure/salesforce-errors.js';
@@ -187,6 +187,31 @@ function parseDurationDays(value: string | undefined, configuration: ProjectConf
     return durationDays;
 }
 
+/**
+ * Parses the global `--timeout` flag into milliseconds.
+ *
+ * @param value - Raw `--timeout` flag value, or `undefined` when not supplied.
+ * @returns The timeout in milliseconds, or `undefined` when no override was supplied.
+ * @throws `CommanderError` When the value is not a positive number.
+ */
+function parseTimeoutSeconds(value: string | undefined): number | undefined {
+    if (value === undefined) return undefined;
+    const seconds = Number(value);
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+        throw new CommanderError(
+            EXIT_CODES.INVALID_INPUT_OR_CONFIG,
+            'sf-project.invalidTimeout',
+            '--timeout must be a positive number of seconds'
+        );
+    }
+    return Math.round(seconds * 1000);
+}
+
+/** Resolves the effective timeout in milliseconds: the `--timeout` override, or the given default. */
+function resolveTimeoutMs(defaultMs: number, globalOptions: { timeout?: string }): number {
+    return parseTimeoutSeconds(globalOptions.timeout) ?? defaultMs;
+}
+
 function parsePort(value: string): number {
     const port = Number(value);
     if (!Number.isInteger(port) || port < 0 || port > 65_535) {
@@ -284,9 +309,10 @@ export async function runCli(
     program.name('sf-project');
     program
         .option('--no-color', 'Disable terminal styling')
-        .option('--verbose', 'Include sanitized diagnostic details', false);
+        .option('--verbose', 'Include sanitized diagnostic details', false)
+        .option('--timeout <seconds>', 'Override the default per-command timeout, in seconds');
     const writeEvent = (event: OperationEvent, json: boolean): void => {
-        const globalOptions = program.opts<{ color: boolean; verbose: boolean }>();
+        const globalOptions = program.opts<{ color: boolean; verbose: boolean; timeout?: string }>();
         createEventWriter({
             color: output.isTTY === true && globalOptions.color !== false,
             verbose: globalOptions.verbose,
@@ -305,7 +331,8 @@ export async function runCli(
             const startedAt = Date.now();
             const redactor = createRedactor();
             const emit = createRedactingEventSink(redactor, (event) => writeEvent(event, options.json));
-            const verbose = program.opts<{ verbose: boolean }>().verbose;
+            const globalOptions = program.opts<{ verbose: boolean; timeout?: string }>();
+            const verbose = globalOptions.verbose;
 
             emit({
                 kind: 'operation-started',
@@ -319,7 +346,10 @@ export async function runCli(
                 nodeVersion: cliDependencies.nodeVersion ?? process.versions.node,
                 operationId,
                 emit,
-                runCommand: cliDependencies.runCommand ?? runCommand,
+                runCommand: withDefaultTimeout(
+                    cliDependencies.runCommand ?? runCommand,
+                    resolveTimeoutMs(DEFAULT_COMMAND_TIMEOUTS.readMs, globalOptions)
+                ),
                 verbose
             });
             exitCode = doctorExitCode;
@@ -364,9 +394,13 @@ export async function runCli(
         .option('--refresh', 'Refresh org details before displaying them', false)
         .option('--json', 'Emit normalized JSON output', false)
         .action(async (options: OrgReadOptions) => {
+            const globalOptions = program.opts<{ timeout?: string }>();
             const result = await listOrgs({
                 projectDirectory: options.projectDir,
-                runCommand: cliDependencies.runCommand ?? runCommand,
+                runCommand: withDefaultTimeout(
+                    cliDependencies.runCommand ?? runCommand,
+                    resolveTimeoutMs(DEFAULT_COMMAND_TIMEOUTS.readMs, globalOptions)
+                ),
                 refresh: options.refresh ?? false
             });
             output.stdout(options.json ? JSON.stringify(result) : result.orgs.map(renderOrgSummary).join('\n\n'));
@@ -378,11 +412,15 @@ export async function runCli(
         .option('--refresh', 'Refresh org details before displaying them', false)
         .option('--json', 'Emit normalized JSON output', false)
         .action(async (alias: string | undefined, options: OrgReadOptions) => {
+            const globalOptions = program.opts<{ timeout?: string }>();
             const result = await getOrgStatus({
                 projectDirectory: options.projectDir,
                 ...(alias === undefined ? {} : { alias }),
                 refresh: options.refresh ?? false,
-                runCommand: cliDependencies.runCommand ?? runCommand
+                runCommand: withDefaultTimeout(
+                    cliDependencies.runCommand ?? runCommand,
+                    resolveTimeoutMs(DEFAULT_COMMAND_TIMEOUTS.readMs, globalOptions)
+                )
             });
             output.stdout(options.json ? JSON.stringify(result) : renderOrgSummary(result.org));
         });
@@ -392,10 +430,14 @@ export async function runCli(
         .option('--project-dir <path>', 'Salesforce project root', process.cwd())
         .option('--json', 'Emit normalized JSON output', false)
         .action(async (alias: string, options: OrgInfoOptions) => {
+            const globalOptions = program.opts<{ timeout?: string }>();
             const result = await getOrgInfo({
                 projectDirectory: options.projectDir,
                 alias,
-                runCommand: cliDependencies.runCommand ?? runCommand
+                runCommand: withDefaultTimeout(
+                    cliDependencies.runCommand ?? runCommand,
+                    resolveTimeoutMs(DEFAULT_COMMAND_TIMEOUTS.readMs, globalOptions)
+                )
             });
             output.stdout(options.json ? JSON.stringify(result) : renderOrgInfo(result.org));
         });
@@ -450,7 +492,13 @@ export async function runCli(
                 operationId,
                 emit,
                 runCommand: createEventCommandRunner(
-                    cliDependencies.runCommand ?? runCommand,
+                    withDefaultTimeout(
+                        cliDependencies.runCommand ?? runCommand,
+                        resolveTimeoutMs(
+                            configuration.commandTimeouts.mutationMs,
+                            program.opts<{ timeout?: string }>()
+                        )
+                    ),
                     operationId,
                     emit,
                     program.opts<{ verbose: boolean }>().verbose
@@ -491,7 +539,10 @@ export async function runCli(
                 dryRun: options.dryRun
             });
             const eventCommandRunner = createEventCommandRunner(
-                cliDependencies.runCommand ?? runCommand,
+                withDefaultTimeout(
+                    cliDependencies.runCommand ?? runCommand,
+                    resolveTimeoutMs(configuration.commandTimeouts.mutationMs, program.opts<{ timeout?: string }>())
+                ),
                 operationId,
                 emit,
                 program.opts<{ verbose: boolean }>().verbose
@@ -576,7 +627,10 @@ export async function runCli(
                     alias,
                     'project.configure',
                     options.confirmMutation,
-                    cliDependencies.runCommand ?? runCommand
+                    withDefaultTimeout(
+                        cliDependencies.runCommand ?? runCommand,
+                        resolveTimeoutMs(configuration.commandTimeouts.readMs, program.opts<{ timeout?: string }>())
+                    )
                 );
             }
             const configureExitCode = await configureProject({
@@ -590,7 +644,10 @@ export async function runCli(
                 operationId,
                 emit,
                 runCommand: createEventCommandRunner(
-                    cliDependencies.runCommand ?? runCommand,
+                    withDefaultTimeout(
+                        cliDependencies.runCommand ?? runCommand,
+                        resolveTimeoutMs(configuration.commandTimeouts.mutationMs, program.opts<{ timeout?: string }>())
+                    ),
                     operationId,
                     emit,
                     program.opts<{ verbose: boolean }>().verbose
@@ -714,7 +771,10 @@ export async function runCli(
                     operationId,
                     emit,
                     runCommand: createEventCommandRunner(
-                        cliDependencies.runCommand ?? runCommand,
+                        withDefaultTimeout(
+                            cliDependencies.runCommand ?? runCommand,
+                            resolveTimeoutMs(configuration.commandTimeouts.readMs, program.opts<{ timeout?: string }>())
+                        ),
                         operationId,
                         emit,
                         program.opts<{ verbose: boolean }>().verbose
@@ -776,7 +836,10 @@ export async function runCli(
                         options.targetOrg,
                         `packages.${commandName}`,
                         options.confirmMutation,
-                        cliDependencies.runCommand ?? runCommand
+                        withDefaultTimeout(
+                            cliDependencies.runCommand ?? runCommand,
+                            resolveTimeoutMs(configuration.commandTimeouts.readMs, program.opts<{ timeout?: string }>())
+                        )
                     );
                 }
                 const mutate = commandName === 'install' ? installPackages : updatePackages;
@@ -791,7 +854,13 @@ export async function runCli(
                         operationId,
                         emit,
                         runCommand: createEventCommandRunner(
-                            cliDependencies.runCommand ?? runCommand,
+                            withDefaultTimeout(
+                                cliDependencies.runCommand ?? runCommand,
+                                resolveTimeoutMs(
+                                    configuration.commandTimeouts.mutationMs,
+                                    program.opts<{ timeout?: string }>()
+                                )
+                            ),
                             operationId,
                             emit,
                             program.opts<{ verbose: boolean }>().verbose
@@ -853,7 +922,10 @@ export async function runCli(
                 operationId,
                 emit,
                 runCommand: createEventCommandRunner(
-                    cliDependencies.runCommand ?? runCommand,
+                    withDefaultTimeout(
+                        cliDependencies.runCommand ?? runCommand,
+                        resolveTimeoutMs(configuration.commandTimeouts.mutationMs, program.opts<{ timeout?: string }>())
+                    ),
                     operationId,
                     emit,
                     program.opts<{ verbose: boolean }>().verbose

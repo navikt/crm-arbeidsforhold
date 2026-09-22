@@ -5,7 +5,7 @@
 import type { ProjectConfiguration } from '../domain/config.js';
 import { EXIT_CODES, type EventSink, type ExitCode } from '../domain/events.js';
 import type { CommandRequest, CommandResult } from '../infrastructure/command-runner.js';
-import { classifySalesforceFailure } from '../infrastructure/salesforce-errors.js';
+import { classifySalesforceFailure, describeCommandFailure, isTransientCommandFailure } from '../infrastructure/salesforce-errors.js';
 import { clearDependencySources } from './clear-dependency-sources.js';
 import { disableForceignore, recoverForceignoreTransaction, type ForceignoreLease } from './forceignore-transaction.js';
 
@@ -26,6 +26,8 @@ export interface RefreshDependenciesOptions {
     emit: EventSink;
     /** Injected command runner used only for non-dry-run dependency retrieval. */
     runCommand: CommandRunner;
+    /** Optional cancellation signal aborting an in-flight dependency retrieval command. */
+    signal?: AbortSignal;
 }
 
 function errorMessage(error: unknown): string {
@@ -136,7 +138,27 @@ async function retrieveDependencies(options: RefreshDependenciesOptions): Promis
         const result = await options.runCommand({
             executable: 'sf',
             arguments: commandArguments,
-            cwd: options.configuration.projectDirectory
+            cwd: options.configuration.projectDirectory,
+            ...(options.signal === undefined ? {} : { signal: options.signal }),
+            retry: {
+                maxAttempts: 3,
+                delayMs: 5_000,
+                shouldRetry: isTransientCommandFailure,
+                onRetry: (failure, nextAttempt, delayMs) =>
+                    options.emit({
+                        kind: 'retrying',
+                        operationId: options.operationId,
+                        timestamp: new Date().toISOString(),
+                        stepId,
+                        step: 'Retrieve dependency',
+                        attempt: nextAttempt - 1,
+                        nextAttempt,
+                        maxAttempts: 3,
+                        delayMs,
+                        message: `Retrying ${dependency.packageName}`,
+                        error: failure.error ?? failure.stderr
+                    })
+            }
         });
 
         if (result.failed || result.exitCode !== 0) {
@@ -148,7 +170,7 @@ async function retrieveDependencies(options: RefreshDependenciesOptions): Promis
                 step: 'Retrieve dependency',
                 exitCode: result.exitCode,
                 durationMs: Date.now() - startedAt,
-                error: result.error ?? result.stderr ?? 'Dependency retrieval failed'
+                error: describeCommandFailure(result, 'Dependency retrieval failed')
             });
             return classifySalesforceFailure(
                 result,

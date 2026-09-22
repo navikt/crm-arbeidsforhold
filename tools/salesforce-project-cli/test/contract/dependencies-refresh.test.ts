@@ -301,6 +301,47 @@ describe('dependencies refresh', () => {
         expect(signalTarget.listenerCount('SIGTERM')).toBe(0);
         await lease.restore();
     });
+
+    it('retries a transient dependency retrieval failure before succeeding', async () => {
+        const projectDirectory = await createProject();
+        let sharedOneAttempts = 0;
+        const runner = vi.fn(async (request: CommandRequest) => {
+            if (request.arguments?.includes('shared-one')) {
+                sharedOneAttempts += 1;
+                if (sharedOneAttempts === 1) {
+                    expect(
+                        await request.retry?.shouldRetry?.({ ...successfulResult(request), stderr: 'ETIMEDOUT' })
+                    ).toBe(true);
+                    expect(
+                        await request.retry?.shouldRetry?.({
+                            ...successfulResult(request),
+                            stderr: 'INVALID_CROSS_REFERENCE_KEY'
+                        })
+                    ).toBe(false);
+                    request.retry?.onRetry?.(successfulResult(request), 2, request.retry.delayMs ?? 0);
+                }
+            }
+            return successfulResult(request);
+        });
+        const stdout: string[] = [];
+
+        const exitCode = await runCli(
+            ['dependencies', 'refresh', '--project-dir', projectDirectory, '--json'],
+            { stdout: (line) => stdout.push(line), stderr: () => undefined },
+            { runCommand: runner }
+        );
+
+        expect(exitCode).toBe(0);
+        expect(sharedOneAttempts).toBe(1);
+        expect(stdout.map((line) => JSON.parse(line))).toContainEqual(
+            expect.objectContaining({
+                kind: 'retrying',
+                stepId: 'retrieve:shared-one',
+                attempt: 1,
+                nextAttempt: 2
+            })
+        );
+    });
 });
 
 describe('dependencies recover', () => {
