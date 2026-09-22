@@ -17,6 +17,10 @@ const defaultConfig = {
         fallbackToCreate: true
     },
     packageInstallKeyEnvironmentVariable: 'PACKAGE_INSTALL_KEY',
+    commandTimeouts: {
+        readMs: 30000,
+        mutationMs: 600000
+    },
     dependencySourcePolicy: {
         preserveRootFiles: ['README.md']
     }
@@ -61,6 +65,7 @@ function mergeConfiguration(existingConfig) {
         ...defaultConfig,
         ...existingConfig,
         pool: { ...defaultConfig.pool, ...(existingConfig?.pool ?? {}) },
+        commandTimeouts: { ...defaultConfig.commandTimeouts, ...(existingConfig?.commandTimeouts ?? {}) },
         dependencySourcePolicy: {
             ...defaultConfig.dependencySourcePolicy,
             ...(existingConfig?.dependencySourcePolicy ?? {})
@@ -140,6 +145,20 @@ async function createConfiguration(existingConfig, interactive) {
             defaultConfig.dependencySourcePolicy.preserveRootFiles.join(',')
         )
     );
+    const commandTimeoutReadMs = Number(
+        await prompt(
+            'Timeout for read-only commands, in milliseconds',
+            existingConfig?.commandTimeouts?.readMs,
+            defaultConfig.commandTimeouts.readMs
+        )
+    );
+    const commandTimeoutMutationMs = Number(
+        await prompt(
+            'Timeout for mutating commands, in milliseconds',
+            existingConfig?.commandTimeouts?.mutationMs,
+            defaultConfig.commandTimeouts.mutationMs
+        )
+    );
 
     return {
         schemaVersion: 1,
@@ -152,6 +171,7 @@ async function createConfiguration(existingConfig, interactive) {
         postSteps,
         pool,
         packageInstallKeyEnvironmentVariable,
+        commandTimeouts: { readMs: commandTimeoutReadMs, mutationMs: commandTimeoutMutationMs },
         dependencySourcePolicy: { preserveRootFiles }
     };
 }

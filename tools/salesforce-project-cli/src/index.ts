@@ -12,9 +12,10 @@ export { runDoctor } from './application/doctor.js';
 export type { DoctorOptions } from './application/doctor.js';
 export { recoverForceignoreTransaction } from './application/forceignore-transaction.js';
 export type { RecoverForceignoreOptions } from './application/forceignore-transaction.js';
-export { BUILTIN_POST_STEPS, loadProjectConfiguration } from './domain/config.js';
+export { BUILTIN_POST_STEPS, DEFAULT_COMMAND_TIMEOUTS, loadProjectConfiguration } from './domain/config.js';
 export type {
     ProjectConfiguration,
+    CommandTimeouts,
     DependencySource,
     PoolConfiguration,
     PostStep,
@@ -60,8 +61,14 @@ export { EXIT_CODES } from './domain/events.js';
 export type { EventBase, OperationEvent, EventSink, ExitCode } from './domain/events.js';
 export { isOrgMutationAllowed, isOrgMutationConfirmed, mutationConfirmationToken } from './domain/org-policy.js';
 export type { OrgClassification } from './domain/org-policy.js';
-export { runCommand } from './infrastructure/command-runner.js';
+export { runCommand, withDefaultTimeout } from './infrastructure/command-runner.js';
 export type { AsyncDelay, CommandRequest, CommandResult, RetryOptions } from './infrastructure/command-runner.js';
+export {
+    classifySalesforceFailure,
+    describeCommandFailure,
+    isSalesforceAuthFailure,
+    isTransientCommandFailure
+} from './infrastructure/salesforce-errors.js';
 export { createRedactingEventSink, createRedactor } from './infrastructure/redactor.js';
 export type { Redactor } from './infrastructure/redactor.js';
 export { createWebServiceFacade } from './application/web-service-facade.js';
