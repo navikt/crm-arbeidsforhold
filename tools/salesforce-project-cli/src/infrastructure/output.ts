@@ -54,6 +54,24 @@ function marker(symbol: string, plain: string, color: string, options: EventWrit
     return options.color ? styled(symbol, color, true) : plain;
 }
 
+function packageStatusMarker(status: OperationEvent & { kind: 'package-result' }, options: EventWriterOptions): string {
+    switch (status.status) {
+        case 'installed':
+            return marker('✓', 'OK', ANSI.green, options);
+        case 'updated':
+        case 'update':
+            return marker('↻', 'UPDATE', ANSI.cyan, options);
+        case 'failed':
+            return marker('✗', 'FAILED', ANSI.red, options);
+        case 'missing':
+            return marker('!', 'MISSING', ANSI.yellow, options);
+        case 'higher':
+            return marker('↑', 'HIGHER', ANSI.cyan, options);
+        case 'skip':
+            return marker('-', 'SKIP', ANSI.cyan, options);
+    }
+}
+
 function describeEvent(event: OperationEvent, options: EventWriterOptions): string[] {
     switch (event.kind) {
         case 'operation-started':
@@ -64,7 +82,7 @@ function describeEvent(event: OperationEvent, options: EventWriterOptions): stri
             if (event.diagnostic && !options.verbose) {
                 return [];
             }
-            return [`    ${event.message}`];
+            return [`    ${event.heartbeat ? '... ' : ''}${event.message}`];
         case 'retrying':
             return [
                 `  ${marker('↻', 'RETRY', ANSI.yellow, options)} ${event.step}: retry ${event.nextAttempt}/${event.maxAttempts} in ${duration(event.delayMs)} - ${event.message}`
@@ -80,11 +98,13 @@ function describeEvent(event: OperationEvent, options: EventWriterOptions): stri
                 `  Next action: ${event.nextAction ?? 'Review the diagnostic output, correct the failure, and retry.'}`
             ];
         case 'package-result':
-            return [`    [${event.ordinal}/${event.total}] ${event.packageName}: ${event.status} - ${event.message}`];
+            return [
+                `  [${String(event.ordinal).padStart(String(event.total).length, ' ')}/${event.total}] ${packageStatusMarker(event, options)} ${event.packageName}: ${event.status}${event.status === 'failed' ? ` - ${event.message}` : ''}`
+            ];
         case 'package-summary':
             return [
                 '  Package summary',
-                `    Total ${event.total} | Missing ${event.missing} | Installed ${event.installed} | Updated ${event.updated} | Skipped ${event.skipped} | Higher ${event.higher} | Failed ${event.failed}`
+                `    Total: ${event.total} | Installed: ${event.installed} | Updated: ${event.updated} | Skipped: ${event.skipped} | Higher: ${event.higher} | Failed: ${event.failed}`
             ];
         case 'org-summary':
             return [

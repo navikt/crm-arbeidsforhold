@@ -74,6 +74,47 @@ function render(options: { color: boolean; verbose: boolean; json?: boolean }): 
 }
 
 describe('CLI event output', () => {
+    it('renders package progress as a scannable status list', () => {
+        const stdout: string[] = [];
+        const write = createEventWriter({
+            color: false,
+            verbose: false,
+            json: false,
+            output: { stdout: (line) => stdout.push(line), stderr: () => undefined }
+        });
+
+        write({ ...common, kind: 'operation-started', operation: 'packages.install', dryRun: false });
+        write({
+            ...common,
+            kind: 'package-result',
+            packageName: 'platform-data-model',
+            ordinal: 1,
+            total: 19,
+            attempt: 1,
+            status: 'skip',
+            selectedVersion: '1.0.0.1',
+            selectedVersionId: '04t-platform',
+            message: 'platform-data-model: skip'
+        });
+        write({
+            ...common,
+            kind: 'progress',
+            stepId: 'install:crm-platform-base',
+            step: 'Install package',
+            message: 'Installing crm-platform-base (15s, attempt 1/3)',
+            heartbeat: true
+        });
+        write({ ...common, kind: 'package-summary', total: 19, missing: 0, installed: 1, updated: 0, skipped: 18, higher: 0, failed: 0 });
+
+        expect(stdout).toEqual([
+            'packages.install',
+            '  [ 1/19] SKIP platform-data-model: skip',
+            '    ... Installing crm-platform-base (15s, attempt 1/3)',
+            '  Package summary',
+            '    Total: 19 | Installed: 1 | Updated: 0 | Skipped: 18 | Higher: 0 | Failed: 0'
+        ]);
+    });
+
     it('renders a colored operation and step hierarchy for an interactive terminal', () => {
         expect(render({ color: true, verbose: false }).stdout.join('\n')).toMatchInlineSnapshot(`
           "[1;36morg.create[0m
