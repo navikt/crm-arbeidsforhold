@@ -53,6 +53,8 @@ export type OperationEvent =
     step: string;
     message: string;
     diagnostic?: boolean;
+    /** Marks a periodic "still running" tick; retained history keeps only the latest per step. */
+    heartbeat?: boolean;
     packageName?: string;
     directory?: string;
     preservedFiles?: string[];

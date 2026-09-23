@@ -2,6 +2,7 @@
  * Plans and executes package installation or update work from released and installed versions.
  * Dependency order is preserved, dry runs avoid mutation, and outcomes are emitted as stable events and exit codes.
  */
+import { setTimeout as wait } from 'node:timers/promises';
 import type { ProjectConfiguration } from '../domain/config.js';
 import { EXIT_CODES, type EventSink, type ExitCode } from '../domain/events.js';
 import {
@@ -16,6 +17,7 @@ import {
     type PackagePlanStatus,
     type PackageVersion
 } from '../domain/packages.js';
+import type { CommandResult } from '../infrastructure/command-runner.js';
 import type { CommandRunner } from './refresh-dependencies.js';
 import { withProgressHeartbeat } from '../infrastructure/progress-heartbeat.js';
 import { classifySalesforceFailure, describeCommandFailure, isTransientCommandFailure } from '../infrastructure/salesforce-errors.js';
@@ -63,6 +65,54 @@ interface InstalledPackageRecord {
     Version?: unknown;
     SubscriberPackageVersionId?: unknown;
     SubscriberPackageVersionID?: unknown;
+}
+
+const PACKAGE_INSTALL_POLL_INTERVAL_MS = 15_000;
+
+function parseJsonResult(stdout: string, command: string): unknown {
+    let payload: unknown;
+    try {
+        payload = JSON.parse(stdout);
+    } catch {
+        throw new Error(`${command} returned malformed JSON`);
+    }
+    if (payload === null || typeof payload !== 'object' || !('result' in payload)) {
+        throw new Error(`${command} returned an invalid result`);
+    }
+    return (payload as { result: unknown }).result;
+}
+
+function packageInstallRequestId(result: CommandResult): string | undefined {
+    let payload: unknown;
+    try {
+        payload = parseJsonResult(result.stdout, 'sf package install');
+    } catch {
+        return undefined;
+    }
+    if (payload === null || typeof payload !== 'object') return undefined;
+    const value = payload as Record<string, unknown>;
+    const requestId = value.Id ?? value.id ?? value.RequestId ?? value.requestId;
+    return typeof requestId === 'string' && requestId.startsWith('0Hf') ? requestId : undefined;
+}
+
+function packageInstallStatus(result: CommandResult): string | undefined {
+    try {
+        const payload = parseJsonResult(result.stdout, 'sf package install report');
+        if (payload === null || typeof payload !== 'object') return undefined;
+        const value = payload as Record<string, unknown>;
+        const status = value.Status ?? value.status;
+        return typeof status === 'string' ? status.toUpperCase() : undefined;
+    } catch {
+        return undefined;
+    }
+}
+
+function packageInstallSucceeded(status: string | undefined): boolean {
+    return status === 'SUCCESS' || status === 'SUCCEEDED' || status === 'INSTALLED' || status === 'COMPLETED';
+}
+
+function packageInstallFailed(status: string | undefined): boolean {
+    return status === 'ERROR' || status === 'FAILED' || status === 'CANCELED' || status === 'UNSUCCESSFUL';
 }
 
 function parseResult(stdout: string, command: string): unknown[] {
@@ -229,10 +279,26 @@ async function queryInstalledPackages(options: PlanPackagesOptions): Promise<Map
 
 async function resolvePackagePlan(options: PlanPackagesOptions): Promise<PackagePlanItem[]> {
     // Resolve sequentially so emitted ordinals and later mutation order match dependency declaration order.
+    options.emit({
+        kind: 'progress',
+        operationId: options.operationId,
+        timestamp: new Date().toISOString(),
+        stepId: 'packages:plan',
+        step: 'Resolve packages',
+        message: `Preparing package plan for ${options.configuration.packageDependencies.length} dependencies`
+    });
     const installedPackages = await queryInstalledPackages(options);
     const items: PackagePlanItem[] = [];
 
     for (const [index, dependency] of options.configuration.packageDependencies.entries()) {
+        options.emit({
+            kind: 'progress',
+            operationId: options.operationId,
+            timestamp: new Date().toISOString(),
+            stepId: 'packages:plan',
+            step: 'Resolve packages',
+            message: `Resolving package version [${index + 1}/${options.configuration.packageDependencies.length}]: ${dependency.packageName}`
+        });
         const selectedVersion = await querySelectedVersion(options, dependency);
         const installed = installedPackages.get(dependency.packageName);
         const status = statusFor(installed, selectedVersion);
@@ -377,10 +443,9 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
         if (targetOrg !== undefined) {
             arguments_.push('--target-org', targetOrg);
         }
-        // Without --wait, `sf package install` submits the request and returns "InProgress"
-        // immediately instead of polling for the real Succeeded/Failed outcome.
-        const waitMinutes = Math.max(1, Math.ceil(options.configuration.commandTimeouts.mutationMs / 60_000));
-        arguments_.push('--wait', String(waitMinutes));
+        // Submit asynchronously. The CLI's built-in --wait can remain blocked after Salesforce
+        // has finished the install, so poll the request report ourselves and stop on its terminal state.
+        arguments_.push('--wait', '0');
         arguments_.push('--json');
         const stepId = `install:${item.dependency.packageName}`;
         // Surfaced in the heartbeat message so a retried install reads as a fresh attempt, not a stall.
@@ -394,8 +459,8 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
                 message: (elapsedSeconds) =>
                     `Installing ${item.dependency.packageName} (${elapsedSeconds}s, attempt ${currentAttempt}/3)`
             },
-            () =>
-                options.runCommand({
+            async () => {
+                const submitResult = await options.runCommand({
                     executable: 'sf',
                     arguments: arguments_,
                     cwd: options.configuration.projectDirectory,
@@ -423,10 +488,101 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
                             });
                         }
                     }
-                })
+                });
+                if (submitResult.failed || submitResult.exitCode !== 0) return submitResult;
+
+                const requestId = packageInstallRequestId(submitResult);
+                if (requestId === undefined) {
+                    return {
+                        ...submitResult,
+                        failed: true,
+                        error: 'Salesforce did not return a package install request ID'
+                    };
+                }
+
+                const deadline = Date.now() + options.configuration.commandTimeouts.mutationMs;
+                let reportResult = submitResult;
+                while (Date.now() < deadline) {
+                    reportResult = await options.runCommand({
+                        executable: 'sf',
+                        arguments: [
+                            'package',
+                            'install',
+                            'report',
+                            '--request-id',
+                            requestId,
+                            ...(targetOrg === undefined ? [] : ['--target-org', targetOrg]),
+                            '--json'
+                        ],
+                        cwd: options.configuration.projectDirectory,
+                        timeoutMs: Math.max(1, deadline - Date.now()),
+                        ...(installationKey === undefined ? {} : { secretValues: [installationKey] }),
+                        ...(options.signal === undefined ? {} : { signal: options.signal })
+                    });
+                    if (reportResult.failed || reportResult.canceled || reportResult.timedOut) return reportResult;
+                    const status = packageInstallStatus(reportResult);
+                    if (packageInstallSucceeded(status) || packageInstallFailed(status)) return reportResult;
+                    try {
+                        const installedPackages = await queryInstalledPackages(options);
+                        const installed = installedPackages.get(item.dependency.packageName);
+                        if (installed !== undefined && comparePackageVersions(installed, item.selectedVersion) === 0) {
+                            options.emit({
+                                kind: 'progress',
+                                operationId: options.operationId,
+                                timestamp: new Date().toISOString(),
+                                stepId,
+                                step: 'Install package',
+                                message: `${item.dependency.packageName} is installed; finishing package step`
+                            });
+                            return { ...reportResult, failed: false, exitCode: 0, timedOut: false };
+                        }
+                    } catch {
+                        // Keep polling when the verification query is temporarily unavailable.
+                    }
+                    try {
+                        await wait(
+                            Math.min(PACKAGE_INSTALL_POLL_INTERVAL_MS, Math.max(1, deadline - Date.now())),
+                            undefined,
+                            options.signal === undefined ? {} : { signal: options.signal }
+                        );
+                    } catch (error) {
+                        if (options.signal?.aborted) {
+                            return { ...reportResult, failed: true, canceled: true, error: 'Operation was canceled' };
+                        }
+                        throw error;
+                    }
+                }
+
+                return {
+                    ...reportResult,
+                    failed: true,
+                    timedOut: true,
+                    error: `Package install report did not reach a terminal state within ${Math.ceil(options.configuration.commandTimeouts.mutationMs / 60_000)} minutes`
+                };
+            }
         );
 
-        if (result.failed || result.exitCode !== 0) {
+        let completedAfterTimeout = false;
+        if (result.timedOut) {
+            options.emit({
+                kind: 'progress',
+                operationId: options.operationId,
+                timestamp: new Date().toISOString(),
+                stepId,
+                step: 'Install package',
+                message: `Install command timed out; checking whether ${item.dependency.packageName} was installed`
+            });
+            try {
+                const installedAfterTimeout = await queryInstalledPackages(options);
+                const installed = installedAfterTimeout.get(item.dependency.packageName);
+                completedAfterTimeout =
+                    installed !== undefined && comparePackageVersions(installed, item.selectedVersion) === 0;
+            } catch {
+                // Preserve the original timeout when the reconciliation query cannot complete.
+            }
+        }
+
+        if ((result.failed || result.exitCode !== 0) && !completedAfterTimeout) {
             summary.failed += 1;
             options.emit({
                 kind: 'package-result',

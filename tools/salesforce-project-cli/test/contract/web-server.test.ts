@@ -461,6 +461,55 @@ describe('web server', () => {
         expect(serialized).not.toContain('auth.json');
     });
 
+    it('retains only the latest heartbeat tick per step instead of every tick', async () => {
+        const facade = createFacade();
+        vi.mocked(facade.execute).mockImplementation(async (request, emit) => {
+            for (const elapsedSeconds of [15, 30, 45]) {
+                emit({
+                    kind: 'progress',
+                    operationId: request.operationId,
+                    timestamp: new Date().toISOString(),
+                    stepId: 'install:shared-package',
+                    step: 'Install package',
+                    message: `Installing shared-package (${elapsedSeconds}s, attempt 1/3)`,
+                    heartbeat: true
+                } as never);
+            }
+            emit({
+                kind: 'step-completed',
+                operationId: request.operationId,
+                timestamp: new Date().toISOString(),
+                stepId: 'install:shared-package',
+                step: 'Install package',
+                exitCode: 0,
+                durationMs: 45_000
+            });
+            return 0;
+        });
+        const started = await start(facade);
+        const headers = { authorization: `Bearer ${started.sessionToken}` };
+
+        const createResponse = await fetch(`${started.baseUrl}/api/v1/operations`, {
+            method: 'POST',
+            headers: {
+                authorization: `Bearer ${started.sessionToken}`,
+                'content-type': 'application/json',
+                origin: started.baseUrl
+            },
+            body: JSON.stringify({ command: 'dependencies.clear', payload: { dryRun: true } })
+        });
+        const { id } = (await createResponse.json()) as { id: string };
+        await new Promise((resolve) => setImmediate(resolve));
+
+        const detail = await fetch(`${started.baseUrl}/api/v1/operations/${id}`, { headers });
+        const body = (await detail.json()) as { events: Array<Record<string, unknown>> };
+        const heartbeatEvents = body.events.filter((event) => event.heartbeat === true);
+
+        expect(heartbeatEvents).toHaveLength(1);
+        expect(heartbeatEvents[0]).toMatchObject({ message: 'Installing shared-package (45s, attempt 1/3)' });
+        expect(body.events.map((event) => event.kind)).toEqual(['operation-started', 'progress', 'step-completed', 'operation-completed']);
+    });
+
     it('replays stored events over SSE, streams live events, and removes disconnected subscribers', async () => {
         let emitLive: ((message: string) => void) | undefined;
         let finish: (() => void) | undefined;

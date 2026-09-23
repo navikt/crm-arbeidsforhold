@@ -92,7 +92,11 @@ The event union includes:
 
 Step IDs and parent IDs allow consumers to reconstruct hierarchy without parsing rendered text. The CLI renders these events for humans or emits NDJSON. The web server redacts, retains, replays, and broadcasts the same events.
 
-Long-running steps (package install, org create/delete, project configure's post-steps, dependency retrieval) also emit a periodic, non-diagnostic `progress` heartbeat every 15 seconds while their command is in flight, via `withProgressHeartbeat` in `src/infrastructure/progress-heartbeat.ts`. This keeps non-verbose output from going silent during a slow command; it is a plain new event per tick, not a redrawn spinner, so it fits the existing line-based, testable output model unchanged.
+Long-running steps (package install, org create/delete, project configure's post-steps, dependency retrieval) also emit a periodic, non-diagnostic `progress` heartbeat every 15 seconds while their command is in flight, via `withProgressHeartbeat` in `src/infrastructure/progress-heartbeat.ts`. This keeps non-verbose output from going silent during a slow command; it is a plain new event per tick, not a redrawn spinner, so it fits the existing line-based, testable output model unchanged. Each heartbeat event carries `heartbeat: true`; the web server's bounded, replayable operation history (`maxEventsPerOperation`) keeps only the latest tick per step instead of every tick, so a single slow step cannot crowd out earlier history. Live SSE subscribers still receive every tick as it happens — only retained/replay history is coalesced.
+
+Package installation also reports its preflight phases before package results are available: target-org validation, initial installed-package lookup, and sequential released-version resolution (`[n/total]`). This makes the planning work visible in human output and NDJSON instead of leaving the operation at `packages.install` with no explanation while Salesforce CLI queries are running.
+
+Install mutations submit with `sf package install --wait 0` and poll the returned `0Hf` request through `sf package install report`. This avoids coupling completion detection to the Salesforce CLI process's built-in wait loop; the application owns the poll interval, total timeout, cancellation, and final status handling.
 
 ## Adapters and boundaries
 

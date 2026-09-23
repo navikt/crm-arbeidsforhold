@@ -43,7 +43,8 @@ export async function withProgressHeartbeat<T>(options: HeartbeatOptions, run: (
             timestamp: new Date().toISOString(),
             stepId: options.stepId,
             step: options.step,
-            message: options.message(elapsedSeconds)
+            message: options.message(elapsedSeconds),
+            heartbeat: true
         });
     }, intervalMs);
     // An unref'd timer never keeps the Node.js process alive on its own.

@@ -108,7 +108,13 @@ function createRunner(installed: unknown[] = []) {
                     ]
             );
         }
-        return commandResult(request, { id: request.arguments?.[3] });
+        if (request.arguments?.[1] === 'install' && request.arguments?.[2] === 'report') {
+            return commandResult(request, { Status: 'SUCCESS' });
+        }
+        if (request.arguments?.[1] === 'install') {
+            return commandResult(request, { Id: '0Hf-install-request', Status: 'IN_PROGRESS' });
+        }
+        return commandResult(request, {});
     });
     return { requests, runner };
 }
@@ -135,9 +141,11 @@ describe('packages install and update', () => {
         );
 
         expect(exitCode).toBe(0);
-        const installRequests = requests.filter((request) => request.arguments?.[1] === 'install');
+        const installRequests = requests.filter(
+            (request) => request.arguments?.[1] === 'install' && request.arguments?.[2] !== 'report'
+        );
         expect(installRequests.map((request) => request.arguments)).toEqual([
-            ['package', 'install', '--package', '04t-keyless-latest', '--target-org', 'scratch-org', '--wait', '10', '--json'],
+            ['package', 'install', '--package', '04t-keyless-latest', '--target-org', 'scratch-org', '--wait', '0', '--json'],
             [
                 'package',
                 'install',
@@ -148,7 +156,7 @@ describe('packages install and update', () => {
                 '--target-org',
                 'scratch-org',
                 '--wait',
-                '10',
+                '0',
                 '--json'
             ]
         ]);
@@ -161,6 +169,81 @@ describe('packages install and update', () => {
                 installed: 2,
                 updated: 0,
                 failed: 0
+            })
+        );
+    });
+
+    it('accepts a timed-out install when the selected version is present afterwards', async () => {
+        const projectDirectory = await createProject();
+        let installedQueryCount = 0;
+        let installCount = 0;
+        const runner = vi.fn(async (request: CommandRequest) => {
+            if (request.arguments?.[1] === 'installed') {
+                installedQueryCount += 1;
+                return commandResult(
+                    request,
+                    installedQueryCount === 1
+                        ? []
+                        : [
+                            {
+                                SubscriberPackageName: 'keyless',
+                                SubscriberPackageVersionNumber: '1.0.0.1',
+                                SubscriberPackageVersionId: '04t-keyless-latest'
+                            }
+                        ]
+                );
+            }
+            if (request.arguments?.[1] === 'version') {
+                return commandResult(
+                    request,
+                    request.arguments[4] === '0Ho-keyless'
+                        ? [released('keyless', '1.0.0.1', '04t-keyless-latest')]
+                        : [released('protected', '2.0.0.1', '04t-protected-latest')]
+                );
+            }
+            if (request.arguments?.[1] === 'display') {
+                return commandResult(request, {
+                    alias: 'scratch-org',
+                    username: 'scratch@example.test',
+                    orgId: '00D000000000001',
+                    orgType: 'scratch',
+                    connectedStatus: 'Connected',
+                    instanceUrl: 'https://example.scratch.my.salesforce.com'
+                });
+            }
+            if (request.arguments?.[1] === 'install') {
+                if (request.arguments?.[2] === 'report') {
+                    return commandResult(request, { Status: 'SUCCESS' });
+                }
+                installCount += 1;
+                return installCount === 1
+                    ? commandResult(request, { status: 'Succeeded' }, { failed: true, timedOut: true, error: 'Command timed out' })
+                    : commandResult(request, { Id: '0Hf-protected-request', Status: 'IN_PROGRESS' });
+            }
+            return commandResult(request, {});
+        });
+        const stdout: string[] = [];
+
+        const exitCode = await runCli(
+            [
+                'packages',
+                'install',
+                '--project-dir',
+                projectDirectory,
+                '--target-org',
+                'scratch-org',
+                '--json'
+            ],
+            { stdout: (line) => stdout.push(line), stderr: () => undefined },
+            { runCommand: runner, environment: { TEST_PACKAGE_KEY: 'test-key' } }
+        );
+
+        expect(exitCode).toBe(0);
+        expect(stdout.map((line) => JSON.parse(line))).toContainEqual(
+            expect.objectContaining({
+                kind: 'package-result',
+                packageName: 'keyless',
+                status: 'installed'
             })
         );
     });
@@ -189,7 +272,9 @@ describe('packages install and update', () => {
 
         expect(exitCode).toBe(0);
         expect(
-            requests.filter((request) => request.arguments?.[1] === 'install').map((request) => request.arguments?.[3])
+            requests
+                .filter((request) => request.arguments?.[1] === 'install' && request.arguments?.[2] !== 'report')
+                .map((request) => request.arguments?.[3])
         ).toEqual(['04t-keyless']);
         expect(stdout.map((line) => JSON.parse(line))).toEqual(
             expect.arrayContaining([
@@ -214,7 +299,7 @@ describe('packages install and update', () => {
         expect(missingExitCode).toBe(0);
         expect(
             missingRun.requests
-                .filter((request) => request.arguments?.[1] === 'install')
+                .filter((request) => request.arguments?.[1] === 'install' && request.arguments?.[2] !== 'report')
                 .map((request) => request.arguments?.[3])
         ).toEqual(['04t-keyless']);
     });
@@ -290,7 +375,10 @@ describe('packages install and update', () => {
                         : [released('protected', '2.0.0.4', '04t-protected')]
                 );
             }
-            if (request.arguments?.[3] === '04t-protected') {
+            if (request.arguments?.[1] === 'install' && request.arguments?.[2] === 'report') {
+                return commandResult(request, { Status: 'SUCCESS' });
+            }
+            if (request.arguments?.[1] === 'install' && request.arguments?.[3] === '04t-protected') {
                 const transient = commandResult(request, [], {
                     exitCode: 1,
                     failed: true,
@@ -302,7 +390,10 @@ describe('packages install and update', () => {
                     await request.retry?.shouldRetry?.({ ...transient, stderr: 'INVALID_CROSS_REFERENCE_KEY' })
                 ).toBe(false);
                 request.retry?.onRetry?.(transient, 2, request.retry.delayMs ?? 0);
-                return commandResult(request, {}, { attempts: 2 });
+                return commandResult(request, { Id: '0Hf-protected-request', Status: 'IN_PROGRESS' }, { attempts: 2 });
+            }
+            if (request.arguments?.[1] === 'install') {
+                return commandResult(request, { Id: '0Hf-keyless-request', Status: 'IN_PROGRESS' });
             }
             return commandResult(request, {});
         });

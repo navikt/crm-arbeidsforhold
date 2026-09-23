@@ -831,6 +831,14 @@ export async function runCli(
                     dryRun: options.dryRun
                 });
                 if (!options.dryRun) {
+                    emit({
+                        kind: 'progress',
+                        operationId,
+                        timestamp: new Date().toISOString(),
+                        stepId: 'packages:target-org',
+                        step: 'Check target org',
+                        message: 'Checking target organization'
+                    });
                     await assertMutationTarget(
                         options.projectDir,
                         options.targetOrg,

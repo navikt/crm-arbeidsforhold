@@ -470,7 +470,23 @@ export async function startWebServer(options: StartWebServerOptions): Promise<St
     const publish = (operation: StoredOperation, event: OperationEvent): void => {
         const safeEvent = sanitize(event);
         // Persist exactly what SSE clients receive, with bounded history for replay and API inspection.
-        operation.events.push(safeEvent);
+        // A heartbeat tick only ever means "this step is still running"; retaining every tick would let a
+        // single slow step crowd out earlier history, so only the latest tick per step is kept.
+        const replaceIndex =
+            safeEvent.kind === 'progress' && safeEvent.heartbeat === true
+                ? operation.events.findIndex(
+                    (existing) =>
+                        existing.kind === 'progress' && existing.heartbeat === true && existing.stepId === safeEvent.stepId
+                )
+                : -1;
+        if (replaceIndex === -1) {
+            operation.events.push(safeEvent);
+        } else {
+            // Remove and re-push rather than overwrite in place, so the updated tick still replays
+            // in its correct chronological position relative to other steps' events.
+            operation.events.splice(replaceIndex, 1);
+            operation.events.push(safeEvent);
+        }
         if (operation.events.length > maxEvents) operation.events.splice(0, operation.events.length - maxEvents);
         for (const subscriber of subscribers.get(operation.id) ?? []) {
             subscriber.write(`event: operation\ndata: ${JSON.stringify(safeEvent)}\n\n`);

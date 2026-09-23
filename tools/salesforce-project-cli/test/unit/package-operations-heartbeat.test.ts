@@ -50,12 +50,30 @@ describe('installPackages heartbeat', () => {
         try {
             const events: OperationEvent[] = [];
             let resolveInstall!: (result: CommandResult) => void;
+            let installedQueryCount = 0;
             const runCommand = vi.fn(async (request: CommandRequest) => {
-                if (request.arguments?.[1] === 'installed') return commandResult(request, []);
+                if (request.arguments?.[1] === 'installed') {
+                    installedQueryCount += 1;
+                    return commandResult(
+                        request,
+                        installedQueryCount === 1
+                            ? []
+                            : [
+                                {
+                                    SubscriberPackageName: 'shared-package',
+                                    SubscriberPackageVersionNumber: '1.0.0.3',
+                                    SubscriberPackageVersionId: '04t-shared'
+                                }
+                            ]
+                    );
+                }
                 if (request.arguments?.[1] === 'version') {
                     return commandResult(request, [
                         { PackageName: 'shared-package', MajorVersion: 1, MinorVersion: 0, PatchVersion: 0, BuildNumber: 3, SubscriberPackageVersionId: '04t-shared' }
                     ]);
+                }
+                if (request.arguments?.[1] === 'install' && request.arguments?.[2] === 'report') {
+                    return commandResult(request, { Status: 'IN_PROGRESS' });
                 }
                 if (request.arguments?.[1] === 'install') {
                     return new Promise<CommandResult>((resolve) => {
@@ -80,13 +98,14 @@ describe('installPackages heartbeat', () => {
             expect(events).toContainEqual(
                 expect.objectContaining({
                     kind: 'progress',
+                    heartbeat: true,
                     stepId: 'install:shared-package',
                     step: 'Install package',
                     message: 'Installing shared-package (15s, attempt 1/3)'
                 })
             );
 
-            resolveInstall(commandResult({ executable: 'sf', arguments: [] }, { id: '04t-shared' }));
+            resolveInstall(commandResult({ executable: 'sf', arguments: [] }, { Id: '0Hf-shared-request', Status: 'IN_PROGRESS' }));
             await expect(installPromise).resolves.toBe(EXIT_CODES.SUCCESS);
         } finally {
             vi.useRealTimers();

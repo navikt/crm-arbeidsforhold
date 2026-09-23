@@ -610,6 +610,12 @@ describe('org lifecycle', () => {
                     }
                 ]);
             }
+            if (request.arguments?.[1] === 'install' && request.arguments?.[2] === 'report') {
+                return successfulResult(request, { Status: 'SUCCESS' });
+            }
+            if (request.arguments?.[1] === 'install') {
+                return successfulResult(request, { Id: '0Hf-shared-request', Status: 'IN_PROGRESS' });
+            }
             return successfulResult(request);
         });
 

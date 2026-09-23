@@ -161,7 +161,7 @@ sf-project packages install [--project-dir <path>] [--target-org <alias-or-usern
 
 Installs missing packages and upgrades older packages in declaration order. It skips equal versions and never downgrades a higher installed version. Dry-run still performs read-only Salesforce queries. Real installation is restricted to scratch orgs. For another org, the exact token `MUTATE packages.install <alias-or-username>` is required.
 
-Each install command passes `sf package install --wait <minutes>`, derived from `commandTimeouts.mutationMs` (default 10 minutes), so the command polls for the real `Succeeded`/`Failed` outcome instead of returning immediately with `InProgress`. A heartbeat progress line (`Installing <package> (Ns, attempt A/3)`) is emitted every 15 seconds while an install is in flight.
+Each install submits `sf package install --wait 0` and then polls `sf package install report --request-id <0Hf...>` until Salesforce returns a terminal `SUCCESS` or failure status. During polling it also checks `sf package installed list`; if the exact selected package version is already installed, the step finishes immediately even when the request report is still `IN_PROGRESS`. Polling is bounded by `commandTimeouts.mutationMs` (default 10 minutes), and a heartbeat progress line (`Installing <package> (Ns, attempt A/3)`) is emitted every 15 seconds while the request is in flight. If the local process times out, the tool re-reads installed packages and accepts the operation only when the exact selected package version is present; otherwise it reports the timeout as a failure.
 
 ### `packages update`
 
