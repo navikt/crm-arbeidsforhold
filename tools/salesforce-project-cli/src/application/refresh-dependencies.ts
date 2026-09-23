@@ -5,10 +5,10 @@
 import type { ProjectConfiguration } from '../domain/config.js';
 import { EXIT_CODES, type EventSink, type ExitCode } from '../domain/events.js';
 import type { CommandRequest, CommandResult } from '../infrastructure/command-runner.js';
-import { withProgressHeartbeat } from '../infrastructure/progress-heartbeat.js';
-import { classifySalesforceFailure, describeCommandFailure, isTransientCommandFailure } from '../infrastructure/salesforce-errors.js';
+import { classifySalesforceFailure, describeCommandFailure } from '../infrastructure/salesforce-errors.js';
 import { clearDependencySources } from './clear-dependency-sources.js';
 import { disableForceignore, recoverForceignoreTransaction, type ForceignoreLease } from './forceignore-transaction.js';
+import { runDependencyRetrieval } from './dependency-retrieval-runner.js';
 
 /** Injectable executor for external commands issued by application services. */
 export type CommandRunner = (request: CommandRequest) => Promise<CommandResult>;
@@ -130,52 +130,16 @@ async function retrieveDependencies(options: RefreshDependenciesOptions): Promis
             dryRun: false
         });
 
-        const commandArguments = ['project', 'retrieve', 'start'];
-        if (options.targetOrg !== undefined) {
-            commandArguments.push('--target-org', options.targetOrg);
-        }
-        commandArguments.push('-n', dependency.packageName);
-
-        // Surfaced in the heartbeat message so a retried retrieve reads as a fresh attempt, not a stall.
-        let currentAttempt = 1;
-        const result = await withProgressHeartbeat(
-            {
-                emit: options.emit,
-                operationId: options.operationId,
-                stepId,
-                step: 'Retrieve dependency',
-                message: (elapsedSeconds) =>
-                    `Retrieving ${dependency.packageName} (${elapsedSeconds}s, attempt ${currentAttempt}/3)`
-            },
-            () =>
-                options.runCommand({
-                    executable: 'sf',
-                    arguments: commandArguments,
-                    cwd: options.configuration.projectDirectory,
-                    ...(options.signal === undefined ? {} : { signal: options.signal }),
-                    retry: {
-                        maxAttempts: 3,
-                        delayMs: 5_000,
-                        shouldRetry: isTransientCommandFailure,
-                        onRetry: (failure, nextAttempt, delayMs) => {
-                            currentAttempt = nextAttempt;
-                            options.emit({
-                                kind: 'retrying',
-                                operationId: options.operationId,
-                                timestamp: new Date().toISOString(),
-                                stepId,
-                                step: 'Retrieve dependency',
-                                attempt: nextAttempt - 1,
-                                nextAttempt,
-                                maxAttempts: 3,
-                                delayMs,
-                                message: `Retrying ${dependency.packageName}`,
-                                error: failure.error ?? failure.stderr
-                            });
-                        }
-                    }
-                })
-        );
+        const result = await runDependencyRetrieval({
+            configuration: options.configuration,
+            dependencyName: dependency.packageName,
+            ...(options.targetOrg === undefined ? {} : { targetOrg: options.targetOrg }),
+            operationId: options.operationId,
+            stepId,
+            emit: options.emit,
+            runCommand: options.runCommand,
+            ...(options.signal === undefined ? {} : { signal: options.signal })
+        });
 
         if (result.failed || result.exitCode !== 0) {
             options.emit({
