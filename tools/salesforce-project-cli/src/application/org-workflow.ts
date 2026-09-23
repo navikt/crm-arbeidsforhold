@@ -152,6 +152,8 @@ async function runStep(
     commandArguments: string[]
 ): Promise<ExitCode> {
     const startedAt = Date.now();
+    // Surfaced in the heartbeat message so a retried command reads as a fresh attempt, not a stall.
+    let currentAttempt = 1;
     options.emit({
         kind: 'step-started',
         operationId: options.operationId,
@@ -166,7 +168,7 @@ async function runStep(
             operationId: options.operationId,
             stepId,
             step,
-            message: (elapsedSeconds) => `${step} is still running (${elapsedSeconds}s)`
+            message: (elapsedSeconds) => `${step} is still running (${elapsedSeconds}s, attempt ${currentAttempt}/3)`
         },
         () =>
             options.runCommand(withCommandOutput(options, stepId, step, {
@@ -178,7 +180,8 @@ async function runStep(
                     maxAttempts: 3,
                     delayMs: 5_000,
                     shouldRetry: isTransientCommandFailure,
-                    onRetry: (failure, nextAttempt, delayMs) =>
+                    onRetry: (failure, nextAttempt, delayMs) => {
+                        currentAttempt = nextAttempt;
                         options.emit({
                             kind: 'retrying',
                             operationId: options.operationId,
@@ -191,7 +194,8 @@ async function runStep(
                             delayMs,
                             message: `Retrying ${step}`,
                             error: failure.error ?? failure.stderr
-                        })
+                        });
+                    }
                 }
             }))
     );
@@ -384,6 +388,8 @@ async function resetSourceTracking(options: ResolvedConfigureProjectOptions): Pr
     const startedAt = Date.now();
     const stepId = 'reset-source-tracking';
     const step = 'Reset remote source tracking';
+    // Surfaced in the heartbeat message so a retried command reads as a fresh attempt, not a stall.
+    let currentAttempt = 1;
     options.emit({
         kind: 'step-started',
         operationId: options.operationId,
@@ -398,7 +404,7 @@ async function resetSourceTracking(options: ResolvedConfigureProjectOptions): Pr
             operationId: options.operationId,
             stepId,
             step,
-            message: (elapsedSeconds) => `${step} is still running (${elapsedSeconds}s)`
+            message: (elapsedSeconds) => `${step} is still running (${elapsedSeconds}s, attempt ${currentAttempt}/3)`
         },
         () =>
             options.runCommand(withCommandOutput(options, stepId, step, {
@@ -417,7 +423,8 @@ async function resetSourceTracking(options: ResolvedConfigureProjectOptions): Pr
                     maxAttempts: 3,
                     delayMs: 5_000,
                     shouldRetry: isTransientCommandFailure,
-                    onRetry: (failure, nextAttempt, delayMs) =>
+                    onRetry: (failure, nextAttempt, delayMs) => {
+                        currentAttempt = nextAttempt;
                         options.emit({
                             kind: 'retrying',
                             operationId: options.operationId,
@@ -430,7 +437,8 @@ async function resetSourceTracking(options: ResolvedConfigureProjectOptions): Pr
                             delayMs,
                             message: `Retrying ${step}`,
                             error: failure.error ?? failure.stderr
-                        })
+                        });
+                    }
                 }
             }))
     );

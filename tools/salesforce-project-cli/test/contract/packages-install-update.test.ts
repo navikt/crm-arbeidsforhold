@@ -137,7 +137,7 @@ describe('packages install and update', () => {
         expect(exitCode).toBe(0);
         const installRequests = requests.filter((request) => request.arguments?.[1] === 'install');
         expect(installRequests.map((request) => request.arguments)).toEqual([
-            ['package', 'install', '--package', '04t-keyless-latest', '--target-org', 'scratch-org', '--json'],
+            ['package', 'install', '--package', '04t-keyless-latest', '--target-org', 'scratch-org', '--wait', '10', '--json'],
             [
                 'package',
                 'install',
@@ -147,6 +147,8 @@ describe('packages install and update', () => {
                 'top-secret',
                 '--target-org',
                 'scratch-org',
+                '--wait',
+                '10',
                 '--json'
             ]
         ]);

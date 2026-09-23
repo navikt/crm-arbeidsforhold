@@ -82,7 +82,7 @@ describe('installPackages heartbeat', () => {
                     kind: 'progress',
                     stepId: 'install:shared-package',
                     step: 'Install package',
-                    message: 'Installing shared-package (15s)'
+                    message: 'Installing shared-package (15s, attempt 1/3)'
                 })
             );
 

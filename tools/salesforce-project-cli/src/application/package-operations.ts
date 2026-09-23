@@ -377,15 +377,22 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
         if (targetOrg !== undefined) {
             arguments_.push('--target-org', targetOrg);
         }
+        // Without --wait, `sf package install` submits the request and returns "InProgress"
+        // immediately instead of polling for the real Succeeded/Failed outcome.
+        const waitMinutes = Math.max(1, Math.ceil(options.configuration.commandTimeouts.mutationMs / 60_000));
+        arguments_.push('--wait', String(waitMinutes));
         arguments_.push('--json');
         const stepId = `install:${item.dependency.packageName}`;
+        // Surfaced in the heartbeat message so a retried install reads as a fresh attempt, not a stall.
+        let currentAttempt = 1;
         const result = await withProgressHeartbeat(
             {
                 emit: options.emit,
                 operationId: options.operationId,
                 stepId,
                 step: 'Install package',
-                message: (elapsedSeconds) => `Installing ${item.dependency.packageName} (${elapsedSeconds}s)`
+                message: (elapsedSeconds) =>
+                    `Installing ${item.dependency.packageName} (${elapsedSeconds}s, attempt ${currentAttempt}/3)`
             },
             () =>
                 options.runCommand({
@@ -399,7 +406,8 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
                         maxAttempts: 3,
                         delayMs: 5_000,
                         shouldRetry: isRetryablePackageInstallFailure,
-                        onRetry: (failure, nextAttempt, delayMs) =>
+                        onRetry: (failure, nextAttempt, delayMs) => {
+                            currentAttempt = nextAttempt;
                             options.emit({
                                 kind: 'retrying',
                                 operationId: options.operationId,
@@ -412,7 +420,8 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
                                 delayMs,
                                 message: `Retrying ${item.dependency.packageName}`,
                                 error: failure.error ?? failure.stderr
-                            })
+                            });
+                        }
                     }
                 })
         );

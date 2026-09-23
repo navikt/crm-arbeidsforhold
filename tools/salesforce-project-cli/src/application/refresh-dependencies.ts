@@ -136,13 +136,16 @@ async function retrieveDependencies(options: RefreshDependenciesOptions): Promis
         }
         commandArguments.push('-n', dependency.packageName);
 
+        // Surfaced in the heartbeat message so a retried retrieve reads as a fresh attempt, not a stall.
+        let currentAttempt = 1;
         const result = await withProgressHeartbeat(
             {
                 emit: options.emit,
                 operationId: options.operationId,
                 stepId,
                 step: 'Retrieve dependency',
-                message: (elapsedSeconds) => `Retrieving ${dependency.packageName} (${elapsedSeconds}s)`
+                message: (elapsedSeconds) =>
+                    `Retrieving ${dependency.packageName} (${elapsedSeconds}s, attempt ${currentAttempt}/3)`
             },
             () =>
                 options.runCommand({
@@ -154,7 +157,8 @@ async function retrieveDependencies(options: RefreshDependenciesOptions): Promis
                         maxAttempts: 3,
                         delayMs: 5_000,
                         shouldRetry: isTransientCommandFailure,
-                        onRetry: (failure, nextAttempt, delayMs) =>
+                        onRetry: (failure, nextAttempt, delayMs) => {
+                            currentAttempt = nextAttempt;
                             options.emit({
                                 kind: 'retrying',
                                 operationId: options.operationId,
@@ -167,7 +171,8 @@ async function retrieveDependencies(options: RefreshDependenciesOptions): Promis
                                 delayMs,
                                 message: `Retrying ${dependency.packageName}`,
                                 error: failure.error ?? failure.stderr
-                            })
+                            });
+                        }
                     }
                 })
         );

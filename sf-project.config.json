@@ -17,11 +17,15 @@
         "community"
     ],
     "pool": {
-        "use": true,
+        "use": false,
         "tag": "dev",
         "fallbackToCreate": true
     },
     "packageInstallKeyEnvironmentVariable": "PACKAGE_INSTALL_KEY",
+    "commandTimeouts": {
+        "readMs": 30000,
+        "mutationMs": 600000
+    },
     "dependencySourcePolicy": {
         "preserveRootFiles": [
             "README.md"
