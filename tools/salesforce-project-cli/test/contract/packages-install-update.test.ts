@@ -120,6 +120,39 @@ function createRunner(installed: unknown[] = []) {
 }
 
 describe('packages install and update', () => {
+    it('runs package installation from local mock fixtures without invoking the command runner', async () => {
+        const projectDirectory = await createProject();
+        const runner = vi.fn(async (request: CommandRequest) => commandResult(request, {}));
+        const stdout: string[] = [];
+
+        const exitCode = await runCli(
+            [
+                'packages',
+                'install',
+                '--project-dir',
+                projectDirectory,
+                '--target-org',
+                'mock-org',
+                '--mock',
+                '--json'
+            ],
+            { stdout: (line) => stdout.push(line), stderr: () => undefined },
+            { runCommand: runner, environment: { TEST_PACKAGE_KEY: 'mock-key' } }
+        );
+
+        expect(exitCode).toBe(0);
+        expect(runner).not.toHaveBeenCalled();
+        expect(JSON.parse(stdout[0] ?? '')).toMatchObject({
+            kind: 'operation-started',
+            operation: 'packages.install',
+            mock: true,
+            dryRun: false
+        });
+        expect(stdout.map((line) => JSON.parse(line))).toContainEqual(
+            expect.objectContaining({ kind: 'package-summary', installed: 2, failed: 0 })
+        );
+    });
+
     it('installs selected latest versions sequentially with keys only when required', async () => {
         const projectDirectory = await createProject();
         const { requests, runner } = createRunner();
@@ -171,6 +204,10 @@ describe('packages install and update', () => {
                 failed: 0
             })
         );
+        expect(JSON.parse(stdout.at(-1) ?? '')).toMatchObject({
+            kind: 'operation-completed',
+            resources: { installed: 2, updated: 0, skipped: 0, failed: 0 }
+        });
     });
 
     it('accepts a timed-out install when the selected version is present afterwards', async () => {

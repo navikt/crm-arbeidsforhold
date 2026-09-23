@@ -110,7 +110,8 @@ describe('CLI event output', () => {
             'packages.install',
             '  [ 1/19] SKIP platform-data-model: skip',
             '    ... Installing crm-platform-base (15s, attempt 1/3)',
-            '  Package summary',
+            '  PACKAGE SUMMARY',
+            '    1 package changed',
             '    Total: 19 | Installed: 1 | Updated: 0 | Skipped: 18 | Higher: 0 | Failed: 0'
         ]);
     });

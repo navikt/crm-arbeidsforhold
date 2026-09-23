@@ -72,10 +72,26 @@ function packageStatusMarker(status: OperationEvent & { kind: 'package-result' }
     }
 }
 
+function packageSummaryLines(event: Extract<OperationEvent, { kind: 'package-summary' }>, options: EventWriterOptions): string[] {
+    const conclusion =
+        event.failed > 0
+            ? `${event.failed} package${event.failed === 1 ? '' : 's'} failed`
+            : event.installed + event.updated > 0
+                ? `${event.installed + event.updated} package${event.installed + event.updated === 1 ? '' : 's'} changed`
+                : event.skipped === event.total
+                    ? 'All packages are already up to date'
+                    : 'No package changes were needed';
+    return [
+        `  ${styled('PACKAGE SUMMARY', ANSI.boldCyan, options.color)}`,
+        `    ${conclusion}`,
+        `    Total: ${event.total} | Installed: ${event.installed} | Updated: ${event.updated} | Skipped: ${event.skipped} | Higher: ${event.higher} | Failed: ${event.failed}`
+    ];
+}
+
 function describeEvent(event: OperationEvent, options: EventWriterOptions): string[] {
     switch (event.kind) {
         case 'operation-started':
-            return [styled(`${event.operation}${event.dryRun ? ' (dry run)' : ''}`, ANSI.boldCyan, options.color)];
+            return [styled(`${event.operation}${event.dryRun ? ' (dry run)' : ''}${event.mock ? ' (mock)' : ''}`, ANSI.boldCyan, options.color)];
         case 'step-started':
             return [`  ${marker('→', '->', ANSI.cyan, options)} ${event.step} (attempt ${event.attempt})`];
         case 'progress':
@@ -102,10 +118,7 @@ function describeEvent(event: OperationEvent, options: EventWriterOptions): stri
                 `  [${String(event.ordinal).padStart(String(event.total).length, ' ')}/${event.total}] ${packageStatusMarker(event, options)} ${event.packageName}: ${event.status}${event.status === 'failed' ? ` - ${event.message}` : ''}`
             ];
         case 'package-summary':
-            return [
-                '  Package summary',
-                `    Total: ${event.total} | Installed: ${event.installed} | Updated: ${event.updated} | Skipped: ${event.skipped} | Higher: ${event.higher} | Failed: ${event.failed}`
-            ];
+            return packageSummaryLines(event, options);
         case 'org-summary':
             return [
                 `  Org summary: ${event.acquisition} ${event.alias} - ${event.status}${event.dryRun ? ' (dry run)' : ''}`

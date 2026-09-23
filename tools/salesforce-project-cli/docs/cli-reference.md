@@ -139,7 +139,7 @@ sf-project project configure [--project-dir <path>] [--alias <alias>] [--target-
 
 Alias and post-step precedence match `org create`. The workflow installs configured packages, executes selected post-steps, and optionally refreshes dependency sources.
 
-`--skip-packages` skips package resolution and installation entirely and runs only the selected post-steps against the resolved target org. This is the way to iterate on post-step configuration (redeploying metadata, re-importing dummy data, re-assigning permission sets) against an org that is already created and already has its packages installed, without a package plan/install/update command running. `--dry-run` reports the same step plan as without the flag, minus the package-installation step.
+`--skip-packages` skips package resolution and installation entirely and runs only the selected post-steps against the resolved target org. This is the way to iterate on post-step configuration (redeploying metadata, re-importing dummy data, re-assigning permission sets) against an org that is already created and already has its packages installed, without a package plan/install/update command running. `--dry-run` reports the same step plan as without the flag, minus the package-installation step. Dry-run still permits real read-only queries.
 
 ```bash
 sf-project project configure --target-org feature-org --post-steps data,permsets --skip-packages
@@ -156,10 +156,12 @@ This command is read-only regardless of `--dry-run`. It queries installed and re
 ### `packages install`
 
 ```text
-sf-project packages install [--project-dir <path>] [--target-org <alias-or-username>] [--install-latest] [--dry-run] [--json]
+sf-project packages install [--project-dir <path>] [--target-org <alias-or-username>] [--install-latest] [--dry-run] [--mock] [--json]
 ```
 
 Installs missing packages and upgrades older packages in declaration order. It skips equal versions and never downgrades a higher installed version. Dry-run still performs read-only Salesforce queries. Real installation is restricted to scratch orgs. For another org, the exact token `MUTATE packages.install <alias-or-username>` is required.
+
+`--mock` uses deterministic local Salesforce command fixtures and never starts `sf` or mutates an org. Mock mode is shown in human output and included in the `operation-started` JSON event. It can be combined with `--dry-run`; ordinary `--dry-run` remains a real read-only planning mode.
 
 Each install submits `sf package install --wait 0`. Polling checks `sf package installed list` first, with a short per-probe timeout, so an already-installed exact version finishes immediately. Only when that check does not find the package does the tool call `sf package install report --request-id <0Hf...>`, also with a short per-probe timeout. The overall polling period is bounded by `commandTimeouts.mutationMs` (default 10 minutes), and a heartbeat progress line (`Installing <package> (Ns, attempt A/3)`) is emitted every 15 seconds while the request is in flight. If the overall period expires, the tool performs a final installed-package check and accepts the operation only when the exact selected package version is present; otherwise it reports the timeout as a failure.
 

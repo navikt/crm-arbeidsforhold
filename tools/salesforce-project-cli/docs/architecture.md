@@ -96,6 +96,8 @@ Long-running steps (package install, org create/delete, project configure's post
 
 Package installation also reports its preflight phases before package results are available: target-org validation, initial installed-package lookup, and sequential released-version resolution (`[n/total]`). This makes the planning work visible in human output and NDJSON instead of leaving the operation at `packages.install` with no explanation while Salesforce CLI queries are running.
 
+Package plan/install/update commands also support explicit `--mock` mode. The mock runner is injected at the command boundary and returns deterministic package/version/install-report fixtures without spawning Salesforce CLI. This is intentionally separate from `--dry-run`: dry-run may perform real read-only queries, while mock mode performs no external calls and marks the operation as simulated.
+
 Install mutations submit with `sf package install --wait 0` and poll the returned `0Hf` request through `sf package install report`. This avoids coupling completion detection to the Salesforce CLI process's built-in wait loop; the application owns the poll interval, total timeout, cancellation, and final status handling.
 
 ## Adapters and boundaries

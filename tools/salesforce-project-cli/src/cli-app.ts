@@ -18,6 +18,7 @@ import { BUILTIN_POST_STEPS, DEFAULT_COMMAND_TIMEOUTS, loadProjectConfiguration,
 import { EXIT_CODES, type ExitCode, type OperationEvent } from './domain/events.js';
 import { runCommand, withDefaultTimeout } from './infrastructure/command-runner.js';
 import { createEventWriter } from './infrastructure/output.js';
+import { createMockCommandRunner } from './infrastructure/mock-command-runner.js';
 import { createRedactingEventSink, createRedactor } from './infrastructure/redactor.js';
 import { classifySalesforceFailure } from './infrastructure/salesforce-errors.js';
 import { startWebServer, type StartWebServerOptions, type StartedWebServer } from './web/server.js';
@@ -45,6 +46,7 @@ interface RefreshOptions extends ClearOptions {
 interface PackageOptions extends RefreshOptions {
     installLatest: boolean;
     confirmMutation?: string;
+    mock: boolean;
 }
 
 interface OrgCreateOptions extends ClearOptions {
@@ -311,14 +313,20 @@ export async function runCli(
         .option('--no-color', 'Disable terminal styling')
         .option('--verbose', 'Include sanitized diagnostic details', false)
         .option('--timeout <seconds>', 'Override the default per-command timeout, in seconds');
+    const eventWriters = new Map<boolean, ReturnType<typeof createEventWriter>>();
     const writeEvent = (event: OperationEvent, json: boolean): void => {
         const globalOptions = program.opts<{ color: boolean; verbose: boolean; timeout?: string }>();
-        createEventWriter({
-            color: output.isTTY === true && globalOptions.color !== false,
-            verbose: globalOptions.verbose,
-            json,
-            output
-        })(event);
+        let writer = eventWriters.get(json);
+        if (writer === undefined) {
+            writer = createEventWriter({
+                color: output.isTTY === true && globalOptions.color !== false,
+                verbose: globalOptions.verbose,
+                json,
+                output
+            });
+            eventWriters.set(json, writer);
+        }
+        writer(event);
     };
 
     program
@@ -746,6 +754,7 @@ export async function runCli(
         .option('--target-org <alias-or-username>', 'Salesforce target org')
         .option('--install-latest', 'Select the latest released package version', false)
         .option('--dry-run', 'Plan without installing packages', false)
+        .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
         .option('--json', 'Emit newline-delimited JSON events', false)
         .action(async (options: PackageOptions) => {
             const operationId = randomUUID();
@@ -759,9 +768,13 @@ export async function runCli(
                 operationId,
                 operation,
                 timestamp: new Date().toISOString(),
-                dryRun: options.dryRun
+                dryRun: options.dryRun,
+                ...(options.mock ? { mock: true } : {})
             });
             const configuration = await loadProjectConfiguration(options.projectDir);
+            const commandRunner = options.mock
+                ? createMockCommandRunner(configuration)
+                : cliDependencies.runCommand ?? runCommand;
             let packageExitCode: ExitCode = EXIT_CODES.SUCCESS;
             try {
                 await planPackages({
@@ -772,7 +785,7 @@ export async function runCli(
                     emit,
                     runCommand: createEventCommandRunner(
                         withDefaultTimeout(
-                            cliDependencies.runCommand ?? runCommand,
+                            commandRunner,
                             resolveTimeoutMs(configuration.commandTimeouts.readMs, program.opts<{ timeout?: string }>())
                         ),
                         operationId,
@@ -811,6 +824,7 @@ export async function runCli(
             .option('--target-org <alias-or-username>', 'Salesforce target org')
             .option('--install-latest', 'Select the latest released package version', false)
             .option('--dry-run', 'Query and plan without installing packages', false)
+            .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
             .option('--json', 'Emit newline-delimited JSON events', false)
             .option('--confirm-mutation <text>', 'Override scratch-only policy with exact command and org text')
             .action(async (options: PackageOptions) => {
@@ -828,9 +842,13 @@ export async function runCli(
                     operationId,
                     operation,
                     timestamp: new Date().toISOString(),
-                    dryRun: options.dryRun
+                    dryRun: options.dryRun,
+                    ...(options.mock ? { mock: true } : {})
                 });
-                if (!options.dryRun) {
+                const commandRunner = options.mock
+                    ? createMockCommandRunner(configuration)
+                    : cliDependencies.runCommand ?? runCommand;
+                if (!options.dryRun && !options.mock) {
                     emit({
                         kind: 'progress',
                         operationId,
@@ -845,7 +863,7 @@ export async function runCli(
                         `packages.${commandName}`,
                         options.confirmMutation,
                         withDefaultTimeout(
-                            cliDependencies.runCommand ?? runCommand,
+                            commandRunner,
                             resolveTimeoutMs(configuration.commandTimeouts.readMs, program.opts<{ timeout?: string }>())
                         )
                     );
@@ -863,7 +881,7 @@ export async function runCli(
                         emit,
                         runCommand: createEventCommandRunner(
                             withDefaultTimeout(
-                                cliDependencies.runCommand ?? runCommand,
+                                commandRunner,
                                 resolveTimeoutMs(
                                     configuration.commandTimeouts.mutationMs,
                                     program.opts<{ timeout?: string }>()

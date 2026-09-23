@@ -38,6 +38,7 @@ export type OperationEvent =
     kind: 'operation-started';
     operation: string;
     dryRun: boolean;
+    mock?: boolean;
   })
   | (EventBase & {
     kind: 'step-started';
