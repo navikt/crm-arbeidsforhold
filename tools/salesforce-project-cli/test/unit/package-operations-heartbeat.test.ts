@@ -51,7 +51,9 @@ describe('installPackages heartbeat', () => {
             const events: OperationEvent[] = [];
             let resolveInstall!: (result: CommandResult) => void;
             let installedQueryCount = 0;
+            const commandKinds: string[] = [];
             const runCommand = vi.fn(async (request: CommandRequest) => {
+                commandKinds.push(request.arguments?.slice(0, 3).join(' ') ?? '');
                 if (request.arguments?.[1] === 'installed') {
                     installedQueryCount += 1;
                     return commandResult(
@@ -107,6 +109,12 @@ describe('installPackages heartbeat', () => {
 
             resolveInstall(commandResult({ executable: 'sf', arguments: [] }, { Id: '0Hf-shared-request', Status: 'IN_PROGRESS' }));
             await expect(installPromise).resolves.toBe(EXIT_CODES.SUCCESS);
+            expect(commandKinds).toEqual([
+                'package installed list',
+                'package version list',
+                'package install --package',
+                'package installed list'
+            ]);
         } finally {
             vi.useRealTimers();
         }

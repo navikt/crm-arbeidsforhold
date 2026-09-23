@@ -68,6 +68,7 @@ interface InstalledPackageRecord {
 }
 
 const PACKAGE_INSTALL_POLL_INTERVAL_MS = 15_000;
+const PACKAGE_INSTALL_STATUS_PROBE_TIMEOUT_MS = 10_000;
 
 function parseJsonResult(stdout: string, command: string): unknown {
     let payload: unknown;
@@ -252,7 +253,10 @@ function emitSummary(options: PlanPackagesOptions, summary: PackageOperationSumm
     });
 }
 
-async function queryInstalledPackages(options: PlanPackagesOptions): Promise<Map<string, PackageVersion>> {
+async function queryInstalledPackages(
+    options: PlanPackagesOptions,
+    timeoutMs?: number
+): Promise<Map<string, PackageVersion>> {
     const arguments_ = ['package', 'installed', 'list'];
     const targetOrg = options.targetOrg ?? options.configuration.defaultOrgAlias;
     if (targetOrg !== undefined) {
@@ -263,6 +267,7 @@ async function queryInstalledPackages(options: PlanPackagesOptions): Promise<Map
         executable: 'sf',
         arguments: arguments_,
         cwd: options.configuration.projectDirectory,
+        ...(timeoutMs === undefined ? {} : { timeoutMs }),
         ...(options.signal === undefined ? {} : { signal: options.signal })
     });
     if (result.failed || result.exitCode !== 0) {
@@ -503,6 +508,27 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
                 const deadline = Date.now() + options.configuration.commandTimeouts.mutationMs;
                 let reportResult = submitResult;
                 while (Date.now() < deadline) {
+                    try {
+                        const installedPackages = await queryInstalledPackages(
+                            options,
+                            Math.min(PACKAGE_INSTALL_STATUS_PROBE_TIMEOUT_MS, Math.max(1, deadline - Date.now()))
+                        );
+                        const installed = installedPackages.get(item.dependency.packageName);
+                        if (installed !== undefined && comparePackageVersions(installed, item.selectedVersion) === 0) {
+                            options.emit({
+                                kind: 'progress',
+                                operationId: options.operationId,
+                                timestamp: new Date().toISOString(),
+                                stepId,
+                                step: 'Install package',
+                                message: `${item.dependency.packageName} is installed; finishing package step`
+                            });
+                            return { ...submitResult, failed: false, exitCode: 0, timedOut: false };
+                        }
+                    } catch {
+                        // Continue with the request report when the short installed-state probe is unavailable.
+                    }
+
                     reportResult = await options.runCommand({
                         executable: 'sf',
                         arguments: [
@@ -515,30 +541,13 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
                             '--json'
                         ],
                         cwd: options.configuration.projectDirectory,
-                        timeoutMs: Math.max(1, deadline - Date.now()),
+                        timeoutMs: Math.min(PACKAGE_INSTALL_STATUS_PROBE_TIMEOUT_MS, Math.max(1, deadline - Date.now())),
                         ...(installationKey === undefined ? {} : { secretValues: [installationKey] }),
                         ...(options.signal === undefined ? {} : { signal: options.signal })
                     });
                     if (reportResult.failed || reportResult.canceled || reportResult.timedOut) return reportResult;
                     const status = packageInstallStatus(reportResult);
                     if (packageInstallSucceeded(status) || packageInstallFailed(status)) return reportResult;
-                    try {
-                        const installedPackages = await queryInstalledPackages(options);
-                        const installed = installedPackages.get(item.dependency.packageName);
-                        if (installed !== undefined && comparePackageVersions(installed, item.selectedVersion) === 0) {
-                            options.emit({
-                                kind: 'progress',
-                                operationId: options.operationId,
-                                timestamp: new Date().toISOString(),
-                                stepId,
-                                step: 'Install package',
-                                message: `${item.dependency.packageName} is installed; finishing package step`
-                            });
-                            return { ...reportResult, failed: false, exitCode: 0, timedOut: false };
-                        }
-                    } catch {
-                        // Keep polling when the verification query is temporarily unavailable.
-                    }
                     try {
                         await wait(
                             Math.min(PACKAGE_INSTALL_POLL_INTERVAL_MS, Math.max(1, deadline - Date.now())),
