@@ -309,19 +309,23 @@ function validPayload(command: WebOperationCommand, payload: Record<string, unkn
             );
         case 'packages.plan':
             return (
-                hasOnlyKeys(payload, ['targetOrg', 'installLatest', 'dryRun']) &&
+                hasOnlyKeys(payload, ['targetOrg', 'installLatest', 'dryRun', 'mock', 'mockScenario']) &&
                 optionalString(payload, 'targetOrg') &&
                 optionalBoolean(payload, 'installLatest') &&
-                optionalBoolean(payload, 'dryRun')
+                optionalBoolean(payload, 'dryRun') &&
+                optionalBoolean(payload, 'mock') &&
+                optionalString(payload, 'mockScenario')
             );
         case 'packages.install':
         case 'packages.update':
             return (
-                hasOnlyKeys(payload, ['targetOrg', 'installLatest', 'dryRun', 'confirmMutation']) &&
+                hasOnlyKeys(payload, ['targetOrg', 'installLatest', 'dryRun', 'confirmMutation', 'mock', 'mockScenario']) &&
                 optionalString(payload, 'targetOrg') &&
                 optionalBoolean(payload, 'installLatest') &&
                 optionalBoolean(payload, 'dryRun') &&
-                optionalString(payload, 'confirmMutation')
+                optionalString(payload, 'confirmMutation') &&
+                optionalBoolean(payload, 'mock') &&
+                optionalString(payload, 'mockScenario')
             );
         case 'org.create':
             return (
@@ -389,7 +393,7 @@ function parseOperationRequest(value: unknown): Omit<WebOperationRequest, 'opera
 }
 
 function mutationTarget(request: Omit<WebOperationRequest, 'operationId'>): string | null | undefined {
-    if (request.payload.dryRun === true) return null;
+    if (request.payload.dryRun === true || request.payload.mock === true) return null;
     if (request.command === 'dependencies.refresh' || request.command.startsWith('packages.')) {
         if (request.command === 'packages.plan') return null;
         return typeof request.payload.targetOrg === 'string' ? request.payload.targetOrg : undefined;

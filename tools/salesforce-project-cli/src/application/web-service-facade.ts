@@ -11,6 +11,7 @@ import { loadProjectConfiguration, DEFAULT_COMMAND_TIMEOUTS, type PostStep } fro
 import { EXIT_CODES } from '../domain/events.js';
 import { runCommand as defaultRunCommand, withDefaultTimeout, type CommandRequest } from '../infrastructure/command-runner.js';
 import { createRedactor } from '../infrastructure/redactor.js';
+import { createMockCommandRunner, type MockScenario } from '../infrastructure/mock-command-runner.js';
 import type { ProjectInfo, WebOperationRequest, WebServiceFacade } from '../web/server.js';
 import { existsSync, readFileSync } from 'node:fs';
 
@@ -232,8 +233,12 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
             }),
         execute: async (request, emit) => {
             const configuration = await services.loadProjectConfiguration(options.projectDirectory);
+            const mock = request.payload.mock === true;
+            const selectedCommandRunner = mock
+                ? createMockCommandRunner(configuration, (request.payload.mockScenario as MockScenario | undefined) ?? 'success')
+                : commandRunner;
             const operationCommandRunner = createOperationCommandRunner(
-                withDefaultTimeout(commandRunner, configuration.commandTimeouts.mutationMs),
+                withDefaultTimeout(selectedCommandRunner, configuration.commandTimeouts.mutationMs),
                 request.operationId,
                 emit,
                 [environment[configuration.packageInstallKeyEnvironmentVariable] ?? '']

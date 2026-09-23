@@ -239,6 +239,26 @@ describe('web server', () => {
         }
     );
 
+    it('accepts a package mock scenario without resolving or mutating a real org', async () => {
+        const started = await start();
+        const payload = { dryRun: false, mock: true, mockScenario: 'failure' };
+        const response = await fetch(`${started.baseUrl}/api/v1/operations`, {
+            method: 'POST',
+            headers: {
+                authorization: `Bearer ${started.sessionToken}`,
+                'content-type': 'application/json',
+                origin: started.baseUrl
+            },
+            body: JSON.stringify({ command: 'packages.install', payload })
+        });
+
+        expect(response.status).toBe(202);
+        expect(started.facade.execute).toHaveBeenCalledWith(
+            expect.objectContaining({ command: 'packages.install', payload }),
+            expect.any(Function)
+        );
+    });
+
     it('accepts project.configure without an explicit alias and checks the resolved default org policy', async () => {
         const facade = createFacade();
         const started = await start(facade);
