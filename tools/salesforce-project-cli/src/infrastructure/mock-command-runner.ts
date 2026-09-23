@@ -2,23 +2,45 @@ import type { ProjectConfiguration } from '../domain/config.js';
 import { normalizeConfiguredVersion } from '../domain/packages.js';
 import type { CommandRequest, CommandResult } from './command-runner.js';
 
+/** Deterministic failure modes available to local mock-backed operation tests. */
+export type MockScenario = 'success' | 'failure' | 'timeout' | 'retry' | 'partial';
+
 /** Creates deterministic Salesforce command responses without starting external processes. */
-export function createMockCommandRunner(configuration: ProjectConfiguration): (request: CommandRequest) => Promise<CommandResult> {
+export function createMockCommandRunner(
+    configuration: ProjectConfiguration,
+    scenario: MockScenario = 'success'
+): (request: CommandRequest) => Promise<CommandResult> {
     const dependenciesByAlias = new Map(
         configuration.packageDependencies
             .filter((dependency) => dependency.packageAlias !== undefined && dependency.configuredVersion !== undefined)
             .map((dependency) => [dependency.packageAlias as string, dependency] as const)
     );
 
+    let installCount = 0;
     return async (request) => {
-        const result = mockResult(request, mockPayload(request, dependenciesByAlias));
+        const isInstallRequest =
+            request.arguments?.[0] === 'package' &&
+            request.arguments?.[1] === 'install' &&
+            request.arguments?.[2] !== 'report';
+        if (isInstallRequest) installCount += 1;
+        const result = mockResult(request, mockPayload(request, dependenciesByAlias, scenario, installCount));
+        if (scenario === 'retry' && isInstallRequest && installCount === 1) {
+            const transientFailure = { ...result, exitCode: 1, failed: true, stderr: 'ECONNRESET', error: 'Mock transient failure' };
+            request.retry?.onRetry?.(transientFailure, 2, request.retry.delayMs ?? 0);
+            return { ...result, attempts: 2 };
+        }
+        if (scenario === 'timeout' && request.arguments?.[1] === 'install' && request.arguments?.[2] === 'report') {
+            return { ...result, failed: true, timedOut: true, error: 'Mock timeout' };
+        }
         return Promise.resolve(result);
     };
 }
 
 function mockPayload(
     request: CommandRequest,
-    dependenciesByAlias: ReadonlyMap<string, ProjectConfiguration['packageDependencies'][number]>
+    dependenciesByAlias: ReadonlyMap<string, ProjectConfiguration['packageDependencies'][number]>,
+    scenario: MockScenario,
+    installCount: number
 ): unknown {
     const [resource, action, subcommand] = request.arguments ?? [];
     if (resource === 'package' && action === 'installed' && subcommand === 'list') return [];
@@ -36,10 +58,33 @@ function mockPayload(
             }
         ];
     }
-    if (resource === 'package' && action === 'install' && subcommand === 'report') return { Status: 'SUCCESS' };
+    if (resource === 'package' && action === 'install' && subcommand === 'report') {
+        if (scenario === 'failure' || (scenario === 'partial' && installCount > 1)) return { Status: 'ERROR' };
+        return { Status: 'SUCCESS' };
+    }
     if (resource === 'package' && action === 'install') return { Id: '0HfMOCKREQUEST', Status: 'IN_PROGRESS' };
     if (resource === 'org' && action === 'display') {
         return { alias: 'mock-org', orgType: 'scratch', connectedStatus: 'Connected' };
+    }
+    if (resource === 'org' && action === 'list') {
+        const expirationDate = new Date();
+        expirationDate.setUTCDate(expirationDate.getUTCDate() + 30);
+        return {
+            scratchOrgs: [
+                {
+                    alias: 'mock-org',
+                    username: 'mock@example.test',
+                    orgId: '00DMOCK00000001',
+                    status: 'Active',
+                    connectedStatus: 'Connected',
+                    instanceUrl: 'https://mock.example.test',
+                    expirationDate: expirationDate.toISOString().slice(0, 10),
+                    isDefaultUsername: true,
+                    tracksSource: true
+                }
+            ],
+            nonScratchOrgs: []
+        };
     }
     return {};
 }

@@ -51,9 +51,34 @@ function failedResult(request: CommandRequest, message: string): CommandResult {
     };
 }
 
+function futureExpirationDate(days: number): string {
+    const date = new Date();
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString().slice(0, 10);
+}
+
 describe('org inspection', () => {
+    it('lists deterministic mock orgs without invoking the command runner', async () => {
+        const projectDirectory = await createProject();
+        const runner = vi.fn(async (request: CommandRequest) => successfulResult(request, {}));
+        const stdout: string[] = [];
+
+        const exitCode = await runCli(
+            ['org', 'list', '--project-dir', projectDirectory, '--mock', '--json'],
+            { stdout: (line) => stdout.push(line), stderr: () => undefined },
+            { runCommand: runner }
+        );
+
+        expect(exitCode).toBe(0);
+        expect(runner).not.toHaveBeenCalled();
+        expect(JSON.parse(stdout[0] ?? '')).toMatchObject({
+            orgs: [expect.objectContaining({ alias: 'mock-org', orgType: 'scratch', connectionStatus: 'connected' })]
+        });
+    });
+
     it('lists normalized org summaries using only the injected runner', async () => {
         const projectDirectory = await createProject();
+        const expirationDate = futureExpirationDate(30);
         const requests: CommandRequest[] = [];
         const runner = vi.fn(async (request: CommandRequest) => {
             requests.push(request);
@@ -66,7 +91,7 @@ describe('org inspection', () => {
                         status: 'Active',
                         connectedStatus: 'Connected',
                         instanceUrl: 'https://example.scratch.my.salesforce.com',
-                        expirationDate: '2026-09-20',
+                        expirationDate,
                         isDefaultUsername: true,
                         tracksSource: true,
                         accessToken: '00D000000000001!secret'
@@ -103,7 +128,7 @@ describe('org inspection', () => {
                     connectionStatus: 'connected',
                     authStatus: 'authenticated',
                     instanceUrlClassification: 'scratch',
-                    expirationDate: '2026-09-20',
+                    expirationDate,
                     isDefaultOrg: true,
                     isDefaultDevHub: false,
                     sourceTracking: true,

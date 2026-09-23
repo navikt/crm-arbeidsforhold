@@ -64,28 +64,28 @@ sf-project web start [--project-dir <path>] [--port <port>] [--json]
 ### `org list`
 
 ```text
-sf-project org list [--project-dir <path>] [--refresh] [--json]
+sf-project org list [--project-dir <path>] [--refresh] [--mock] [--json]
 ```
 
-Lists normalized org summaries. `--refresh` issues a display query for every listed org with an alias or username. `--json` returns one JSON document, not NDJSON.
+Lists normalized org summaries. `--refresh` issues a display query for every listed org with an alias or username. `--mock` uses a deterministic local scratch-org fixture and never starts Salesforce CLI. `--json` returns one JSON document, not NDJSON.
 
 Real updates are restricted to scratch orgs. For another org, the exact token `MUTATE packages.update <alias-or-username>` is required.
 
 ### `org status`
 
 ```text
-sf-project org status [alias] [--project-dir <path>] [--refresh] [--json]
+sf-project org status [alias] [--project-dir <path>] [--refresh] [--mock] [--json]
 ```
 
-Resolves the explicit alias or username. Without one, it reads Salesforce CLI `target-org`; it does not use `defaultOrgAlias`. `--refresh` enriches the result with a display query. `--json` returns one JSON document.
+Resolves the explicit alias or username. Without one, it reads Salesforce CLI `target-org`; it does not use `defaultOrgAlias`. `--refresh` enriches the result with a display query. `--mock` returns the deterministic local mock org. `--json` returns one JSON document.
 
 ### `org info`
 
 ```text
-sf-project org info <alias> [--project-dir <path>] [--json]
+sf-project org info <alias> [--project-dir <path>] [--mock] [--json]
 ```
 
-Displays normalized org details plus API version, edition, creation date, and Dev Hub username. Failed display calls are normalized as inaccessible or unauthenticated data. `--json` returns one JSON document.
+Displays normalized org details plus API version, edition, creation date, and Dev Hub username. Failed display calls are normalized as inaccessible or unauthenticated data. `--mock` uses deterministic local fixture data. `--json` returns one JSON document.
 
 ### `org create`
 

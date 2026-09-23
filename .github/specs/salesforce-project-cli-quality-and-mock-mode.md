@@ -61,9 +61,9 @@ Make `tools/salesforce-project-cli` easier to understand, safer to test, and sim
 
 Measured with `npm run coverage:core -- --exclude test/contract/org-inspection.test.ts` on 2026-09-24:
 
-- Lines/statements: 88.21%
-- Branches: 75.00%
-- Functions: 95.00%
+- Lines/statements: 88.92%
+- Branches: 74.82%
+- Functions: 94.73%
 
 The excluded test has a date-sensitive fixture (`expirationDate: 2026-09-20`) and fails after the current date passes the fixture. It remains a separate test-maintenance task; no coverage threshold is blocking until that fixture is made deterministic and the remaining uncovered paths are reviewed.
 

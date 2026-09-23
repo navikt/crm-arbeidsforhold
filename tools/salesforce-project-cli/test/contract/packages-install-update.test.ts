@@ -120,6 +120,36 @@ function createRunner(installed: unknown[] = []) {
 }
 
 describe('packages install and update', () => {
+    it.each([
+        ['failure', 1],
+        ['timeout', 1],
+        ['retry', 0],
+        ['partial', 5]
+    ] as const)('reproduces the %s mock scenario without external commands', async (mockScenario, expectedExitCode) => {
+        const projectDirectory = await createProject();
+        const runner = vi.fn(async (request: CommandRequest) => commandResult(request, {}));
+        const stdout: string[] = [];
+
+        const exitCode = await runCli(
+            [
+                'packages',
+                'install',
+                '--project-dir',
+                projectDirectory,
+                '--mock',
+                '--mock-scenario',
+                mockScenario,
+                '--json'
+            ],
+            { stdout: (line) => stdout.push(line), stderr: () => undefined },
+            { runCommand: runner, environment: { TEST_PACKAGE_KEY: 'mock-key' } }
+        );
+
+        expect(exitCode).toBe(expectedExitCode);
+        expect(runner).not.toHaveBeenCalled();
+        expect(JSON.parse(stdout[0] ?? '')).toMatchObject({ kind: 'operation-started', mock: true });
+    });
+
     it('runs package installation from local mock fixtures without invoking the command runner', async () => {
         const projectDirectory = await createProject();
         const runner = vi.fn(async (request: CommandRequest) => commandResult(request, {}));

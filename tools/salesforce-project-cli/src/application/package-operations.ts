@@ -2,7 +2,6 @@
  * Plans and executes package installation or update work from released and installed versions.
  * Dependency order is preserved, dry runs avoid mutation, and outcomes are emitted as stable events and exit codes.
  */
-import { setTimeout as wait } from 'node:timers/promises';
 import type { ProjectConfiguration } from '../domain/config.js';
 import { EXIT_CODES, type EventSink, type ExitCode } from '../domain/events.js';
 import {
@@ -19,6 +18,7 @@ import {
 } from '../domain/packages.js';
 import type { CommandResult } from '../infrastructure/command-runner.js';
 import type { CommandRunner } from './refresh-dependencies.js';
+import { PACKAGE_INSTALL_STATUS_PROBE_TIMEOUT_MS, pollPackageInstall } from './package-install-poller.js';
 import { withProgressHeartbeat } from '../infrastructure/progress-heartbeat.js';
 import { classifySalesforceFailure, describeCommandFailure, isTransientCommandFailure } from '../infrastructure/salesforce-errors.js';
 
@@ -67,9 +67,6 @@ interface InstalledPackageRecord {
     SubscriberPackageVersionID?: unknown;
 }
 
-const PACKAGE_INSTALL_POLL_INTERVAL_MS = 15_000;
-const PACKAGE_INSTALL_STATUS_PROBE_TIMEOUT_MS = 10_000;
-
 function parseJsonResult(stdout: string, command: string): unknown {
     let payload: unknown;
     try {
@@ -94,26 +91,6 @@ function packageInstallRequestId(result: CommandResult): string | undefined {
     const value = payload as Record<string, unknown>;
     const requestId = value.Id ?? value.id ?? value.RequestId ?? value.requestId;
     return typeof requestId === 'string' && requestId.startsWith('0Hf') ? requestId : undefined;
-}
-
-function packageInstallStatus(result: CommandResult): string | undefined {
-    try {
-        const payload = parseJsonResult(result.stdout, 'sf package install report');
-        if (payload === null || typeof payload !== 'object') return undefined;
-        const value = payload as Record<string, unknown>;
-        const status = value.Status ?? value.status;
-        return typeof status === 'string' ? status.toUpperCase() : undefined;
-    } catch {
-        return undefined;
-    }
-}
-
-function packageInstallSucceeded(status: string | undefined): boolean {
-    return status === 'SUCCESS' || status === 'SUCCEEDED' || status === 'INSTALLED' || status === 'COMPLETED';
-}
-
-function packageInstallFailed(status: string | undefined): boolean {
-    return status === 'ERROR' || status === 'FAILED' || status === 'CANCELED' || status === 'UNSUCCESSFUL';
 }
 
 function parseResult(stdout: string, command: string): unknown[] {
@@ -506,68 +483,24 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
                 }
 
                 const deadline = Date.now() + options.configuration.commandTimeouts.mutationMs;
-                let reportResult = submitResult;
-                while (Date.now() < deadline) {
-                    try {
-                        const installedPackages = await queryInstalledPackages(
-                            options,
-                            Math.min(PACKAGE_INSTALL_STATUS_PROBE_TIMEOUT_MS, Math.max(1, deadline - Date.now()))
-                        );
+                return pollPackageInstall({
+                    runCommand: options.runCommand,
+                    requestId,
+                    ...(targetOrg === undefined ? {} : { targetOrg }),
+                    projectDirectory: options.configuration.projectDirectory,
+                    ...(installationKey === undefined ? {} : { installationKey }),
+                    packageName: item.dependency.packageName,
+                    stepId,
+                    operationId: options.operationId,
+                    emit: options.emit,
+                    deadline,
+                    ...(options.signal === undefined ? {} : { signal: options.signal }),
+                    isInstalled: async () => {
+                        const installedPackages = await queryInstalledPackages(options, PACKAGE_INSTALL_STATUS_PROBE_TIMEOUT_MS);
                         const installed = installedPackages.get(item.dependency.packageName);
-                        if (installed !== undefined && comparePackageVersions(installed, item.selectedVersion) === 0) {
-                            options.emit({
-                                kind: 'progress',
-                                operationId: options.operationId,
-                                timestamp: new Date().toISOString(),
-                                stepId,
-                                step: 'Install package',
-                                message: `${item.dependency.packageName} is installed; finishing package step`
-                            });
-                            return { ...submitResult, failed: false, exitCode: 0, timedOut: false };
-                        }
-                    } catch {
-                        // Continue with the request report when the short installed-state probe is unavailable.
+                        return installed !== undefined && comparePackageVersions(installed, item.selectedVersion) === 0;
                     }
-
-                    reportResult = await options.runCommand({
-                        executable: 'sf',
-                        arguments: [
-                            'package',
-                            'install',
-                            'report',
-                            '--request-id',
-                            requestId,
-                            ...(targetOrg === undefined ? [] : ['--target-org', targetOrg]),
-                            '--json'
-                        ],
-                        cwd: options.configuration.projectDirectory,
-                        timeoutMs: Math.min(PACKAGE_INSTALL_STATUS_PROBE_TIMEOUT_MS, Math.max(1, deadline - Date.now())),
-                        ...(installationKey === undefined ? {} : { secretValues: [installationKey] }),
-                        ...(options.signal === undefined ? {} : { signal: options.signal })
-                    });
-                    if (reportResult.failed || reportResult.canceled || reportResult.timedOut) return reportResult;
-                    const status = packageInstallStatus(reportResult);
-                    if (packageInstallSucceeded(status) || packageInstallFailed(status)) return reportResult;
-                    try {
-                        await wait(
-                            Math.min(PACKAGE_INSTALL_POLL_INTERVAL_MS, Math.max(1, deadline - Date.now())),
-                            undefined,
-                            options.signal === undefined ? {} : { signal: options.signal }
-                        );
-                    } catch (error) {
-                        if (options.signal?.aborted) {
-                            return { ...reportResult, failed: true, canceled: true, error: 'Operation was canceled' };
-                        }
-                        throw error;
-                    }
-                }
-
-                return {
-                    ...reportResult,
-                    failed: true,
-                    timedOut: true,
-                    error: `Package install report did not reach a terminal state within ${Math.ceil(options.configuration.commandTimeouts.mutationMs / 60_000)} minutes`
-                };
+                });
             }
         );
 

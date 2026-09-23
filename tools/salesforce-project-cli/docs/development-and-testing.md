@@ -46,6 +46,7 @@ docs/                 handbook, ADR, and migration matrix
 | `npm run dev -- <args>` | Run `tsx src/cli.ts` with CLI arguments                                                    |
 | `npm run typecheck`     | Type-check core and web TypeScript without emission                                        |
 | `npm run test:core`     | Run core Vitest tests under `test/**/*.test.ts`                                            |
+| `npm run coverage:core` | Run core Vitest tests with V8 coverage reporting                                           |
 | `npm run test:web`      | Run web Vitest component/API tests using the Vite config                                   |
 | `npm test`              | Run core tests, then web tests                                                             |
 | `npm run test:watch`    | Start Vitest watch mode                                                                    |
@@ -63,6 +64,8 @@ npm audit
 ```
 
 Review audit findings in context. Do not change versions or lockfile entries without testing the module and its packed artifact.
+
+Coverage currently reports a baseline without enforcing a threshold. On 2026-09-24, excluding the known date-sensitive `test/contract/org-inspection.test.ts` fixture, the `src` baseline was 88.92% lines/statements, 74.82% branches, and 94.73% functions.
 
 ## Test layers
 
@@ -87,6 +90,8 @@ Tests should assert behavior and invariants, not a fixed total test count. Addin
 ## Fake runner and facade patterns
 
 Application and CLI tests provide a `CommandRunner` that records requests and returns normalized `CommandResult` values. Keep fake results representative of the specific Salesforce response shape being tested, including malformed and failure variants. Never use real credentials, auth URLs, installation keys, org data, or personal data in fixtures.
+
+Package plan/install/update and org inspection commands support explicit `--mock` mode. It uses deterministic local fixtures, never invokes `sf`/`sfp`, and marks package `operation-started` events as simulated. Available package scenarios are `success`, `failure`, `timeout`, `retry`, and `partial`, selected with `--mock-scenario <scenario>`. Normal `--dry-run` remains different: it prevents mutations but may perform real read-only Salesforce queries. `--mock --dry-run` combines both behaviors.
 
 Server and UI tests provide a `WebServiceFacade` or `DashboardApi`. The facade must emit intermediate events only; the server owns `operation-started` and `operation-completed`. Use deterministic operation outcomes and explicit policy classifications.
 

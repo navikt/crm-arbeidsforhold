@@ -18,7 +18,7 @@ import { BUILTIN_POST_STEPS, DEFAULT_COMMAND_TIMEOUTS, loadProjectConfiguration,
 import { EXIT_CODES, type ExitCode, type OperationEvent } from './domain/events.js';
 import { runCommand, withDefaultTimeout } from './infrastructure/command-runner.js';
 import { createEventWriter } from './infrastructure/output.js';
-import { createMockCommandRunner } from './infrastructure/mock-command-runner.js';
+import { createMockCommandRunner, type MockScenario } from './infrastructure/mock-command-runner.js';
 import { createRedactingEventSink, createRedactor } from './infrastructure/redactor.js';
 import { classifySalesforceFailure } from './infrastructure/salesforce-errors.js';
 import { startWebServer, type StartWebServerOptions, type StartedWebServer } from './web/server.js';
@@ -47,6 +47,7 @@ interface PackageOptions extends RefreshOptions {
     installLatest: boolean;
     confirmMutation?: string;
     mock: boolean;
+    mockScenario: MockScenario;
 }
 
 interface OrgCreateOptions extends ClearOptions {
@@ -74,6 +75,7 @@ interface OrgReadOptions {
     projectDir: string;
     json: boolean;
     refresh?: boolean;
+    mock: boolean;
 }
 
 interface OrgInfoOptions extends OrgReadOptions {
@@ -400,13 +402,17 @@ export async function runCli(
     org.command('list')
         .option('--project-dir <path>', 'Salesforce project root', process.cwd())
         .option('--refresh', 'Refresh org details before displaying them', false)
+        .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
         .option('--json', 'Emit normalized JSON output', false)
         .action(async (options: OrgReadOptions) => {
             const globalOptions = program.opts<{ timeout?: string }>();
+            const commandRunner = options.mock
+                ? createMockCommandRunner(await loadProjectConfiguration(options.projectDir))
+                : cliDependencies.runCommand ?? runCommand;
             const result = await listOrgs({
                 projectDirectory: options.projectDir,
                 runCommand: withDefaultTimeout(
-                    cliDependencies.runCommand ?? runCommand,
+                    commandRunner,
                     resolveTimeoutMs(DEFAULT_COMMAND_TIMEOUTS.readMs, globalOptions)
                 ),
                 refresh: options.refresh ?? false
@@ -418,15 +424,19 @@ export async function runCli(
         .argument('[alias]', 'Org alias or username')
         .option('--project-dir <path>', 'Salesforce project root', process.cwd())
         .option('--refresh', 'Refresh org details before displaying them', false)
+        .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
         .option('--json', 'Emit normalized JSON output', false)
         .action(async (alias: string | undefined, options: OrgReadOptions) => {
             const globalOptions = program.opts<{ timeout?: string }>();
+            const commandRunner = options.mock
+                ? createMockCommandRunner(await loadProjectConfiguration(options.projectDir))
+                : cliDependencies.runCommand ?? runCommand;
             const result = await getOrgStatus({
                 projectDirectory: options.projectDir,
                 ...(alias === undefined ? {} : { alias }),
                 refresh: options.refresh ?? false,
                 runCommand: withDefaultTimeout(
-                    cliDependencies.runCommand ?? runCommand,
+                    commandRunner,
                     resolveTimeoutMs(DEFAULT_COMMAND_TIMEOUTS.readMs, globalOptions)
                 )
             });
@@ -436,14 +446,18 @@ export async function runCli(
     org.command('info')
         .argument('<alias>', 'Org alias or username')
         .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
         .option('--json', 'Emit normalized JSON output', false)
         .action(async (alias: string, options: OrgInfoOptions) => {
             const globalOptions = program.opts<{ timeout?: string }>();
+            const commandRunner = options.mock
+                ? createMockCommandRunner(await loadProjectConfiguration(options.projectDir))
+                : cliDependencies.runCommand ?? runCommand;
             const result = await getOrgInfo({
                 projectDirectory: options.projectDir,
                 alias,
                 runCommand: withDefaultTimeout(
-                    cliDependencies.runCommand ?? runCommand,
+                    commandRunner,
                     resolveTimeoutMs(DEFAULT_COMMAND_TIMEOUTS.readMs, globalOptions)
                 )
             });
@@ -755,6 +769,7 @@ export async function runCli(
         .option('--install-latest', 'Select the latest released package version', false)
         .option('--dry-run', 'Plan without installing packages', false)
         .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
+        .option('--mock-scenario <scenario>', 'Mock scenario: success, failure, timeout, retry, or partial', 'success')
         .option('--json', 'Emit newline-delimited JSON events', false)
         .action(async (options: PackageOptions) => {
             const operationId = randomUUID();
@@ -773,7 +788,7 @@ export async function runCli(
             });
             const configuration = await loadProjectConfiguration(options.projectDir);
             const commandRunner = options.mock
-                ? createMockCommandRunner(configuration)
+                ? createMockCommandRunner(configuration, options.mockScenario)
                 : cliDependencies.runCommand ?? runCommand;
             let packageExitCode: ExitCode = EXIT_CODES.SUCCESS;
             try {
@@ -825,6 +840,7 @@ export async function runCli(
             .option('--install-latest', 'Select the latest released package version', false)
             .option('--dry-run', 'Query and plan without installing packages', false)
             .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
+            .option('--mock-scenario <scenario>', 'Mock scenario: success, failure, timeout, retry, or partial', 'success')
             .option('--json', 'Emit newline-delimited JSON events', false)
             .option('--confirm-mutation <text>', 'Override scratch-only policy with exact command and org text')
             .action(async (options: PackageOptions) => {
@@ -846,7 +862,7 @@ export async function runCli(
                     ...(options.mock ? { mock: true } : {})
                 });
                 const commandRunner = options.mock
-                    ? createMockCommandRunner(configuration)
+                    ? createMockCommandRunner(configuration, options.mockScenario)
                     : cliDependencies.runCommand ?? runCommand;
                 if (!options.dryRun && !options.mock) {
                     emit({
