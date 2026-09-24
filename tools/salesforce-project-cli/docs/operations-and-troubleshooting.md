@@ -133,6 +133,17 @@ Every `sf` invocation runs with a bounded timeout instead of hanging indefinitel
 
 Package installation submits asynchronously. Each polling round checks `sf package installed list` first using a short timeout, allowing the operation to finish as soon as the exact selected subscriber package version is visible. Only then does it use `sf package install report` by request ID, also with a short timeout, so a blocked Salesforce CLI status command cannot hold the operation for the full 10-minute mutation timeout. If polling still times out, the same installed-package check is used as final reconciliation; a failed or inconclusive status check remains a timeout failure, so the command does not blindly retry or reinstall a package whose final state is unknown.
 
+### Retrieve fails with an invalid Git index checksum
+
+`sf project retrieve start` uses the local Git index for Salesforce source tracking. An error such as `isomorphic-git error: Invalid checksum in GitIndex buffer` is a local workspace/source-tracking failure, not evidence that the org or package is invalid. Stop mutation smoke validation, preserve uncommitted work, and inspect the repository first:
+
+```bash
+git status
+git fsck --full --no-progress
+```
+
+After confirming that no uncommitted work is at risk, the repository owner may regenerate the local index with the normal Git recovery procedure (`rm .git/index` followed by `git reset`), then rerun `git status` and the retrieve. This changes only local index metadata, but it should be treated as a human-approved recovery action because it can affect the local staging area. Do not run deploy, org creation/deletion, or pool acquisition while the index checksum is invalid.
+
 Mutating operations (org create/delete, project configure and its post-steps, package install/update, dependency retrieval) retry a recognized transient transport failure up to three total attempts with a five-second delay; a `retrying` event is emitted before each retry. Read-only inspection commands do not retry — if one times out or fails, re-run the command; it is cheap and side-effect free.
 
 A `POST /api/v1/operations/:id/cancel` request against a `running` operation aborts its in-flight command through the same `AbortSignal` mechanism the timeout uses, and the operation transitions to a terminal state with a "canceled" message rather than a raw error. Canceling an already-terminal or unknown operation ID is a no-op that returns `409`. Cancellation currently targets the web API only; there is no CLI-side Ctrl+C/SIGINT cancellation contract, and read-only inspection calls are not cancellable.

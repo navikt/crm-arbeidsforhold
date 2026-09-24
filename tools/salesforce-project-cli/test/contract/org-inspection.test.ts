@@ -76,6 +76,32 @@ describe('org inspection', () => {
         });
     });
 
+    it('classifies a scratch org from display identity when orgType is absent', async () => {
+        const projectDirectory = await createProject();
+        const runner = vi.fn(async (request: CommandRequest) =>
+            successfulResult(request, {
+                alias: 'crm-arbeidsforhold',
+                username: 'test@example.test',
+                orgId: '00DMOCK00000001',
+                connectedStatus: 'Connected',
+                instanceUrl: 'https://platform-ruby-6846.scratch.my.salesforce.com',
+                expirationDate: futureExpirationDate(30)
+            })
+        );
+        const stdout: string[] = [];
+
+        const exitCode = await runCli(
+            ['org', 'info', 'crm-arbeidsforhold', '--project-dir', projectDirectory, '--json'],
+            { stdout: (line) => stdout.push(line), stderr: () => undefined },
+            { runCommand: runner }
+        );
+
+        expect(exitCode).toBe(0);
+        expect(JSON.parse(stdout[0] ?? '')).toMatchObject({
+            org: { orgType: 'scratch', capabilities: { mutationPolicy: 'allowed' } }
+        });
+    });
+
     it('lists normalized org summaries using only the injected runner', async () => {
         const projectDirectory = await createProject();
         const expirationDate = futureExpirationDate(30);

@@ -174,11 +174,20 @@ function classifyOrg(record: UnknownRecord, source: string): OrgClassification {
     if (source === 'sandboxes') return 'sandbox';
     if (source === 'devHubs' || booleanValue(record, 'isDevHub') === true) return 'dev-hub';
     const orgType = stringValue(record, 'orgType', 'edition')?.toLowerCase() ?? '';
+    const instanceUrl = stringValue(record, 'instanceUrl');
+    const username = stringValue(record, 'username');
+    if (
+        instanceUrl?.toLowerCase().includes('.scratch.') === true ||
+        username?.toLowerCase().includes('.scratch') === true ||
+        stringValue(record, 'signupUsername') !== null
+    ) {
+        return 'scratch';
+    }
     if (orgType.includes('scratch')) return 'scratch';
     if (orgType.includes('sandbox')) return 'sandbox';
     if (orgType.includes('developer')) return 'development';
     if (orgType.includes('production')) return 'production';
-    const instanceClassification = classifyInstanceUrl(stringValue(record, 'instanceUrl'));
+    const instanceClassification = classifyInstanceUrl(instanceUrl);
     if (instanceClassification === 'sandbox' || instanceClassification === 'development') {
         return instanceClassification;
     }
