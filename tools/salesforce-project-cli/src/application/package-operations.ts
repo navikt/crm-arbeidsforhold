@@ -21,6 +21,7 @@ import type { CommandRunner } from './refresh-dependencies.js';
 import { PACKAGE_INSTALL_STATUS_PROBE_TIMEOUT_MS, pollPackageInstall } from './package-install-poller.js';
 import { withProgressHeartbeat } from '../infrastructure/progress-heartbeat.js';
 import { classifySalesforceFailure, describeCommandFailure, isTransientCommandFailure } from '../infrastructure/salesforce-errors.js';
+import { packagePlanStatus, summarizePackagePlan } from './package-plan-logic.js';
 
 /** Inputs and injected dependencies for resolving a package plan. */
 export interface PlanPackagesOptions {
@@ -183,26 +184,6 @@ async function querySelectedVersion(
         : selectConfiguredVersion(versions, dependency.configuredVersion);
 }
 
-function statusFor(installed: PackageVersion | undefined, selected: PackageVersion): PackagePlanStatus {
-    if (installed === undefined) {
-        return 'missing';
-    }
-    const comparison = comparePackageVersions(installed, selected);
-    return comparison === 0 ? 'skip' : comparison < 0 ? 'update' : 'higher';
-}
-
-function createSummary(items: readonly PackagePlanItem[]): PackageOperationSummary {
-    return items.reduce<PackageOperationSummary>(
-        (summary, item) => ({
-            ...summary,
-            missing: summary.missing + Number(item.status === 'missing'),
-            updated: summary.updated + Number(item.status === 'update'),
-            skipped: summary.skipped + Number(item.status === 'skip'),
-            higher: summary.higher + Number(item.status === 'higher')
-        }),
-        { total: items.length, missing: 0, installed: 0, updated: 0, skipped: 0, higher: 0, failed: 0 }
-    );
-}
 
 function emitPlanItem(options: PlanPackagesOptions, item: PackagePlanItem, total: number): void {
     options.emit({
@@ -283,7 +264,7 @@ async function resolvePackagePlan(options: PlanPackagesOptions): Promise<Package
         });
         const selectedVersion = await querySelectedVersion(options, dependency);
         const installed = installedPackages.get(dependency.packageName);
-        const status = statusFor(installed, selectedVersion);
+        const status = packagePlanStatus(installed, selectedVersion);
         const item: PackagePlanItem = {
             ordinal: index + 1,
             dependency,
@@ -334,7 +315,7 @@ export async function getOrgPackageStatus(
             continue;
         }
         const selected = await querySelectedVersion(planOptions, dependency);
-        const planStatus = statusFor(installed, selected);
+        const planStatus = packagePlanStatus(installed, selected);
         packages.push({
             packageName: dependency.packageName,
             configuredVersion: dependency.configuredVersion,
@@ -369,7 +350,7 @@ export async function getOrgPackageStatus(
 export async function planPackages(options: PlanPackagesOptions): Promise<PackagePlanItem[]> {
     const items = await resolvePackagePlan(options);
     items.forEach((item) => emitPlanItem(options, item, items.length));
-    emitSummary(options, createSummary(items));
+    emitSummary(options, summarizePackagePlan(items));
     return items;
 }
 
