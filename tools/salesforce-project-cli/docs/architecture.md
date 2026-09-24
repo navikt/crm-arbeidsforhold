@@ -98,6 +98,15 @@ Package installation also reports its preflight phases before package results ar
 
 Package plan/install/update commands also support explicit `--mock` mode. The mock runner is injected at the command boundary and returns deterministic package/version/install-report fixtures without spawning Salesforce CLI. This is intentionally separate from `--dry-run`: dry-run may perform real read-only queries, while mock mode performs no external calls and marks the operation as simulated.
 
+Application services keep orchestration separate from reusable execution seams:
+
+- `package-plan-logic.ts` contains pure package status classification and summary calculation.
+- `package-install-poller.ts` owns request-status polling and installed-state verification.
+- `command-step-runner.ts` owns the shared org-workflow command lifecycle: output forwarding, heartbeat, retry, and failure events.
+- `dependency-retrieval-runner.ts` owns one dependency retrieval command and its retry/heartbeat behavior.
+
+These seams are injected and unit-tested independently; the existing application functions remain the public orchestration boundary.
+
 Install mutations submit with `sf package install --wait 0` and poll the returned `0Hf` request through `sf package install report`. This avoids coupling completion detection to the Salesforce CLI process's built-in wait loop; the application owns the poll interval, total timeout, cancellation, and final status handling.
 
 ## Adapters and boundaries
