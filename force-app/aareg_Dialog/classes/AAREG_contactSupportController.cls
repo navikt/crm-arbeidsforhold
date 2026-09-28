@@ -96,11 +96,13 @@ public with sharing class AAREG_contactSupportController {
       String email = (String) meta.get('Email__c');
       if (String.isNotBlank(email)) {
         // update AAREG_Email__c on user's contact with the email from the inquiry
-        Contact userContact = [SELECT Id, AAREG_Email__c FROM Contact WHERE Id = :getUserContactId() LIMIT 1];
-        if (userContact != null) {
+        Id userContactId = getUserContactId();
+        system.debug('userContactId: ' + userContactId);
+        Contact userContact = [SELECT Id, AAREG_Email__c FROM Contact WHERE Id = :userContactId LIMIT 1];
+        if (userContact != null && String.isNotBlank(email) && userContact.AAREG_Email__c != email) {
           userContact.AAREG_Email__c = email.left(255);
           Database.update(userContact, AccessLevel.USER_MODE);
-        } 
+        }
       } 
     }
 
@@ -363,6 +365,7 @@ public with sharing class AAREG_contactSupportController {
    * @return String The ContactId of the current user, or null if the user does not have an associated contact.
    */
   public static string getUserContactId() {
+      system.debug('getUserContactId called for user: ' + UserInfo.getUserId());
       return [SELECT Id, ContactId FROM User WHERE Id = :UserInfo.getUserId() WITH USER_MODE LIMIT 1]?.ContactId;
   }
 }
