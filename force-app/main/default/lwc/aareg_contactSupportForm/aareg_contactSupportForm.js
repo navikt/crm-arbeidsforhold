@@ -163,11 +163,18 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
         this.selectedApplicationId = event.target.value;
     }
 
-    // Initialize a draft Inquiry__c to use as record-id for lightning-file-upload
-    async initializeDraftInquiry() {
+    validateEmailInput() {
         const emailInput = this.template.querySelector('input[data-id="Email__c"]');
         if (emailInput && emailInput.value && validateEmail(emailInput.value)) {
             this.setErrorFor(emailInput, 'E-post må være gyldig format.');
+            return true;
+        }
+        return false;
+    }
+
+    // Initialize a draft Inquiry__c to use as record-id for lightning-file-upload
+    async initializeDraftInquiry() {
+        if (this.validateEmailInput()) {
             return;
         }
         if (this.draftRecordId) return;
@@ -186,9 +193,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
 
     // Update draft Inquiry__c with current form field values to make it visible with real data
     async updateDraftWithFormData() {
-        const emailInput = this.template.querySelector('input[data-id="Email__c"]');
-        if (emailInput && emailInput.value && validateEmail(emailInput.value)) {
-            this.setErrorFor(emailInput, 'E-post må være gyldig format.');
+        if (this.validateEmailInput()) {
             return;
         }
         if (!this.draftRecordId) return;
