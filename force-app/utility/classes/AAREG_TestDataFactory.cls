@@ -197,26 +197,20 @@ public with sharing class AAREG_TestDataFactory {
         return accList;
     }
 
-    /**
-     * Creates and returns a new County Application__c record linked to the given Account.
-     *
-     * @param acc The Account to associate with the Application.
-     * @return Application__c - A newly created County Application record.
-     */
-    public static Application__c getApplicationCounty(Account acc) {
+    private static Application__c buildApplication(Account acc, String organizationStructure, String email) {
         Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
             .get('Aa_RegisterAccess')
             .getRecordTypeId();
 
-        Application__c application = new Application__c(
-            Account__c = acc.id,
+        return new Application__c(
+            Account__c = acc.Id,
             RecordTypeId = devRecordTypeId,
             AA_AccessTypes__c = 'Access OTP',
-            OrganizationStructure__c = 'County',
+            OrganizationStructure__c = organizationStructure,
             TermsOfUse__c = true,
             DataProcessorName__c = 'Test Processor',
             DataProcessorOrganizationNumber__c = '987654321',
-            Email__c = 'brukerFylke@example.com',
+            Email__c = email,
             Casehandler_Status__c = 'New',
             Status__c = 'New',
             IsEmailConfirmationSent__c = true,
@@ -227,7 +221,16 @@ public with sharing class AAREG_TestDataFactory {
             MailingPostalCode__c = acc.ShippingPostalCode,
             ApplicationSubmittedDate__c = Date.today()
         );
-        return application;
+    }
+
+    /**
+     * Creates and returns a new County Application__c record linked to the given Account.
+     *
+     * @param acc The Account to associate with the Application.
+     * @return Application__c - A newly created County Application record.
+     */
+    public static Application__c getApplicationCounty(Account acc) {
+        return buildApplication(acc, 'County', 'brukerFylke@example.com');
     }
 
     /**
@@ -237,30 +240,7 @@ public with sharing class AAREG_TestDataFactory {
      * @return Application__c - A newly created State Application record.
      */
     public static Application__c getApplicationState(Account acc) {
-        Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
-            .get('Aa_RegisterAccess')
-            .getRecordTypeId();
-
-        Application__c application = new Application__c(
-            Account__c = acc.id,
-            RecordTypeId = devRecordTypeId,
-            AA_AccessTypes__c = 'Access OTP',
-            OrganizationStructure__c = 'State',
-            TermsOfUse__c = true,
-            DataProcessorName__c = 'Test Processor',
-            DataProcessorOrganizationNumber__c = '987654321',
-            Email__c = 'brukerStat@example.com',
-            Casehandler_Status__c = 'New',
-            Status__c = 'New',
-            IsEmailConfirmationSent__c = true,
-            AccountName__c = acc.Name,
-            OrganizationNumber__c = acc.INT_OrganizationNumber__c,
-            MailingAddress__c = acc.ShippingStreet,
-            MailingCity__c = acc.ShippingCity,
-            MailingPostalCode__c = acc.ShippingPostalCode,
-            ApplicationSubmittedDate__c = Date.today()
-        );
-        return application;
+        return buildApplication(acc, 'State', 'brukerStat@example.com');
     }
 
     /**
@@ -271,30 +251,7 @@ public with sharing class AAREG_TestDataFactory {
      * @return Application__c - A newly created Electricity Supervision Application record.
      */
     public static Application__c getApplicationEL(Account acc) {
-        Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
-            .get('Aa_RegisterAccess')
-            .getRecordTypeId();
-
-        Application__c application = new Application__c(
-            Account__c = acc.id,
-            RecordTypeId = devRecordTypeId,
-            AA_AccessTypes__c = 'Access OTP',
-            OrganizationStructure__c = 'Electricity Supervision',
-            TermsOfUse__c = true,
-            DataProcessorName__c = 'Test Processor',
-            DataProcessorOrganizationNumber__c = '987654321',
-            Email__c = 'brukerEl@example.com',
-            Casehandler_Status__c = 'New',
-            Status__c = 'New',
-            IsEmailConfirmationSent__c = true,
-            AccountName__c = acc.Name,
-            OrganizationNumber__c = acc.INT_OrganizationNumber__c,
-            MailingAddress__c = acc.ShippingStreet,
-            MailingCity__c = acc.ShippingCity,
-            MailingPostalCode__c = acc.ShippingPostalCode,
-            ApplicationSubmittedDate__c = Date.today()
-        );
-        return application;
+        return buildApplication(acc, 'Electricity Supervision', 'brukerEl@example.com');
     }
 
     /**
@@ -304,30 +261,7 @@ public with sharing class AAREG_TestDataFactory {
      * @return Application__c - A newly created Pension Application record.
      */
     public static Application__c getApplicationPension(Account acc) {
-        Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
-            .get('Aa_RegisterAccess')
-            .getRecordTypeId();
-
-        Application__c application = new Application__c(
-            Account__c = acc.id,
-            RecordTypeId = devRecordTypeId,
-            AA_AccessTypes__c = 'Access OTP',
-            OrganizationStructure__c = 'Pension',
-            TermsOfUse__c = true,
-            DataProcessorName__c = 'Test Processor',
-            DataProcessorOrganizationNumber__c = '987654321',
-            Email__c = 'brukerPension@example.com',
-            Casehandler_Status__c = 'New',
-            Status__c = 'New',
-            IsEmailConfirmationSent__c = true,
-            AccountName__c = acc.Name,
-            OrganizationNumber__c = acc.INT_OrganizationNumber__c,
-            MailingAddress__c = acc.ShippingStreet,
-            MailingCity__c = acc.ShippingCity,
-            MailingPostalCode__c = acc.ShippingPostalCode,
-            ApplicationSubmittedDate__c = Date.today()
-        );
-        return application;
+        return buildApplication(acc, 'Pension', 'brukerPension@example.com');
     }
 
     /**
@@ -337,30 +271,7 @@ public with sharing class AAREG_TestDataFactory {
      * @return Application__c - A newly created Municipality Application record.
      */
     public static Application__c getApplicationMunicipality(Account acc) {
-        Id devRecordTypeId = SObjectType.Application__c.getRecordTypeInfosByDeveloperName()
-            .get('Aa_RegisterAccess')
-            .getRecordTypeId();
-
-        Application__c application = new Application__c(
-            Account__c = acc.id,
-            RecordTypeId = devRecordTypeId,
-            AA_AccessTypes__c = 'Access OTP',
-            OrganizationStructure__c = 'Municipality',
-            TermsOfUse__c = true,
-            DataProcessorName__c = 'Test Processor',
-            DataProcessorOrganizationNumber__c = '987654321',
-            Email__c = 'brukerMunicipality@example.com',
-            Casehandler_Status__c = 'New',
-            Status__c = 'New',
-            IsEmailConfirmationSent__c = true,
-            AccountName__c = acc.Name,
-            OrganizationNumber__c = acc.INT_OrganizationNumber__c,
-            MailingAddress__c = acc.ShippingStreet,
-            MailingCity__c = acc.ShippingCity,
-            MailingPostalCode__c = acc.ShippingPostalCode,
-            ApplicationSubmittedDate__c = Date.today()
-        );
-        return application;
+        return buildApplication(acc, 'Municipality', 'brukerMunicipality@example.com');
     }
 
     /**
@@ -370,45 +281,92 @@ public with sharing class AAREG_TestDataFactory {
      * @param app The Application to associate with the basis codes.
      * @return List<ApplicationBasisCode__c> - A list of County basis-code records.
      */
+    private static ApplicationBasisCode__c buildBasisCode(
+        Application__c app,
+        String organizationType,
+        String processingBasis,
+        Boolean apiAccess,
+        Boolean onlineAccess,
+        Boolean extractionAccess,
+        String legalBasisValue,
+        String purposeValue,
+        String otherLegalBasis,
+        String otherPurpose
+    ) {
+        ApplicationBasisCode__c record = new ApplicationBasisCode__c(
+            Application__c = app.Id,
+            API_Access__c = apiAccess,
+            Extraction_Access__c = extractionAccess,
+            Online_Access__c = onlineAccess,
+            ProcessingBasis__c = processingBasis,
+            OrganizationType__c = organizationType,
+            OtherLegalBasis__c = otherLegalBasis,
+            OtherPurpose__c = otherPurpose
+        );
+
+        if (organizationType == 'County') {
+            record.LegalBasisCounty__c = legalBasisValue;
+            record.PurposeCounty__c = purposeValue;
+        } else if (organizationType == 'Electricity Supervision') {
+            record.LegalBasisElectricitySupervision__c = legalBasisValue;
+            record.PurposeElectricitySupervision__c = purposeValue;
+        } else if (organizationType == 'Pension') {
+            record.LegalBasisPension__c = legalBasisValue;
+            record.PurposePension__c = purposeValue;
+        } else if (organizationType == 'Municipality') {
+            record.LegalBasisMunicipality__c = legalBasisValue;
+            record.PurposeMunicipality__c = purposeValue;
+        } else if (organizationType == 'State') {
+            record.LegalBasisState__c = legalBasisValue;
+            record.PurposeState__c = purposeValue;
+        }
+
+        return record;
+    }
+
     public static List<ApplicationBasisCode__c> getBasisCodeCounty(Application__c app) {
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
         basisCodes.add(
-            new ApplicationBasisCode__c(
-                Application__c = app.Id,
-                API_Access__c = true,
-                Extraction_Access__c = false,
-                Online_Access__c = false,
-                ProcessingBasis__c = 'Processing Basis 1',
-                OrganizationType__c = 'County',
-                LegalBasisCounty__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
-                PurposeCounty__c = 'Tildeling og kontroll av drosjeløyve'
+            buildBasisCode(
+                app,
+                'County',
+                'Processing Basis 1',
+                true,
+                false,
+                false,
+                'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
+                'Tildeling og kontroll av drosjeløyve',
+                null,
+                null
             )
         );
         basisCodes.add(
-            new ApplicationBasisCode__c(
-                Application__c = app.Id,
-                API_Access__c = true,
-                Extraction_Access__c = false,
-                Online_Access__c = false,
-                ProcessingBasis__c = 'Processing Basis 3',
-                OrganizationType__c = 'County',
-                OtherLegalBasis__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
-                OtherPurpose__c = 'Tildeling og kontroll av drosjeløyve',
-                LegalBasisCounty__c = 'Annet - oppgi i tekstfelt under',
-                PurposeCounty__c = 'Annet - oppgi i tekstfelt under'
+            buildBasisCode(
+                app,
+                'County',
+                'Processing Basis 3',
+                true,
+                false,
+                false,
+                'Annet - oppgi i tekstfelt under',
+                'Annet - oppgi i tekstfelt under',
+                'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
+                'Tildeling og kontroll av drosjeløyve'
             )
         );
 
         basisCodes.add(
-            new ApplicationBasisCode__c(
-                Application__c = app.Id,
-                API_Access__c = false,
-                Extraction_Access__c = false,
-                Online_Access__c = true,
-                ProcessingBasis__c = 'Processing Basis 2',
-                OrganizationType__c = 'County',
-                LegalBasisCounty__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
-                PurposeCounty__c = 'Kontroll av helsepersonell - tilsynssaker'
+            buildBasisCode(
+                app,
+                'County',
+                'Processing Basis 2',
+                false,
+                true,
+                false,
+                'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
+                'Kontroll av helsepersonell - tilsynssaker',
+                null,
+                null
             )
         );
         return basisCodes;
@@ -424,29 +382,31 @@ public with sharing class AAREG_TestDataFactory {
     public static List<ApplicationBasisCode__c> getBasisCodeEL(Application__c app) {
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
         basisCodes.add(
-            new ApplicationBasisCode__c(
-                Application__c = app.Id,
-                API_Access__c = true,
-                Extraction_Access__c = false,
-                Online_Access__c = false,
-                ProcessingBasis__c = 'Processing Basis 1',
-                OrganizationType__c = 'Electricity Supervision',
-                LegalBasisElectricitySupervision__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
-                PurposeElectricitySupervision__c = 'Tilsyn med elektriske anlegg og elektrisk utstyr'
+            buildBasisCode(
+                app,
+                'Electricity Supervision',
+                'Processing Basis 1',
+                true,
+                false,
+                false,
+                'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
+                'Tilsyn med elektriske anlegg og elektrisk utstyr',
+                null,
+                null
             )
         );
         basisCodes.add(
-            new ApplicationBasisCode__c(
-                Application__c = app.Id,
-                API_Access__c = false,
-                Extraction_Access__c = false,
-                Online_Access__c = true,
-                ProcessingBasis__c = 'Processing Basis 2',
-                OrganizationType__c = 'Electricity Supervision',
-                OtherLegalBasis__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
-                OtherPurpose__c = 'Tilsyn med elektriske anlegg og elektrisk utstyr',
-                LegalBasisElectricitySupervision__c = 'Annet - oppgi i tekstfelt under',
-                PurposeElectricitySupervision__c = 'Annet - oppgi i tekstfelt under'
+            buildBasisCode(
+                app,
+                'Electricity Supervision',
+                'Processing Basis 2',
+                false,
+                true,
+                false,
+                'Annet - oppgi i tekstfelt under',
+                'Annet - oppgi i tekstfelt under',
+                'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
+                'Tilsyn med elektriske anlegg og elektrisk utstyr'
             )
         );
         return basisCodes;
@@ -462,29 +422,31 @@ public with sharing class AAREG_TestDataFactory {
     public static List<ApplicationBasisCode__c> getBasisCodePension(Application__c app) {
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
         basisCodes.add(
-            new ApplicationBasisCode__c(
-                Application__c = app.Id,
-                API_Access__c = true,
-                Extraction_Access__c = false,
-                Online_Access__c = false,
-                ProcessingBasis__c = 'Processing Basis 1',
-                OrganizationType__c = 'Pension',
-                LegalBasisPension__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b',
-                PurposePension__c = 'Arbeid med administrasjon knyttet til OU-samordningen'
+            buildBasisCode(
+                app,
+                'Pension',
+                'Processing Basis 1',
+                true,
+                false,
+                false,
+                'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b',
+                'Arbeid med administrasjon knyttet til OU-samordningen',
+                null,
+                null
             )
         );
         basisCodes.add(
-            new ApplicationBasisCode__c(
-                Application__c = app.Id,
-                API_Access__c = false,
-                Extraction_Access__c = false,
-                Online_Access__c = true,
-                ProcessingBasis__c = 'Processing Basis 2',
-                OrganizationType__c = 'Pension',
-                OtherLegalBasis__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b',
-                OtherPurpose__c = 'Arbeid med administrasjon knyttet til OU-samordningen',
-                LegalBasisPension__c = 'Annet - oppgi i tekstfelt under',
-                PurposePension__c = 'Annet - oppgi i tekstfelt under'
+            buildBasisCode(
+                app,
+                'Pension',
+                'Processing Basis 2',
+                false,
+                true,
+                false,
+                'Annet - oppgi i tekstfelt under',
+                'Annet - oppgi i tekstfelt under',
+                'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav b',
+                'Arbeid med administrasjon knyttet til OU-samordningen'
             )
         );
         return basisCodes;
@@ -500,29 +462,31 @@ public with sharing class AAREG_TestDataFactory {
     public static List<ApplicationBasisCode__c> getBasisCodeMunicipality(Application__c app) {
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
         basisCodes.add(
-            new ApplicationBasisCode__c(
-                Application__c = app.Id,
-                API_Access__c = true,
-                Extraction_Access__c = false,
-                Online_Access__c = false,
-                ProcessingBasis__c = 'Processing Basis 1',
-                OrganizationType__c = 'Municipality',
-                LegalBasisMunicipality__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
-                PurposeMunicipality__c = 'Behandling av startlån/boligtilskudd'
+            buildBasisCode(
+                app,
+                'Municipality',
+                'Processing Basis 1',
+                true,
+                false,
+                false,
+                'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
+                'Behandling av startlån/boligtilskudd',
+                null,
+                null
             )
         );
         basisCodes.add(
-            new ApplicationBasisCode__c(
-                Application__c = app.Id,
-                API_Access__c = false,
-                Extraction_Access__c = false,
-                Online_Access__c = true,
-                ProcessingBasis__c = 'Processing Basis 2',
-                OrganizationType__c = 'Pension',
-                OtherLegalBasis__c = 'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
-                OtherPurpose__c = 'Behandling av startlån/boligtilskudd',
-                LegalBasisMunicipality__c = 'Annet - oppgi i tekstfelt under',
-                PurposeMunicipality__c = 'Annet - oppgi i tekstfelt under'
+            buildBasisCode(
+                app,
+                'Municipality',
+                'Processing Basis 2',
+                false,
+                true,
+                false,
+                'Annet - oppgi i tekstfelt under',
+                'Annet - oppgi i tekstfelt under',
+                'FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f',
+                'Behandling av startlån/boligtilskudd'
             )
         );
         return basisCodes;
@@ -538,32 +502,56 @@ public with sharing class AAREG_TestDataFactory {
     public static List<ApplicationBasisCode__c> getBasisCodeState(Application__c app) {
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
         basisCodes.add(
-            new ApplicationBasisCode__c(
-                Application__c = app.Id,
-                API_Access__c = true,
-                Extraction_Access__c = false,
-                Online_Access__c = false,
-                ProcessingBasis__c = 'Processing Basis 1',
-                OrganizationType__c = 'State',
-                LegalBasisState__c = 'LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33',
-                PurposeState__c = 'Kontroll av virksomheter som benytter eksplosiver.'
+            buildBasisCode(
+                app,
+                'State',
+                'Processing Basis 1',
+                true,
+                false,
+                false,
+                'LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33',
+                'Kontroll av virksomheter som benytter eksplosiver.',
+                null,
+                null
             )
         );
         basisCodes.add(
-            new ApplicationBasisCode__c(
-                Application__c = app.Id,
-                API_Access__c = true,
-                Extraction_Access__c = false,
-                Online_Access__c = false,
-                ProcessingBasis__c = 'Processing Basis 2',
-                OrganizationType__c = 'State',
-                OtherLegalBasis__c = 'LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33',
-                OtherPurpose__c = 'Kontroll av virksomheter som benytter eksplosiver.',
-                LegalBasisState__c = 'Annet - oppgi i tekstfelt under',
-                PurposeState__c = 'Annet - oppgi i tekstfelt under'
+            buildBasisCode(
+                app,
+                'State',
+                'Processing Basis 2',
+                true,
+                false,
+                false,
+                'Annet - oppgi i tekstfelt under',
+                'Annet - oppgi i tekstfelt under',
+                'LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33',
+                'Kontroll av virksomheter som benytter eksplosiver.'
             )
         );
         return basisCodes;
+    }
+
+    private static RelatedContact__c buildRelatedContact(
+        Application__c app,
+        String name,
+        String phone,
+        String email,
+        Boolean agreementNotifications,
+        Boolean changeNotifications,
+        Boolean errorMessageNotifications,
+        Boolean securityNotifications
+    ) {
+        return new RelatedContact__c(
+            Name = name,
+            Application__c = app.Id,
+            Phone__c = phone,
+            Email__c = email,
+            AgreementNotifications__c = agreementNotifications,
+            ChangeNotifications__c = changeNotifications,
+            ErrorMessageNotifications__c = errorMessageNotifications,
+            SecurityNotifications__c = securityNotifications
+        );
     }
 
     /**
@@ -576,27 +564,27 @@ public with sharing class AAREG_TestDataFactory {
     public static List<RelatedContact__c> getRelatedContact(Application__c app) {
         List<RelatedContact__c> relatedContacts = new List<RelatedContact__c>();
         relatedContacts.add(
-            new RelatedContact__c(
-                Name = 'Kommunekontakt 1',
-                Application__c = app.Id,
-                Phone__c = '12345678',
-                Email__c = 'Kommunekontakt1@example.com',
-                AgreementNotifications__c = true,
-                ChangeNotifications__c = true,
-                ErrorMessageNotifications__c = false,
-                SecurityNotifications__c = false
+            buildRelatedContact(
+                app,
+                'Kommunekontakt 1',
+                '12345678',
+                'Kommunekontakt1@example.com',
+                true,
+                true,
+                false,
+                false
             )
         );
         relatedContacts.add(
-            new RelatedContact__c(
-                Name = 'Kommunekontakt 2',
-                Application__c = app.Id,
-                Phone__c = '87654321',
-                Email__c = 'Kommunekontakt2@example.com',
-                AgreementNotifications__c = false,
-                ChangeNotifications__c = false,
-                ErrorMessageNotifications__c = true,
-                SecurityNotifications__c = true
+            buildRelatedContact(
+                app,
+                'Kommunekontakt 2',
+                '87654321',
+                'Kommunekontakt2@example.com',
+                false,
+                false,
+                true,
+                true
             )
         );
         return relatedContacts;
