@@ -346,9 +346,6 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
                     this.isLoading = false;
                 });
         } else {
-            // ensure draft record exists and update with current form data before final submission. This ensures that all user input is captured and associated with the correct Inquiry__c record, maintaining data integrity and providing a complete record of the user's inquiry for support agents to review.
-            this.ensureDraftRecordExists();
-
             // New flow:
             // 1) Create/complete the final Inquiry__c from draft + form metadata
             // 2) Relink files from draft -> final parent
@@ -459,7 +456,7 @@ export default class Aareg_contactSupportForm extends NavigationMixin(LightningE
         small.innerText = message;
         formControl.className = 'form-control error';
 
-        // Auto-clear after 5 seconds
+        // Auto-clear after 6 seconds
         setTimeout(() => {
             small.innerText = '';
             formControl.classList.remove('error');
