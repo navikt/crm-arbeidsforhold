@@ -226,7 +226,7 @@
         <inputAssignments>
             <field>TargetObjectId__c</field>
             <value>
-                <elementReference>var_ContactId</elementReference>
+                <elementReference>$Setup.AAREG_Default_Settings__c.Default_Contact__c</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
