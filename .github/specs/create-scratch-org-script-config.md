@@ -85,7 +85,7 @@ The same script works in any Salesforce DX project. Project-specific values come
 ## Out of scope
 
 - Applying `commandTimeouts` in the Bash script.
-- Changes to `newScratchOrg.bat`, `resolve_packages.ps1`, or `install-scratch.sh`.
+- Windows-specific script parity; tracked separately in [cross-platform-scratch-org-scripts.md](cross-platform-scratch-org-scripts.md).
 
 ## Issue mapping
 

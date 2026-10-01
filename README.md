@@ -22,11 +22,13 @@ Klon repoet og kjør kommandoene fra prosjektroten.
 Scratch-org-flyten og avhengighetsinstallasjon er dokumentert i [bin/README.md](bin/README.md). Der finner du blant annet:
 
 - opprettelse med `bin/create-scratch-org.sh`
-- Windows-flyt med `bin/newScratchOrg.bat`
+- Windows-flyt med `bin/create-scratch-org.bat` (PowerShell engine, no `sf-project` dependency)
 - henting fra scratch-org-pool
 - pakkeoppløsning og nødvendige Dev Hub-forutsetninger
 
 En typisk CLI-flyt starter med at du logger inn mot en Dev Hub med `sf org login web`, og deretter bruker den dokumenterte scratch-org-flyten. Installasjonsnøkler skal aldri legges i README, kildekode eller shell-historikk.
+
+På Windows er `bin/create-scratch-org.bat` den anbefalte CMD-inngangen. `bin/newScratchOrg.bat` er bare beholdt som et kompatibilitetsnavn.
 
 ## Lokal validering
 
