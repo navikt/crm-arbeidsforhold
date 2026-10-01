@@ -108,13 +108,31 @@ Each `customPostSteps` entry has:
 
 A `postSteps` entry that matches neither a built-in step nor a declared `customPostSteps[].name` fails configuration loading, and a `customPostSteps` name that collides with a built-in step name or repeats another custom name also fails configuration loading.
 
-The optional `dummyUsers` object extends the `data` post-step. After the data plan is imported, users from the file that do not already exist in the target org (matched by `Username`) are imported with `ProfileId` set to the profile resolved by name, and each assignment group gets its permission sets through `sf org assign permset --on-behalf-of`. Existing assignments are tolerated, so the step can be re-run. A missing user file or profile is reported as a warning.
+The optional `dummyUsers` object extends the `data` post-step. After the data plan is imported, users from the file that do not already exist in the target org (matched by `Username`) are imported with `ProfileId` resolved by profile name. `profileName` is the fallback; `profileAssignments` can override it for username groups. A username may occur in only one profile group. Each permission-set assignment group is applied through `sf org assign permset --on-behalf-of`. Existing assignments are tolerated, so the step can be re-run. A missing user file or profile is reported as a warning; users whose profile is missing are skipped.
 
-| Field                      | Type                                                                    | Required                        | Meaning                                                |
-| -------------------------- | ----------------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------ |
-| `file`                     | Non-empty string                                                        | Yes                             | Data tree file with User records, relative to the root |
-| `profileName`              | Non-empty string                                                        | No; defaults to `Standard User` | Profile resolved in the target org                     |
-| `permissionSetAssignments` | Array of `{ permissionSets: string[], usernames: string[] }`, non-empty | No; defaults to `[]`            | Permission sets assigned to each group of users        |
+| Field                      | Type                                                                    | Required                        | Meaning                                                                                    |
+| -------------------------- | ----------------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------ |
+| `file`                     | Non-empty string                                                        | Yes                             | Data tree file with User records, relative to the root                                     |
+| `profileName`              | Non-empty string                                                        | No; defaults to `Standard User` | Profile resolved in the target org                                                         |
+| `profileAssignments`       | Array of `{ profileName: string, usernames: string[] }`                 | No; defaults to `[]`            | Named profiles used instead of the fallback for those users; each username can appear once |
+| `permissionSetAssignments` | Array of `{ permissionSets: string[], usernames: string[] }`, non-empty | No; defaults to `[]`            | Permission sets assigned to each group of users                                            |
+
+Example with different profiles:
+
+```json
+{
+    "dummyUsers": {
+        "file": "dummy-data/User.json",
+        "profileName": "Standard User",
+        "profileAssignments": [
+            { "profileName": "Case Handler Profile", "usernames": ["handler@example.test"] },
+            { "profileName": "Support Profile", "usernames": ["support@example.test"] }
+        ]
+    }
+}
+```
+
+Use the profile names that exist in the target org. This configuration does not create or deploy profile metadata.
 
 Example:
 

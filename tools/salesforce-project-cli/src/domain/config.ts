@@ -48,6 +48,14 @@ const customPostStepSchema = z.object({
 const dummyUsersSchema = z.object({
     file: z.string().min(1),
     profileName: z.string().min(1).default('Standard User'),
+    profileAssignments: z
+        .array(
+            z.object({
+                profileName: z.string().min(1),
+                usernames: z.array(z.string().min(1)).min(1)
+            })
+        )
+        .default([]),
     permissionSetAssignments: z
         .array(
             z.object({
@@ -93,6 +101,19 @@ const toolConfigSchema = z
             .default({ preserveRootFiles: ['README.md'], requireLocalDirectories: true })
     })
     .superRefine((config, ctx) => {
+        const profileUsernames =
+            config.dummyUsers?.profileAssignments.flatMap((assignment) => assignment.usernames) ?? [];
+        const duplicateProfileUsernames = profileUsernames.filter(
+            (username, index) => profileUsernames.indexOf(username) !== index
+        );
+        for (const username of new Set(duplicateProfileUsernames)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['dummyUsers', 'profileAssignments'],
+                message: `dummyUsers assigns more than one profile to username: ${username}`
+            });
+        }
+
         const customNames = config.customPostSteps.map((step) => step.name);
         for (const name of customNames) {
             if ((BUILTIN_POST_STEPS as readonly string[]).includes(name)) {
@@ -207,6 +228,8 @@ export interface DummyUsersConfiguration {
     file: string;
     /** Profile resolved by name in the target org and assigned to imported users. */
     profileName: string;
+    /** Optional named profiles assigned to specific usernames when those users are created. */
+    profileAssignments: Array<{ profileName: string; usernames: string[] }>;
     /** Permission sets assigned to each group of usernames; existing assignments are tolerated. */
     permissionSetAssignments: Array<{ permissionSets: string[]; usernames: string[] }>;
 }
@@ -317,6 +340,7 @@ export async function loadProjectConfiguration(projectDirectory: string): Promis
                 dummyUsers: {
                     file: path.resolve(resolvedProjectDirectory, toolConfig.dummyUsers.file),
                     profileName: toolConfig.dummyUsers.profileName,
+                    profileAssignments: toolConfig.dummyUsers.profileAssignments,
                     permissionSetAssignments: toolConfig.dummyUsers.permissionSetAssignments
                 }
             }),

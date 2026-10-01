@@ -35,8 +35,63 @@ describe('project configuration', () => {
         expect(configuration.dummyUsers).toEqual({
             file: path.join(projectDirectory, 'data/User.json'),
             profileName: 'Standard User',
+            profileAssignments: [],
             permissionSetAssignments: [{ permissionSets: ['P1'], usernames: ['u1@example.test'] }]
         });
+    });
+
+    it('resolves profile assignments for multiple dummy user groups', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({ packageDirectories: [{ path: 'force-app' }] })
+        );
+        await writeFile(
+            path.join(projectDirectory, 'sf-project.config.json'),
+            JSON.stringify({
+                dummyUsers: {
+                    file: 'data/User.json',
+                    profileName: 'Default Profile',
+                    profileAssignments: [
+                        { profileName: 'Case Handler', usernames: ['handler@example.test'] },
+                        { profileName: 'Support User', usernames: ['support@example.test'] }
+                    ]
+                }
+            })
+        );
+
+        const configuration = await loadProjectConfiguration(projectDirectory);
+
+        expect(configuration.dummyUsers?.profileAssignments).toEqual([
+            { profileName: 'Case Handler', usernames: ['handler@example.test'] },
+            { profileName: 'Support User', usernames: ['support@example.test'] }
+        ]);
+    });
+
+    it('rejects assigning more than one profile to the same dummy username', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({ packageDirectories: [{ path: 'force-app' }] })
+        );
+        await writeFile(
+            path.join(projectDirectory, 'sf-project.config.json'),
+            JSON.stringify({
+                dummyUsers: {
+                    file: 'data/User.json',
+                    profileAssignments: [
+                        { profileName: 'Case Handler', usernames: ['same@example.test'] },
+                        { profileName: 'Support User', usernames: ['same@example.test'] }
+                    ]
+                }
+            })
+        );
+
+        await expect(loadProjectConfiguration(projectDirectory)).rejects.toThrow(
+            'dummyUsers assigns more than one profile to username: same@example.test'
+        );
     });
 
     it('rejects a dummyUsers assignment without usernames', async () => {
@@ -49,7 +104,10 @@ describe('project configuration', () => {
         await writeFile(
             path.join(projectDirectory, 'sf-project.config.json'),
             JSON.stringify({
-                dummyUsers: { file: 'data/User.json', permissionSetAssignments: [{ permissionSets: ['P1'], usernames: [] }] }
+                dummyUsers: {
+                    file: 'data/User.json',
+                    permissionSetAssignments: [{ permissionSets: ['P1'], usernames: [] }]
+                }
             })
         );
 
@@ -143,9 +201,7 @@ describe('project configuration', () => {
         await writeFile(
             path.join(projectDirectory, 'sfdx-project.json'),
             JSON.stringify({
-                packageDirectories: [
-                    { path: 'force-app', dependencies: [{ package: 'shared-package' }] }
-                ]
+                packageDirectories: [{ path: 'force-app', dependencies: [{ package: 'shared-package' }] }]
             })
         );
 
@@ -160,9 +216,7 @@ describe('project configuration', () => {
         await writeFile(
             path.join(projectDirectory, 'sfdx-project.json'),
             JSON.stringify({
-                packageDirectories: [
-                    { path: 'force-app', dependencies: [{ package: 'shared-package' }] }
-                ]
+                packageDirectories: [{ path: 'force-app', dependencies: [{ package: 'shared-package' }] }]
             })
         );
         await writeFile(

@@ -52,6 +52,7 @@ async function createProject(records: Array<Record<string, unknown>>): Promise<P
         dummyUsers: {
             file: userFile,
             profileName: "O'Profile",
+            profileAssignments: [],
             permissionSetAssignments: [
                 { permissionSets: ['P1', 'P2'], usernames: ['new@example.test', 'existing@example.test'] }
             ]
@@ -137,6 +138,98 @@ describe('dummy user import in the data post-step', () => {
             'existing@example.test',
             '--json'
         ]);
+    });
+
+    it('resolves and assigns different profiles to configured username groups', async () => {
+        const configuration = await createProject([
+            { attributes: { type: 'User', referenceId: 'U1' }, Username: 'handler@example.test' },
+            { attributes: { type: 'User', referenceId: 'U2' }, Username: 'support@example.test' }
+        ]);
+        configuration.dummyUsers!.profileAssignments = [
+            { profileName: 'Case Handler', usernames: ['handler@example.test'] },
+            { profileName: 'Support User', usernames: ['support@example.test'] }
+        ];
+
+        const importedTrees: unknown[] = [];
+        const profileQueries: string[] = [];
+        const runCommand = vi.fn(async (request: CommandRequest) => {
+            const commandArguments = [...(request.arguments ?? [])];
+            const query = commandArguments[commandArguments.indexOf('--query') + 1] ?? '';
+            if (query.startsWith('SELECT Id FROM Profile')) {
+                profileQueries.push(query);
+                const profileName = query.match(/Name = '(.*)' LIMIT/)?.[1];
+                const profileId = profileName === 'Case Handler' ? '00e000000000001' : '00e000000000002';
+                return result(request, JSON.stringify({ status: 0, result: { records: [{ Id: profileId }] } }));
+            }
+            if (query.startsWith('SELECT Username FROM User')) {
+                return result(request, '{"status":0,"result":{"records":[]}}');
+            }
+            const filesIndex = commandArguments.indexOf('--files');
+            if (filesIndex >= 0) {
+                importedTrees.push(JSON.parse(await readFile(commandArguments[filesIndex + 1] ?? '', 'utf8')));
+            }
+            return result(request, '{"status":0,"result":{}}');
+        });
+
+        await expect(configure(configuration, runCommand)).resolves.toBe(EXIT_CODES.SUCCESS);
+
+        expect(profileQueries).toHaveLength(2);
+        expect(importedTrees).toEqual([
+            {
+                records: [
+                    {
+                        attributes: { type: 'User', referenceId: 'U1' },
+                        Username: 'handler@example.test',
+                        ProfileId: '00e000000000001'
+                    },
+                    {
+                        attributes: { type: 'User', referenceId: 'U2' },
+                        Username: 'support@example.test',
+                        ProfileId: '00e000000000002'
+                    }
+                ]
+            }
+        ]);
+    });
+
+    it('skips users whose configured profile is not present in the target org', async () => {
+        const configuration = await createProject([
+            { attributes: { type: 'User', referenceId: 'U1' }, Username: 'valid@example.test' },
+            { attributes: { type: 'User', referenceId: 'U2' }, Username: 'missing@example.test' }
+        ]);
+        configuration.dummyUsers!.profileAssignments = [
+            { profileName: 'Missing Profile', usernames: ['missing@example.test'] }
+        ];
+
+        let importedUsers: unknown;
+        const runCommand = vi.fn(async (request: CommandRequest) => {
+            const commandArguments = [...(request.arguments ?? [])];
+            const query = commandArguments[commandArguments.indexOf('--query') + 1] ?? '';
+            if (query.startsWith('SELECT Id FROM Profile')) {
+                const records = query.includes('Missing Profile') ? [] : [{ Id: '00e000000000001' }];
+                return result(request, JSON.stringify({ status: 0, result: { records } }));
+            }
+            if (query.startsWith('SELECT Username FROM User')) {
+                return result(request, '{"status":0,"result":{"records":[]}}');
+            }
+            const filesIndex = commandArguments.indexOf('--files');
+            if (filesIndex >= 0) {
+                importedUsers = JSON.parse(await readFile(commandArguments[filesIndex + 1] ?? '', 'utf8'));
+            }
+            return result(request, '{"status":0,"result":{}}');
+        });
+
+        await expect(configure(configuration, runCommand)).resolves.toBe(EXIT_CODES.SUCCESS);
+
+        expect(importedUsers).toEqual({
+            records: [
+                {
+                    attributes: { type: 'User', referenceId: 'U1' },
+                    Username: 'valid@example.test',
+                    ProfileId: '00e000000000001'
+                }
+            ]
+        });
     });
 
     it('tolerates duplicate permission set assignments', async () => {

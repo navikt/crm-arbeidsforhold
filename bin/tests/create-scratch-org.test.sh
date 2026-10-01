@@ -14,9 +14,30 @@ mkdir -p "$FAKE_BIN"
 cat > "$FAKE_BIN/sf" <<'EOF_SF'
 #!/usr/bin/env bash
 echo "$*" >> "$SF_LOG"
+if [[ -n "${USER_IMPORT_CAPTURE:-}" ]]; then
+    import_arguments=("$@")
+    for ((argument_index = 0; argument_index < ${#import_arguments[@]}; argument_index += 1)); do
+        if [[ "${import_arguments[$argument_index]}" == "--files" ]]; then
+            cp "${import_arguments[$((argument_index + 1))]}" "$USER_IMPORT_CAPTURE"
+            break
+        fi
+    done
+fi
 case "$*" in
     "config get target-org --json")
         echo '{"status":0,"result":[{"name":"target-org","value":"fake-default-org"}]}'
+        ;;
+    *"SELECT Id FROM Profile WHERE Name = 'Case Handler'"*)
+        echo '{"status":0,"result":{"records":[{"Id":"00e000000000001"}]}}'
+        ;;
+    *"SELECT Id FROM Profile WHERE Name = 'Support User'"*)
+        echo '{"status":0,"result":{"records":[{"Id":"00e000000000002"}]}}'
+        ;;
+    *"SELECT Id FROM Profile"*)
+        echo '{"status":0,"result":{"records":[{"Id":"00e000000000003"}]}}'
+        ;;
+    *"SELECT Username FROM User"*)
+        echo '{"status":0,"result":{"records":[]}}'
         ;;
     "package version list"*)
         echo '{"status":0,"result":[{"SubscriberPackageVersionId":"04t000000000001","MajorVersion":1,"MinorVersion":0,"PatchVersion":0,"BuildNumber":1}]}'
@@ -291,8 +312,40 @@ test_dummy_users_come_from_config() {
     }'
     script --post-steps-only --dry-run
     assert_exit 0
-    assert_contains "Would resolve profile 'Custom Profile'"
+    assert_contains "Would resolve profile(s) Custom Profile"
     assert_contains "--name P1 --name P2 --on-behalf-of u1@example.test --on-behalf-of u2@example.test"
+}
+
+test_dummy_users_can_use_multiple_profiles() {
+    new_project dummy-users-multiple-profiles
+    mkdir -p "$PROJECT/data"
+    cat > "$PROJECT/data/User.json" <<'EOF_USERS'
+{"records":[
+    {"attributes":{"type":"User","referenceId":"Handler"},"Username":"handler@example.test","ProfileId":"org-specific"},
+    {"attributes":{"type":"User","referenceId":"Support"},"Username":"support@example.test","ProfileId":"org-specific"},
+    {"attributes":{"type":"User","referenceId":"Default"},"Username":"default@example.test","ProfileId":"org-specific"}
+]}
+EOF_USERS
+    echo '[]' > "$PROJECT/data/Plan.json"
+    write_config '{
+        "dummyDataPlan":"data/Plan.json",
+        "postSteps":["data"],
+        "dummyUsers":{
+            "file":"data/User.json",
+            "profileName":"Default Profile",
+            "profileAssignments":[
+                {"profileName":"Case Handler","usernames":["handler@example.test"]},
+                {"profileName":"Support User","usernames":["support@example.test"]}
+            ]
+        }
+    }'
+    local capture="$WORK_DIR/imported-multiple-profiles.json"
+    run_script env USER_IMPORT_CAPTURE="$capture" bash "$SCRIPT" --post-steps-only --post-steps data
+    assert_exit 0
+    assert_json "$capture" '[.records[].ProfileId]' '["00e000000000001","00e000000000002","00e000000000003"]'
+    grep -Fq "SELECT Id FROM Profile WHERE Name = 'Case Handler'" "$SF_LOG" && pass || fail "Case Handler profile was not queried"
+    grep -Fq "SELECT Id FROM Profile WHERE Name = 'Support User'" "$SF_LOG" && pass || fail "Support User profile was not queried"
+    grep -Fq "SELECT Id FROM Profile WHERE Name = 'Default Profile'" "$SF_LOG" && pass || fail "Default Profile was not queried"
 }
 
 test_dummy_user_assignments_environment_override() {
@@ -444,6 +497,7 @@ test_config_acceptance_matches_sf_project_loader() {
         'valid|{"communityName":null,"dummyDataPlan":null}'
         'valid|{"customPostSteps":[{"name":"seed","executable":"echo","arguments":["a"],"label":"Seed"}],"postSteps":["deploy","seed"]}'
         'valid|{"dummyUsers":{"file":"u.json","permissionSetAssignments":[{"permissionSets":["P"],"usernames":["u"]}]}}'
+        'valid|{"dummyUsers":{"file":"u.json","profileAssignments":[{"profileName":"Case Handler","usernames":["h"]},{"profileName":"Support User","usernames":["s"]}]}}'
         'valid|{"packageInstallKeyEnvironmentVariable":"TEAM-KEY","commandTimeouts":{"readMs":1000}}'
         'invalid|{"schemaVersion":2}'
         'invalid|{"defaultOrgAlias":null}'
@@ -457,6 +511,7 @@ test_config_acceptance_matches_sf_project_loader() {
         'invalid|{"commandTimeouts":{"readMs":0}}'
         'invalid|{"dependencySourcePolicy":{"requireLocalDirectories":"no"}}'
         'invalid|{"dummyUsers":{"profileName":"x"}}'
+        'invalid|{"dummyUsers":{"file":"u.json","profileAssignments":[{"profileName":"Case Handler","usernames":["same"]},{"profileName":"Support User","usernames":["same"]}]}}'
         'invalid|{"dummyUsers":{"file":"u.json","permissionSetAssignments":[{"permissionSets":["P"],"usernames":[]}]}}'
     )
     local fixture expected json ts_line bash_result ts_result index=0

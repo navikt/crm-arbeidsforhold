@@ -85,21 +85,58 @@ async function importMissingUsers(options: ImportDummyUsersOptions, records: Use
     const dummyUsers = options.configuration.dummyUsers;
     if (dummyUsers === undefined || records.length === 0) return EXIT_CODES.SUCCESS;
 
-    const profileResult = await query(
-        options,
-        'dummy-users:profile',
-        'Resolve dummy user profile',
-        `SELECT Id FROM Profile WHERE Name = ${soqlString(dummyUsers.profileName)} LIMIT 1`
-    );
-    if (failed(profileResult))
-        return stepFailed(options, 'dummy-users:profile', 'Resolve dummy user profile', profileResult);
-    const profileId = parseJsonPayload(profileResult.stdout).result?.records?.[0]?.Id;
-    if (typeof profileId !== 'string' || profileId.length === 0) {
-        warn(options, `Profile ${dummyUsers.profileName} was not found in ${options.alias}; dummy user import skipped`);
-        return EXIT_CODES.SUCCESS;
+    const profileNameByUsername = new Map<string, string>();
+    for (const assignment of dummyUsers.profileAssignments) {
+        for (const username of assignment.usernames) profileNameByUsername.set(username, assignment.profileName);
+    }
+    const profileNames = [
+        ...new Set(
+            records.map((record) =>
+                typeof record.Username === 'string'
+                    ? (profileNameByUsername.get(record.Username) ?? dummyUsers.profileName)
+                    : dummyUsers.profileName
+            )
+        )
+    ];
+    const profileIdByName = new Map<string, string>();
+    for (const profileName of profileNames) {
+        const profileResult = await query(
+            options,
+            `dummy-users:profile:${profileName}`,
+            `Resolve ${profileName} profile`,
+            `SELECT Id FROM Profile WHERE Name = ${soqlString(profileName)} LIMIT 1`
+        );
+        if (failed(profileResult)) {
+            return stepFailed(
+                options,
+                `dummy-users:profile:${profileName}`,
+                `Resolve ${profileName} profile`,
+                profileResult
+            );
+        }
+        const profileId = parseJsonPayload(profileResult.stdout).result?.records?.[0]?.Id;
+        if (typeof profileId === 'string' && profileId.length > 0) {
+            profileIdByName.set(profileName, profileId);
+        } else {
+            warn(
+                options,
+                `Profile ${profileName} was not found in ${options.alias}; users assigned to it will be skipped`
+            );
+        }
     }
 
-    const usernames = records.flatMap((record) => (typeof record.Username === 'string' ? [record.Username] : []));
+    const eligibleRecords = records.filter((record) => {
+        const profileName =
+            typeof record.Username === 'string'
+                ? (profileNameByUsername.get(record.Username) ?? dummyUsers.profileName)
+                : dummyUsers.profileName;
+        return profileIdByName.has(profileName);
+    });
+    if (eligibleRecords.length === 0) return EXIT_CODES.SUCCESS;
+
+    const usernames = eligibleRecords.flatMap((record) =>
+        typeof record.Username === 'string' ? [record.Username] : []
+    );
     let existingUsernames = new Set<string>();
     if (usernames.length > 0) {
         const existingResult = await query(
@@ -118,9 +155,15 @@ async function importMissingUsers(options: ImportDummyUsersOptions, records: Use
         );
     }
 
-    const missingRecords = records
+    const missingRecords = eligibleRecords
         .filter((record) => typeof record.Username !== 'string' || !existingUsernames.has(record.Username))
-        .map((record) => ({ ...record, ProfileId: profileId }));
+        .map((record) => {
+            const profileName =
+                typeof record.Username === 'string'
+                    ? (profileNameByUsername.get(record.Username) ?? dummyUsers.profileName)
+                    : dummyUsers.profileName;
+            return { ...record, ProfileId: profileIdByName.get(profileName) };
+        });
     if (missingRecords.length === 0) {
         options.emit({
             kind: 'progress',
@@ -197,13 +240,19 @@ export async function importDummyUsers(options: ImportDummyUsersOptions): Promis
     if (dummyUsers === undefined) return EXIT_CODES.SUCCESS;
 
     if (options.dryRun) {
+        const profileNames = [
+            ...new Set([
+                dummyUsers.profileName,
+                ...dummyUsers.profileAssignments.map((assignment) => assignment.profileName)
+            ])
+        ];
         options.emit({
             kind: 'progress',
             operationId: options.operationId,
             timestamp: new Date().toISOString(),
             stepId: 'dummy-users',
             step: 'Import dummy users',
-            message: `Would import missing users from ${dummyUsers.file} with profile ${dummyUsers.profileName} and assign ${dummyUsers.permissionSetAssignments.length} permission set group(s)`,
+            message: `Would import missing users from ${dummyUsers.file} with profile(s) ${profileNames.join(', ')} and assign ${dummyUsers.permissionSetAssignments.length} permission set group(s)`,
             dryRun: true
         });
         return EXIT_CODES.SUCCESS;

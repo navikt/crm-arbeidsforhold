@@ -36,6 +36,7 @@ DUMMY_USER_PROFILE_NAME="${DUMMY_USER_PROFILE_NAME:-}"
 DUMMY_USER_PERMSET_ASSIGNMENTS="${DUMMY_USER_PERMSET_ASSIGNMENTS:-}"
 # Newline-separated "<permission sets>|<usernames>" entries, each list space-separated.
 DUMMY_USER_ASSIGNMENTS=""
+DUMMY_PROFILE_ASSIGNMENTS_JSON='[]'
 PACKAGE_INSTALL_KEY_ENV_VAR="${PACKAGE_INSTALL_KEY_ENV_VAR:-}"
 PRESERVE_ROOT_FILES="${PRESERVE_ROOT_FILES:-}"
 PRESERVE_NOTHING=false
@@ -540,6 +541,11 @@ config_validation_errors() {
                 | (if has("file") then empty else "dummyUsers.file is required" end),
                 field("file"; nonempty_string; "dummyUsers.file must be a non-empty string"),
                 field("profileName"; nonempty_string; "dummyUsers.profileName must be a non-empty string"),
+                field("profileAssignments"; type == "array" and all(.[]; type == "object"
+                    and (.profileName | nonempty_string)
+                    and (.usernames | string_list and length > 0))
+                    and ([.[].usernames[]] | length == (unique | length));
+                    "dummyUsers.profileAssignments entries need a profileName and non-empty usernames, with each username assigned only once"),
                 field("permissionSetAssignments"; type == "array" and all(.[]; type == "object"
                     and (.permissionSets | string_list and length > 0)
                     and (.usernames | string_list and length > 0));
@@ -629,6 +635,7 @@ load_config() {
     apply_config_value PRESERVE_ROOT_FILES '.dependencySourcePolicy.preserveRootFiles'
     apply_config_value DUMMY_USER_FILE '.dummyUsers.file' path
     apply_config_value DUMMY_USER_PROFILE_NAME '.dummyUsers.profileName'
+    DUMMY_PROFILE_ASSIGNMENTS_JSON="$(jq -c '.dummyUsers.profileAssignments // []' "$CONFIG_FILE")"
 
     # An empty array means "nothing" in sf-project, not "use the default".
     if [[ -z "$POST_STEPS" ]] && config_is_empty_array '.postSteps'; then
@@ -2024,22 +2031,41 @@ import_dummy_users() {
     require_command jq
 
     if [[ "$DRY_RUN" == "true" ]]; then
-        echo "${YELLOW}[dry-run] Would resolve profile '${DUMMY_USER_PROFILE_NAME}' and import missing users from $DUMMY_USER_FILE${RESET}"
+        local profile_names
+        profile_names="$(jq -r --arg default "$DUMMY_USER_PROFILE_NAME" --argjson assignments "$DUMMY_PROFILE_ASSIGNMENTS_JSON" '[ $default, $assignments[]?.profileName ] | unique | join(", ")' "$DUMMY_USER_FILE")"
+        echo "${YELLOW}[dry-run] Would resolve profile(s) ${profile_names} and import missing users from $DUMMY_USER_FILE${RESET}"
         return 0
     fi
 
-    local profile_id
+    local profile_names_json
+    local profile_ids_json='{}'
     local profile_name_literal
-    profile_name_literal="$(jq -rn --arg value "$DUMMY_USER_PROFILE_NAME" "$SOQL_STRING_JQ"' $value | soql_string')"
-    profile_id="$(sf_json sf data query \
-        --target-org "$TARGET_ORG" \
-        --query "SELECT Id FROM Profile WHERE Name = ${profile_name_literal} LIMIT 1" \
-        | jq -r '.result.records[0].Id // empty')"
+    local profile_id
+    local profile_name
+    profile_names_json="$(jq -c --arg default "$DUMMY_USER_PROFILE_NAME" --argjson assignments "$DUMMY_PROFILE_ASSIGNMENTS_JSON" '
+        [
+            .records[]?
+            | (if (.Username | type) == "string" then .Username else "" end) as $username
+            | ([$assignments[]? | select(.usernames | index($username)) | .profileName][0] // $default)
+        ]
+        | unique
+    ' "$DUMMY_USER_FILE")"
 
-    if [[ -z "$profile_id" ]]; then
-        warning "Could not resolve profile '${DUMMY_USER_PROFILE_NAME}' in $TARGET_ORG. Skipping dummy user import."
-        return 0
-    fi
+    while IFS= read -r profile_name; do
+        [[ -z "$profile_name" ]] && continue
+        profile_name_literal="$(jq -rn --arg value "$profile_name" "$SOQL_STRING_JQ"' $value | soql_string')"
+        profile_id="$(sf_json sf data query \
+            --target-org "$TARGET_ORG" \
+            --query "SELECT Id FROM Profile WHERE Name = ${profile_name_literal} LIMIT 1" \
+            | jq -r '.result.records[0].Id // empty')"
+
+        if [[ -z "$profile_id" ]]; then
+            warning "Could not resolve profile '${profile_name}' in $TARGET_ORG. Users assigned to it will be skipped."
+            continue
+        fi
+
+        profile_ids_json="$(jq -c --arg name "$profile_name" --arg id "$profile_id" '. + {($name): $id}' <<< "$profile_ids_json")"
+    done < <(jq -r '.[]' <<< "$profile_names_json")
 
     local username_in_clause
     username_in_clause="$(jq -r "$SOQL_STRING_JQ"' [.records[].Username | strings] | map(soql_string) | join(",")' "$DUMMY_USER_FILE")"
@@ -2058,9 +2084,20 @@ import_dummy_users() {
     local tmp_user_file
     tmp_user_file="$(mktemp)"
 
-    jq --arg pid "$profile_id" --argjson existing "$existing_usernames_json" '
-        .records |= map(select((.Username as $u | $existing | index($u)) | not)) |
-        .records[].ProfileId = $pid
+    jq --arg default_profile "$DUMMY_USER_PROFILE_NAME" \
+        --argjson profile_assignments "$DUMMY_PROFILE_ASSIGNMENTS_JSON" \
+        --argjson profile_ids "$profile_ids_json" \
+        --argjson existing "$existing_usernames_json" '
+        def profile_name_for($username):
+            [$profile_assignments[]? | select(.usernames | index($username)) | .profileName][0]
+            // $default_profile;
+
+        .records |= map(
+            select((.Username as $u | $existing | index($u)) | not)
+            | (profile_name_for(.Username // "")) as $profile_name
+            | select($profile_ids[$profile_name] != null)
+            | .ProfileId = $profile_ids[$profile_name]
+        )
     ' "$DUMMY_USER_FILE" > "$tmp_user_file"
 
     local remaining
@@ -2072,7 +2109,7 @@ import_dummy_users() {
         return 0
     fi
 
-    echo "Creating $remaining dummy user(s) with profile '${DUMMY_USER_PROFILE_NAME}' ($profile_id)..."
+    echo "Creating $remaining dummy user(s) with configured profile(s)."
 
     if ! sf data import tree --target-org "$TARGET_ORG" --files "$tmp_user_file"; then
         rm -f "$tmp_user_file"

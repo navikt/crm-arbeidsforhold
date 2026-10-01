@@ -59,6 +59,7 @@ The same script works in any Salesforce DX project. Project-specific values come
 - **REQ-242:** `dependencySourcePolicy.requireLocalDirectories` (default `true`) makes an undeclared dependency directory an error during dependency cleanup; `false` makes it a warning.
 - **REQ-243:** Custom post-steps run from the project root, as in `sf-project`.
 - **REQ-244:** `sf-project` supports `dummyUsers`: its `data` post-step imports missing users with the resolved profile and assigns permission sets, tolerating duplicate assignments. Both tools escape SOQL string literals the same way.
+- **REQ-245:** `dummyUsers.profileAssignments` can map different username groups to named profiles. `dummyUsers.profileName` remains the fallback for unlisted users. Both config loaders reject duplicate username mappings; both importers resolve profile names in the target org and apply the matching IDs when creating users. Missing profiles warn and skip affected new users.
 
 ## Delivery order
 
@@ -69,6 +70,7 @@ The same script works in any Salesforce DX project. Project-specific values come
 | 3 | #1061 | Remove repository-specific hardcoded values from `create-scratch-org.sh` | REQ-220 to REQ-224 |
 | 4 | #1062 | Move repository values to configuration and update documentation | REQ-230, REQ-231 |
 | 5 | #1064 | Align `create-scratch-org.sh` config handling with `sf-project` | REQ-240 to REQ-244 |
+| 6 | #1068 | Support multiple profiles for dummy users | REQ-245 |
 
 ## Verification strategy
 
@@ -77,6 +79,7 @@ The same script works in any Salesforce DX project. Project-specific values come
 - Compare `--post-steps-only --dry-run` output of the previous script (from `HEAD`) and the new script against this repository's configuration, with a fake `sf`, to show that the effective commands match the previous hardcoded values (REQ-230).
 - The same Bash test loads a set of valid and invalid fixtures with both the script and the `sf-project` loader (through `tsx`) and requires identical verdicts (REQ-240).
 - `sf-project` unit tests cover `dummyUsers` configuration loading and the import in the `data` post-step with a fake command runner (REQ-244).
+- Unit tests and the Bash fake-CLI suite cover multiple profiles and the fallback profile; cross-tool fixtures verify duplicate username mappings are rejected by both loaders (REQ-245).
 - Authenticated scratch-org verification is not part of this work and must not be reported as passed.
 
 ## Out of scope
@@ -87,10 +90,10 @@ The same script works in any Salesforce DX project. Project-specific values come
 ## Issue mapping
 
 - Epic: #1058
-- Delivery issues: #1059, #1060, #1061, #1062, #1064
+- Delivery issues: #1059, #1060, #1061, #1062, #1064, #1068
 
 ## Implementation status
 
-All delivery issues are implemented. `bash bin/tests/create-scratch-org.test.sh` passes 134 assertions offline, including the cross-tool check for 19 fixtures. `npm run check` in `tools/salesforce-project-cli` passes (175 core tests, 16 web tests, docs check, build). The parity comparison shows identical post-step commands for this repository; the only difference is that the data plan path now uses the actual file name `dummy-data/Plan.json` instead of `dummy-data/plan.json`.
+All delivery issues are implemented. `bash bin/tests/create-scratch-org.test.sh` passes 143 assertions offline, including the cross-tool check for 21 config fixtures and importing three dummy users with two explicit profiles plus the default fallback. `npm run check` in `tools/salesforce-project-cli` passes (179 core tests, 16 web tests, docs check, type-check, build). The parity comparison shows identical post-step commands for this repository; the only difference is that the data plan path now uses the actual file name `dummy-data/Plan.json` instead of `dummy-data/plan.json`.
 
 Authenticated verification against a scratch org was not run and is not claimed as passed.
