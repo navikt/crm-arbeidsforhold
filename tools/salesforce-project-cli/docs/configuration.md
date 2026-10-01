@@ -84,6 +84,7 @@ The complete implemented schema is:
 | `permissionSets`                                 | Non-empty string array     | `[]`                              | Permission sets assigned by the `permsets` post-step                                                                                                        |
 | `dummyDataPlan`                                  | Non-empty string or `null` | `null`                            | Data tree import plan; `null` disables configured data import                                                                                               |
 | `communityName`                                  | Non-empty string or `null` | `null`                            | Experience Cloud community to publish                                                                                                                       |
+| `dummyUsers`                                     | Object                     | Absent                            | Users imported and assigned permission sets by the `data` post-step; see below                                                                              |
 | `postSteps`                                      | Non-empty string array     | `["deploy"]`                      | Selected project configuration steps: built-in step names or declared `customPostSteps[].name` values                                                       |
 | `customPostSteps`                                | Array of step objects      | `[]`                              | Project-declared post-steps beyond `deploy`/`permsets`/`data`/`community`; see below                                                                        |
 | `pool.use`                                       | Boolean                    | `false`                           | Try `sfp` pool acquisition                                                                                                                                  |
@@ -106,6 +107,14 @@ Each `customPostSteps` entry has:
 | `label`      | Non-empty string | No                   | Human-readable label shown in interactive output; defaults to the step name                                          |
 
 A `postSteps` entry that matches neither a built-in step nor a declared `customPostSteps[].name` fails configuration loading, and a `customPostSteps` name that collides with a built-in step name or repeats another custom name also fails configuration loading.
+
+The optional `dummyUsers` object extends the `data` post-step. After the data plan is imported, users from the file that do not already exist in the target org (matched by `Username`) are imported with `ProfileId` set to the profile resolved by name, and each assignment group gets its permission sets through `sf org assign permset --on-behalf-of`. Existing assignments are tolerated, so the step can be re-run. A missing user file or profile is reported as a warning.
+
+| Field                      | Type                                                                    | Required                        | Meaning                                                |
+| -------------------------- | ----------------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------ |
+| `file`                     | Non-empty string                                                        | Yes                             | Data tree file with User records, relative to the root |
+| `profileName`              | Non-empty string                                                        | No; defaults to `Standard User` | Profile resolved in the target org                     |
+| `permissionSetAssignments` | Array of `{ permissionSets: string[], usernames: string[] }`, non-empty | No; defaults to `[]`            | Permission sets assigned to each group of users        |
 
 Example:
 
@@ -146,6 +155,12 @@ Example:
 ```
 
 Unknown object keys are currently stripped by Zod rather than rejected. There is no standalone JSON Schema file. Do not rely on unknown keys being preserved.
+
+### Shared with `bin/create-scratch-org.sh`
+
+The legacy Bash script reads the same file, with precedence CLI option > environment variable > configuration > default, and can create it with `create-scratch-org.sh --init-config`. It validates the file with the same rules as this schema, resolves relative paths from the project root, and uses the same defaults (`postSteps: ["deploy"]`, empty arrays meaning "none"). `bin/tests/create-scratch-org.test.sh` checks that both loaders accept and reject the same fixtures. The script does not apply `commandTimeouts`.
+
+`scripts/setup-project.mjs` keeps keys it does not prompt for, so `dummyUsers` and `customPostSteps` survive a rerun of the interactive setup. See [bin/README.md](../../../bin/README.md) for how the script uses each field.
 
 ## Path resolution
 

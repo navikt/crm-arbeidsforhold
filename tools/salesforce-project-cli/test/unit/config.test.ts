@@ -13,6 +13,49 @@ afterEach(async () => {
 });
 
 describe('project configuration', () => {
+    it('resolves dummyUsers with an absolute file path and a default profile', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({ packageDirectories: [{ path: 'force-app' }] })
+        );
+        await writeFile(
+            path.join(projectDirectory, 'sf-project.config.json'),
+            JSON.stringify({
+                dummyUsers: {
+                    file: 'data/User.json',
+                    permissionSetAssignments: [{ permissionSets: ['P1'], usernames: ['u1@example.test'] }]
+                }
+            })
+        );
+
+        const configuration = await loadProjectConfiguration(projectDirectory);
+
+        expect(configuration.dummyUsers).toEqual({
+            file: path.join(projectDirectory, 'data/User.json'),
+            profileName: 'Standard User',
+            permissionSetAssignments: [{ permissionSets: ['P1'], usernames: ['u1@example.test'] }]
+        });
+    });
+
+    it('rejects a dummyUsers assignment without usernames', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({ packageDirectories: [{ path: 'force-app' }] })
+        );
+        await writeFile(
+            path.join(projectDirectory, 'sf-project.config.json'),
+            JSON.stringify({
+                dummyUsers: { file: 'data/User.json', permissionSetAssignments: [{ permissionSets: ['P1'], usernames: [] }] }
+            })
+        );
+
+        await expect(loadProjectConfiguration(projectDirectory)).rejects.toThrow();
+    });
+
     it('resolves scratch setup and pool defaults into the effective configuration', async () => {
         const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
         temporaryDirectories.push(projectDirectory);

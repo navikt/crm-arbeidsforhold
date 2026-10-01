@@ -3,21 +3,51 @@
 set -euo pipefail
 
 # -----------------------------
-# Defaults
+# Settings
 # -----------------------------
+# Precedence: CLI option > environment variable > sf-project.config.json > generic default.
+# Project-specific values belong in sf-project.config.json, never in this file.
 
-ORG_ALIAS="${ORG_ALIAS:-crm-arbeidsforhold}"
-DURATION_DAYS="${DURATION_DAYS:-14}"
-SCRATCH_DEF_FILE="${SCRATCH_DEF_FILE:-config/project-scratch-def.json}"
+DEFAULT_DURATION_DAYS=14
+DEFAULT_SCRATCH_DEF_FILE="config/project-scratch-def.json"
+DEFAULT_POST_STEPS="deploy"
+DEFAULT_POOL_TAG="dev"
+DEFAULT_DUMMY_USER_PROFILE_NAME="Standard User"
+DEFAULT_PACKAGE_INSTALL_KEY_ENV_VAR="PACKAGE_INSTALL_KEY"
+DEFAULT_PRESERVE_ROOT_FILES="README.md"
+BUILTIN_POST_STEPS="deploy permsets data community"
+CONFIG_FILE_NAME="sf-project.config.json"
+# jq helper that quotes a value as a SOQL string literal, escaping backslashes and single quotes.
+SOQL_STRING_JQ='def soql_string: "\u0027" + (gsub("\\\\"; "\\\\") | gsub("\u0027"; "\\\u0027")) + "\u0027";'
+
+ORG_ALIAS="${ORG_ALIAS:-}"
+ORG_ALIAS_SOURCE=""
+if [[ -n "$ORG_ALIAS" ]]; then
+    ORG_ALIAS_SOURCE="environment ORG_ALIAS"
+fi
+DURATION_DAYS="${DURATION_DAYS:-}"
+SCRATCH_DEF_FILE="${SCRATCH_DEF_FILE:-}"
 PROJECT_FILE="${PROJECT_FILE:-sfdx-project.json}"
-COMMUNITY_NAME="${COMMUNITY_NAME:-Aa-registret}"
-DUMMY_DATA_PLAN="${DUMMY_DATA_PLAN:-dummy-data/plan.json}"
-DUMMY_USER_FILE="${DUMMY_USER_FILE:-dummy-data/User.json}"
-DUMMY_USER_PROFILE_NAME="${DUMMY_USER_PROFILE_NAME:-Standard User}"
-DUMMY_SAKSBEHANDLER_PERMSET="${DUMMY_SAKSBEHANDLER_PERMSET:-AAREG_Arbeidsforhold_Saksbehandling}"
-DUMMY_SAKSBEHANDLER_USERNAMES="${DUMMY_SAKSBEHANDLER_USERNAMES:-persaksbehandler1@nav.no hannasaksbehandler2@nav.no}"
-DUMMY_SUPPORT_PERMSETS="${DUMMY_SUPPORT_PERMSETS:-AAREG_Arbeidsforhold_Support AAREG_Arbeidsforhold_Support_Read_Only}"
-DUMMY_SUPPORT_USERNAMES="${DUMMY_SUPPORT_USERNAMES:-karibrukerstotte1@nav.no olabrukerstotte2@nav.no}"
+COMMUNITY_NAME="${COMMUNITY_NAME:-}"
+DUMMY_DATA_PLAN="${DUMMY_DATA_PLAN:-}"
+PERMISSION_SETS="${PERMISSION_SETS:-}"
+DUMMY_USER_FILE="${DUMMY_USER_FILE:-}"
+DUMMY_USER_PROFILE_NAME="${DUMMY_USER_PROFILE_NAME:-}"
+DUMMY_USER_PERMSET_ASSIGNMENTS="${DUMMY_USER_PERMSET_ASSIGNMENTS:-}"
+# Newline-separated "<permission sets>|<usernames>" entries, each list space-separated.
+DUMMY_USER_ASSIGNMENTS=""
+PACKAGE_INSTALL_KEY_ENV_VAR="${PACKAGE_INSTALL_KEY_ENV_VAR:-}"
+PRESERVE_ROOT_FILES="${PRESERVE_ROOT_FILES:-}"
+PRESERVE_NOTHING=false
+REQUIRE_LOCAL_DIRECTORIES=true
+CUSTOM_POST_STEP_NAMES=""
+
+SF_PROJECT_CONFIG="${SF_PROJECT_CONFIG:-}"
+USE_CONFIG=true
+CONFIG_FILE=""
+CONFIG_LOADED=false
+INIT_CONFIG_ONLY=false
+FORCE_INIT_CONFIG=false
 PACKAGE_WAIT_MINUTES="${PACKAGE_WAIT_MINUTES:-10}"
 PACKAGE_INSTALL_MAX_ATTEMPTS="${PACKAGE_INSTALL_MAX_ATTEMPTS:-3}"
 PACKAGE_INSTALL_RETRY_DELAY_SECONDS="${PACKAGE_INSTALL_RETRY_DELAY_SECONDS:-5}"
@@ -27,17 +57,17 @@ PACKAGE_INSTALL_KEYCHAIN_ACCOUNT="${PACKAGE_INSTALL_KEYCHAIN_ACCOUNT:-}"
 
 RUN_ORG_CREATE="${RUN_ORG_CREATE:-true}"
 RUN_PACKAGES="${RUN_PACKAGES:-true}"
-POST_STEPS="${POST_STEPS:-all}"
+POST_STEPS="${POST_STEPS:-}"
 VERIFY_PACKAGE_VERSIONS="${VERIFY_PACKAGE_VERSIONS:-true}"
 INSTALL_LATEST_PACKAGES="${INSTALL_LATEST_PACKAGES:-false}"
 DELETE_ORG_ONLY="${DELETE_ORG_ONLY:-false}"
 UPDATE_PACKAGES_ONLY="${UPDATE_PACKAGES_ONLY:-false}"
 POST_STEPS_ONLY_MODE="${POST_STEPS_ONLY_MODE:-false}"
 
-USE_POOL="${USE_POOL:-false}"
-POOL_TAG="${POOL_TAG:-dev}"
+USE_POOL="${USE_POOL:-}"
+POOL_TAG="${POOL_TAG:-}"
 POOL_DEVHUB_USERNAME="${POOL_DEVHUB_USERNAME:-}"
-FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY="${FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY:-true}"
+FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY="${FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY:-}"
 ORG_AVAILABLE_FOR_READ="${ORG_AVAILABLE_FOR_READ:-true}"
 
 SELF_CHECK_ONLY="${SELF_CHECK_ONLY:-false}"
@@ -54,13 +84,11 @@ REQUESTED_UPDATE_PACKAGES_ONLY=""
 REQUESTED_PACKAGE_PLAN_ONLY=""
 REQUESTED_INSTALL_LATEST_PACKAGES=""
 REQUESTED_POST_STEPS_ONLY_MODE=""
-ORG_ALIAS_SET_EXPLICITLY=false
 TARGET_ORG=""
 TARGET_ORG_SOURCE=""
 
-# Packages in this list do NOT use package install key.
-# Packages NOT in this list WILL use package install key.
-PACKAGES_NOT_REQUIRING_INSTALL_KEY="${PACKAGES_NOT_REQUIRING_INSTALL_KEY:-platform-data-model,custom-metadata-dao,custom-permission-helper,feature-toggle,record-type-cache}"
+# Optional override of packageKeyConfig in the project file: packages listed here do NOT use an install key.
+PACKAGES_NOT_REQUIRING_INSTALL_KEY="${PACKAGES_NOT_REQUIRING_INSTALL_KEY:-}"
 
 PACKAGE_UPDATE_SUGGESTIONS=""
 INSTALLED_PACKAGES_JSON=""
@@ -301,32 +329,44 @@ usage() {
 Usage:
   ./create-scratch-org.sh [options]
 
-Options:
-  -a, --alias <alias>                 Scratch org alias. Default: crm-arbeidsforhold
-  -d, --duration-days <days>          Scratch org duration in days. Default: 14
-  -f, --definition-file <file>        Scratch org definition file. Default: config/project-scratch-def.json
-  -p, --project-file <file>           Salesforce DX project file. Default: sfdx-project.json
-  -c, --community-name <name>         Community name to publish. Default: Aa-registret
-  --dummy-data-plan <file>            Dummy data import plan. Default: dummy-data/plan.json
+Settings are resolved as: CLI option > environment variable > sf-project.config.json > generic default.
+sf-project.config.json is read from the project file's directory when it exists.
 
-  -s, --post-steps <steps>            Post steps to run. Default: all
-                                      Values: all, none, deploy, permsets, data, community
+Options:
+  -a, --alias <alias>                 Scratch org alias. Config: defaultOrgAlias. Default: project directory name.
+  -d, --duration-days <days>          Scratch org duration in days. Config: scratchDurationDays. Default: 14
+  -f, --definition-file <file>        Scratch org definition file. Config: scratchDefinition. Default: config/project-scratch-def.json
+  -p, --project-file <file>           Salesforce DX project file. Default: sfdx-project.json
+  -c, --community-name <name>         Community to publish. Config: communityName. Default: none (step skipped).
+  --dummy-data-plan <file>            Dummy data import plan. Config: dummyDataPlan. Default: none (step skipped).
+  --permission-sets <names>           Comma-separated permission sets for the permsets step. Config: permissionSets.
+
+  -s, --post-steps <steps>            Post steps to run. Config: postSteps. Default: deploy
+                                      Values: all, none, deploy, permsets, data, community, or a customPostSteps name.
                                       Multiple values can be comma-separated: deploy,permsets,data,community
+
+  --config <file>                     Configuration file to read. Default: sf-project.config.json next to the project file.
+  --no-config                         Do not read any configuration file.
+  --init-config                       Write sf-project.config.json from the effective settings and exit.
+                                      Combine with other options to set values, e.g. --init-config --alias my-org.
+                                      With --dry-run the JSON is printed instead of written.
+  --force                             Allow --init-config to update an existing file. Unmanaged keys are kept.
 
   --install-latest                    Install latest released package versions instead of versions defined in sfdx-project.json.
   --update-packages                   Only install package dependencies that are missing or behind.
-  --use-pool                          Try to fetch a scratch org from the sfp scratch org pool.
-  --pool-tag <tag>                    sfp pool tag. Default: dev
-  --pool-devhub <alias>               DevHub username or alias for sfp pool commands.
+  --use-pool                          Try to fetch a scratch org from the sfp scratch org pool. Config: pool.use
+  --pool-tag <tag>                    sfp pool tag. Config: pool.tag. Default: dev
+  --pool-devhub <alias>               DevHub username or alias for sfp pool commands. Config: pool.devHub
                                       If omitted, script tries: sf config get target-dev-hub --json
-    --keychain-service <service>          macOS Keychain service name for install key lookup.
-    --keychain-account <account>          macOS Keychain account name for install key lookup.
+  --keychain-service <service>        macOS Keychain service name for install key lookup.
+  --keychain-account <account>        macOS Keychain account name for install key lookup.
   --delete-org-only                   Only delete the scratch org matching --alias.
   --self-check                        Validate setup and configuration only.
   --dry-run                           Print mutating commands instead of executing them.
   --package-plan                      Check installed packages and print what would change.
-    --refresh-dependency-sources        Clear dependency source folders before setup and retrieve them again afterward.
-    --clear-dependency-sources-only     Clear dependency source folders and exit without running any org or package commands.
+  --refresh-dependency-sources        Clear dependency source folders before setup and retrieve them again afterward.
+  --clear-dependency-sources-only     Clear dependency source folders and exit without running any org or package commands.
+                                      Files listed in dependencySourcePolicy.preserveRootFiles are kept. Default: README.md
   --post-steps-only                   Run only post steps against an existing org. Shortcut for --skip-org --skip-packages.
                                       Combine with --post-steps to select specific steps, e.g. --post-steps-only --post-steps data.
   --skip-org                          Do not delete/create/fetch scratch org.
@@ -335,28 +375,35 @@ Options:
   -h, --help                          Show this help text.
 
 Environment variables:
-    PACKAGE_INSTALL_MAX_ATTEMPTS        Number of install retries for transient Salesforce CLI/network errors. Default: 3
-    PACKAGE_INSTALL_RETRY_DELAY_SECONDS Delay between retry attempts in seconds. Default: 5
+  ORG_ALIAS, DURATION_DAYS, SCRATCH_DEF_FILE, PROJECT_FILE, COMMUNITY_NAME, DUMMY_DATA_PLAN, POST_STEPS,
+  USE_POOL, POOL_TAG, POOL_DEVHUB_USERNAME, FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY
+                                      Override the matching option or configuration value.
+  SF_PROJECT_CONFIG                   Configuration file to read (same as --config).
+  PERMISSION_SETS                     Comma- or space-separated permission sets (same as --permission-sets).
+  PACKAGE_INSTALL_MAX_ATTEMPTS        Number of install retries for transient Salesforce CLI/network errors. Default: 3
+  PACKAGE_INSTALL_RETRY_DELAY_SECONDS Delay between retry attempts in seconds. Default: 5
   PACKAGE_INSTALL_KEY                 Installation key used for packages requiring key.
-    PACKAGE_INSTALL_KEYCHAIN_SERVICE      macOS Keychain service name for install key lookup.
-    PACKAGE_INSTALL_KEYCHAIN_ACCOUNT      Optional macOS Keychain account name for lookup.
-  PACKAGES_NOT_REQUIRING_INSTALL_KEY  Comma-separated list of packages that do NOT require install key.
-  DUMMY_USER_FILE                     Dummy user tree file imported as part of the data post step. Default: dummy-data/User.json
-  DUMMY_USER_PROFILE_NAME              Profile assigned to dummy users, resolved per target org. Default: Standard User
-  DUMMY_SAKSBEHANDLER_PERMSET          Permission set assigned to dummy saksbehandler users. Default: AAREG_Arbeidsforhold_Saksbehandling
-  DUMMY_SAKSBEHANDLER_USERNAMES        Space-separated saksbehandler usernames. Default: persaksbehandler1@nav.no hannasaksbehandler2@nav.no
-  DUMMY_SUPPORT_PERMSETS               Space-separated permission sets assigned to dummy support users. Default: AAREG_Arbeidsforhold_Support AAREG_Arbeidsforhold_Support_Read_Only
-  DUMMY_SUPPORT_USERNAMES              Space-separated brukerstøtte usernames. Default: karibrukerstotte1@nav.no olabrukerstotte2@nav.no
+  PACKAGE_INSTALL_KEY_ENV_VAR         Name of the variable holding the install key. Config: packageInstallKeyEnvironmentVariable.
+  PACKAGE_INSTALL_KEYCHAIN_SERVICE    macOS Keychain service name for install key lookup.
+  PACKAGE_INSTALL_KEYCHAIN_ACCOUNT    Optional macOS Keychain account name for lookup.
+  PACKAGES_NOT_REQUIRING_INSTALL_KEY  Comma-separated override of packageKeyConfig in the project file.
+  PRESERVE_ROOT_FILES                 Comma-separated root files kept during dependency cleanup.
+  DUMMY_USER_FILE                     Dummy user tree file imported by the data step. Config: dummyUsers.file
+  DUMMY_USER_PROFILE_NAME             Profile assigned to dummy users. Config: dummyUsers.profileName. Default: Standard User
+  DUMMY_USER_PERMSET_ASSIGNMENTS      Permission sets per dummy user group, e.g. "PermA,PermB:user1,user2;PermC:user3".
+                                      Config: dummyUsers.permissionSetAssignments
 
 Examples:
   ./create-scratch-org.sh
+  ./create-scratch-org.sh --init-config
+  ./create-scratch-org.sh --init-config --dry-run --alias my-org --permission-sets MyPermSet
   ./create-scratch-org.sh --self-check
   ./create-scratch-org.sh --dry-run
   ./create-scratch-org.sh --package-plan
   ./create-scratch-org.sh --package-plan --install-latest
-    ./create-scratch-org.sh --refresh-dependency-sources
-    ./create-scratch-org.sh --clear-dependency-sources-only
-  ./create-scratch-org.sh --use-pool --pool-tag dev --pool-devhub "NAV DevHub"
+  ./create-scratch-org.sh --refresh-dependency-sources
+  ./create-scratch-org.sh --clear-dependency-sources-only
+  ./create-scratch-org.sh --use-pool --pool-tag dev --pool-devhub <devhub-alias>
   ./create-scratch-org.sh --update-packages --install-latest
   ./create-scratch-org.sh --delete-org-only
   ./create-scratch-org.sh --skip-org --skip-packages --post-steps deploy
@@ -418,6 +465,345 @@ validate_json_file() {
     fi
 }
 
+# -----------------------------
+# sf-project.config.json
+# -----------------------------
+
+resolve_config_file() {
+    if [[ -n "$SF_PROJECT_CONFIG" ]]; then
+        CONFIG_FILE="$SF_PROJECT_CONFIG"
+    elif [[ "$(dirname "$PROJECT_FILE")" == "." ]]; then
+        CONFIG_FILE="$CONFIG_FILE_NAME"
+    else
+        CONFIG_FILE="$(dirname "$PROJECT_FILE")/$CONFIG_FILE_NAME"
+    fi
+}
+
+run_in_project_root() {
+    (cd "$(project_root_dir)" && "$@")
+}
+
+validate_duration_days() {
+    validate_number "$DURATION_DAYS" "Duration days"
+
+    if (( 10#$DURATION_DAYS < 1 || 10#$DURATION_DAYS > 30 )); then
+        error 2 "Duration days must be an integer from 1 to 30. Got: $DURATION_DAYS"
+    fi
+}
+
+config_validation_errors() {
+    # Mirrors the sf-project Zod schema so both tools accept and reject the same files.
+    jq -r --arg builtins "$BUILTIN_POST_STEPS" '
+        def string_list: type == "array" and all(.[]; type == "string" and length > 0);
+        def nonempty_string: type == "string" and length > 0;
+        def positive_int: type == "number" and . == floor and . > 0;
+        def field(key; check; message): if has(key) and ((.[key] | check) | not) then message else empty end;
+        if type != "object" then
+            "the root value must be a JSON object"
+        else
+            [$builtins | splits(" ")] as $builtin_steps
+            | [.customPostSteps? | arrays | .[] | objects | .name | strings] as $custom_names
+            | field("schemaVersion"; . == 1; "unsupported schemaVersion: \(.schemaVersion). Supported: 1"),
+            field("defaultOrgAlias"; nonempty_string; "defaultOrgAlias must be a non-empty string"),
+            field("scratchDefinition"; nonempty_string; "scratchDefinition must be a non-empty string"),
+            field("scratchDurationDays"; type == "number" and . == floor and . >= 1 and . <= 30; "scratchDurationDays must be an integer between 1 and 30"),
+            field("permissionSets"; string_list; "permissionSets must be an array of non-empty strings"),
+            field("dummyDataPlan"; . == null or nonempty_string; "dummyDataPlan must be a non-empty string or null"),
+            field("communityName"; . == null or nonempty_string; "communityName must be a non-empty string or null"),
+            field("postSteps"; string_list; "postSteps must be an array of non-empty strings"),
+            field("customPostSteps"; type == "array" and all(.[]; type == "object"
+                and (.name | nonempty_string)
+                and (.executable | nonempty_string)
+                and ((.arguments // []) | type == "array" and all(.[]; type == "string"))
+                and ((has("label") | not) or (.label | nonempty_string)));
+                "customPostSteps entries need a non-empty name and executable, an optional string arguments array and an optional non-empty label"),
+            ($custom_names[] | select(IN($builtin_steps[])) | "customPostSteps name collides with a built-in post-step: \(.)"),
+            ($custom_names | group_by(.) | map(select(length > 1) | .[0]) | .[] | "customPostSteps declares the same name more than once: \(.)"),
+            (.postSteps? | arrays | .[] | strings | select(IN(($builtin_steps + $custom_names)[]) | not) | "postSteps references an unknown step: \(.)"),
+            field("pool"; type == "object"; "pool must be an object"),
+            (.pool | objects
+                | field("use"; type == "boolean"; "pool.use must be a boolean"),
+                field("tag"; nonempty_string; "pool.tag must be a non-empty string"),
+                field("devHub"; nonempty_string; "pool.devHub must be a non-empty string"),
+                field("fallbackToCreate"; type == "boolean"; "pool.fallbackToCreate must be a boolean")),
+            field("packageInstallKeyEnvironmentVariable"; nonempty_string; "packageInstallKeyEnvironmentVariable must be a non-empty string"),
+            field("commandTimeouts"; type == "object"; "commandTimeouts must be an object"),
+            (.commandTimeouts | objects
+                | field("readMs"; positive_int; "commandTimeouts.readMs must be a positive integer"),
+                field("mutationMs"; positive_int; "commandTimeouts.mutationMs must be a positive integer")),
+            field("dependencySourcePolicy"; type == "object"; "dependencySourcePolicy must be an object"),
+            (.dependencySourcePolicy | objects
+                | field("preserveRootFiles"; string_list; "dependencySourcePolicy.preserveRootFiles must be an array of non-empty strings"),
+                field("requireLocalDirectories"; type == "boolean"; "dependencySourcePolicy.requireLocalDirectories must be a boolean")),
+            field("dummyUsers"; type == "object"; "dummyUsers must be an object"),
+            (.dummyUsers | objects
+                | (if has("file") then empty else "dummyUsers.file is required" end),
+                field("file"; nonempty_string; "dummyUsers.file must be a non-empty string"),
+                field("profileName"; nonempty_string; "dummyUsers.profileName must be a non-empty string"),
+                field("permissionSetAssignments"; type == "array" and all(.[]; type == "object"
+                    and (.permissionSets | string_list and length > 0)
+                    and (.usernames | string_list and length > 0));
+                    "dummyUsers.permissionSetAssignments entries need non-empty permissionSets and usernames arrays"))
+        end
+    ' "$CONFIG_FILE"
+}
+
+config_get() {
+    jq -r "($1) | if . == null then empty elif type == \"array\" then join(\",\") else tostring end" "$CONFIG_FILE"
+}
+
+config_is_empty_array() {
+    jq -e "($1) == []" "$CONFIG_FILE" >/dev/null
+}
+
+# Relative paths resolve from the project root, as in sf-project.
+config_path() {
+    local value="$1"
+
+    if [[ "$value" == /* || "$(project_root_dir)" == "." ]]; then
+        echo "$value"
+    else
+        echo "$(project_root_dir)/$value"
+    fi
+}
+
+apply_config_value() {
+    local variable_name="$1"
+    local jq_path="$2"
+    local kind="${3:-value}"
+    local value=""
+
+    [[ -n "${!variable_name}" ]] && return 0
+
+    value="$(config_get "$jq_path")"
+    [[ -z "$value" ]] && return 0
+
+    if [[ "$kind" == "path" ]]; then
+        value="$(config_path "$value")"
+    fi
+
+    printf -v "$variable_name" '%s' "$value"
+}
+
+load_config() {
+    local validation_errors=""
+
+    if [[ "$USE_CONFIG" != "true" ]]; then
+        return 0
+    fi
+
+    if [[ ! -f "$CONFIG_FILE" ]]; then
+        if [[ -n "$SF_PROJECT_CONFIG" ]]; then
+            error 2 "Configuration file not found: $CONFIG_FILE"
+        fi
+        return 0
+    fi
+
+    require_command "jq"
+
+    if ! jq empty "$CONFIG_FILE" >/dev/null 2>&1; then
+        error 2 "Invalid JSON in configuration file: $CONFIG_FILE"
+    fi
+
+    validation_errors="$(config_validation_errors)"
+    if [[ -n "$validation_errors" ]]; then
+        error 2 "Invalid configuration file $CONFIG_FILE:"$'\n'"$(sed 's/^/- /' <<< "$validation_errors")"
+    fi
+
+    if [[ -z "$ORG_ALIAS" ]]; then
+        apply_config_value ORG_ALIAS '.defaultOrgAlias'
+        [[ -n "$ORG_ALIAS" ]] && ORG_ALIAS_SOURCE="$CONFIG_FILE defaultOrgAlias"
+    fi
+
+    apply_config_value SCRATCH_DEF_FILE '.scratchDefinition' path
+    apply_config_value DURATION_DAYS '.scratchDurationDays'
+    apply_config_value PERMISSION_SETS '.permissionSets'
+    apply_config_value DUMMY_DATA_PLAN '.dummyDataPlan' path
+    apply_config_value COMMUNITY_NAME '.communityName'
+    apply_config_value POST_STEPS '.postSteps'
+    apply_config_value USE_POOL '.pool.use'
+    apply_config_value POOL_TAG '.pool.tag'
+    apply_config_value POOL_DEVHUB_USERNAME '.pool.devHub'
+    apply_config_value FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY '.pool.fallbackToCreate'
+    apply_config_value PACKAGE_INSTALL_KEY_ENV_VAR '.packageInstallKeyEnvironmentVariable'
+    apply_config_value PRESERVE_ROOT_FILES '.dependencySourcePolicy.preserveRootFiles'
+    apply_config_value DUMMY_USER_FILE '.dummyUsers.file' path
+    apply_config_value DUMMY_USER_PROFILE_NAME '.dummyUsers.profileName'
+
+    # An empty array means "nothing" in sf-project, not "use the default".
+    if [[ -z "$POST_STEPS" ]] && config_is_empty_array '.postSteps'; then
+        POST_STEPS="none"
+    fi
+    if [[ -z "$PRESERVE_ROOT_FILES" ]] && config_is_empty_array '.dependencySourcePolicy.preserveRootFiles'; then
+        PRESERVE_NOTHING=true
+    fi
+    if [[ "$(config_get '.dependencySourcePolicy.requireLocalDirectories')" == "false" ]]; then
+        REQUIRE_LOCAL_DIRECTORIES=false
+    fi
+
+    if [[ -z "$DUMMY_USER_PERMSET_ASSIGNMENTS" ]]; then
+        DUMMY_USER_ASSIGNMENTS="$(jq -r '.dummyUsers.permissionSetAssignments[]? | "\((.permissionSets // []) | join(" "))|\((.usernames // []) | join(" "))"' "$CONFIG_FILE")"
+    fi
+
+    CUSTOM_POST_STEP_NAMES="$(jq -r '[.customPostSteps[]?.name] | join(" ")' "$CONFIG_FILE")"
+    CONFIG_LOADED=true
+}
+
+parse_dummy_user_assignments_from_environment() {
+    local group=""
+    local permission_sets=""
+    local usernames=""
+
+    [[ -z "$DUMMY_USER_PERMSET_ASSIGNMENTS" ]] && return 0
+
+    DUMMY_USER_ASSIGNMENTS=""
+    IFS=';' read -ra assignment_groups <<< "$DUMMY_USER_PERMSET_ASSIGNMENTS"
+    for group in "${assignment_groups[@]}"; do
+        [[ -z "${group// /}" ]] && continue
+        if [[ "$group" != *:* ]]; then
+            error 1 "Invalid DUMMY_USER_PERMSET_ASSIGNMENTS entry: $group. Expected <permission sets>:<usernames>."
+        fi
+        permission_sets="${group%%:*}"
+        usernames="${group#*:}"
+        DUMMY_USER_ASSIGNMENTS+="${permission_sets//,/ }|${usernames//,/ }"$'\n'
+    done
+}
+
+apply_generic_defaults() {
+    if [[ -z "$ORG_ALIAS" ]]; then
+        ORG_ALIAS="$(basename "$(cd "$(dirname "$PROJECT_FILE")" && pwd)")"
+        ORG_ALIAS_SOURCE="default"
+    fi
+
+    DURATION_DAYS="${DURATION_DAYS:-$DEFAULT_DURATION_DAYS}"
+    SCRATCH_DEF_FILE="${SCRATCH_DEF_FILE:-$(config_path "$DEFAULT_SCRATCH_DEF_FILE")}"
+    POST_STEPS="${POST_STEPS:-$DEFAULT_POST_STEPS}"
+    USE_POOL="${USE_POOL:-false}"
+    POOL_TAG="${POOL_TAG:-$DEFAULT_POOL_TAG}"
+    FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY="${FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY:-true}"
+    DUMMY_USER_PROFILE_NAME="${DUMMY_USER_PROFILE_NAME:-$DEFAULT_DUMMY_USER_PROFILE_NAME}"
+    PACKAGE_INSTALL_KEY_ENV_VAR="${PACKAGE_INSTALL_KEY_ENV_VAR:-$DEFAULT_PACKAGE_INSTALL_KEY_ENV_VAR}"
+    PRESERVE_ROOT_FILES="${PRESERVE_ROOT_FILES:-$DEFAULT_PRESERVE_ROOT_FILES}"
+    if [[ "$PRESERVE_NOTHING" == "true" ]]; then
+        PRESERVE_ROOT_FILES=""
+    fi
+    PERMISSION_SETS="$(tr -s ' ,' ',' <<< "$PERMISSION_SETS" | sed 's/^,//; s/,$//')"
+
+    if [[ -z "$PACKAGE_INSTALL_KEY" ]]; then
+        PACKAGE_INSTALL_KEY="$(printenv -- "$PACKAGE_INSTALL_KEY_ENV_VAR" || true)"
+    fi
+}
+
+config_relative_path() {
+    local value="$1"
+    local root=""
+
+    root="$(project_root_dir)"
+    if [[ -n "$value" && "$root" != "." && "$value" == "$root/"* ]]; then
+        echo "${value#"$root/"}"
+    else
+        echo "$value"
+    fi
+}
+
+generate_config_json() {
+    local expanded_post_steps="$POST_STEPS"
+
+    if [[ "$POST_STEPS" == "all" ]]; then
+        expanded_post_steps="$(all_post_step_names | tr ' ' ',')"
+    elif [[ "$POST_STEPS" == "none" ]]; then
+        expanded_post_steps=""
+    fi
+
+    # Install keys are deliberately not passed to jq: only the variable name is written.
+    jq -n \
+        --arg alias "$ORG_ALIAS" \
+        --arg scratchDefinition "$(config_relative_path "$SCRATCH_DEF_FILE")" \
+        --argjson durationDays "$DURATION_DAYS" \
+        --arg permissionSets "$PERMISSION_SETS" \
+        --arg dataPlan "$(config_relative_path "$DUMMY_DATA_PLAN")" \
+        --arg community "$COMMUNITY_NAME" \
+        --arg postSteps "$expanded_post_steps" \
+        --argjson usePool "$USE_POOL" \
+        --arg poolTag "$POOL_TAG" \
+        --arg poolDevHub "$POOL_DEVHUB_USERNAME" \
+        --argjson fallbackToCreate "$FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY" \
+        --arg keyVariable "$PACKAGE_INSTALL_KEY_ENV_VAR" \
+        --arg preserveRootFiles "$PRESERVE_ROOT_FILES" \
+        --arg userFile "$(config_relative_path "$DUMMY_USER_FILE")" \
+        --arg userProfile "$DUMMY_USER_PROFILE_NAME" \
+        --arg userAssignments "$DUMMY_USER_ASSIGNMENTS" '
+        def list: [splits("[,[:space:]]+")] | map(select(length > 0));
+        def nullable: if . == "" then null else . end;
+        {
+            schemaVersion: 1,
+            defaultOrgAlias: $alias,
+            scratchDefinition: $scratchDefinition,
+            scratchDurationDays: $durationDays,
+            permissionSets: ($permissionSets | list),
+            dummyDataPlan: ($dataPlan | nullable),
+            communityName: ($community | nullable),
+            postSteps: ($postSteps | list),
+            pool: ({ use: $usePool, tag: $poolTag, fallbackToCreate: $fallbackToCreate }
+                + (if $poolDevHub == "" then {} else { devHub: $poolDevHub } end)),
+            packageInstallKeyEnvironmentVariable: $keyVariable,
+            dependencySourcePolicy: { preserveRootFiles: ($preserveRootFiles | list) }
+        }
+        + (if $userFile == "" then {} else {
+            dummyUsers: {
+                file: $userFile,
+                profileName: $userProfile,
+                permissionSetAssignments: [
+                    $userAssignments | split("\n")[] | select(length > 0) | split("|")
+                    | { permissionSets: (.[0] | list), usernames: ((.[1] // "") | list) }
+                ]
+            }
+        } end)
+    '
+}
+
+init_config() {
+    local generated_json=""
+    local output_json=""
+    local temporary_file=""
+
+    require_command "jq"
+
+    if [[ "$USE_CONFIG" != "true" ]]; then
+        error 1 "--init-config cannot be combined with --no-config."
+    fi
+
+    if [[ -f "$CONFIG_FILE" && "$FORCE_INIT_CONFIG" != "true" && "$DRY_RUN" != "true" ]]; then
+        error 1 "$CONFIG_FILE already exists. Use --init-config --force to update it; keys this script does not manage are kept."
+    fi
+
+    generated_json="$(generate_config_json)"
+
+    if [[ -f "$CONFIG_FILE" ]]; then
+        output_json="$(jq -s '.[0] * .[1]' "$CONFIG_FILE" - <<< "$generated_json")"
+    else
+        output_json="$(jq '.' <<< "$generated_json")"
+    fi
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        echo ""
+        echo "Dry-run: would write $CONFIG_FILE:"
+        jq --indent 4 '.' <<< "$output_json"
+        ORG_ACTION="No org action. Dry-run configuration preview."
+        return 0
+    fi
+
+    temporary_file="$(mktemp "$CONFIG_FILE.XXXXXX")"
+    jq --indent 4 '.' <<< "$output_json" > "$temporary_file"
+    mv "$temporary_file" "$CONFIG_FILE"
+
+    echo ""
+    echo "${GREEN}Wrote $CONFIG_FILE.${RESET}"
+    echo "Keep installation keys in \$$PACKAGE_INSTALL_KEY_ENV_VAR or an approved secret store, never in this file."
+    ORG_ACTION="No org action. Configuration file written."
+    add_action "Wrote $CONFIG_FILE"
+}
+
 validate_post_steps() {
     POST_STEPS="${POST_STEPS// /}"
 
@@ -428,11 +814,18 @@ validate_post_steps() {
     IFS=',' read -ra selected_steps <<< "$POST_STEPS"
 
     for step in "${selected_steps[@]}"; do
-        case "$step" in
-            deploy|permsets|data|community) ;;
-            *) error 1 "Invalid post step: $step. Valid values are: all, none, deploy, permsets, data, community" ;;
-        esac
+        if ! is_known_post_step "$step"; then
+            error 1 "Invalid post step: $step. Valid values are: all, none, $(all_post_step_names | tr ' ' ',' | sed 's/,/, /g')"
+        fi
     done
+}
+
+all_post_step_names() {
+    echo "$BUILTIN_POST_STEPS${CUSTOM_POST_STEP_NAMES:+ $CUSTOM_POST_STEP_NAMES}"
+}
+
+is_known_post_step() {
+    [[ " $(all_post_step_names) " == *" $1 "* ]]
 }
 
 should_run_post_step() {
@@ -484,13 +877,15 @@ dependency_count() {
 
 package_requires_key() {
     local package_name="$1"
-    local normalized_no_key_packages=",${PACKAGES_NOT_REQUIRING_INSTALL_KEY// /},"
 
-    if [[ "$normalized_no_key_packages" == *",$package_name,"* ]]; then
-        return 1
+    if [[ -n "$PACKAGES_NOT_REQUIRING_INSTALL_KEY" ]]; then
+        local normalized_no_key_packages=",${PACKAGES_NOT_REQUIRING_INSTALL_KEY// /},"
+        [[ "$normalized_no_key_packages" != *",$package_name,"* ]]
+        return
     fi
 
-    return 0
+    # Same rule as sf-project: a package missing from packageKeyConfig requires a key.
+    [[ "$(jq -r --arg package_name "$package_name" '.packageKeyConfig[$package_name] | if . == false then "false" else "true" end' "$PROJECT_FILE")" == "true" ]]
 }
 
 resolve_package_install_key_from_keychain() {
@@ -517,7 +912,16 @@ resolve_package_install_key_from_keychain() {
     services+=(
         "$ORG_ALIAS-package-install-key"
         "$ORG_ALIAS/package-install-key"
-        "crm-arbeidsforhold-package-install-key"
+    )
+
+    local project_package_name=""
+    project_package_name="$(jq -r '.name // first(.packageDirectories[]? | .package // empty) // empty' "$PROJECT_FILE" 2>/dev/null || true)"
+    if [[ -n "$project_package_name" && "$project_package_name" != "$ORG_ALIAS" ]]; then
+        services+=("$project_package_name-package-install-key")
+    fi
+
+    services+=(
+        "$PACKAGE_INSTALL_KEY_ENV_VAR"
         "salesforce-package-install-key"
     )
 
@@ -612,9 +1016,9 @@ resolve_default_target_org_for_runtime() {
 resolve_runtime_target_org() {
     local resolved_target_org=""
 
-    if [[ "$ORG_ALIAS_SET_EXPLICITLY" == "true" ]]; then
+    if [[ "$ORG_ALIAS_SOURCE" != "default" ]]; then
         TARGET_ORG="$ORG_ALIAS"
-        TARGET_ORG_SOURCE="explicit --alias"
+        TARGET_ORG_SOURCE="$ORG_ALIAS_SOURCE"
         return 0
     fi
 
@@ -630,7 +1034,7 @@ resolve_runtime_target_org() {
         return 0
     fi
 
-    error 1 "No Salesforce default target org is configured for partial run mode. Set it with: sf config set target-org \"<alias-or-username>\" or pass --alias <alias>."
+    error 1 "No org alias or Salesforce default target org is configured for partial run mode. Pass --alias <alias>, set defaultOrgAlias in $CONFIG_FILE_NAME, or run: sf config set target-org \"<alias-or-username>\"."
 }
 
 resolve_pool_devhub_username() {
@@ -648,7 +1052,7 @@ resolve_pool_devhub_username() {
     )"
 
     if [[ -z "$resolved_devhub" || "$resolved_devhub" == "null" ]]; then
-        error 1 "sfp requires --targetdevhubusername, but no --pool-devhub was provided and no sf target-dev-hub config was found. Run either: sf config set target-dev-hub \"NAV DevHub\" or use: --pool-devhub \"NAV DevHub\""
+        error 1 "sfp requires --targetdevhubusername, but no --pool-devhub was provided and no sf target-dev-hub config was found. Run either: sf config set target-dev-hub \"<devhub-alias>\", set pool.devHub in $CONFIG_FILE_NAME, or use: --pool-devhub \"<devhub-alias>\""
     fi
 
     echo "$resolved_devhub"
@@ -1180,13 +1584,56 @@ delete_existing_scratch_org() {
 }
 
 read_dependency_package_names() {
-    jq -r '.packageDirectories[0].dependencies // [] | map(.package // empty) | map(select(length > 0)) | unique[]' "$PROJECT_FILE" 2>/dev/null || true
+    jq -r '[.packageDirectories[]? | .dependencies // [] | .[] | .package // empty | select(length > 0)] | unique[]' "$PROJECT_FILE" 2>/dev/null || true
+}
+
+project_root_dir() {
+    dirname "$PROJECT_FILE"
+}
+
+dependency_package_directory() {
+    local package_name="$1"
+    local package_path=""
+
+    package_path="$(jq -r --arg package_name "$package_name" '
+        first(
+            .packageDirectories[]?
+            | select(.package == $package_name or ((.path // "") | split("/") | map(select(. != "" and . != ".")) | last) == $package_name)
+            | .path
+        ) // empty
+    ' "$PROJECT_FILE")"
+
+    [[ -z "$package_path" ]] && return 0
+
+    if [[ "$package_path" == /* ]]; then
+        echo "$package_path"
+    elif [[ "$(project_root_dir)" == "." ]]; then
+        echo "$package_path"
+    else
+        echo "$(project_root_dir)/$package_path"
+    fi
+}
+
+is_preserved_root_file() {
+    local entry_name="$1"
+    local preserved=""
+
+    IFS=',' read -ra preserved_entries <<< "$PRESERVE_ROOT_FILES"
+    for preserved in "${preserved_entries[@]}"; do
+        preserved="${preserved// /}"
+        [[ -n "$preserved" && "$entry_name" == "$preserved" ]] && return 0
+    done
+
+    return 1
 }
 
 clear_dependency_package_directories() {
     local package_names=()
     local package_name=""
     local package_dir=""
+    local project_root=""
+    local resolved_dir=""
+    local child=""
 
     while IFS= read -r package_name; do
         [[ -z "$package_name" ]] && continue
@@ -1199,24 +1646,43 @@ clear_dependency_package_directories() {
         return 0
     fi
 
+    project_root="$(cd "$(project_root_dir)" && pwd -P)"
+
     echo ""
-    echo "Clearing dependency package directories..."
+    echo "Clearing dependency package directories (keeping: ${PRESERVE_ROOT_FILES:-nothing})..."
 
     for package_name in "${package_names[@]}"; do
-        package_dir="${package_name}"
+        package_dir="$(dependency_package_directory "$package_name")"
+
+        if [[ -z "$package_dir" ]]; then
+            if [[ "$REQUIRE_LOCAL_DIRECTORIES" == "true" ]]; then
+                error 2 "Dependency package directory is not declared: $package_name. Declare it in $PROJECT_FILE or set dependencySourcePolicy.requireLocalDirectories to false."
+            fi
+            warning "No package directory is declared for dependency $package_name in $PROJECT_FILE. Skipping."
+            continue
+        fi
 
         if [[ ! -d "$package_dir" ]]; then
             echo "- Skipping missing directory: $package_dir"
             continue
         fi
 
+        resolved_dir="$(cd "$package_dir" && pwd -P)"
+        if [[ "$resolved_dir" == "$project_root" || "$resolved_dir" != "$project_root/"* ]]; then
+            error 1 "Refusing to clear $package_dir for $package_name: it must be a subdirectory of the project root $project_root."
+        fi
+
         if [[ "$DRY_RUN" == "true" ]]; then
-            echo "- Dry-run: would clear contents of $package_dir while keeping $package_dir/README.md"
+            echo "- Dry-run: would clear contents of $package_dir except ${PRESERVE_ROOT_FILES:-nothing}"
             continue
         fi
 
-        find "$package_dir" -mindepth 1 ! -path "$package_dir/README.md" -exec rm -rf -- {} +
-        echo "- Cleared contents of $package_dir while keeping README.md"
+        while IFS= read -r -d '' child; do
+            is_preserved_root_file "$(basename "$child")" && continue
+            rm -rf -- "$child"
+        done < <(find "$resolved_dir" -mindepth 1 -maxdepth 1 -print0)
+
+        echo "- Cleared contents of $package_dir except ${PRESERVE_ROOT_FILES:-nothing}"
     done
 
     add_action "Cleared dependency package directories"
@@ -1357,7 +1823,9 @@ install_packages() {
     count="$(dependency_count)"
 
     if [[ "$count" -eq 0 ]]; then
-        error 1 "No package dependencies found in $PROJECT_FILE"
+        echo ""
+        echo "No package dependencies declared in $PROJECT_FILE. Nothing to install."
+        return 0
     fi
 
     echo ""
@@ -1414,7 +1882,9 @@ update_packages() {
     count="$(dependency_count)"
 
     if [[ "$count" -eq 0 ]]; then
-        error 1 "No package dependencies found in $PROJECT_FILE"
+        echo ""
+        echo "No package dependencies declared in $PROJECT_FILE. Nothing to update."
+        return 0
     fi
 
     echo ""
@@ -1504,14 +1974,19 @@ reset_source_tracking() {
 }
 
 assign_permission_sets() {
+    local permission_set=""
+    local -a name_flags=()
+
     echo ""
     echo "Assigning permission sets..."
 
+    for permission_set in ${PERMISSION_SETS//,/ }; do
+        name_flags+=(--name "$permission_set")
+    done
+
     run_cmd sf org assign permset \
         --target-org "$TARGET_ORG" \
-        --name AAREG_Arbeidsforhold_Saksbehandling \
-        --name AAREG_Arbeidsforhold_Support \
-        --name AAREG_CommunityPermission \
+        "${name_flags[@]}" \
         || error $? '"sf org assign permset" command failed.'
 
     add_action "Assigned permission sets in $TARGET_ORG"
@@ -1536,6 +2011,11 @@ import_dummy_users() {
     echo ""
     echo "Importing dummy users..."
 
+    if [[ -z "$DUMMY_USER_FILE" ]]; then
+        echo "No dummy user file configured (dummyUsers.file / DUMMY_USER_FILE). Skipping dummy user import."
+        return 0
+    fi
+
     if [[ ! -f "$DUMMY_USER_FILE" ]]; then
         echo "No dummy user file found at $DUMMY_USER_FILE. Skipping dummy user import."
         return 0
@@ -1549,9 +2029,11 @@ import_dummy_users() {
     fi
 
     local profile_id
+    local profile_name_literal
+    profile_name_literal="$(jq -rn --arg value "$DUMMY_USER_PROFILE_NAME" "$SOQL_STRING_JQ"' $value | soql_string')"
     profile_id="$(sf_json sf data query \
         --target-org "$TARGET_ORG" \
-        --query "SELECT Id FROM Profile WHERE Name = '${DUMMY_USER_PROFILE_NAME}' LIMIT 1" \
+        --query "SELECT Id FROM Profile WHERE Name = ${profile_name_literal} LIMIT 1" \
         | jq -r '.result.records[0].Id // empty')"
 
     if [[ -z "$profile_id" ]]; then
@@ -1560,7 +2042,12 @@ import_dummy_users() {
     fi
 
     local username_in_clause
-    username_in_clause="$(jq -r '[.records[].Username] | map("\u0027" + . + "\u0027") | join(",")' "$DUMMY_USER_FILE")"
+    username_in_clause="$(jq -r "$SOQL_STRING_JQ"' [.records[].Username | strings] | map(soql_string) | join(",")' "$DUMMY_USER_FILE")"
+
+    if [[ -z "$username_in_clause" ]]; then
+        echo "No usernames found in $DUMMY_USER_FILE. Skipping dummy user import."
+        return 0
+    fi
 
     local existing_usernames_json
     existing_usernames_json="$(sf_json sf data query \
@@ -1638,18 +2125,28 @@ assign_permset_to_users() {
 }
 
 assign_dummy_user_permission_sets() {
+    local permission_sets=""
+    local usernames=""
+
     echo ""
     echo "Assigning permission sets to dummy users..."
 
-    if [[ ! -f "$DUMMY_USER_FILE" ]]; then
-        echo "No dummy user file found at $DUMMY_USER_FILE. Skipping dummy user permission set assignment."
+    if [[ -z "$DUMMY_USER_FILE" || ! -f "$DUMMY_USER_FILE" ]]; then
+        echo "No dummy user file found. Skipping dummy user permission set assignment."
+        return 0
+    fi
+
+    if [[ -z "$DUMMY_USER_ASSIGNMENTS" ]]; then
+        echo "No dummy user permission set assignments configured (dummyUsers.permissionSetAssignments). Skipping."
         return 0
     fi
 
     require_command jq
 
-    assign_permset_to_users "$DUMMY_SAKSBEHANDLER_PERMSET" "$DUMMY_SAKSBEHANDLER_USERNAMES"
-    assign_permset_to_users "$DUMMY_SUPPORT_PERMSETS" "$DUMMY_SUPPORT_USERNAMES"
+    while IFS='|' read -r permission_sets usernames; do
+        [[ -z "$permission_sets" || -z "$usernames" ]] && continue
+        assign_permset_to_users "$permission_sets" "$usernames"
+    done <<< "$DUMMY_USER_ASSIGNMENTS"
 }
 
 publish_community() {
@@ -1662,6 +2159,56 @@ publish_community() {
         || error $? "\"sf community publish\" command failed for community: \"$COMMUNITY_NAME\"."
 
     add_action "Published community $COMMUNITY_NAME"
+}
+
+run_custom_post_step() {
+    local step_name="$1"
+    local executable=""
+    local argument=""
+    local -a step_arguments=()
+
+    executable="$(jq -r --arg name "$step_name" 'first(.customPostSteps[]? | select(.name == $name) | .executable) // empty' "$CONFIG_FILE")"
+    while IFS= read -r -d '' argument; do
+        step_arguments+=("$argument")
+    done < <(jq -j --arg name "$step_name" 'first(.customPostSteps[]? | select(.name == $name)) | (.arguments // [])[] | . + "\u0000"' "$CONFIG_FILE")
+
+    echo ""
+    echo "Running custom post step: $step_name"
+
+    run_cmd run_in_project_root "$executable" "${step_arguments[@]}" \
+        || error $? "Custom post step \"$step_name\" failed."
+
+    add_action "Ran custom post step $step_name"
+}
+
+run_post_step() {
+    local step="$1"
+    local missing_setting=""
+
+    case "$step" in
+        permsets) [[ -z "$PERMISSION_SETS" ]] && missing_setting="No permission sets configured (permissionSets / PERMISSION_SETS / --permission-sets)." ;;
+        data) [[ -z "$DUMMY_DATA_PLAN" ]] && missing_setting="No dummy data plan configured (dummyDataPlan / DUMMY_DATA_PLAN / --dummy-data-plan)." ;;
+        community) [[ -z "$COMMUNITY_NAME" ]] && missing_setting="No community name configured (communityName / COMMUNITY_NAME / --community-name)." ;;
+    esac
+
+    if [[ -n "$missing_setting" ]]; then
+        warning "$missing_setting Skipping post step: $step"
+        add_post_step_skipped "$step"
+        return 0
+    fi
+
+    case "$step" in
+        deploy)
+            reset_source_tracking
+            deploy_metadata
+            ;;
+        permsets) assign_permission_sets ;;
+        data) import_dummy_data ;;
+        community) publish_community ;;
+        *) run_custom_post_step "$step" ;;
+    esac
+
+    add_post_step_run "$step"
 }
 
 run_self_check() {
@@ -1870,7 +2417,9 @@ run_self_check() {
         requested_data_step=true
     fi
 
-    if [[ "$requested_data_step" == "true" ]]; then
+    if [[ "$requested_data_step" == "true" && -z "$DUMMY_DATA_PLAN" ]]; then
+        echo "Dummy data plan check skipped (no dummy data plan configured)."
+    elif [[ "$requested_data_step" == "true" ]]; then
         if [[ -f "$DUMMY_DATA_PLAN" ]]; then
             echo "${GREEN}OK:${RESET} $DUMMY_DATA_PLAN exists"
             if jq empty "$DUMMY_DATA_PLAN" >/dev/null 2>&1; then
@@ -1923,8 +2472,8 @@ run_self_check() {
         echo "Dependencies found: $package_count"
 
         if [[ "$package_count" -eq 0 ]]; then
-            echo "${RED}FAIL:${RESET} No package dependencies found in $PROJECT_FILE"
-            failures=$((failures + 1))
+            echo "No package dependencies declared in $PROJECT_FILE."
+            add_summary_row "SKIP" "Package resolution" "No package dependencies declared."
         else
             while IFS=$'\t' read -r package_name requested_version; do
                 [[ -z "$package_name" ]] && continue
@@ -2024,7 +2573,9 @@ package_plan() {
     count="$(dependency_count)"
 
     if [[ "$count" -eq 0 ]]; then
-        error 1 "No package dependencies found in $PROJECT_FILE"
+        echo ""
+        echo "No package dependencies declared in $PROJECT_FILE. Nothing to plan."
+        return 0
     fi
 
     echo ""
@@ -2095,17 +2646,28 @@ print_settings() {
     local pool_devhub_display="${POOL_DEVHUB_USERNAME:-resolve from sf config target-dev-hub}"
     local keychain_service_display="${PACKAGE_INSTALL_KEYCHAIN_SERVICE:-auto}"
     local keychain_account_display="${PACKAGE_INSTALL_KEYCHAIN_ACCOUNT:-auto}"
+    local config_display="not used"
+
+    if [[ "$CONFIG_LOADED" == "true" ]]; then
+        config_display="$CONFIG_FILE"
+    elif [[ "$USE_CONFIG" == "true" ]]; then
+        config_display="$CONFIG_FILE (not found, using defaults)"
+    fi
 
     echo ""
     echo "Scratch org setup settings:"
-    echo "Creation alias:                $ORG_ALIAS"
+    echo "Configuration file:            $config_display"
+    echo "Creation alias:                $ORG_ALIAS ($ORG_ALIAS_SOURCE)"
     echo "Effective target org:          $TARGET_ORG"
     echo "Target org source:             $TARGET_ORG_SOURCE"
     echo "Duration days:                 $DURATION_DAYS"
     echo "Definition file:               $SCRATCH_DEF_FILE"
     echo "Project file:                  $PROJECT_FILE"
-    echo "Community name:                $COMMUNITY_NAME"
-    echo "Dummy data plan:               $DUMMY_DATA_PLAN"
+    echo "Permission sets:               ${PERMISSION_SETS:-none}"
+    echo "Community name:                ${COMMUNITY_NAME:-none}"
+    echo "Dummy data plan:               ${DUMMY_DATA_PLAN:-none}"
+    echo "Dummy user file:               ${DUMMY_USER_FILE:-none}"
+    echo "Custom post steps:             ${CUSTOM_POST_STEP_NAMES:-none}"
     echo "Package wait minutes:          $PACKAGE_WAIT_MINUTES"
     echo "Package install max attempts:  $PACKAGE_INSTALL_MAX_ATTEMPTS"
     echo "Package install retry delay s: $PACKAGE_INSTALL_RETRY_DELAY_SECONDS"
@@ -2126,7 +2688,9 @@ print_settings() {
     echo "Package plan only:             $PACKAGE_PLAN_ONLY"
     echo "Refresh dependency sources:    $REFRESH_DEPENDENCY_SOURCES"
     echo "Clear dependency sources only: $CLEAR_DEPENDENCY_SOURCES_ONLY"
-    echo "Packages not requiring key:    $PACKAGES_NOT_REQUIRING_INSTALL_KEY"
+    echo "Packages not requiring key:    ${PACKAGES_NOT_REQUIRING_INSTALL_KEY:-from packageKeyConfig in $PROJECT_FILE}"
+    echo "Install key variable:          $PACKAGE_INSTALL_KEY_ENV_VAR"
+    echo "Preserved dependency files:    $PRESERVE_ROOT_FILES"
     echo ""
 }
 
@@ -2139,7 +2703,7 @@ while [[ $# -gt 0 ]]; do
         -a|--alias)
             require_option_value "$1" "${2:-}"
             ORG_ALIAS="$2"
-            ORG_ALIAS_SET_EXPLICITLY=true
+            ORG_ALIAS_SOURCE="--alias"
             shift 2
             ;;
         -d|--duration-days)
@@ -2166,6 +2730,28 @@ while [[ $# -gt 0 ]]; do
             require_option_value "$1" "${2:-}"
             DUMMY_DATA_PLAN="$2"
             shift 2
+            ;;
+        --permission-sets)
+            require_option_value "$1" "${2:-}"
+            PERMISSION_SETS="$2"
+            shift 2
+            ;;
+        --config)
+            require_option_value "$1" "${2:-}"
+            SF_PROJECT_CONFIG="$2"
+            shift 2
+            ;;
+        --no-config)
+            USE_CONFIG=false
+            shift
+            ;;
+        --init-config)
+            INIT_CONFIG_ONLY=true
+            shift
+            ;;
+        --force)
+            FORCE_INIT_CONFIG=true
+            shift
             ;;
         -s|--post-steps)
             require_option_value "$1" "${2:-}"
@@ -2256,6 +2842,32 @@ while [[ $# -gt 0 ]]; do
 done
 
 # -----------------------------
+# Configuration
+# -----------------------------
+
+resolve_config_file
+load_config
+parse_dummy_user_assignments_from_environment
+apply_generic_defaults
+
+if [[ "$FORCE_INIT_CONFIG" == "true" && "$INIT_CONFIG_ONLY" != "true" ]]; then
+    error 1 "--force can only be used with --init-config."
+fi
+
+if [[ "$INIT_CONFIG_ONLY" == "true" ]]; then
+    if [[ "$DELETE_ORG_ONLY" == "true" || "$UPDATE_PACKAGES_ONLY" == "true" || "$PACKAGE_PLAN_ONLY" == "true" || "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" || "$SELF_CHECK_ONLY" == "true" || "$POST_STEPS_ONLY_MODE" == "true" ]]; then
+        error 1 "You cannot combine --init-config with another exclusive mode."
+    fi
+
+    validate_duration_days
+    validate_boolean "$USE_POOL" "USE_POOL"
+    validate_boolean "$FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY" "FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY"
+    validate_post_steps
+    init_config
+    exit 0
+fi
+
+# -----------------------------
 # Normalize mode shortcuts
 # -----------------------------
 
@@ -2326,7 +2938,7 @@ REQUESTED_POST_STEPS_ONLY_MODE="$POST_STEPS_ONLY_MODE"
 # Validation
 # -----------------------------
 
-validate_number "$DURATION_DAYS" "Duration days"
+validate_duration_days
 validate_number "$PACKAGE_WAIT_MINUTES" "Package wait minutes"
 validate_number "$PACKAGE_INSTALL_MAX_ATTEMPTS" "Package install max attempts"
 validate_number "$PACKAGE_INSTALL_RETRY_DELAY_SECONDS" "Package install retry delay seconds"
@@ -2435,38 +3047,14 @@ fi
 echo ""
 echo "Running selected post steps: $POST_STEPS"
 
-if should_run_post_step "deploy"; then
-    reset_source_tracking
-    deploy_metadata
-    add_post_step_run "deploy"
-else
-    echo "Skipping metadata deploy."
-    add_post_step_skipped "deploy"
-fi
-
-if should_run_post_step "permsets"; then
-    assign_permission_sets
-    add_post_step_run "permsets"
-else
-    echo "Skipping permission set assignment."
-    add_post_step_skipped "permsets"
-fi
-
-if should_run_post_step "data"; then
-    import_dummy_data
-    add_post_step_run "data"
-else
-    echo "Skipping dummy data import."
-    add_post_step_skipped "data"
-fi
-
-if should_run_post_step "community"; then
-    publish_community
-    add_post_step_run "community"
-else
-    echo "Skipping community publish."
-    add_post_step_skipped "community"
-fi
+for post_step in $(all_post_step_names); do
+    if should_run_post_step "$post_step"; then
+        run_post_step "$post_step"
+    else
+        echo "Skipping post step: $post_step"
+        add_post_step_skipped "$post_step"
+    fi
+done
 
 if should_run_post_step "deploy"; then
     reset_source_tracking

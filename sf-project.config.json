@@ -10,6 +10,31 @@
     ],
     "dummyDataPlan": "dummy-data/Plan.json",
     "communityName": "Aa-registret",
+    "dummyUsers": {
+        "file": "dummy-data/User.json",
+        "profileName": "Standard User",
+        "permissionSetAssignments": [
+            {
+                "permissionSets": [
+                    "AAREG_Arbeidsforhold_Saksbehandling"
+                ],
+                "usernames": [
+                    "persaksbehandler1@nav.no",
+                    "hannasaksbehandler2@nav.no"
+                ]
+            },
+            {
+                "permissionSets": [
+                    "AAREG_Arbeidsforhold_Support",
+                    "AAREG_Arbeidsforhold_Support_Read_Only"
+                ],
+                "usernames": [
+                    "karibrukerstotte1@nav.no",
+                    "olabrukerstotte2@nav.no"
+                ]
+            }
+        ]
+    },
     "postSteps": [
         "deploy",
         "permsets",

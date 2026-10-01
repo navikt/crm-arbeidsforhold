@@ -1,0 +1,513 @@
+#!/usr/bin/env bash
+# Offline tests for bin/create-scratch-org.sh. A fake `sf` on PATH records calls; no Salesforce org is contacted.
+
+set -uo pipefail
+
+SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/create-scratch-org.sh"
+WORK_DIR="$(mktemp -d)"
+trap 'rm -rf "$WORK_DIR"' EXIT
+
+FAKE_BIN="$WORK_DIR/fake-bin"
+SF_LOG="$WORK_DIR/sf.log"
+mkdir -p "$FAKE_BIN"
+
+cat > "$FAKE_BIN/sf" <<'EOF_SF'
+#!/usr/bin/env bash
+echo "$*" >> "$SF_LOG"
+case "$*" in
+    "config get target-org --json")
+        echo '{"status":0,"result":[{"name":"target-org","value":"fake-default-org"}]}'
+        ;;
+    "package version list"*)
+        echo '{"status":0,"result":[{"SubscriberPackageVersionId":"04t000000000001","MajorVersion":1,"MinorVersion":0,"PatchVersion":0,"BuildNumber":1}]}'
+        ;;
+    *)
+        echo '{"status":0,"result":{}}'
+        ;;
+esac
+EOF_SF
+chmod +x "$FAKE_BIN/sf"
+
+PASSED=0
+FAILED=0
+OUTPUT=""
+EXIT_CODE=0
+PROJECT=""
+
+new_project() {
+    PROJECT="$WORK_DIR/$1"
+    mkdir -p "$PROJECT/config"
+    echo '{"edition":"Developer"}' > "$PROJECT/config/project-scratch-def.json"
+    echo '{"packageDirectories":[{"path":"force-app","default":true}]}' > "$PROJECT/sfdx-project.json"
+    : > "$SF_LOG"
+}
+
+write_config() {
+    printf '%s\n' "$1" > "$PROJECT/sf-project.config.json"
+}
+
+run_script() {
+    OUTPUT="$(cd "$PROJECT" && env PATH="$FAKE_BIN:$PATH" SF_LOG="$SF_LOG" "$@" 2>&1)"
+    EXIT_CODE=$?
+}
+
+script() {
+    run_script bash "$SCRIPT" "$@"
+}
+
+pass() { PASSED=$((PASSED + 1)); }
+
+fail() {
+    FAILED=$((FAILED + 1))
+    echo "FAIL [$CURRENT_TEST]: $1"
+}
+
+assert_exit() {
+    [[ "$EXIT_CODE" -eq "$1" ]] && pass || fail "expected exit $1, got $EXIT_CODE. Output:\n$OUTPUT"
+}
+
+assert_exit_nonzero() {
+    [[ "$EXIT_CODE" -ne 0 ]] && pass || fail "expected non-zero exit. Output:\n$OUTPUT"
+}
+
+assert_contains() {
+    [[ "$OUTPUT" == *"$1"* ]] && pass || fail "expected output to contain: $1"
+}
+
+assert_not_contains() {
+    [[ "$OUTPUT" != *"$1"* ]] && pass || fail "expected output not to contain: $1"
+}
+
+assert_json() {
+    local file="$1" filter="$2" expected="$3" actual
+    actual="$(jq -c "$filter" "$file" 2>&1)"
+    [[ "$actual" == "$expected" ]] && pass || fail "$filter in $file: expected $expected, got $actual"
+}
+
+test_reads_config_values() {
+    new_project reads-config
+    write_config '{
+        "schemaVersion": 1,
+        "defaultOrgAlias": "cfg-org",
+        "permissionSets": ["PermA", "PermB"],
+        "communityName": "Config Community",
+        "postSteps": ["permsets", "community"]
+    }'
+    script --post-steps-only --dry-run
+    assert_exit 0
+    assert_contains "sf org assign permset --target-org cfg-org --name PermA --name PermB"
+    assert_contains "sf community publish --target-org cfg-org --name Config\\ Community"
+    assert_not_contains "project deploy start"
+}
+
+test_cli_overrides_config() {
+    new_project cli-overrides
+    write_config '{"defaultOrgAlias":"cfg-org","communityName":"Config Community","postSteps":["community"]}'
+    script --post-steps-only --dry-run --alias cli-org --community-name Other
+    assert_exit 0
+    assert_contains "sf community publish --target-org cli-org --name Other"
+    assert_not_contains "cfg-org"
+}
+
+test_environment_overrides_config() {
+    new_project env-overrides
+    write_config '{"defaultOrgAlias":"cfg-org","permissionSets":["PermA"],"postSteps":["permsets"]}'
+    run_script env ORG_ALIAS=env-org PERMISSION_SETS="EnvA,EnvB" bash "$SCRIPT" --post-steps-only --dry-run
+    assert_exit 0
+    assert_contains "--target-org env-org --name EnvA --name EnvB"
+}
+
+test_relative_paths_resolve_from_config_directory() {
+    new_project relative-paths
+    mkdir -p "$PROJECT/nested"
+    echo '{"packageDirectories":[{"path":"force-app"}]}' > "$PROJECT/nested/sfdx-project.json"
+    printf '%s\n' '{"defaultOrgAlias":"cfg-org","dummyDataPlan":"data/Plan.json","postSteps":["data"]}' > "$PROJECT/nested/sf-project.config.json"
+    script --project-file nested/sfdx-project.json --post-steps-only --dry-run
+    assert_exit 0
+    assert_contains "--plan nested/data/Plan.json"
+}
+
+test_no_config_falls_back_to_sf_target_org() {
+    new_project no-config
+    write_config '{"defaultOrgAlias":"cfg-org","permissionSets":["PermA"],"postSteps":["permsets"]}'
+    script --no-config --post-steps-only --post-steps permsets --dry-run
+    assert_exit 0
+    assert_contains "fake-default-org"
+    assert_contains "No permission sets configured"
+    assert_not_contains "org assign permset"
+}
+
+test_invalid_config_fails_before_org_commands() {
+    new_project invalid-json
+    write_config '{ not json'
+    script --dry-run
+    assert_exit_nonzero
+    assert_contains "sf-project.config.json"
+    [[ ! -s "$SF_LOG" ]] && pass || fail "sf was called: $(cat "$SF_LOG")"
+}
+
+test_unsupported_schema_version_fails() {
+    new_project schema-version
+    write_config '{"schemaVersion":2}'
+    script --dry-run
+    assert_exit_nonzero
+    assert_contains "schemaVersion"
+}
+
+test_wrong_field_type_fails() {
+    new_project wrong-type
+    write_config '{"permissionSets":"PermA"}'
+    script --dry-run
+    assert_exit_nonzero
+    assert_contains "permissionSets"
+}
+
+test_explicit_missing_config_fails() {
+    new_project missing-config
+    script --config does-not-exist.json --dry-run
+    assert_exit_nonzero
+    assert_contains "does-not-exist.json"
+}
+
+test_default_alias_is_project_directory_name() {
+    new_project my-generic-project
+    script --dry-run --skip-packages --post-steps none
+    assert_exit 0
+    assert_contains "Creating scratch org: my-generic-project"
+    assert_not_contains "crm-arbeidsforhold"
+}
+
+test_unconfigured_post_steps_are_skipped_with_warning() {
+    new_project unconfigured-steps
+    write_config '{"defaultOrgAlias":"cfg-org"}'
+    script --post-steps-only --post-steps permsets,data,community --dry-run
+    assert_exit 0
+    assert_contains "No permission sets configured"
+    assert_contains "No dummy data plan configured"
+    assert_contains "No community name configured"
+    assert_not_contains "community publish"
+    assert_not_contains "data import tree"
+}
+
+test_custom_post_step_runs_from_config() {
+    new_project custom-step
+    write_config '{
+        "defaultOrgAlias": "cfg-org",
+        "postSteps": ["seed"],
+        "customPostSteps": [{"name": "seed", "executable": "echo", "arguments": ["hello world", "--flag"]}]
+    }'
+    script --post-steps-only --dry-run
+    assert_exit 0
+    assert_contains "echo hello\\ world --flag"
+}
+
+test_unknown_post_step_fails() {
+    new_project unknown-step
+    write_config '{"defaultOrgAlias":"cfg-org"}'
+    script --post-steps-only --post-steps seed --dry-run
+    assert_exit_nonzero
+    assert_contains "Invalid post step: seed"
+}
+
+test_install_key_requirement_comes_from_package_key_config() {
+    new_project key-config
+    cat > "$PROJECT/sfdx-project.json" <<'EOF_PROJECT'
+{
+    "packageDirectories": [
+        {"path": "force-app", "package": "main", "dependencies": [{"package": "open-pkg", "versionNumber": "1.0.0.LATEST"}, {"package": "locked-pkg", "versionNumber": "1.0.0.LATEST"}]},
+        {"path": "open-pkg"},
+        {"path": "locked-pkg"}
+    ],
+    "packageKeyConfig": {"open-pkg": false}
+}
+EOF_PROJECT
+    script --dry-run --post-steps none --skip-version-check
+    assert_exit 0
+    local open_line locked_line
+    open_line="$(grep -F 'Would run:' <<< "$OUTPUT" | grep -F 'package install' | sed -n 1p)"
+    locked_line="$(grep -F 'Would run:' <<< "$OUTPUT" | grep -F 'package install' | sed -n 2p)"
+    [[ "$open_line" != *" -k "* ]] && pass || fail "open-pkg should not use an install key: $open_line"
+    [[ "$locked_line" == *" -k "* ]] && pass || fail "locked-pkg should use an install key: $locked_line"
+}
+
+test_no_dependencies_is_not_an_error() {
+    new_project no-dependencies
+    script --dry-run --post-steps none
+    assert_exit 0
+    assert_contains "No package dependencies declared"
+}
+
+test_dependency_cleanup_uses_package_directories_and_preserve_policy() {
+    new_project dependency-cleanup
+    cat > "$PROJECT/sfdx-project.json" <<'EOF_PROJECT'
+{
+    "packageDirectories": [
+        {"path": "force-app", "dependencies": [{"package": "dep-pkg", "versionNumber": "1.0.0.LATEST"}]},
+        {"path": "vendor/dep-source", "package": "dep-pkg"}
+    ]
+}
+EOF_PROJECT
+    write_config '{"dependencySourcePolicy":{"preserveRootFiles":["README.md","KEEP.md"]}}'
+    mkdir -p "$PROJECT/vendor/dep-source/main"
+    touch "$PROJECT/vendor/dep-source/README.md" "$PROJECT/vendor/dep-source/KEEP.md" "$PROJECT/vendor/dep-source/main/file.xml"
+    script --clear-dependency-sources-only
+    assert_exit 0
+    [[ -f "$PROJECT/vendor/dep-source/README.md" && -f "$PROJECT/vendor/dep-source/KEEP.md" ]] && pass || fail "preserved files were removed"
+    [[ ! -e "$PROJECT/vendor/dep-source/main" ]] && pass || fail "dependency content was not cleared"
+}
+
+test_dependency_cleanup_refuses_project_root() {
+    new_project dependency-root-guard
+    cat > "$PROJECT/sfdx-project.json" <<'EOF_PROJECT'
+{
+    "packageDirectories": [
+        {"path": "force-app", "dependencies": [{"package": "root-pkg", "versionNumber": "1.0.0.LATEST"}]},
+        {"path": ".", "package": "root-pkg"}
+    ]
+}
+EOF_PROJECT
+    touch "$PROJECT/important.txt"
+    script --clear-dependency-sources-only
+    assert_exit_nonzero
+    [[ -f "$PROJECT/important.txt" ]] && pass || fail "project root content was deleted"
+}
+
+test_dummy_users_come_from_config() {
+    new_project dummy-users
+    mkdir -p "$PROJECT/data"
+    echo '{"records":[{"Username":"u1@example.test"}]}' > "$PROJECT/data/User.json"
+    echo '[]' > "$PROJECT/data/Plan.json"
+    write_config '{
+        "defaultOrgAlias": "cfg-org",
+        "dummyDataPlan": "data/Plan.json",
+        "postSteps": ["data"],
+        "dummyUsers": {
+            "file": "data/User.json",
+            "profileName": "Custom Profile",
+            "permissionSetAssignments": [
+                {"permissionSets": ["P1", "P2"], "usernames": ["u1@example.test", "u2@example.test"]}
+            ]
+        }
+    }'
+    script --post-steps-only --dry-run
+    assert_exit 0
+    assert_contains "Would resolve profile 'Custom Profile'"
+    assert_contains "--name P1 --name P2 --on-behalf-of u1@example.test --on-behalf-of u2@example.test"
+}
+
+test_dummy_user_assignments_environment_override() {
+    new_project dummy-users-env
+    mkdir -p "$PROJECT/data"
+    echo '{"records":[]}' > "$PROJECT/data/User.json"
+    echo '[]' > "$PROJECT/data/Plan.json"
+    write_config '{"defaultOrgAlias":"cfg-org","dummyDataPlan":"data/Plan.json","postSteps":["data"],"dummyUsers":{"file":"data/User.json","permissionSetAssignments":[{"permissionSets":["P1"],"usernames":["u1"]}]}}'
+    run_script env DUMMY_USER_PERMSET_ASSIGNMENTS="E1,E2:x1,x2;E3:x3" bash "$SCRIPT" --post-steps-only --dry-run
+    assert_exit 0
+    assert_contains "--name E1 --name E2 --on-behalf-of x1 --on-behalf-of x2"
+    assert_contains "--name E3 --on-behalf-of x3"
+    assert_not_contains "--on-behalf-of u1"
+}
+
+test_init_config_writes_effective_settings() {
+    new_project init-config
+    run_script env PACKAGE_INSTALL_KEY=top-secret-value bash "$SCRIPT" --init-config --alias new-org --permission-sets A,B --community-name Portal
+    assert_exit 0
+    local file="$PROJECT/sf-project.config.json"
+    [[ -f "$file" ]] && pass || fail "config file was not written"
+    assert_json "$file" '.schemaVersion' '1'
+    assert_json "$file" '.defaultOrgAlias' '"new-org"'
+    assert_json "$file" '.permissionSets' '["A","B"]'
+    assert_json "$file" '.communityName' '"Portal"'
+    assert_json "$file" '.dummyDataPlan' 'null'
+    assert_json "$file" '.scratchDefinition' '"config/project-scratch-def.json"'
+    assert_json "$file" '.postSteps' '["deploy"]'
+    ! grep -q "top-secret-value" "$file" && pass || fail "install key was written to config"
+    [[ ! -s "$SF_LOG" ]] && pass || fail "sf was called during --init-config"
+}
+
+test_init_config_refuses_to_overwrite() {
+    new_project init-config-refuse
+    write_config '{"defaultOrgAlias":"keep-me"}'
+    script --init-config --alias other
+    assert_exit_nonzero
+    assert_contains "--force"
+    assert_json "$PROJECT/sf-project.config.json" '.defaultOrgAlias' '"keep-me"'
+}
+
+test_init_config_force_preserves_unmanaged_keys() {
+    new_project init-config-force
+    write_config '{"defaultOrgAlias":"old","commandTimeouts":{"readMs":1000},"customPostSteps":[{"name":"seed","executable":"echo"}],"postSteps":["deploy","seed"]}'
+    script --init-config --force --alias new
+    assert_exit 0
+    assert_json "$PROJECT/sf-project.config.json" '.defaultOrgAlias' '"new"'
+    assert_json "$PROJECT/sf-project.config.json" '.commandTimeouts.readMs' '1000'
+    assert_json "$PROJECT/sf-project.config.json" '.customPostSteps[0].name' '"seed"'
+    assert_json "$PROJECT/sf-project.config.json" '.postSteps' '["deploy","seed"]'
+}
+
+test_init_config_dry_run_prints_without_writing() {
+    new_project init-config-dry-run
+    script --init-config --dry-run --alias preview-org
+    assert_exit 0
+    assert_contains '"defaultOrgAlias": "preview-org"'
+    [[ ! -e "$PROJECT/sf-project.config.json" ]] && pass || fail "dry-run wrote the config file"
+}
+
+test_default_post_steps_match_sf_project() {
+    new_project default-post-steps
+    write_config '{"defaultOrgAlias":"cfg-org","communityName":"Portal"}'
+    script --post-steps-only --dry-run
+    assert_exit 0
+    assert_contains "sf project deploy start --target-org cfg-org"
+    assert_not_contains "community publish"
+}
+
+test_empty_post_steps_array_means_none() {
+    new_project empty-post-steps
+    write_config '{"defaultOrgAlias":"cfg-org","postSteps":[]}'
+    script --post-steps-only --dry-run
+    assert_exit 0
+    assert_not_contains "project deploy start"
+}
+
+test_duration_outside_salesforce_limits_fails() {
+    new_project duration-limit
+    script --init-config --dry-run --duration-days 31
+    assert_exit_nonzero
+    assert_contains "from 1 to 30"
+}
+
+test_paths_resolve_from_project_root_with_explicit_config() {
+    new_project explicit-config-paths
+    mkdir -p "$PROJECT/settings"
+    printf '%s\n' '{"defaultOrgAlias":"cfg-org","dummyDataPlan":"data/Plan.json","postSteps":["data"]}' > "$PROJECT/settings/custom.json"
+    script --config settings/custom.json --post-steps-only --dry-run
+    assert_exit 0
+    assert_contains "--plan data/Plan.json"
+}
+
+test_custom_post_step_runs_in_project_root() {
+    new_project custom-step-cwd
+    write_config '{"defaultOrgAlias":"cfg-org","postSteps":["marker"],"customPostSteps":[{"name":"marker","executable":"sh","arguments":["-c","pwd > cwd-marker.txt"]}]}'
+    OUTPUT="$(cd "$WORK_DIR" && env PATH="$FAKE_BIN:$PATH" SF_LOG="$SF_LOG" bash "$SCRIPT" --project-file custom-step-cwd/sfdx-project.json --post-steps-only 2>&1)"
+    EXIT_CODE=$?
+    assert_exit 0
+    [[ -f "$PROJECT/cwd-marker.txt" ]] && pass || fail "custom step did not run in the project root"
+}
+
+test_empty_preserve_list_keeps_nothing() {
+    new_project preserve-nothing
+    cat > "$PROJECT/sfdx-project.json" <<'EOF_PROJECT'
+{"packageDirectories":[{"path":"force-app","dependencies":[{"package":"dep","versionNumber":"1.0.0.LATEST"}]},{"path":"dep"}]}
+EOF_PROJECT
+    write_config '{"dependencySourcePolicy":{"preserveRootFiles":[]}}'
+    mkdir -p "$PROJECT/dep"
+    touch "$PROJECT/dep/README.md"
+    script --clear-dependency-sources-only
+    assert_exit 0
+    [[ ! -e "$PROJECT/dep/README.md" ]] && pass || fail "README.md was kept although preserveRootFiles is empty"
+}
+
+test_undeclared_dependency_directory_follows_require_local_directories() {
+    new_project require-local-directories
+    echo '{"packageDirectories":[{"path":"force-app","dependencies":[{"package":"missing-dep","versionNumber":"1.0.0.LATEST"}]}]}' > "$PROJECT/sfdx-project.json"
+    script --clear-dependency-sources-only
+    assert_exit_nonzero
+    assert_contains "Dependency package directory is not declared: missing-dep"
+
+    write_config '{"dependencySourcePolicy":{"requireLocalDirectories":false}}'
+    script --clear-dependency-sources-only
+    assert_exit 0
+    assert_contains "No package directory is declared for dependency missing-dep"
+}
+
+test_install_key_variable_name_from_config() {
+    new_project key-variable
+    write_config '{"packageInstallKeyEnvironmentVariable":"TEAM-KEY"}'
+    script --init-config --dry-run
+    assert_exit 0
+    assert_contains '"packageInstallKeyEnvironmentVariable": "TEAM-KEY"'
+}
+
+# Every fixture must be accepted or rejected identically by this script and the sf-project loader.
+test_config_acceptance_matches_sf_project_loader() {
+    local cli_dir
+    cli_dir="$(cd "$(dirname "$SCRIPT")/../tools/salesforce-project-cli" && pwd)"
+    if [[ ! -x "$cli_dir/node_modules/.bin/tsx" ]]; then
+        echo "SKIP [$CURRENT_TEST]: run npm install in tools/salesforce-project-cli to enable the cross-tool check"
+        return 0
+    fi
+
+    local -a fixtures=(
+        'valid|{}'
+        'valid|{"postSteps":[]}'
+        'valid|{"communityName":null,"dummyDataPlan":null}'
+        'valid|{"customPostSteps":[{"name":"seed","executable":"echo","arguments":["a"],"label":"Seed"}],"postSteps":["deploy","seed"]}'
+        'valid|{"dummyUsers":{"file":"u.json","permissionSetAssignments":[{"permissionSets":["P"],"usernames":["u"]}]}}'
+        'valid|{"packageInstallKeyEnvironmentVariable":"TEAM-KEY","commandTimeouts":{"readMs":1000}}'
+        'invalid|{"schemaVersion":2}'
+        'invalid|{"defaultOrgAlias":null}'
+        'invalid|{"scratchDurationDays":31}'
+        'invalid|{"postSteps":["all"]}'
+        'invalid|{"postSteps":["seed"]}'
+        'invalid|{"customPostSteps":[{"name":"deploy","executable":"x"}]}'
+        'invalid|{"customPostSteps":[{"name":"a","executable":"x"},{"name":"a","executable":"y"}]}'
+        'invalid|{"customPostSteps":[{"name":"a","executable":"x","label":""}]}'
+        'invalid|{"pool":{"use":"yes"}}'
+        'invalid|{"commandTimeouts":{"readMs":0}}'
+        'invalid|{"dependencySourcePolicy":{"requireLocalDirectories":"no"}}'
+        'invalid|{"dummyUsers":{"profileName":"x"}}'
+        'invalid|{"dummyUsers":{"file":"u.json","permissionSetAssignments":[{"permissionSets":["P"],"usernames":[]}]}}'
+    )
+    local fixture expected json ts_line bash_result ts_result index=0
+    local -a fixture_dirs=()
+
+    for fixture in "${fixtures[@]}"; do
+        new_project "parity-$index"
+        write_config "${fixture#*|}"
+        fixture_dirs+=("$PROJECT")
+        index=$((index + 1))
+    done
+
+    ts_result="$(cd "$cli_dir" && ./node_modules/.bin/tsx -e "
+        (async () => {
+            const { loadProjectConfiguration } = await import('./src/domain/config.ts');
+            for (const directory of process.argv.slice(1)) {
+                console.log(await loadProjectConfiguration(directory).then(() => 'valid', () => 'invalid'));
+            }
+        })();
+    " "${fixture_dirs[@]}" 2>&1)"
+
+    index=0
+    for fixture in "${fixtures[@]}"; do
+        expected="${fixture%%|*}"
+        json="${fixture#*|}"
+        PROJECT="${fixture_dirs[$index]}"
+        script --init-config --dry-run
+        bash_result="valid"
+        [[ "$EXIT_CODE" -ne 0 ]] && bash_result="invalid"
+        ts_line="$(sed -n "$((index + 1))p" <<< "$ts_result")"
+        [[ "$bash_result" == "$expected" ]] && pass || fail "bash says $bash_result for $json (expected $expected)"
+        [[ "$ts_line" == "$expected" ]] && pass || fail "sf-project says ${ts_line:-nothing} for $json (expected $expected)"
+        index=$((index + 1))
+    done
+}
+
+test_script_has_no_repository_specific_values() {
+    local pattern='crm-arbeidsforhold|Aa-registret|AAREG_|saksbehandler|brukerstotte|@nav\.no|NAV DevHub|platform-data-model'
+    if grep -nEi "$pattern" "$SCRIPT"; then
+        CURRENT_TEST="${FUNCNAME[0]}" fail "repository-specific values remain in the script"
+    else
+        pass
+    fi
+}
+
+for test_name in $(declare -F | awk '{print $3}' | grep '^test_'); do
+    CURRENT_TEST="$test_name"
+    "$test_name"
+done
+
+echo ""
+echo "Passed assertions: $PASSED"
+echo "Failed assertions: $FAILED"
+[[ "$FAILED" -eq 0 ]]

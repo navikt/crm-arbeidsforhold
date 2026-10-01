@@ -161,6 +161,8 @@ async function createConfiguration(existingConfig, interactive) {
     );
 
     return {
+        // Keep keys this prompt does not manage, such as customPostSteps and dummyUsers (read by bin/create-scratch-org.sh).
+        ...existingConfig,
         schemaVersion: 1,
         ...(defaultOrgAlias ? { defaultOrgAlias } : {}),
         scratchDefinition,
@@ -172,7 +174,7 @@ async function createConfiguration(existingConfig, interactive) {
         pool,
         packageInstallKeyEnvironmentVariable,
         commandTimeouts: { readMs: commandTimeoutReadMs, mutationMs: commandTimeoutMutationMs },
-        dependencySourcePolicy: { preserveRootFiles }
+        dependencySourcePolicy: { ...(existingConfig?.dependencySourcePolicy ?? {}), preserveRootFiles }
     };
 }
 

@@ -45,6 +45,19 @@ const customPostStepSchema = z.object({
     label: z.string().min(1).optional()
 });
 
+const dummyUsersSchema = z.object({
+    file: z.string().min(1),
+    profileName: z.string().min(1).default('Standard User'),
+    permissionSetAssignments: z
+        .array(
+            z.object({
+                permissionSets: z.array(z.string().min(1)).min(1),
+                usernames: z.array(z.string().min(1)).min(1)
+            })
+        )
+        .default([])
+});
+
 const toolConfigSchema = z
     .object({
         schemaVersion: z.literal(1).default(1),
@@ -54,6 +67,7 @@ const toolConfigSchema = z
         permissionSets: z.array(z.string().min(1)).default([]),
         dummyDataPlan: z.string().min(1).nullable().default(null),
         communityName: z.string().min(1).nullable().default(null),
+        dummyUsers: dummyUsersSchema.optional(),
         postSteps: z.array(z.string().min(1)).default(['deploy']),
         customPostSteps: z.array(customPostStepSchema).default([]),
         pool: z
@@ -152,6 +166,8 @@ export interface ProjectConfiguration {
     dummyDataPlan: string | null;
     /** Experience Cloud community name, or `null` when publishing is disabled. */
     communityName: string | null;
+    /** Users imported and assigned permission sets by the `data` post-step; absent when not configured. */
+    dummyUsers?: DummyUsersConfiguration;
     /** Ordered project configuration steps. Values are built-in step names or declared `customPostSteps[].name` values. */
     postSteps: PostStep[];
     /** Project-declared post-steps beyond the built-in `deploy`, `permsets`, `data`, and `community` steps. */
@@ -183,6 +199,16 @@ export interface CustomPostStep {
     arguments: string[];
     /** Human-readable label shown in interactive output; defaults to the step name. */
     label?: string;
+}
+
+/** Dummy users imported by the `data` post-step after the data plan. */
+export interface DummyUsersConfiguration {
+    /** Absolute path to the data tree file containing User records. */
+    file: string;
+    /** Profile resolved by name in the target org and assigned to imported users. */
+    profileName: string;
+    /** Permission sets assigned to each group of usernames; existing assignments are tolerated. */
+    permissionSetAssignments: Array<{ permissionSets: string[]; usernames: string[] }>;
 }
 
 /** Defaults for optional scratch-org pool acquisition. */
@@ -285,6 +311,15 @@ export async function loadProjectConfiguration(projectDirectory: string): Promis
         dummyDataPlan:
             toolConfig.dummyDataPlan === null ? null : path.resolve(resolvedProjectDirectory, toolConfig.dummyDataPlan),
         communityName: toolConfig.communityName,
+        ...(toolConfig.dummyUsers === undefined
+            ? {}
+            : {
+                dummyUsers: {
+                    file: path.resolve(resolvedProjectDirectory, toolConfig.dummyUsers.file),
+                    profileName: toolConfig.dummyUsers.profileName,
+                    permissionSetAssignments: toolConfig.dummyUsers.permissionSetAssignments
+                }
+            }),
         postSteps: toolConfig.postSteps,
         customPostSteps: toolConfig.customPostSteps.map((step) => ({
             name: step.name,

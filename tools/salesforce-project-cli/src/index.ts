@@ -19,7 +19,8 @@ export type {
     DependencySource,
     PoolConfiguration,
     PostStep,
-    CustomPostStep
+    CustomPostStep,
+    DummyUsersConfiguration
 } from './domain/config.js';
 export { configureProject, createOrg, deleteOrg } from './application/org-workflow.js';
 export type { ConfigureProjectOptions, CreateOrgOptions, DeleteOrgOptions } from './application/org-workflow.js';

@@ -1,6 +1,7 @@
 # 1.How to check versions in sfdx-project.json file against updated dependent packages
 
 Windows system
+
 - Open CMD(Command Prompt) or use terminal in visual studio code
 - Go to your folder where you have your project
 - Run node bin\check-sfdx-versions.js
@@ -11,12 +12,12 @@ Windows system
 
 ### Useful CMD(Command Prompt) commands
 
-| Command | Description | Example |
-|---|---|---|
-| `cd..` | Go **up** one folder level | If you are in `C:\Dev\crm-arbeidsforhold-9\bin`, you will go to `C:\Dev\crm-arbeidsforhold-9` |
-| `cd foldername` | Go **into** a subfolder | `cd Dev` will take you from `C:\` to `C:\Dev` |
-| `cd /d C:\path` | Go to a **specific folder** on any drive | `cd /d C:\Dev\crm-arbeidsforhold-9` |
-| `dir` | **List** all files and folders in current directory | Shows files like `sfdx-project.json`, `package.json`, etc. |
+| Command         | Description                                         | Example                                                                                       |
+| --------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `cd..`          | Go **up** one folder level                          | If you are in `C:\Dev\crm-arbeidsforhold-9\bin`, you will go to `C:\Dev\crm-arbeidsforhold-9` |
+| `cd foldername` | Go **into** a subfolder                             | `cd Dev` will take you from `C:\` to `C:\Dev`                                                 |
+| `cd /d C:\path` | Go to a **specific folder** on any drive            | `cd /d C:\Dev\crm-arbeidsforhold-9`                                                           |
+| `dir`           | **List** all files and folders in current directory | Shows files like `sfdx-project.json`, `package.json`, etc.                                    |
 
 ```cmd
 C:\Users\YourName> cd /d C:\Dev\crm-arbeidsforhold-9
@@ -29,6 +30,7 @@ It will list package name, current version, latest release.
 # 2.How to create a new Scratch Org using newScratchOrg.bat
 
 ### Prerequisites
+
 - Salesforce CLI (`sf`) installed
 - PowerShell available (Windows 10+ has it by default)
 - Authenticated to your **Dev Hub** (`sf org login web --set-default-dev-hub`)
@@ -37,6 +39,7 @@ It will list package name, current version, latest release.
 ### Usage
 
 #### Option 1: Using CMD (Command Prompt)
+
 1. Open **CMD** (press `Win + R`, type `cmd`, press Enter)
 2. Navigate to the project root folder
 3. Run the batch file with your installation key
@@ -47,6 +50,7 @@ cd /d C:\Dev\crm-arbeidsforhold-9
 ```
 
 #### Option 2: Using Terminal in Visual Studio Code
+
 1. Open the project in Visual Studio Code
 2. Open the terminal (`Ctrl + ´` or go to **Terminal** → **New Terminal**)
 3. Make sure you are in the **project root folder** (check the path in the terminal)
@@ -59,20 +63,21 @@ cd /d C:\Dev\crm-arbeidsforhold-9
 > **Tip:** If the terminal opens in a subfolder, use `cd..` to go up one level until you see `C:\Dev\crm-arbeidsforhold-9`
 
 **Example:**
+
 ```cmd
 .\bin\newScratchOrg.bat MySecretKey123
 ```
 
 ### What it does (step by step)
 
-| Step | Action | Description |
-|---|---|---|
-| 1/6 | **Delete scratch org** | Deletes any existing scratch org with alias `crm-arbeidsforhold` |
-| 2/6 | **Create scratch org** | Creates a new scratch org (30 day duration) and opens it in browser |
-| 3/6 | **Install packages** | Resolves and installs all dependency packages from `sfdx-project.json` |
-| 4/6 | **Deploy project** | Deploys the project source code to the scratch org |
-| 5/6 | **Assign permission sets** | Assigns required permission sets to the default user |
-| 6/6 | **Insert test data** | Imports test data from `dummy-data/Plan.json` |
+| Step | Action                     | Description                                                            |
+| ---- | -------------------------- | ---------------------------------------------------------------------- |
+| 1/6  | **Delete scratch org**     | Deletes any existing scratch org with alias `crm-arbeidsforhold`       |
+| 2/6  | **Create scratch org**     | Creates a new scratch org (30 day duration) and opens it in browser    |
+| 3/6  | **Install packages**       | Resolves and installs all dependency packages from `sfdx-project.json` |
+| 4/6  | **Deploy project**         | Deploys the project source code to the scratch org                     |
+| 5/6  | **Assign permission sets** | Assigns required permission sets to the default user                   |
+| 6/6  | **Insert test data**       | Imports test data from `dummy-data/Plan.json`                          |
 
 ### How package installation works (Step 3)
 
@@ -90,20 +95,20 @@ The batch file then installs each package in dependency order, skipping the inst
 
 These variables can be changed at the top of `newScratchOrg.bat`:
 
-| Variable | Default | Description |
-|---|---|---|
-| `ORG_ALIAS` | `crm-arbeidsforhold` | Alias for the scratch org |
-| `ORG_DURATION` | `30` | Number of days before the scratch org expires |
-| `SCRATCH_DEF` | `config\project-scratch-def.json` | Path to scratch org definition |
-| `SFDX_PROJECT` | `sfdx-project.json` | Path to SFDX project file |
-| `TEST_DATA_PLAN` | `dummy-data\Plan.json` | Path to test data import plan |
+| Variable         | Default                           | Description                                   |
+| ---------------- | --------------------------------- | --------------------------------------------- |
+| `ORG_ALIAS`      | `crm-arbeidsforhold`              | Alias for the scratch org                     |
+| `ORG_DURATION`   | `30`                              | Number of days before the scratch org expires |
+| `SCRATCH_DEF`    | `config\project-scratch-def.json` | Path to scratch org definition                |
+| `SFDX_PROJECT`   | `sfdx-project.json`               | Path to SFDX project file                     |
+| `TEST_DATA_PLAN` | `dummy-data\Plan.json`            | Path to test data import plan                 |
 
 ### Files in bin folder
 
-| File | Description |
-|---|---|
-| `newScratchOrg.bat` | Main script to create and configure a scratch org |
-| `resolve_packages.ps1` | PowerShell helper that resolves latest package versions |
+| File                     | Description                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| `newScratchOrg.bat`      | Main script to create and configure a scratch org            |
+| `resolve_packages.ps1`   | PowerShell helper that resolves latest package versions      |
 | `check-sfdx-versions.js` | Node.js script to compare current vs latest package versions |
 
 # 3.How to fetch a Scratch Org from Scratch Org Pool
@@ -111,6 +116,7 @@ These variables can be changed at the top of `newScratchOrg.bat`:
 A scratch org pool contains pre-built scratch orgs with packages already installed, which is **much faster** than creating one from scratch.
 
 ### Prerequisites
+
 - Salesforce CLI (`sf`) installed
 - **SFDX CLI** with the `sfpowerscripts` plugin installed
 - Authenticated to your **Dev Hub** (`sf org login web --set-default-dev-hub`)
@@ -131,6 +137,7 @@ sf plugins
 ### Usage
 
 #### Option 1: Using CMD (Command Prompt)
+
 1. Open **CMD** (press `Win + R`, type `cmd`, press Enter)
 2. Navigate to the project root folder
 3. Fetch a scratch org from the pool
@@ -141,6 +148,7 @@ sf pool:fetch --tag crm-arbeidsforhold --targetdevhubusername <devhub-alias> --s
 ```
 
 #### Option 2: Using Terminal in Visual Studio Code
+
 1. Open the project in Visual Studio Code
 2. Open the terminal (`Ctrl + ´` or go to **Terminal** → **New Terminal**)
 3. Make sure you are in the **project root folder**
@@ -152,12 +160,12 @@ sf pool:fetch --tag crm-arbeidsforhold --targetdevhubusername <devhub-alias> --s
 
 ### Command parameters
 
-| Parameter | Description | Example |
-|---|---|---|
-| `--tag` | The tag/name of the scratch org pool | `crm-arbeidsforhold` |
-| `--targetdevhubusername` | Alias or username of the Dev Hub | `myDevHub` |
-| `--setdefaultusername` | Sets the fetched org as default for the project | |
-| `--alias` | Alias to give the fetched scratch org | `crm-arbeidsforhold` |
+| Parameter                | Description                                     | Example              |
+| ------------------------ | ----------------------------------------------- | -------------------- |
+| `--tag`                  | The tag/name of the scratch org pool            | `crm-arbeidsforhold` |
+| `--targetdevhubusername` | Alias or username of the Dev Hub                | `myDevHub`           |
+| `--setdefaultusername`   | Sets the fetched org as default for the project |                      |
+| `--alias`                | Alias to give the fetched scratch org           | `crm-arbeidsforhold` |
 
 ### After fetching from pool
 
@@ -173,18 +181,63 @@ sf org assign permset --name AAREG_Arbeidsforhold_Saksbehandling --target-org cr
 
 ### Pool vs newScratchOrg.bat — when to use what
 
-| Scenario | Use |
-|---|---|
-| Pool is available and has scratch orgs | `sf pool:fetch` — **fastest** (seconds) |
-| Pool is empty or unavailable | `.\bin\newScratchOrg.bat` — creates from scratch (~15-30 min) |
-| Need a clean org with latest packages | `.\bin\newScratchOrg.bat` — guaranteed fresh |
-| Quick development/testing | `sf pool:fetch` — pre-configured and ready |
+| Scenario                               | Use                                                           |
+| -------------------------------------- | ------------------------------------------------------------- |
+| Pool is available and has scratch orgs | `sf pool:fetch` — **fastest** (seconds)                       |
+| Pool is empty or unavailable           | `.\bin\newScratchOrg.bat` — creates from scratch (~15-30 min) |
+| Need a clean org with latest packages  | `.\bin\newScratchOrg.bat` — guaranteed fresh                  |
+| Quick development/testing              | `sf pool:fetch` — pre-configured and ready                    |
 
 ### Useful pool commands
 
-| Command | Description |
-|---|---|
-| `sf pool:list --tag crm-arbeidsforhold --targetdevhubusername <devhub>` | List available scratch orgs in the pool |
-| `sf pool:fetch --tag crm-arbeidsforhold --targetdevhubusername <devhub>` | Fetch a scratch org from the pool |
-| `sf org list` | List all orgs you have access to |
-| `sf org open --target-org crm-arbeidsforhold` | Open the scratch org in browser |
+| Command                                                                  | Description                             |
+| ------------------------------------------------------------------------ | --------------------------------------- |
+| `sf pool:list --tag crm-arbeidsforhold --targetdevhubusername <devhub>`  | List available scratch orgs in the pool |
+| `sf pool:fetch --tag crm-arbeidsforhold --targetdevhubusername <devhub>` | Fetch a scratch org from the pool       |
+| `sf org list`                                                            | List all orgs you have access to        |
+| `sf org open --target-org crm-arbeidsforhold`                            | Open the scratch org in browser         |
+
+# 4.How to create a Scratch Org using create-scratch-org.sh (macOS/Linux)
+
+`create-scratch-org.sh` contains no project-specific values. It reads them from `sf-project.config.json` next to `sfdx-project.json`, the same file `sf-project` uses. Settings resolve in this order: CLI option > environment variable > `sf-project.config.json` > generic default. Run `./bin/create-scratch-org.sh --help` for all options.
+
+```bash
+./bin/create-scratch-org.sh --self-check
+./bin/create-scratch-org.sh
+./bin/create-scratch-org.sh --post-steps-only --post-steps data
+```
+
+### Create or update the configuration file
+
+```bash
+./bin/create-scratch-org.sh --init-config --dry-run --alias my-org --permission-sets MyPermSet
+./bin/create-scratch-org.sh --init-config --alias my-org --permission-sets MyPermSet
+./bin/create-scratch-org.sh --init-config --force --community-name "My Site"
+```
+
+`--init-config` writes the effective settings and exits without contacting Salesforce. It refuses to overwrite an existing file unless `--force` is given, and `--force` keeps keys the script does not manage (for example `commandTimeouts`). Installation keys are never written; keep them in the variable named by `packageInstallKeyEnvironmentVariable`. Use `--config <file>` to read another file and `--no-config` to ignore it.
+
+### Fields the script reads
+
+| Field                                                                              | Used for                                                                                                                                                                                                    |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `defaultOrgAlias`                                                                  | Org alias, and the target for `--post-steps-only`, `--update-packages` and `--package-plan`. Without it the alias defaults to the project directory name, and partial modes use `sf config get target-org`. |
+| `scratchDefinition`, `scratchDurationDays`                                         | Scratch org creation                                                                                                                                                                                        |
+| `permissionSets`                                                                   | `permsets` post step                                                                                                                                                                                        |
+| `dummyDataPlan`                                                                    | `data` post step                                                                                                                                                                                            |
+| `communityName`                                                                    | `community` post step                                                                                                                                                                                       |
+| `postSteps`, `customPostSteps`                                                     | Selected and project-declared post steps                                                                                                                                                                    |
+| `pool.use`, `pool.tag`, `pool.devHub`, `pool.fallbackToCreate`                     | sfp scratch org pool                                                                                                                                                                                        |
+| `packageInstallKeyEnvironmentVariable`                                             | Environment variable holding the install key                                                                                                                                                                |
+| `dependencySourcePolicy.preserveRootFiles`                                         | Files kept by `--clear-dependency-sources-only`                                                                                                                                                             |
+| `dummyUsers.file`, `dummyUsers.profileName`, `dummyUsers.permissionSetAssignments` | Dummy user import and permission set assignment in the `data` post step (same behaviour as `sf-project`)                                                                                                    |
+
+The script follows the `sf-project` rules for this file: the same validation, relative paths from the project root, `postSteps` defaulting to `["deploy"]`, and empty arrays meaning "none". Post steps without a configured value (`permsets`, `data`, `community`) are skipped with a warning. Whether a package needs an installation key comes from `packageKeyConfig` in `sfdx-project.json`.
+
+### Tests
+
+```bash
+bash bin/tests/create-scratch-org.test.sh
+```
+
+The tests use a fake `sf` on `PATH` and temporary projects. They do not contact Salesforce.

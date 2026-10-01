@@ -129,7 +129,7 @@ All data is automatically imported using the init scripts for macOS or Windows, 
 | Kari Brukerstøtte 1   | `karibrukerstotte1@nav.no`   | Brukerstøtte  | `AAREG_Arbeidsforhold_Support`, `AAREG_Arbeidsforhold_Support_Read_Only` |
 | Ola Brukerstøtte 2    | `olabrukerstotte2@nav.no`    | Brukerstøtte  | `AAREG_Arbeidsforhold_Support`, `AAREG_Arbeidsforhold_Support_Read_Only` |
 
-All four users share the `Standard User` profile; access is granted through permission sets, not the profile. The usernames, profile name and permission set names are all overridable via environment variables — see `./bin/create-scratch-org.sh --help` (`DUMMY_USER_FILE`, `DUMMY_USER_PROFILE_NAME`, `DUMMY_SAKSBEHANDLER_PERMSET`, `DUMMY_SAKSBEHANDLER_USERNAMES`, `DUMMY_SUPPORT_PERMSETS`, `DUMMY_SUPPORT_USERNAMES`).
+All four users share the `Standard User` profile; access is granted through permission sets, not the profile. The user file, profile name and permission-set assignments are configured in the `dummyUsers` section of [`sf-project.config.json`](../sf-project.config.json). They can be overridden with `DUMMY_USER_FILE`, `DUMMY_USER_PROFILE_NAME` and `DUMMY_USER_PERMSET_ASSIGNMENTS`; see `./bin/create-scratch-org.sh --help`.
 
 To run just this step against an already-existing org, without recreating the org or reinstalling packages:
 

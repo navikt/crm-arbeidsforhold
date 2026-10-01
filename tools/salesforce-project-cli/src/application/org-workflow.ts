@@ -10,6 +10,7 @@ import { withProgressHeartbeat } from '../infrastructure/progress-heartbeat.js';
 import { classifySalesforceFailure, describeCommandFailure, isTransientCommandFailure } from '../infrastructure/salesforce-errors.js';
 import { runCommandStep, withCommandOutput } from './command-step-runner.js';
 import { clearDependencySources } from './clear-dependency-sources.js';
+import { importDummyUsers } from './dummy-users.js';
 import { installPackages } from './package-operations.js';
 import { refreshDependencies, type CommandRunner } from './refresh-dependencies.js';
 
@@ -231,15 +232,19 @@ async function runPostSteps(options: ResolvedConfigureProjectOptions): Promise<E
         if (options.dryRun) {
             run += 1;
             emitPostStepResult(options, postStep, 'run', `Would run ${postStep}`);
+            if (postStep === 'data') await importDummyUsers(options);
             continue;
         }
-        const stepExitCode = await runStep(
+        let stepExitCode = await runStep(
             options,
             `post-step:${postStep}`,
             postStepLabel(options.configuration, postStep),
             command.executable,
             command.arguments
         );
+        if (stepExitCode === EXIT_CODES.SUCCESS && postStep === 'data') {
+            stepExitCode = await importDummyUsers(options);
+        }
         if (stepExitCode !== EXIT_CODES.SUCCESS) {
             emitPostStepResult(options, postStep, 'failure', `${postStep} failed`);
             options.emit({
