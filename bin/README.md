@@ -51,6 +51,8 @@ Parameters use PowerShell names such as `-OrgAlias`, `-DurationDays`, `-Definiti
 
 The Bash script supports org create/delete, pool acquisition, package install/update/plan, post-steps, dummy users, dry-run, self-check, dependency cleanup/retrieval, and `--init-config`. See `create-scratch-org.sh --help` for options.
 
+Output is grouped into numbered phases (`[1/3] Scratch org`, `[2/3] Packages`, `[3/3] Post-steps`) with `[i/N]` counters per package and post-step. Package installs show a spinner with elapsed time in an interactive terminal; Salesforce CLI output from a successful install is hidden unless you pass `--verbose`, and is always shown when an install fails. Colour is used only in a terminal: `NO_COLOR=1` or `--no-color` turns it off, and `FORCE_COLOR=1` or `--color` turns it on for CI logs. Icons fall back to ASCII when the locale is not UTF-8. See [the output specification](../.github/specs/create-scratch-org-output-ux.md).
+
 Package-version maintenance is preview-only unless explicitly applied. Coverage uses the target project config unless flags override it:
 
 ```bash

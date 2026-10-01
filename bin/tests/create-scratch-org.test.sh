@@ -45,6 +45,24 @@ case "$*" in
     "package version list"*)
         echo '{"status":0,"result":[{"SubscriberPackageVersionId":"04t000000000001","MajorVersion":1,"MinorVersion":0,"PatchVersion":0,"BuildNumber":1}]}'
         ;;
+    "package installed list"*)
+        if [[ -n "${INSTALLED_PACKAGES:-}" ]]; then
+            echo "$INSTALLED_PACKAGES"
+        else
+            echo '{"status":0,"result":[]}'
+        fi
+        ;;
+    "package install -r"*)
+        if [[ -n "${INSTALL_FAIL_COUNTER:-}" ]]; then
+            failures="$(cat "$INSTALL_FAIL_COUNTER" 2>/dev/null || echo 0)"
+            if (( failures < ${INSTALL_FAIL_TIMES:-0} )); then
+                echo $((failures + 1)) > "$INSTALL_FAIL_COUNTER"
+                echo "${INSTALL_FAIL_MESSAGE:-Error: read ECONNRESET}" >&2
+                exit 1
+            fi
+        fi
+        echo "Successfully installed package from fake sf"
+        ;;
     *)
         echo '{"status":0,"result":{}}'
         ;;
@@ -608,6 +626,234 @@ test_coverage_check_dry_run_does_not_call_sf() {
     assert_contains "apex run test"
     assert_contains "coverage"
     [[ ! -s "$SF_LOG" ]] && pass || fail "dry-run called sf"
+}
+
+ESC=$'\033['
+
+assert_has_colour() {
+    [[ "$OUTPUT" == *"$ESC"* ]] && pass || fail "expected ANSI colour codes in output"
+}
+
+assert_no_colour() {
+    [[ "$OUTPUT" != *"$ESC"* ]] && pass || fail "expected no ANSI colour codes in output"
+}
+
+install_call_count() {
+    grep -c '^package install -r' "$SF_LOG" || true
+}
+
+write_dependency_project() {
+    local dependencies="" key_config="" package_name
+    for package_name in "$@"; do
+        dependencies+="${dependencies:+,}{\"package\":\"$package_name\",\"versionNumber\":\"1.0.0.LATEST\"}"
+        key_config+="${key_config:+,}\"$package_name\":false"
+    done
+    printf '{"packageDirectories":[{"path":"force-app","dependencies":[%s]}],"packageKeyConfig":{%s}}\n' "$dependencies" "$key_config" > "$PROJECT/sfdx-project.json"
+}
+
+INSTALLED_FIXTURE='{"status":0,"result":[
+    {"SubscriberPackageName":"lower-pkg","SubscriberPackageVersionNumber":"0.9.0.1","SubscriberPackageVersionId":"04tlower"},
+    {"SubscriberPackageName":"equal-pkg","SubscriberPackageVersionNumber":"1.0.0.1","SubscriberPackageVersionId":"04t000000000001"},
+    {"SubscriberPackageName":"higher-pkg","SubscriberPackageVersionNumber":"2.0.0.1","SubscriberPackageVersionId":"04thigher"}
+]}'
+
+test_non_terminal_output_has_no_colour() {
+    new_project no-colour
+    script --dry-run --post-steps deploy
+    assert_exit 0
+    assert_no_colour
+}
+
+test_force_color_and_color_flag_enable_colour() {
+    new_project force-colour
+    run_script env FORCE_COLOR=1 bash "$SCRIPT" --dry-run --post-steps none
+    assert_exit 0
+    assert_has_colour
+    script --color --dry-run --post-steps none
+    assert_has_colour
+}
+
+test_no_color_disables_colour_and_cli_flag_wins() {
+    new_project no-color-env
+    run_script env FORCE_COLOR=1 NO_COLOR=1 bash "$SCRIPT" --dry-run --post-steps none
+    assert_no_colour
+    run_script env FORCE_COLOR=1 bash "$SCRIPT" --no-color --dry-run --post-steps none
+    assert_no_colour
+    run_script env NO_COLOR=1 bash "$SCRIPT" --color --dry-run --post-steps none
+    assert_has_colour
+}
+
+test_icons_follow_locale() {
+    new_project icons
+    run_script env LC_ALL=en_US.UTF-8 bash "$SCRIPT" --dry-run --post-steps none
+    assert_contains "✔ Scratch org setup completed successfully."
+    run_script env LC_ALL=C LC_CTYPE=C LANG=C bash "$SCRIPT" --dry-run --post-steps none
+    assert_contains "+ Scratch org setup completed successfully."
+    assert_not_contains "✔"
+    assert_not_contains "▸"
+}
+
+test_phases_are_numbered_for_phases_that_run() {
+    new_project phases
+    script --dry-run --post-steps deploy
+    assert_exit 0
+    assert_contains "[1/3] Scratch org"
+    assert_contains "[2/3] Packages"
+    assert_contains "[3/3] Post-steps"
+
+    script --post-steps-only --dry-run --alias cfg-org
+    assert_exit 0
+    assert_contains "[1/1] Post-steps"
+    assert_not_contains "[1/3]"
+}
+
+test_package_loop_shows_progress_counter() {
+    new_project package-progress
+    write_dependency_project pkg-a pkg-b
+    script --dry-run --post-steps none --skip-version-check
+    assert_exit 0
+    assert_contains "[1/2] pkg-a"
+    assert_contains "[2/2] pkg-b"
+}
+
+test_post_steps_show_progress_and_list_unselected_once() {
+    new_project post-step-progress
+    write_config '{"defaultOrgAlias":"cfg-org","permissionSets":["P"],"communityName":"Portal","postSteps":["permsets","community"]}'
+    script --post-steps-only --dry-run
+    assert_exit 0
+    assert_contains "[1/2] permsets"
+    assert_contains "[2/2] community"
+    assert_contains "Not selected: deploy, data"
+    assert_not_contains "Skipping post step:"
+}
+
+test_package_install_retries_transient_errors() {
+    new_project install-retry
+    write_dependency_project pkg-a
+    run_script env INSTALL_FAIL_TIMES=1 INSTALL_FAIL_COUNTER="$WORK_DIR/retry-counter" PACKAGE_INSTALL_RETRY_DELAY_SECONDS=0 \
+        bash "$SCRIPT" --skip-org --alias cfg-org --post-steps none --skip-version-check
+    assert_exit 0
+    assert_contains "attempt 1/3"
+    assert_contains "Installed pkg-a"
+    [[ "$(install_call_count)" -eq 2 ]] && pass || fail "expected 2 install calls, got $(install_call_count)"
+}
+
+test_package_install_does_not_retry_other_errors_and_shows_cli_output() {
+    new_project install-no-retry
+    write_dependency_project pkg-a
+    run_script env INSTALL_FAIL_TIMES=5 INSTALL_FAIL_COUNTER="$WORK_DIR/no-retry-counter" INSTALL_FAIL_MESSAGE="Error: INVALID_INSTALLATION_KEY" \
+        PACKAGE_INSTALL_RETRY_DELAY_SECONDS=0 bash "$SCRIPT" --skip-org --alias cfg-org --post-steps none --skip-version-check
+    assert_exit_nonzero
+    assert_contains "INVALID_INSTALLATION_KEY"
+    assert_contains "Failed to install package pkg-a"
+    [[ "$(install_call_count)" -eq 1 ]] && pass || fail "expected 1 install call, got $(install_call_count)"
+}
+
+test_package_install_gives_up_after_max_attempts() {
+    new_project install-max-attempts
+    write_dependency_project pkg-a
+    run_script env INSTALL_FAIL_TIMES=5 INSTALL_FAIL_COUNTER="$WORK_DIR/max-counter" PACKAGE_INSTALL_MAX_ATTEMPTS=2 \
+        PACKAGE_INSTALL_RETRY_DELAY_SECONDS=0 bash "$SCRIPT" --skip-org --alias cfg-org --post-steps none --skip-version-check
+    assert_exit_nonzero
+    [[ "$(install_call_count)" -eq 2 ]] && pass || fail "expected 2 install calls, got $(install_call_count)"
+}
+
+test_successful_install_output_is_hidden_unless_verbose() {
+    new_project install-verbose
+    write_dependency_project pkg-a
+    script --skip-org --alias cfg-org --post-steps none --skip-version-check
+    assert_exit 0
+    assert_not_contains "Successfully installed package from fake sf"
+    script --skip-org --alias cfg-org --post-steps none --skip-version-check --verbose
+    assert_exit 0
+    assert_contains "Successfully installed package from fake sf"
+}
+
+test_update_packages_installs_updates_skips_and_never_downgrades() {
+    new_project update-packages
+    write_dependency_project missing-pkg lower-pkg equal-pkg higher-pkg
+    run_script env INSTALLED_PACKAGES="$INSTALLED_FIXTURE" bash "$SCRIPT" --update-packages --alias cfg-org --skip-version-check
+    assert_exit 0
+    [[ "$(install_call_count)" -eq 2 ]] && pass || fail "expected 2 install calls, got $(install_call_count)"
+    assert_contains "missing-pkg target=1.0.0.1"
+    assert_contains "lower-pkg 0.9.0.1 -> 1.0.0.1"
+    assert_contains "equal-pkg 1.0.0.1"
+    assert_contains "higher-pkg installed=2.0.0.1 target=1.0.0.1"
+    assert_contains "[4/4] higher-pkg"
+}
+
+test_package_plan_reports_without_installing() {
+    new_project package-plan
+    write_dependency_project missing-pkg lower-pkg equal-pkg higher-pkg
+    run_script env INSTALLED_PACKAGES="$INSTALLED_FIXTURE" bash "$SCRIPT" --package-plan --alias cfg-org --skip-version-check
+    assert_exit 0
+    [[ "$(install_call_count)" -eq 0 ]] && pass || fail "package plan installed packages"
+    assert_contains "would be installed"
+    assert_contains "would be updated"
+    assert_contains "would be skipped"
+    assert_contains "lower-pkg would update 0.9.0.1 -> 1.0.0.1"
+}
+
+test_self_check_passes_without_mutating_orgs() {
+    new_project self-check
+    write_config '{"defaultOrgAlias":"cfg-org"}'
+    script --self-check
+    assert_exit 0
+    assert_contains "Self-check completed successfully."
+    assert_contains "Required commands"
+    ! grep -Eq 'org create|org delete|deploy start|package install -r' "$SF_LOG" && pass || fail "self-check mutated an org: $(cat "$SF_LOG")"
+}
+
+test_self_check_fails_without_scratch_definition() {
+    new_project self-check-missing-definition
+    rm "$PROJECT/config/project-scratch-def.json"
+    script --self-check
+    assert_exit_nonzero
+    assert_contains "project-scratch-def.json"
+}
+
+test_delete_org_only_dry_run_does_not_call_sf() {
+    new_project delete-only
+    script --delete-org-only --alias old-org --dry-run
+    assert_exit 0
+    assert_contains "Would run: sf org delete scratch --no-prompt --target-org old-org"
+    [[ ! -s "$SF_LOG" ]] && pass || fail "dry-run called sf: $(cat "$SF_LOG")"
+}
+
+test_help_prints_usage_without_summary() {
+    new_project help
+    script --help
+    assert_exit 0
+    assert_contains "Usage:"
+    assert_contains "--no-color"
+    assert_contains "--verbose"
+    assert_not_contains "Run summary"
+}
+
+test_settings_list_active_modes_on_one_line() {
+    new_project active-modes
+    script --post-steps-only --dry-run --alias cfg-org
+    assert_exit 0
+    assert_contains "Active modes"
+    assert_contains "dry-run, post-steps-only"
+}
+
+test_run_summary_reports_success() {
+    new_project summary-success
+    script --dry-run --post-steps none
+    assert_exit 0
+    assert_contains "Run summary"
+    assert_contains "SUCCESS"
+    assert_contains "Duration"
+}
+
+test_run_summary_reports_failure_without_generic_installation_message() {
+    new_project summary-failure
+    script --post-steps-only --post-steps nope --dry-run --alias cfg-org
+    assert_exit_nonzero
+    assert_contains "FAILED (exit code 1)"
+    assert_contains "Invalid post step: nope"
+    assert_not_contains "Installation failed."
 }
 
 test_script_has_no_repository_specific_values() {

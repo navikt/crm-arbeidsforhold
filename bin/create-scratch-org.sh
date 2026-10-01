@@ -120,20 +120,151 @@ POST_STEPS_SKIPPED=()
 ORG_ACTION="No org action recorded."
 
 # -----------------------------
-# Colors
+# Output
 # -----------------------------
 
-if [[ -t 1 ]]; then
-    YELLOW=$'\033[33m'
-    GREEN=$'\033[32m'
-    RED=$'\033[31m'
-    RESET=$'\033[0m'
-else
-    YELLOW=""
-    GREEN=""
-    RED=""
-    RESET=""
-fi
+# auto, always or never; set by --color / --no-color.
+COLOR_MODE="auto"
+VERBOSE="${VERBOSE:-false}"
+INTERACTIVE=false
+PHASE_INDEX=0
+PHASE_TOTAL=0
+PROGRESS_OUTPUT=""
+PROGRESS_DURATION=""
+
+BOLD="" DIM="" RED="" GREEN="" YELLOW="" BLUE="" CYAN="" RESET=""
+ICON_OK="+" ICON_FAIL="x" ICON_WARN="!" ICON_STEP=">" ICON_INFO="-" ICON_SKIP="o" ICON_UPDATE="^" ICON_RULE="-"
+SPINNER_FRAMES=("-" "\\" "|" "/")
+
+is_utf8_locale() {
+    local locale="${LC_ALL:-${LC_CTYPE:-${LANG:-}}}"
+    [[ "$locale" =~ [Uu][Tt][Ff]-?8 ]]
+}
+
+colour_enabled() {
+    case "$COLOR_MODE" in
+        always) return 0 ;;
+        never) return 1 ;;
+    esac
+    [[ -n "${NO_COLOR:-}" ]] && return 1
+    [[ -n "${FORCE_COLOR:-}" && "${FORCE_COLOR}" != "0" ]] && return 0
+    [[ -t 1 && "${TERM:-}" != "dumb" ]]
+}
+
+init_output() {
+    if colour_enabled; then
+        BOLD=$'\033[1m'
+        DIM=$'\033[2m'
+        RED=$'\033[31m'
+        GREEN=$'\033[32m'
+        YELLOW=$'\033[33m'
+        BLUE=$'\033[34m'
+        CYAN=$'\033[36m'
+        RESET=$'\033[0m'
+    fi
+
+    if is_utf8_locale; then
+        ICON_OK="✔" ICON_FAIL="✖" ICON_WARN="⚠" ICON_STEP="▸" ICON_INFO="•" ICON_SKIP="○" ICON_UPDATE="↑" ICON_RULE="─"
+        SPINNER_FRAMES=("⠋" "⠙" "⠹" "⠸" "⠼" "⠴" "⠦" "⠧" "⠇" "⠏")
+    fi
+
+    if [[ -t 1 && -z "${CI:-}" && "${TERM:-}" != "dumb" ]]; then
+        INTERACTIVE=true
+    fi
+}
+
+rule() {
+    local width="${1:-60}"
+    local line=""
+    printf -v line '%*s' "$width" ''
+    printf '%s' "${line// /$ICON_RULE}"
+}
+
+banner() {
+    echo ""
+    echo "${BOLD}${BLUE}$(rule 60)${RESET}"
+    echo "${BOLD}${BLUE}  $1${RESET}"
+    echo "${BOLD}${BLUE}$(rule 60)${RESET}"
+}
+
+section() {
+    local title="$1"
+    local padding=$((56 - ${#title}))
+    (( padding < 3 )) && padding=3
+    echo ""
+    echo "${BOLD}${CYAN}${ICON_RULE}${ICON_RULE} ${title} ${RESET}${DIM}$(rule "$padding")${RESET}"
+}
+
+phase() {
+    PHASE_INDEX=$((PHASE_INDEX + 1))
+    section "[$PHASE_INDEX/$PHASE_TOTAL] $1"
+}
+
+counter() {
+    printf '%s[%d/%d]%s' "$DIM" "$1" "$2" "$RESET"
+}
+
+step() { echo "${CYAN}${ICON_STEP}${RESET} $*"; }
+item() { echo ""; echo "${BOLD}$*${RESET}"; }
+info() { echo "  ${DIM}$*${RESET}"; }
+success() { echo "${GREEN}${ICON_OK}${RESET} $*"; }
+skipped() { echo "${DIM}${ICON_SKIP} $*${RESET}"; }
+failure() { echo "${RED}${ICON_FAIL}${RESET} $*"; }
+
+kv() {
+    local value="${2:-}"
+    if [[ -z "$value" || "$value" == "none" ]]; then
+        value="${DIM}${value:-none}${RESET}"
+    fi
+    printf '  %s%-*s%s %s\n' "$DIM" "${3:-28}" "$1" "$RESET" "$value"
+}
+
+indent_output() {
+    sed 's/^/    /' <<< "$1"
+}
+
+format_short_duration() {
+    local total_seconds="$1"
+    if (( total_seconds >= 60 )); then
+        printf '%dm %02ds' $((total_seconds / 60)) $((total_seconds % 60))
+    else
+        printf '%ds' "$total_seconds"
+    fi
+}
+
+# Runs a command with captured output: a spinner on interactive terminals, start line otherwise.
+run_with_progress() {
+    local label="$1"
+    shift
+    local log_file=""
+    local started="$SECONDS"
+    local status=0
+    local pid=""
+    local frame=0
+
+    log_file="$(mktemp)"
+
+    if [[ "$INTERACTIVE" == "true" ]]; then
+        "$@" < /dev/null > "$log_file" 2>&1 &
+        pid=$!
+        while kill -0 "$pid" 2>/dev/null; do
+            printf '\r  %s%s%s %s %s%s%s' "$CYAN" "${SPINNER_FRAMES[frame % ${#SPINNER_FRAMES[@]}]}" "$RESET" \
+                "$label" "$DIM" "$(format_short_duration $((SECONDS - started)))" "$RESET"
+            frame=$((frame + 1))
+            sleep 0.1
+        done
+        wait "$pid" || status=$?
+        printf '\r\033[K'
+    else
+        info "$label ..."
+        "$@" < /dev/null > "$log_file" 2>&1 || status=$?
+    fi
+
+    PROGRESS_OUTPUT="$(cat "$log_file")"
+    PROGRESS_DURATION="$(format_short_duration $((SECONDS - started)))"
+    rm -f "$log_file"
+    return "$status"
+}
 
 # -----------------------------
 # Common helpers
@@ -142,18 +273,19 @@ fi
 error() {
     local exit_code="${1:-1}"
     local message="${2:-Installation failed.}"
+    local first_line="${message%%$'\n'*}"
 
     echo ""
-    echo "${RED}$message${RESET}"
-    echo ""
-    echo "${RED}Installation failed.${RESET}"
-    echo ""
+    echo "${RED}${BOLD}${ICON_FAIL} ${first_line}${RESET}"
+    if [[ "$message" == *$'\n'* ]]; then
+        echo "${RED}${message#*$'\n'}${RESET}"
+    fi
 
     exit "$exit_code"
 }
 
 warning() {
-    echo "${YELLOW}WARNING: $1${RESET}"
+    echo "${YELLOW}${ICON_WARN} Warning:${RESET} $1"
 }
 
 add_action() { RUN_ACTIONS+=("$1"); }
@@ -176,7 +308,8 @@ format_duration() {
 
 print_array_items() {
     local title="$1"
-    shift
+    local icon="$2"
+    shift 2
 
     if [[ "$#" -eq 0 ]]; then
         return 0
@@ -187,8 +320,11 @@ print_array_items() {
     fi
 
     echo ""
-    echo "$title"
-    printf -- "- %s\n" "$@"
+    echo "  ${BOLD}$title${RESET}"
+    local entry=""
+    for entry in "$@"; do
+        echo "    $icon $entry"
+    done
 }
 
 array_length() {
@@ -197,6 +333,33 @@ array_length() {
 
     eval "length=\${#${array_name}[@]}" 2>/dev/null || length=0
     echo "$length"
+}
+
+active_modes() {
+    local modes=()
+
+    [[ "$DRY_RUN" == "true" ]] && modes+=("dry-run")
+    [[ "$SELF_CHECK_ONLY" == "true" ]] && modes+=("self-check")
+    [[ "$PACKAGE_PLAN_ONLY" == "true" ]] && modes+=("package-plan")
+    [[ "$UPDATE_PACKAGES_ONLY" == "true" ]] && modes+=("update-packages")
+    [[ "$DELETE_ORG_ONLY" == "true" ]] && modes+=("delete-org-only")
+    [[ "$POST_STEPS_ONLY_MODE" == "true" ]] && modes+=("post-steps-only")
+    [[ "$CHECK_PROJECT_VERSIONS_ONLY" == "true" ]] && modes+=("check-versions")
+    [[ "$COVERAGE_CHECK_ONLY" == "true" ]] && modes+=("coverage-check")
+    [[ "$INSTALL_LATEST_PACKAGES" == "true" ]] && modes+=("install-latest")
+    [[ "$USE_POOL" == "true" ]] && modes+=("use-pool")
+    [[ "$REFRESH_DEPENDENCY_SOURCES" == "true" ]] && modes+=("refresh-dependency-sources")
+    [[ "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" ]] && modes+=("clear-dependency-sources-only")
+    [[ "$VERBOSE" == "true" ]] && modes+=("verbose")
+
+    if [[ "${#modes[@]}" -eq 0 ]]; then
+        echo "standard"
+        return 0
+    fi
+
+    local joined=""
+    joined="$(printf '%s, ' "${modes[@]}")"
+    echo "${joined%, }"
 }
 
 print_run_summary() {
@@ -214,19 +377,17 @@ print_run_summary() {
 
     local ended_at=""
     local elapsed_seconds=""
-    local duration=""
     local status=""
     local installed_label="Installed"
     local updated_label="Updated"
 
     ended_at="$(date '+%Y-%m-%d %H:%M:%S %Z')"
     elapsed_seconds=$((SECONDS - RUN_STARTED_SECONDS))
-    duration="$(format_duration "$elapsed_seconds")"
 
     if [[ "$exit_code" -eq 0 ]]; then
-        status="${GREEN}SUCCESS${RESET}"
+        status="${GREEN}${BOLD}${ICON_OK} SUCCESS${RESET}"
     else
-        status="${RED}FAILED${RESET} exit code $exit_code"
+        status="${RED}${BOLD}${ICON_FAIL} FAILED (exit code $exit_code)${RESET}"
     fi
 
     if [[ "$DRY_RUN" == "true" ]]; then
@@ -234,62 +395,47 @@ print_run_summary() {
         updated_label="Would update"
     fi
 
-    echo ""
-    echo "============================================================"
-    echo "Run summary"
-    echo "============================================================"
-    echo "Status:        $status"
-    echo "Started:       $RUN_STARTED_AT"
-    echo "Ended:         $ended_at"
-    echo "Duration:      $duration"
-    echo ""
-    echo "Mode:"
-    echo "- Org alias:              $ORG_ALIAS"
-    echo "- Use pool:               $USE_POOL"
-    echo "- Install latest:         $INSTALL_LATEST_PACKAGES"
-    echo "- Update packages only:   $UPDATE_PACKAGES_ONLY"
-    echo "- Delete org only:        $DELETE_ORG_ONLY"
-    echo "- Self-check only:        $SELF_CHECK_ONLY"
-    echo "- Dry-run:                $DRY_RUN"
-    echo "- Package plan only:      $PACKAGE_PLAN_ONLY"
-    echo "- Refresh dependencies:   $REFRESH_DEPENDENCY_SOURCES"
-    echo "- Clear dependencies only:$CLEAR_DEPENDENCY_SOURCES_ONLY"
-    echo "- Post steps only:        $POST_STEPS_ONLY_MODE"
-    echo "- Post steps:             $POST_STEPS"
-    echo ""
-    echo "Org:"
-    echo "- $ORG_ACTION"
-    echo ""
-    echo "Packages:"
-    echo "- Missing before install:     $(array_length PACKAGES_MISSING)"
-    echo "- $installed_label:                  $(array_length PACKAGES_INSTALLED)"
-    echo "- $updated_label:                    $(array_length PACKAGES_UPDATED)"
-    echo "- Skipped, already correct:   $(array_length PACKAGES_SKIPPED)"
-    echo "- Higher than target:         $(array_length PACKAGES_HIGHER_THAN_TARGET)"
-
-    print_array_items "Packages missing before install:" "${PACKAGES_MISSING[@]-}"
-    print_array_items "Packages installed:" "${PACKAGES_INSTALLED[@]-}"
-    print_array_items "Packages updated:" "${PACKAGES_UPDATED[@]-}"
-    print_array_items "Packages skipped:" "${PACKAGES_SKIPPED[@]-}"
-    print_array_items "Packages higher than target:" "${PACKAGES_HIGHER_THAN_TARGET[@]-}"
+    banner "Run summary"
+    kv "Status" "$status" 14
+    kv "Duration" "$(format_duration "$elapsed_seconds")" 14
+    kv "Started" "$RUN_STARTED_AT" 14
+    kv "Ended" "$ended_at" 14
+    kv "Org alias" "$ORG_ALIAS" 14
+    kv "Active modes" "$(active_modes)" 14
+    kv "Org" "$ORG_ACTION" 14
+    kv "Post steps" "$POST_STEPS" 14
 
     echo ""
-    echo "Post steps:"
+    echo "  ${BOLD}Packages${RESET}"
+    printf '    %s %-19s %s\n' "${GREEN}${ICON_OK}${RESET}" "$installed_label" "$(array_length PACKAGES_INSTALLED)"
+    printf '    %s %-19s %s\n' "${BLUE}${ICON_UPDATE}${RESET}" "$updated_label" "$(array_length PACKAGES_UPDATED)"
+    printf '    %s %-19s %s\n' "${DIM}${ICON_SKIP}${RESET}" "Already correct" "$(array_length PACKAGES_SKIPPED)"
+    printf '    %s %-19s %s\n' "${YELLOW}${ICON_WARN}${RESET}" "Higher than target" "$(array_length PACKAGES_HIGHER_THAN_TARGET)"
+    printf '    %s %-19s %s\n' "${YELLOW}${ICON_INFO}${RESET}" "Missing before" "$(array_length PACKAGES_MISSING)"
+
+    print_array_items "Packages missing before install" "${YELLOW}${ICON_INFO}${RESET}" "${PACKAGES_MISSING[@]-}"
+    print_array_items "Packages installed" "${GREEN}${ICON_OK}${RESET}" "${PACKAGES_INSTALLED[@]-}"
+    print_array_items "Packages updated" "${BLUE}${ICON_UPDATE}${RESET}" "${PACKAGES_UPDATED[@]-}"
+    print_array_items "Packages skipped" "${DIM}${ICON_SKIP}${RESET}" "${PACKAGES_SKIPPED[@]-}"
+    print_array_items "Packages higher than target" "${YELLOW}${ICON_WARN}${RESET}" "${PACKAGES_HIGHER_THAN_TARGET[@]-}"
+
+    echo ""
+    echo "  ${BOLD}Post steps${RESET}"
     if [[ "$(array_length POST_STEPS_RUN)" -eq 0 ]]; then
-        echo "- Ran:     none"
+        echo "    ${DIM}${ICON_SKIP} Ran:     none${RESET}"
     else
-        echo "- Ran:     ${POST_STEPS_RUN[*]-}"
+        echo "    ${GREEN}${ICON_OK}${RESET} Ran:     ${POST_STEPS_RUN[*]-}"
     fi
 
     if [[ "$(array_length POST_STEPS_SKIPPED)" -eq 0 ]]; then
-        echo "- Skipped: none"
+        echo "    ${DIM}${ICON_SKIP} Skipped: none${RESET}"
     else
-        echo "- Skipped: ${POST_STEPS_SKIPPED[*]-}"
+        echo "    ${DIM}${ICON_SKIP}${RESET} Skipped: ${POST_STEPS_SKIPPED[*]-}"
     fi
 
-    print_array_items "Actions:" "${RUN_ACTIONS[@]-}"
+    print_array_items "Actions" "${CYAN}${ICON_INFO}${RESET}" "${RUN_ACTIONS[@]-}"
 
-    echo "============================================================"
+    echo "${BOLD}${BLUE}$(rule 60)${RESET}"
     echo ""
 }
 
@@ -308,7 +454,7 @@ format_command() {
 
 run_cmd() {
     if [[ "$DRY_RUN" == "true" ]]; then
-        echo "${YELLOW}[dry-run] Would run:${RESET} $(format_command "$@")"
+        echo "  ${YELLOW}[dry-run] Would run:${RESET} ${DIM}$(format_command "$@")${RESET}"
         return 0
     fi
 
@@ -393,6 +539,9 @@ Options:
   --skip-org                          Do not delete/create/fetch scratch org.
   --skip-packages                     Do not install packages.
   --skip-version-check                Do not warn when dependency versions are not latest released versions.
+  --verbose                           Show full Salesforce CLI output for successful package installs.
+  --color                             Always use coloured output.
+  --no-color                          Never use coloured output. NO_COLOR=1 does the same.
   -h, --help                          Show this help text.
 
 Environment variables:
@@ -413,6 +562,9 @@ Environment variables:
   DUMMY_USER_PROFILE_NAME             Profile assigned to dummy users. Config: dummyUsers.profileName. Default: Standard User
   DUMMY_USER_PERMSET_ASSIGNMENTS      Permission sets per dummy user group, e.g. "PermA,PermB:user1,user2;PermC:user3".
                                       Config: dummyUsers.permissionSetAssignments
+  NO_COLOR                            Disable colours (https://no-color.org).
+  FORCE_COLOR                         Enable colours when output is not a terminal, e.g. in CI logs.
+  VERBOSE                             Same as --verbose when set to true.
 
 Examples:
   ./create-scratch-org.sh
@@ -850,8 +1002,8 @@ init_config() {
     mv "$temporary_file" "$CONFIG_FILE"
 
     echo ""
-    echo "${GREEN}Wrote $CONFIG_FILE.${RESET}"
-    echo "Keep installation keys in \$$PACKAGE_INSTALL_KEY_ENV_VAR or an approved secret store, never in this file."
+    echo "${GREEN}${ICON_OK}${RESET} Wrote $CONFIG_FILE."
+    info "Keep installation keys in \$$PACKAGE_INSTALL_KEY_ENV_VAR or an approved secret store, never in this file."
     ORG_ACTION="No org action. Configuration file written."
     add_action "Wrote $CONFIG_FILE"
 }
@@ -1133,10 +1285,10 @@ fetch_scratch_org_from_pool() {
     resolved_devhub="$(resolve_pool_devhub_username)"
 
     echo ""
-    echo "Fetching scratch org from sfp pool..."
-    echo "Pool tag: $POOL_TAG"
-    echo "DevHub:   $resolved_devhub"
-    echo "Alias:    $ORG_ALIAS"
+    step "Fetching scratch org from sfp pool..."
+    kv "Pool tag" "$POOL_TAG" 10
+    kv "DevHub" "$resolved_devhub" 10
+    kv "Alias" "$ORG_ALIAS" 10
 
     run_cmd sfp pool fetch \
         --tag "$POOL_TAG" \
@@ -1161,8 +1313,8 @@ try_fetch_scratch_org_from_pool() {
     local unused_count=""
 
     echo ""
-    echo "Checking sfp scratch org pool..."
-    echo "Pool tag: $POOL_TAG"
+    step "Checking sfp scratch org pool..."
+    kv "Pool tag" "$POOL_TAG" 10
 
     pool_output="$(get_pool_list_output)" || error $? "Failed to list sfp scratch org pool."
     echo "$pool_output"
@@ -1173,7 +1325,7 @@ try_fetch_scratch_org_from_pool() {
         warning "Could not parse unused scratch org count from sfp pool list output."
 
         if [[ "$FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY" == "true" ]]; then
-            echo "Falling back to normal scratch org creation."
+            info "Falling back to normal scratch org creation."
             return 1
         fi
 
@@ -1182,7 +1334,7 @@ try_fetch_scratch_org_from_pool() {
 
     if [[ "$unused_count" -gt 0 ]]; then
         echo ""
-        echo "${GREEN}Unused scratch orgs available in pool: $unused_count${RESET}"
+        success "Unused scratch orgs available in pool: $unused_count"
         fetch_scratch_org_from_pool
         return 0
     fi
@@ -1190,7 +1342,7 @@ try_fetch_scratch_org_from_pool() {
     warning "No unused scratch orgs available in pool."
 
     if [[ "$FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY" == "true" ]]; then
-        echo "Falling back to normal scratch org creation."
+        info "Falling back to normal scratch org creation."
         return 1
     fi
 
@@ -1349,10 +1501,6 @@ resolve_package_version() {
     local selected_json=""
     local latest_json=""
 
-    echo ""
-    echo "Resolving package version for $package_name from $PROJECT_FILE..."
-    echo "Requested version in project file: $requested_version"
-
     versions_json="$(get_package_versions_json "$package_name")" \
         || error $? "Failed to list package versions for $package_name"
 
@@ -1400,7 +1548,7 @@ warn_if_dependency_is_not_latest() {
     suggested_version_number="$(suggested_version_number_from_latest)"
 
     if [[ "$requested_base_version" != "$RESOLVED_LATEST_BASE_VERSION" ]]; then
-        warning "$package_name is not using the latest released version in $PROJECT_FILE. Defined: $requested_version. Latest released: $RESOLVED_LATEST_VERSION. Latest 04t: $RESOLVED_LATEST_SUBSCRIBER_PACKAGE_VERSION_ID. Suggested versionNumber: $suggested_version_number"
+        warning "$package_name is not on the latest released version. Defined: $requested_version. Latest: $RESOLVED_LATEST_VERSION ($RESOLVED_LATEST_SUBSCRIBER_PACKAGE_VERSION_ID). Suggested versionNumber: $suggested_version_number"
 
         PACKAGE_UPDATE_SUGGESTIONS+="$package_name|$requested_version|$suggested_version_number|$RESOLVED_LATEST_VERSION|$RESOLVED_LATEST_SUBSCRIBER_PACKAGE_VERSION_ID"$'\n'
     fi
@@ -1413,26 +1561,24 @@ print_package_update_suggestions() {
 
     if [[ -z "$PACKAGE_UPDATE_SUGGESTIONS" ]]; then
         echo ""
-        echo "${GREEN}All dependency versions in $PROJECT_FILE look up to date.${RESET}"
+        success "All dependency versions in $PROJECT_FILE look up to date."
         return 0
     fi
 
-    echo ""
-    echo "${YELLOW}Suggested dependency updates for $PROJECT_FILE:${RESET}"
-    echo ""
+    section "Suggested dependency updates for $PROJECT_FILE"
 
     while IFS='|' read -r package_name current_version suggested_version latest_version latest_04t; do
         [[ -z "$package_name" ]] && continue
 
-        echo "${YELLOW}$package_name${RESET}"
-        echo "  Current versionNumber:   $current_version"
-        echo "  Suggested versionNumber: $suggested_version"
-        echo "  Latest resolved version: $latest_version"
-        echo "  Latest 04t:              $latest_04t"
-        echo ""
+        item "${YELLOW}${ICON_UPDATE}${RESET} ${BOLD}$package_name${RESET}"
+        kv "Current versionNumber" "$current_version" 24
+        kv "Suggested versionNumber" "${GREEN}$suggested_version${RESET}" 24
+        kv "Latest resolved version" "$latest_version" 24
+        kv "Latest 04t" "$latest_04t" 24
     done <<< "$PACKAGE_UPDATE_SUGGESTIONS"
 
-    echo "${YELLOW}Dependency entries you can copy into $PROJECT_FILE:${RESET}"
+    echo ""
+    echo "${BOLD}Dependency entries you can copy into $PROJECT_FILE:${RESET}"
     echo ""
 
     while IFS='|' read -r package_name current_version suggested_version latest_version latest_04t; do
@@ -1447,7 +1593,7 @@ EOF_JSON
     done <<< "$PACKAGE_UPDATE_SUGGESTIONS"
 
     echo ""
-    echo "Copy the suggested versionNumber values into the matching dependency entries in $PROJECT_FILE."
+    info "Copy the suggested versionNumber values into the matching dependency entries in $PROJECT_FILE."
 }
 
 check_project_package_versions() {
@@ -1462,8 +1608,7 @@ check_project_package_versions() {
     local update_count=0
     local temp_file=""
 
-    echo ""
-    echo "Checking latest released package versions from $PROJECT_FILE..."
+    section "Latest released package versions from $PROJECT_FILE"
 
     while IFS=$'\t' read -r package_name current_version; do
         [[ -z "$package_name" ]] && continue
@@ -1479,22 +1624,24 @@ check_project_package_versions() {
         comparable_version="${current_version%.LATEST}"
         comparable_version="${comparable_version%.NEXT}"
         if [[ "$comparable_version" == "$latest_base" ]]; then
-            echo "- $package_name: ${current_version:-not configured} is current ($latest_version)"
+            success "$package_name: ${current_version:-not configured} is current ($latest_version)"
             continue
         fi
 
-        echo "- $package_name: ${current_version:-not configured} -> $latest_version"
+        echo "${YELLOW}${ICON_UPDATE}${RESET} $package_name: ${current_version:-not configured} -> ${GREEN}$latest_version${RESET}"
         updates_json="$(jq -n -c --argjson updates "$updates_json" --arg package "$package_name" --arg version "$latest_version" '$updates + {($package): $version}')"
         update_count=$((update_count + 1))
     done < <(read_dependencies)
 
     if [[ "$update_count" -eq 0 ]]; then
-        echo "All configured package versions are current."
+        echo ""
+        success "All configured package versions are current."
         return 0
     fi
 
     if [[ "$APPLY_PROJECT_VERSIONS" != "true" || "$DRY_RUN" == "true" ]]; then
-        echo "Preview only: $update_count package constraint(s) can be updated. Use --apply-project-versions to write them."
+        echo ""
+        info "Preview only: $update_count package constraint(s) can be updated. Use --apply-project-versions to write them."
         return 0
     fi
 
@@ -1517,7 +1664,8 @@ check_project_package_versions() {
     mv -f "$temp_file" "$PROJECT_FILE" \
         || { rm -f "$temp_file"; error 1 "Could not replace $PROJECT_FILE"; }
 
-    echo "Updated $update_count package constraint(s). Backup: ${PROJECT_FILE}.backup"
+    echo ""
+    success "Updated $update_count package constraint(s). Backup: ${PROJECT_FILE}.backup"
 }
 
 run_coverage_check() {
@@ -1532,9 +1680,8 @@ run_coverage_check() {
     local escaped_pattern="$(printf '%s' "$COVERAGE_CLASS_PATTERN" | sed -e 's/\\/\\\\/g' -e "s/'/\\\\&/g")"
     local query="SELECT SUM(NumLinesCovered) covered, SUM(NumLinesUncovered) uncovered FROM ApexCodeCoverageAggregate WHERE ApexClassOrTrigger.Name LIKE '$escaped_pattern'"
 
-    echo ""
-    echo "Post-package coverage check for $TARGET_ORG"
-    echo "Required coverage: $COVERAGE_MINIMUM%"
+    section "Post-package coverage check for $TARGET_ORG"
+    kv "Required coverage" "$COVERAGE_MINIMUM%" 18
 
     if [[ -n "$COVERAGE_PACKAGE_ID" && "$COVERAGE_SKIP_INSTALL" != "true" ]]; then
         if [[ -n "$PACKAGE_INSTALL_KEY" ]]; then
@@ -1546,7 +1693,7 @@ run_coverage_check() {
         fi
         run_cmd sf "${install_arguments[@]}" || error $? "Package installation failed before coverage check."
     elif [[ -z "$COVERAGE_PACKAGE_ID" && "$COVERAGE_SKIP_INSTALL" != "true" ]]; then
-        echo "Skipping package install: no coverage package ID was provided."
+        skipped "Skipping package install: no coverage package ID was provided."
     fi
 
     if [[ "$COVERAGE_SKIP_DEPLOY" != "true" ]]; then
@@ -1603,12 +1750,13 @@ run_coverage_check() {
     uncovered="$(jq -r '.result.records[0].uncovered // 0' <<< "$coverage_json")"
     percentage="$(awk -v covered="$covered" -v uncovered="$uncovered" 'BEGIN { total = covered + uncovered; if (total > 0) printf "%.2f", covered / total * 100; else printf "0.00" }')"
 
-    echo "Apex coverage: $percentage% ($covered covered, $uncovered uncovered)"
+    echo ""
+    step "Apex coverage: $percentage% ($covered covered, $uncovered uncovered)"
     ORG_ACTION="Completed coverage check for $TARGET_ORG: $percentage%"
     if ! awk -v percentage="$percentage" -v minimum="$COVERAGE_MINIMUM" 'BEGIN { exit !(percentage >= minimum) }'; then
         error 1 "Coverage $percentage% is below the required $COVERAGE_MINIMUM%."
     fi
-    echo "${GREEN}Coverage is at or above $COVERAGE_MINIMUM%.${RESET}"
+    success "Coverage is at or above $COVERAGE_MINIMUM%."
 }
 
 get_installed_packages_json() {
@@ -1618,8 +1766,7 @@ get_installed_packages_json() {
 }
 
 load_installed_packages() {
-    echo ""
-    echo "Reading installed packages from org: $TARGET_ORG"
+    step "Reading installed packages from org: $TARGET_ORG"
 
     if [[ "$ORG_AVAILABLE_FOR_READ" != "true" ]]; then
         warning "Org was not actually created or fetched in this run. Assuming no installed packages for planning."
@@ -1724,6 +1871,7 @@ install_resolved_package() {
     local attempt=""
     local output=""
     local status=0
+    local label=""
 
     local install_args=(
         package install
@@ -1748,20 +1896,26 @@ install_resolved_package() {
     fi
 
     for ((attempt = 1; attempt <= max_attempts; attempt++)); do
-        output=""
         status=0
-
-        set +e
-        output="$(sf "${install_args[@]}" 2>&1)"
-        status=$?
-        set -e
-
-        if [[ -n "$output" ]]; then
-            echo "$output"
+        label="Installing $package_name $RESOLVED_SELECTED_VERSION"
+        if (( attempt > 1 )); then
+            label+=" (attempt $attempt/$max_attempts)"
         fi
 
+        run_with_progress "$label" sf "${install_args[@]}" || status=$?
+        output="$PROGRESS_OUTPUT"
+
         if [[ "$status" -eq 0 ]]; then
+            if [[ "$VERBOSE" == "true" && -n "$output" ]]; then
+                indent_output "$output"
+            fi
+            success "Installed $package_name $RESOLVED_SELECTED_VERSION ${DIM}in $PROGRESS_DURATION${RESET}"
             return 0
+        fi
+
+        failure "Install of $package_name failed after $PROGRESS_DURATION (attempt $attempt/$max_attempts). Salesforce CLI output:"
+        if [[ -n "$output" ]]; then
+            indent_output "$output"
         fi
 
         if (( attempt < max_attempts )) && is_retryable_package_install_failure "$output"; then
@@ -1776,7 +1930,7 @@ install_resolved_package() {
 
 delete_existing_scratch_org() {
     echo ""
-    echo "Deleting existing scratch org, if it exists: $ORG_ALIAS"
+    step "Deleting existing scratch org, if it exists: $ORG_ALIAS"
 
     if [[ "$DRY_RUN" == "true" ]]; then
         run_cmd sf org delete scratch \
@@ -1793,6 +1947,7 @@ delete_existing_scratch_org() {
 
         ORG_ACTION="Attempted to delete scratch org: $ORG_ALIAS"
         add_action "Deleted scratch org if it existed: $ORG_ALIAS"
+        success "Old scratch org removed (if it existed)."
     fi
 }
 
@@ -1855,14 +2010,14 @@ clear_dependency_package_directories() {
 
     if [[ ${#package_names[@]} -eq 0 ]]; then
         echo ""
-        echo "No dependency package directories to clear."
+        skipped "No dependency package directories to clear."
         return 0
     fi
 
     project_root="$(cd "$(project_root_dir)" && pwd -P)"
 
-    echo ""
-    echo "Clearing dependency package directories (keeping: ${PRESERVE_ROOT_FILES:-nothing})..."
+    section "Clearing dependency package directories"
+    info "Keeping: ${PRESERVE_ROOT_FILES:-nothing}"
 
     for package_name in "${package_names[@]}"; do
         package_dir="$(dependency_package_directory "$package_name")"
@@ -1876,7 +2031,7 @@ clear_dependency_package_directories() {
         fi
 
         if [[ ! -d "$package_dir" ]]; then
-            echo "- Skipping missing directory: $package_dir"
+            skipped "Skipping missing directory: $package_dir"
             continue
         fi
 
@@ -1886,7 +2041,7 @@ clear_dependency_package_directories() {
         fi
 
         if [[ "$DRY_RUN" == "true" ]]; then
-            echo "- Dry-run: would clear contents of $package_dir except ${PRESERVE_ROOT_FILES:-nothing}"
+            info "Dry-run: would clear contents of $package_dir except ${PRESERVE_ROOT_FILES:-nothing}"
             continue
         fi
 
@@ -1895,7 +2050,7 @@ clear_dependency_package_directories() {
             rm -rf -- "$child"
         done < <(find "$resolved_dir" -mindepth 1 -maxdepth 1 -print0)
 
-        echo "- Cleared contents of $package_dir except ${PRESERVE_ROOT_FILES:-nothing}"
+        success "Cleared contents of $package_dir except ${PRESERVE_ROOT_FILES:-nothing}"
     done
 
     add_action "Cleared dependency package directories"
@@ -1906,12 +2061,12 @@ temporarily_disable_forceignore() {
     local backup_path=".forceignore.disabled"
 
     if [[ ! -f "$forceignore_path" ]]; then
-        echo "- No .forceignore file present; nothing to disable."
+        info "No .forceignore file present; nothing to disable."
         return 0
     fi
 
     if [[ "$DRY_RUN" == "true" ]]; then
-        echo "- Dry-run: would temporarily disable $forceignore_path"
+        info "Dry-run: would temporarily disable $forceignore_path"
         return 0
     fi
 
@@ -1920,7 +2075,7 @@ temporarily_disable_forceignore() {
     fi
 
     mv "$forceignore_path" "$backup_path"
-    echo "- Temporarily disabled $forceignore_path"
+    info "Temporarily disabled $forceignore_path"
 }
 
 restore_forceignore() {
@@ -1929,18 +2084,18 @@ restore_forceignore() {
 
     if [[ ! -f "$backup_path" ]]; then
         if [[ -f "$forceignore_path" ]]; then
-            echo "- .forceignore already active; nothing to restore."
+            info ".forceignore already active; nothing to restore."
         fi
         return 0
     fi
 
     if [[ "$DRY_RUN" == "true" ]]; then
-        echo "- Dry-run: would restore $backup_path to $forceignore_path"
+        info "Dry-run: would restore $backup_path to $forceignore_path"
         return 0
     fi
 
     mv "$backup_path" "$forceignore_path"
-    echo "- Restored $forceignore_path"
+    info "Restored $forceignore_path"
 }
 
 retrieve_dependency_packages() {
@@ -1954,21 +2109,21 @@ retrieve_dependency_packages() {
 
     if [[ ${#package_names[@]} -eq 0 ]]; then
         echo ""
-        echo "No dependency packages available for retrieve."
+        skipped "No dependency packages available for retrieve."
         return 0
     fi
 
-    echo ""
-    echo "Retrieving dependency package metadata after setup..."
+    step "Retrieving dependency package metadata after setup..."
 
     temporarily_disable_forceignore
 
+    local index=0
     for package_name in "${package_names[@]}"; do
-        echo ""
-        echo "Retrieving package: $package_name"
+        index=$((index + 1))
+        item "$(counter "$index" "${#package_names[@]}") $package_name"
 
         if [[ "$DRY_RUN" == "true" ]]; then
-            echo "- Dry-run: would run sf project retrieve start --target-org $TARGET_ORG -n $package_name"
+            info "Dry-run: would run sf project retrieve start --target-org $TARGET_ORG -n $package_name"
             continue
         fi
 
@@ -1979,7 +2134,7 @@ retrieve_dependency_packages() {
             error 1 "Failed to retrieve package $package_name from org: $TARGET_ORG"
         fi
 
-        echo "- Retrieved package: $package_name"
+        success "Retrieved package: $package_name"
     done
 
     restore_forceignore
@@ -1988,7 +2143,7 @@ retrieve_dependency_packages() {
 
 create_scratch_org() {
     echo ""
-    echo "Creating scratch org: $ORG_ALIAS"
+    step "Creating scratch org: $ORG_ALIAS"
 
     run_cmd sf org create scratch \
         --set-default \
@@ -2010,10 +2165,10 @@ create_scratch_org() {
 
 setup_org() {
     if [[ "$RUN_ORG_CREATE" != "true" ]]; then
-        echo ""
-        echo "Skipping scratch org delete/create/fetch."
         return 0
     fi
+
+    phase "Scratch org"
 
     if [[ "$REFRESH_DEPENDENCY_SOURCES" == "true" ]]; then
         clear_dependency_package_directories
@@ -2022,7 +2177,7 @@ setup_org() {
     if [[ "$USE_POOL" == "true" ]]; then
         if try_fetch_scratch_org_from_pool; then
             echo ""
-            echo "${GREEN}Using scratch org fetched from pool.${RESET}"
+            success "Using scratch org fetched from pool."
             return 0
         fi
     fi
@@ -2031,58 +2186,68 @@ setup_org() {
     create_scratch_org
 }
 
+print_package_header() {
+    local index="$1"
+    local total="$2"
+    local package_name="$3"
+    local requested_version="$4"
+
+    item "$(counter "$index" "$total") ${BOLD}$package_name${RESET}"
+    kv "Defined version" "$requested_version" 18
+    kv "Target version" "$RESOLVED_SELECTED_VERSION" 18
+    kv "Target 04t" "$RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID" 18
+}
+
+print_package_mode() {
+    local verb="$1"
+    if [[ "$INSTALL_LATEST_PACKAGES" == "true" ]]; then
+        info "$verb mode: latest released package versions"
+    else
+        info "$verb mode: versions defined in $PROJECT_FILE"
+    fi
+}
+
 install_packages() {
     local count=""
+    local index=0
     count="$(dependency_count)"
 
     if [[ "$count" -eq 0 ]]; then
-        echo ""
-        echo "No package dependencies declared in $PROJECT_FILE. Nothing to install."
+        skipped "No package dependencies declared in $PROJECT_FILE. Nothing to install."
         return 0
     fi
 
-    echo ""
-    echo "Installing package dependencies from $PROJECT_FILE..."
-
-    if [[ "$INSTALL_LATEST_PACKAGES" == "true" ]]; then
-        echo "Install mode: latest released package versions"
-    else
-        echo "Install mode: versions defined in $PROJECT_FILE"
-    fi
+    step "Installing $count package dependencies from $PROJECT_FILE"
+    print_package_mode "Install"
 
     load_installed_packages
 
     while IFS=$'\t' read -r package_name requested_version; do
         [[ -z "$package_name" ]] && continue
+        index=$((index + 1))
 
         resolve_package_version "$package_name" "$requested_version"
-        warn_if_dependency_is_not_latest "$package_name" "$requested_version"
 
         local installed_json=""
         local installed_04t=""
 
         installed_json="$(installed_package_json "$package_name")"
 
-        echo ""
-        echo "Installing $package_name"
-        echo "Defined version:  $requested_version"
-        echo "Resolved version: $RESOLVED_SELECTED_VERSION"
-        echo "Package ID:       $RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID"
+        print_package_header "$index" "$count" "$package_name" "$requested_version"
+        warn_if_dependency_is_not_latest "$package_name" "$requested_version"
 
         if [[ -n "$installed_json" && "$installed_json" != "null" ]]; then
             installed_04t="$(installed_package_04t "$installed_json")"
-            echo "Installed 04t:    ${installed_04t:-unknown}"
+            kv "Installed 04t" "${installed_04t:-unknown}" 18
 
             if [[ "$installed_04t" == "$RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID" ]]; then
-                echo "${GREEN}Package is already on target 04t. Skipping.${RESET}"
+                skipped "Package is already on target 04t. Skipping."
                 add_package_skipped "$package_name $RESOLVED_SELECTED_VERSION"
                 continue
             fi
         else
-            echo "Installed 04t:    not installed"
+            kv "Installed 04t" "not installed" 18
         fi
-
-        echo "${YELLOW}Package is missing target 04t. Installing.${RESET}"
 
         install_resolved_package "$package_name"
         add_package_installed "$package_name $RESOLVED_SELECTED_VERSION"
@@ -2092,30 +2257,24 @@ install_packages() {
 
 update_packages() {
     local count=""
+    local index=0
     count="$(dependency_count)"
 
     if [[ "$count" -eq 0 ]]; then
-        echo ""
-        echo "No package dependencies declared in $PROJECT_FILE. Nothing to update."
+        skipped "No package dependencies declared in $PROJECT_FILE. Nothing to update."
         return 0
     fi
 
-    echo ""
-    echo "Checking and updating package dependencies from $PROJECT_FILE..."
-
-    if [[ "$INSTALL_LATEST_PACKAGES" == "true" ]]; then
-        echo "Update mode: latest released package versions"
-    else
-        echo "Update mode: versions defined in $PROJECT_FILE"
-    fi
+    step "Checking and updating $count package dependencies from $PROJECT_FILE"
+    print_package_mode "Update"
 
     load_installed_packages
 
     while IFS=$'\t' read -r package_name requested_version; do
         [[ -z "$package_name" ]] && continue
+        index=$((index + 1))
 
         resolve_package_version "$package_name" "$requested_version"
-        warn_if_dependency_is_not_latest "$package_name" "$requested_version"
 
         local installed_json=""
         local installed_version=""
@@ -2124,14 +2283,11 @@ update_packages() {
 
         installed_json="$(installed_package_json "$package_name")"
 
-        echo ""
-        echo "Checking $package_name"
-        echo "Defined version:   $requested_version"
-        echo "Target version:    $RESOLVED_SELECTED_VERSION"
-        echo "Target 04t:        $RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID"
+        print_package_header "$index" "$count" "$package_name" "$requested_version"
+        warn_if_dependency_is_not_latest "$package_name" "$requested_version"
 
         if [[ -z "$installed_json" || "$installed_json" == "null" ]]; then
-            echo "${YELLOW}Package is not installed. Installing target version.${RESET}"
+            kv "Installed version" "not installed" 18
             add_package_missing "$package_name target=$RESOLVED_SELECTED_VERSION"
             install_resolved_package "$package_name"
             add_package_installed "$package_name $RESOLVED_SELECTED_VERSION"
@@ -2141,17 +2297,17 @@ update_packages() {
         installed_version="$(installed_package_version "$installed_json")"
         installed_04t="$(installed_package_04t "$installed_json")"
 
-        echo "Installed version: $installed_version"
-        echo "Installed 04t:     ${installed_04t:-unknown}"
+        kv "Installed version" "$installed_version" 18
+        kv "Installed 04t" "${installed_04t:-unknown}" 18
 
         comparison="$(compare_versions "$installed_version" "$RESOLVED_SELECTED_VERSION")"
 
         if [[ "$comparison" == "-1" ]]; then
-            echo "${YELLOW}Installed version is lower than target version. Installing update.${RESET}"
+            echo "${BLUE}${ICON_UPDATE}${RESET} Installed version is lower than target version. Installing update."
             install_resolved_package "$package_name"
             add_package_updated "$package_name $installed_version -> $RESOLVED_SELECTED_VERSION"
         elif [[ "$comparison" == "0" ]]; then
-            echo "${GREEN}Package is already on target version. Skipping.${RESET}"
+            skipped "Package is already on target version. Skipping."
             add_package_skipped "$package_name $installed_version"
         else
             warning "$package_name has a higher version installed than the target version. Installed: $installed_version. Target: $RESOLVED_SELECTED_VERSION. Skipping downgrade."
@@ -2162,8 +2318,7 @@ update_packages() {
 }
 
 deploy_metadata() {
-    echo ""
-    echo "Deploying metadata..."
+    step "Deploying metadata..."
 
     run_cmd sf project deploy start \
         --target-org "$TARGET_ORG" \
@@ -2174,8 +2329,7 @@ deploy_metadata() {
 }
 
 reset_source_tracking() {
-    echo ""
-    echo "Resetting source tracking..."
+    step "Resetting source tracking..."
 
     run_cmd sf project reset tracking \
         --target-org "$TARGET_ORG" \
@@ -2190,8 +2344,7 @@ assign_permission_sets() {
     local permission_set=""
     local -a name_flags=()
 
-    echo ""
-    echo "Assigning permission sets..."
+    step "Assigning permission sets..."
 
     for permission_set in ${PERMISSION_SETS//,/ }; do
         name_flags+=(--name "$permission_set")
@@ -2206,8 +2359,7 @@ assign_permission_sets() {
 }
 
 import_dummy_data() {
-    echo ""
-    echo "Importing dummy data..."
+    step "Importing dummy data..."
 
     run_cmd sf data import tree \
         --target-org "$TARGET_ORG" \
@@ -2221,16 +2373,15 @@ import_dummy_data() {
 }
 
 import_dummy_users() {
-    echo ""
-    echo "Importing dummy users..."
+    step "Importing dummy users..."
 
     if [[ -z "$DUMMY_USER_FILE" ]]; then
-        echo "No dummy user file configured (dummyUsers.file / DUMMY_USER_FILE). Skipping dummy user import."
+        skipped "No dummy user file configured (dummyUsers.file / DUMMY_USER_FILE). Skipping dummy user import."
         return 0
     fi
 
     if [[ ! -f "$DUMMY_USER_FILE" ]]; then
-        echo "No dummy user file found at $DUMMY_USER_FILE. Skipping dummy user import."
+        skipped "No dummy user file found at $DUMMY_USER_FILE. Skipping dummy user import."
         return 0
     fi
 
@@ -2239,7 +2390,7 @@ import_dummy_users() {
     if [[ "$DRY_RUN" == "true" ]]; then
         local profile_names
         profile_names="$(jq -r --arg default "$DUMMY_USER_PROFILE_NAME" --argjson assignments "$DUMMY_PROFILE_ASSIGNMENTS_JSON" '[ $default, $assignments[]?.profileName ] | unique | join(", ")' "$DUMMY_USER_FILE")"
-        echo "${YELLOW}[dry-run] Would resolve profile(s) ${profile_names} and import missing users from $DUMMY_USER_FILE${RESET}"
+        echo "  ${YELLOW}[dry-run] Would resolve profile(s) ${profile_names} and import missing users from $DUMMY_USER_FILE${RESET}"
         return 0
     fi
 
@@ -2277,7 +2428,7 @@ import_dummy_users() {
     username_in_clause="$(jq -r "$SOQL_STRING_JQ"' [.records[].Username | strings] | map(soql_string) | join(",")' "$DUMMY_USER_FILE")"
 
     if [[ -z "$username_in_clause" ]]; then
-        echo "No usernames found in $DUMMY_USER_FILE. Skipping dummy user import."
+        skipped "No usernames found in $DUMMY_USER_FILE. Skipping dummy user import."
         return 0
     fi
 
@@ -2310,12 +2461,12 @@ import_dummy_users() {
     remaining="$(jq '.records | length' "$tmp_user_file")"
 
     if [[ "$remaining" -eq 0 ]]; then
-        echo "All dummy users already exist in $TARGET_ORG. Skipping creation."
+        skipped "All dummy users already exist in $TARGET_ORG. Skipping creation."
         rm -f "$tmp_user_file"
         return 0
     fi
 
-    echo "Creating $remaining dummy user(s) with configured profile(s)."
+    info "Creating $remaining dummy user(s) with configured profile(s)."
 
     if ! sf data import tree --target-org "$TARGET_ORG" --files "$tmp_user_file"; then
         rm -f "$tmp_user_file"
@@ -2323,6 +2474,7 @@ import_dummy_users() {
     fi
 
     rm -f "$tmp_user_file"
+    success "Imported $remaining dummy user(s)."
     add_action "Imported $remaining dummy user(s) into $TARGET_ORG"
 }
 
@@ -2342,7 +2494,7 @@ assign_permset_to_users() {
     done
 
     if [[ "$DRY_RUN" == "true" ]]; then
-        echo "${YELLOW}[dry-run] Would run:${RESET} $(format_command sf org assign permset --target-org "$TARGET_ORG" "${name_flags[@]}" "${behalf_flags[@]}")"
+        echo "  ${YELLOW}[dry-run] Would run:${RESET} ${DIM}$(format_command sf org assign permset --target-org "$TARGET_ORG" "${name_flags[@]}" "${behalf_flags[@]}")${RESET}"
         return 0
     fi
 
@@ -2351,6 +2503,7 @@ assign_permset_to_users() {
     output="$(sf org assign permset --target-org "$TARGET_ORG" "${name_flags[@]}" "${behalf_flags[@]}" --json 2>&1 | sed -n '/^{/,$p')" || exit_code=$?
 
     if [[ "$exit_code" -eq 0 ]]; then
+        success "Assigned [$permset_list] to: $username_list"
         add_action "Assigned permission set(s) [$permset_list] to: $username_list"
         return 0
     fi
@@ -2359,11 +2512,11 @@ assign_permset_to_users() {
     non_duplicate_failures="$(echo "$output" | jq -r '[.result.failures[]?.message // empty] | map(select(contains("Duplicate PermissionSetAssignment") | not)) | length' 2>/dev/null || echo "1")"
 
     if [[ "$non_duplicate_failures" == "0" ]]; then
-        echo "Permission set(s) [$permset_list] already assigned to some/all of: $username_list. Skipping."
+        skipped "Permission set(s) [$permset_list] already assigned to some/all of: $username_list. Skipping."
         return 0
     fi
 
-    echo "$output"
+    indent_output "$output"
     error "$exit_code" '"sf org assign permset" command failed for dummy users.'
 }
 
@@ -2371,16 +2524,15 @@ assign_dummy_user_permission_sets() {
     local permission_sets=""
     local usernames=""
 
-    echo ""
-    echo "Assigning permission sets to dummy users..."
+    step "Assigning permission sets to dummy users..."
 
     if [[ -z "$DUMMY_USER_FILE" || ! -f "$DUMMY_USER_FILE" ]]; then
-        echo "No dummy user file found. Skipping dummy user permission set assignment."
+        skipped "No dummy user file found. Skipping dummy user permission set assignment."
         return 0
     fi
 
     if [[ -z "$DUMMY_USER_ASSIGNMENTS" ]]; then
-        echo "No dummy user permission set assignments configured (dummyUsers.permissionSetAssignments). Skipping."
+        skipped "No dummy user permission set assignments configured (dummyUsers.permissionSetAssignments). Skipping."
         return 0
     fi
 
@@ -2393,8 +2545,7 @@ assign_dummy_user_permission_sets() {
 }
 
 publish_community() {
-    echo ""
-    echo "Publishing community: $COMMUNITY_NAME"
+    step "Publishing community: $COMMUNITY_NAME"
 
     run_cmd sf community publish \
         --target-org "$TARGET_ORG" \
@@ -2415,8 +2566,7 @@ run_custom_post_step() {
         step_arguments+=("$argument")
     done < <(jq -j --arg name "$step_name" 'first(.customPostSteps[]? | select(.name == $name)) | (.arguments // [])[] | . + "\u0000"' "$CONFIG_FILE")
 
-    echo ""
-    echo "Running custom post step: $step_name"
+    step "Running custom post step: $step_name"
 
     run_cmd run_in_project_root "$executable" "${step_arguments[@]}" \
         || error $? "Custom post step \"$step_name\" failed."
@@ -2498,47 +2648,52 @@ run_self_check() {
     }
 
     print_self_check_summary() {
+        local status_colour=""
+        local status_icon=""
+
+        section "Self-check summary"
+        printf '  %s%s %-8s%s %s%s %-8s%s %s%s %-8s%s %s\n' \
+            "$GREEN" "$ICON_OK" "$checks_passed passed" "$RESET" \
+            "$RED" "$ICON_FAIL" "$checks_failed failed" "$RESET" \
+            "$DIM" "$ICON_SKIP" "$checks_skipped skipped" "$RESET" \
+            "${DIM}($checks_total total)${RESET}"
         echo ""
-        echo "Self-check summary"
-        echo "- Total:   $checks_total"
-        echo "- Passed:  $checks_passed"
-        echo "- Failed:  $checks_failed"
-        echo "- Skipped: $checks_skipped"
-        echo ""
-        printf "%-6s | %-30s | %s\n" "Status" "Check" "Details"
-        printf "%-6s-+-%-30s-+-%s\n" "------" "------------------------------" "------------------------------"
+        printf "  %-8s | %-30s | %s\n" "Status" "Check" "Details"
+        printf "  %-8s-+-%-30s-+-%s\n" "--------" "------------------------------" "------------------------------"
 
         while IFS='|' read -r status name detail; do
             [[ -z "$status" ]] && continue
-            printf "%-6s | %-30s | %s\n" "$status" "$name" "$detail"
+            case "$status" in
+                PASS) status_colour="$GREEN" status_icon="$ICON_OK" ;;
+                FAIL) status_colour="$RED" status_icon="$ICON_FAIL" ;;
+                *) status_colour="$DIM" status_icon="$ICON_SKIP" ;;
+            esac
+            printf "  %s%s %-6s%s | %-30s | %s\n" "$status_colour" "$status_icon" "$status" "$RESET" "$name" "$detail"
         done <<< "$summary_rows"
     }
 
-    echo ""
-    echo "${GREEN}Running self-check...${RESET}"
-    echo ""
-    echo "Bash version:              ${BASH_VERSION:-unknown}"
-    echo "Script file:               $0"
-    echo "Working directory:         $(pwd)"
-    echo "Org alias:                 $ORG_ALIAS"
-    echo "Project file:              $PROJECT_FILE"
-    echo "Scratch definition file:   $SCRATCH_DEF_FILE"
-    echo "Post steps:                $POST_STEPS"
-    echo "Post steps only mode:      $POST_STEPS_ONLY_MODE"
-    echo "Use pool:                  $USE_POOL"
-    echo "Install latest packages:   $INSTALL_LATEST_PACKAGES"
-    echo ""
-    echo "Requested mode (before self-check safety overrides):"
-    echo "- Run org create/fetch:    $requested_run_org_create"
-    echo "- Run packages:            $requested_run_packages"
-    echo "- Update packages only:    $requested_update_packages_only"
-    echo "- Package plan only:       $requested_package_plan_only"
-    echo "- Use pool:                $requested_use_pool"
-    echo "- Post steps:              $requested_post_steps"
-    echo "- Install latest packages: $requested_install_latest_packages"
-    echo ""
+    banner "Self-check"
+    kv "Bash version" "${BASH_VERSION:-unknown}"
+    kv "Script file" "$0"
+    kv "Working directory" "$(pwd)"
+    kv "Org alias" "$ORG_ALIAS"
+    kv "Project file" "$PROJECT_FILE"
+    kv "Scratch definition file" "$SCRATCH_DEF_FILE"
+    kv "Post steps" "$POST_STEPS"
+    kv "Post steps only mode" "$POST_STEPS_ONLY_MODE"
+    kv "Use pool" "$USE_POOL"
+    kv "Install latest packages" "$INSTALL_LATEST_PACKAGES"
 
-    echo "Checking required commands..."
+    section "Requested mode (before self-check safety overrides)"
+    kv "Run org create/fetch" "$requested_run_org_create"
+    kv "Run packages" "$requested_run_packages"
+    kv "Update packages only" "$requested_update_packages_only"
+    kv "Package plan only" "$requested_package_plan_only"
+    kv "Use pool" "$requested_use_pool"
+    kv "Post steps" "$requested_post_steps"
+    kv "Install latest packages" "$requested_install_latest_packages"
+
+    section "Required commands"
     if command -v sf >/dev/null 2>&1; then
         echo "${GREEN}OK:${RESET} sf"
     else
@@ -2579,8 +2734,7 @@ run_self_check() {
         add_summary_row "FAIL" "Required commands" "$command_failures required command check(s) failed."
     fi
 
-    echo ""
-    echo "Checking Salesforce CLI access..."
+    section "Salesforce CLI access"
     if sf org list --json >/dev/null 2>&1; then
         echo "${GREEN}OK:${RESET} sf org list --json"
         add_summary_row "PASS" "Salesforce CLI session" "sf org list --json succeeded."
@@ -2591,8 +2745,7 @@ run_self_check() {
     fi
 
     if [[ "$requested_use_pool" == "true" && "$requested_run_org_create" == "true" ]]; then
-        echo ""
-        echo "Checking pool access (read-only)..."
+        section "Pool access (read-only)"
 
         local resolved_devhub_for_check=""
         if resolved_devhub_for_check="$(resolve_pool_devhub_username_for_check)"; then
@@ -2618,8 +2771,7 @@ run_self_check() {
         requested_needs_project_file=true
     fi
 
-    echo ""
-    echo "Checking files..."
+    section "Files"
     if [[ "$requested_needs_project_file" == "true" ]]; then
         if [[ -f "$PROJECT_FILE" ]]; then
             echo "${GREEN}OK:${RESET} $PROJECT_FILE exists"
@@ -2636,7 +2788,7 @@ run_self_check() {
             file_failures=$((file_failures + 1))
         fi
     else
-        echo "Project file check skipped (no package operations requested)."
+        skipped "Project file check skipped (no package operations requested)."
     fi
 
     if [[ "$requested_run_org_create" == "true" && ( "$requested_use_pool" != "true" || "$FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY" == "true" ) ]]; then
@@ -2661,7 +2813,7 @@ run_self_check() {
     fi
 
     if [[ "$requested_data_step" == "true" && -z "$DUMMY_DATA_PLAN" ]]; then
-        echo "Dummy data plan check skipped (no dummy data plan configured)."
+        skipped "Dummy data plan check skipped (no dummy data plan configured)."
     elif [[ "$requested_data_step" == "true" ]]; then
         if [[ -f "$DUMMY_DATA_PLAN" ]]; then
             echo "${GREEN}OK:${RESET} $DUMMY_DATA_PLAN exists"
@@ -2694,8 +2846,7 @@ run_self_check() {
     fi
 
     if [[ "$requested_requires_org_access" == "true" ]]; then
-        echo ""
-        echo "Checking target org access (read-only)..."
+        section "Target org access (read-only)"
         if sf org display --target-org "$TARGET_ORG" --json >/dev/null 2>&1; then
             echo "${GREEN}OK:${RESET} sf org display --target-org $TARGET_ORG"
             add_summary_row "PASS" "Target org access" "Target org $TARGET_ORG is readable."
@@ -2709,13 +2860,12 @@ run_self_check() {
     fi
 
     if [[ "$requested_needs_project_file" == "true" && -f "$PROJECT_FILE" ]]; then
-        echo ""
-        echo "Checking package dependencies and version resolution..."
+        section "Package dependencies and version resolution"
         package_count="$(dependency_count 2>/dev/null || echo 0)"
-        echo "Dependencies found: $package_count"
+        kv "Dependencies found" "$package_count"
 
         if [[ "$package_count" -eq 0 ]]; then
-            echo "No package dependencies declared in $PROJECT_FILE."
+            skipped "No package dependencies declared in $PROJECT_FILE."
             add_summary_row "SKIP" "Package resolution" "No package dependencies declared."
         else
             while IFS=$'\t' read -r package_name requested_version; do
@@ -2797,8 +2947,6 @@ run_self_check() {
 
     if [[ "$failures" -gt 0 ]]; then
         ORG_ACTION="No org action. Self-check failed."
-        echo ""
-        echo "${RED}Self-check failed with $failures issue(s).${RESET}"
         error 1 "Self-check found $failures issue(s)."
     fi
 
@@ -2806,37 +2954,31 @@ run_self_check() {
     add_action "Self-check completed"
 
     echo ""
-    echo "${GREEN}Self-check completed successfully.${RESET}"
-    echo "No orgs were created, deleted, fetched, deployed to, or modified."
-    echo ""
+    success "${GREEN}${BOLD}Self-check completed successfully.${RESET}"
+    info "No orgs were created, deleted, fetched, deployed to, or modified."
 }
 
 package_plan() {
     local count=""
+    local index=0
     count="$(dependency_count)"
 
     if [[ "$count" -eq 0 ]]; then
         echo ""
-        echo "No package dependencies declared in $PROJECT_FILE. Nothing to plan."
+        skipped "No package dependencies declared in $PROJECT_FILE. Nothing to plan."
         return 0
     fi
 
-    echo ""
-    echo "${GREEN}Creating package plan for org: $ORG_ALIAS${RESET}"
-
-    if [[ "$INSTALL_LATEST_PACKAGES" == "true" ]]; then
-        echo "Plan mode: latest released package versions"
-    else
-        echo "Plan mode: versions defined in $PROJECT_FILE"
-    fi
+    section "Package plan for org: $TARGET_ORG"
+    print_package_mode "Plan"
 
     load_installed_packages
 
     while IFS=$'\t' read -r package_name requested_version; do
         [[ -z "$package_name" ]] && continue
+        index=$((index + 1))
 
         resolve_package_version "$package_name" "$requested_version"
-        warn_if_dependency_is_not_latest "$package_name" "$requested_version"
 
         local installed_json=""
         local installed_version=""
@@ -2845,20 +2987,17 @@ package_plan() {
 
         installed_json="$(installed_package_json "$package_name")"
 
-        echo ""
-        echo "Package:           $package_name"
-        echo "Defined version:   $requested_version"
-        echo "Target version:    $RESOLVED_SELECTED_VERSION"
-        echo "Target 04t:        $RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID"
+        print_package_header "$index" "$count" "$package_name" "$requested_version"
+        warn_if_dependency_is_not_latest "$package_name" "$requested_version"
 
         if package_requires_key "$package_name"; then
-            echo "Install key:       required"
+            kv "Install key" "required" 18
         else
-            echo "Install key:       not required"
+            kv "Install key" "not required" 18
         fi
 
         if [[ -z "$installed_json" || "$installed_json" == "null" ]]; then
-            echo "${YELLOW}Plan:${RESET} package is missing and would be installed."
+            echo "${YELLOW}${ICON_INFO} Plan:${RESET} package is missing and would be installed."
             add_package_missing "$package_name target=$RESOLVED_SELECTED_VERSION"
             continue
         fi
@@ -2866,16 +3005,16 @@ package_plan() {
         installed_version="$(installed_package_version "$installed_json")"
         installed_04t="$(installed_package_04t "$installed_json")"
 
-        echo "Installed version: $installed_version"
-        echo "Installed 04t:     ${installed_04t:-unknown}"
+        kv "Installed version" "$installed_version" 18
+        kv "Installed 04t" "${installed_04t:-unknown}" 18
 
         comparison="$(compare_versions "$installed_version" "$RESOLVED_SELECTED_VERSION")"
 
         if [[ "$comparison" == "-1" ]]; then
-            echo "${YELLOW}Plan:${RESET} installed version is lower than target and would be updated."
+            echo "${BLUE}${ICON_UPDATE} Plan:${RESET} installed version is lower than target and would be updated."
             add_package_updated "$package_name would update $installed_version -> $RESOLVED_SELECTED_VERSION"
         elif [[ "$comparison" == "0" ]]; then
-            echo "${GREEN}Plan:${RESET} package is already on target version and would be skipped."
+            echo "${GREEN}${ICON_OK} Plan:${RESET} package is already on target version and would be skipped."
             add_package_skipped "$package_name $installed_version"
         else
             warning "$package_name has a higher version installed than the target version. Installed: $installed_version. Target: $RESOLVED_SELECTED_VERSION. Would skip downgrade."
@@ -2897,44 +3036,43 @@ print_settings() {
         config_display="$CONFIG_FILE (not found, using defaults)"
     fi
 
-    echo ""
-    echo "Scratch org setup settings:"
-    echo "Configuration file:            $config_display"
-    echo "Creation alias:                $ORG_ALIAS ($ORG_ALIAS_SOURCE)"
-    echo "Effective target org:          $TARGET_ORG"
-    echo "Target org source:             $TARGET_ORG_SOURCE"
-    echo "Duration days:                 $DURATION_DAYS"
-    echo "Definition file:               $SCRATCH_DEF_FILE"
-    echo "Project file:                  $PROJECT_FILE"
-    echo "Permission sets:               ${PERMISSION_SETS:-none}"
-    echo "Community name:                ${COMMUNITY_NAME:-none}"
-    echo "Dummy data plan:               ${DUMMY_DATA_PLAN:-none}"
-    echo "Dummy user file:               ${DUMMY_USER_FILE:-none}"
-    echo "Custom post steps:             ${CUSTOM_POST_STEP_NAMES:-none}"
-    echo "Package wait minutes:          $PACKAGE_WAIT_MINUTES"
-    echo "Package install max attempts:  $PACKAGE_INSTALL_MAX_ATTEMPTS"
-    echo "Package install retry delay s: $PACKAGE_INSTALL_RETRY_DELAY_SECONDS"
-    echo "Run org create/fetch:          $RUN_ORG_CREATE"
-    echo "Use pool:                      $USE_POOL"
-    echo "Pool tag:                      $POOL_TAG"
-    echo "Pool DevHub:                   $pool_devhub_display"
-    echo "Keychain service:              $keychain_service_display"
-    echo "Keychain account:              $keychain_account_display"
-    echo "Run packages:                  $RUN_PACKAGES"
-    echo "Post steps:                    $POST_STEPS"
-    echo "Verify package versions:       $VERIFY_PACKAGE_VERSIONS"
-    echo "Install latest packages:       $INSTALL_LATEST_PACKAGES"
-    echo "Delete org only:               $DELETE_ORG_ONLY"
-    echo "Update packages only:          $UPDATE_PACKAGES_ONLY"
-    echo "Self-check only:               $SELF_CHECK_ONLY"
-    echo "Dry-run:                       $DRY_RUN"
-    echo "Package plan only:             $PACKAGE_PLAN_ONLY"
-    echo "Refresh dependency sources:    $REFRESH_DEPENDENCY_SOURCES"
-    echo "Clear dependency sources only: $CLEAR_DEPENDENCY_SOURCES_ONLY"
-    echo "Packages not requiring key:    ${PACKAGES_NOT_REQUIRING_INSTALL_KEY:-from packageKeyConfig in $PROJECT_FILE}"
-    echo "Install key variable:          $PACKAGE_INSTALL_KEY_ENV_VAR"
-    echo "Preserved dependency files:    $PRESERVE_ROOT_FILES"
-    echo ""
+    banner "Scratch org setup"
+    kv "Active modes" "${BOLD}$(active_modes)${RESET}"
+    kv "Configuration file" "$config_display"
+
+    section "Target"
+    kv "Creation alias" "$ORG_ALIAS ${DIM}($ORG_ALIAS_SOURCE)${RESET}"
+    kv "Effective target org" "${BOLD}$TARGET_ORG${RESET}"
+    kv "Target org source" "$TARGET_ORG_SOURCE"
+
+    section "Scratch org"
+    kv "Create/fetch org" "$RUN_ORG_CREATE"
+    kv "Definition file" "$SCRATCH_DEF_FILE"
+    kv "Duration days" "$DURATION_DAYS"
+    kv "Use pool" "$USE_POOL"
+    if [[ "$USE_POOL" == "true" ]]; then
+        kv "Pool tag" "$POOL_TAG"
+        kv "Pool DevHub" "$pool_devhub_display"
+    fi
+
+    section "Project and packages"
+    kv "Project file" "$PROJECT_FILE"
+    kv "Install packages" "$RUN_PACKAGES"
+    kv "Verify package versions" "$VERIFY_PACKAGE_VERSIONS"
+    kv "Package wait minutes" "$PACKAGE_WAIT_MINUTES"
+    kv "Install attempts / delay" "$PACKAGE_INSTALL_MAX_ATTEMPTS / ${PACKAGE_INSTALL_RETRY_DELAY_SECONDS}s"
+    kv "Packages not requiring key" "${PACKAGES_NOT_REQUIRING_INSTALL_KEY:-from packageKeyConfig in $PROJECT_FILE}"
+    kv "Install key variable" "$PACKAGE_INSTALL_KEY_ENV_VAR"
+    kv "Keychain service/account" "$keychain_service_display / $keychain_account_display"
+    kv "Preserved dependency files" "$PRESERVE_ROOT_FILES"
+
+    section "Post-steps"
+    kv "Selected" "${BOLD}$POST_STEPS${RESET}"
+    kv "Permission sets" "${PERMISSION_SETS:-none}"
+    kv "Community name" "${COMMUNITY_NAME:-none}"
+    kv "Dummy data plan" "${DUMMY_DATA_PLAN:-none}"
+    kv "Dummy user file" "${DUMMY_USER_FILE:-none}"
+    kv "Custom post steps" "${CUSTOM_POST_STEP_NAMES:-none}"
 }
 
 # -----------------------------
@@ -3118,6 +3256,18 @@ while [[ $# -gt 0 ]]; do
             VERIFY_PACKAGE_VERSIONS=false
             shift
             ;;
+        --verbose)
+            VERBOSE=true
+            shift
+            ;;
+        --color)
+            COLOR_MODE=always
+            shift
+            ;;
+        --no-color)
+            COLOR_MODE=never
+            shift
+            ;;
         -h|--help)
             SUMMARY_ENABLED=false
             usage
@@ -3133,6 +3283,7 @@ done
 # Configuration
 # -----------------------------
 
+init_output
 resolve_config_file
 load_config
 parse_dummy_user_assignments_from_environment
@@ -3295,8 +3446,7 @@ if [[ "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" ]]; then
     clear_dependency_package_directories
 
     echo ""
-    echo "${GREEN}Dependency source cleanup completed successfully.${RESET}"
-    echo ""
+    success "${GREEN}${BOLD}Dependency source cleanup completed successfully.${RESET}"
     exit 0
 fi
 
@@ -3348,8 +3498,7 @@ if [[ "$DELETE_ORG_ONLY" == "true" ]]; then
     delete_existing_scratch_org
 
     echo ""
-    echo "${GREEN}Scratch org delete completed successfully.${RESET}"
-    echo ""
+    success "${GREEN}${BOLD}Scratch org delete completed successfully.${RESET}"
     exit 0
 fi
 
@@ -3359,13 +3508,36 @@ if [[ "$PACKAGE_PLAN_ONLY" == "true" ]]; then
     print_package_update_suggestions
 
     echo ""
-    echo "${GREEN}Package plan completed successfully.${RESET}"
-    echo ""
+    success "${GREEN}${BOLD}Package plan completed successfully.${RESET}"
     exit 0
 fi
 
+RUN_PACKAGE_PHASE=false
+if [[ "$RUN_PACKAGES" == "true" || "$UPDATE_PACKAGES_ONLY" == "true" ]]; then
+    RUN_PACKAGE_PHASE=true
+fi
+
+SELECTED_POST_STEPS=()
+UNSELECTED_POST_STEPS=()
+for post_step in $(all_post_step_names); do
+    if should_run_post_step "$post_step"; then
+        SELECTED_POST_STEPS+=("$post_step")
+    else
+        UNSELECTED_POST_STEPS+=("$post_step")
+    fi
+done
+
+[[ "$RUN_ORG_CREATE" == "true" ]] && PHASE_TOTAL=$((PHASE_TOTAL + 1))
+[[ "$RUN_PACKAGE_PHASE" == "true" ]] && PHASE_TOTAL=$((PHASE_TOTAL + 1))
+[[ "${#SELECTED_POST_STEPS[@]}" -gt 0 ]] && PHASE_TOTAL=$((PHASE_TOTAL + 1))
+[[ "$REFRESH_DEPENDENCY_SOURCES" == "true" ]] && PHASE_TOTAL=$((PHASE_TOTAL + 1))
+
 check_if_package_install_key_is_required
 setup_org
+
+if [[ "$RUN_PACKAGE_PHASE" == "true" ]]; then
+    phase "Packages"
+fi
 
 if [[ "$USE_POOL" == "true" && "$RUN_PACKAGES" == "true" ]]; then
     update_packages
@@ -3373,28 +3545,33 @@ elif [[ "$UPDATE_PACKAGES_ONLY" == "true" ]]; then
     update_packages
 elif [[ "$RUN_PACKAGES" == "true" ]]; then
     install_packages
-else
-    echo ""
-    echo "Skipping package installation."
 fi
 
-echo ""
-echo "Running selected post steps: $POST_STEPS"
-
-for post_step in $(all_post_step_names); do
-    if should_run_post_step "$post_step"; then
-        run_post_step "$post_step"
-    else
-        echo "Skipping post step: $post_step"
-        add_post_step_skipped "$post_step"
-    fi
+for post_step in "${UNSELECTED_POST_STEPS[@]-}"; do
+    [[ -n "$post_step" ]] && add_post_step_skipped "$post_step"
 done
 
+if [[ "${#SELECTED_POST_STEPS[@]}" -gt 0 ]]; then
+    phase "Post-steps"
+    if [[ "${#UNSELECTED_POST_STEPS[@]}" -gt 0 ]]; then
+        info "Not selected: $(printf '%s, ' "${UNSELECTED_POST_STEPS[@]}" | sed 's/, $//')"
+    fi
+
+    post_step_index=0
+    for post_step in "${SELECTED_POST_STEPS[@]}"; do
+        post_step_index=$((post_step_index + 1))
+        item "$(counter "$post_step_index" "${#SELECTED_POST_STEPS[@]}") ${BOLD}$post_step${RESET}"
+        run_post_step "$post_step"
+    done
+fi
+
 if should_run_post_step "deploy"; then
+    echo ""
     reset_source_tracking
 fi
 
 if [[ "$REFRESH_DEPENDENCY_SOURCES" == "true" ]]; then
+    phase "Dependency sources"
     retrieve_dependency_packages
 fi
 
@@ -3403,5 +3580,4 @@ if [[ "$RUN_PACKAGES" == "true" || "$UPDATE_PACKAGES_ONLY" == "true" ]]; then
 fi
 
 echo ""
-echo "${GREEN}Scratch org setup completed successfully.${RESET}"
-echo ""
+success "${GREEN}${BOLD}Scratch org setup completed successfully.${RESET}"
