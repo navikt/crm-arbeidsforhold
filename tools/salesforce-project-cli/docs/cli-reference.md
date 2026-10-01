@@ -153,6 +153,14 @@ sf-project packages plan [--project-dir <path>] [--target-org <alias-or-username
 
 This command is read-only regardless of `--dry-run`. It queries installed and released package versions and emits the selected action. `--install-latest` ignores the configured version family and selects the greatest released version.
 
+### `packages check-versions`
+
+```text
+sf-project packages check-versions [--project-dir <path>] [--apply] [--json]
+```
+
+Checks each dependency's latest released major/minor/patch against `sfdx-project.json`. It previews changes by default. `--apply` explicitly updates all matching dependency entries to `<latest>.LATEST`, first saving the original file as `sfdx-project.json.backup`. This writes a local project file; it does not install packages or mutate an org. The command requires package-version access through the authenticated Dev Hub.
+
 ### `packages install`
 
 ```text
@@ -172,6 +180,14 @@ sf-project packages update [--project-dir <path>] [--target-org <alias-or-userna
 ```
 
 The current implementation has the same behavior as `packages install`: install missing, upgrade older, skip equal, and retain higher versions. Real updates are restricted to scratch orgs. For another org, the exact token `MUTATE packages.update <alias-or-username>` is required.
+
+### `coverage check`
+
+```text
+sf-project coverage check [--project-dir <path>] [--target-org <alias>] [--package-id <04t-id>] [--minimum-coverage <percent>] [--test-class <name>] [--run-all] [--skip-install] [--skip-deploy] [--class-name-pattern <pattern>] [--dry-run] [--json] [--confirm-mutation <text>]
+```
+
+Optionally installs a package and deploys `force-app`, runs the selected Apex test class or all tests, then checks aggregate Apex coverage against the threshold. Defaults come from the `coverage` object in `sf-project.config.json`; generic defaults are 75%, all tests, and class pattern `%`. Real checks are restricted to scratch orgs and require the exact `MUTATE coverage.check <alias>` token for other org types. Dry-run prints the command plan without invoking Salesforce.
 
 ### `dependencies clear`
 

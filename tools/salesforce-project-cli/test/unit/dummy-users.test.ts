@@ -49,6 +49,7 @@ async function createProject(records: Array<Record<string, unknown>>): Promise<P
         permissionSets: [],
         dummyDataPlan: path.join(projectDirectory, 'Plan.json'),
         communityName: null,
+        coverage: { minimumPercent: 75, testClass: null, classNamePattern: '%' },
         dummyUsers: {
             file: userFile,
             profileName: "O'Profile",

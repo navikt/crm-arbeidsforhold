@@ -12,9 +12,17 @@ import { getOrgInfo, getOrgStatus, listOrgs, renderOrgInfo, renderOrgSummary } f
 import { isOrgMutationConfirmed, mutationConfirmationToken } from './domain/org-policy.js';
 import { configureProject, createOrg, deleteOrg } from './application/org-workflow.js';
 import { installPackages, planPackages, updatePackages } from './application/package-operations.js';
+import { updateProjectPackageVersions } from './application/project-version-update.js';
+import { runPackageCoverageCheck } from './application/package-coverage.js';
 import { refreshDependencies, type CommandRunner } from './application/refresh-dependencies.js';
 import { createWebServiceFacade } from './application/web-service-facade.js';
-import { BUILTIN_POST_STEPS, DEFAULT_COMMAND_TIMEOUTS, loadProjectConfiguration, type PostStep, type ProjectConfiguration } from './domain/config.js';
+import {
+    BUILTIN_POST_STEPS,
+    DEFAULT_COMMAND_TIMEOUTS,
+    loadProjectConfiguration,
+    type PostStep,
+    type ProjectConfiguration
+} from './domain/config.js';
 import { EXIT_CODES, type ExitCode, type OperationEvent } from './domain/events.js';
 import { runCommand, withDefaultTimeout } from './infrastructure/command-runner.js';
 import { createEventWriter } from './infrastructure/output.js';
@@ -408,7 +416,7 @@ export async function runCli(
             const globalOptions = program.opts<{ timeout?: string }>();
             const commandRunner = options.mock
                 ? createMockCommandRunner(await loadProjectConfiguration(options.projectDir))
-                : cliDependencies.runCommand ?? runCommand;
+                : (cliDependencies.runCommand ?? runCommand);
             const result = await listOrgs({
                 projectDirectory: options.projectDir,
                 runCommand: withDefaultTimeout(
@@ -430,7 +438,7 @@ export async function runCli(
             const globalOptions = program.opts<{ timeout?: string }>();
             const commandRunner = options.mock
                 ? createMockCommandRunner(await loadProjectConfiguration(options.projectDir))
-                : cliDependencies.runCommand ?? runCommand;
+                : (cliDependencies.runCommand ?? runCommand);
             const result = await getOrgStatus({
                 projectDirectory: options.projectDir,
                 ...(alias === undefined ? {} : { alias }),
@@ -452,7 +460,7 @@ export async function runCli(
             const globalOptions = program.opts<{ timeout?: string }>();
             const commandRunner = options.mock
                 ? createMockCommandRunner(await loadProjectConfiguration(options.projectDir))
-                : cliDependencies.runCommand ?? runCommand;
+                : (cliDependencies.runCommand ?? runCommand);
             const result = await getOrgInfo({
                 projectDirectory: options.projectDir,
                 alias,
@@ -516,10 +524,7 @@ export async function runCli(
                 runCommand: createEventCommandRunner(
                     withDefaultTimeout(
                         cliDependencies.runCommand ?? runCommand,
-                        resolveTimeoutMs(
-                            configuration.commandTimeouts.mutationMs,
-                            program.opts<{ timeout?: string }>()
-                        )
+                        resolveTimeoutMs(configuration.commandTimeouts.mutationMs, program.opts<{ timeout?: string }>())
                     ),
                     operationId,
                     emit,
@@ -763,6 +768,261 @@ export async function runCli(
 
     const packages = program.command('packages');
     packages
+        .command('check-versions')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--apply', 'Back up and update dependency version constraints in sfdx-project.json', false)
+        .option('--json', 'Emit newline-delimited JSON events', false)
+        .action(async (options: { projectDir: string; apply: boolean; json: boolean }) => {
+            const operationId = randomUUID();
+            const operation = 'packages.check-versions';
+            const startedAt = Date.now();
+            const emit = createRedactingEventSink(createRedactor(), (event) => writeEvent(event, options.json));
+            emit({
+                kind: 'operation-started',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                dryRun: !options.apply
+            });
+            const configuration = await loadProjectConfiguration(options.projectDir);
+            const commandRunner = cliDependencies.runCommand ?? runCommand;
+            let updateExitCode: ExitCode = EXIT_CODES.SUCCESS;
+            try {
+                const result = await updateProjectPackageVersions({
+                    configuration,
+                    apply: options.apply,
+                    runCommand: createEventCommandRunner(
+                        withDefaultTimeout(
+                            commandRunner,
+                            resolveTimeoutMs(configuration.commandTimeouts.readMs, program.opts<{ timeout?: string }>())
+                        ),
+                        operationId,
+                        emit,
+                        program.opts<{ verbose: boolean }>().verbose
+                    )
+                });
+                if (result.changes.length === 0) {
+                    emit({
+                        kind: 'progress',
+                        operationId,
+                        timestamp: new Date().toISOString(),
+                        stepId: 'packages:check-versions',
+                        step: 'Check package versions',
+                        message: 'All configured package versions are current'
+                    });
+                } else {
+                    for (const change of result.changes) {
+                        emit({
+                            kind: 'progress',
+                            operationId,
+                            timestamp: new Date().toISOString(),
+                            stepId: `packages:check-versions:${change.packageName}`,
+                            step: 'Check package versions',
+                            message: `${change.packageName}: ${change.currentVersion || '(unset)'} -> ${change.latestVersion}`
+                        });
+                    }
+                    emit({
+                        kind: 'progress',
+                        operationId,
+                        timestamp: new Date().toISOString(),
+                        stepId: 'packages:check-versions:summary',
+                        step: 'Check package versions',
+                        message: result.applied
+                            ? `Updated ${result.changes.length} dependency constraint(s); backup: ${result.backupPath}`
+                            : `Preview only: ${result.changes.length} dependency constraint(s) can be updated; pass --apply to write`
+                    });
+                }
+            } catch (error) {
+                updateExitCode = classifySalesforceFailure(error, EXIT_CODES.OPERATION_FAILURE);
+                const message = createRedactor().redactError(error);
+                output.stderr(message);
+                emit({
+                    kind: 'step-failed',
+                    operationId,
+                    timestamp: new Date().toISOString(),
+                    stepId: 'packages:check-versions',
+                    step: 'Check package versions',
+                    exitCode: updateExitCode,
+                    durationMs: Date.now() - startedAt,
+                    error: message
+                });
+            }
+            exitCode = updateExitCode;
+            emit({
+                kind: 'operation-completed',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                exitCode: updateExitCode,
+                durationMs: Date.now() - startedAt,
+                dryRun: !options.apply
+            });
+        });
+
+    const coverage = program.command('coverage');
+    coverage
+        .command('check')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--target-org <alias-or-username>', 'Salesforce target org')
+        .option('--package-id <subscriber-package-version-id>', 'Optional package version to install first')
+        .option('--minimum-coverage <percent>', 'Required aggregate coverage percentage; defaults to project config')
+        .option('--test-class <class-name>', 'Apex test class to run; otherwise uses project config or all tests')
+        .option('--class-name-pattern <pattern>', 'Apex class-name LIKE pattern for aggregate coverage')
+        .option('--run-all', 'Run the full Apex test suite instead of one class', false)
+        .option('--skip-install', 'Do not install the optional package', false)
+        .option('--skip-deploy', 'Do not deploy force-app before tests', false)
+        .option('--dry-run', 'Show planned commands without running them', false)
+        .option('--json', 'Emit newline-delimited JSON events', false)
+        .option('--confirm-mutation <text>', 'Override scratch-only policy with exact command and org text')
+        .action(
+            async (options: {
+                projectDir: string;
+                targetOrg?: string;
+                packageId?: string;
+                minimumCoverage?: string;
+                testClass?: string;
+                classNamePattern?: string;
+                runAll: boolean;
+                skipInstall: boolean;
+                skipDeploy: boolean;
+                dryRun: boolean;
+                json: boolean;
+                confirmMutation?: string;
+            }) => {
+                const operationId = randomUUID();
+                const operation = 'coverage.check';
+                const startedAt = Date.now();
+                const environment = cliDependencies.environment ?? process.env;
+                const configuration = await loadProjectConfiguration(options.projectDir);
+                const alias = requireAlias(
+                    options.targetOrg === undefined ? {} : { targetOrg: options.targetOrg },
+                    configuration
+                );
+                const minimumCoverage = Number(options.minimumCoverage ?? configuration.coverage?.minimumPercent ?? 75);
+                if (!Number.isFinite(minimumCoverage) || minimumCoverage < 0 || minimumCoverage > 100) {
+                    throw new CommanderError(
+                        EXIT_CODES.INVALID_INPUT_OR_CONFIG,
+                        'sf-project.invalidCoverage',
+                        '--minimum-coverage must be from 0 to 100'
+                    );
+                }
+                const installationKey = environment[configuration.packageInstallKeyEnvironmentVariable];
+                const redactor = createRedactor(installationKey === undefined ? [] : [installationKey]);
+                const emit = createRedactingEventSink(redactor, (event) => writeEvent(event, options.json));
+                emit({
+                    kind: 'operation-started',
+                    operationId,
+                    operation,
+                    timestamp: new Date().toISOString(),
+                    dryRun: options.dryRun
+                });
+
+                let coverageExitCode: ExitCode = EXIT_CODES.SUCCESS;
+                try {
+                    if (!options.dryRun) {
+                        await assertMutationTarget(
+                            options.projectDir,
+                            alias,
+                            operation,
+                            options.confirmMutation,
+                            withDefaultTimeout(
+                                cliDependencies.runCommand ?? runCommand,
+                                resolveTimeoutMs(
+                                    configuration.commandTimeouts.readMs,
+                                    program.opts<{ timeout?: string }>()
+                                )
+                            )
+                        );
+                    }
+                    const testClass = options.testClass ?? configuration.coverage?.testClass ?? undefined;
+                    const runAllTests = options.runAll || testClass === undefined;
+                    const classNamePattern =
+                        options.classNamePattern ?? configuration.coverage?.classNamePattern ?? '%';
+                    if (options.dryRun) {
+                        const plannedSteps = [
+                            ...(!options.skipInstall && options.packageId ? ['Would install package'] : []),
+                            ...(!options.skipDeploy ? ['Would deploy force-app'] : []),
+                            runAllTests ? 'Would run all Apex tests' : `Would run Apex test ${testClass}`,
+                            'Would query aggregate Apex coverage'
+                        ];
+                        for (const [index, message] of plannedSteps.entries()) {
+                            emit({
+                                kind: 'progress',
+                                operationId,
+                                timestamp: new Date().toISOString(),
+                                stepId: `coverage:plan:${index + 1}`,
+                                step: 'Coverage check plan',
+                                message,
+                                dryRun: true
+                            });
+                        }
+                    } else {
+                        const summary = await runPackageCoverageCheck({
+                            targetOrg: alias,
+                            projectDirectory: configuration.projectDirectory,
+                            ...(options.packageId === undefined ? {} : { packageId: options.packageId }),
+                            ...(installationKey === undefined ? {} : { installationKey }),
+                            minimumCoverage,
+                            testClass: testClass ?? '',
+                            runAllTests,
+                            skipInstall: options.skipInstall,
+                            skipDeploy: options.skipDeploy,
+                            classNamePattern,
+                            runCommand: createEventCommandRunner(
+                                withDefaultTimeout(
+                                    cliDependencies.runCommand ?? runCommand,
+                                    resolveTimeoutMs(
+                                        configuration.commandTimeouts.mutationMs,
+                                        program.opts<{ timeout?: string }>()
+                                    )
+                                ),
+                                operationId,
+                                emit,
+                                program.opts<{ verbose: boolean }>().verbose
+                            )
+                        });
+                        if (summary === undefined) throw new Error('Coverage check returned no result.');
+                        const message = `Apex coverage: ${summary.percentage}% (${summary.covered} covered, ${summary.uncovered} uncovered); required ${summary.minimumCoverage}%`;
+                        emit({
+                            kind: summary.passed ? 'progress' : 'warning',
+                            operationId,
+                            timestamp: new Date().toISOString(),
+                            stepId: 'coverage:summary',
+                            step: 'Aggregate Apex coverage',
+                            message
+                        });
+                        output.stdout(message);
+                        if (!summary.passed) coverageExitCode = EXIT_CODES.OPERATION_FAILURE;
+                    }
+                } catch (error) {
+                    coverageExitCode = classifySalesforceFailure(error, EXIT_CODES.OPERATION_FAILURE);
+                    const message = redactor.redactError(error);
+                    output.stderr(message);
+                    emit({
+                        kind: 'step-failed',
+                        operationId,
+                        timestamp: new Date().toISOString(),
+                        stepId: 'coverage:check',
+                        step: 'Check Apex coverage',
+                        exitCode: coverageExitCode,
+                        durationMs: Date.now() - startedAt,
+                        error: message
+                    });
+                }
+                exitCode = coverageExitCode;
+                emit({
+                    kind: 'operation-completed',
+                    operationId,
+                    operation,
+                    timestamp: new Date().toISOString(),
+                    exitCode: coverageExitCode,
+                    durationMs: Date.now() - startedAt,
+                    dryRun: options.dryRun
+                });
+            }
+        );
+
+    packages
         .command('plan')
         .option('--project-dir <path>', 'Salesforce project root', process.cwd())
         .option('--target-org <alias-or-username>', 'Salesforce target org')
@@ -789,7 +1049,7 @@ export async function runCli(
             const configuration = await loadProjectConfiguration(options.projectDir);
             const commandRunner = options.mock
                 ? createMockCommandRunner(configuration, options.mockScenario)
-                : cliDependencies.runCommand ?? runCommand;
+                : (cliDependencies.runCommand ?? runCommand);
             let packageExitCode: ExitCode = EXIT_CODES.SUCCESS;
             try {
                 await planPackages({
@@ -840,7 +1100,11 @@ export async function runCli(
             .option('--install-latest', 'Select the latest released package version', false)
             .option('--dry-run', 'Query and plan without installing packages', false)
             .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
-            .option('--mock-scenario <scenario>', 'Mock scenario: success, failure, timeout, retry, or partial', 'success')
+            .option(
+                '--mock-scenario <scenario>',
+                'Mock scenario: success, failure, timeout, retry, or partial',
+                'success'
+            )
             .option('--json', 'Emit newline-delimited JSON events', false)
             .option('--confirm-mutation <text>', 'Override scratch-only policy with exact command and org text')
             .action(async (options: PackageOptions) => {
@@ -863,7 +1127,7 @@ export async function runCli(
                 });
                 const commandRunner = options.mock
                     ? createMockCommandRunner(configuration, options.mockScenario)
-                    : cliDependencies.runCommand ?? runCommand;
+                    : (cliDependencies.runCommand ?? runCommand);
                 if (!options.dryRun && !options.mock) {
                     emit({
                         kind: 'progress',

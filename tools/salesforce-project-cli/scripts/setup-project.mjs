@@ -10,6 +10,7 @@ const defaultConfig = {
     permissionSets: [],
     dummyDataPlan: null,
     communityName: null,
+    coverage: { minimumPercent: 75, testClass: null, classNamePattern: '%' },
     postSteps: ['deploy'],
     pool: {
         use: false,
@@ -65,6 +66,7 @@ function mergeConfiguration(existingConfig) {
         ...defaultConfig,
         ...existingConfig,
         pool: { ...defaultConfig.pool, ...(existingConfig?.pool ?? {}) },
+        coverage: { ...defaultConfig.coverage, ...(existingConfig?.coverage ?? {}) },
         commandTimeouts: { ...defaultConfig.commandTimeouts, ...(existingConfig?.commandTimeouts ?? {}) },
         dependencySourcePolicy: {
             ...defaultConfig.dependencySourcePolicy,
@@ -170,6 +172,7 @@ async function createConfiguration(existingConfig, interactive) {
         permissionSets,
         dummyDataPlan: dummyDataPlan || null,
         communityName: communityName || null,
+        coverage: { ...defaultConfig.coverage, ...(existingConfig?.coverage ?? {}) },
         postSteps,
         pool,
         packageInstallKeyEnvironmentVariable,

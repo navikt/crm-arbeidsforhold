@@ -66,6 +66,12 @@ const dummyUsersSchema = z.object({
         .default([])
 });
 
+const coverageSchema = z.object({
+    minimumPercent: z.number().min(0).max(100).default(75),
+    testClass: z.string().min(1).nullable().default(null),
+    classNamePattern: z.string().min(1).default('%')
+});
+
 const toolConfigSchema = z
     .object({
         schemaVersion: z.literal(1).default(1),
@@ -76,6 +82,7 @@ const toolConfigSchema = z
         dummyDataPlan: z.string().min(1).nullable().default(null),
         communityName: z.string().min(1).nullable().default(null),
         dummyUsers: dummyUsersSchema.optional(),
+        coverage: coverageSchema.default({ minimumPercent: 75, testClass: null, classNamePattern: '%' }),
         postSteps: z.array(z.string().min(1)).default(['deploy']),
         customPostSteps: z.array(customPostStepSchema).default([]),
         pool: z
@@ -189,6 +196,8 @@ export interface ProjectConfiguration {
     communityName: string | null;
     /** Users imported and assigned permission sets by the `data` post-step; absent when not configured. */
     dummyUsers?: DummyUsersConfiguration;
+    /** Defaults for the optional post-package aggregate Apex coverage check. */
+    coverage: CoverageConfiguration;
     /** Ordered project configuration steps. Values are built-in step names or declared `customPostSteps[].name` values. */
     postSteps: PostStep[];
     /** Project-declared post-steps beyond the built-in `deploy`, `permsets`, `data`, and `community` steps. */
@@ -232,6 +241,16 @@ export interface DummyUsersConfiguration {
     profileAssignments: Array<{ profileName: string; usernames: string[] }>;
     /** Permission sets assigned to each group of usernames; existing assignments are tolerated. */
     permissionSetAssignments: Array<{ permissionSets: string[]; usernames: string[] }>;
+}
+
+/** Project defaults used by the standalone and `sf-project` coverage check commands. */
+export interface CoverageConfiguration {
+    /** Minimum aggregate coverage percent required for a passing check. */
+    minimumPercent: number;
+    /** Default Apex test class; `null` means run all tests. */
+    testClass: string | null;
+    /** Apex class-name LIKE pattern used for aggregate coverage. */
+    classNamePattern: string;
 }
 
 /** Defaults for optional scratch-org pool acquisition. */
@@ -334,6 +353,7 @@ export async function loadProjectConfiguration(projectDirectory: string): Promis
         dummyDataPlan:
             toolConfig.dummyDataPlan === null ? null : path.resolve(resolvedProjectDirectory, toolConfig.dummyDataPlan),
         communityName: toolConfig.communityName,
+        coverage: toolConfig.coverage,
         ...(toolConfig.dummyUsers === undefined
             ? {}
             : {

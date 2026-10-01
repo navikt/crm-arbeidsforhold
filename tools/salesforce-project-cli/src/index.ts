@@ -15,6 +15,7 @@ export type { RecoverForceignoreOptions } from './application/forceignore-transa
 export { BUILTIN_POST_STEPS, DEFAULT_COMMAND_TIMEOUTS, loadProjectConfiguration } from './domain/config.js';
 export type {
     ProjectConfiguration,
+    CoverageConfiguration,
     CommandTimeouts,
     DependencySource,
     PoolConfiguration,

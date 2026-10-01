@@ -39,6 +39,9 @@ case "$*" in
     *"SELECT Username FROM User"*)
         echo '{"status":0,"result":{"records":[]}}'
         ;;
+    *"SELECT SUM(NumLinesCovered)"*)
+        echo "{\"status\":0,\"result\":{\"records\":[{\"covered\":${COVERAGE_RESULT:-80},\"uncovered\":${COVERAGE_UNCOVERED:-20}}]}}"
+        ;;
     "package version list"*)
         echo '{"status":0,"result":[{"SubscriberPackageVersionId":"04t000000000001","MajorVersion":1,"MinorVersion":0,"PatchVersion":0,"BuildNumber":1}]}'
         ;;
@@ -371,6 +374,7 @@ test_init_config_writes_effective_settings() {
     assert_json "$file" '.defaultOrgAlias' '"new-org"'
     assert_json "$file" '.permissionSets' '["A","B"]'
     assert_json "$file" '.communityName' '"Portal"'
+    assert_json "$file" '.coverage' '{"minimumPercent":75,"testClass":null,"classNamePattern":"%"}'
     assert_json "$file" '.dummyDataPlan' 'null'
     assert_json "$file" '.scratchDefinition' '"config/project-scratch-def.json"'
     assert_json "$file" '.postSteps' '["deploy"]'
@@ -498,6 +502,8 @@ test_config_acceptance_matches_sf_project_loader() {
         'valid|{"customPostSteps":[{"name":"seed","executable":"echo","arguments":["a"],"label":"Seed"}],"postSteps":["deploy","seed"]}'
         'valid|{"dummyUsers":{"file":"u.json","permissionSetAssignments":[{"permissionSets":["P"],"usernames":["u"]}]}}'
         'valid|{"dummyUsers":{"file":"u.json","profileAssignments":[{"profileName":"Case Handler","usernames":["h"]},{"profileName":"Support User","usernames":["s"]}]}}'
+        'valid|{"coverage":{"minimumPercent":78.5,"testClass":"ProjectCoverageTest","classNamePattern":"Project_%"}}'
+        'valid|{"coverage":{"minimumPercent":78.5,"testClass":"ProjectCoverageTest","classNamePattern":"Project_%"}}'
         'valid|{"packageInstallKeyEnvironmentVariable":"TEAM-KEY","commandTimeouts":{"readMs":1000}}'
         'invalid|{"schemaVersion":2}'
         'invalid|{"defaultOrgAlias":null}'
@@ -513,6 +519,12 @@ test_config_acceptance_matches_sf_project_loader() {
         'invalid|{"dummyUsers":{"profileName":"x"}}'
         'invalid|{"dummyUsers":{"file":"u.json","profileAssignments":[{"profileName":"Case Handler","usernames":["same"]},{"profileName":"Support User","usernames":["same"]}]}}'
         'invalid|{"dummyUsers":{"file":"u.json","permissionSetAssignments":[{"permissionSets":["P"],"usernames":[]}]}}'
+        'invalid|{"coverage":{"minimumPercent":101}}'
+        'invalid|{"coverage":{"testClass":12}}'
+        'invalid|{"coverage":{"classNamePattern":""}}'
+        'invalid|{"coverage":{"minimumPercent":101}}'
+        'invalid|{"coverage":{"testClass":12}}'
+        'invalid|{"coverage":{"classNamePattern":""}}'
     )
     local fixture expected json ts_line bash_result ts_result index=0
     local -a fixture_dirs=()
@@ -546,6 +558,56 @@ test_config_acceptance_matches_sf_project_loader() {
         [[ "$ts_line" == "$expected" ]] && pass || fail "sf-project says ${ts_line:-nothing} for $json (expected $expected)"
         index=$((index + 1))
     done
+}
+
+test_package_version_update_previews_and_applies_with_backup() {
+    new_project package-version-update
+    cat > "$PROJECT/sfdx-project.json" <<'EOF_PROJECT'
+{
+    "packageDirectories": [
+        {"path":"force-app","dependencies":[{"package":"pkg-one","versionNumber":"0.9.0.LATEST"}]},
+        {"path":"another-package-dir","dependencies":[{"package":"pkg-one","versionNumber":"0.9.0.NEXT"}]}
+    ],
+    "packageAliases": {"pkg-one":"0Ho000000000001"}
+}
+EOF_PROJECT
+    cp "$PROJECT/sfdx-project.json" "$WORK_DIR/package-version-original.json"
+
+    script --check-versions
+    assert_exit 0
+    assert_contains "pkg-one: 0.9.0.LATEST -> 1.0.0.LATEST"
+    assert_json "$PROJECT/sfdx-project.json" '.packageDirectories[0].dependencies[0].versionNumber' '"0.9.0.LATEST"'
+    [[ ! -e "$PROJECT/sfdx-project.json.backup" ]] && pass || fail "preview created a backup"
+
+    script --apply-project-versions
+    assert_exit 0
+    assert_json "$PROJECT/sfdx-project.json.backup" '.packageDirectories[0].dependencies[0].versionNumber' '"0.9.0.LATEST"'
+    assert_json "$PROJECT/sfdx-project.json" '.packageDirectories[0].dependencies[0].versionNumber' '"1.0.0.LATEST"'
+    assert_json "$PROJECT/sfdx-project.json" '.packageDirectories[1].dependencies[0].versionNumber' '"1.0.0.LATEST"'
+}
+
+test_coverage_check_runs_and_enforces_threshold() {
+    new_project coverage-check
+    script --coverage-check --alias coverage-org --coverage-package-id 04t-test --coverage-minimum 75 --coverage-test-class CoverageTest
+    assert_exit 0
+    assert_contains "Apex coverage: 80.00% (80 covered, 20 uncovered)"
+    grep -Fq 'package install --target-org coverage-org --package 04t-test' "$SF_LOG" && pass || fail "coverage package install did not run"
+    grep -Fq 'project deploy start --target-org coverage-org --source-dir force-app' "$SF_LOG" && pass || fail "coverage deploy did not run"
+    grep -Fq 'apex run test --target-org coverage-org --tests CoverageTest' "$SF_LOG" && pass || fail "selected Apex test did not run"
+
+    run_script env COVERAGE_RESULT=60 bash "$SCRIPT" --coverage-check --alias coverage-org --coverage-skip-install --coverage-skip-deploy --coverage-minimum 75
+    run_script env COVERAGE_RESULT=60 COVERAGE_UNCOVERED=40 bash "$SCRIPT" --coverage-check --alias coverage-org --coverage-skip-install --coverage-skip-deploy --coverage-minimum 75
+    assert_exit_nonzero
+    assert_contains "below the required 75%"
+}
+
+test_coverage_check_dry_run_does_not_call_sf() {
+    new_project coverage-dry-run
+    script --coverage-check --alias coverage-org --coverage-package-id 04t-test --dry-run
+    assert_exit 0
+    assert_contains "apex run test"
+    assert_contains "coverage"
+    [[ ! -s "$SF_LOG" ]] && pass || fail "dry-run called sf"
 }
 
 test_script_has_no_repository_specific_values() {

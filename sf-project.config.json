@@ -10,6 +10,11 @@
     ],
     "dummyDataPlan": "dummy-data/Plan.json",
     "communityName": "Aa-registret",
+        "coverage": {
+            "minimumPercent": 75,
+            "testClass": "AAREG_ApplicationDecisionControllerTest",
+            "classNamePattern": "AAREG_%"
+        },
     "dummyUsers": {
         "file": "dummy-data/User.json",
         "profileName": "Standard User",

@@ -170,8 +170,32 @@ describe('project configuration', () => {
             permissionSets: [],
             dummyDataPlan: null,
             communityName: null,
+            coverage: { minimumPercent: 75, testClass: null, classNamePattern: '%' },
             postSteps: ['deploy'],
             pool: { use: false, tag: 'dev', fallbackToCreate: true }
+        });
+    });
+
+    it('loads project-specific coverage thresholds and filters', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-config-'));
+        temporaryDirectories.push(projectDirectory);
+        await writeFile(
+            path.join(projectDirectory, 'sfdx-project.json'),
+            JSON.stringify({ packageDirectories: [{ path: 'force-app' }] })
+        );
+        await writeFile(
+            path.join(projectDirectory, 'sf-project.config.json'),
+            JSON.stringify({
+                coverage: { minimumPercent: 78.5, testClass: 'ProjectCoverageTest', classNamePattern: 'Project_%' }
+            })
+        );
+
+        const configuration = await loadProjectConfiguration(projectDirectory);
+
+        expect(configuration.coverage).toEqual({
+            minimumPercent: 78.5,
+            testClass: 'ProjectCoverageTest',
+            classNamePattern: 'Project_%'
         });
     });
 

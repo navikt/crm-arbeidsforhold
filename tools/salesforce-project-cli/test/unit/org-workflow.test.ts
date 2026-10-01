@@ -16,6 +16,7 @@ const configuration: ProjectConfiguration = {
     permissionSets: [],
     dummyDataPlan: null,
     communityName: null,
+    coverage: { minimumPercent: 75, testClass: null, classNamePattern: '%' },
     postSteps: ['deploy'],
     customPostSteps: [],
     pool: { use: false, tag: 'dev', fallbackToCreate: true },

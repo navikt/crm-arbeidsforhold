@@ -14,6 +14,16 @@ param(
     [string]$ConfigFile,
     [switch]$NoConfig,
     [switch]$InitConfig,
+    [switch]$CheckVersions,
+    [switch]$ApplyProjectVersions,
+    [switch]$CoverageCheck,
+    [string]$CoveragePackageId,
+    [double]$MinimumCoverage,
+    [string]$CoverageTestClass,
+    [string]$CoverageClassNamePattern,
+    [switch]$CoverageRunAll,
+    [switch]$CoverageSkipInstall,
+    [switch]$CoverageSkipDeploy,
     [switch]$Force,
     [switch]$DryRun,
     [string[]]$PostSteps,
@@ -162,6 +172,17 @@ function Test-Configuration {
             }
         }
     }
+    $coverage = Get-ObjectProperty $Config 'coverage'
+    if ((Test-HasProperty $Config 'coverage') -and $null -eq $coverage) { throw 'coverage must be an object.' }
+    if ($null -ne $coverage) {
+        if ($coverage -isnot [pscustomobject]) { throw 'coverage must be an object.' }
+        $minimum = Get-ObjectProperty $coverage 'minimumPercent'
+        if ((Test-HasProperty $coverage 'minimumPercent') -and ($minimum -isnot [ValueType] -or $minimum -is [bool] -or [double]$minimum -lt 0 -or [double]$minimum -gt 100)) { throw 'coverage.minimumPercent must be a number from 0 to 100.' }
+        $testClass = Get-ObjectProperty $coverage 'testClass'
+        if ((Test-HasProperty $coverage 'testClass') -and $null -ne $testClass -and -not (Test-NonEmptyString $testClass)) { throw 'coverage.testClass must be a non-empty string or null.' }
+        $classPattern = Get-ObjectProperty $coverage 'classNamePattern'
+        if ((Test-HasProperty $coverage 'classNamePattern') -and -not (Test-NonEmptyString $classPattern)) { throw 'coverage.classNamePattern must be a non-empty string.' }
+    }
     $dummyUsers = Get-ObjectProperty $Config 'dummyUsers'
     if ((Test-HasProperty $Config 'dummyUsers') -and $null -eq $dummyUsers) { throw 'dummyUsers must be an object.' }
     if ($null -ne $dummyUsers) {
@@ -266,6 +287,61 @@ function Get-PackageVersionData {
         @{ Expression = { [int]$_.PatchVersion } },
         @{ Expression = { [int]$_.BuildNumber } }
     ))
+}
+
+function Get-ProjectVersionChanges {
+    $dependencies = @(Get-PackageDependencies)
+    $changes = @()
+    $latestByPackage = @{}
+    foreach ($dependency in $dependencies) {
+        $name = [string]$dependency.package
+        if ($latestByPackage.ContainsKey($name)) { continue }
+        $alias = Get-ObjectProperty $script:SfdxProject.packageAliases $name
+        if (-not $alias) { throw "No package alias found for '$name'." }
+        $versions = @(Get-PackageVersionData $alias)
+        if ($versions.Count -eq 0) { throw "No released version found for '$name'." }
+        $latest = $versions[-1]
+        $latestBase = "{0}.{1}.{2}" -f $latest.MajorVersion, $latest.MinorVersion, $latest.PatchVersion
+        $latestByPackage[$name] = "$latestBase.LATEST"
+        $current = [string](Get-ObjectProperty $dependency 'versionNumber' '')
+        $comparable = $current -replace '\.LATEST$|\.NEXT$', ''
+        if ($comparable -ne $latestBase) {
+            $changes += [pscustomobject]@{ packageName = $name; currentVersion = $current; latestVersion = "$latestBase.LATEST" }
+        }
+    }
+    return [pscustomobject]@{ Changes = $changes; LatestByPackage = $latestByPackage }
+}
+
+function Invoke-ProjectVersionCheck {
+    $versionCheck = Get-ProjectVersionChanges
+    if ($versionCheck.Changes.Count -eq 0) {
+        Write-Host 'All configured package versions are current.' -ForegroundColor Green
+        return
+    }
+    foreach ($change in $versionCheck.Changes) {
+        $current = if ($change.currentVersion) { $change.currentVersion } else { '(unset)' }
+        Write-Host "$($change.packageName): $current -> $($change.latestVersion)"
+    }
+    if (-not $script:ApplyProjectVersions -or $DryRun) {
+        Write-Host "Preview only: $($versionCheck.Changes.Count) package constraint(s) can be updated. Use -ApplyProjectVersions to write."
+        return
+    }
+
+    foreach ($directory in $script:SfdxProject.packageDirectories) {
+        foreach ($dependency in @($directory.dependencies)) {
+            if ($null -eq $dependency) { continue }
+            $name = [string]$dependency.package
+            if ($versionCheck.LatestByPackage.ContainsKey($name)) { $dependency.versionNumber = $versionCheck.LatestByPackage[$name] }
+        }
+    }
+    $backupPath = "$script:ProjectFilePath.backup"
+    $tempPath = "$script:ProjectFilePath.$([guid]::NewGuid().ToString('N')).tmp"
+    try {
+        Write-Utf8JsonFile -Path $tempPath -Value $script:SfdxProject
+        Copy-Item -LiteralPath $script:ProjectFilePath -Destination $backupPath -Force
+        Move-Item -LiteralPath $tempPath -Destination $script:ProjectFilePath -Force
+    } finally { Remove-Item -LiteralPath $tempPath -Force -ErrorAction SilentlyContinue }
+    Write-Host "Updated project constraints. Backup: $backupPath" -ForegroundColor Green
 }
 
 function Select-PackageVersion {
@@ -594,13 +670,63 @@ function Invoke-SelfCheck {
     Write-Host 'Self-check passed.' -ForegroundColor Green
 }
 
+function Invoke-CoverageCheck {
+    $minimum = if ($script:BoundParameters.ContainsKey('MinimumCoverage')) { $MinimumCoverage } else { $script:CoverageMinimum }
+    $testClass = if ($script:BoundParameters.ContainsKey('CoverageTestClass')) { $CoverageTestClass } else { $script:CoverageTestClass }
+    $classPattern = if ($script:BoundParameters.ContainsKey('CoverageClassNamePattern')) { $CoverageClassNamePattern } else { $script:CoverageClassPattern }
+    $runAll = $CoverageRunAll -or -not $testClass
+    if ($minimum -lt 0 -or $minimum -gt 100) { throw 'MinimumCoverage must be between 0 and 100.' }
+    if ($DryRun) {
+        if ($CoveragePackageId -and -not $CoverageSkipInstall) { Write-Host "[dry-run] Install package $CoveragePackageId on $script:TargetOrg" -ForegroundColor Yellow }
+        if (-not $CoverageSkipDeploy) { Write-Host "[dry-run] Deploy force-app to $script:TargetOrg" -ForegroundColor Yellow }
+        if ($runAll) { Write-Host '[dry-run] Run all Apex tests with code coverage' -ForegroundColor Yellow }
+        else { Write-Host "[dry-run] Run Apex test $testClass with code coverage" -ForegroundColor Yellow }
+        Write-Host "[dry-run] Query $classPattern aggregate coverage and compare with threshold" -ForegroundColor Yellow
+        return
+    }
+
+    if ($CoveragePackageId -and -not $CoverageSkipInstall) {
+        $installArguments = @('package', 'install', '--target-org', $script:TargetOrg, '--package', $CoveragePackageId, '-r', '--json')
+        if ($script:InstallationKey) { $installArguments += @('--installation-key', $script:InstallationKey) }
+        $installResult = Invoke-External -Executable 'sf' -Arguments $installArguments
+        if ($installResult.ExitCode -ne 0) { throw "Coverage package installation failed (exit $($installResult.ExitCode)): $($installResult.Output -join "`n")" }
+    }
+    if (-not $CoverageSkipDeploy) {
+        Invoke-Sf @('project', 'deploy', 'start', '--target-org', $script:TargetOrg, '--source-dir', 'force-app', '--ignore-conflicts', '--json') | Out-Null
+    }
+    if ($runAll) {
+        $waitResult = Invoke-External -Executable 'sf' -Arguments @('apex', 'run', 'test', '--target-org', $script:TargetOrg, '--code-coverage', '--wait', '120', '--json')
+        if ($waitResult.ExitCode -ne 0) {
+            $runResult = Invoke-SfJson @('apex', 'run', 'test', '--target-org', $script:TargetOrg, '--code-coverage')
+            $testRunId = [string]$runResult.result.testRunId
+            if (-not $testRunId) { throw 'Could not parse testRunId from asynchronous Apex test run.' }
+            Invoke-Sf @('apex', 'get', 'test', '--target-org', $script:TargetOrg, '--test-run-id', $testRunId, '--code-coverage', '--result-format', 'human') | Out-Null
+        }
+    } else {
+        Invoke-Sf @('apex', 'run', 'test', '--target-org', $script:TargetOrg, '--tests', $testClass, '--code-coverage', '--synchronous', '--result-format', 'human') | Out-Null
+    }
+
+    $escapedPattern = $classPattern.Replace('\', '\\').Replace("'", "\'")
+    $query = "SELECT SUM(NumLinesCovered) covered, SUM(NumLinesUncovered) uncovered FROM ApexCodeCoverageAggregate WHERE ApexClassOrTrigger.Name LIKE '$escapedPattern'"
+    $coverageResult = Invoke-SfJson @('data', 'query', '--target-org', $script:TargetOrg, '--use-tooling-api', '--query', $query, '--result-format', 'json')
+    $record = @($coverageResult.result.records) | Select-Object -First 1
+    if ($null -eq $record) { throw 'Coverage query returned no aggregate row.' }
+    $covered = [double]$record.covered
+    $uncovered = [double]$record.uncovered
+    $total = $covered + $uncovered
+    $percentage = if ($total -gt 0) { [math]::Round(($covered / $total) * 100, 2) } else { 0 }
+    Write-Host "Apex coverage: $percentage% ($covered covered, $uncovered uncovered); required $minimum%."
+    if ($percentage -lt $minimum) { throw "Coverage $percentage% is below the required $minimum%." }
+}
+
 function Invoke-Main {
     if ($Help) {
         @'
 Usage: create-scratch-org.bat [-OrgAlias <alias>] [-DurationDays <1..30>] [-DryRun]
        [-PostStepsOnly] [-PostSteps <steps>] [-SkipPackages] [-UpdatePackages]
        [-PackagePlan] [-DeleteOrgOnly] [-UsePool] [-RefreshDependencySources]
-       [-ClearDependencySourcesOnly] [-SelfCheck] [-InitConfig] [-Force]
+    [-ClearDependencySourcesOnly] [-SelfCheck] [-InitConfig] [-Force]
+    [-CheckVersions] [-ApplyProjectVersions] [-CoverageCheck]
 
 Reads sf-project.config.json beside sfdx-project.json. Requires only PowerShell,
 jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-project.
@@ -622,6 +748,7 @@ jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-proje
         permissionSets = @(); dummyDataPlan = $null; communityName = $null; postSteps = @('deploy')
         customPostSteps = @(); pool = [pscustomobject]@{ use = $false; tag = 'dev'; fallbackToCreate = $true }
         packageInstallKeyEnvironmentVariable = 'PACKAGE_INSTALL_KEY'
+        coverage = [pscustomobject]@{ minimumPercent = 75; testClass = $null; classNamePattern = '%' }
         dependencySourcePolicy = [pscustomobject]@{ preserveRootFiles = @('README.md'); requireLocalDirectories = $true }
     }
     if (-not $NoConfig -and (Test-Path -LiteralPath $configPath)) {
@@ -631,6 +758,7 @@ jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-proje
     } elseif (-not $NoConfig -and $ConfigFile) { throw "Configuration file not found: $configPath" }
 
     if ($null -eq $script:Config.pool) { $script:Config.pool = [pscustomobject]@{ use = $false; tag = 'dev'; fallbackToCreate = $true } }
+    if ($null -eq $script:Config.coverage) { $script:Config.coverage = [pscustomobject]@{ minimumPercent = 75; testClass = $null; classNamePattern = '%' } }
     if ($null -eq $script:Config.customPostSteps) { $script:Config.customPostSteps = @() }
     if ($null -eq $script:Config.postSteps) { $script:Config.postSteps = @('deploy') }
     if ($null -eq $script:Config.permissionSets) { $script:Config.permissionSets = @() }
@@ -660,6 +788,9 @@ jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-proje
     $script:PackageWaitMinutes = if ($env:PACKAGE_WAIT_MINUTES) { [int]$env:PACKAGE_WAIT_MINUTES } else { 10 }
     $script:InstallMaxAttempts = if ($env:PACKAGE_INSTALL_MAX_ATTEMPTS) { [int]$env:PACKAGE_INSTALL_MAX_ATTEMPTS } else { 3 }
     $script:RetryDelaySeconds = if ($env:PACKAGE_INSTALL_RETRY_DELAY_SECONDS) { [int]$env:PACKAGE_INSTALL_RETRY_DELAY_SECONDS } else { 5 }
+    $script:CoverageMinimum = if ($env:COVERAGE_MINIMUM) { [double]$env:COVERAGE_MINIMUM } else { [double]$script:Config.coverage.minimumPercent }
+    $script:CoverageTestClass = if ($env:COVERAGE_TEST_CLASS) { $env:COVERAGE_TEST_CLASS } else { [string]$script:Config.coverage.testClass }
+    $script:CoverageClassPattern = if ($env:COVERAGE_CLASS_NAME_PATTERN) { $env:COVERAGE_CLASS_NAME_PATTERN } else { [string]$script:Config.coverage.classNamePattern }
     $script:InstallLatest = $InstallLatest.IsPresent -or $env:INSTALL_LATEST_PACKAGES -eq 'true'
     $script:SkipVersionCheck = $SkipVersionCheck.IsPresent -or $env:VERIFY_PACKAGE_VERSIONS -eq 'false'
     $script:DryRun = $DryRun.IsPresent
@@ -683,6 +814,8 @@ jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-proje
     if ($env:FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY -eq 'false') { $script:FallbackToCreate = $false }
     elseif ($env:FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY -eq 'true' -and -not $NoFallbackToCreate) { $script:FallbackToCreate = $true }
     $script:ProjectRoot = [IO.Path]::GetFullPath($script:ProjectRoot)
+    $script:CheckProjectVersions = $CheckVersions.IsPresent -or $ApplyProjectVersions.IsPresent
+    $script:ApplyProjectVersions = $ApplyProjectVersions.IsPresent
 
     if ($InitConfig) {
         if ($NoConfig) { throw '-InitConfig cannot be combined with -NoConfig.' }
@@ -703,6 +836,7 @@ jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-proje
     try {
         if ($ClearDependencySourcesOnly) { Clear-DependencyFolders; return }
         if ($SelfCheck) { Invoke-SelfCheck; return }
+        if ($script:CheckProjectVersions) { Invoke-ProjectVersionCheck; return }
         if ($DeleteOrgOnly) {
             Resolve-TargetOrg -ForPartialRun
             Invoke-Sf @('org', 'delete', 'scratch', '--target-org', $script:TargetOrg, '--no-prompt') -PlanOnly:$script:DryRun -AllowFailure | Out-Null
@@ -713,10 +847,11 @@ jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-proje
             Invoke-Packages -PlanOnly
             return
         }
-        $steps = if ($UpdatePackages) { @() } else { @(Get-SelectedPostSteps) }
-        $setupOrg = -not ($SkipOrg -or $PostStepsOnly -or $UpdatePackages)
-        $installPackages = -not $SkipPackages -and -not $PostStepsOnly
-        if (-not $setupOrg -and ($installPackages -or $UpdatePackages -or $steps.Count -gt 0)) { Resolve-TargetOrg -ForPartialRun }
+        $specialMode = $UpdatePackages -or $CoverageCheck
+        $steps = if ($specialMode) { @() } else { @(Get-SelectedPostSteps) }
+        $setupOrg = -not ($SkipOrg -or $PostStepsOnly -or $specialMode)
+        $installPackages = -not $SkipPackages -and -not $PostStepsOnly -and -not $specialMode
+        if (-not $setupOrg -and ($installPackages -or $specialMode -or $steps.Count -gt 0)) { Resolve-TargetOrg -ForPartialRun }
         if ($RefreshDependencySources -and $setupOrg) { Clear-DependencyFolders }
         if ($setupOrg) {
             if ($UsePool) { $acquired = Invoke-PoolAcquire } else { $acquired = $false }
@@ -728,6 +863,7 @@ jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-proje
         }
         if ($UpdatePackages) { Invoke-Packages -Update }
         elseif ($installPackages) { Invoke-Packages }
+        if ($CoverageCheck) { Invoke-CoverageCheck; return }
         foreach ($step in $steps) { Invoke-PostStep $step }
         if ($RefreshDependencySources) { Refresh-DependencyFolders }
         Write-Host 'Scratch-org setup completed.' -ForegroundColor Green

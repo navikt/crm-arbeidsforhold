@@ -78,16 +78,51 @@ try {
     Assert-True ($LASTEXITCODE -ne 0) 'duplicate username profile assignments are rejected'
     Assert-True (($invalidOutput -join "`n") -match 'only one profile assignment') 'duplicate mapping has an actionable error'
 
+    $config.dummyUsers.profileAssignments = @(
+        [ordered]@{ profileName = 'Case Handler'; usernames = @('handler@example.test') },
+        [ordered]@{ profileName = 'Support User'; usernames = @('support@example.test') }
+    )
+    Write-Config $config
+
     $fakeBin = Join-Path $ProjectDirectory 'fake-bin'
     New-Item -ItemType Directory -Path $fakeBin | Out-Null
     @'
 @echo off
+if /I "%SF_MODE%"=="versions" (
+  echo {"status":0,"result":[{"MajorVersion":1,"MinorVersion":0,"PatchVersion":0,"BuildNumber":3,"SubscriberPackageVersionId":"04t000000000001"}]}
+  exit /b 0
+)
 echo {"status":1,"message":"mock sf failure","result":{}}
 exit /b 1
 '@ | Set-Content -LiteralPath (Join-Path $fakeBin 'sf.cmd') -Encoding ASCII
     $oldPath = $env:PATH
     try {
         $env:PATH = "$fakeBin;$oldPath"
+        $versionProjectPath = Join-Path $ProjectDirectory 'sfdx-project.json'
+        @'
+{"packageDirectories":[
+ {"path":"force-app","dependencies":[{"package":"pkg-one","versionNumber":"0.9.0.LATEST"}]},
+ {"path":"second-package","dependencies":[{"package":"pkg-one","versionNumber":"0.9.0.NEXT"}]}
+],"packageAliases":{"pkg-one":"0Ho000000000001"}}
+'@ | Set-Content -LiteralPath $versionProjectPath -Encoding UTF8
+        $originalProject = Get-Content -LiteralPath $versionProjectPath -Raw
+        $env:SF_MODE = 'versions'
+        $versionPreview = @(& $hostPath -NoProfile -ExecutionPolicy Bypass -File $ScriptPath -ProjectFile $versionProjectPath -CheckVersions 2>&1 | ForEach-Object { $_.ToString() })
+        Assert-True ($LASTEXITCODE -eq 0) 'package version check preview succeeds'
+        Assert-True (($versionPreview -join "`n") -match '0\.9\.0\.LATEST -> 1\.0\.0\.LATEST') 'preview reports latest version constraint'
+        Assert-True ((Get-Content -LiteralPath $versionProjectPath -Raw) -eq $originalProject) 'version preview does not modify project file'
+
+        $versionApply = @(& $hostPath -NoProfile -ExecutionPolicy Bypass -File $ScriptPath -ProjectFile $versionProjectPath -ApplyProjectVersions 2>&1 | ForEach-Object { $_.ToString() })
+        Assert-True ($LASTEXITCODE -eq 0) 'explicit package version apply succeeds'
+        Assert-True ((Get-Content -LiteralPath "$versionProjectPath.backup" -Raw) -eq $originalProject) 'version apply creates exact backup'
+        $updatedProject = Get-Content -LiteralPath $versionProjectPath -Raw | ConvertFrom-Json
+        Assert-True ($updatedProject.packageDirectories[1].dependencies[0].versionNumber -eq '1.0.0.LATEST') 'version apply updates duplicate dependency declarations'
+
+        $coveragePlan = @(& $hostPath -NoProfile -ExecutionPolicy Bypass -File $ScriptPath -ProjectFile (Join-Path $ProjectDirectory 'sfdx-project.json') -CoverageCheck -DryRun -OrgAlias 'scratch-a' -CoveragePackageId '04t-package' 2>&1 | ForEach-Object { $_.ToString() })
+        Assert-True ($LASTEXITCODE -eq 0) 'coverage dry-run plan succeeds without invoking Salesforce'
+        Assert-True (($coveragePlan -join "`n") -match 'Query % aggregate coverage') 'coverage dry-run shows the configured aggregate coverage pattern'
+
+        $env:SF_MODE = 'failure'
         $failureOutput = @(& $hostPath -NoProfile -ExecutionPolicy Bypass -File $ScriptPath -ProjectFile (Join-Path $ProjectDirectory 'sfdx-project.json') -SelfCheck 2>&1 | ForEach-Object { $_.ToString() })
         Assert-True ($LASTEXITCODE -ne 0) 'Salesforce CLI command failures produce a nonzero script exit code'
         Assert-True (($failureOutput -join "`n") -match 'mock sf failure') 'Salesforce CLI failure details are surfaced'
@@ -100,6 +135,7 @@ exit /b 1
         Assert-True ($LASTEXITCODE -ne 0) 'CMD launcher propagates PowerShell failure exit codes'
     } finally {
         $env:PATH = $oldPath
+        Remove-Item Env:SF_MODE -ErrorAction SilentlyContinue
     }
 
     $launcher = Get-Content -LiteralPath $LauncherPath -Raw

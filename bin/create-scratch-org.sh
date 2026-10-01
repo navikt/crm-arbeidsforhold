@@ -74,6 +74,16 @@ ORG_AVAILABLE_FOR_READ="${ORG_AVAILABLE_FOR_READ:-true}"
 SELF_CHECK_ONLY="${SELF_CHECK_ONLY:-false}"
 DRY_RUN="${DRY_RUN:-false}"
 PACKAGE_PLAN_ONLY="${PACKAGE_PLAN_ONLY:-false}"
+CHECK_PROJECT_VERSIONS_ONLY="${CHECK_PROJECT_VERSIONS_ONLY:-false}"
+APPLY_PROJECT_VERSIONS="${APPLY_PROJECT_VERSIONS:-false}"
+COVERAGE_CHECK_ONLY="${COVERAGE_CHECK_ONLY:-false}"
+COVERAGE_PACKAGE_ID="${COVERAGE_PACKAGE_ID:-}"
+COVERAGE_MINIMUM="${COVERAGE_MINIMUM:-}"
+COVERAGE_TEST_CLASS="${COVERAGE_TEST_CLASS:-}"
+COVERAGE_CLASS_PATTERN="${COVERAGE_CLASS_PATTERN:-}"
+COVERAGE_RUN_ALL="${COVERAGE_RUN_ALL:-false}"
+COVERAGE_SKIP_INSTALL="${COVERAGE_SKIP_INSTALL:-false}"
+COVERAGE_SKIP_DEPLOY="${COVERAGE_SKIP_DEPLOY:-false}"
 REFRESH_DEPENDENCY_SOURCES="${REFRESH_DEPENDENCY_SOURCES:-false}"
 CLEAR_DEPENDENCY_SOURCES_ONLY="${CLEAR_DEPENDENCY_SOURCES_ONLY:-false}"
 
@@ -365,6 +375,16 @@ Options:
   --self-check                        Validate setup and configuration only.
   --dry-run                           Print mutating commands instead of executing them.
   --package-plan                      Check installed packages and print what would change.
+    --check-versions                    Preview latest package constraints for sfdx-project.json.
+    --apply-project-versions            Update version constraints after creating sfdx-project.json.backup.
+    --coverage-check                    Run Apex tests and check aggregate package coverage on an existing org.
+    --coverage-package-id <04t>         Optional package version to install before coverage.
+    --coverage-minimum <percent>        Required coverage percentage. Default: 75
+    --coverage-test-class <name>        Test class unless --coverage-run-all is set.
+    --coverage-class-pattern <pattern>  Apex class-name LIKE filter from coverage config.
+    --coverage-run-all                  Run the full Apex test suite instead of one class.
+    --coverage-skip-install             Skip optional package installation.
+    --coverage-skip-deploy              Skip force-app deployment.
   --refresh-dependency-sources        Clear dependency source folders before setup and retrieve them again afterward.
   --clear-dependency-sources-only     Clear dependency source folders and exit without running any org or package commands.
                                       Files listed in dependencySourcePolicy.preserveRootFiles are kept. Default: README.md
@@ -402,6 +422,9 @@ Examples:
   ./create-scratch-org.sh --dry-run
   ./create-scratch-org.sh --package-plan
   ./create-scratch-org.sh --package-plan --install-latest
+    ./create-scratch-org.sh --check-versions
+    ./create-scratch-org.sh --apply-project-versions
+    ./create-scratch-org.sh --coverage-check --alias scratch-org --coverage-skip-install
   ./create-scratch-org.sh --refresh-dependency-sources
   ./create-scratch-org.sh --clear-dependency-sources-only
   ./create-scratch-org.sh --use-pool --pool-tag dev --pool-devhub <devhub-alias>
@@ -536,6 +559,11 @@ config_validation_errors() {
             (.dependencySourcePolicy | objects
                 | field("preserveRootFiles"; string_list; "dependencySourcePolicy.preserveRootFiles must be an array of non-empty strings"),
                 field("requireLocalDirectories"; type == "boolean"; "dependencySourcePolicy.requireLocalDirectories must be a boolean")),
+                field("coverage"; type == "object"; "coverage must be an object"),
+                (.coverage | objects
+                    | field("minimumPercent"; type == "number" and . >= 0 and . <= 100; "coverage.minimumPercent must be between 0 and 100"),
+                    field("testClass"; . == null or nonempty_string; "coverage.testClass must be a non-empty string or null"),
+                    field("classNamePattern"; nonempty_string; "coverage.classNamePattern must be a non-empty string")),
             field("dummyUsers"; type == "object"; "dummyUsers must be an object"),
             (.dummyUsers | objects
                 | (if has("file") then empty else "dummyUsers.file is required" end),
@@ -636,6 +664,9 @@ load_config() {
     apply_config_value DUMMY_USER_FILE '.dummyUsers.file' path
     apply_config_value DUMMY_USER_PROFILE_NAME '.dummyUsers.profileName'
     DUMMY_PROFILE_ASSIGNMENTS_JSON="$(jq -c '.dummyUsers.profileAssignments // []' "$CONFIG_FILE")"
+    apply_config_value COVERAGE_MINIMUM '.coverage.minimumPercent'
+    apply_config_value COVERAGE_TEST_CLASS '.coverage.testClass'
+    apply_config_value COVERAGE_CLASS_PATTERN '.coverage.classNamePattern'
 
     # An empty array means "nothing" in sf-project, not "use the default".
     if [[ -z "$POST_STEPS" ]] && config_is_empty_array '.postSteps'; then
@@ -689,6 +720,8 @@ apply_generic_defaults() {
     POOL_TAG="${POOL_TAG:-$DEFAULT_POOL_TAG}"
     FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY="${FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY:-true}"
     DUMMY_USER_PROFILE_NAME="${DUMMY_USER_PROFILE_NAME:-$DEFAULT_DUMMY_USER_PROFILE_NAME}"
+    COVERAGE_MINIMUM="${COVERAGE_MINIMUM:-75}"
+    COVERAGE_CLASS_PATTERN="${COVERAGE_CLASS_PATTERN:-%}"
     PACKAGE_INSTALL_KEY_ENV_VAR="${PACKAGE_INSTALL_KEY_ENV_VAR:-$DEFAULT_PACKAGE_INSTALL_KEY_ENV_VAR}"
     PRESERVE_ROOT_FILES="${PRESERVE_ROOT_FILES:-$DEFAULT_PRESERVE_ROOT_FILES}"
     if [[ "$PRESERVE_NOTHING" == "true" ]]; then
@@ -698,6 +731,10 @@ apply_generic_defaults() {
 
     if [[ -z "$PACKAGE_INSTALL_KEY" ]]; then
         PACKAGE_INSTALL_KEY="$(printenv -- "$PACKAGE_INSTALL_KEY_ENV_VAR" || true)"
+    fi
+
+    if ! [[ "$COVERAGE_MINIMUM" =~ ^[0-9]+([.][0-9]+)?$ ]] || ! awk -v value="$COVERAGE_MINIMUM" 'BEGIN { exit !(value >= 0 && value <= 100) }'; then
+        error 2 "coverage.minimumPercent must be a number from 0 to 100. Got: $COVERAGE_MINIMUM"
     fi
 }
 
@@ -739,7 +776,10 @@ generate_config_json() {
         --arg preserveRootFiles "$PRESERVE_ROOT_FILES" \
         --arg userFile "$(config_relative_path "$DUMMY_USER_FILE")" \
         --arg userProfile "$DUMMY_USER_PROFILE_NAME" \
-        --arg userAssignments "$DUMMY_USER_ASSIGNMENTS" '
+        --arg userAssignments "$DUMMY_USER_ASSIGNMENTS" \
+        --argjson coverageMinimum "$COVERAGE_MINIMUM" \
+        --arg coverageTestClass "$COVERAGE_TEST_CLASS" \
+        --arg coverageClassPattern "$COVERAGE_CLASS_PATTERN" '
         def list: [splits("[,[:space:]]+")] | map(select(length > 0));
         def nullable: if . == "" then null else . end;
         {
@@ -754,6 +794,11 @@ generate_config_json() {
             pool: ({ use: $usePool, tag: $poolTag, fallbackToCreate: $fallbackToCreate }
                 + (if $poolDevHub == "" then {} else { devHub: $poolDevHub } end)),
             packageInstallKeyEnvironmentVariable: $keyVariable,
+            coverage: {
+                minimumPercent: $coverageMinimum,
+                testClass: ($coverageTestClass | nullable),
+                classNamePattern: $coverageClassPattern
+            },
             dependencySourcePolicy: { preserveRootFiles: ($preserveRootFiles | list) }
         }
         + (if $userFile == "" then {} else {
@@ -854,7 +899,7 @@ should_run_post_step() {
 }
 
 needs_project_file() {
-    if [[ "$RUN_PACKAGES" == "true" || "$UPDATE_PACKAGES_ONLY" == "true" || "$PACKAGE_PLAN_ONLY" == "true" || "$SELF_CHECK_ONLY" == "true" || "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" ]]; then
+    if [[ "$RUN_PACKAGES" == "true" || "$UPDATE_PACKAGES_ONLY" == "true" || "$PACKAGE_PLAN_ONLY" == "true" || "$CHECK_PROJECT_VERSIONS_ONLY" == "true" || "$COVERAGE_CHECK_ONLY" == "true" || "$SELF_CHECK_ONLY" == "true" || "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" ]]; then
         return 0
     fi
 
@@ -1403,6 +1448,167 @@ EOF_JSON
 
     echo ""
     echo "Copy the suggested versionNumber values into the matching dependency entries in $PROJECT_FILE."
+}
+
+check_project_package_versions() {
+    local package_name=""
+    local current_version=""
+    local comparable_version=""
+    local latest_json=""
+    local latest_base=""
+    local latest_version=""
+    local versions_json=""
+    local updates_json='{}'
+    local update_count=0
+    local temp_file=""
+
+    echo ""
+    echo "Checking latest released package versions from $PROJECT_FILE..."
+
+    while IFS=$'\t' read -r package_name current_version; do
+        [[ -z "$package_name" ]] && continue
+        versions_json="$(get_package_versions_json "$package_name")" \
+            || error 1 "Failed to list package versions for $package_name"
+        latest_json="$(latest_version_json "$versions_json")"
+        if [[ -z "$latest_json" || "$latest_json" == "null" ]]; then
+            error 1 "No released package version found for $package_name"
+        fi
+
+        latest_base="$(base_version_from_json "$latest_json")"
+        latest_version="$latest_base.LATEST"
+        comparable_version="${current_version%.LATEST}"
+        comparable_version="${comparable_version%.NEXT}"
+        if [[ "$comparable_version" == "$latest_base" ]]; then
+            echo "- $package_name: ${current_version:-not configured} is current ($latest_version)"
+            continue
+        fi
+
+        echo "- $package_name: ${current_version:-not configured} -> $latest_version"
+        updates_json="$(jq -n -c --argjson updates "$updates_json" --arg package "$package_name" --arg version "$latest_version" '$updates + {($package): $version}')"
+        update_count=$((update_count + 1))
+    done < <(read_dependencies)
+
+    if [[ "$update_count" -eq 0 ]]; then
+        echo "All configured package versions are current."
+        return 0
+    fi
+
+    if [[ "$APPLY_PROJECT_VERSIONS" != "true" || "$DRY_RUN" == "true" ]]; then
+        echo "Preview only: $update_count package constraint(s) can be updated. Use --apply-project-versions to write them."
+        return 0
+    fi
+
+    temp_file="$(mktemp "${PROJECT_FILE}.XXXXXX")"
+    if ! jq --argjson updates "$updates_json" '
+        .packageDirectories |= map(
+            if .dependencies then
+                .dependencies |= map(
+                    if ($updates[.package] // null) != null then .versionNumber = $updates[.package] else . end
+                )
+            else . end
+        )
+    ' "$PROJECT_FILE" > "$temp_file"; then
+        rm -f "$temp_file"
+        error 1 "Could not update dependency versions in $PROJECT_FILE"
+    fi
+
+    cp -p "$PROJECT_FILE" "${PROJECT_FILE}.backup" \
+        || { rm -f "$temp_file"; error 1 "Could not create backup ${PROJECT_FILE}.backup"; }
+    mv -f "$temp_file" "$PROJECT_FILE" \
+        || { rm -f "$temp_file"; error 1 "Could not replace $PROJECT_FILE"; }
+
+    echo "Updated $update_count package constraint(s). Backup: ${PROJECT_FILE}.backup"
+}
+
+run_coverage_check() {
+    local -a install_arguments=(package install --target-org "$TARGET_ORG" --package "$COVERAGE_PACKAGE_ID" -r --json)
+    local test_run_json=""
+    local test_run_id=""
+    local test_status=0
+    local coverage_json=""
+    local covered=""
+    local uncovered=""
+    local percentage=""
+    local escaped_pattern="$(printf '%s' "$COVERAGE_CLASS_PATTERN" | sed -e 's/\\/\\\\/g' -e "s/'/\\\\&/g")"
+    local query="SELECT SUM(NumLinesCovered) covered, SUM(NumLinesUncovered) uncovered FROM ApexCodeCoverageAggregate WHERE ApexClassOrTrigger.Name LIKE '$escaped_pattern'"
+
+    echo ""
+    echo "Post-package coverage check for $TARGET_ORG"
+    echo "Required coverage: $COVERAGE_MINIMUM%"
+
+    if [[ -n "$COVERAGE_PACKAGE_ID" && "$COVERAGE_SKIP_INSTALL" != "true" ]]; then
+        if [[ -n "$PACKAGE_INSTALL_KEY" ]]; then
+            if [[ "$DRY_RUN" == "true" ]]; then
+                install_arguments+=(--installation-key "***")
+            else
+                install_arguments+=(--installation-key "$PACKAGE_INSTALL_KEY")
+            fi
+        fi
+        run_cmd sf "${install_arguments[@]}" || error $? "Package installation failed before coverage check."
+    elif [[ -z "$COVERAGE_PACKAGE_ID" && "$COVERAGE_SKIP_INSTALL" != "true" ]]; then
+        echo "Skipping package install: no coverage package ID was provided."
+    fi
+
+    if [[ "$COVERAGE_SKIP_DEPLOY" != "true" ]]; then
+        run_cmd sf project deploy start \
+            --target-org "$TARGET_ORG" \
+            --source-dir force-app \
+            --ignore-conflicts \
+            --json \
+            || error $? "Metadata deployment failed before coverage check."
+    fi
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        if [[ "$COVERAGE_RUN_ALL" == "true" || -z "$COVERAGE_TEST_CLASS" ]]; then
+            run_cmd sf apex run test --target-org "$TARGET_ORG" --code-coverage --wait 120 --json
+        else
+            run_cmd sf apex run test --target-org "$TARGET_ORG" --tests "$COVERAGE_TEST_CLASS" --code-coverage --synchronous --result-format human
+        fi
+        run_cmd sf data query --target-org "$TARGET_ORG" --use-tooling-api --query "$query" --result-format json
+        ORG_ACTION="No org action. Coverage check dry-run."
+        return 0
+    fi
+
+    if [[ "$COVERAGE_RUN_ALL" == "true" || -z "$COVERAGE_TEST_CLASS" ]]; then
+        set +e
+        sf apex run test --target-org "$TARGET_ORG" --code-coverage --wait 120 --json
+        test_status=$?
+        set -e
+        if [[ "$test_status" -ne 0 ]]; then
+            test_run_json="$(sf_json sf apex run test --target-org "$TARGET_ORG" --code-coverage)" \
+                || error $? "Could not start asynchronous Apex tests."
+            test_run_id="$(jq -r '.result.testRunId // empty' <<< "$test_run_json")"
+            if [[ -z "$test_run_id" ]]; then
+                error 1 "Could not parse testRunId from the asynchronous Apex test run."
+            fi
+            sf apex get test --target-org "$TARGET_ORG" --test-run-id "$test_run_id" --code-coverage --result-format human \
+                || error $? "Could not retrieve asynchronous Apex test results."
+        fi
+    else
+        sf apex run test \
+            --target-org "$TARGET_ORG" \
+            --tests "$COVERAGE_TEST_CLASS" \
+            --code-coverage \
+            --synchronous \
+            --result-format human \
+            || error $? "Apex test class $COVERAGE_TEST_CLASS failed."
+    fi
+
+    coverage_json="$(sf_json sf data query \
+        --target-org "$TARGET_ORG" \
+        --use-tooling-api \
+        --query "$query" \
+        --result-format json)" || error $? "Could not query aggregate Apex coverage."
+    covered="$(jq -r '.result.records[0].covered // 0' <<< "$coverage_json")"
+    uncovered="$(jq -r '.result.records[0].uncovered // 0' <<< "$coverage_json")"
+    percentage="$(awk -v covered="$covered" -v uncovered="$uncovered" 'BEGIN { total = covered + uncovered; if (total > 0) printf "%.2f", covered / total * 100; else printf "0.00" }')"
+
+    echo "Apex coverage: $percentage% ($covered covered, $uncovered uncovered)"
+    ORG_ACTION="Completed coverage check for $TARGET_ORG: $percentage%"
+    if ! awk -v percentage="$percentage" -v minimum="$COVERAGE_MINIMUM" 'BEGIN { exit !(percentage >= minimum) }'; then
+        error 1 "Coverage $percentage% is below the required $COVERAGE_MINIMUM%."
+    fi
+    echo "${GREEN}Coverage is at or above $COVERAGE_MINIMUM%.${RESET}"
 }
 
 get_installed_packages_json() {
@@ -2843,6 +3049,51 @@ while [[ $# -gt 0 ]]; do
             PACKAGE_PLAN_ONLY=true
             shift
             ;;
+        --check-versions)
+            CHECK_PROJECT_VERSIONS_ONLY=true
+            shift
+            ;;
+        --apply-project-versions)
+            CHECK_PROJECT_VERSIONS_ONLY=true
+            APPLY_PROJECT_VERSIONS=true
+            shift
+            ;;
+        --coverage-check)
+            COVERAGE_CHECK_ONLY=true
+            shift
+            ;;
+        --coverage-package-id)
+            require_option_value "$1" "${2:-}"
+            COVERAGE_PACKAGE_ID="$2"
+            shift 2
+            ;;
+        --coverage-minimum)
+            require_option_value "$1" "${2:-}"
+            COVERAGE_MINIMUM="$2"
+            shift 2
+            ;;
+        --coverage-test-class)
+            require_option_value "$1" "${2:-}"
+            COVERAGE_TEST_CLASS="$2"
+            shift 2
+            ;;
+        --coverage-class-pattern)
+            require_option_value "$1" "${2:-}"
+            COVERAGE_CLASS_PATTERN="$2"
+            shift 2
+            ;;
+        --coverage-run-all)
+            COVERAGE_RUN_ALL=true
+            shift
+            ;;
+        --coverage-skip-install)
+            COVERAGE_SKIP_INSTALL=true
+            shift
+            ;;
+        --coverage-skip-deploy)
+            COVERAGE_SKIP_DEPLOY=true
+            shift
+            ;;
         --refresh-dependency-sources)
             REFRESH_DEPENDENCY_SOURCES=true
             shift
@@ -2928,6 +3179,28 @@ if [[ "$POST_STEPS_ONLY_MODE" == "true" && ( "$DELETE_ORG_ONLY" == "true" || "$U
     error 1 "You cannot combine --post-steps-only with another exclusive mode."
 fi
 
+if [[ "$CHECK_PROJECT_VERSIONS_ONLY" == "true" && ( "$DELETE_ORG_ONLY" == "true" || "$UPDATE_PACKAGES_ONLY" == "true" || "$PACKAGE_PLAN_ONLY" == "true" || "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" || "$SELF_CHECK_ONLY" == "true" || "$POST_STEPS_ONLY_MODE" == "true" ) ]]; then
+    error 1 "You cannot combine --check-versions with another exclusive mode."
+fi
+
+if [[ "$CHECK_PROJECT_VERSIONS_ONLY" == "true" ]]; then
+    RUN_ORG_CREATE=false
+    RUN_PACKAGES=false
+    POST_STEPS=none
+    USE_POOL=false
+fi
+
+if [[ "$COVERAGE_CHECK_ONLY" == "true" && ( "$CHECK_PROJECT_VERSIONS_ONLY" == "true" || "$DELETE_ORG_ONLY" == "true" || "$UPDATE_PACKAGES_ONLY" == "true" || "$PACKAGE_PLAN_ONLY" == "true" || "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" || "$SELF_CHECK_ONLY" == "true" || "$POST_STEPS_ONLY_MODE" == "true" ) ]]; then
+    error 1 "You cannot combine --coverage-check with another exclusive mode."
+fi
+
+if [[ "$COVERAGE_CHECK_ONLY" == "true" ]]; then
+    RUN_ORG_CREATE=false
+    RUN_PACKAGES=false
+    POST_STEPS=none
+    USE_POOL=false
+fi
+
 if [[ "$DELETE_ORG_ONLY" == "true" ]]; then
     RUN_ORG_CREATE=false
     RUN_PACKAGES=false
@@ -2995,10 +3268,22 @@ validate_boolean "$FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY" "FALLBACK_TO_SCRATC
 validate_boolean "$SELF_CHECK_ONLY" "SELF_CHECK_ONLY"
 validate_boolean "$DRY_RUN" "DRY_RUN"
 validate_boolean "$PACKAGE_PLAN_ONLY" "PACKAGE_PLAN_ONLY"
+validate_boolean "$CHECK_PROJECT_VERSIONS_ONLY" "CHECK_PROJECT_VERSIONS_ONLY"
+validate_boolean "$APPLY_PROJECT_VERSIONS" "APPLY_PROJECT_VERSIONS"
+validate_boolean "$COVERAGE_CHECK_ONLY" "COVERAGE_CHECK_ONLY"
+validate_boolean "$COVERAGE_RUN_ALL" "COVERAGE_RUN_ALL"
+validate_boolean "$COVERAGE_SKIP_INSTALL" "COVERAGE_SKIP_INSTALL"
+validate_boolean "$COVERAGE_SKIP_DEPLOY" "COVERAGE_SKIP_DEPLOY"
 validate_boolean "$REFRESH_DEPENDENCY_SOURCES" "REFRESH_DEPENDENCY_SOURCES"
 validate_boolean "$CLEAR_DEPENDENCY_SOURCES_ONLY" "CLEAR_DEPENDENCY_SOURCES_ONLY"
 
 validate_post_steps
+
+if [[ "$COVERAGE_CHECK_ONLY" == "true" ]]; then
+    if ! [[ "$COVERAGE_MINIMUM" =~ ^[0-9]+([.][0-9]+)?$ ]] || ! awk -v value="$COVERAGE_MINIMUM" 'BEGIN { exit !(value >= 0 && value <= 100) }'; then
+        error 2 "Coverage minimum must be a number from 0 to 100. Got: $COVERAGE_MINIMUM"
+    fi
+fi
 
 if [[ "$CLEAR_DEPENDENCY_SOURCES_ONLY" == "true" ]]; then
     require_command "jq"
@@ -3034,7 +3319,19 @@ if [[ "$RUN_ORG_CREATE" == "true" && ( "$USE_POOL" != "true" || "$FALLBACK_TO_SC
     validate_file_exists "$SCRATCH_DEF_FILE" "Scratch org definition file"
 fi
 
+if [[ "$CHECK_PROJECT_VERSIONS_ONLY" == "true" ]]; then
+    print_settings
+    check_project_package_versions
+    exit 0
+fi
+
 resolve_runtime_target_org
+
+if [[ "$COVERAGE_CHECK_ONLY" == "true" ]]; then
+    print_settings
+    run_coverage_check
+    exit 0
+fi
 
 # -----------------------------
 # Main

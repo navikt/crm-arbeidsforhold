@@ -51,11 +51,23 @@ Parameters use PowerShell names such as `-OrgAlias`, `-DurationDays`, `-Definiti
 
 The Bash script supports org create/delete, pool acquisition, package install/update/plan, post-steps, dummy users, dry-run, self-check, dependency cleanup/retrieval, and `--init-config`. See `create-scratch-org.sh --help` for options.
 
+Package-version maintenance is preview-only unless explicitly applied. Coverage uses the target project config unless flags override it:
+
+```bash
+./bin/create-scratch-org.sh --check-versions
+./bin/create-scratch-org.sh --apply-project-versions
+./bin/create-scratch-org.sh --coverage-check --alias scratch-org --coverage-skip-install
+```
+
+Windows offers matching `-CheckVersions`, `-ApplyProjectVersions`, and `-CoverageCheck` PowerShell parameters. `sf-project` provides `packages check-versions [--apply]` and `coverage check`; its coverage mutations are scratch-only by default. The scripts run Salesforce CLI directly and do not depend on `sf-project`.
+
 ## Shared config
 
 Settings are resolved in this order: command-line option, environment variable, `sf-project.config.json`, generic default. `--init-config` in Bash and `-InitConfig` in PowerShell create a config preview with dry-run; overwriting an existing config requires `--force` or `-Force`. Unmanaged settings are preserved.
 
 `dummyUsers.profileName` is the fallback profile. Optional `dummyUsers.profileAssignments` maps groups of usernames to other profile names. Profiles must already exist in the target org. Existing users are not modified; profile mappings apply when the script creates new users. See [sf-project configuration](../tools/salesforce-project-cli/docs/configuration.md) for the shared schema and [the script specification](../.github/specs/create-scratch-org-script-config.md) for parity details.
+
+Coverage defaults are in `coverage.minimumPercent`, `coverage.testClass`, and `coverage.classNamePattern`. A `null` test class runs all tests; `%` selects all Apex classes in the aggregate query. The standalone scripts expose `--coverage-check` / `-CoverageCheck`; `sf-project` exposes `coverage check`.
 
 ## Offline tests
 
@@ -85,8 +97,7 @@ sf org open --target-org <alias>
 
 ## Other utilities
 
-- `check-sfdx-versions.js` compares package versions and can update `sfdx-project.json` after confirmation; it saves a backup first.
-- `post-package-coverage-check.ps1` runs the separate post-package Apex coverage workflow.
+- `check-sfdx-versions.js` and `post-package-coverage-check.ps1` are the legacy standalone utilities. They remain available until the PowerShell parity harness has been run on Windows.
 - `tests/p360-mock-smoke.sh` is run by the root `npm run test:p360:mock` script.
 
 The unused legacy `install-scratch.sh`, `get-latest-released-packages-posix.sh`, `resolve_packages.ps1`, and `check-version.js` have been removed. The old Windows file `newScratchOrg.bat` is only a launcher now.

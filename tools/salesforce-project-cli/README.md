@@ -53,6 +53,11 @@ Run commands from a Salesforce DX project or pass `--project-dir <path>`. Packag
     "permissionSets": [],
     "dummyDataPlan": null,
     "communityName": null,
+    "coverage": {
+        "minimumPercent": 75,
+        "testClass": null,
+        "classNamePattern": "%"
+    },
     "postSteps": ["deploy"],
     "pool": {
         "use": false,
@@ -79,8 +84,10 @@ sf-project org status [alias]
 sf-project org info <alias>
 sf-project project configure
 sf-project packages plan
+sf-project packages check-versions
 sf-project packages install
 sf-project packages update
+sf-project coverage check --target-org my-scratch-org --dry-run
 sf-project dependencies clear
 sf-project dependencies recover
 sf-project dependencies refresh
