@@ -45,6 +45,16 @@ function commandResult(request: CommandRequest, payload: unknown): CommandResult
     };
 }
 
+function failedCommandResult(request: CommandRequest, error: string, timedOut = false): CommandResult {
+    return {
+        ...commandResult(request, []),
+        exitCode: timedOut ? null : 1,
+        failed: true,
+        timedOut,
+        error
+    };
+}
+
 describe('installPackages heartbeat', () => {
     it('emits a heartbeat progress event while a slow install command is still running', async () => {
         vi.useFakeTimers();
@@ -119,5 +129,84 @@ describe('installPackages heartbeat', () => {
         } finally {
             vi.useRealTimers();
         }
+    });
+});
+
+describe('installPackages polling', () => {
+    it('continues polling when an installed-package status probe times out', async () => {
+        let installedQueryCount = 0;
+        const runCommand = vi.fn(async (request: CommandRequest) => {
+            if (request.arguments?.[1] === 'installed') {
+                installedQueryCount += 1;
+                return installedQueryCount === 1
+                    ? commandResult(request, [])
+                    : failedCommandResult(request, 'Command timed out', true);
+            }
+            if (request.arguments?.[1] === 'version') {
+                return commandResult(request, [
+                    { PackageName: 'shared-package', MajorVersion: 1, MinorVersion: 0, PatchVersion: 0, BuildNumber: 3, SubscriberPackageVersionId: '04t-shared' }
+                ]);
+            }
+            if (request.arguments?.[1] === 'install' && request.arguments?.[2] === 'report') {
+                return commandResult(request, { Status: 'SUCCESS' });
+            }
+            if (request.arguments?.[1] === 'install') {
+                return commandResult(request, { Id: '0Hf-shared-request', Status: 'IN_PROGRESS' });
+            }
+            return commandResult(request, {});
+        });
+
+        await expect(
+            installPackages({
+                configuration,
+                targetOrg: 'scratch-org',
+                installLatest: false,
+                dryRun: false,
+                environment: {},
+                operationId: 'operation-1',
+                emit: () => undefined,
+                runCommand
+            })
+        ).resolves.toBe(EXIT_CODES.SUCCESS);
+        expect(runCommand.mock.calls.map(([request]) => request.arguments?.slice(0, 3).join(' '))).toContain(
+            'package install report'
+        );
+    });
+
+    it('still throws when an installed-package status probe fails for a non-timeout reason', async () => {
+        let installedQueryCount = 0;
+        const runCommand = vi.fn(async (request: CommandRequest) => {
+            if (request.arguments?.[1] === 'installed') {
+                installedQueryCount += 1;
+                return installedQueryCount === 1
+                    ? commandResult(request, [])
+                    : failedCommandResult(request, 'Authorization failure');
+            }
+            if (request.arguments?.[1] === 'version') {
+                return commandResult(request, [
+                    { PackageName: 'shared-package', MajorVersion: 1, MinorVersion: 0, PatchVersion: 0, BuildNumber: 3, SubscriberPackageVersionId: '04t-shared' }
+                ]);
+            }
+            if (request.arguments?.[1] === 'install') {
+                return commandResult(request, { Id: '0Hf-shared-request', Status: 'IN_PROGRESS' });
+            }
+            return commandResult(request, {});
+        });
+
+        await expect(
+            installPackages({
+                configuration,
+                targetOrg: 'scratch-org',
+                installLatest: false,
+                dryRun: false,
+                environment: {},
+                operationId: 'operation-1',
+                emit: () => undefined,
+                runCommand
+            })
+        ).rejects.toThrow('Authorization failure');
+        expect(runCommand.mock.calls.map(([request]) => request.arguments?.slice(0, 3).join(' '))).not.toContain(
+            'package install report'
+        );
     });
 });
