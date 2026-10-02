@@ -28,7 +28,7 @@ Scratch-org-flyten og avhengighetsinstallasjon er dokumentert i [bin/README.md](
 
 En typisk CLI-flyt starter med at du logger inn mot en Dev Hub med `sf org login web`, og deretter bruker den dokumenterte scratch-org-flyten. Installasjonsnøkler skal aldri legges i README, kildekode eller shell-historikk.
 
-På Windows er `bin/create-scratch-org.bat` den anbefalte CMD-inngangen. `bin/newScratchOrg.bat` er bare beholdt som et kompatibilitetsnavn.
+På Windows er `bin/create-scratch-org.bat` den anbefalte CMD-inngangen.
 
 ## Lokal validering
 

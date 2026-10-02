@@ -3,7 +3,6 @@ $ErrorActionPreference = 'Stop'
 $BinDirectory = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $ScriptPath = Join-Path $BinDirectory 'create-scratch-org.ps1'
 $LauncherPath = Join-Path $BinDirectory 'create-scratch-org.bat'
-$LegacyLauncherPath = Join-Path $BinDirectory 'newScratchOrg.bat'
 $ProjectDirectory = Join-Path ([IO.Path]::GetTempPath()) ('scratch-org-tests-' + [guid]::NewGuid().ToString('N'))
 $Failures = 0
 
@@ -140,8 +139,6 @@ exit /b 1
 
     $launcher = Get-Content -LiteralPath $LauncherPath -Raw
     Assert-True ($launcher -match '%\*' -and $launcher -match 'exit /b %SCRIPT_EXIT_CODE%') 'CMD launcher forwards arguments and exit code'
-    $legacyLauncher = Get-Content -LiteralPath $LegacyLauncherPath -Raw
-    Assert-True ($legacyLauncher -match 'create-scratch-org\.bat' -and $legacyLauncher -match '%\*') 'legacy CMD name forwards to the supported launcher'
 } finally {
     Remove-Item -LiteralPath $ProjectDirectory -Recurse -Force -ErrorAction SilentlyContinue
 }
