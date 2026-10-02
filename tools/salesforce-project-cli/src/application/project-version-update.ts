@@ -161,14 +161,15 @@ export async function updateProjectPackageVersions(
             options.runCommand
         );
         const latestBase = baseVersion(latest.versionNumber);
-        selectedVersions.set(packageName, `${latestBase}.LATEST`);
         const configured = dependencies.find((dependency) => dependency.package === packageName)?.versionNumber;
         const configuredBase = typeof configured === 'string' ? baseVersion(configured) : '';
         if (configuredBase !== latestBase) {
+            const latestVersion = `${latestBase}.LATEST`;
+            selectedVersions.set(packageName, latestVersion);
             changes.push({
                 packageName,
                 currentVersion: typeof configured === 'string' ? configured : '',
-                latestVersion: `${latestBase}.LATEST`
+                latestVersion
             });
         }
     }
