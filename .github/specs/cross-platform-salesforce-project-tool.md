@@ -256,7 +256,7 @@ Two external gates remain before release:
 - the module-local Node.js 22 matrix must run on Ubuntu, macOS and Windows after extraction or explicit activation in the host repository;
 - authenticated Salesforce validation must run against an explicitly selected non-production org before claiming org lifecycle, package installation or deployment compatibility.
 
-Existing Bash, Batch and PowerShell tools remain unchanged until parity is accepted. The migration matrix is maintained in `tools/salesforce-project-cli/docs/legacy-behavior-matrix.md`.
+The Bash, Batch and PowerShell entry points remain supported standalone tools; this module has not replaced them. Their behavior and the CLI parity work are tracked in separate specifications. The migration matrix is maintained in `tools/salesforce-project-cli/docs/legacy-behavior-matrix.md`.
 
 ## Out of scope
 

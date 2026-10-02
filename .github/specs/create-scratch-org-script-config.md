@@ -94,6 +94,6 @@ The same script works in any Salesforce DX project. Project-specific values come
 
 ## Implementation status
 
-All delivery issues are implemented. `bash bin/tests/create-scratch-org.test.sh` passes 143 assertions offline, including the cross-tool check for 21 config fixtures and importing three dummy users with two explicit profiles plus the default fallback. `npm run check` in `tools/salesforce-project-cli` passes (179 core tests, 16 web tests, docs check, type-check, build). The parity comparison shows identical post-step commands for this repository; the only difference is that the data plan path now uses the actual file name `dummy-data/Plan.json` instead of `dummy-data/plan.json`.
+All delivery issues are implemented. `bash bin/tests/create-scratch-org.test.sh` passes 281 assertions offline, including the cross-tool check for 21 config fixtures and importing three dummy users with two explicit profiles plus the default fallback. `npm run check` in `tools/salesforce-project-cli` passes (190 core tests, 16 web tests, docs check, type-check, build). The parity comparison shows identical post-step commands for this repository; the only difference is that the data plan path now uses the actual file name `dummy-data/Plan.json` instead of `dummy-data/plan.json`.
 
 Authenticated verification against a scratch org was not run and is not claimed as passed.

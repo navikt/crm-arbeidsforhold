@@ -64,6 +64,18 @@ function resultError(result: CommandResult, command: string): Error {
     );
 }
 
+function isQueuedTestRun(result: CommandResult): boolean {
+    try {
+        const payload = parseJson(result.stdout, 'sf apex run test');
+        const runResult = payload.result;
+        if (runResult === null || typeof runResult !== 'object') return false;
+        const status = (runResult as Record<string, unknown>).status;
+        return typeof status === 'string' && ['QUEUED', 'INPROGRESS'].includes(status.toUpperCase().replace(/[\s_-]/g, ''));
+    } catch {
+        return false;
+    }
+}
+
 async function execute(
     options: PackageCoverageOptions,
     commandArguments: string[],
@@ -99,7 +111,9 @@ async function runAllTests(options: PackageCoverageOptions): Promise<void> {
         cwd: options.projectDirectory,
         timeoutMs: options.runAllTimeoutMs ?? 7_300_000
     });
-    if (!failed(waited)) return;
+    const queued = isQueuedTestRun(waited);
+    if (!failed(waited) && !queued) return;
+    if (!waited.timedOut && !queued) throw resultError(waited, 'sf apex run test');
 
     const asyncRun = await execute(
         options,

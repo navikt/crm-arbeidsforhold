@@ -1,6 +1,6 @@
 ---
 slug: salesforce-project-cli-command-robustness
-status: proposed
+status: implemented-local-validation
 github-epic: 1045
 ---
 
@@ -120,6 +120,12 @@ stdout/stderr, or stack detail into normal (non-`--verbose`, non-`--json`) outpu
 Step 1 is a prerequisite for steps 2 and 3 (retry delays and cancellation both build on the timeout
 plumbing touching the same call sites). Step 4 is a review pass that can run once steps 1-3 land, or
 incrementally alongside them.
+
+## Implementation status
+
+All four delivery issues are closed. On 2026-10-02, `npm run check` passed with 190 core tests and
+16 web tests, including documentation checks, typechecking, and production builds. Authenticated
+Salesforce verification was not run and is not claimed.
 
 ## Verification strategy
 

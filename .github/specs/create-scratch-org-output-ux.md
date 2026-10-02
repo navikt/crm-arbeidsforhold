@@ -103,7 +103,7 @@ Manual use exposed a defect shared by `create-scratch-org.sh`, `create-scratch-o
 
 ## Implementation status
 
-All delivery issues are implemented on the working branch (not yet committed or merged). Validation run on 2026-10-02:
+All delivery issues are implemented and committed on `scripts-tooling-pr`; they are awaiting PR review and merge. Validation run on 2026-10-02:
 
 - New offline tests were written first and failed (26 failing assertions) before the implementation.
 - `bash bin/tests/create-scratch-org.test.sh` passes 258 assertions offline (Bash 5.3), including 25 new tests for colour, icons, phases, progress counters, install retries, `--verbose`, `--update-packages`, `--package-plan`, `--self-check`, `--delete-org-only`, `--help`, and the run summary.

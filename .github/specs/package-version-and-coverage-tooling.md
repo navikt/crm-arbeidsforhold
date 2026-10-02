@@ -57,3 +57,14 @@ All three supported command-line workflows provide equivalent package-version ma
 - Run `npm run check` in `tools/salesforce-project-cli` and the Bash offline suite.
 - Run the PowerShell test harness on Windows before closing this spec; the current macOS host may only perform static/editor checks.
 - Search references before removing either old utility.
+
+## Implementation status
+
+Package-version preview/apply and post-package coverage commands are implemented in the Bash script,
+standalone PowerShell workflow, and `sf-project` CLI. On 2026-10-02, `npm run check` passed with 190
+core tests and 16 web tests; `bash bin/tests/create-scratch-org.test.sh` passed 281 offline
+assertions; and `bash -n` passed for the Bash script and test harness.
+
+The PowerShell parser and test harness have not run because PowerShell is unavailable on this macOS
+host. Keep issue #1070 open until those Windows checks and the full cross-tool review are complete.
+No authenticated Salesforce operations were run.

@@ -228,6 +228,9 @@ async function queryInstalledPackages(
         ...(timeoutMs === undefined ? {} : { timeoutMs }),
         ...(options.signal === undefined ? {} : { signal: options.signal })
     });
+    if (result.timedOut) {
+        throw new InstalledPackagesQueryTimeoutError(result.error ?? result.stderr ?? 'Installed packages query timed out');
+    }
     if (result.failed || result.exitCode !== 0) {
         throw new Error(result.error ?? result.stderr ?? 'Failed to query installed packages');
     }
@@ -239,6 +242,8 @@ async function queryInstalledPackages(
         })
     );
 }
+
+class InstalledPackagesQueryTimeoutError extends Error {}
 
 async function resolvePackagePlan(options: PlanPackagesOptions): Promise<PackagePlanItem[]> {
     // Resolve sequentially so emitted ordinals and later mutation order match dependency declaration order.
@@ -477,9 +482,17 @@ async function mutatePackages(options: MutatePackagesOptions): Promise<ExitCode>
                     deadline,
                     ...(options.signal === undefined ? {} : { signal: options.signal }),
                     isInstalled: async () => {
-                        const installedPackages = await queryInstalledPackages(options, PACKAGE_INSTALL_STATUS_PROBE_TIMEOUT_MS);
-                        const installed = installedPackages.get(item.dependency.packageName);
-                        return installed !== undefined && comparePackageVersions(installed, item.selectedVersion) === 0;
+                        try {
+                            const installedPackages = await queryInstalledPackages(
+                                options,
+                                PACKAGE_INSTALL_STATUS_PROBE_TIMEOUT_MS
+                            );
+                            const installed = installedPackages.get(item.dependency.packageName);
+                            return installed !== undefined && comparePackageVersions(installed, item.selectedVersion) === 0;
+                        } catch (error) {
+                            if (error instanceof InstalledPackagesQueryTimeoutError) return false;
+                            throw error;
+                        }
                     }
                 });
             }

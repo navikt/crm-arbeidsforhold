@@ -20,32 +20,16 @@
         "profileName": "Standard User",
         "permissionSetAssignments": [
             {
-                "permissionSets": [
-                    "AAREG_Arbeidsforhold_Saksbehandling"
-                ],
-                "usernames": [
-                    "persaksbehandler1@nav.no",
-                    "hannasaksbehandler2@nav.no"
-                ]
+                "permissionSets": ["AAREG_Arbeidsforhold_Saksbehandling"],
+                "usernames": ["persaksbehandler1@nav.no", "hannasaksbehandler2@nav.no"]
             },
             {
-                "permissionSets": [
-                    "AAREG_Arbeidsforhold_Support",
-                    "AAREG_Arbeidsforhold_Support_Read_Only"
-                ],
-                "usernames": [
-                    "karibrukerstotte1@nav.no",
-                    "olabrukerstotte2@nav.no"
-                ]
+                "permissionSets": ["AAREG_Arbeidsforhold_Support", "AAREG_Arbeidsforhold_Support_Read_Only"],
+                "usernames": ["karibrukerstotte1@nav.no", "olabrukerstotte2@nav.no"]
             }
         ]
     },
-    "postSteps": [
-        "deploy",
-        "permsets",
-        "data",
-        "community"
-    ],
+    "postSteps": ["deploy", "permsets", "data", "community"],
     "pool": {
         "use": false,
         "tag": "dev",
@@ -57,8 +41,6 @@
         "mutationMs": 600000
     },
     "dependencySourcePolicy": {
-        "preserveRootFiles": [
-            "README.md"
-        ]
+        "preserveRootFiles": ["README.md"]
     }
 }

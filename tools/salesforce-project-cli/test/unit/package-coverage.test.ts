@@ -14,7 +14,12 @@ afterEach(async () => {
     );
 });
 
-function result(request: CommandRequest, stdout = '', exitCode = 0): CommandResult {
+function result(
+    request: CommandRequest,
+    stdout = '',
+    exitCode = 0,
+    overrides: Partial<CommandResult> = {}
+): CommandResult {
     return {
         executable: request.executable,
         arguments: [...(request.arguments ?? [])],
@@ -26,7 +31,8 @@ function result(request: CommandRequest, stdout = '', exitCode = 0): CommandResu
         timedOut: false,
         canceled: false,
         attempts: 1,
-        error: ''
+        error: '',
+        ...overrides
     };
 }
 
@@ -124,7 +130,7 @@ describe('post-package coverage check', () => {
             if (args[0] === 'apex' && args.includes('run')) {
                 if (args.includes('--wait')) {
                     runAllCount += 1;
-                    return result(request, 'test wait timed out', 1);
+                    return result(request, 'test wait timed out', 1, { timedOut: true });
                 }
                 return result(request, '{"status":0,"result":{"testRunId":"707000000000001"}}');
             }
@@ -150,6 +156,58 @@ describe('post-package coverage check', () => {
         expect(runAllCount).toBe(1);
         expect(requests.map((request) => request.arguments?.[0])).toEqual(['apex', 'apex', 'apex', 'data']);
         expect(requests[2]?.arguments).toContain('707000000000001');
+    });
+
+    it('falls back when the synchronous full-suite run remains queued', async () => {
+        const requests: CommandRequest[] = [];
+        const runCommand = vi.fn(async (request: CommandRequest) => {
+            requests.push(request);
+            const args = request.arguments ?? [];
+            if (args[0] === 'apex' && args.includes('--wait')) {
+                return result(request, '{"status":1,"result":{"status":"Queued","testRunId":"707000000000001"}}', 1);
+            }
+            if (args[0] === 'apex' && args.includes('run'))
+                return result(request, '{"status":0,"result":{"testRunId":"707000000000002"}}');
+            if (args[0] === 'apex' && args.includes('get')) return result(request, 'Tests completed');
+            if (args.includes('query'))
+                return result(request, '{"status":0,"result":{"records":[{"covered":77,"uncovered":23}]}}');
+            return result(request, '{"status":0,"result":{}}');
+        });
+
+        await expect(
+            runPackageCoverageCheck({
+                targetOrg: 'scratch-org',
+                projectDirectory: '/project',
+                minimumCoverage: 75,
+                testClass: 'SampleTest',
+                runAllTests: true,
+                skipInstall: true,
+                skipDeploy: true,
+                runCommand
+            })
+        ).resolves.toMatchObject({ passed: true, percentage: 77 });
+
+        expect(requests.map((request) => request.arguments?.[0])).toEqual(['apex', 'apex', 'apex', 'data']);
+        expect(requests[2]?.arguments).toContain('707000000000002');
+    });
+
+    it('does not retry a failed synchronous full-suite run', async () => {
+        const runCommand = vi.fn(async (request: CommandRequest) => result(request, 'Apex tests failed', 1));
+
+        await expect(
+            runPackageCoverageCheck({
+                targetOrg: 'scratch-org',
+                projectDirectory: '/project',
+                minimumCoverage: 75,
+                testClass: 'SampleTest',
+                runAllTests: true,
+                skipInstall: true,
+                skipDeploy: true,
+                runCommand
+            })
+        ).rejects.toThrow('Apex tests failed');
+
+        expect(runCommand).toHaveBeenCalledTimes(1);
     });
 
     it('fails when an Apex test command fails', async () => {
