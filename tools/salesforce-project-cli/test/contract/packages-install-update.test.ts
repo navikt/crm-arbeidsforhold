@@ -3,7 +3,9 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { runCli } from '../../src/cli-app.js';
+import { loadProjectConfiguration } from '../../src/domain/config.js';
 import type { CommandRequest, CommandResult } from '../../src/infrastructure/command-runner.js';
+import { createMockCommandRunner } from '../../src/infrastructure/mock-command-runner.js';
 
 const temporaryDirectories: string[] = [];
 
@@ -181,6 +183,24 @@ describe('packages install and update', () => {
         expect(stdout.map((line) => JSON.parse(line))).toContainEqual(
             expect.objectContaining({ kind: 'package-summary', installed: 2, failed: 0 })
         );
+    });
+
+    it('returns the timeout mock from install submission instead of status probes', async () => {
+        const projectDirectory = await createProject();
+        const configuration = await loadProjectConfiguration(projectDirectory);
+        const runner = createMockCommandRunner(configuration, 'timeout');
+
+        const submission = await runner({
+            executable: 'sf',
+            arguments: ['package', 'install', '--target-org', 'scratch-org', '--package', '04t-package', '--json']
+        });
+        const report = await runner({
+            executable: 'sf',
+            arguments: ['package', 'install', 'report', '--request-id', '0Hf-request', '--json']
+        });
+
+        expect(submission).toMatchObject({ failed: true, timedOut: true, error: 'Mock timeout' });
+        expect(report).toMatchObject({ failed: false, timedOut: false });
     });
 
     it('installs selected latest versions sequentially with keys only when required', async () => {

@@ -29,7 +29,7 @@ export function createMockCommandRunner(
             request.retry?.onRetry?.(transientFailure, 2, request.retry.delayMs ?? 0);
             return { ...result, attempts: 2 };
         }
-        if (scenario === 'timeout' && request.arguments?.[1] === 'install' && request.arguments?.[2] === 'report') {
+        if (scenario === 'timeout' && isInstallRequest) {
             return { ...result, failed: true, timedOut: true, error: 'Mock timeout' };
         }
         return Promise.resolve(result);
