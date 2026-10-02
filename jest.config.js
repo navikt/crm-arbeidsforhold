@@ -14,5 +14,6 @@ module.exports = {
     },
     setupFiles: ['jest-canvas-mock'],
     setupFilesAfterEnv,
+    testPathIgnorePatterns: [...(jestConfig.testPathIgnorePatterns || []), '<rootDir>/tools/salesforce-project-cli/'],
     testTimeout: 10000
 };
