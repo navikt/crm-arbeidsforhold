@@ -52,7 +52,7 @@ export async function pollPackageInstall(options: PackageInstallPollerOptions): 
             ...(options.installationKey === undefined ? {} : { secretValues: [options.installationKey] }),
             ...(options.signal === undefined ? {} : { signal: options.signal })
         });
-        if (reportResult.failed || reportResult.canceled || reportResult.timedOut) return reportResult;
+        if (reportResult.canceled || (reportResult.failed && !reportResult.timedOut)) return reportResult;
 
         const status = packageInstallStatus(reportResult);
         if (status === 'SUCCESS' || status === 'SUCCEEDED' || status === 'INSTALLED' || status === 'COMPLETED') return reportResult;
