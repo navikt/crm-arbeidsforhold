@@ -49,6 +49,12 @@
 **/jsconfig.json
 **/.eslintrc.json
 **/__tests__/**
+**/jest-mocks/**
+
+# Salesforce-managed defaults retrieved into the ignored src-temp directory
+**/settings/RealTimeEvent.settings-meta.xml
+**/transactionSecurityPolicies/sfdc_default_ReportExport_Protection.transactionSecurityPolicy-meta.xml
+**/flows/sfdc_default_ReportExport_Protection_Flow.flow-meta.xml
 
 
 # Other packages
