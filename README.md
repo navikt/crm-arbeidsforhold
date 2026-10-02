@@ -1,54 +1,99 @@
 # crm-arbeidsforhold
 
-Denne pakken inneholder Salesforce metadata som støtter arbeidet NAV gjør rundt Aa-registeret. Løsningen er utviklet av Team Arbeidsforhold og omfatter blant annet Experience Cloud og dialogløsningen fra NKS, support, saksbehandling, søknader og avtaler.
+Denne pakken inneholder Salesforce metadata som støtter arbeidet NAV gjør rundt Aa-registeret. Løsningen omfatter blant annet Experience Cloud, dialog, support, saksbehandling, søknader og avtaler.
 
 ## Avhengigheter
 
-Pakken har flere avhengigheter. Sjekk [sfdx-project.json](https://github.com/navikt/crm-arbeidsforhold/blob/master/sfdx-project.json) filen for å se en oversikt over alle avhengigheter.
+Pakken har flere avhengigheter. Se [sfdx-project.json](https://github.com/navikt/crm-arbeidsforhold/blob/main/sfdx-project.json) for oversikten over pakker og versjoner.
 
 ## Komme i gang
 
-1. Salesforce DX-bruker. Kontakt #crm-plattform-team på Slack om du ikke har dette
-2. Installer Salesforce DX CLI (SFDX)
-   - Last ned fra [Salesforce.com](https://developer.salesforce.com/tools/sfdxcli)
-   - Eller benytt npm: `npm install sfdx-cli --global`
-3. Klon dette repoet ([GitHub Desktop](https://desktop.github.com) anbefales for ikke-utviklere)
-4. Installer [SSDX](https://github.com/navikt/ssdx)
-   - Med SSDX kan du lage scratch orger og gjøre deklarative endringer (gjøre endringer i nettleseren på Salesforce, altså ikke-utvikling)
-   - **Trenger du ikke verktøy utvikling kan du stoppe her**
-5. Installer [VS Code](https://code.visualstudio.com) (anbefalt)
-6. Installer [Salesforce Extension Pack](https://marketplace.visualstudio.com/items?itemName=salesforce.salesforcedx-vscode)
-7. Installer [AdoptOpenJDK](https://adoptopenjdk.net) (kun versjon 8 eller 11)
-8. Åpne VS Code Settings og søk etter `salesforcedx-vscode-apex`
-9. Under `Java Home`, legg inn følgende:
-   - macOS: `/Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home`
-   - Windows: `C:\\Program Files\\AdoptOpenJDK\\jdk-11.0.3.7-hotspot` (merk at versjonsnummer kan endre seg)
+Installer følgende verktøy:
 
+- [Salesforce CLI (`sf`)](https://developer.salesforce.com/tools/sfdxcli)
+- [Salesforce Extension Pack](https://marketplace.visualstudio.com/items?itemName=salesforce.salesforcedx-vscode)
+- [Visual Studio Code](https://code.visualstudio.com)
+- [Eclipse Temurin JDK 11](https://adoptium.net/temurin/releases/), som er repoets dokumenterte Java-anbefaling for Salesforce-utvikling
 
-## Testing mot Altinn-integrasjon
+Klon repoet og kjør kommandoene fra prosjektroten.
 
-- URL for testbrukere i preprod: https://preprod-navdialog.cs89.force.com/aaregisteret/s/
-- Status for BankID i testmiljøet: https://testmiljo.status.digdir.no/incidents/
+## Scratch org
 
-Bruker 1:
-- Julius Veum
-- Logg inn med bankid med kodebrikke
-- Fnr: 16120102137
-- Engangskode: otp
-- Passord: qwer1234
-- Tilknyttet Tranøy og Sande i vestfold regnskap
+Scratch-org-flyten og avhengighetsinstallasjon er dokumentert i [bin/README.md](bin/README.md). Der finner du blant annet:
 
-Bruker 2:
-- Philip Lundquist
-- Logg inn med bankid med kodebrikke
-- Fnr: 16120101181
-- Engangskode: otp
-- Passord: qwer1234
-- Tilknyttet Malmfjorden og Ridabu regnskap
+- opprettelse med `bin/create-scratch-org.sh`
+- Windows-flyt med `bin/create-scratch-org.bat` (PowerShell engine, no `sf-project` dependency)
+- henting fra scratch-org-pool
+- pakkeoppløsning og nødvendige Dev Hub-forutsetninger
 
+En typisk CLI-flyt starter med at du logger inn mot en Dev Hub med `sf org login web`, og deretter bruker den dokumenterte scratch-org-flyten. Installasjonsnøkler skal aldri legges i README, kildekode eller shell-historikk.
 
-For å endre tilgang til org for brukere:
-- Logg inn med brukeren i tt02.altinn.no
-- Velg virksomhet og innstillinger
-- Velg “Andre med rettigheter til virksomheten”
-- Trykk “Gi eller fjern tilgang” for å endre tilgangene
+På Windows er `bin/create-scratch-org.bat` den anbefalte CMD-inngangen. `bin/newScratchOrg.bat` er bare beholdt som et kompatibilitetsnavn.
+
+## Lokal validering
+
+```bash
+npm install
+npm test
+npm run prettier:check
+```
+
+`npm test` kjører LWC Jest-testene. Apex-kompilering og Apex-tester er org-avhengige og må kjøres mot en autentisert Salesforce-org.
+
+## Salesforce Project CLI
+
+CLI-en er ein sjølvstendig lokal pakke i [tools/salesforce-project-cli](tools/salesforce-project-cli). Root-prosjektet har ingen npm-script eller dependency som startar verktøyet automatisk.
+
+Installer verktøyet frå tool-mappa. Denne eine kommandoen installerer avhengigheiter, byggjer CLI-en, opprettar prosjektkonfigurasjonen og lenkjer `sf-project` lokalt:
+
+```bash
+cd tools/salesforce-project-cli
+npm run setup
+```
+
+Setup opprettar eller gjennomgår `sf-project.config.json` ved sida av `sfdx-project.json`. Kvar innstilling viser eksisterande verdi og defaultverdi. Trykk Enter for å bevare eksisterande verdi; dersom innstillinga manglar, brukar Enter defaultverdien.
+
+Gå så tilbake til repo-rota:
+
+```bash
+cd ../..
+```
+
+Køyr deretter kommandoane frå repo-rota:
+
+```bash
+sf-project doctor
+sf-project org list
+sf-project packages plan
+sf-project web start
+```
+
+Utan global lenking kan du køyre CLI-en direkte frå tool-mappa:
+
+```bash
+cd tools/salesforce-project-cli
+npx sf-project doctor --project-dir ../..
+```
+
+Konfigurasjonen inneheld ikkje installasjonsnøklar. Nøkkelen må ligge i miljøvariabelen som står i `packageInstallKeyEnvironmentVariable`. På macOS kan ein lagre ein nøkkel i Keychain og berre eksportere han for éi køyring:
+
+```bash
+security add-generic-password -a "$USER" -s PACKAGE_INSTALL_KEY -w
+PACKAGE_INSTALL_KEY="$(security find-generic-password -a "$USER" -s PACKAGE_INSTALL_KEY -w)" sf-project packages install --target-org my-org
+```
+
+Nøklar, tokens og credentials skal ikkje skrivast til `sf-project.config.json`, shell-script eller README.
+
+## Dokumentasjon og agentregler
+
+- [AGENTS.md](AGENTS.md) — repositoryregler og kildegrenser
+- [CONTEXT.md](CONTEXT.md) — domeneord, arkitekturgrenser og verifikasjonsvokabular
+- [.github/copilot-instructions.md](.github/copilot-instructions.md) — Copilot-arbeidsflyt og sikkerhetsregler
+- [docs/adr/](docs/adr/) — Architecture Decision Records
+- [docs/architecture/](docs/architecture/) — tverrgående arkitektur og kildeoppdeling
+- [docs/domain/](docs/domain/) — domenedokumentasjon
+- [docs/surfaces/](docs/surfaces/) — brukerflate-dokumentasjon
+- [docs/integrations/](docs/integrations/) — integrasjonsspesifikk teknisk dokumentasjon
+- [docs/utviklingsstandarder.md](docs/utviklingsstandarder.md) — speilet oversikt over utviklingsstandarder
+
+Testtilgang, testbrukere, tokens, credentials og miljøspesifikke URL-er skal håndteres i godkjent, ikke-offentlig dokumentasjon.
