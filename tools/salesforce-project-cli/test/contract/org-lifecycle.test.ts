@@ -95,7 +95,6 @@ describe('org lifecycle', () => {
                 'explicit-org'
             ],
             ['sf', 'package', 'installed', 'list', '--target-org', 'explicit-org', '--json'],
-            ['sf', 'project', 'reset', 'tracking', '--target-org', 'explicit-org', '--no-prompt', '--json'],
             ['sf', 'project', 'deploy', 'start', '--target-org', 'explicit-org', '--ignore-conflicts'],
             ['sf', 'project', 'reset', 'tracking', '--target-org', 'explicit-org', '--no-prompt', '--json']
         ]);
@@ -249,7 +248,6 @@ describe('org lifecycle', () => {
             ['org', 'display', '--target-org', 'existing-org', '--json'],
             ['config', 'get', 'target-org', '--json'],
             ['package', 'installed', 'list', '--target-org', 'existing-org', '--json'],
-            ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json'],
             ['project', 'deploy', 'start', '--target-org', 'existing-org', '--ignore-conflicts'],
             [
                 'org',
@@ -310,7 +308,6 @@ describe('org lifecycle', () => {
         expect(requests.map((request) => request.arguments)).toEqual([
             ['org', 'display', '--target-org', 'existing-org', '--json'],
             ['config', 'get', 'target-org', '--json'],
-            ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json'],
             ['project', 'deploy', 'start', '--target-org', 'existing-org', '--ignore-conflicts'],
             ['org', 'assign', 'permset', '--target-org', 'existing-org', '--name', 'Permission_One'],
             ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json']
@@ -324,6 +321,41 @@ describe('org lifecycle', () => {
                 })
             ])
         );
+    });
+
+    it('deletes local source tracking before deploying with --full-deploy', async () => {
+        const projectDirectory = await createProject({ postSteps: ['deploy'] });
+        const requests: CommandRequest[] = [];
+        const runner = vi.fn(async (request: CommandRequest) => {
+            requests.push(request);
+            return successfulResult(request);
+        });
+
+        const exitCode = await runCli(
+            [
+                'project',
+                'configure',
+                '--project-dir',
+                projectDirectory,
+                '--target-org',
+                'existing-org',
+                '--skip-packages',
+                '--full-deploy',
+                '--confirm-mutation',
+                'MUTATE project.configure existing-org'
+            ],
+            { stdout: () => undefined, stderr: () => undefined },
+            { runCommand: runner }
+        );
+
+        expect(exitCode).toBe(0);
+        expect(requests.map((request) => request.arguments)).toEqual([
+            ['org', 'display', '--target-org', 'existing-org', '--json'],
+            ['config', 'get', 'target-org', '--json'],
+            ['project', 'delete', 'tracking', '--target-org', 'existing-org', '--no-prompt'],
+            ['project', 'deploy', 'start', '--target-org', 'existing-org', '--ignore-conflicts'],
+            ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json']
+        ]);
     });
 
     it('runs a project-declared custom post-step alongside built-in steps', async () => {
@@ -364,7 +396,6 @@ describe('org lifecycle', () => {
         expect(requests.map((request) => request.arguments)).toEqual([
             ['org', 'display', '--target-org', 'existing-org', '--json'],
             ['config', 'get', 'target-org', '--json'],
-            ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json'],
             ['project', 'deploy', 'start', '--target-org', 'existing-org', '--ignore-conflicts'],
             ['apex', 'run', '--file', 'scripts/seed.apex'],
             ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json']

@@ -44,6 +44,8 @@ param(
     [switch]$SkipPackages,
     [switch]$SkipVersionCheck,
     [switch]$PostStepsOnly,
+    [switch]$FullDeploy,
+    [switch]$Redeploy,
     [switch]$RefreshDependencySources,
     [switch]$ClearDependencySourcesOnly
 )
@@ -419,9 +421,14 @@ function Invoke-PostStep {
     param([string]$Step)
     switch ($Step) {
         'deploy' {
-            Invoke-Sf @('project', 'reset', 'tracking', '--target-org', $script:TargetOrg, '--no-prompt') -PlanOnly:$script:DryRun | Out-Null
+            if ($FullDeploy) {
+                Invoke-Sf @('project', 'delete', 'tracking', '--target-org', $script:TargetOrg, '--no-prompt') -PlanOnly:$script:DryRun | Out-Null
+            }
             Invoke-Sf @('project', 'deploy', 'start', '--target-org', $script:TargetOrg, '--ignore-conflicts') -PlanOnly:$script:DryRun | Out-Null
             Invoke-Sf @('project', 'reset', 'tracking', '--target-org', $script:TargetOrg, '--no-prompt') -PlanOnly:$script:DryRun | Out-Null
+            if (-not $FullDeploy) {
+                Write-Host 'Only tracked changes were deployed. If metadata is missing in the org, run: create-scratch-org.bat -Redeploy'
+            }
         }
         'permsets' {
             if (@($script:Config.permissionSets).Count -eq 0) { Write-Warning 'No permission sets configured; skipping.'; return }
@@ -722,16 +729,44 @@ function Invoke-CoverageCheck {
 function Invoke-Main {
     if ($Help) {
         @'
-Usage: create-scratch-org.bat [-OrgAlias <alias>] [-DurationDays <1..30>] [-DryRun]
-       [-PostStepsOnly] [-PostSteps <steps>] [-SkipPackages] [-UpdatePackages]
-       [-PackagePlan] [-DeleteOrgOnly] [-UsePool] [-RefreshDependencySources]
-    [-ClearDependencySourcesOnly] [-SelfCheck] [-InitConfig] [-Force]
-    [-CheckVersions] [-ApplyProjectVersions] [-CoverageCheck]
+create-scratch-org - create and configure a Salesforce scratch org for this project.
+
+Usage: create-scratch-org.bat [options]   (or .\bin\create-scratch-org.ps1 [options])
+
+Common tasks:
+  New scratch org (full setup)          create-scratch-org.bat
+  Preview without changing anything     create-scratch-org.bat -DryRun
+  Check tools, login and config         create-scratch-org.bat -SelfCheck
+  Re-run the post-steps on existing org create-scratch-org.bat -PostStepsOnly
+  Re-run selected post-steps            create-scratch-org.bat -PostStepsOnly -PostSteps data,permsets
+  Force a full redeploy of all source   create-scratch-org.bat -Redeploy
+  Install missing/outdated packages     create-scratch-org.bat -UpdatePackages
+  See what packages would change        create-scratch-org.bat -PackagePlan
+  Delete the scratch org                create-scratch-org.bat -DeleteOrgOnly
+  Create sf-project.config.json         create-scratch-org.bat -InitConfig
+
+Options:
+  Target:       -OrgAlias <alias> -DurationDays <1..30> -DefinitionFile <file> -UsePool
+  What to run:  -PostStepsOnly -PostSteps <steps> -Redeploy -FullDeploy -SkipOrg -SkipPackages
+  Packages:     -UpdatePackages -InstallLatest -PackagePlan -SkipVersionCheck
+  Checks:       -DryRun -SelfCheck
+  Maintenance:  -CheckVersions -ApplyProjectVersions -CoverageCheck -RefreshDependencySources
+                -ClearDependencySourcesOnly
+  Config:       -ConfigFile <file> -NoConfig -InitConfig -Force
+
+-FullDeploy deletes local source tracking before the deploy step so all local source is
+deployed, not only tracked changes. -Redeploy = -PostStepsOnly -PostSteps deploy -FullDeploy.
 
 Reads sf-project.config.json beside sfdx-project.json. Requires only PowerShell,
 jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-project.
 '@ | Write-Host
         return
+    }
+    if ($Redeploy) {
+        $script:PostStepsOnly = [switch]$true
+        $script:FullDeploy = [switch]$true
+        $script:PostSteps = @('deploy')
+        $script:BoundParameters['PostSteps'] = $script:PostSteps
     }
     if (-not $ProjectFile) { $ProjectFile = if ($env:PROJECT_FILE) { $env:PROJECT_FILE } else { 'sfdx-project.json' } }
     $projectFilePath = [IO.Path]::GetFullPath($ProjectFile)

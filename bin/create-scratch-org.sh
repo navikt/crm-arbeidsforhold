@@ -64,6 +64,8 @@ INSTALL_LATEST_PACKAGES="${INSTALL_LATEST_PACKAGES:-false}"
 DELETE_ORG_ONLY="${DELETE_ORG_ONLY:-false}"
 UPDATE_PACKAGES_ONLY="${UPDATE_PACKAGES_ONLY:-false}"
 POST_STEPS_ONLY_MODE="${POST_STEPS_ONLY_MODE:-false}"
+FULL_DEPLOY="${FULL_DEPLOY:-false}"
+REDEPLOY=false
 
 USE_POOL="${USE_POOL:-}"
 POOL_TAG="${POOL_TAG:-}"
@@ -344,6 +346,7 @@ active_modes() {
     [[ "$UPDATE_PACKAGES_ONLY" == "true" ]] && modes+=("update-packages")
     [[ "$DELETE_ORG_ONLY" == "true" ]] && modes+=("delete-org-only")
     [[ "$POST_STEPS_ONLY_MODE" == "true" ]] && modes+=("post-steps-only")
+    [[ "$FULL_DEPLOY" == "true" ]] && modes+=("full-deploy")
     [[ "$CHECK_PROJECT_VERSIONS_ONLY" == "true" ]] && modes+=("check-versions")
     [[ "$COVERAGE_CHECK_ONLY" == "true" ]] && modes+=("coverage-check")
     [[ "$INSTALL_LATEST_PACKAGES" == "true" ]] && modes+=("install-latest")
@@ -483,108 +486,114 @@ is_retryable_package_install_failure() {
 
 usage() {
     cat <<'EOF_USAGE'
+create-scratch-org.sh - create and configure a Salesforce scratch org for this project.
+
+A full run: delete the old org with the same alias, create a new one, install the
+package dependencies from sfdx-project.json, then run the post-steps
+(deploy, permsets, data, community, custom steps).
+
 Usage:
-  ./create-scratch-org.sh [options]
+  ./bin/create-scratch-org.sh [options]
 
-Settings are resolved as: CLI option > environment variable > sf-project.config.json > generic default.
-sf-project.config.json is read from the project file's directory when it exists.
+Common tasks:
+  New scratch org (full setup)          ./bin/create-scratch-org.sh
+  Preview without changing anything     ./bin/create-scratch-org.sh --dry-run
+  Check tools, login and config         ./bin/create-scratch-org.sh --self-check
+  Re-run the post-steps on existing org ./bin/create-scratch-org.sh --post-steps-only
+  Re-run selected post-steps            ./bin/create-scratch-org.sh --post-steps-only --post-steps data,permsets
+  Force a full redeploy of all source   ./bin/create-scratch-org.sh --redeploy
+  Install missing/outdated packages     ./bin/create-scratch-org.sh --update-packages
+  See what packages would change        ./bin/create-scratch-org.sh --package-plan
+  Delete the scratch org                ./bin/create-scratch-org.sh --delete-org-only
+  Create sf-project.config.json         ./bin/create-scratch-org.sh --init-config
 
-Options:
-  -a, --alias <alias>                 Scratch org alias. Config: defaultOrgAlias. Default: project directory name.
-  -d, --duration-days <days>          Scratch org duration in days. Config: scratchDurationDays. Default: 14
-  -f, --definition-file <file>        Scratch org definition file. Config: scratchDefinition. Default: config/project-scratch-def.json
-  -p, --project-file <file>           Salesforce DX project file. Default: sfdx-project.json
-  -c, --community-name <name>         Community to publish. Config: communityName. Default: none (step skipped).
-  --dummy-data-plan <file>            Dummy data import plan. Config: dummyDataPlan. Default: none (step skipped).
-  --permission-sets <names>           Comma-separated permission sets for the permsets step. Config: permissionSets.
+Target and scratch org:
+  -a, --alias <alias>             Org alias. Config: defaultOrgAlias. Default: project directory name.
+  -d, --duration-days <1-30>      Scratch org lifetime. Config: scratchDurationDays. Default: 14
+  -f, --definition-file <file>    Scratch org definition. Config: scratchDefinition.
+                                  Default: config/project-scratch-def.json
+  --use-pool                      Fetch an org from the sfp pool first. Config: pool.use
+  --pool-tag <tag>                sfp pool tag. Config: pool.tag. Default: dev
+  --pool-devhub <alias>           Dev Hub for sfp. Config: pool.devHub. Default: sf target-dev-hub.
 
-  -s, --post-steps <steps>            Post steps to run. Config: postSteps. Default: deploy
-                                      Values: all, none, deploy, permsets, data, community, or a customPostSteps name.
-                                      Multiple values can be comma-separated: deploy,permsets,data,community
+What to run:
+  --post-steps-only               Use an existing org: skip org create and package install.
+  -s, --post-steps <steps>        Comma-separated post-steps. Config: postSteps. Default: deploy
+                                  Values: deploy, permsets, data, community, custom step names, all, none.
+  --redeploy                      Shortcut for --post-steps-only --post-steps deploy --full-deploy.
+  --full-deploy                   The deploy step deletes local source tracking first, so all local
+                                  source is deployed, not only tracked changes. Org data is untouched.
+  --skip-org                      Do not delete/create/fetch the scratch org.
+  --skip-packages                 Do not install packages.
+  --delete-org-only               Only delete the org with the given alias.
 
-  --config <file>                     Configuration file to read. Default: sf-project.config.json next to the project file.
-  --no-config                         Do not read any configuration file.
-  --init-config                       Write sf-project.config.json from the effective settings and exit.
-                                      Combine with other options to set values, e.g. --init-config --alias my-org.
-                                      With --dry-run the JSON is printed instead of written.
-  --force                             Allow --init-config to update an existing file. Unmanaged keys are kept.
+Post-step settings:
+  --permission-sets <names>       Permission sets for the permsets step. Config: permissionSets.
+  --dummy-data-plan <file>        Data plan for the data step. Config: dummyDataPlan.
+  -c, --community-name <name>     Community for the community step. Config: communityName.
 
-  --install-latest                    Install latest released package versions instead of versions defined in sfdx-project.json.
-  --update-packages                   Only install package dependencies that are missing or behind.
-  --use-pool                          Try to fetch a scratch org from the sfp scratch org pool. Config: pool.use
-  --pool-tag <tag>                    sfp pool tag. Config: pool.tag. Default: dev
-  --pool-devhub <alias>               DevHub username or alias for sfp pool commands. Config: pool.devHub
-                                      If omitted, script tries: sf config get target-dev-hub --json
-  --keychain-service <service>        macOS Keychain service name for install key lookup.
-  --keychain-account <account>        macOS Keychain account name for install key lookup.
-  --delete-org-only                   Only delete the scratch org matching --alias.
-  --self-check                        Validate setup and configuration only.
-  --dry-run                           Print mutating commands instead of executing them.
-  --package-plan                      Check installed packages and print what would change.
-    --check-versions                    Preview latest package constraints for sfdx-project.json.
-    --apply-project-versions            Update version constraints after creating sfdx-project.json.backup.
-    --coverage-check                    Run Apex tests and check aggregate package coverage on an existing org.
-    --coverage-package-id <04t>         Optional package version to install before coverage.
-    --coverage-minimum <percent>        Required coverage percentage. Default: 75
-    --coverage-test-class <name>        Test class unless --coverage-run-all is set.
-    --coverage-class-pattern <pattern>  Apex class-name LIKE filter from coverage config.
-    --coverage-run-all                  Run the full Apex test suite instead of one class.
-    --coverage-skip-install             Skip optional package installation.
-    --coverage-skip-deploy              Skip force-app deployment.
-  --refresh-dependency-sources        Clear dependency source folders before setup and retrieve them again afterward.
-  --clear-dependency-sources-only     Clear dependency source folders and exit without running any org or package commands.
-                                      Files listed in dependencySourcePolicy.preserveRootFiles are kept. Default: README.md
-  --post-steps-only                   Run only post steps against an existing org. Shortcut for --skip-org --skip-packages.
-                                      Combine with --post-steps to select specific steps, e.g. --post-steps-only --post-steps data.
-  --skip-org                          Do not delete/create/fetch scratch org.
-  --skip-packages                     Do not install packages.
-  --skip-version-check                Do not warn when dependency versions are not latest released versions.
-  --verbose                           Show full Salesforce CLI output for successful package installs.
-  --color                             Always use coloured output.
-  --no-color                          Never use coloured output. NO_COLOR=1 does the same.
-  -h, --help                          Show this help text.
+Packages:
+  --update-packages               Only install dependencies that are missing or behind (no org create).
+  --install-latest                Use the latest released versions instead of sfdx-project.json versions.
+  --package-plan                  Show what would be installed or updated, without changes.
+  --skip-version-check            Do not warn when dependencies are not on the latest release.
+  --keychain-service <service>    macOS Keychain service holding the install key.
+  --keychain-account <account>    macOS Keychain account for the install key.
+
+Preview and checks:
+  --dry-run                       Print every changing command instead of running it.
+  --self-check                    Check commands, CLI login, files and package resolution. No changes.
+
+Maintenance:
+  --check-versions                Preview newer package versions for sfdx-project.json.
+  --apply-project-versions        Write them (creates sfdx-project.json.backup).
+  --coverage-check                Run Apex tests on an existing org and check aggregate coverage.
+    --coverage-package-id <04t>   Package version to install first.
+    --coverage-minimum <percent>  Required coverage. Default: 75
+    --coverage-test-class <name>  Test class to run (otherwise all tests).
+    --coverage-class-pattern <p>  Apex class LIKE filter.
+    --coverage-run-all            Run all tests even if a test class is configured.
+    --coverage-skip-install       Skip the package install.
+    --coverage-skip-deploy        Skip the force-app deploy.
+  --refresh-dependency-sources    Clear dependency source folders before setup, retrieve them after.
+  --clear-dependency-sources-only Clear dependency source folders and exit.
+
+Configuration:
+  -p, --project-file <file>       Salesforce DX project file. Default: sfdx-project.json
+  --config <file>                 Config file. Default: sf-project.config.json next to the project file.
+  --no-config                     Ignore the config file.
+  --init-config                   Write sf-project.config.json from the effective settings and exit.
+                                  Add --dry-run to print it, --force to update an existing file.
+  Precedence: command-line option > environment variable > sf-project.config.json > default.
+
+Output:
+  --verbose                       Show Salesforce CLI output for successful package installs.
+  --color / --no-color            Force colours on or off. Default: on in a terminal only.
+  -h, --help                      Show this help.
+
+Source tracking:
+  The deploy step only sends changes that source tracking has recorded since the last
+  reset. If the org is missing metadata, run --redeploy (or add --full-deploy).
 
 Environment variables:
-  ORG_ALIAS, DURATION_DAYS, SCRATCH_DEF_FILE, PROJECT_FILE, COMMUNITY_NAME, DUMMY_DATA_PLAN, POST_STEPS,
-  USE_POOL, POOL_TAG, POOL_DEVHUB_USERNAME, FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY
-                                      Override the matching option or configuration value.
-  SF_PROJECT_CONFIG                   Configuration file to read (same as --config).
-  PERMISSION_SETS                     Comma- or space-separated permission sets (same as --permission-sets).
-  PACKAGE_INSTALL_MAX_ATTEMPTS        Number of install retries for transient Salesforce CLI/network errors. Default: 3
-  PACKAGE_INSTALL_RETRY_DELAY_SECONDS Delay between retry attempts in seconds. Default: 5
-  PACKAGE_INSTALL_KEY                 Installation key used for packages requiring key.
-  PACKAGE_INSTALL_KEY_ENV_VAR         Name of the variable holding the install key. Config: packageInstallKeyEnvironmentVariable.
-  PACKAGE_INSTALL_KEYCHAIN_SERVICE    macOS Keychain service name for install key lookup.
-  PACKAGE_INSTALL_KEYCHAIN_ACCOUNT    Optional macOS Keychain account name for lookup.
-  PACKAGES_NOT_REQUIRING_INSTALL_KEY  Comma-separated override of packageKeyConfig in the project file.
-  PRESERVE_ROOT_FILES                 Comma-separated root files kept during dependency cleanup.
-  DUMMY_USER_FILE                     Dummy user tree file imported by the data step. Config: dummyUsers.file
-  DUMMY_USER_PROFILE_NAME             Profile assigned to dummy users. Config: dummyUsers.profileName. Default: Standard User
-  DUMMY_USER_PERMSET_ASSIGNMENTS      Permission sets per dummy user group, e.g. "PermA,PermB:user1,user2;PermC:user3".
+  ORG_ALIAS, DURATION_DAYS, SCRATCH_DEF_FILE, PROJECT_FILE, COMMUNITY_NAME, DUMMY_DATA_PLAN,
+  POST_STEPS, PERMISSION_SETS, USE_POOL, POOL_TAG, POOL_DEVHUB_USERNAME,
+  FALLBACK_TO_SCRATCH_CREATE_IF_POOL_EMPTY, SF_PROJECT_CONFIG, FULL_DEPLOY, VERBOSE
+                                      Same as the matching option or config value.
+  PACKAGE_INSTALL_KEY                 Install key for packages that need one.
+  PACKAGE_INSTALL_KEY_ENV_VAR         Name of the variable holding the key.
+                                      Config: packageInstallKeyEnvironmentVariable.
+  PACKAGE_INSTALL_KEYCHAIN_SERVICE    macOS Keychain service for the key.
+  PACKAGE_INSTALL_KEYCHAIN_ACCOUNT    macOS Keychain account for the key.
+  PACKAGES_NOT_REQUIRING_INSTALL_KEY  Comma-separated override of packageKeyConfig.
+  PACKAGE_INSTALL_MAX_ATTEMPTS        Install attempts for transient CLI/network errors. Default: 3
+  PACKAGE_INSTALL_RETRY_DELAY_SECONDS Delay between attempts. Default: 5
+  PRESERVE_ROOT_FILES                 Root files kept during dependency cleanup. Default: README.md
+  DUMMY_USER_FILE                     Dummy user file for the data step. Config: dummyUsers.file
+  DUMMY_USER_PROFILE_NAME             Default dummy user profile. Config: dummyUsers.profileName
+  DUMMY_USER_PERMSET_ASSIGNMENTS      "PermA,PermB:user1,user2;PermC:user3".
                                       Config: dummyUsers.permissionSetAssignments
-  NO_COLOR                            Disable colours (https://no-color.org).
-  FORCE_COLOR                         Enable colours when output is not a terminal, e.g. in CI logs.
-  VERBOSE                             Same as --verbose when set to true.
-
-Examples:
-  ./create-scratch-org.sh
-  ./create-scratch-org.sh --init-config
-  ./create-scratch-org.sh --init-config --dry-run --alias my-org --permission-sets MyPermSet
-  ./create-scratch-org.sh --self-check
-  ./create-scratch-org.sh --dry-run
-  ./create-scratch-org.sh --package-plan
-  ./create-scratch-org.sh --package-plan --install-latest
-    ./create-scratch-org.sh --check-versions
-    ./create-scratch-org.sh --apply-project-versions
-    ./create-scratch-org.sh --coverage-check --alias scratch-org --coverage-skip-install
-  ./create-scratch-org.sh --refresh-dependency-sources
-  ./create-scratch-org.sh --clear-dependency-sources-only
-  ./create-scratch-org.sh --use-pool --pool-tag dev --pool-devhub <devhub-alias>
-  ./create-scratch-org.sh --update-packages --install-latest
-  ./create-scratch-org.sh --delete-org-only
-  ./create-scratch-org.sh --skip-org --skip-packages --post-steps deploy
-  ./create-scratch-org.sh --post-steps-only
-  ./create-scratch-org.sh --post-steps-only --post-steps data
+  NO_COLOR / FORCE_COLOR              Disable colours / enable them outside a terminal.
 EOF_USAGE
 }
 
@@ -2318,6 +2327,15 @@ update_packages() {
 }
 
 deploy_metadata() {
+    if [[ "$FULL_DEPLOY" == "true" ]]; then
+        step "Deleting local source tracking so all local source is deployed..."
+        run_cmd sf project delete tracking \
+            --target-org "$TARGET_ORG" \
+            --no-prompt \
+            || error $? '"sf project delete tracking" command failed.'
+        add_action "Deleted local source tracking for $TARGET_ORG (full deploy)"
+    fi
+
     step "Deploying metadata..."
 
     run_cmd sf project deploy start \
@@ -2326,6 +2344,10 @@ deploy_metadata() {
         || error $? '"sf project deploy start" command failed.'
 
     add_action "Deployed metadata to $TARGET_ORG"
+
+    if [[ "$FULL_DEPLOY" != "true" ]]; then
+        info "Only changes tracked since the last reset are deployed. If metadata is missing in the org, run: $(basename "$0") --redeploy"
+    fi
 }
 
 reset_source_tracking() {
@@ -2591,10 +2613,7 @@ run_post_step() {
     fi
 
     case "$step" in
-        deploy)
-            reset_source_tracking
-            deploy_metadata
-            ;;
+        deploy) deploy_metadata ;;
         permsets) assign_permission_sets ;;
         data) import_dummy_data ;;
         community) publish_community ;;
@@ -3244,6 +3263,14 @@ while [[ $# -gt 0 ]]; do
             POST_STEPS_ONLY_MODE=true
             shift
             ;;
+        --full-deploy)
+            FULL_DEPLOY=true
+            shift
+            ;;
+        --redeploy)
+            REDEPLOY=true
+            shift
+            ;;
         --skip-org)
             RUN_ORG_CREATE=false
             shift
@@ -3309,6 +3336,12 @@ fi
 # -----------------------------
 # Normalize mode shortcuts
 # -----------------------------
+
+if [[ "$REDEPLOY" == "true" ]]; then
+    POST_STEPS_ONLY_MODE=true
+    POST_STEPS=deploy
+    FULL_DEPLOY=true
+fi
 
 if [[ "$DELETE_ORG_ONLY" == "true" && "$UPDATE_PACKAGES_ONLY" == "true" ]]; then
     error 1 "You cannot combine --delete-org-only and --update-packages."
@@ -3425,6 +3458,7 @@ validate_boolean "$COVERAGE_CHECK_ONLY" "COVERAGE_CHECK_ONLY"
 validate_boolean "$COVERAGE_RUN_ALL" "COVERAGE_RUN_ALL"
 validate_boolean "$COVERAGE_SKIP_INSTALL" "COVERAGE_SKIP_INSTALL"
 validate_boolean "$COVERAGE_SKIP_DEPLOY" "COVERAGE_SKIP_DEPLOY"
+validate_boolean "$FULL_DEPLOY" "FULL_DEPLOY"
 validate_boolean "$REFRESH_DEPENDENCY_SOURCES" "REFRESH_DEPENDENCY_SOURCES"
 validate_boolean "$CLEAR_DEPENDENCY_SOURCES_ONLY" "CLEAR_DEPENDENCY_SOURCES_ONLY"
 

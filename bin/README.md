@@ -47,7 +47,10 @@ Parameters use PowerShell names such as `-OrgAlias`, `-DurationDays`, `-Definiti
 ./bin/create-scratch-org.sh --dry-run
 ./bin/create-scratch-org.sh
 ./bin/create-scratch-org.sh --post-steps-only --post-steps data
+./bin/create-scratch-org.sh --redeploy
 ```
+
+The `deploy` post-step only sends changes that source tracking has recorded, and tracking is reset after the post-steps. If the org is missing metadata but a deploy reports "No changes to deploy", run `--redeploy` (Windows: `-Redeploy`). It deletes local source tracking for the org and deploys all local source; org data is untouched. `--full-deploy` / `-FullDeploy` adds the same behaviour to any run that includes the deploy step.
 
 The Bash script supports org create/delete, pool acquisition, package install/update/plan, post-steps, dummy users, dry-run, self-check, dependency cleanup/retrieval, and `--init-config`. See `create-scratch-org.sh --help` for options.
 

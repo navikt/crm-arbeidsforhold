@@ -111,7 +111,7 @@ sf-project org create [options]
 | `--json`                       | `false`                                                     |
 | `--yes`                        | Declared, but currently not consumed by the create workflow |
 
-Alias precedence is `--alias`, `--target-org`, then `defaultOrgAlias`. `--post-steps` accepts `all`, `none`, or a comma-separated list of the built-in steps (`deploy`, `permsets`, `data`, `community`) plus any project-declared `customPostSteps[].name` value (see [Configuration](configuration.md#sf-projectconfigjson)). Execution always uses canonical order regardless of list order: built-in steps first, then declared custom steps in configuration order. A selected `deploy` step runs `sf project deploy start --ignore-conflicts`, tolerating tracking conflicts against a reused pool org; source tracking is then reset (locally and remotely) both before the first deploy and again after all selected post-steps finish. An unrecognized post-step name (neither built-in nor declared) is rejected before any org, package, or step command runs.
+Alias precedence is `--alias`, `--target-org`, then `defaultOrgAlias`. `--post-steps` accepts `all`, `none`, or a comma-separated list of the built-in steps (`deploy`, `permsets`, `data`, `community`) plus any project-declared `customPostSteps[].name` value (see [Configuration](configuration.md#sf-projectconfigjson)). Execution always uses canonical order regardless of list order: built-in steps first, then declared custom steps in configuration order. A selected `deploy` step runs `sf project deploy start --ignore-conflicts`, tolerating tracking conflicts against a reused pool org; source tracking is reset (locally and remotely) only after all selected post-steps finish. Resetting before the deploy would mark all local source as synced, and the deploy would send nothing. An unrecognized post-step name (neither built-in nor declared) is rejected before any org, package, or step command runs.
 
 ```bash
 sf-project org create --alias feature-org --duration-days 7 --post-steps deploy,permsets --dry-run
@@ -134,7 +134,7 @@ sf-project org delete --alias feature-org --yes
 ### `project configure`
 
 ```text
-sf-project project configure [--project-dir <path>] [--alias <alias>] [--target-org <alias>] [--post-steps <steps>] [--skip-packages] [--refresh-dependency-sources] [--dry-run] [--json] [--confirm-mutation <text>]
+sf-project project configure [--project-dir <path>] [--alias <alias>] [--target-org <alias>] [--post-steps <steps>] [--skip-packages] [--full-deploy] [--refresh-dependency-sources] [--dry-run] [--json] [--confirm-mutation <text>]
 ```
 
 Alias and post-step precedence match `org create`. The workflow installs configured packages, executes selected post-steps, and optionally refreshes dependency sources.
@@ -143,6 +143,12 @@ Alias and post-step precedence match `org create`. The workflow installs configu
 
 ```bash
 sf-project project configure --target-org feature-org --post-steps data,permsets --skip-packages
+```
+
+`--full-deploy` makes the `deploy` step run `sf project delete tracking --target-org <alias> --no-prompt` first. The deploy then sends all local source (within `.forceignore` and package-directory scope) instead of only tracked changes. Use it when the org is missing metadata but a normal deploy reports "No changes to deploy". Only local tracking files change; org data is untouched.
+
+```bash
+sf-project project configure --target-org feature-org --post-steps deploy --skip-packages --full-deploy
 ```
 
 ### `packages plan`

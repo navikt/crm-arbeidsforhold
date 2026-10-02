@@ -36,6 +36,11 @@ export interface ConfigureProjectOptions {
      * post-steps against the resolved target org. Defaults to `false`.
      */
     skipPackages?: boolean;
+    /**
+     * When `true`, the `deploy` post-step deletes local source tracking first so every local source
+     * file is deployed instead of only tracked changes. Defaults to `false`.
+     */
+    fullDeploy?: boolean;
     /** When `true`, emits planned work without installing packages or invoking post-step commands. */
     dryRun: boolean;
     /** Environment used to resolve package installation keys without reading globals directly. */
@@ -231,17 +236,36 @@ async function runPostSteps(options: ResolvedConfigureProjectOptions): Promise<E
         }
         if (options.dryRun) {
             run += 1;
-            emitPostStepResult(options, postStep, 'run', `Would run ${postStep}`);
+            emitPostStepResult(
+                options,
+                postStep,
+                'run',
+                postStep === 'deploy' && options.fullDeploy
+                    ? 'Would delete local source tracking and run deploy'
+                    : `Would run ${postStep}`
+            );
             if (postStep === 'data') await importDummyUsers(options);
             continue;
         }
-        let stepExitCode = await runStep(
-            options,
-            `post-step:${postStep}`,
-            postStepLabel(options.configuration, postStep),
-            command.executable,
-            command.arguments
-        );
+        let stepExitCode: ExitCode = EXIT_CODES.SUCCESS;
+        if (postStep === 'deploy' && options.fullDeploy) {
+            stepExitCode = await runStep(
+                options,
+                'post-step:deploy:delete-tracking',
+                'Delete local source tracking',
+                'sf',
+                ['project', 'delete', 'tracking', '--target-org', options.alias, '--no-prompt']
+            );
+        }
+        if (stepExitCode === EXIT_CODES.SUCCESS) {
+            stepExitCode = await runStep(
+                options,
+                `post-step:${postStep}`,
+                postStepLabel(options.configuration, postStep),
+                command.executable,
+                command.arguments
+            );
+        }
         if (stepExitCode === EXIT_CODES.SUCCESS && postStep === 'data') {
             stepExitCode = await importDummyUsers(options);
         }
@@ -450,17 +474,11 @@ async function configureResolvedProject(options: ResolvedConfigureProjectOptions
         });
     }
 
-    if (options.postSteps.includes('deploy')) {
-        const initialTrackingExitCode = await resetSourceTracking(options);
-        if (initialTrackingExitCode !== EXIT_CODES.SUCCESS) {
-            return initialTrackingExitCode;
-        }
-    }
-
     const postStepExitCode = await runPostSteps(options);
     if (postStepExitCode !== EXIT_CODES.SUCCESS) {
         return postStepExitCode;
     }
+    // Reset only after deploying; an earlier reset marks local source as synced and the deploy sends nothing.
     if (options.postSteps.includes('deploy')) {
         const trackingExitCode = await resetSourceTracking(options);
         if (trackingExitCode !== EXIT_CODES.SUCCESS) {

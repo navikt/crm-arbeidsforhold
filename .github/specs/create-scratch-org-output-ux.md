@@ -56,6 +56,21 @@ A developer can see at a glance which phase is running, how far it has come, and
 - **REQ-332:** Offline tests verify package install retries for transient errors, no retry for other errors, and that failed CLI output is shown.
 - **REQ-333:** Offline tests cover `--update-packages` (install missing, update lower, skip equal, no downgrade), `--package-plan`, `--self-check`, `--delete-org-only`, `--help`, and the run summary for success and failure.
 
+### Source tracking and recovery
+
+Manual use exposed a defect shared by `create-scratch-org.sh`, `create-scratch-org.ps1`, and `sf-project project configure`: the `deploy` step reset source tracking _before_ deploying. Tracking then marked all local source as synced, and Salesforce CLI reported "No changes to deploy". Running the post-steps again did not help.
+
+- **REQ-340:** In all three tools, the `deploy` post-step deploys first. Source tracking is reset only after the selected post-steps have succeeded.
+- **REQ-341:** A full-deploy option (`--full-deploy`, `-FullDeploy`, `sf-project project configure --full-deploy`) runs `sf project delete tracking --target-org <alias> --no-prompt` before the deploy. The next deploy then treats all local source as new while keeping `.forceignore` and package-directory scope. It changes only local tracking files, not the org.
+- **REQ-342:** `create-scratch-org.sh --redeploy` and `create-scratch-org.ps1 -Redeploy` are shortcuts for "post-steps only, `deploy` step only, full deploy" against the configured org.
+- **REQ-343:** After the deploy step, the scripts print how to force a full deploy if no changes were deployed.
+
+### Help
+
+- **REQ-350:** `create-scratch-org.sh --help` starts with a short description and a "Common tasks" section that maps everyday goals to commands. These include a new scratch org, re-running post-steps, forcing a redeploy, updating packages, previewing, and checking setup.
+- **REQ-351:** Options are grouped by purpose (target and scratch org, what to run, packages, preview and checks, maintenance, configuration, output) instead of one long list. Environment variables are listed separately.
+- **REQ-352:** The PowerShell help lists the same common tasks, including `-Redeploy` and `-FullDeploy`.
+
 ## Delivery order
 
 | Step | Issue | Title | Requirements |
@@ -64,6 +79,8 @@ A developer can see at a glance which phase is running, how far it has come, and
 | 2 | #1072 | Progress indicators for phases, packages and post-steps | REQ-310 to REQ-314 |
 | 3 | #1073 | Readable settings, run summary and self-check | REQ-320 to REQ-322 |
 | 4 | #1074 | Offline tests for output and untested flows | REQ-330 to REQ-333 |
+| 5 | #1076 | Deploy must not be preceded by a source-tracking reset; add full redeploy | REQ-340 to REQ-343 |
+| 6 | #1077 | Make `--help` task-oriented and grouped | REQ-350 to REQ-352 |
 
 ## Verification strategy
 
@@ -74,14 +91,15 @@ A developer can see at a glance which phase is running, how far it has come, and
 
 ## Out of scope
 
-- PowerShell and CMD launchers.
-- Changing which Salesforce CLI commands run, or their arguments.
+- PowerShell and CMD launchers, except the source-tracking fix and `-FullDeploy`/`-Redeploy` (REQ-340 to REQ-342, REQ-352).
+- Changing which Salesforce CLI commands run, or their arguments, except the source-tracking order and full-deploy option (REQ-340 to REQ-342).
+- `sf-project` web API support for `fullDeploy`; the CLI option is enough for recovery.
 - Moving warnings and errors from stdout to stderr.
 
 ## Issue mapping
 
 - Epic: #1075
-- Delivery issues: #1071, #1072, #1073, #1074
+- Delivery issues: #1071, #1072, #1073, #1074, #1076, #1077
 
 ## Implementation status
 
@@ -91,5 +109,21 @@ All delivery issues are implemented on the working branch (not yet committed or 
 - `bash bin/tests/create-scratch-org.test.sh` passes 258 assertions offline (Bash 5.3), including 25 new tests for colour, icons, phases, progress counters, install retries, `--verbose`, `--update-packages`, `--package-plan`, `--self-check`, `--delete-org-only`, `--help`, and the run summary.
 - The spinner path was checked under a pseudo-terminal (`script`) with a fake `sf`.
 - With macOS `/bin/bash` 3.2, `test_empty_preserve_list_keeps_nothing` fails. The failure already exists in the committed script (empty array under `set -u` in `is_preserved_root_file`) and is outside this specification.
+
+Related fix found during manual use: the `deploy` post-step reset source tracking _before_ `sf project deploy start`, so tracking reported "No changes to deploy" and nothing was deployed. Fixed under #1076 (REQ-340 to REQ-343):
+
+- `create-scratch-org.sh`, `create-scratch-org.ps1` and `sf-project project configure` now deploy first and reset tracking afterwards.
+- `--full-deploy` / `-FullDeploy` / `sf-project project configure --full-deploy` delete local tracking before the deploy.
+- `--redeploy` / `-Redeploy` combine post-steps-only, deploy only, and full deploy.
+- The scripts print a `--redeploy` hint after a tracked deploy.
+
+`--help` was reorganized under #1077 (REQ-350 to REQ-352) into a description, "Common tasks", option groups and environment variables.
+
+Validation for #1076 and #1077:
+
+- The new tests were written first and failed: 15 Bash assertions and 5 `sf-project` contract tests.
+- `bash bin/tests/create-scratch-org.test.sh` passes 281 assertions.
+- `npm run check` in `tools/salesforce-project-cli` passes: 190 core tests, 16 web tests, docs check, type-check and build.
+- The PowerShell harness was not run because `pwsh` is not installed locally.
 
 Authenticated verification against a scratch org was not run and is not claimed as passed.

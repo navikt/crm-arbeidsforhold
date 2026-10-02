@@ -856,6 +856,70 @@ test_run_summary_reports_failure_without_generic_installation_message() {
     assert_not_contains "Installation failed."
 }
 
+test_deploy_runs_before_source_tracking_reset() {
+    new_project deploy-before-reset
+    script --post-steps-only --post-steps deploy --alias cfg-org
+    assert_exit 0
+    local first_command
+    first_command="$(grep -E '^project (deploy start|reset tracking)' "$SF_LOG" | head -1)"
+    [[ "$first_command" == "project deploy start"* ]] && pass || fail "source tracking was reset before deploy: $(cat "$SF_LOG")"
+    grep -q '^project reset tracking' "$SF_LOG" && pass || fail "source tracking was not reset after deploy"
+}
+
+sf_command_order() {
+    grep -nE "^project ($1)" "$SF_LOG" | head -1 | cut -d: -f1
+}
+
+test_full_deploy_deletes_local_tracking_before_deploy() {
+    new_project full-deploy
+    script --post-steps-only --post-steps deploy --full-deploy --alias cfg-org
+    assert_exit 0
+    local delete_line deploy_line reset_line
+    delete_line="$(sf_command_order 'delete tracking')"
+    deploy_line="$(sf_command_order 'deploy start')"
+    reset_line="$(sf_command_order 'reset tracking')"
+    [[ -n "$delete_line" && -n "$deploy_line" && -n "$reset_line" ]] && pass || fail "missing tracking/deploy commands: $(cat "$SF_LOG")"
+    (( delete_line < deploy_line && deploy_line < reset_line )) && pass || fail "expected delete tracking < deploy < reset: $(cat "$SF_LOG")"
+    grep -Fq 'project delete tracking --target-org cfg-org --no-prompt' "$SF_LOG" && pass || fail "delete tracking did not target cfg-org"
+}
+
+test_full_deploy_dry_run_only_prints_commands() {
+    new_project full-deploy-dry-run
+    script --post-steps-only --post-steps deploy --full-deploy --alias cfg-org --dry-run
+    assert_exit 0
+    assert_contains "Would run: sf project delete tracking --target-org cfg-org --no-prompt"
+    [[ ! -s "$SF_LOG" ]] && pass || fail "dry-run called sf: $(cat "$SF_LOG")"
+}
+
+test_redeploy_runs_only_a_full_deploy() {
+    new_project redeploy
+    write_config '{"defaultOrgAlias":"cfg-org","permissionSets":["P"],"postSteps":["deploy","permsets"]}'
+    script --redeploy
+    assert_exit 0
+    grep -q '^project delete tracking --target-org cfg-org' "$SF_LOG" && pass || fail "redeploy did not delete tracking"
+    grep -q '^project deploy start --target-org cfg-org' "$SF_LOG" && pass || fail "redeploy did not deploy"
+    ! grep -Eq '^(org create|org delete|package install|org assign permset)' "$SF_LOG" && pass || fail "redeploy ran more than a deploy: $(cat "$SF_LOG")"
+    assert_contains "full-deploy"
+}
+
+test_tracked_deploy_prints_full_deploy_hint() {
+    new_project deploy-hint
+    script --post-steps-only --post-steps deploy --alias cfg-org
+    assert_exit 0
+    assert_contains "--redeploy"
+}
+
+test_help_is_grouped_by_task() {
+    new_project help-groups
+    script --help
+    assert_exit 0
+    assert_contains "Common tasks"
+    assert_contains "--redeploy"
+    assert_contains "--full-deploy"
+    assert_contains "What to run"
+    assert_contains "Environment variables"
+}
+
 test_script_has_no_repository_specific_values() {
     local pattern='crm-arbeidsforhold|Aa-registret|AAREG_|saksbehandler|brukerstotte|@nav\.no|NAV DevHub|platform-data-model'
     if grep -nEi "$pattern" "$SCRIPT"; then
