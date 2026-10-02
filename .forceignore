@@ -49,6 +49,7 @@
 **/jsconfig.json
 **/.eslintrc.json
 **/__tests__/**
+**/jest-mocks/**
 
 
 # Other packages
