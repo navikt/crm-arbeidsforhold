@@ -1,0 +1,256 @@
+# CLI reference
+
+The executable name is `sf-project`. It requires Node.js 22 or newer and delegates Salesforce operations to an installed `sf` CLI. Pool workflows additionally require `sfp`.
+
+## Installation and invocation
+
+From this module:
+
+```bash
+npm ci
+npm run build
+npm run dev -- --help
+```
+
+`npm run dev -- <arguments>` runs `tsx src/cli.ts`. A built or installed package exposes `sf-project` through `dist/cli.js`:
+
+```bash
+sf-project --help
+sf-project doctor --project-dir /path/to/project
+```
+
+The package is currently marked `private`; there is no publish or release script. `npm run test:pack` is the supported independent-package smoke test, not a publication command.
+
+## Global options
+
+Global options must appear before the command:
+
+| Option                | Default                    | Behavior                                                                                                               |
+| --------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `--no-color`          | Color when stdout is a TTY | Disable ANSI styling                                                                                                   |
+| `--verbose`           | `false`                    | Include sanitized diagnostic details (executed Salesforce CLI commands and their output)                               |
+| `--timeout <seconds>` | `commandTimeouts` config   | Override the default per-command timeout, in seconds, for both read-only and mutating `sf` invocations in this process |
+
+Every `sf` invocation runs with a bounded timeout instead of running unbounded: read-only inspection commands (`org display`, `org list`, `org status`) default to `commandTimeouts.readMs` (30 seconds), and mutating commands (`org create`, `org delete`, `project configure`, package operations, dependency retrieval) default to `commandTimeouts.mutationMs` (600 seconds). `--timeout` overrides both defaults for the current invocation; see [Configuration](configuration.md#sf-projectconfigjson) to change the project-wide defaults instead. A command that exceeds its timeout is reported as a normal step failure ("did not respond in time"), not a hang.
+
+Real deletion first inspects the org and succeeds only for an authenticated scratch org with `--yes`. A non-scratch override requires `--confirm-mutation "MUTATE org.delete <alias>"`. Dry-run does not require confirmation or org inspection.
+
+```bash
+sf-project --no-color --verbose packages plan --target-org my-scratch-org
+sf-project --timeout 120 org create --alias slow-network-org
+sf-project org delete --alias sandbox-org --confirm-mutation "MUTATE org.delete sandbox-org"
+```
+
+## Commands
+
+All `--project-dir` values default to the current working directory.
+
+### `doctor`
+
+```text
+sf-project doctor [--project-dir <path>] [--json]
+```
+
+Runs read-only checks for Node.js 22, `sf`, project configuration, org-list access, and `sfp` when pool support is configured. `--json` emits NDJSON events.
+
+### `web start`
+
+```text
+sf-project web start [--project-dir <path>] [--port <port>] [--json]
+```
+
+`--port` defaults to `1717` and accepts an integer from `0` through `65535`; `0` asks the operating system for an available port. `--json` emits NDJSON events for every operation the server executes instead of human-readable text. The command binds to `127.0.0.1`, prints the loopback URL, streams every served operation's events to its own terminal, and remains active until the process stops.
+
+### `org list`
+
+```text
+sf-project org list [--project-dir <path>] [--refresh] [--mock] [--json]
+```
+
+Lists normalized org summaries. `--refresh` issues a display query for every listed org with an alias or username. `--mock` uses a deterministic local scratch-org fixture and never starts Salesforce CLI. `--json` returns one JSON document, not NDJSON.
+
+Real updates are restricted to scratch orgs. For another org, the exact token `MUTATE packages.update <alias-or-username>` is required.
+
+### `org status`
+
+```text
+sf-project org status [alias] [--project-dir <path>] [--refresh] [--mock] [--json]
+```
+
+Resolves the explicit alias or username. Without one, it reads Salesforce CLI `target-org`; it does not use `defaultOrgAlias`. `--refresh` enriches the result with a display query. `--mock` returns the deterministic local mock org. `--json` returns one JSON document.
+
+### `org info`
+
+```text
+sf-project org info <alias> [--project-dir <path>] [--mock] [--json]
+```
+
+Displays normalized org details plus API version, edition, creation date, and Dev Hub username. Failed display calls are normalized as inaccessible or unauthenticated data. `--mock` uses deterministic local fixture data. `--json` returns one JSON document.
+
+### `org create`
+
+```text
+sf-project org create [options]
+```
+
+| Option                         | Default or precedence                                       |
+| ------------------------------ | ----------------------------------------------------------- |
+| `--project-dir <path>`         | Current directory                                           |
+| `--alias <alias>`              | First alias choice                                          |
+| `--target-org <alias>`         | Second alias choice                                         |
+| `--duration-days <days>`       | Config value, then `14`; integer `1..30`                    |
+| `--use-pool`                   | `pool.use`                                                  |
+| `--pool-tag <tag>`             | `pool.tag`                                                  |
+| `--pool-devhub <alias>`        | `pool.devHub`                                               |
+| `--fallback-to-create`         | `pool.fallbackToCreate`                                     |
+| `--no-fallback-to-create`      | Override fallback to `false`                                |
+| `--post-steps <steps>`         | Configured `postSteps`                                      |
+| `--clear-dependency-sources`   | `false`                                                     |
+| `--refresh-dependency-sources` | `false`                                                     |
+| `--dry-run`                    | `false`                                                     |
+| `--json`                       | `false`                                                     |
+| `--yes`                        | Declared, but currently not consumed by the create workflow |
+
+Alias precedence is `--alias`, `--target-org`, then `defaultOrgAlias`. `--post-steps` accepts `all`, `none`, or a comma-separated list of the built-in steps (`deploy`, `permsets`, `data`, `community`) plus any project-declared `customPostSteps[].name` value (see [Configuration](configuration.md#sf-projectconfigjson)). Execution always uses canonical order regardless of list order: built-in steps first, then declared custom steps in configuration order. A selected `deploy` step runs `sf project deploy start --ignore-conflicts`, tolerating tracking conflicts against a reused pool org; source tracking is reset (locally and remotely) only after all selected post-steps finish. Resetting before the deploy would mark all local source as synced, and the deploy would send nothing. An unrecognized post-step name (neither built-in nor declared) is rejected before any org, package, or step command runs.
+
+```bash
+sf-project org create --alias feature-org --duration-days 7 --post-steps deploy,permsets --dry-run
+sf-project org create --alias feature-org --use-pool --pool-devhub dev-hub --no-fallback-to-create
+```
+
+### `org delete`
+
+```text
+sf-project org delete [--project-dir <path>] [--alias <alias>] [--target-org <alias>] [--dry-run] [--json] [--yes] [--confirm-mutation <text>]
+```
+
+Alias precedence is `--alias`, `--target-org`, then `defaultOrgAlias`. A real deletion first inspects the org and succeeds only for an authenticated, policy-allowed scratch org with `--yes`. Dry-run does not require `--yes` or org inspection, but still evaluates deletion policy as scratch.
+
+```bash
+sf-project org delete --alias feature-org --dry-run
+sf-project org delete --alias feature-org --yes
+```
+
+### `project configure`
+
+```text
+sf-project project configure [--project-dir <path>] [--alias <alias>] [--target-org <alias>] [--post-steps <steps>] [--skip-packages] [--full-deploy] [--refresh-dependency-sources] [--dry-run] [--json] [--confirm-mutation <text>]
+```
+
+Alias and post-step precedence match `org create`. The workflow installs configured packages, executes selected post-steps, and optionally refreshes dependency sources.
+
+`--skip-packages` skips package resolution and installation entirely and runs only the selected post-steps against the resolved target org. This is the way to iterate on post-step configuration (redeploying metadata, re-importing dummy data, re-assigning permission sets) against an org that is already created and already has its packages installed, without a package plan/install/update command running. `--dry-run` reports the same step plan as without the flag, minus the package-installation step. Dry-run still permits real read-only queries.
+
+```bash
+sf-project project configure --target-org feature-org --post-steps data,permsets --skip-packages
+```
+
+`--full-deploy` makes the `deploy` step run `sf project delete tracking --target-org <alias> --no-prompt` first. The deploy then sends all local source (within `.forceignore` and package-directory scope) instead of only tracked changes. Use it when the org is missing metadata but a normal deploy reports "No changes to deploy". Only local tracking files change; org data is untouched.
+
+```bash
+sf-project project configure --target-org feature-org --post-steps deploy --skip-packages --full-deploy
+```
+
+### `packages plan`
+
+```text
+sf-project packages plan [--project-dir <path>] [--target-org <alias-or-username>] [--install-latest] [--dry-run] [--json]
+```
+
+This command is read-only regardless of `--dry-run`. It queries installed and released package versions and emits the selected action. `--install-latest` ignores the configured version family and selects the greatest released version.
+
+### `packages check-versions`
+
+```text
+sf-project packages check-versions [--project-dir <path>] [--apply] [--json]
+```
+
+Checks each dependency's latest released major/minor/patch against `sfdx-project.json`. It previews changes by default. `--apply` explicitly updates all matching dependency entries to `<latest>.LATEST`, first saving the original file as `sfdx-project.json.backup`. This writes a local project file; it does not install packages or mutate an org. The command requires package-version access through the authenticated Dev Hub.
+
+### `packages install`
+
+```text
+sf-project packages install [--project-dir <path>] [--target-org <alias-or-username>] [--install-latest] [--dry-run] [--mock] [--json]
+```
+
+Installs missing packages and upgrades older packages in declaration order. It skips equal versions and never downgrades a higher installed version. Dry-run still performs read-only Salesforce queries. Real installation is restricted to scratch orgs. For another org, the exact token `MUTATE packages.install <alias-or-username>` is required.
+
+`--mock` uses deterministic local Salesforce command fixtures and never starts `sf` or mutates an org. Mock mode is shown in human output and included in the `operation-started` JSON event. It can be combined with `--dry-run`; ordinary `--dry-run` remains a real read-only planning mode.
+
+Each install submits `sf package install --wait 0`. Polling checks `sf package installed list` first, with a short per-probe timeout, so an already-installed exact version finishes immediately. Only when that check does not find the package does the tool call `sf package install report --request-id <0Hf...>`, also with a short per-probe timeout. The overall polling period is bounded by `commandTimeouts.mutationMs` (default 10 minutes), and a heartbeat progress line (`Installing <package> (Ns, attempt A/3)`) is emitted every 15 seconds while the request is in flight. If the overall period expires, the tool performs a final installed-package check and accepts the operation only when the exact selected package version is present; otherwise it reports the timeout as a failure.
+
+### `packages update`
+
+```text
+sf-project packages update [--project-dir <path>] [--target-org <alias-or-username>] [--install-latest] [--dry-run] [--json] [--confirm-mutation <text>]
+```
+
+The current implementation has the same behavior as `packages install`: install missing, upgrade older, skip equal, and retain higher versions. Real updates are restricted to scratch orgs. For another org, the exact token `MUTATE packages.update <alias-or-username>` is required.
+
+### `coverage check`
+
+```text
+sf-project coverage check [--project-dir <path>] [--target-org <alias>] [--package-id <04t-id>] [--minimum-coverage <percent>] [--test-class <name>] [--run-all] [--skip-install] [--skip-deploy] [--class-name-pattern <pattern>] [--dry-run] [--json] [--confirm-mutation <text>]
+```
+
+Optionally installs a package and deploys `force-app`, runs the selected Apex test class or all tests, then checks aggregate Apex coverage against the threshold. Defaults come from the `coverage` object in `sf-project.config.json`; generic defaults are 75%, all tests, and class pattern `%`. Real checks are restricted to scratch orgs and require the exact `MUTATE coverage.check <alias>` token for other org types. Dry-run prints the command plan without invoking Salesforce.
+
+### `dependencies clear`
+
+```text
+sf-project dependencies clear [--project-dir <path>] [--dry-run] [--json]
+```
+
+Removes non-preserved entries from configured dependency source roots. Dry-run validates roots and reports intent without enumerating or deleting children.
+
+### `dependencies recover`
+
+```text
+sf-project dependencies recover [--project-dir <path>] [--dry-run] [--json]
+```
+
+Validates and restores an interrupted `.forceignore` transaction. Dry-run reports the validated recovery plan without changing files.
+
+### `dependencies refresh`
+
+```text
+sf-project dependencies refresh [--project-dir <path>] [--target-org <alias-or-username>] [--dry-run] [--json]
+```
+
+Recovers any prior transaction, temporarily disables `.forceignore`, clears dependency roots, retrieves each dependency in order, and restores `.forceignore`. Without `--target-org`, Salesforce CLI target resolution applies.
+
+## Target resolution
+
+- `org create`, `org delete`, and `project configure`: `--alias` → `--target-org` → `defaultOrgAlias`; absence is invalid.
+- Package commands: `--target-org` → `defaultOrgAlias` → omit the Salesforce option and let `sf` resolve its default.
+- Dependency refresh: explicit `--target-org` or omit it and let `sf` resolve its default.
+- `org status`: explicit positional alias or Salesforce CLI `target-org`.
+
+## Output contracts
+
+Human operation output groups operation and step state, progress, retries, warnings, durations, failures, next actions, and summaries. Diagnostic progress is shown only with `--verbose`. Automation must not parse human output.
+
+Operation commands with `--json` emit one `OperationEvent` JSON object per stdout line and finish with `operation-completed`. The terminal event includes the stable exit code, duration, dry-run state, and renderer-added resource summary. Parser errors and non-JSON diagnostics go to stderr.
+
+`org list`, `org status`, and `org info` use `--json` for one normalized JSON document instead of NDJSON.
+
+## Exit codes
+
+| Code | Meaning                                 |
+| ---: | --------------------------------------- |
+|  `0` | Success                                 |
+|  `1` | Operation failure                       |
+|  `2` | Invalid input or configuration          |
+|  `3` | Missing prerequisite                    |
+|  `4` | Authentication or authorization failure |
+|  `5` | Partial completion requiring attention  |
+
+Commander validation, malformed JSON configuration, and schema errors map to `2`. Missing files can map to `3`. Salesforce failures are classified when possible. Package or retrieve failure after earlier successful mutations uses `5` unless authentication classification is more specific. `org create` also uses `5` when acquisition succeeded but later configuration failed, except authentication/authorization remains `4`.
+
+## Destructive confirmation
+
+- Real `org delete` requires `--yes`, an authenticated inspection result, and scratch classification.
+- Dry-run `org delete` does not require `--yes`.
+- Web deletion uses a separate `confirmed: true` payload contract and a target-naming alert dialog.
+- `org create` attempts to delete an existing same-alias scratch org before direct creation using Salesforce `--no-prompt`; the declared create `--yes` option does not control this behavior.
+- Dependency clear, dependency refresh, package install/update, and project configuration do not have interactive confirmation prompts. Use `--dry-run` first where available.

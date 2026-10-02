@@ -1,190 +1,108 @@
-# 1.How to check versions in sfdx-project.json file against updated dependent packages
+# Scratch-org and utility scripts
 
-Windows system
-- Open CMD(Command Prompt) or use terminal in visual studio code
-- Go to your folder where you have your project
-- Run node bin\check-sfdx-versions.js
-- Update sfdx-project.json automatic by pressing YES
-- Backup is saved to sfdx-project.json.backup
+Standalone scratch-org setup is available without the Salesforce Project CLI. All three entry points use `sf-project.config.json` beside `sfdx-project.json`:
 
-![alt text](image.png)
+| Platform           | Entry point                  |
+| ------------------ | ---------------------------- |
+| macOS/Linux        | `bin/create-scratch-org.sh`  |
+| Windows CMD        | `bin/create-scratch-org.bat` |
+| Windows PowerShell | `bin/create-scratch-org.ps1` |
 
-### Useful CMD(Command Prompt) commands
+The CMD file launches PowerShell and forwards its arguments and exit code. `bin/newScratchOrg.bat` remains as a compatibility name for the CMD launcher. The Windows implementation calls Salesforce CLI (`sf`) directly; it does not use Bash, Node.js, or `sf-project`.
 
-| Command | Description | Example |
-|---|---|---|
-| `cd..` | Go **up** one folder level | If you are in `C:\Dev\crm-arbeidsforhold-9\bin`, you will go to `C:\Dev\crm-arbeidsforhold-9` |
-| `cd foldername` | Go **into** a subfolder | `cd Dev` will take you from `C:\` to `C:\Dev` |
-| `cd /d C:\path` | Go to a **specific folder** on any drive | `cd /d C:\Dev\crm-arbeidsforhold-9` |
-| `dir` | **List** all files and folders in current directory | Shows files like `sfdx-project.json`, `package.json`, etc. |
+## Requirements
 
-```cmd
-C:\Users\YourName> cd /d C:\Dev\crm-arbeidsforhold-9
-C:\Dev\crm-arbeidsforhold-9> node bin\check-sfdx-versions.js
-```
+- Salesforce CLI (`sf`) installed and authenticated to an appropriate Dev Hub.
+- `jq` for the Bash script only. The PowerShell implementation uses built-in JSON support.
+- `sfp` only if scratch-org pool acquisition is enabled.
+- Bash for macOS/Linux; PowerShell 5.1 or PowerShell 7+ for Windows.
 
-It will list package name, current version, latest release.
-![alt text](sfdx_project_last_versions.png)
+## Windows
 
-# 2.How to create a new Scratch Org using newScratchOrg.bat
-
-### Prerequisites
-- Salesforce CLI (`sf`) installed
-- PowerShell available (Windows 10+ has it by default)
-- Authenticated to your **Dev Hub** (`sf org login web --set-default-dev-hub`)
-- Project cloned locally
-
-### Usage
-
-#### Option 1: Using CMD (Command Prompt)
-1. Open **CMD** (press `Win + R`, type `cmd`, press Enter)
-2. Navigate to the project root folder
-3. Run the batch file with your installation key
+Run these in CMD:
 
 ```cmd
-cd /d C:\Dev\crm-arbeidsforhold-9
-.\bin\newScratchOrg.bat <installation-key>
+bin\create-scratch-org.bat -Help
+bin\create-scratch-org.bat -DryRun
+bin\create-scratch-org.bat
+bin\create-scratch-org.bat -PostStepsOnly -PostSteps data
 ```
 
-#### Option 2: Using Terminal in Visual Studio Code
-1. Open the project in Visual Studio Code
-2. Open the terminal (`Ctrl + ´` or go to **Terminal** → **New Terminal**)
-3. Make sure you are in the **project root folder** (check the path in the terminal)
-4. Run the batch file with your installation key
+Or run PowerShell directly:
 
-```cmd
-.\bin\newScratchOrg.bat <installation-key>
+```powershell
+.\bin\create-scratch-org.ps1 -Help
+.\bin\create-scratch-org.ps1 -DryRun
+.\bin\create-scratch-org.ps1 -PostStepsOnly -PostSteps data
+.\bin\create-scratch-org.ps1 -UpdatePackages -InstallLatest
 ```
 
-> **Tip:** If the terminal opens in a subfolder, use `cd..` to go up one level until you see `C:\Dev\crm-arbeidsforhold-9`
+Parameters use PowerShell names such as `-OrgAlias`, `-DurationDays`, `-DefinitionFile`, `-PostSteps`, `-UsePool`, `-PackagePlan`, and `-RefreshDependencySources`. `-DryRun` plans mutations without running them. The old positional installation-key argument is no longer supported. Supply package keys through the environment variable named by `packageInstallKeyEnvironmentVariable`; never put a key in the config file or command history.
 
-**Example:**
-```cmd
-.\bin\newScratchOrg.bat MySecretKey123
+## macOS/Linux
+
+```bash
+./bin/create-scratch-org.sh --help
+./bin/create-scratch-org.sh --self-check
+./bin/create-scratch-org.sh --dry-run
+./bin/create-scratch-org.sh
+./bin/create-scratch-org.sh --post-steps-only --post-steps data
+./bin/create-scratch-org.sh --redeploy
 ```
 
-### What it does (step by step)
+The `deploy` post-step only sends changes that source tracking has recorded, and tracking is reset after the post-steps. If the org is missing metadata but a deploy reports "No changes to deploy", run `--redeploy` (Windows: `-Redeploy`). It deletes local source tracking for the org and deploys all local source; org data is untouched. `--full-deploy` / `-FullDeploy` adds the same behaviour to any run that includes the deploy step.
 
-| Step | Action | Description |
-|---|---|---|
-| 1/6 | **Delete scratch org** | Deletes any existing scratch org with alias `crm-arbeidsforhold` |
-| 2/6 | **Create scratch org** | Creates a new scratch org (30 day duration) and opens it in browser |
-| 3/6 | **Install packages** | Resolves and installs all dependency packages from `sfdx-project.json` |
-| 4/6 | **Deploy project** | Deploys the project source code to the scratch org |
-| 5/6 | **Assign permission sets** | Assigns required permission sets to the default user |
-| 6/6 | **Insert test data** | Imports test data from `dummy-data/Plan.json` |
+The Bash script supports org create/delete, pool acquisition, package install/update/plan, post-steps, dummy users, dry-run, self-check, dependency cleanup/retrieval, and `--init-config`. See `create-scratch-org.sh --help` for options.
 
-### How package installation works (Step 3)
+Output is grouped into numbered phases (`[1/3] Scratch org`, `[2/3] Packages`, `[3/3] Post-steps`) with `[i/N]` counters per package and post-step. Package installs show a spinner with elapsed time in an interactive terminal; Salesforce CLI output from a successful install is hidden unless you pass `--verbose`, and is always shown when an install fails. Colour is used only in a terminal: `NO_COLOR=1` or `--no-color` turns it off, and `FORCE_COLOR=1` or `--color` turns it on for CI logs. Icons fall back to ASCII when the locale is not UTF-8. See [the output specification](../.github/specs/create-scratch-org-output-ux.md).
 
-The batch file uses `resolve_packages.ps1` (PowerShell) to automatically resolve packages:
+Package-version maintenance is preview-only unless explicitly applied. Coverage uses the target project config unless flags override it:
 
-1. **Reads** `sfdx-project.json` and finds all dependencies
-2. **Looks up** each package name in `packageAliases` to get the `0Ho` package ID
-3. **Calls** `sf package version list` for each package to find the latest released `04t` version
-4. **Checks** `IsPasswordProtected` to determine if an installation key is needed
-5. **Returns** results to the batch file as `PackageName|04tVersionId|KEY/NOKEY`
-
-The batch file then installs each package in dependency order, skipping the installation key for packages that don't require one.
-
-### Configuration
-
-These variables can be changed at the top of `newScratchOrg.bat`:
-
-| Variable | Default | Description |
-|---|---|---|
-| `ORG_ALIAS` | `crm-arbeidsforhold` | Alias for the scratch org |
-| `ORG_DURATION` | `30` | Number of days before the scratch org expires |
-| `SCRATCH_DEF` | `config\project-scratch-def.json` | Path to scratch org definition |
-| `SFDX_PROJECT` | `sfdx-project.json` | Path to SFDX project file |
-| `TEST_DATA_PLAN` | `dummy-data\Plan.json` | Path to test data import plan |
-
-### Files in bin folder
-
-| File | Description |
-|---|---|
-| `newScratchOrg.bat` | Main script to create and configure a scratch org |
-| `resolve_packages.ps1` | PowerShell helper that resolves latest package versions |
-| `check-sfdx-versions.js` | Node.js script to compare current vs latest package versions |
-
-# 3.How to fetch a Scratch Org from Scratch Org Pool
-
-A scratch org pool contains pre-built scratch orgs with packages already installed, which is **much faster** than creating one from scratch.
-
-### Prerequisites
-- Salesforce CLI (`sf`) installed
-- **SFDX CLI** with the `sfpowerscripts` plugin installed
-- Authenticated to your **Dev Hub** (`sf org login web --set-default-dev-hub`)
-- Access to a scratch org pool configured in the Dev Hub
-
-### Install sfpowerscripts plugin
-
-```cmd
-sf plugins install @flxbl-io/sfp
+```bash
+./bin/create-scratch-org.sh --check-versions
+./bin/create-scratch-org.sh --apply-project-versions
+./bin/create-scratch-org.sh --coverage-check --alias scratch-org --coverage-skip-install
 ```
 
-Verify the plugin is installed:
+Windows offers matching `-CheckVersions`, `-ApplyProjectVersions`, and `-CoverageCheck` PowerShell parameters. `sf-project` provides `packages check-versions [--apply]` and `coverage check`; its coverage mutations are scratch-only by default. The scripts run Salesforce CLI directly and do not depend on `sf-project`.
 
-```cmd
-sf plugins
+## Shared config
+
+Settings are resolved in this order: command-line option, environment variable, `sf-project.config.json`, generic default. `--init-config` in Bash and `-InitConfig` in PowerShell create a config preview with dry-run; overwriting an existing config requires `--force` or `-Force`. Unmanaged settings are preserved.
+
+`dummyUsers.profileName` is the fallback profile. Optional `dummyUsers.profileAssignments` maps groups of usernames to other profile names. Profiles must already exist in the target org. Existing users are not modified; profile mappings apply when the script creates new users. See [sf-project configuration](../tools/salesforce-project-cli/docs/configuration.md) for the shared schema and [the script specification](../.github/specs/create-scratch-org-script-config.md) for parity details.
+
+Coverage defaults are in `coverage.minimumPercent`, `coverage.testClass`, and `coverage.classNamePattern`. A `null` test class runs all tests; `%` selects all Apex classes in the aggregate query. The standalone scripts expose `--coverage-check` / `-CoverageCheck`; `sf-project` exposes `coverage check`.
+
+## Offline tests
+
+Bash tests use a fake `sf` and temporary project directories:
+
+```bash
+bash bin/tests/create-scratch-org.test.sh
 ```
 
-### Usage
+On Windows, run the PowerShell dry-run/config harness:
 
-#### Option 1: Using CMD (Command Prompt)
-1. Open **CMD** (press `Win + R`, type `cmd`, press Enter)
-2. Navigate to the project root folder
-3. Fetch a scratch org from the pool
-
-```cmd
-cd /d C:\Dev\crm-arbeidsforhold-9
-sf pool:fetch --tag crm-arbeidsforhold --targetdevhubusername <devhub-alias> --setdefaultusername --alias crm-arbeidsforhold
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\bin\tests\create-scratch-org.Tests.ps1
 ```
 
-#### Option 2: Using Terminal in Visual Studio Code
-1. Open the project in Visual Studio Code
-2. Open the terminal (`Ctrl + ´` or go to **Terminal** → **New Terminal**)
-3. Make sure you are in the **project root folder**
-4. Fetch a scratch org from the pool
+Neither harness contacts Salesforce.
 
-```cmd
-sf pool:fetch --tag crm-arbeidsforhold --targetdevhubusername <devhub-alias> --setdefaultusername --alias crm-arbeidsforhold
+## Scratch-org pool
+
+Pool commands require `sfp` and an authorized Dev Hub. To inspect a pool or orgs manually:
+
+```text
+sfp pool list --tag <tag> --targetdevhubusername <devhub>
+sf org list
+sf org open --target-org <alias>
 ```
 
-### Command parameters
+## Other utilities
 
-| Parameter | Description | Example |
-|---|---|---|
-| `--tag` | The tag/name of the scratch org pool | `crm-arbeidsforhold` |
-| `--targetdevhubusername` | Alias or username of the Dev Hub | `myDevHub` |
-| `--setdefaultusername` | Sets the fetched org as default for the project | |
-| `--alias` | Alias to give the fetched scratch org | `crm-arbeidsforhold` |
+- `check-sfdx-versions.js` and `post-package-coverage-check.ps1` are the legacy standalone utilities. They remain available until the PowerShell parity harness has been run on Windows.
+- `tests/p360-mock-smoke.sh` is run by the root `npm run test:p360:mock` script.
 
-### After fetching from pool
-
-Once you have fetched a scratch org, you may still need to:
-
-1. **Deploy your latest source** (if pool org doesn't have your latest changes)
-2. **Assign permission sets** (if not pre-assigned in the pool)
-
-```cmd
-sf project deploy start --target-org crm-arbeidsforhold
-sf org assign permset --name AAREG_Arbeidsforhold_Saksbehandling --target-org crm-arbeidsforhold
-```
-
-### Pool vs newScratchOrg.bat — when to use what
-
-| Scenario | Use |
-|---|---|
-| Pool is available and has scratch orgs | `sf pool:fetch` — **fastest** (seconds) |
-| Pool is empty or unavailable | `.\bin\newScratchOrg.bat` — creates from scratch (~15-30 min) |
-| Need a clean org with latest packages | `.\bin\newScratchOrg.bat` — guaranteed fresh |
-| Quick development/testing | `sf pool:fetch` — pre-configured and ready |
-
-### Useful pool commands
-
-| Command | Description |
-|---|---|
-| `sf pool:list --tag crm-arbeidsforhold --targetdevhubusername <devhub>` | List available scratch orgs in the pool |
-| `sf pool:fetch --tag crm-arbeidsforhold --targetdevhubusername <devhub>` | Fetch a scratch org from the pool |
-| `sf org list` | List all orgs you have access to |
-| `sf org open --target-org crm-arbeidsforhold` | Open the scratch org in browser |
+The unused legacy `install-scratch.sh`, `get-latest-released-packages-posix.sh`, `resolve_packages.ps1`, and `check-version.js` have been removed. The old Windows file `newScratchOrg.bat` is only a launcher now.

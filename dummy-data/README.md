@@ -16,12 +16,12 @@ Use a name for the feature this data is suitable for, OR the name of the object.
 
 Sometimes, you'll need to export from the child with numerous parents (many lookups).
 
--   For the child records
-    -   `sfdx force:data:tree:export --query "SELECT [fields] FROM [child sObject]" --outputdir dummy-data/[name] --plan`
--   For the parents
-    -   `sfdx force:data:tree:export --query "SELECT [fields] FROM [parent sObject 1]" --outputdir dummy-data/[name]` (remove --plan)
-    -   `sfdx force:data:tree:export --query "SELECT [fields] FROM [parent sObject 2]" --outputdir dummy-data/[name]` (remove --plan)
-    -   `sfdx force:data:tree:export --query "SELECT [fields] FROM [parent sObject 3]" --outputdir dummy-data/[name]` (remove --plan)
+- For the child records
+    - `sfdx force:data:tree:export --query "SELECT [fields] FROM [child sObject]" --outputdir dummy-data/[name] --plan`
+- For the parents
+    - `sfdx force:data:tree:export --query "SELECT [fields] FROM [parent sObject 1]" --outputdir dummy-data/[name]` (remove --plan)
+    - `sfdx force:data:tree:export --query "SELECT [fields] FROM [parent sObject 2]" --outputdir dummy-data/[name]` (remove --plan)
+    - `sfdx force:data:tree:export --query "SELECT [fields] FROM [parent sObject 3]" --outputdir dummy-data/[name]` (remove --plan)
 
 You'll then **_rename_** `dummy-data/[name]/[Child sObject]s-plan.json` to **ONLY be plan.json** (in the same folder). Then edit the file, and make sure each json file containing data is present in the plan. The plan.json file is the plan for what is imported.
 
@@ -111,3 +111,30 @@ The init scripts for scratch org creation automatically find these `plan.sjon` f
 ## Importing dummy data
 
 All data is automatically imported using the init scripts for macOS or Windows, as long as they follow the folder structures defined above. See `./scripts/mac/createScratchOrg.command` and `./scripts/windows/createScratchOrg.sh`.
+
+## Test users (`User.json`)
+
+`User.json` is **not** part of `Plan.json` (Record Ids such as `ProfileId` are org-specific, so a `ProfileId` exported from one org would not exist in a freshly created scratch org). Instead, `bin/create-scratch-org.sh` imports it as its own step whenever the `data` post step runs (`--post-steps data`, `--post-steps all`, or the default):
+
+1. Resolves the `Standard User` profile Id dynamically for the target org (no hardcoded Id involved).
+2. Imports only the users from `User.json` that don't already exist in the target org (matched by `Username`), so the step is safe to re-run.
+3. Assigns the correct permission sets to each user via `sf org assign permset --on-behalf-of`, skipping any assignment that already exists.
+
+`User.json` contains four test users, split by role:
+
+| User                  | Username                     | Role          | Permission sets assigned                                                 |
+| --------------------- | ---------------------------- | ------------- | ------------------------------------------------------------------------ |
+| Per Saksbehandler 1   | `persaksbehandler1@nav.no`   | Saksbehandler | `AAREG_Arbeidsforhold_Saksbehandling`                                    |
+| Hanna Saksbehandler 2 | `hannasaksbehandler2@nav.no` | Saksbehandler | `AAREG_Arbeidsforhold_Saksbehandling`                                    |
+| Kari Brukerstøtte 1   | `karibrukerstotte1@nav.no`   | Brukerstøtte  | `AAREG_Arbeidsforhold_Support`, `AAREG_Arbeidsforhold_Support_Read_Only` |
+| Ola Brukerstøtte 2    | `olabrukerstotte2@nav.no`    | Brukerstøtte  | `AAREG_Arbeidsforhold_Support`, `AAREG_Arbeidsforhold_Support_Read_Only` |
+
+All four users share the `Standard User` profile; access is granted through permission sets, not the profile. The user file, profile name and permission-set assignments are configured in the `dummyUsers` section of [`sf-project.config.json`](../sf-project.config.json). They can be overridden with `DUMMY_USER_FILE`, `DUMMY_USER_PROFILE_NAME` and `DUMMY_USER_PERMSET_ASSIGNMENTS`; see `./bin/create-scratch-org.sh --help`.
+
+To run just this step against an already-existing org, without recreating the org or reinstalling packages:
+
+```bash
+./bin/create-scratch-org.sh --alias <alias> --post-steps-only --post-steps data
+```
+
+`--post-steps-only` is a shortcut for `--skip-org --skip-packages` that runs only the requested post steps (`deploy`, `permsets`, `data`, `community`).

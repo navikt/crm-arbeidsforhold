@@ -1,0 +1,1278 @@
+/**
+ * Composes CLI commands from application services and injectable runtime boundaries.
+ * Command output is redacted before emission, and handlers return stable exit codes without terminating the process.
+ */
+import { randomUUID } from 'node:crypto';
+import { Command, CommanderError } from 'commander';
+import { ZodError } from 'zod';
+import { clearDependencySources } from './application/clear-dependency-sources.js';
+import { runDoctor } from './application/doctor.js';
+import { recoverForceignoreTransaction } from './application/forceignore-transaction.js';
+import { getOrgInfo, getOrgStatus, listOrgs, renderOrgInfo, renderOrgSummary } from './application/org-inspection.js';
+import { isOrgMutationConfirmed, mutationConfirmationToken } from './domain/org-policy.js';
+import { configureProject, createOrg, deleteOrg } from './application/org-workflow.js';
+import { installPackages, planPackages, updatePackages } from './application/package-operations.js';
+import { updateProjectPackageVersions } from './application/project-version-update.js';
+import { runPackageCoverageCheck } from './application/package-coverage.js';
+import { refreshDependencies, type CommandRunner } from './application/refresh-dependencies.js';
+import { createWebServiceFacade } from './application/web-service-facade.js';
+import {
+    BUILTIN_POST_STEPS,
+    DEFAULT_COMMAND_TIMEOUTS,
+    loadProjectConfiguration,
+    type PostStep,
+    type ProjectConfiguration
+} from './domain/config.js';
+import { EXIT_CODES, type ExitCode, type OperationEvent } from './domain/events.js';
+import { runCommand, withDefaultTimeout } from './infrastructure/command-runner.js';
+import { createEventWriter } from './infrastructure/output.js';
+import { createMockCommandRunner, type MockScenario } from './infrastructure/mock-command-runner.js';
+import { createRedactingEventSink, createRedactor } from './infrastructure/redactor.js';
+import { classifySalesforceFailure } from './infrastructure/salesforce-errors.js';
+import { startWebServer, type StartWebServerOptions, type StartedWebServer } from './web/server.js';
+
+/** Output channels used by the CLI instead of writing to process streams directly. */
+export interface CliOutput {
+    /** Receives normal command output, including human-readable text and JSON event lines. */
+    stdout: (line: string) => void;
+    /** Receives validation, prerequisite, and operation error messages. */
+    stderr: (line: string) => void;
+    /** Enables terminal styling when `true`; omitted or `false` produces unstyled output. */
+    isTTY?: boolean;
+}
+
+interface ClearOptions {
+    projectDir: string;
+    dryRun: boolean;
+    json: boolean;
+}
+
+interface RefreshOptions extends ClearOptions {
+    targetOrg?: string;
+}
+
+interface PackageOptions extends RefreshOptions {
+    installLatest: boolean;
+    confirmMutation?: string;
+    mock: boolean;
+    mockScenario: MockScenario;
+}
+
+interface OrgCreateOptions extends ClearOptions {
+    alias?: string;
+    targetOrg?: string;
+    durationDays?: string;
+    postSteps?: string;
+    usePool?: boolean;
+    poolTag?: string;
+    poolDevhub?: string;
+    fallbackToCreate?: boolean;
+    clearDependencySources?: boolean;
+    refreshDependencySources?: boolean;
+    yes?: boolean;
+}
+
+interface OrgDeleteOptions extends ClearOptions {
+    alias?: string;
+    targetOrg?: string;
+    yes?: boolean;
+    confirmMutation?: string;
+}
+
+interface OrgReadOptions {
+    projectDir: string;
+    json: boolean;
+    refresh?: boolean;
+    mock: boolean;
+}
+
+interface OrgInfoOptions extends OrgReadOptions {
+    alias: string;
+}
+
+interface ProjectConfigureOptions extends ClearOptions {
+    alias?: string;
+    targetOrg?: string;
+    postSteps?: string;
+    skipPackages?: boolean;
+    fullDeploy?: boolean;
+    refreshDependencySources?: boolean;
+    confirmMutation?: string;
+}
+
+interface DoctorCliOptions {
+    projectDir: string;
+    json: boolean;
+}
+
+/** Replaceable runtime dependencies for embedding or testing the CLI without process-global side effects. */
+export interface CliDependencies {
+    /** Executes external commands; defaults to the production command runner and may spawn child processes. */
+    runCommand?: CommandRunner;
+    /** Supplies environment values, including package installation secrets; defaults to `process.env`. */
+    environment?: Readonly<Record<string, string | undefined>>;
+    /** Overrides the Node.js version inspected by `doctor`; defaults to the active runtime version. */
+    nodeVersion?: string;
+    /** Starts the loopback web server; injected implementations must honor the returned handle's lifecycle contract. */
+    startWebServer?: (options: StartWebServerOptions) => Promise<StartedWebServer>;
+}
+
+const SENSITIVE_ARGUMENTS = new Set(['--alias', '--installation-key', '--target-org', '--targetdevhubusername']);
+
+function renderSafeCommand(executable: string, commandArguments: readonly string[]): string {
+    const safeArguments = commandArguments.map((argument, index) =>
+        index > 0 && SENSITIVE_ARGUMENTS.has(commandArguments[index - 1] ?? '') ? '[REDACTED]' : argument
+    );
+    return [executable, ...safeArguments].join(' ');
+}
+
+function createEventCommandRunner(
+    runner: CommandRunner,
+    operationId: string,
+    emit: (event: OperationEvent) => void,
+    verbose: boolean
+): CommandRunner {
+    return async (request) => {
+        if (verbose) {
+            emit({
+                kind: 'progress',
+                operationId,
+                timestamp: new Date().toISOString(),
+                stepId: `command:${request.executable}`,
+                step: 'Run command',
+                message: renderSafeCommand(request.executable, request.arguments ?? []),
+                diagnostic: true
+            });
+        }
+        return runner(request);
+    };
+}
+
+function requireAlias(options: { alias?: string; targetOrg?: string }, configuration: ProjectConfiguration): string {
+    const alias = options.alias ?? options.targetOrg ?? configuration.defaultOrgAlias;
+    if (alias === undefined) {
+        throw new CommanderError(
+            EXIT_CODES.INVALID_INPUT_OR_CONFIG,
+            'sf-project.missingAlias',
+            'An org alias is required through --alias, --target-org, or defaultOrgAlias'
+        );
+    }
+    return alias;
+}
+
+async function assertMutationTarget(
+    projectDirectory: string,
+    alias: string | undefined,
+    operation: string,
+    confirmation: string | undefined,
+    runCommand: CommandRunner
+): Promise<void> {
+    const inspected =
+        alias === undefined
+            ? await getOrgStatus({ projectDirectory, runCommand })
+            : await getOrgInfo({ projectDirectory, alias, runCommand });
+    const target = inspected.org.alias ?? inspected.org.username ?? alias;
+    if (target === null || target === undefined) {
+        throw new CommanderError(
+            EXIT_CODES.INVALID_INPUT_OR_CONFIG,
+            'sf-project.missingMutationTarget',
+            'A resolvable target org is required for mutation'
+        );
+    }
+    if (!isOrgMutationConfirmed(inspected.org.orgType, operation, target, confirmation)) {
+        throw new CommanderError(
+            EXIT_CODES.INVALID_INPUT_OR_CONFIG,
+            'sf-project.mutationNotAllowed',
+            `Mutation is restricted to scratch orgs. Override requires: ${mutationConfirmationToken(operation, target)}`
+        );
+    }
+}
+
+function parseDurationDays(value: string | undefined, configuration: ProjectConfiguration): number {
+    const durationDays = value === undefined ? configuration.scratchDurationDays : Number(value);
+    if (!Number.isInteger(durationDays) || durationDays < 1 || durationDays > 30) {
+        throw new CommanderError(
+            EXIT_CODES.INVALID_INPUT_OR_CONFIG,
+            'sf-project.invalidDuration',
+            '--duration-days must be an integer from 1 to 30'
+        );
+    }
+    return durationDays;
+}
+
+/**
+ * Parses the global `--timeout` flag into milliseconds.
+ *
+ * @param value - Raw `--timeout` flag value, or `undefined` when not supplied.
+ * @returns The timeout in milliseconds, or `undefined` when no override was supplied.
+ * @throws `CommanderError` When the value is not a positive number.
+ */
+function parseTimeoutSeconds(value: string | undefined): number | undefined {
+    if (value === undefined) return undefined;
+    const seconds = Number(value);
+    if (!Number.isFinite(seconds) || seconds <= 0) {
+        throw new CommanderError(
+            EXIT_CODES.INVALID_INPUT_OR_CONFIG,
+            'sf-project.invalidTimeout',
+            '--timeout must be a positive number of seconds'
+        );
+    }
+    return Math.round(seconds * 1000);
+}
+
+/** Resolves the effective timeout in milliseconds: the `--timeout` override, or the given default. */
+function resolveTimeoutMs(defaultMs: number, globalOptions: { timeout?: string }): number {
+    return parseTimeoutSeconds(globalOptions.timeout) ?? defaultMs;
+}
+
+function parsePort(value: string): number {
+    const port = Number(value);
+    if (!Number.isInteger(port) || port < 0 || port > 65_535) {
+        throw new CommanderError(
+            EXIT_CODES.INVALID_INPUT_OR_CONFIG,
+            'sf-project.invalidPort',
+            '--port must be an integer from 0 to 65535'
+        );
+    }
+    return port;
+}
+
+function parsePostSteps(value: string | undefined, configuration: ProjectConfiguration): PostStep[] {
+    const customStepNames = configuration.customPostSteps.map((step) => step.name);
+    if (value === undefined) {
+        return configuration.postSteps;
+    }
+    if (value === 'all') {
+        return [...BUILTIN_POST_STEPS, ...customStepNames];
+    }
+    if (value === 'none') {
+        return [];
+    }
+    const postSteps = value.split(',').filter(Boolean);
+    const validPostSteps: readonly string[] = [...BUILTIN_POST_STEPS, ...customStepNames];
+    if (postSteps.some((postStep) => !validPostSteps.includes(postStep))) {
+        throw new CommanderError(
+            EXIT_CODES.INVALID_INPUT_OR_CONFIG,
+            'sf-project.invalidPostSteps',
+            `--post-steps accepts all, none, or a comma-separated list of: ${validPostSteps.join(', ')}`
+        );
+    }
+    return postSteps as PostStep[];
+}
+
+function emitPackageFailure(
+    emit: (event: OperationEvent) => void,
+    operationId: string,
+    stepId: string,
+    error: string,
+    total: number
+): void {
+    const timestamp = new Date().toISOString();
+    emit({
+        kind: 'step-failed',
+        operationId,
+        timestamp,
+        stepId,
+        step: 'Resolve packages',
+        exitCode: null,
+        durationMs: 0,
+        error
+    });
+    emit({
+        kind: 'package-summary',
+        operationId,
+        timestamp,
+        total,
+        missing: 0,
+        installed: 0,
+        updated: 0,
+        skipped: 0,
+        higher: 0,
+        failed: 1
+    });
+}
+
+/**
+ * Parses and executes one CLI invocation using caller-owned output channels and optional runtime dependencies.
+ *
+ * Command handlers may inspect or mutate the project, invoke external tools, or start a web server according to
+ * the selected command. Expected user, configuration, prerequisite, and operation failures are converted to stable
+ * numeric exit codes instead of being rethrown.
+ *
+ * @param argv - Command arguments without the Node.js executable or script path.
+ * @param output - Destination channels for all user-visible output.
+ * @param cliDependencies - Optional injected environment and side-effecting services.
+ * @returns The process exit code for the completed invocation.
+ */
+export async function runCli(
+    argv: string[],
+    output: CliOutput,
+    cliDependencies: CliDependencies = {}
+): Promise<number> {
+    const projectDirectoryIndex = argv.indexOf('--project-dir');
+    const normalizedArgv =
+        projectDirectoryIndex === 0 && argv[1] !== undefined ? [...argv.slice(2), '--project-dir', argv[1]] : argv;
+    const program = new Command();
+    let exitCode: ExitCode = EXIT_CODES.SUCCESS;
+    program.exitOverride();
+    program.configureOutput({
+        writeOut: (value) => output.stdout(value.trimEnd()),
+        writeErr: (value) => output.stderr(value.trimEnd())
+    });
+    program.name('sf-project');
+    program
+        .option('--no-color', 'Disable terminal styling')
+        .option('--verbose', 'Include sanitized diagnostic details', false)
+        .option('--timeout <seconds>', 'Override the default per-command timeout, in seconds');
+    const eventWriters = new Map<boolean, ReturnType<typeof createEventWriter>>();
+    const writeEvent = (event: OperationEvent, json: boolean): void => {
+        const globalOptions = program.opts<{ color: boolean; verbose: boolean; timeout?: string }>();
+        let writer = eventWriters.get(json);
+        if (writer === undefined) {
+            writer = createEventWriter({
+                color: output.isTTY === true && globalOptions.color !== false,
+                verbose: globalOptions.verbose,
+                json,
+                output
+            });
+            eventWriters.set(json, writer);
+        }
+        writer(event);
+    };
+
+    program
+        .command('doctor')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--json', 'Emit newline-delimited JSON events', false)
+        .action(async (options: DoctorCliOptions) => {
+            const operationId = randomUUID();
+            const operation = 'doctor';
+            const startedAt = Date.now();
+            const redactor = createRedactor();
+            const emit = createRedactingEventSink(redactor, (event) => writeEvent(event, options.json));
+            const globalOptions = program.opts<{ verbose: boolean; timeout?: string }>();
+            const verbose = globalOptions.verbose;
+
+            emit({
+                kind: 'operation-started',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                dryRun: false
+            });
+            const doctorExitCode = await runDoctor({
+                projectDirectory: options.projectDir,
+                nodeVersion: cliDependencies.nodeVersion ?? process.versions.node,
+                operationId,
+                emit,
+                runCommand: withDefaultTimeout(
+                    cliDependencies.runCommand ?? runCommand,
+                    resolveTimeoutMs(DEFAULT_COMMAND_TIMEOUTS.readMs, globalOptions)
+                ),
+                verbose
+            });
+            exitCode = doctorExitCode;
+            emit({
+                kind: 'operation-completed',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                exitCode: doctorExitCode,
+                durationMs: Date.now() - startedAt,
+                dryRun: false
+            });
+        });
+
+    const web = program.command('web');
+    web.command('start')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--port <port>', 'Local HTTP port', '1717')
+        .option('--json', 'Emit newline-delimited JSON events for served operations', false)
+        .action(async (options: { projectDir: string; port: string; json: boolean }) => {
+            const port = parsePort(options.port);
+            const environment = cliDependencies.environment ?? process.env;
+            const configuration = await loadProjectConfiguration(options.projectDir);
+            const installationKey = environment[configuration.packageInstallKeyEnvironmentVariable];
+            const started = await (cliDependencies.startWebServer ?? startWebServer)({
+                facade: createWebServiceFacade({
+                    projectDirectory: options.projectDir,
+                    environment,
+                    runCommand: cliDependencies.runCommand ?? runCommand
+                }),
+                host: '127.0.0.1',
+                port,
+                onEvent: (event) => writeEvent(event, options.json),
+                ...(installationKey === undefined ? {} : { redactionSecrets: [installationKey] })
+            });
+            output.stdout(`Web server listening at ${started.url}`);
+        });
+
+    const org = program.command('org');
+    org.command('list')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--refresh', 'Refresh org details before displaying them', false)
+        .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
+        .option('--json', 'Emit normalized JSON output', false)
+        .action(async (options: OrgReadOptions) => {
+            const globalOptions = program.opts<{ timeout?: string }>();
+            const commandRunner = options.mock
+                ? createMockCommandRunner(await loadProjectConfiguration(options.projectDir))
+                : (cliDependencies.runCommand ?? runCommand);
+            const result = await listOrgs({
+                projectDirectory: options.projectDir,
+                runCommand: withDefaultTimeout(
+                    commandRunner,
+                    resolveTimeoutMs(DEFAULT_COMMAND_TIMEOUTS.readMs, globalOptions)
+                ),
+                refresh: options.refresh ?? false
+            });
+            output.stdout(options.json ? JSON.stringify(result) : result.orgs.map(renderOrgSummary).join('\n\n'));
+        });
+
+    org.command('status')
+        .argument('[alias]', 'Org alias or username')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--refresh', 'Refresh org details before displaying them', false)
+        .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
+        .option('--json', 'Emit normalized JSON output', false)
+        .action(async (alias: string | undefined, options: OrgReadOptions) => {
+            const globalOptions = program.opts<{ timeout?: string }>();
+            const commandRunner = options.mock
+                ? createMockCommandRunner(await loadProjectConfiguration(options.projectDir))
+                : (cliDependencies.runCommand ?? runCommand);
+            const result = await getOrgStatus({
+                projectDirectory: options.projectDir,
+                ...(alias === undefined ? {} : { alias }),
+                refresh: options.refresh ?? false,
+                runCommand: withDefaultTimeout(
+                    commandRunner,
+                    resolveTimeoutMs(DEFAULT_COMMAND_TIMEOUTS.readMs, globalOptions)
+                )
+            });
+            output.stdout(options.json ? JSON.stringify(result) : renderOrgSummary(result.org));
+        });
+
+    org.command('info')
+        .argument('<alias>', 'Org alias or username')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
+        .option('--json', 'Emit normalized JSON output', false)
+        .action(async (alias: string, options: OrgInfoOptions) => {
+            const globalOptions = program.opts<{ timeout?: string }>();
+            const commandRunner = options.mock
+                ? createMockCommandRunner(await loadProjectConfiguration(options.projectDir))
+                : (cliDependencies.runCommand ?? runCommand);
+            const result = await getOrgInfo({
+                projectDirectory: options.projectDir,
+                alias,
+                runCommand: withDefaultTimeout(
+                    commandRunner,
+                    resolveTimeoutMs(DEFAULT_COMMAND_TIMEOUTS.readMs, globalOptions)
+                )
+            });
+            output.stdout(options.json ? JSON.stringify(result) : renderOrgInfo(result.org));
+        });
+
+    org.command('create')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--alias <alias>', 'Scratch org alias')
+        .option('--target-org <alias>', 'Scratch org alias')
+        .option('--duration-days <days>', 'Scratch org duration in days')
+        .option('--use-pool', 'Fetch a scratch org from an sfp pool')
+        .option('--pool-tag <tag>', 'sfp pool tag')
+        .option('--pool-devhub <alias>', 'Dev Hub alias for sfp pool commands')
+        .option('--fallback-to-create', 'Create a scratch org when the pool is empty')
+        .option('--no-fallback-to-create', 'Fail when the pool is empty')
+        .option('--post-steps <steps>', 'Comma-separated post steps')
+        .option('--clear-dependency-sources', 'Clear dependency source directories before org acquisition')
+        .option('--refresh-dependency-sources', 'Retrieve dependency sources after project setup')
+        .option('--dry-run', 'Plan without mutating an org', false)
+        .option('--json', 'Emit newline-delimited JSON events', false)
+        .option('--yes', 'Confirm eligible destructive actions', false)
+        .action(async (options: OrgCreateOptions) => {
+            const operationId = randomUUID();
+            const operation = 'org.create';
+            const startedAt = Date.now();
+            const configuration = await loadProjectConfiguration(options.projectDir);
+            const alias = requireAlias(options, configuration);
+            const durationDays = parseDurationDays(options.durationDays, configuration);
+            const postSteps = parsePostSteps(options.postSteps, configuration);
+            const emit = createRedactingEventSink(createRedactor(), (event) => writeEvent(event, options.json));
+            emit({
+                kind: 'operation-started',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                dryRun: options.dryRun
+            });
+            const orgExitCode = await createOrg({
+                configuration,
+                alias,
+                durationDays,
+                postSteps,
+                usePool: options.usePool ?? configuration.pool.use,
+                poolTag: options.poolTag ?? configuration.pool.tag,
+                ...((options.poolDevhub ?? configuration.pool.devHub) === undefined
+                    ? {}
+                    : { poolDevHub: options.poolDevhub ?? configuration.pool.devHub }),
+                fallbackToCreate: options.fallbackToCreate ?? configuration.pool.fallbackToCreate,
+                clearDependencySources: options.clearDependencySources ?? false,
+                refreshDependencySources: options.refreshDependencySources ?? false,
+                dryRun: options.dryRun,
+                environment: cliDependencies.environment ?? process.env,
+                operationId,
+                emit,
+                runCommand: createEventCommandRunner(
+                    withDefaultTimeout(
+                        cliDependencies.runCommand ?? runCommand,
+                        resolveTimeoutMs(configuration.commandTimeouts.mutationMs, program.opts<{ timeout?: string }>())
+                    ),
+                    operationId,
+                    emit,
+                    program.opts<{ verbose: boolean }>().verbose
+                )
+            });
+            exitCode = orgExitCode;
+            emit({
+                kind: 'operation-completed',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                exitCode: orgExitCode,
+                durationMs: Date.now() - startedAt,
+                dryRun: options.dryRun
+            });
+        });
+
+    org.command('delete')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--alias <alias>', 'Scratch org alias')
+        .option('--target-org <alias>', 'Scratch org alias')
+        .option('--dry-run', 'Plan without deleting an org', false)
+        .option('--json', 'Emit newline-delimited JSON events', false)
+        .option('--yes', 'Confirm scratch org deletion', false)
+        .option('--confirm-mutation <text>', 'Override scratch-only policy with exact command and org text')
+        .action(async (options: OrgDeleteOptions) => {
+            const operationId = randomUUID();
+            const operation = 'org.delete';
+            const startedAt = Date.now();
+            const configuration = await loadProjectConfiguration(options.projectDir);
+            const alias = requireAlias(options, configuration);
+            const emit = createRedactingEventSink(createRedactor(), (event) => writeEvent(event, options.json));
+            emit({
+                kind: 'operation-started',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                dryRun: options.dryRun
+            });
+            const eventCommandRunner = createEventCommandRunner(
+                withDefaultTimeout(
+                    cliDependencies.runCommand ?? runCommand,
+                    resolveTimeoutMs(configuration.commandTimeouts.mutationMs, program.opts<{ timeout?: string }>())
+                ),
+                operationId,
+                emit,
+                program.opts<{ verbose: boolean }>().verbose
+            );
+            let deleteExitCode: ExitCode;
+            if (options.dryRun) {
+                deleteExitCode = await deleteOrg({
+                    configuration,
+                    alias,
+                    classification: 'scratch',
+                    confirmed: options.yes ?? false,
+                    dryRun: true,
+                    operationId,
+                    emit,
+                    runCommand: eventCommandRunner
+                });
+            } else {
+                const inspected = await getOrgInfo({
+                    projectDirectory: options.projectDir,
+                    alias,
+                    runCommand: eventCommandRunner
+                });
+                deleteExitCode =
+                    inspected.org.authStatus === 'unauthenticated' || inspected.org.authStatus === 'expired'
+                        ? EXIT_CODES.AUTH_OR_AUTHORIZATION_FAILURE
+                        : await deleteOrg({
+                            configuration,
+                            alias,
+                            classification: inspected.org.orgType,
+                            confirmed: options.yes ?? false,
+                            ...(options.confirmMutation === undefined
+                                ? {}
+                                : { confirmation: options.confirmMutation }),
+                            dryRun: false,
+                            operationId,
+                            emit,
+                            runCommand: eventCommandRunner
+                        });
+            }
+            exitCode = deleteExitCode;
+            emit({
+                kind: 'operation-completed',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                exitCode: deleteExitCode,
+                durationMs: Date.now() - startedAt,
+                dryRun: options.dryRun
+            });
+        });
+
+    const project = program.command('project');
+    project
+        .command('configure')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--alias <alias>', 'Target org alias')
+        .option('--target-org <alias>', 'Target org alias')
+        .option('--post-steps <steps>', 'Comma-separated post steps')
+        .option('--skip-packages', 'Skip package resolution and installation; run only the selected post-steps', false)
+        .option('--full-deploy', 'Delete local source tracking before the deploy step so all local source is deployed', false)
+        .option('--refresh-dependency-sources', 'Retrieve dependency sources after project setup')
+        .option('--dry-run', 'Plan without mutating an org', false)
+        .option('--json', 'Emit newline-delimited JSON events', false)
+        .option('--confirm-mutation <text>', 'Override scratch-only policy with exact command and org text')
+        .action(async (options: ProjectConfigureOptions) => {
+            const operationId = randomUUID();
+            const operation = 'project.configure';
+            const startedAt = Date.now();
+            const configuration = await loadProjectConfiguration(options.projectDir);
+            const alias = requireAlias(options, configuration);
+            const postSteps = parsePostSteps(options.postSteps, configuration);
+            const emit = createRedactingEventSink(createRedactor(), (event) => writeEvent(event, options.json));
+            emit({
+                kind: 'operation-started',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                dryRun: options.dryRun
+            });
+            if (!options.dryRun) {
+                await assertMutationTarget(
+                    options.projectDir,
+                    alias,
+                    'project.configure',
+                    options.confirmMutation,
+                    withDefaultTimeout(
+                        cliDependencies.runCommand ?? runCommand,
+                        resolveTimeoutMs(configuration.commandTimeouts.readMs, program.opts<{ timeout?: string }>())
+                    )
+                );
+            }
+            const configureExitCode = await configureProject({
+                configuration,
+                alias,
+                postSteps,
+                skipPackages: options.skipPackages ?? false,
+                fullDeploy: options.fullDeploy ?? false,
+                refreshDependencySources: options.refreshDependencySources ?? false,
+                dryRun: options.dryRun,
+                environment: cliDependencies.environment ?? process.env,
+                operationId,
+                emit,
+                runCommand: createEventCommandRunner(
+                    withDefaultTimeout(
+                        cliDependencies.runCommand ?? runCommand,
+                        resolveTimeoutMs(configuration.commandTimeouts.mutationMs, program.opts<{ timeout?: string }>())
+                    ),
+                    operationId,
+                    emit,
+                    program.opts<{ verbose: boolean }>().verbose
+                )
+            });
+            exitCode = configureExitCode;
+            emit({
+                kind: 'operation-completed',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                exitCode: configureExitCode,
+                durationMs: Date.now() - startedAt,
+                dryRun: options.dryRun
+            });
+        });
+
+    const dependencies = program.command('dependencies');
+    dependencies
+        .command('clear')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--dry-run', 'Plan without changing files', false)
+        .option('--json', 'Emit newline-delimited JSON events', false)
+        .action(async (options: ClearOptions) => {
+            const operationId = randomUUID();
+            const operation = 'dependencies.clear';
+            const startedAt = Date.now();
+            const emit = (event: OperationEvent): void => writeEvent(event, options.json);
+
+            emit({
+                kind: 'operation-started',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                dryRun: options.dryRun
+            });
+
+            const configuration = await loadProjectConfiguration(options.projectDir);
+            await clearDependencySources({
+                configuration,
+                dryRun: options.dryRun,
+                operationId,
+                emit
+            });
+
+            emit({
+                kind: 'operation-completed',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                exitCode: EXIT_CODES.SUCCESS,
+                durationMs: Date.now() - startedAt,
+                dryRun: options.dryRun
+            });
+        });
+
+    dependencies
+        .command('recover')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--dry-run', 'Show the validated recovery plan without changing files', false)
+        .option('--json', 'Emit newline-delimited JSON events', false)
+        .action(async (options: ClearOptions) => {
+            const operationId = randomUUID();
+            const operation = 'dependencies.recover';
+            const startedAt = Date.now();
+            const emit = (event: OperationEvent): void => writeEvent(event, options.json);
+            emit({
+                kind: 'operation-started',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                dryRun: options.dryRun
+            });
+            const recoverExitCode = await recoverForceignoreTransaction({
+                projectDirectory: options.projectDir,
+                dryRun: options.dryRun,
+                operationId,
+                emit
+            });
+            exitCode = recoverExitCode;
+            emit({
+                kind: 'operation-completed',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                exitCode: recoverExitCode,
+                durationMs: Date.now() - startedAt,
+                dryRun: options.dryRun
+            });
+        });
+
+    const packages = program.command('packages');
+    packages
+        .command('check-versions')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--apply', 'Back up and update dependency version constraints in sfdx-project.json', false)
+        .option('--json', 'Emit newline-delimited JSON events', false)
+        .action(async (options: { projectDir: string; apply: boolean; json: boolean }) => {
+            const operationId = randomUUID();
+            const operation = 'packages.check-versions';
+            const startedAt = Date.now();
+            const emit = createRedactingEventSink(createRedactor(), (event) => writeEvent(event, options.json));
+            emit({
+                kind: 'operation-started',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                dryRun: !options.apply
+            });
+            const configuration = await loadProjectConfiguration(options.projectDir);
+            const commandRunner = cliDependencies.runCommand ?? runCommand;
+            let updateExitCode: ExitCode = EXIT_CODES.SUCCESS;
+            try {
+                const result = await updateProjectPackageVersions({
+                    configuration,
+                    apply: options.apply,
+                    runCommand: createEventCommandRunner(
+                        withDefaultTimeout(
+                            commandRunner,
+                            resolveTimeoutMs(configuration.commandTimeouts.readMs, program.opts<{ timeout?: string }>())
+                        ),
+                        operationId,
+                        emit,
+                        program.opts<{ verbose: boolean }>().verbose
+                    )
+                });
+                if (result.changes.length === 0) {
+                    emit({
+                        kind: 'progress',
+                        operationId,
+                        timestamp: new Date().toISOString(),
+                        stepId: 'packages:check-versions',
+                        step: 'Check package versions',
+                        message: 'All configured package versions are current'
+                    });
+                } else {
+                    for (const change of result.changes) {
+                        emit({
+                            kind: 'progress',
+                            operationId,
+                            timestamp: new Date().toISOString(),
+                            stepId: `packages:check-versions:${change.packageName}`,
+                            step: 'Check package versions',
+                            message: `${change.packageName}: ${change.currentVersion || '(unset)'} -> ${change.latestVersion}`
+                        });
+                    }
+                    emit({
+                        kind: 'progress',
+                        operationId,
+                        timestamp: new Date().toISOString(),
+                        stepId: 'packages:check-versions:summary',
+                        step: 'Check package versions',
+                        message: result.applied
+                            ? `Updated ${result.changes.length} dependency constraint(s); backup: ${result.backupPath}`
+                            : `Preview only: ${result.changes.length} dependency constraint(s) can be updated; pass --apply to write`
+                    });
+                }
+            } catch (error) {
+                updateExitCode = classifySalesforceFailure(error, EXIT_CODES.OPERATION_FAILURE);
+                const message = createRedactor().redactError(error);
+                output.stderr(message);
+                emit({
+                    kind: 'step-failed',
+                    operationId,
+                    timestamp: new Date().toISOString(),
+                    stepId: 'packages:check-versions',
+                    step: 'Check package versions',
+                    exitCode: updateExitCode,
+                    durationMs: Date.now() - startedAt,
+                    error: message
+                });
+            }
+            exitCode = updateExitCode;
+            emit({
+                kind: 'operation-completed',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                exitCode: updateExitCode,
+                durationMs: Date.now() - startedAt,
+                dryRun: !options.apply
+            });
+        });
+
+    const coverage = program.command('coverage');
+    coverage
+        .command('check')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--target-org <alias-or-username>', 'Salesforce target org')
+        .option('--package-id <subscriber-package-version-id>', 'Optional package version to install first')
+        .option('--minimum-coverage <percent>', 'Required aggregate coverage percentage; defaults to project config')
+        .option('--test-class <class-name>', 'Apex test class to run; otherwise uses project config or all tests')
+        .option('--class-name-pattern <pattern>', 'Apex class-name LIKE pattern for aggregate coverage')
+        .option('--run-all', 'Run the full Apex test suite instead of one class', false)
+        .option('--skip-install', 'Do not install the optional package', false)
+        .option('--skip-deploy', 'Do not deploy force-app before tests', false)
+        .option('--dry-run', 'Show planned commands without running them', false)
+        .option('--json', 'Emit newline-delimited JSON events', false)
+        .option('--confirm-mutation <text>', 'Override scratch-only policy with exact command and org text')
+        .action(
+            async (options: {
+                projectDir: string;
+                targetOrg?: string;
+                packageId?: string;
+                minimumCoverage?: string;
+                testClass?: string;
+                classNamePattern?: string;
+                runAll: boolean;
+                skipInstall: boolean;
+                skipDeploy: boolean;
+                dryRun: boolean;
+                json: boolean;
+                confirmMutation?: string;
+            }) => {
+                const operationId = randomUUID();
+                const operation = 'coverage.check';
+                const startedAt = Date.now();
+                const environment = cliDependencies.environment ?? process.env;
+                const configuration = await loadProjectConfiguration(options.projectDir);
+                const alias = requireAlias(
+                    options.targetOrg === undefined ? {} : { targetOrg: options.targetOrg },
+                    configuration
+                );
+                const minimumCoverage = Number(options.minimumCoverage ?? configuration.coverage?.minimumPercent ?? 75);
+                if (!Number.isFinite(minimumCoverage) || minimumCoverage < 0 || minimumCoverage > 100) {
+                    throw new CommanderError(
+                        EXIT_CODES.INVALID_INPUT_OR_CONFIG,
+                        'sf-project.invalidCoverage',
+                        '--minimum-coverage must be from 0 to 100'
+                    );
+                }
+                const installationKey = environment[configuration.packageInstallKeyEnvironmentVariable];
+                const redactor = createRedactor(installationKey === undefined ? [] : [installationKey]);
+                const emit = createRedactingEventSink(redactor, (event) => writeEvent(event, options.json));
+                emit({
+                    kind: 'operation-started',
+                    operationId,
+                    operation,
+                    timestamp: new Date().toISOString(),
+                    dryRun: options.dryRun
+                });
+
+                let coverageExitCode: ExitCode = EXIT_CODES.SUCCESS;
+                try {
+                    if (!options.dryRun) {
+                        await assertMutationTarget(
+                            options.projectDir,
+                            alias,
+                            operation,
+                            options.confirmMutation,
+                            withDefaultTimeout(
+                                cliDependencies.runCommand ?? runCommand,
+                                resolveTimeoutMs(
+                                    configuration.commandTimeouts.readMs,
+                                    program.opts<{ timeout?: string }>()
+                                )
+                            )
+                        );
+                    }
+                    const testClass = options.testClass ?? configuration.coverage?.testClass ?? undefined;
+                    const runAllTests = options.runAll || testClass === undefined;
+                    const classNamePattern =
+                        options.classNamePattern ?? configuration.coverage?.classNamePattern ?? '%';
+                    if (options.dryRun) {
+                        const plannedSteps = [
+                            ...(!options.skipInstall && options.packageId ? ['Would install package'] : []),
+                            ...(!options.skipDeploy ? ['Would deploy force-app'] : []),
+                            runAllTests ? 'Would run all Apex tests' : `Would run Apex test ${testClass}`,
+                            'Would query aggregate Apex coverage'
+                        ];
+                        for (const [index, message] of plannedSteps.entries()) {
+                            emit({
+                                kind: 'progress',
+                                operationId,
+                                timestamp: new Date().toISOString(),
+                                stepId: `coverage:plan:${index + 1}`,
+                                step: 'Coverage check plan',
+                                message,
+                                dryRun: true
+                            });
+                        }
+                    } else {
+                        const summary = await runPackageCoverageCheck({
+                            targetOrg: alias,
+                            projectDirectory: configuration.projectDirectory,
+                            ...(options.packageId === undefined ? {} : { packageId: options.packageId }),
+                            ...(installationKey === undefined ? {} : { installationKey }),
+                            minimumCoverage,
+                            testClass: testClass ?? '',
+                            runAllTests,
+                            skipInstall: options.skipInstall,
+                            skipDeploy: options.skipDeploy,
+                            classNamePattern,
+                            runCommand: createEventCommandRunner(
+                                withDefaultTimeout(
+                                    cliDependencies.runCommand ?? runCommand,
+                                    resolveTimeoutMs(
+                                        configuration.commandTimeouts.mutationMs,
+                                        program.opts<{ timeout?: string }>()
+                                    )
+                                ),
+                                operationId,
+                                emit,
+                                program.opts<{ verbose: boolean }>().verbose
+                            )
+                        });
+                        if (summary === undefined) throw new Error('Coverage check returned no result.');
+                        const message = `Apex coverage: ${summary.percentage}% (${summary.covered} covered, ${summary.uncovered} uncovered); required ${summary.minimumCoverage}%`;
+                        emit({
+                            kind: summary.passed ? 'progress' : 'warning',
+                            operationId,
+                            timestamp: new Date().toISOString(),
+                            stepId: 'coverage:summary',
+                            step: 'Aggregate Apex coverage',
+                            message
+                        });
+                        output.stdout(message);
+                        if (!summary.passed) coverageExitCode = EXIT_CODES.OPERATION_FAILURE;
+                    }
+                } catch (error) {
+                    coverageExitCode = classifySalesforceFailure(error, EXIT_CODES.OPERATION_FAILURE);
+                    const message = redactor.redactError(error);
+                    output.stderr(message);
+                    emit({
+                        kind: 'step-failed',
+                        operationId,
+                        timestamp: new Date().toISOString(),
+                        stepId: 'coverage:check',
+                        step: 'Check Apex coverage',
+                        exitCode: coverageExitCode,
+                        durationMs: Date.now() - startedAt,
+                        error: message
+                    });
+                }
+                exitCode = coverageExitCode;
+                emit({
+                    kind: 'operation-completed',
+                    operationId,
+                    operation,
+                    timestamp: new Date().toISOString(),
+                    exitCode: coverageExitCode,
+                    durationMs: Date.now() - startedAt,
+                    dryRun: options.dryRun
+                });
+            }
+        );
+
+    packages
+        .command('plan')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--target-org <alias-or-username>', 'Salesforce target org')
+        .option('--install-latest', 'Select the latest released package version', false)
+        .option('--dry-run', 'Plan without installing packages', false)
+        .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
+        .option('--mock-scenario <scenario>', 'Mock scenario: success, failure, timeout, retry, or partial', 'success')
+        .option('--json', 'Emit newline-delimited JSON events', false)
+        .action(async (options: PackageOptions) => {
+            const operationId = randomUUID();
+            const operation = 'packages.plan';
+            const startedAt = Date.now();
+            const redactor = createRedactor();
+            const emit = createRedactingEventSink(redactor, (event) => writeEvent(event, options.json));
+
+            emit({
+                kind: 'operation-started',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                dryRun: options.dryRun,
+                ...(options.mock ? { mock: true } : {})
+            });
+            const configuration = await loadProjectConfiguration(options.projectDir);
+            const commandRunner = options.mock
+                ? createMockCommandRunner(configuration, options.mockScenario)
+                : (cliDependencies.runCommand ?? runCommand);
+            let packageExitCode: ExitCode = EXIT_CODES.SUCCESS;
+            try {
+                await planPackages({
+                    configuration,
+                    ...(options.targetOrg === undefined ? {} : { targetOrg: options.targetOrg }),
+                    installLatest: options.installLatest,
+                    operationId,
+                    emit,
+                    runCommand: createEventCommandRunner(
+                        withDefaultTimeout(
+                            commandRunner,
+                            resolveTimeoutMs(configuration.commandTimeouts.readMs, program.opts<{ timeout?: string }>())
+                        ),
+                        operationId,
+                        emit,
+                        program.opts<{ verbose: boolean }>().verbose
+                    )
+                });
+            } catch (error) {
+                packageExitCode = classifySalesforceFailure(error, EXIT_CODES.OPERATION_FAILURE);
+                const message = redactor.redactError(error);
+                output.stderr(message);
+                emitPackageFailure(
+                    emit,
+                    operationId,
+                    'packages:plan',
+                    message,
+                    configuration.packageDependencies.length
+                );
+            }
+            exitCode = packageExitCode;
+            emit({
+                kind: 'operation-completed',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                exitCode: packageExitCode,
+                durationMs: Date.now() - startedAt,
+                dryRun: options.dryRun
+            });
+        });
+
+    const registerPackageMutation = (commandName: 'install' | 'update'): void => {
+        packages
+            .command(commandName)
+            .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+            .option('--target-org <alias-or-username>', 'Salesforce target org')
+            .option('--install-latest', 'Select the latest released package version', false)
+            .option('--dry-run', 'Query and plan without installing packages', false)
+            .option('--mock', 'Use deterministic local fixtures instead of Salesforce commands', false)
+            .option(
+                '--mock-scenario <scenario>',
+                'Mock scenario: success, failure, timeout, retry, or partial',
+                'success'
+            )
+            .option('--json', 'Emit newline-delimited JSON events', false)
+            .option('--confirm-mutation <text>', 'Override scratch-only policy with exact command and org text')
+            .action(async (options: PackageOptions) => {
+                const operationId = randomUUID();
+                const operation = `packages.${commandName}`;
+                const startedAt = Date.now();
+                const configuration = await loadProjectConfiguration(options.projectDir);
+                const environment = cliDependencies.environment ?? process.env;
+                const installationKey = environment[configuration.packageInstallKeyEnvironmentVariable];
+                const redactor = createRedactor(installationKey === undefined ? [] : [installationKey]);
+                const emit = createRedactingEventSink(redactor, (event) => writeEvent(event, options.json));
+
+                emit({
+                    kind: 'operation-started',
+                    operationId,
+                    operation,
+                    timestamp: new Date().toISOString(),
+                    dryRun: options.dryRun,
+                    ...(options.mock ? { mock: true } : {})
+                });
+                const commandRunner = options.mock
+                    ? createMockCommandRunner(configuration, options.mockScenario)
+                    : (cliDependencies.runCommand ?? runCommand);
+                if (!options.dryRun && !options.mock) {
+                    emit({
+                        kind: 'progress',
+                        operationId,
+                        timestamp: new Date().toISOString(),
+                        stepId: 'packages:target-org',
+                        step: 'Check target org',
+                        message: 'Checking target organization'
+                    });
+                    await assertMutationTarget(
+                        options.projectDir,
+                        options.targetOrg,
+                        `packages.${commandName}`,
+                        options.confirmMutation,
+                        withDefaultTimeout(
+                            commandRunner,
+                            resolveTimeoutMs(configuration.commandTimeouts.readMs, program.opts<{ timeout?: string }>())
+                        )
+                    );
+                }
+                const mutate = commandName === 'install' ? installPackages : updatePackages;
+                let packageExitCode: ExitCode;
+                try {
+                    packageExitCode = await mutate({
+                        configuration,
+                        ...(options.targetOrg === undefined ? {} : { targetOrg: options.targetOrg }),
+                        installLatest: options.installLatest,
+                        dryRun: options.dryRun,
+                        environment,
+                        operationId,
+                        emit,
+                        runCommand: createEventCommandRunner(
+                            withDefaultTimeout(
+                                commandRunner,
+                                resolveTimeoutMs(
+                                    configuration.commandTimeouts.mutationMs,
+                                    program.opts<{ timeout?: string }>()
+                                )
+                            ),
+                            operationId,
+                            emit,
+                            program.opts<{ verbose: boolean }>().verbose
+                        )
+                    });
+                } catch (error) {
+                    packageExitCode = classifySalesforceFailure(error, EXIT_CODES.OPERATION_FAILURE);
+                    const message = redactor.redactError(error);
+                    output.stderr(message);
+                    emitPackageFailure(
+                        emit,
+                        operationId,
+                        `packages:${commandName}`,
+                        message,
+                        configuration.packageDependencies.length
+                    );
+                }
+                exitCode = packageExitCode;
+                emit({
+                    kind: 'operation-completed',
+                    operationId,
+                    operation,
+                    timestamp: new Date().toISOString(),
+                    exitCode: packageExitCode,
+                    durationMs: Date.now() - startedAt,
+                    dryRun: options.dryRun
+                });
+            });
+    };
+
+    registerPackageMutation('install');
+    registerPackageMutation('update');
+
+    dependencies
+        .command('refresh')
+        .option('--project-dir <path>', 'Salesforce project root', process.cwd())
+        .option('--target-org <alias-or-username>', 'Salesforce target org')
+        .option('--dry-run', 'Plan without changing files or retrieving metadata', false)
+        .option('--json', 'Emit newline-delimited JSON events', false)
+        .action(async (options: RefreshOptions) => {
+            const operationId = randomUUID();
+            const operation = 'dependencies.refresh';
+            const startedAt = Date.now();
+            const emit = createRedactingEventSink(createRedactor(), (event) => writeEvent(event, options.json));
+
+            emit({
+                kind: 'operation-started',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                dryRun: options.dryRun
+            });
+
+            const configuration = await loadProjectConfiguration(options.projectDir);
+            const refreshExitCode = await refreshDependencies({
+                configuration,
+                ...(options.targetOrg === undefined ? {} : { targetOrg: options.targetOrg }),
+                dryRun: options.dryRun,
+                operationId,
+                emit,
+                runCommand: createEventCommandRunner(
+                    withDefaultTimeout(
+                        cliDependencies.runCommand ?? runCommand,
+                        resolveTimeoutMs(configuration.commandTimeouts.mutationMs, program.opts<{ timeout?: string }>())
+                    ),
+                    operationId,
+                    emit,
+                    program.opts<{ verbose: boolean }>().verbose
+                )
+            });
+            exitCode = refreshExitCode;
+
+            emit({
+                kind: 'operation-completed',
+                operationId,
+                operation,
+                timestamp: new Date().toISOString(),
+                exitCode: refreshExitCode,
+                durationMs: Date.now() - startedAt,
+                dryRun: options.dryRun
+            });
+        });
+
+    // Commander is configured to throw so embedders receive an exit code rather than a process exit.
+    try {
+        await program.parseAsync(normalizedArgv, { from: 'user' });
+        return exitCode;
+    } catch (error) {
+        if (error instanceof CommanderError) {
+            if (error.exitCode !== 0 && error.code.startsWith('sf-project.')) {
+                output.stderr(error.message);
+            }
+            return error.exitCode === 0 ? EXIT_CODES.SUCCESS : EXIT_CODES.INVALID_INPUT_OR_CONFIG;
+        }
+        if (error instanceof SyntaxError || error instanceof ZodError) {
+            output.stderr(error.message);
+            return EXIT_CODES.INVALID_INPUT_OR_CONFIG;
+        }
+        if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+            output.stderr(error.message);
+            return EXIT_CODES.MISSING_PREREQUISITE;
+        }
+        output.stderr(error instanceof Error ? error.message : String(error));
+        return EXIT_CODES.OPERATION_FAILURE;
+    }
+}

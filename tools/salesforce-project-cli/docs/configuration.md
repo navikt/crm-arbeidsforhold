@@ -1,0 +1,223 @@
+# Configuration
+
+Every command that loads project configuration requires `sfdx-project.json` in the resolved project root. `sf-project.config.json` is optional. Values are normalized once into absolute paths and typed workflow settings.
+
+Adopting this tool in a project shaped differently than `crm-arbeidsforhold`? See the [portability guide](portability-guide.md) for the minimal configuration and which defaults are required versus repository-specific conveniences.
+
+## Precedence
+
+1. Relevant CLI option
+2. `sf-project.config.json`
+3. Built-in default
+4. Salesforce CLI target resolution only where the tool intentionally omits `--target-org`
+
+The project root is `path.resolve(--project-dir)`, so a relative value is resolved from the CLI process working directory.
+
+## `sfdx-project.json`
+
+The loader reads these fields:
+
+| Field                               | Type                        | Required             | Behavior                                                              |
+| ----------------------------------- | --------------------------- | -------------------- | --------------------------------------------------------------------- |
+| `packageDirectories`                | Non-empty array             | Yes                  | Each entry requires a non-empty `path`                                |
+| `packageDirectories[].package`      | Non-empty string            | No                   | Associates a package name with its source directory                   |
+| `packageDirectories[].dependencies` | Array                       | No                   | Contributes package dependencies in declaration order                 |
+| `dependencies[].package`            | Non-empty string            | Yes                  | Package name used for aliases, keys, plans, and retrieval             |
+| `dependencies[].versionNumber`      | String                      | No                   | Configured release family or exact build                              |
+| `packageAliases`                    | Record of non-empty strings | No; defaults to `{}` | Maps dependency names to package aliases/IDs used for version queries |
+| `packageKeyConfig`                  | Record of booleans          | No; defaults to `{}` | Controls whether a dependency requires an installation key            |
+
+Example:
+
+```json
+{
+    "packageDirectories": [
+        {
+            "path": "force-app",
+            "package": "main-package",
+            "dependencies": [
+                {
+                    "package": "shared-package",
+                    "versionNumber": "2.4.0.LATEST"
+                }
+            ]
+        },
+        {
+            "path": "shared-package",
+            "package": "shared-package"
+        }
+    ],
+    "packageAliases": {
+        "shared-package": "<package-alias-or-id>"
+    },
+    "packageKeyConfig": {
+        "shared-package": false
+    }
+}
+```
+
+Dependency installation order retains every declaration, including duplicate package names. Dependency source roots deduplicate package names, then choose the first package directory whose `package` equals the dependency name or whose path basename equals it. By default (`dependencySourcePolicy.requireLocalDirectories: true`), a dependency without a matching source directory fails configuration loading. Set `requireLocalDirectories: false` for a project that does not vendor a local folder for every dependency; unmatched dependencies are then reported in `unresolvedDependencyNames` instead of failing, and `dependencies clear`/`dependencies refresh` emit a warning and skip them.
+
+Missing `packageKeyConfig[packageName]` means the package requires an installation key. Package planning requires both a package alias and configured version for every dependency. Supported configured versions are `major.minor.patch`, `major.minor.patch.LATEST`, `major.minor.patch.NEXT`, or an exact numeric `major.minor.patch.build`.
+
+## `sf-project.config.json`
+
+Run `npm run sf-project:setup` from the Salesforce project root to create this file interactively. The setup keeps an existing file unless the user explicitly chooses to update it. For CI or a first bootstrap that must not prompt, use `npm run sf-project:setup:defaults` from the repository root or pass `--non-interactive` to `scripts/setup-project.mjs`.
+
+The setup asks for project-specific values and offers portable defaults. It never asks for or writes package installation keys. Keep those keys in the configured environment variable, an approved secret store, or a platform credential manager. On macOS, Keychain can be used for one-command export:
+
+```bash
+security add-generic-password -a "$USER" -s PACKAGE_INSTALL_KEY -w
+PACKAGE_INSTALL_KEY="$(security find-generic-password -a "$USER" -s PACKAGE_INSTALL_KEY -w)" npm run sf-project -- packages install --target-org my-org
+```
+
+The Keychain command is an operator convenience; the CLI still receives the secret through the environment for that process. Do not commit the value or place it in this JSON file.
+
+The complete implemented schema is:
+
+| Field                                            | Type                       | Default                           | Meaning                                                                                                                                                     |
+| ------------------------------------------------ | -------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `schemaVersion`                                  | Literal `1`                | `1`                               | Configuration contract version                                                                                                                              |
+| `defaultOrgAlias`                                | Non-empty string           | None                              | Default target for create, delete, configure, and package operations                                                                                        |
+| `scratchDefinition`                              | Non-empty string           | `config/project-scratch-def.json` | Scratch definition path                                                                                                                                     |
+| `scratchDurationDays`                            | Integer `1..30`            | `14`                              | Scratch-org lifetime                                                                                                                                        |
+| `permissionSets`                                 | Non-empty string array     | `[]`                              | Permission sets assigned by the `permsets` post-step                                                                                                        |
+| `dummyDataPlan`                                  | Non-empty string or `null` | `null`                            | Data tree import plan; `null` disables configured data import                                                                                               |
+| `communityName`                                  | Non-empty string or `null` | `null`                            | Experience Cloud community to publish                                                                                                                       |
+| `dummyUsers`                                     | Object                     | Absent                            | Users imported and assigned permission sets by the `data` post-step; see below                                                                              |
+| `coverage.minimumPercent`                        | Number `0..100`            | `75`                              | Minimum aggregate coverage required by `sf-project coverage check`                                                                                          |
+| `coverage.testClass`                             | Non-empty string or `null` | `null`                            | Apex test class to run; `null` means run all tests                                                                                                          |
+| `coverage.classNamePattern`                      | Non-empty string           | `%`                               | SOQL `LIKE` pattern for aggregate Apex coverage rows                                                                                                        |
+| `postSteps`                                      | Non-empty string array     | `["deploy"]`                      | Selected project configuration steps: built-in step names or declared `customPostSteps[].name` values                                                       |
+| `customPostSteps`                                | Array of step objects      | `[]`                              | Project-declared post-steps beyond `deploy`/`permsets`/`data`/`community`; see below                                                                        |
+| `pool.use`                                       | Boolean                    | `false`                           | Try `sfp` pool acquisition                                                                                                                                  |
+| `pool.tag`                                       | Non-empty string           | `dev`                             | Pool tag                                                                                                                                                    |
+| `pool.devHub`                                    | Non-empty string           | Salesforce `target-dev-hub`       | Optional explicit Dev Hub alias or username; falls back to `sf config get target-dev-hub --json`                                                            |
+| `pool.fallbackToCreate`                          | Boolean                    | `true`                            | Create directly when pool availability cannot be established                                                                                                |
+| `packageInstallKeyEnvironmentVariable`           | Non-empty string           | `PACKAGE_INSTALL_KEY`             | Name of the environment variable holding installation keys                                                                                                  |
+| `commandTimeouts.readMs`                         | Positive integer           | `30000`                           | Default timeout, in milliseconds, for read-only inspection commands (`org display`, `org list`, `org status`, `config get`)                                 |
+| `commandTimeouts.mutationMs`                     | Positive integer           | `600000`                          | Default timeout, in milliseconds, for mutating commands (org create/delete, project configure and its post-steps, package operations, dependency retrieval) |
+| `dependencySourcePolicy.preserveRootFiles`       | Non-empty string array     | `["README.md"]`                   | Root entry names retained during dependency cleanup                                                                                                         |
+| `dependencySourcePolicy.requireLocalDirectories` | Boolean                    | `true`                            | When `false`, a dependency with no matching package directory is reported in `unresolvedDependencyNames` instead of failing configuration loading           |
+
+Each `customPostSteps` entry has:
+
+| Field        | Type             | Required             | Meaning                                                                                                              |
+| ------------ | ---------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `name`       | Non-empty string | Yes                  | Step name used in `postSteps`; must not collide with a built-in step name and must be unique among `customPostSteps` |
+| `executable` | Non-empty string | Yes                  | Executable invoked for this step, through the same command-runner boundary as built-in steps                         |
+| `arguments`  | String array     | No; defaults to `[]` | Literal argument vector passed to the executable                                                                     |
+| `label`      | Non-empty string | No                   | Human-readable label shown in interactive output; defaults to the step name                                          |
+
+A `postSteps` entry that matches neither a built-in step nor a declared `customPostSteps[].name` fails configuration loading, and a `customPostSteps` name that collides with a built-in step name or repeats another custom name also fails configuration loading.
+
+The optional `dummyUsers` object extends the `data` post-step. After the data plan is imported, users from the file that do not already exist in the target org (matched by `Username`) are imported with `ProfileId` resolved by profile name. `profileName` is the fallback; `profileAssignments` can override it for username groups. A username may occur in only one profile group. Each permission-set assignment group is applied through `sf org assign permset --on-behalf-of`. Existing assignments are tolerated, so the step can be re-run. A missing user file or profile is reported as a warning; users whose profile is missing are skipped.
+
+| Field                      | Type                                                                    | Required                        | Meaning                                                                                    |
+| -------------------------- | ----------------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------ |
+| `file`                     | Non-empty string                                                        | Yes                             | Data tree file with User records, relative to the root                                     |
+| `profileName`              | Non-empty string                                                        | No; defaults to `Standard User` | Profile resolved in the target org                                                         |
+| `profileAssignments`       | Array of `{ profileName: string, usernames: string[] }`                 | No; defaults to `[]`            | Named profiles used instead of the fallback for those users; each username can appear once |
+| `permissionSetAssignments` | Array of `{ permissionSets: string[], usernames: string[] }`, non-empty | No; defaults to `[]`            | Permission sets assigned to each group of users                                            |
+
+Example with different profiles:
+
+```json
+{
+    "dummyUsers": {
+        "file": "dummy-data/User.json",
+        "profileName": "Standard User",
+        "profileAssignments": [
+            { "profileName": "Case Handler Profile", "usernames": ["handler@example.test"] },
+            { "profileName": "Support Profile", "usernames": ["support@example.test"] }
+        ]
+    }
+}
+```
+
+Use the profile names that exist in the target org. This configuration does not create or deploy profile metadata.
+
+Example:
+
+```json
+{
+    "schemaVersion": 1,
+    "defaultOrgAlias": "feature-org",
+    "scratchDefinition": "config/project-scratch-def.json",
+    "scratchDurationDays": 14,
+    "permissionSets": ["Application_User"],
+    "dummyDataPlan": "dummy-data/Plan.json",
+    "communityName": null,
+    "postSteps": ["deploy", "permsets", "data", "seed-data"],
+    "customPostSteps": [
+        {
+            "name": "seed-data",
+            "executable": "sf",
+            "arguments": ["apex", "run", "--file", "scripts/seed.apex"],
+            "label": "Seed reference data"
+        }
+    ],
+    "pool": {
+        "use": false,
+        "tag": "dev",
+        "devHub": "development-hub",
+        "fallbackToCreate": true
+    },
+    "packageInstallKeyEnvironmentVariable": "PACKAGE_INSTALL_KEY",
+    "commandTimeouts": {
+        "readMs": 30000,
+        "mutationMs": 600000
+    },
+    "dependencySourcePolicy": {
+        "preserveRootFiles": ["README.md"],
+        "requireLocalDirectories": true
+    }
+}
+```
+
+Unknown object keys are currently stripped by Zod rather than rejected. There is no standalone JSON Schema file. Do not rely on unknown keys being preserved.
+
+### Shared with `bin/create-scratch-org.sh`
+
+The legacy Bash script reads the same file, with precedence CLI option > environment variable > configuration > default, and can create it with `create-scratch-org.sh --init-config`. It validates the file with the same rules as this schema, resolves relative paths from the project root, and uses the same defaults (`postSteps: ["deploy"]`, empty arrays meaning "none"). `bin/tests/create-scratch-org.test.sh` checks that both loaders accept and reject the same fixtures. The script does not apply `commandTimeouts`.
+
+`scripts/setup-project.mjs` keeps keys it does not prompt for, so `dummyUsers` and `customPostSteps` survive a rerun of the interactive setup. See [bin/README.md](../../../bin/README.md) for how the script uses each field.
+
+## Path resolution
+
+These paths become absolute relative to the resolved project root:
+
+- `scratchDefinition`
+- non-null `dummyDataPlan`
+- every resolved dependency package directory (an unresolved dependency, only possible when `requireLocalDirectories` is `false`, has no path and is listed by name in `unresolvedDependencyNames` instead)
+
+The loader validates shape but does not check that scratch definition, data plan, or dependency directories exist on disk. Dependency cleanup skips a missing (but declared) dependency directory; later workflows may fail when they need missing files.
+
+`dependencySourcePolicy.preserveRootFiles` contains entry names, not paths or glob patterns. Matching entries at each dependency root are retained exactly. Other root children are recursively removed only after containment and symlink checks.
+
+## Environment variables and secrets
+
+The value of `packageInstallKeyEnvironmentVariable` names the sole supported secret source. For example, the default configuration reads `PACKAGE_INSTALL_KEY` from the process environment when a package requiring a key is actually installed.
+
+```bash
+export PACKAGE_INSTALL_KEY='<provided-through-an-approved-secret-channel>'
+sf-project packages install --target-org feature-org --dry-run
+```
+
+Dry-run package mutation does not read the key. Real installation fails if a required key is absent. The value is marked as secret for command-output redaction, but Salesforce CLI currently receives it as an argument, so it may remain visible to same-user process inspection. No Keychain, keyring, config-file secret, or alternate provider is implemented. Never put keys, access tokens, auth URLs, credentials, or personal data in either JSON file.
+
+## Command overrides
+
+- `--duration-days` overrides `scratchDurationDays`.
+- `--post-steps` overrides `postSteps`; `all` expands to the built-in steps plus every declared `customPostSteps[].name`, and `none` to an empty list.
+- `--use-pool`, `--pool-tag`, `--pool-devhub`, and `--[no-]fallback-to-create` override the corresponding pool values.
+- Explicit aliases override `defaultOrgAlias` where that config field participates.
+- `--install-latest` changes package version selection from the configured version family to the greatest released version.
+- `--refresh-dependency-sources` and `--clear-dependency-sources` are command flags and have no config defaults.
+- The global `--timeout <seconds>` overrides both `commandTimeouts.readMs` and `commandTimeouts.mutationMs` for the current invocation.
+
+## Validation failures
+
+Configuration loading fails for malformed JSON, unsupported `schemaVersion`, wrong types, empty required strings, empty `packageDirectories`, duration outside `1..30`, a `postSteps` entry that matches neither a built-in step nor a declared `customPostSteps[].name`, a `customPostSteps` name colliding with a built-in step or repeating another custom name, or a dependency with no matching package directory when `dependencySourcePolicy.requireLocalDirectories` is `true` (the default). CLI parsing separately rejects an invalid duration, port, post-step string, or missing required alias. The application layer also rejects an unrecognized post-step selection (from either adapter) before any org, package, or step command runs.
+
+Expected syntax and schema failures return exit code `2`. A missing required file can return `3`. `doctor` reports configuration failure without printing raw configuration or secret values and gives the corrective action to fix either JSON file.

@@ -1,0 +1,46 @@
+{
+    "schemaVersion": 1,
+    "defaultOrgAlias": "crm-arbeidsforhold",
+    "scratchDefinition": "config/project-scratch-def.json",
+    "scratchDurationDays": 14,
+    "permissionSets": [
+        "AAREG_Arbeidsforhold_Saksbehandling",
+        "AAREG_Arbeidsforhold_Support",
+        "AAREG_CommunityPermission"
+    ],
+    "dummyDataPlan": "dummy-data/Plan.json",
+    "communityName": "Aa-registret",
+    "coverage": {
+        "minimumPercent": 75,
+        "testClass": "AAREG_ApplicationDecisionControllerTest",
+        "classNamePattern": "AAREG_%"
+    },
+    "dummyUsers": {
+        "file": "dummy-data/User.json",
+        "profileName": "Standard User",
+        "permissionSetAssignments": [
+            {
+                "permissionSets": ["AAREG_Arbeidsforhold_Saksbehandling"],
+                "usernames": ["persaksbehandler1@nav.no", "hannasaksbehandler2@nav.no"]
+            },
+            {
+                "permissionSets": ["AAREG_Arbeidsforhold_Support", "AAREG_Arbeidsforhold_Support_Read_Only"],
+                "usernames": ["karibrukerstotte1@nav.no", "olabrukerstotte2@nav.no"]
+            }
+        ]
+    },
+    "postSteps": ["deploy", "permsets", "data", "community"],
+    "pool": {
+        "use": false,
+        "tag": "dev",
+        "fallbackToCreate": true
+    },
+    "packageInstallKeyEnvironmentVariable": "PACKAGE_INSTALL_KEY",
+    "commandTimeouts": {
+        "readMs": 30000,
+        "mutationMs": 600000
+    },
+    "dependencySourcePolicy": {
+        "preserveRootFiles": ["README.md"]
+    }
+}
