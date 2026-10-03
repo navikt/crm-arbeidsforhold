@@ -208,7 +208,7 @@
         </itemInstances>
         <itemInstances>
             <componentInstance>
-                <componentName>c:aareg_accessRequestTasks</componentName>
+                <componentName>aareg_accessRequestTasks</componentName>
                 <identifier>c_aareg_accessRequestTasks</identifier>
             </componentInstance>
         </itemInstances>

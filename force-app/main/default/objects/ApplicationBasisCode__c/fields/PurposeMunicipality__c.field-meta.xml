@@ -133,10 +133,6 @@
             <valueName>Særnamsfunksjonen</valueName>
         </valueSettings>
         <valueSettings>
-            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
-            <valueName>Annet - oppgi i tekstfelt under</valueName>
-        </valueSettings>
-        <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Behandling av startlån/boligtilskudd</valueName>
         </valueSettings>
@@ -187,6 +183,10 @@
         <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Smittesporing</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <valueName>Annet - oppgi i tekstfelt under</valueName>
         </valueSettings>
     </valueSet>
 </CustomField>

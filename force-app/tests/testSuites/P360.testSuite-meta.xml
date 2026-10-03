@@ -11,8 +11,8 @@
     <testClassName>P360_AddressDtoTest</testClassName>
     <testClassName>P360_ApplicationDecisionArchiveGuardTest</testClassName>
     <testClassName>P360_ArchiveAdapterTest</testClassName>
-    <testClassName>P360_ArchiveJobMetadataTest</testClassName>
     <testClassName>P360_ArchiveJobClaimServiceTest</testClassName>
+    <testClassName>P360_ArchiveJobMetadataTest</testClassName>
     <testClassName>P360_ArchiveJobSchedulerTest</testClassName>
     <testClassName>P360_ArchiveJobServiceTest</testClassName>
     <testClassName>P360_ArchiveJobWorkerTest</testClassName>
@@ -20,11 +20,11 @@
     <testClassName>P360_ArchiveResponseDtoTest</testClassName>
     <testClassName>P360_CaseContactResultDtoTest</testClassName>
     <testClassName>P360_CaseDocumentFileResultDtoTest</testClassName>
-    <testClassName>P360_ContentVersionArchiveHandlerTest</testClassName>
     <testClassName>P360_CaseDocumentResultDtoTest</testClassName>
     <testClassName>P360_CaseResultDtoTest</testClassName>
     <testClassName>P360_ClassCodeParameterDtoTest</testClassName>
     <testClassName>P360_ContactParameterDtoTest</testClassName>
+    <testClassName>P360_ContentVersionArchiveHandlerTest</testClassName>
     <testClassName>P360_CreateCaseRequestDtoTest</testClassName>
     <testClassName>P360_CreateCaseResponseDtoTest</testClassName>
     <testClassName>P360_CreateDocumentRequestDtoTest</testClassName>

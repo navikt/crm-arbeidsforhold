@@ -73,10 +73,7 @@
         <name>Aa_RegisterAccess</name>
     </recordTypes>
     <validationRules>
-        <errorMessage>
-            <!-- Denne status settes automatisk. 
-For å behandle søknaden, må det gjøres ett vedtak eller henlegge søknaden. -->
-        </errorMessage>
+        <errorMessage></errorMessage>
         <name>DoNotMakeDecisionByStage</name>
     </validationRules>
 </CustomObjectTranslation>

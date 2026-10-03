@@ -3,10 +3,10 @@
     <fullName>Salesforce_Key__c</fullName>
     <description>Salesforce-sida sin nøkkel eller verdi for oppslaget (t.d. ein picklist-API-verdi).</description>
     <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Salesforce Key</label>
     <length>255</length>
     <required>true</required>
-    <trackTrending>false</trackTrending>
     <type>Text</type>
     <unique>false</unique>
 </CustomField>

@@ -3,8 +3,7 @@
     <fullName>Active__c</fullName>
     <defaultValue>true</defaultValue>
     <description>Om denne kodeverkverdien er aktiv og skal brukast i oppslag.</description>
-    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Active</label>
-    <trackTrending>false</trackTrending>
     <type>Checkbox</type>
 </CustomField>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Source --></label>
+    <name>Source__c</name>
+    <picklistValues>
+        <masterLabel>AA-register support</masterLabel>
+        <translation><!-- AA-register support --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>AA-register søknad</masterLabel>
+        <translation><!-- AA-register søknad --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Integrasjon</masterLabel>
+        <translation><!-- Integrasjon --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kontaktskjema</masterLabel>
+        <translation><!-- Kontaktskjema --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Kurs</masterLabel>
+        <translation><!-- Kurs --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Opprettet i Salesforce</masterLabel>
+        <translation><!-- Opprettet i Salesforce --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Permittering</masterLabel>
+        <translation><!-- Permittering --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

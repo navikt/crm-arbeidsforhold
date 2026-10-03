@@ -3,11 +3,11 @@
     <fullName>Sort_Order__c</fullName>
     <description>Sorteringsrekkefølgje for visning der fleire verdiar høyrer til same tabell.</description>
     <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Sort Order</label>
     <precision>5</precision>
     <required>false</required>
     <scale>0</scale>
-    <trackTrending>false</trackTrending>
     <type>Number</type>
     <unique>false</unique>
 </CustomField>

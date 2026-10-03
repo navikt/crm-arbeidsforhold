@@ -3,10 +3,10 @@
     <fullName>P360_Recno__c</fullName>
     <description>P360 sitt interne løpenummer (recno) for kodeverdien, dersom P360 krev dette i tillegg til koden.</description>
     <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
     <label>P360 Recno</label>
     <length>40</length>
     <required>false</required>
-    <trackTrending>false</trackTrending>
     <type>Text</type>
     <unique>false</unique>
 </CustomField>

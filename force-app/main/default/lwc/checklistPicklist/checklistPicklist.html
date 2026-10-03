@@ -1,8 +1,8 @@
 <template>
-  <label>{label}</label>
-  <select onchange={assignValue} class="slds-select" id="userlist">
-    <template for:each={picklistOptionValues} for:item="next">
-      <option class="uiINputSelectOption" key={next} value={next}>{next}</option>
-    </template>
-  </select>
+    <label>{label}</label>
+    <select onchange={assignValue} class="slds-select" id="userlist">
+        <template for:each={picklistOptionValues} for:item="next">
+            <option class="uiINputSelectOption" key={next} value={next}>{next}</option>
+        </template>
+    </select>
 </template>

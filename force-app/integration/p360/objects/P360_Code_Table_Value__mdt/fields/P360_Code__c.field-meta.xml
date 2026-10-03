@@ -3,10 +3,10 @@
     <fullName>P360_Code__c</fullName>
     <description>Kodeverdien slik P360 identifiserer han.</description>
     <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
     <label>P360 Code</label>
     <length>255</length>
     <required>true</required>
-    <trackTrending>false</trackTrending>
     <type>Text</type>
     <unique>false</unique>
 </CustomField>
