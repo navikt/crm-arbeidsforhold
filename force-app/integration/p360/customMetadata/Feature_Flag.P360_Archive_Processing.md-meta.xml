@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>P360 Archive Processing</label>
+    <protected>false</protected>
+    <values>
+        <field>Feature_flag_owner__c</field>
+        <value xsi:type="xsd:string">Arbeidsforhold</value>
+    </values>
+    <values>
+        <field>Description__c</field>
+        <value xsi:type="xsd:string">Enables P360 archive job processing. Keep disabled until the external contract and activation criteria are approved.</value>
+    </values>
+    <values>
+        <field>Is_Enabled__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Required_Custom_Permission__c</field>
+        <value xsi:nil="true" />
+    </values>
+</CustomMetadata>

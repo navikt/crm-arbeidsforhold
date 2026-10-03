@@ -1,0 +1,398 @@
+---
+tittel: P360 datamodell og asynkron arkiveringsjobb
+status: delvis implementert
+dato: 2026-09-12
+---
+
+# P360 datamodell og asynkron arkiveringsjobb
+
+**Beslutningsstatus:** Datamodell, frigivingsvern, idempotensnøklar, jobboppretting, lease/claim, schedulable dispatch og worker-statusklassifisering er implementerte og testa. Org-schedule, ekstern filopplasting og endeleg teamgodkjenning står att.
+
+**Implementeringsføresetnad:** Vidare implementering startar før teamet har landa alle vala. Dette er ein medviten risiko fordi modellen kan måtte justerast etter teamavklaring. Større endringar skal handterast som ein eksplisitt endringsbeslutning med oppdatert dokumentasjon, migreringsvurdering og relevante regresjonstestar.
+
+## Føremål
+
+Dette dokumentet fastset datamodellen for P360-arkivering i Salesforce. Modellen byggjer på eksisterande relasjonar mellom `Access_Request__c`, `Application__c`, `Application_Decision__c` og `Agreement__c` og er delvis realisert som P360-eigd metadata.
+
+## Implementeringsstatus
+
+Implementert og org-validert:
+
+- `P360_Archive_Job__c` med status-, korrelasjons-, idempotens-, retry- og leasefelt
+- P360 case-, dokument- og filreferansar på domeneobjekta
+- `Application_Decision__c.Ready_For_P360_Archive__c`
+- MyTriggers-basert frigivingsvern og låsing etter frigiving
+- `P360_Archive_Release` og `P360_Archive_Job_Processing`
+- deterministiske idempotensnøklar for fire arkivhendingar
+- idempotent oppretting av `ApplicationDocument`- og `ApplicationAttachment`-jobbar med status `Pending`
+- `ContentVersion`-after-insert kopling til `ApplicationAttachment`-jobb når fila blir publisert direkte på `Application__c`
+
+Planlagt, men ikkje implementert:
+
+- komplettheitsvalidering av vedtak før frigiving
+- automatisk triggering av `DecisionDocument`- og `AgreementDocument`-jobb
+- org-schedule, automatisk triggering, manuell frigiving og endelege produksjonsstatusar
+- `Succeeded_Date__c` og `Failed_Date__c`
+- P360/SIF-mapping, transport og autentisering
+
+Sjå [teknisk oversikt](../integrations/p360/teknisk-oversikt.md) for diagram og runtime-flyt.
+
+## Metadata-eigarskap
+
+P360-spesifikke custom objects og custom fields skal liggje under `force-app/integration/p360/objects/`, også når eit felt utvidar eit eksisterande Aa-registeret-objekt som `Application__c`, `Application_Decision__c`, `Agreement__c` eller `Access_Request__c`.
+
+Dette skil metadata-eigarskap frå dataeigarskap:
+
+- Aa-registeret eig sjølve domenedataene og livsløpet for Application, Decision og Agreement.
+- P360-integrasjonen eig P360-referansar, arkiveringssignal og teknisk jobbmetadata.
+- `P360_Archive_Job__c` eig jobbstatus, retry, lease, feilkontekst og korrelasjon.
+- P360-felt på domenobjekt skal ikkje brukast som generell domene- eller jobbstatus.
+- Nye P360-referansefelt skal ikkje leggjast tilbake i `force-app/main/default/objects`.
+
+## Vedteken domenehierarki
+
+`Access_Request__c` er overbygget for éi tilgangssak. Under overbygget ligg livsløpet for søknad, vedtak og avtale:
+
+```text
+Access_Request__c
+├── Application__c
+│   └── Application_Decision__c
+└── Agreement__c
+```
+
+Den faktiske metadataen har desse relasjonane:
+
+- `Application__c.Access_Request__c` er optional Lookup til `Access_Request__c`.
+- `Application_Decision__c.Application__c` er Master-Detail til `Application__c`.
+- `Application_Decision__c.Agreement__c` er optional Lookup til `Agreement__c`.
+- `Agreement__c.Application__c` er optional Lookup til `Application__c`.
+- `Agreement__c.Access_Request__c` er optional Lookup til `Access_Request__c`.
+
+### Relasjonsdiagram
+
+Diagramkjelde: [P360 data model relationships](p360-data-model-relationships.mmd)
+
+```mermaid
+erDiagram
+	ACCESS_REQUEST o|--o{ APPLICATION : "optional lookup"
+	ACCESS_REQUEST o|--o{ AGREEMENT : "optional lookup"
+	APPLICATION ||--o{ APPLICATION_DECISION : "master-detail"
+	APPLICATION o|--o{ AGREEMENT : "optional lookup"
+	AGREEMENT o|--o{ APPLICATION_DECISION : "optional lookup"
+
+	ACCESS_REQUEST ||--o{ P360_ARCHIVE_JOB : "required context"
+	APPLICATION o|--o{ P360_ARCHIVE_JOB : "application source"
+	APPLICATION_DECISION o|--o{ P360_ARCHIVE_JOB : "decision source"
+	AGREEMENT o|--o{ P360_ARCHIVE_JOB : "agreement source"
+	USER o|--o{ P360_ARCHIVE_JOB : "manual release"
+
+	USER {
+		Id Id PK
+	}
+
+	ACCESS_REQUEST {
+		Id Id PK
+		string P360_Case_Id__c
+		string P360_Case_Number__c
+	}
+
+	APPLICATION {
+		Id Id PK
+		Id Access_Request__c FK
+		string P360_Document_Id__c
+		string P360_Document_Number__c
+		string P360_File_Id__c
+	}
+
+	APPLICATION_DECISION {
+		Id Id PK
+		Id Application__c FK
+		Id Agreement__c FK
+		boolean Ready_For_P360_Archive__c
+		string P360_Document_Id__c
+		string P360_Document_Number__c
+		string P360_File_Id__c
+	}
+
+	AGREEMENT {
+		Id Id PK
+		Id Access_Request__c FK
+		Id Application__c FK
+		string P360_Document_Id__c
+		string P360_Document_Number__c
+		string P360_File_Id__c
+		string Public_360_id__c "legacy"
+	}
+
+	P360_ARCHIVE_JOB {
+		Id Id PK
+		Id Access_Request__c FK "required"
+		Id Application__c FK "optional"
+		Id Application_Decision__c FK "optional"
+		Id Agreement__c FK "optional"
+		string Archive_Event_Type__c "required"
+		string Status__c "required"
+		number Attempt_Count__c "required"
+		string Correlation_Id__c "required"
+		string Idempotency_Key__c UK "required external id"
+		datetime Queued_Date__c
+		datetime Started_Date__c
+		datetime Last_Attempt_Date__c
+		datetime Next_Attempt_Date__c
+		datetime Lease_Expires_Date__c
+		string Last_Error_Code__c
+		string Last_Error_Message__c
+		string Manual_Release_Reason__c
+		string Manual_Release_Type__c
+		Id Manual_Released_By__c FK
+		datetime Manual_Released_Date__c
+	}
+```
+
+Diagrammet viser persisterte Salesforce-relasjonar. `ContentVersionId` for `ApplicationAttachment` er del av `Idempotency_Key__c`, men er ikkje eit eige lookup-felt på `P360_Archive_Job__c` i gjeldande metadata.
+
+## Eigarskap til P360-referansar
+
+P360-referansar skal lagrast på objektet som eig den eksterne entiteten. Felta er likevel P360-eigde metadata og skal fysisk liggje under P360-integrasjonen:
+
+| Salesforce-objekt         | P360-entitet                                   | Implementerte referansar                               |
+| ------------------------- | ---------------------------------------------- | ------------------------------------------------------ |
+| `Access_Request__c`       | P360-sak                                       | P360 case ID og case number                            |
+| `Application__c`          | Inngåande søknadsdokument og søknadsvedlegg    | P360 document ID, eventuelt document number og file ID |
+| `Application_Decision__c` | Utgåande vedtaksdokument                       | P360 document ID, eventuelt document number og file ID |
+| `Agreement__c`            | Avtaledokument, dersom avtalar skal arkiverast | P360 document ID, eventuelt document number og file ID |
+
+Det eksisterande `Agreement__c.Public_360_id__c` blir ikkje gjenbrukt i denne skiva. Det skal vurderast separat før eventuell migrering.
+
+### Invariants for P360-referansar
+
+For MVP gjeld desse reglane for dei nye P360-referansefelta:
+
+- Referansefelta kan skrivast av den autoriserte P360-arkiveringsflyten.
+- Same ikkje-blanke verdi kan skrivast på nytt ved idempotent retry.
+- Ein ny, ikkje-blank verdi kan erstatte ein eksisterande verdi berre gjennom autorisert P360-flyt.
+- Referansefelta skal aldri blankast som del av retry, feilhandtering eller ordinær brukaroppdatering.
+- Vanlege brukarar og UI skal ikkje kunne endre P360-referansar manuelt.
+- Ei manglande referanse skal ikkje tolkast som at arkiveringa er vellukka; jobbstatusen på `P360_Archive_Job__c` er kjelda for teknisk resultat.
+- P360-referansar skal ikkje brukast som teknisk retry-status eller som erstatning for `P360_Archive_Job__c`.
+- Søknad og alle tilhøyrande vedlegg skal bruke same `P360_Case_Id__c` og `P360_Case_Number__c` på `Access_Request__c`.
+- Ei ny dokumentversjon eller ei ny arkiveringshending skal få ny idempotensnøkkel, sjølv om den skriv ein ny referanse på same domeneobjekt.
+- `Agreement__c.Public_360_id__c` er eit legacy-felt og er ikkje omfatta av desse reglane før separat analyse og migreringsbeslutning.
+
+## `P360_Archive_Job__c`
+
+`P360_Archive_Job__c` er eit eige teknisk objekt for éi asynkron arkiveringshending. Objektet eig jobbstatus, retry, feilkontekst og korrelasjon. Det eig ikkje dei autoritative P360-identifikatorane.
+
+Det skal opprettast éin jobb per konkret arkiveringshending, ikkje éin jobb per `Application__c` eller per `Access_Request__c`:
+
+| Salesforce-kontekst                         | Jobbtype                | Idempotensnøkkel                                            |
+| ------------------------------------------- | ----------------------- | ----------------------------------------------------------- |
+| `Application__c` + søknadsdokument          | `ApplicationDocument`   | `APPLICATION_DOCUMENT:{ApplicationId}`                      |
+| `Application__c` + kvart søknadsvedlegg     | `ApplicationAttachment` | `APPLICATION_ATTACHMENT:{ApplicationId}:{ContentVersionId}` |
+| `Application_Decision__c` + vedtaksdokument | `DecisionDocument`      | `DECISION_DOCUMENT:{ApplicationDecisionId}`                 |
+| `Agreement__c` + avtaledokument             | `AgreementDocument`     | `AGREEMENT_DOCUMENT:{AgreementId}`                          |
+
+Idempotensnøkkelen skal vere unik på `P360_Archive_Job__c`. Aa-register-nummeret skal framleis brukast til domenekopling og P360-søk, men ikkje åleine som teknisk jobbidentitet.
+
+Retry skal alltid gjenbruke jobben med same idempotensnøkkel. Det skal ikkje opprettast ein ny jobb for same arkiveringshending.
+
+### Søknad og vedlegg under same P360-sak
+
+Når `ApplicationDocument` blir arkivert, skal hovudsøknaden og alle relevante vedlegg arkiverast under same P360-saksnummer. `Access_Request__c` er den felles Salesforce-konteksten for søknad og vedlegg, og P360 case ID/number skal hentast eller opprettast før dokumenthendingane blir sende.
+
+- Hovudsøknaden får éi `ApplicationDocument`-hending.
+- Kvart relevant søknadsvedlegg får éi `ApplicationAttachment`-hending.
+- Vedlegga skal referere til same P360 case ID/number som hovudsøknaden.
+- Kvart vedlegg skal ha eigen idempotensnøkkel basert på `Application__c` og den konkrete `ContentVersion__c`, slik at retry ikkje dupliserer vedlegget.
+- Søknadsjobben skal ikkje markerast som vellukka før hovudsøknaden og alle vedlegg som høyrer til innsendinga er behandla etter avtalt suksess- og feilstrategi.
+- Nye eller endra vedlegg etter innsending skal vere nye arkiveringshendingar med nye idempotensnøklar, men framleis under same P360-sak.
+- Eit vedlegg som ikkje kan arkiverast skal vere synleg som eiga feila hending og ikkje skjulast ved å markere berre hovudsøknaden som feila.
+
+| Eksisterande status | Retry-åtferd                                                                             |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| `Succeeded`         | Ikkje køyr på nytt; bruk eksisterande resultat.                                          |
+| `Pending`           | Køyr eksisterande jobb.                                                                  |
+| `Failed`            | Oppdater same jobb, auk `Attempt_Count__c` og set ny retry-tid.                          |
+| `Manual Review`     | Køyr berre etter eksplisitt manuell frigiving.                                           |
+| `In Progress`       | Ikkje start parallelt forsøk; vurder jobben på nytt etter definert lease-/timeout-regel. |
+
+Ei ny dokumentversjon eller ei ny arkiveringshending skal få ein ny idempotensnøkkel og dermed ein ny jobb.
+
+### Relasjonar
+
+`Access_Request__c` skal vere obligatorisk Lookup på jobben. Jobben kan i tillegg peike til den konkrete kjelda:
+
+- `Application__c` for søknadsdokument
+- `Application_Decision__c` for vedtaksdokument
+- `Agreement__c` for avtaledokument
+
+### Obligatoriske konseptuelle felt
+
+**Kontekst:**
+
+- `Access_Request__c`
+- `Application__c`, når jobben gjeld søknad
+- `Application_Decision__c`, når jobben gjeld vedtak
+- `Agreement__c`, når jobben gjeld avtale
+- `Archive_Event_Type__c`
+
+**Status:**
+
+- `Status__c`: `Pending`, `In Progress`, `Succeeded`, `Failed`, `Manual Review`
+- `Attempt_Count__c`
+- `Last_Attempt_Date__c`
+- `Next_Attempt_Date__c`
+- `Last_Error_Code__c`
+- `Last_Error_Message__c`
+- `Correlation_Id__c`
+- `Idempotency_Key__c`
+- `Manual_Release_Reason__c`
+- `Manual_Release_Type__c`: `Business`, `Technical`
+- `Manual_Released_By__c`
+- `Manual_Released_Date__c`
+
+**Tidsstempel:**
+
+- `Queued_Date__c`
+- `Started_Date__c`
+- `Lease_Expires_Date__c`
+
+### Frigivingsvalidering for vedtak
+
+`Ready_For_P360_Archive__c` kan berre setjast til `true` når eit felles minimumssett er oppfylt, og når eventuelle tilleggskrav for den aktuelle vedtakstypen er oppfylte.
+
+Det felles minimumssettet skal minst omfatte:
+
+- gyldig kopling til `Application__c` og `Access_Request__c`
+- vedtaksstatus, vedtaksdato og vedtaksgrunngiving
+- vedtaksdetaljar med godkjenningsstatus, tilgangstype, heimel, føremål og behandlingsgrunnlag
+- organisasjonsnummer, Aa-register-nummer og anna nødvendig P360-kontekst
+
+Vedtakstype-spesifikk validering skal kunne krevje eller avvise felt og detaljar som ikkje gjeld alle vedtakstypar. Salesforce skal stoppe frigiving når minimumsvalideringa feilar. P360 kan i tillegg avvise førespurnaden dersom den endelege SIF-kontrakten har strengare transport- eller kodeverkskrav.
+
+Felta `Succeeded_Date__c` og `Failed_Date__c` er føreslegne, men ikkje oppretta. Inntil vidare må tidspunkt utleiast frå jobbstatus og standard audit-felt.
+
+### Førebels MVP-retrypolicy
+
+Følgjande policy er vald som førebels MVP-standard. Ho skal justerast dersom P360-teamet stadfestar andre timeoutar, rate limits eller feilkodeklassifiseringar:
+
+```text
+Callout-timeout:       120 sekund
+Jobb-lease:            10 minutt
+Maks automatiske forsøk: 5
+Retry-vindauge:        24 timar
+Backoff:               1 minutt, 5 minutt, 15 minutt, 1 time, 6 timar
+Etter grensa:          Manual Review
+```
+
+Når ein jobb går til `In Progress`, skal `Lease_Expires_Date__c` setjast. Ein jobb kan berre takast opp att etter utløpt lease, og statusovergangen må vere atomisk nok til å hindre parallell behandling.
+
+Retrybare feil er mellombelse timeoutar, nettverksfeil, rate limiting og mellombelse serverfeil. Ugyldige requestar, mappingfeil, autentiseringsfeil, fleire sakstreff og permanente P360-feil skal ikkje retryast automatisk; dei skal gå til `Manual Review` eller kontrollert `Failed` etter endeleg teamavklaring.
+
+### Manuell frigiving
+
+`Manual Review` kan berre frigivast eksplisitt av autoriserte interne roller:
+
+- Saksbehandlar kan frigive fagleg avklarte feil (`Manual_Release_Type__c = Business`).
+- Drift/integrasjonseigar kan frigive tekniske feil, timeoutar og hengande jobbar (`Manual_Release_Type__c = Technical`).
+- Eksterne brukarar kan ikkje frigive jobbar.
+- Frigiving skal logge grunn, brukar og tidspunkt.
+- Frigiving skal ikkje slette tidlegare feilkode, feilmelding eller forsøkshistorikk.
+
+Ved manuell frigiving skal statusovergangen vere:
+
+```text
+Manual Review -> Pending -> In Progress
+```
+
+Den manuelle handlinga set jobben til `Pending`. Berre queueable/worker kan setje jobben til `In Progress`, etter atomisk krav på jobben og oppdatering av `Lease_Expires_Date__c`. Manuell frigiving skal ikkje starte eit eksternt callout direkte.
+
+Ved frigiving skal `Attempt_Count__c`, tidlegare feilkode og feilmelding bevarast. `Next_Attempt_Date__c` kan setjast til no eller eit eksplisitt valt tidspunkt. Dersom jobben feiler på nytt, går han tilbake til `Failed` eller `Manual Review` etter feilklassifisering.
+
+## Arkiveringsreglar
+
+- Utkast skal ikkje opprette arkiveringsjobb.
+- Ved innsending skal ein jobb av typen `ApplicationDocument` opprettast.
+- Ved ferdig vedtak skal ein jobb av typen `DecisionDocument` opprettast.
+- `DecisionDocument` skal berre opprettast når `Application_Decision__c.Ready_For_P360_Archive__c = true`.
+- `Ready_For_P360_Archive__c` skal vere eit eingongssignal. Når feltet er sett til `true`, kan det ikkje setjast tilbake til `false`.
+- Når signalet er sett til `true`, skal vedtaksdata som inngår i arkiveringa låsast for ordinære endringar. Nye forsøk på å endre vedtaket skal avvisast, også medan arkiveringsjobben står i `Pending`, `In Progress`, `Failed` eller `Manual Review`.
+- Retry skal berre gjenta arkiveringa av same låste vedtaksinnhald. Retry skal ikkje opne vedtaket eller tillate at ein ny versjon blir arkivert på same `DecisionDocument`-nøkkel.
+- Tekniske P360-felt, inkludert P360-referansar, kan oppdaterast av autorisert arkiveringsflyt etter frigiving. Oppdateringa kan berre skrive same verdi på nytt eller ein ny ikkje-blank verdi; ho kan aldri blanke feltet.
+- Tekniske P360-felt skal ikkje kunne oppdaterast av ordinær brukar eller UI etter frigiving.
+- Korrigering etter frigiving krev ein separat, kontrollert prosess for ny vedtaksversjon og ny idempotensnøkkel. Det skal ikkje løysast ved å nullstille eller overskrive det opphavlege eingongssignalet.
+- Salesforce skal ikkje generere vedtaks-PDF for P360-arkivering; P360 skal generere og eige arkivversjonen, fortrinnsvis PDF/A.
+- `DecisionDocument` skal sende vedtaksmetadata til P360 og lagre P360 document ID og eventuelt document number som P360-referanse.
+- Salesforce skal ikkje hente eller vise PDF/A frå P360 i MVP. Salesforce viser berre arkiveringsstatus og lagra P360-referansar.
+- Vedtaksflyten skal ikkje gjerast avhengig av dagens Salesforce-PDF-generering.
+- Ei seinare utviding kan leggje til PDF/A-referanse eller separat oppslag dersom brukar- eller driftsbehov blir stadfesta.
+- Alle jobbar skal bruke `Application__c.Name` som Aa-register-nummer når søknadskontekst finst.
+- Eksisterande P360-sak skal søkast fram før ny sak blir oppretta.
+- Null treff kan opprette ny sak.
+- Eitt treff brukar eksisterande sak.
+- Fleire treff stoppar jobben med `Manual Review`.
+- Nye P360-referansar skal skrivast både til rett domeneobjekt og jobbresultatet dersom jobbobjektet skal vere søkbart i drift.
+
+## Frigiving av vedtak til arkivering
+
+Følgjande modell er vald for denne fasen:
+
+- Automasjon skal validere at alle obligatoriske vedtaksdata og P360-metadata er komplette.
+- Berre ein autorisert intern saksbehandlar skal kunne setje `Ready_For_P360_Archive__c = true` og frigi vedtaket til arkivering.
+- Eksterne brukarar skal ikkje kunne setje eller endre feltet.
+- Frigivinga skal logge brukar og tidspunkt.
+- Når feltet er sett til `true`, er vedtaket låst for ordinære endringar og signalet kan ikkje setjast tilbake til `false`.
+- Retry av arkiveringsjobben skal ikkje oppheve låsen eller endre vedtaksinnhaldet.
+- Autoriserte tekniske oppdateringar på `Application_Decision__c` er avgrensa til `P360_Document_Id__c`, `P360_Document_Number__c` og `P360_File_Id__c`.
+- Nye tekniske felt kan berre leggjast til etter ei eksplisitt endring av allowlista og tilhøyrande testar.
+- `Decision_description__c`, `Decision_date__c`, `Status__c`, `Application__c`, `Agreement__c` og vedtaksdetaljar er ikkje tillatne etter låsing.
+- Jobbstatus, retry, lease, feilkode og feilmelding skal oppdaterast på `P360_Archive_Job__c`, ikkje på vedtaksobjektet.
+- Låsing skal handhevast i Apex før-DML/handler. Eit service-lag for frigiving er nødvendig, men skal ikkje vere einaste sikkerheitsbarriere.
+- Korrigering etter frigiving krev ein separat, kontrollert prosess for ny vedtaksversjon og ny idempotensnøkkel.
+
+Dette er ei arbeidsavgjerd for vidare design og implementering. Metadata og låsemekanisme kan implementerast på dette grunnlaget. Endeleg tilgangsmodell, permission set og fagleg godkjenning skal likevel avklarast før produksjonssetting, og større avvik skal behandlast som ei ny endringsavgjerd.
+
+## Status og eksisterande felt
+
+Eksisterande felt som `AA_ApplicationArchived__c`, `AA_ApplicationArchivedDate__c`, `AA_DecisionArchived__c` og `AA_DecisionArchivedDate__c` skal ikkje fjernast eller endrast i denne skiva. Dei skal vere forretningsindikatorar for vellukka arkivering.
+
+Dei skal ikkje brukast som full teknisk jobbstatus. `P360_Archive_Job__c` skal vere kjelde for `Pending`, `In Progress`, `Failed` og `Manual Review`.
+
+## Implementert rekkjefølgje og vidare migrering
+
+Steg 1–4 er implementerte. Steg 5 er delvis dekt gjennom jobbservicevalidering. Steg 6–10 står att:
+
+1. Opprett `P360_Archive_Job__c` med obligatorisk `Access_Request__c`.
+2. Opprett nye, tydeleg namngjevne P360-felt på dei fire domeneobjekta.
+3. Opprett `Application_Decision__c.Ready_For_P360_Archive__c` som eksplisitt arkiveringssignal.
+4. Opprett validering og låsemekanisme for `Ready_For_P360_Archive__c` og vedtaksdata som inngår i arkiveringa.
+5. Opprett validering som krev `Access_Request__c` på nye relevante søknads-, vedtaks- og avtalejobbar.
+6. Implementer asynkron jobboppretting og statusovergangar.
+7. Kartlegg eksisterande `Agreement__c.Public_360_id__c` og arkivfelt.
+8. Migrer eksisterande verdiar berre etter dataanalyse, eigarskap og godkjend deployplan.
+9. Marker gamle felt som legacy først etter at rapportar, flows, Apex og integrasjonar er oppdaterte.
+10. Fjern eller avvikle gamle felt i ein separat, godkjend migreringssak.
+
+## Forbetringar som bør vurderast seinare
+
+- Gjere `Application__c.Access_Request__c` obligatorisk gjennom validering eller kontrollert datamigrering.
+- Sikre at `Agreement__c` har både `Application__c` og `Access_Request__c` når domeneregelen krev det.
+- Gjere P360 case number og document number søkbare, men halde interne Salesforce-ID-ar og eksterne P360-ID-ar skilde.
+- Legge til eigne list views og rapportar for feila og manuelle arkiveringsjobbar.
+- Avklare om `P360_Archive_Job__c` skal vere ein historisk jobbtabell eller berre halde siste aktive jobb per entitet.
+- Avklare felt- og objekt-tilgang før metadata blir deploya.
+- Definere permission set og intern brukaroppleving for manuell frigiving.
+
+## Ikkje del av denne avgjerda
+
+- SIF RPC endpoint og autentisering
+- konkret request-/responsemapping
+- retry-intervall og maks forsøk
+- førebels retrypolicy: 120 sekund timeout, 10 minutt lease, fem forsøk og 24 timars retry-vindauge
+- filstrategi og storfiltransport
+- personvernklassifisering av alle felt
+- migrering av `Public_360_id__c` eller eksisterande arkivfelt
+
+Auth-verdiar, tokens og cookies frå testeksempel skal ikkje lagrast i kode, dokumentasjon, issue eller shell-historikk. Credential-rotasjon og kontroll av eksponerte testverdiar er spora i GitHub issue #1020.
+
+Desse punkta er spora i GitHub-issues #1015, #1016, #1017 og #1018.
