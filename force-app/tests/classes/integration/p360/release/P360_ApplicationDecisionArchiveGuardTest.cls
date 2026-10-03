@@ -42,9 +42,9 @@ private class P360_ApplicationDecisionArchiveGuardTest {
     @IsTest
     static void shouldRejectReleaseFlagWhenUserLacksReleasePermission() {
         P360_TestDataFactory.setArchiveProcessingEnabled(true);
-        User standardUser = createStandardUser();
+        User userWithoutReleasePermission = createAdminUserWithoutReleasePermission();
 
-        System.runAs(standardUser) {
+        System.runAs(userWithoutReleasePermission) {
             Application_Decision__c decision = createDecision();
             try {
                 update new Application_Decision__c(Id = decision.Id, Ready_For_P360_Archive__c = true);
@@ -195,10 +195,10 @@ private class P360_ApplicationDecisionArchiveGuardTest {
     @IsTest
     static void shouldPreserveDecisionUpdatesWhenArchiveProcessingIsDisabled() {
         P360_TestDataFactory.setArchiveProcessingEnabled(false);
-        User standardUser = createStandardUser();
+        User userWithoutReleasePermission = createAdminUserWithoutReleasePermission();
         Id decisionId;
 
-        System.runAs(standardUser) {
+        System.runAs(userWithoutReleasePermission) {
             Application_Decision__c decision = new Application_Decision__c(
                 Application__c = createApplication().Id,
                 Decision_date__c = Date.today(),
@@ -245,11 +245,24 @@ private class P360_ApplicationDecisionArchiveGuardTest {
         return userRecord;
     }
 
-    private static User createStandardUser() {
+    private static User createAdminUserWithoutReleasePermission() {
         User userRecord;
         User currentUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];
+        Profile adminProfile = [SELECT Id FROM Profile WHERE Name = 'System Administrator' LIMIT 1];
         System.runAs(currentUser) {
-            userRecord = P360_TestDataFactory.createMinimumAccessUser();
+            userRecord = new User(
+                FirstName = 'P360',
+                LastName = 'No Release Permission',
+                Email = 'p360.no.release@example.com',
+                Username = 'p360.no.release.' + System.currentTimeMillis() + '@example.com',
+                Alias = 'p360nrl',
+                LanguageLocaleKey = 'en_US',
+                LocaleSidKey = 'en_US',
+                TimeZoneSidKey = 'Europe/Oslo',
+                EmailEncodingKey = 'UTF-8',
+                ProfileId = adminProfile.Id
+            );
+            insert userRecord;
             grantDecisionAccess(userRecord);
         }
         return userRecord;
