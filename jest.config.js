@@ -4,6 +4,7 @@ setupFilesAfterEnv.push('<rootDir>/jest-sa11y-setup.js');
 module.exports = {
     ...jestConfig,
     moduleNameMapper: {
+        '^lwc$': require.resolve('@lwc/engine-dom/dist/index.cjs'),
         '^@salesforce/apex$': '<rootDir>/force-app/tests/jest-mocks/apex',
         '^@salesforce/community/basePath$': '<rootDir>/force-app/tests/jest-mocks/community/basePath',
         '^@salesforce/schema$': '<rootDir>/force-app/tests/jest-mocks/schema',
