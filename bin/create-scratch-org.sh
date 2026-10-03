@@ -2340,6 +2340,7 @@ deploy_metadata() {
 
     run_cmd sf project deploy start \
         --target-org "$TARGET_ORG" \
+        --source-dir force-app \
         --ignore-conflicts \
         || error $? '"sf project deploy start" command failed.'
 
