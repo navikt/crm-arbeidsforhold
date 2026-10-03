@@ -434,6 +434,7 @@ test_default_post_steps_match_sf_project() {
     script --post-steps-only --dry-run
     assert_exit 0
     assert_contains "sf project deploy start --target-org cfg-org"
+    assert_contains "--source-dir force-app"
     assert_not_contains "community publish"
 }
 
