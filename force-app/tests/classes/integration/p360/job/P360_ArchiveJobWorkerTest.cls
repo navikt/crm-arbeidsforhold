@@ -8,6 +8,16 @@
 @IsTest
 private class P360_ArchiveJobWorkerTest {
     /**
+     * Enables the P360 gate for tests that exercise active worker behavior.
+     *
+     * @since 2026-10
+     */
+    @TestSetup
+    static void enableArchiveProcessing() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+    }
+
+    /**
      * Verifies that a non-retryable adapter failure (the current controlled "not implemented" contract
      * error) moves the job straight to Manual Review, without waiting for retries.
      *
@@ -20,9 +30,9 @@ private class P360_ArchiveJobWorkerTest {
         System.runAs(processingUser) {
             Id jobId = claimedJobId('correlation-worker-1');
 
-            Test.startTest();
+            System.Test.startTest();
             new P360_ArchiveJobWorker(new Set<Id>{ jobId }).execute(null);
-            Test.stopTest();
+            System.Test.stopTest();
 
             P360_Archive_Job__c job = [
                 SELECT Status__c, Last_Error_Code__c, Last_Error_Message__c, Next_Attempt_Date__c
@@ -59,9 +69,9 @@ private class P360_ArchiveJobWorkerTest {
             P360_ArchiveJobWorker worker = new P360_ArchiveJobWorker(new Set<Id>{ jobId });
             worker.adapter = new P360_TestRetryableArchiveAdapter();
 
-            Test.startTest();
+            System.Test.startTest();
             worker.execute(null);
-            Test.stopTest();
+            System.Test.stopTest();
 
             P360_Archive_Job__c job = [
                 SELECT Status__c, Next_Attempt_Date__c, Last_Error_Code__c
@@ -93,9 +103,9 @@ private class P360_ArchiveJobWorkerTest {
             P360_ArchiveJobWorker worker = new P360_ArchiveJobWorker(new Set<Id>{ jobId });
             worker.adapter = new P360_TestRetryableArchiveAdapter();
 
-            Test.startTest();
+            System.Test.startTest();
             worker.execute(null);
-            Test.stopTest();
+            System.Test.stopTest();
 
             P360_Archive_Job__c job = [SELECT Status__c FROM P360_Archive_Job__c WHERE Id = :jobId];
             System.Assert.areEqual(
@@ -121,9 +131,9 @@ private class P360_ArchiveJobWorkerTest {
             P360_ArchiveJobWorker worker = new P360_ArchiveJobWorker(new Set<Id>{ jobId });
             worker.adapter = new P360_StubArchiveAdapter();
 
-            Test.startTest();
+            System.Test.startTest();
             worker.execute(null);
-            Test.stopTest();
+            System.Test.stopTest();
 
             P360_Archive_Job__c job = [SELECT Status__c FROM P360_Archive_Job__c WHERE Id = :jobId];
             System.Assert.areEqual(
@@ -132,6 +142,42 @@ private class P360_ArchiveJobWorkerTest {
                 'Expected a successful archive to mark the job Succeeded.'
             );
         }
+    }
+
+    /**
+     * Verifies that disabling processing before a worker runs restores its claim without consuming an attempt.
+     *
+     * @since 2026-10
+     */
+    @IsTest
+    static void shouldRestoreClaimedJobWhenArchiveProcessingIsDisabled() {
+        User processingUser = createProcessingUser();
+        Id jobId;
+
+        System.runAs(processingUser) {
+            jobId = claimedJobId('correlation-worker-disabled');
+        }
+
+        P360_TestDataFactory.setArchiveProcessingEnabled(false);
+        System.runAs(processingUser) {
+            P360_ArchiveJobWorker worker = new P360_ArchiveJobWorker(new Set<Id>{ jobId });
+            worker.adapter = new P360_StubArchiveAdapter();
+
+            System.Test.startTest();
+            worker.execute(null);
+            System.Test.stopTest();
+        }
+
+        P360_Archive_Job__c job = [
+            SELECT Status__c, Attempt_Count__c, Started_Date__c, Lease_Expires_Date__c
+            FROM P360_Archive_Job__c
+            WHERE Id = :jobId
+            LIMIT 1
+        ];
+        System.Assert.areEqual('Pending', job.Status__c);
+        System.Assert.areEqual(0, job.Attempt_Count__c);
+        System.Assert.isNull(job.Started_Date__c);
+        System.Assert.isNull(job.Lease_Expires_Date__c);
     }
 
     private static Id claimedJobId(String correlationId) {

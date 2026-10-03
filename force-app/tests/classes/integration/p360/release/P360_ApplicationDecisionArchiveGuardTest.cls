@@ -8,6 +8,16 @@
 @IsTest
 private class P360_ApplicationDecisionArchiveGuardTest {
     /**
+     * Enables the P360 gate for tests that exercise active release behavior.
+     *
+     * @since 2026-10
+     */
+    @TestSetup
+    static void enableArchiveProcessing() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+    }
+
+    /**
      * Verifies that an authorized user can release a decision for archiving.
      *
      * @since 2026-09
@@ -178,6 +188,44 @@ private class P360_ApplicationDecisionArchiveGuardTest {
             System.Assert.areEqual(accessRequest.Id, job.Access_Request__c);
             System.Assert.areEqual('DecisionDocument', job.Archive_Event_Type__c);
             System.Assert.areEqual('Pending', job.Status__c);
+        }
+    }
+
+    /**
+     * Verifies that decision updates keep their normal DML behavior while P360 processing is disabled.
+     *
+     * @since 2026-10
+     */
+    @IsTest
+    static void shouldPreserveDecisionUpdatesWhenArchiveProcessingIsDisabled() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(false);
+        User standardUser = createStandardUser();
+
+        System.runAs(standardUser) {
+            Application_Decision__c decision = new Application_Decision__c(
+                Application__c = createApplication().Id,
+                Decision_date__c = Date.today(),
+                Decision_description__c = 'Initial decision'
+            );
+            insert decision;
+
+            update new Application_Decision__c(Id = decision.Id, Ready_For_P360_Archive__c = true);
+            update new Application_Decision__c(Id = decision.Id, Decision_description__c = 'Edited while disabled');
+
+            Application_Decision__c savedDecision = [
+                SELECT Ready_For_P360_Archive__c, Decision_description__c
+                FROM Application_Decision__c
+                WHERE Id = :decision.Id
+                LIMIT 1
+            ];
+            Integer jobCount = [
+                SELECT COUNT()
+                FROM P360_Archive_Job__c
+                WHERE Application_Decision__c = :decision.Id
+            ];
+            System.Assert.isTrue(savedDecision.Ready_For_P360_Archive__c);
+            System.Assert.areEqual('Edited while disabled', savedDecision.Decision_description__c);
+            System.Assert.areEqual(0, jobCount);
         }
     }
 

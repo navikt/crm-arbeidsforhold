@@ -33,8 +33,10 @@ if (!missingJobFields.isEmpty()) {
 
 P360_Integration_Setting__c settings = P360_Integration_Setting__c.getOrgDefaults();
 if (settings == null) {
-    settings = new P360_Integration_Setting__c();
+    settings = new P360_Integration_Setting__c(SetupOwnerId = UserInfo.getOrganizationId());
 }
+settings.SetupOwnerId = UserInfo.getOrganizationId();
+settings.Archive_Processing_Enabled__c = true;
 settings.Use_Mock_Transport__c = true;
 upsert settings;
 

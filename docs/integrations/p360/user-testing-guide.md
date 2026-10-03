@@ -106,6 +106,7 @@ Deployment er ein org-mutasjon og skal køyrast som eksplisitt godkjend handling
 Mock-modus kan setjast i Setup under Custom Settings, `P360 Integration Setting`:
 
 - `Use Mock Transport` = `true`
+- `Archive Processing Enabled` = `true` berre for godkjend mock-køyring i ikkje-produksjonsorg
 - `Named Credential Name` kan stå tomt i mock-modus
 
 Eller køyr den repo-eigde smoke-runneren:
@@ -222,6 +223,7 @@ sf data query \
 
 Mock-modus er eksplisitt og fell ikkje automatisk tilbake frå ekte transport. Når testen er ferdig:
 
+- set `Archive Processing Enabled` til `false` etter testen slik at P360-triggerar, scheduler og workerar stoppar;
 - scratch org som berre skal brukast lokalt: la `Use Mock Transport` stå `true`;
 - org som skal klargjerast for ekte integrasjon: set `Use Mock Transport` til `false` først når auth, Named Credential og P360-kontrakt er stadfesta.
 

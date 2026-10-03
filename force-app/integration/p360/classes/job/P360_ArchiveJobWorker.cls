@@ -28,8 +28,14 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
      * Processes each claimed job and updates it to Succeeded, Failed (with a scheduled retry), or Manual Review.
      *
      * @param context Queueable context supplied by the platform.
+     * @since 2026-10
      */
     public void execute(QueueableContext context) {
+        if (!P360_ArchiveProcessingGate.isEnabled()) {
+            restoreClaimedJobs();
+            return;
+        }
+
         if (adapter == null) {
             adapter = new P360_AdapterFactory().createArchiveAdapter();
         }
@@ -45,6 +51,37 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
             toUpdate.add(processJob(job));
         }
         update toUpdate;
+    }
+
+    private void restoreClaimedJobs() {
+        List<P360_Archive_Job__c> claimedJobs = [
+            SELECT Id, Status__c, Attempt_Count__c
+            FROM P360_Archive_Job__c
+            WHERE Id IN :jobIds
+        ];
+
+        List<P360_Archive_Job__c> jobsToRestore = new List<P360_Archive_Job__c>();
+        for (P360_Archive_Job__c job : claimedJobs) {
+            if (job.Status__c != 'In Progress') {
+                continue;
+            }
+
+            Decimal attempts = job.Attempt_Count__c == null ? 0 : job.Attempt_Count__c;
+            jobsToRestore.add(
+                new P360_Archive_Job__c(
+                    Id = job.Id,
+                    Status__c = 'Pending',
+                    Attempt_Count__c = attempts > 0 ? attempts - 1 : 0,
+                    Started_Date__c = null,
+                    Lease_Expires_Date__c = null,
+                    Next_Attempt_Date__c = null
+                )
+            );
+        }
+
+        if (!jobsToRestore.isEmpty()) {
+            update jobsToRestore;
+        }
     }
 
     private P360_Archive_Job__c processJob(P360_Archive_Job__c job) {

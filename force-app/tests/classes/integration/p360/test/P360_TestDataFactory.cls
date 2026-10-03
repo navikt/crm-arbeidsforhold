@@ -39,6 +39,22 @@ public with sharing class P360_TestDataFactory {
     }
 
     /**
+     * Sets the org-default P360 archive-processing switch for the current test.
+     *
+     * @param enabled Whether P360 archive processing should be enabled.
+     * @since 2026-10
+     */
+    public static void setArchiveProcessingEnabled(Boolean enabled) {
+        P360_Integration_Setting__c settings = P360_Integration_Setting__c.getOrgDefaults();
+        if (settings == null) {
+            settings = new P360_Integration_Setting__c(SetupOwnerId = UserInfo.getOrganizationId());
+        }
+        settings.SetupOwnerId = UserInfo.getOrganizationId();
+        settings.Archive_Processing_Enabled__c = enabled;
+        upsert settings;
+    }
+
+    /**
      * Starts building a standard archive request.
      *
      * @return ArchiveRequestBuilder Fluent builder for an archive request.

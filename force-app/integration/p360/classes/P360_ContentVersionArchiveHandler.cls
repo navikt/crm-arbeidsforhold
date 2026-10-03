@@ -10,8 +10,13 @@ public with sharing class P360_ContentVersionArchiveHandler {
      * @description Creates one idempotent attachment job per application-linked ContentVersion.
      *
      * @param versions Newly inserted ContentVersion records.
+     * @since 2026-10
      */
     public static void afterInsert(List<ContentVersion> versions) {
+        if (!P360_ArchiveProcessingGate.isEnabled()) {
+            return;
+        }
+
         Map<Id, ContentVersion> applicationVersionsById = new Map<Id, ContentVersion>();
         Set<Id> applicationIds = new Set<Id>();
         for (ContentVersion version : versions) {

@@ -13,8 +13,13 @@ public with sharing class P360_ArchiveJobScheduler implements Schedulable {
      * Claims eligible archive jobs and queues one worker for the claimed batch.
      *
      * @param context Scheduler context supplied by the platform.
+     * @since 2026-10
      */
     public void execute(SchedulableContext context) {
+        if (!P360_ArchiveProcessingGate.isEnabled()) {
+            return;
+        }
+
         List<Id> claimedJobIds = P360_ArchiveJobClaimService.claimNextBatch(DEFAULT_BATCH_SIZE);
         if (!claimedJobIds.isEmpty()) {
             System.enqueueJob(new P360_ArchiveJobWorker(new Set<Id>(claimedJobIds)));

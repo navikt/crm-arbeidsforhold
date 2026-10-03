@@ -17,9 +17,10 @@ public with sharing class P360_ApplicationDecisionArchiveGuard {
      * Validates archive release updates before insert.
      *
      * @param records New Application_Decision__c records.
+     * @since 2026-10
      */
     public static void beforeInsert(List<Application_Decision__c> records) {
-        if (records == null || records.isEmpty()) {
+        if (!P360_ArchiveProcessingGate.isEnabled() || records == null || records.isEmpty()) {
             return;
         }
 
@@ -38,9 +39,10 @@ public with sharing class P360_ApplicationDecisionArchiveGuard {
      *
      * @param records Updated Application_Decision__c records.
      * @param oldMap Previous Application_Decision__c values.
+     * @since 2026-10
      */
     public static void beforeUpdate(List<Application_Decision__c> records, Map<Id, Application_Decision__c> oldMap) {
-        if (records == null || records.isEmpty()) {
+        if (!P360_ArchiveProcessingGate.isEnabled() || records == null || records.isEmpty()) {
             return;
         }
 

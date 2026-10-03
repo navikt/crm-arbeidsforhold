@@ -15,8 +15,13 @@ public with sharing class P360_ArchiveJobClaimService {
      *
      * @param batchSize Maximum number of jobs to claim in this call.
      * @return Ids of the jobs that were claimed, in claim order.
+     * @since 2026-10
      */
     public static List<Id> claimNextBatch(Integer batchSize) {
+        if (!P360_ArchiveProcessingGate.isEnabled()) {
+            return new List<Id>();
+        }
+
         DateTime now = System.now();
 
         List<P360_Archive_Job__c> claimable = [

@@ -35,6 +35,10 @@ public with sharing class P360_ArchiveGuardHandler extends MyTriggers {
      * @since 2026-09
      */
     public override void onAfterUpdate(Map<Id, sObject> triggerOldMap) {
+        if (!P360_ArchiveProcessingGate.isEnabled()) {
+            return;
+        }
+
         Map<Id, Application_Decision__c> previousById = (Map<Id, Application_Decision__c>) triggerOldMap;
         Set<Id> releasedDecisionIds = new Set<Id>();
         for (Application_Decision__c decision : (List<Application_Decision__c>) records) {

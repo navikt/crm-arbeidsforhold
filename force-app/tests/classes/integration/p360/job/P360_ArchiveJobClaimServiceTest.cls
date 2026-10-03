@@ -8,6 +8,16 @@
 @IsTest
 private class P360_ArchiveJobClaimServiceTest {
     /**
+     * Enables the P360 gate for tests that exercise active job claiming.
+     *
+     * @since 2026-10
+     */
+    @TestSetup
+    static void enableArchiveProcessing() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+    }
+
+    /**
      * Verifies that a Pending job is claimed into In Progress with a lease and an incremented attempt count.
      *
      * @since 2026-09
@@ -25,9 +35,9 @@ private class P360_ArchiveJobClaimServiceTest {
                 'correlation-claim-1'
             );
 
-            Test.startTest();
+            System.Test.startTest();
             List<Id> claimedIds = P360_ArchiveJobClaimService.claimNextBatch(10);
-            Test.stopTest();
+            System.Test.stopTest();
 
             System.Assert.areEqual(1, claimedIds.size(), 'Expected exactly one job to be claimed.');
 
@@ -66,9 +76,9 @@ private class P360_ArchiveJobClaimServiceTest {
                 Next_Attempt_Date__c = System.now().addMinutes(30)
             );
 
-            Test.startTest();
+            System.Test.startTest();
             List<Id> claimedIds = P360_ArchiveJobClaimService.claimNextBatch(10);
-            Test.stopTest();
+            System.Test.stopTest();
 
             System.Assert.isTrue(claimedIds.isEmpty(), 'Expected no job to be claimed before it is due.');
         }
@@ -98,9 +108,9 @@ private class P360_ArchiveJobClaimServiceTest {
                 Next_Attempt_Date__c = System.now().addMinutes(-1)
             );
 
-            Test.startTest();
+            System.Test.startTest();
             List<Id> claimedIds = P360_ArchiveJobClaimService.claimNextBatch(10);
-            Test.stopTest();
+            System.Test.stopTest();
 
             System.Assert.areEqual(1, claimedIds.size(), 'Expected the due job to be reclaimed.');
 
@@ -137,9 +147,9 @@ private class P360_ArchiveJobClaimServiceTest {
             );
             update new P360_Archive_Job__c(Id = succeededJob.Id, Status__c = 'Succeeded');
 
-            Test.startTest();
+            System.Test.startTest();
             List<Id> claimedIds = P360_ArchiveJobClaimService.claimNextBatch(10);
-            Test.stopTest();
+            System.Test.stopTest();
 
             System.Assert.isTrue(claimedIds.isEmpty(), 'Expected no completed job to be claimed.');
         }

@@ -140,9 +140,9 @@ print_check "PASS" "Mock transport was used; no live P360 callout was made"
 
 if [[ "$job_count" != "2" || "$expected_types" != "true" || "$all_succeeded" != "true" || "$all_attempted_once" != "true" || "$duplicate_count" != "0" || "$worker_completed" != "true" ]]; then
     printf "\nResult: FAIL\n"
-    printf "Mock mode remains enabled in %s.\n" "$ORG_ALIAS"
+    printf "Archive processing and mock transport remain enabled in %s.\n" "$ORG_ALIAS"
     exit 1
 fi
 
 printf "\nResult: PASS\n"
-printf "Mock mode remains enabled in %s.\n" "$ORG_ALIAS"
+printf "Archive processing and mock transport remain enabled in %s.\n" "$ORG_ALIAS"
