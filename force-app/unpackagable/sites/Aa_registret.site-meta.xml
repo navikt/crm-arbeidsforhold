@@ -23,5 +23,6 @@
   <siteAdmin>test-vhsdq9kupbsg@example.com</siteAdmin>
   <siteGuestRecordDefaultOwner>test-vhsdq9kupbsg@example.com</siteGuestRecordDefaultOwner>
   <siteType>ChatterNetwork</siteType>
+  <urlPathPrefix>aaregisteret</urlPathPrefix>
   <subdomain>dream-velocity-3085-17bbf73d30d</subdomain>
 </CustomSite>

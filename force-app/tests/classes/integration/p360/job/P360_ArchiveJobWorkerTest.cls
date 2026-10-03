@@ -8,16 +8,6 @@
 @IsTest
 private class P360_ArchiveJobWorkerTest {
     /**
-     * Enables the P360 gate for tests that exercise active worker behavior.
-     *
-     * @since 2026-10
-     */
-    @TestSetup
-    static void enableArchiveProcessing() {
-        P360_TestDataFactory.setArchiveProcessingEnabled(true);
-    }
-
-    /**
      * Verifies that a non-retryable adapter failure (the current controlled "not implemented" contract
      * error) moves the job straight to Manual Review, without waiting for retries.
      *
@@ -25,6 +15,7 @@ private class P360_ArchiveJobWorkerTest {
      */
     @IsTest
     static void nonRetryableFailureMovesJobToManualReview() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User processingUser = createProcessingUser();
 
         System.runAs(processingUser) {
@@ -61,6 +52,7 @@ private class P360_ArchiveJobWorkerTest {
      */
     @IsTest
     static void retryableFailureSchedulesNextAttemptWithBackoff() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User processingUser = createProcessingUser();
 
         System.runAs(processingUser) {
@@ -94,6 +86,7 @@ private class P360_ArchiveJobWorkerTest {
      */
     @IsTest
     static void retryableFailureAtMaxAttemptsMovesToManualReview() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User processingUser = createProcessingUser();
 
         System.runAs(processingUser) {
@@ -123,6 +116,7 @@ private class P360_ArchiveJobWorkerTest {
      */
     @IsTest
     static void successfulArchiveMarksJobSucceeded() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User processingUser = createProcessingUser();
 
         System.runAs(processingUser) {
@@ -151,6 +145,7 @@ private class P360_ArchiveJobWorkerTest {
      */
     @IsTest
     static void shouldRestoreClaimedJobWhenArchiveProcessingIsDisabled() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User processingUser = createProcessingUser();
         Id jobId;
 
@@ -166,18 +161,18 @@ private class P360_ArchiveJobWorkerTest {
             System.Test.startTest();
             worker.execute(null);
             System.Test.stopTest();
-        }
 
-        P360_Archive_Job__c job = [
-            SELECT Status__c, Attempt_Count__c, Started_Date__c, Lease_Expires_Date__c
-            FROM P360_Archive_Job__c
-            WHERE Id = :jobId
-            LIMIT 1
-        ];
-        System.Assert.areEqual('Pending', job.Status__c);
-        System.Assert.areEqual(0, job.Attempt_Count__c);
-        System.Assert.isNull(job.Started_Date__c);
-        System.Assert.isNull(job.Lease_Expires_Date__c);
+            P360_Archive_Job__c job = [
+                SELECT Status__c, Attempt_Count__c, Started_Date__c, Lease_Expires_Date__c
+                FROM P360_Archive_Job__c
+                WHERE Id = :jobId
+                LIMIT 1
+            ];
+            System.Assert.areEqual('Pending', job.Status__c);
+            System.Assert.areEqual(0, job.Attempt_Count__c);
+            System.Assert.isNull(job.Started_Date__c);
+            System.Assert.isNull(job.Lease_Expires_Date__c);
+        }
     }
 
     private static Id claimedJobId(String correlationId) {

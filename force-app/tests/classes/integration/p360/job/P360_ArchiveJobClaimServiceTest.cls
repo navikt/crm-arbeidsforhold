@@ -8,22 +8,13 @@
 @IsTest
 private class P360_ArchiveJobClaimServiceTest {
     /**
-     * Enables the P360 gate for tests that exercise active job claiming.
-     *
-     * @since 2026-10
-     */
-    @TestSetup
-    static void enableArchiveProcessing() {
-        P360_TestDataFactory.setArchiveProcessingEnabled(true);
-    }
-
-    /**
      * Verifies that a Pending job is claimed into In Progress with a lease and an incremented attempt count.
      *
      * @since 2026-09
      */
     @IsTest
     static void claimsPendingJobIntoInProgressWithLease() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User processingUser = createProcessingUser();
 
         System.runAs(processingUser) {
@@ -60,6 +51,7 @@ private class P360_ArchiveJobClaimServiceTest {
      */
     @IsTest
     static void doesNotClaimFailedJobBeforeNextAttemptIsDue() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User processingUser = createProcessingUser();
 
         System.runAs(processingUser) {
@@ -91,6 +83,7 @@ private class P360_ArchiveJobClaimServiceTest {
      */
     @IsTest
     static void claimsFailedJobOnceNextAttemptIsDue() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User processingUser = createProcessingUser();
 
         System.runAs(processingUser) {
@@ -135,6 +128,7 @@ private class P360_ArchiveJobClaimServiceTest {
      */
     @IsTest
     static void doesNotClaimSucceededOrManualReviewJobs() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User processingUser = createProcessingUser();
 
         System.runAs(processingUser) {

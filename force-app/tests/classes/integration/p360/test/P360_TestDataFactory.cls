@@ -39,19 +39,33 @@ public with sharing class P360_TestDataFactory {
     }
 
     /**
-     * Sets the org-default P360 archive-processing switch for the current test.
+     * Supplies an isolated P360 feature-flag record to tests.
      *
-     * @param enabled Whether P360 archive processing should be enabled.
+     * @param enabled Whether P360 archive processing should be enabled; null models an unset flag.
      * @since 2026-10
      */
     public static void setArchiveProcessingEnabled(Boolean enabled) {
-        P360_Integration_Setting__c settings = P360_Integration_Setting__c.getOrgDefaults();
-        if (settings == null) {
-            settings = new P360_Integration_Setting__c(SetupOwnerId = UserInfo.getOrganizationId());
-        }
-        settings.SetupOwnerId = UserInfo.getOrganizationId();
-        settings.Archive_Processing_Enabled__c = enabled;
-        upsert settings;
+        Feature_Flag__mdt featureFlag = new Feature_Flag__mdt(
+            MasterLabel = 'P360 Archive Processing',
+            DeveloperName = 'P360_Archive_Processing',
+            Description__c = 'Test fixture for P360 archive processing.',
+            Is_Enabled__c = enabled
+        );
+        CustomMetadataDAO.customMetadataRecordsMap.put(
+            FeatureToggleBase.METADATA_QUERY,
+            new List<Feature_Flag__mdt>{ featureFlag }
+        );
+        P360_ArchiveProcessingGate.resetFeatureToggle();
+    }
+
+    /**
+     * Removes the P360 processing flag from test metadata fixtures.
+     *
+     * @since 2026-10
+     */
+    public static void clearArchiveProcessingFlag() {
+        CustomMetadataDAO.customMetadataRecordsMap.put(FeatureToggleBase.METADATA_QUERY, new List<Feature_Flag__mdt>());
+        P360_ArchiveProcessingGate.resetFeatureToggle();
     }
 
     /**

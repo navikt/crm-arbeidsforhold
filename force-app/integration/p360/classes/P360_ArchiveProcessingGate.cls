@@ -6,26 +6,47 @@
  * @group P360 Archive Job
  */
 public with sharing class P360_ArchiveProcessingGate {
+    private static final String ARCHIVE_PROCESSING_FEATURE = 'P360_Archive_Processing';
+
+    /**
+     * @description Per-transaction feature-toggle instance; test-visible so tests can reset it after changing metadata fixtures.
+     */
+    @TestVisible
+    private static FeatureToggleBase featureToggle;
+
     /**
      * Returns whether P360 archive processing is explicitly enabled for this org.
      *
-     * @return True only when the org-default processing setting is explicitly enabled.
+     * @return True only when the P360 archive-processing feature flag is explicitly enabled.
      * @since 2026-10
      */
     public static Boolean isEnabled() {
-        P360_Integration_Setting__c settings = P360_Integration_Setting__c.getOrgDefaults();
-        return isExplicitlyEnabled(settings);
+        try {
+            if (featureToggle == null) {
+                featureToggle = new FeatureToggleBase();
+            }
+            Feature_Flag__mdt archiveProcessingFlag = featureToggle.getFeatureFlag(ARCHIVE_PROCESSING_FEATURE);
+            if (archiveProcessingFlag == null) {
+                return false;
+            }
+            Boolean enabled = archiveProcessingFlag.Is_Enabled__c;
+            if (enabled == null || !enabled) {
+                return false;
+            }
+
+            return String.isBlank(archiveProcessingFlag.Required_Custom_Permission__c);
+        } catch (FeatureToggleException error) {
+            return false;
+        }
     }
 
     /**
-     * Evaluates a supplied setting for focused tests of null and false fail-closed behavior.
+     * Resets the cached feature-toggle instance between test metadata fixtures.
      *
-     * @param settings Setting value to evaluate.
-     * @return True only when archive processing is explicitly enabled.
      * @since 2026-10
      */
     @TestVisible
-    private static Boolean isExplicitlyEnabled(P360_Integration_Setting__c settings) {
-        return settings != null && settings.Archive_Processing_Enabled__c == true;
+    private static void resetFeatureToggle() {
+        featureToggle = null;
     }
 }

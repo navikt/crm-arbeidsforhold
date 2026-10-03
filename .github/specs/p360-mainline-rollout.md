@@ -13,7 +13,7 @@ The P360 implementation can be integrated into `main` and validated in a non-pro
 
 - Bring the P360 feature source, required shared integration code, metadata, and focused tests from `P360IntegrationWork` to `main`.
 - Include only changes required for the P360 feature. Do not pull in unrelated tooling, scratch-org, or repository-maintenance history solely because it shares the branch.
-- Keep `Archive_Processing_Enabled__c` fail-closed and disabled in all deployed environments until a separate activation decision.
+- Keep `Feature_Flag__mdt.P360_Archive_Processing` disabled in all deployed environments until a separate activation decision; the CMT owner is `Nav_Team.Arbeidsforhold`.
 - Keep the local, uncommitted `.forceignore` change out of the P360 migration unless it is separately reviewed and approved.
 
 ## Rollout stages
@@ -28,8 +28,8 @@ The P360 implementation can be integrated into `main` and validated in a non-pro
 
 - The merge contains the intended P360 feature set and tests but no unrelated branch-only changes.
 - CI compiles all included metadata and runs focused P360 and existing regression tests.
-- With the setting absent or disabled in the validation org, normal application DML is unchanged and no P360 archive job is created or processed.
-- With the setting explicitly enabled and mock transport selected in non-production, the focused P360 archive flow tests pass without a live P360 callout.
+- With the feature flag absent or disabled in the validation org, normal application DML is unchanged and no P360 archive job is created or processed.
+- With the feature flag explicitly enabled and mock transport selected in non-production, the focused P360 archive flow tests pass without a live P360 callout.
 - No production deploy, package release, permission assignment, or setting activation is performed by this work item.
 - Production activation remains blocked by open external contract work, including issue #1017, until its acceptance criteria and related mapping/retry decisions are complete.
 

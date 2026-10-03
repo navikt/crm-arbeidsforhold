@@ -53,6 +53,7 @@ private class P360_ContentVersionArchiveHandlerTest {
      */
     @IsTest
     static void shouldNotCreateAttachmentJobWhenArchiveProcessingIsDisabled() {
+        P360_TestDataFactory.clearArchiveProcessingFlag();
         User processingUser = createProcessingUser();
 
         System.runAs(processingUser) {
@@ -77,7 +78,7 @@ private class P360_ContentVersionArchiveHandlerTest {
     }
 
     /**
-     * A false org-default archive-processing setting should not create an attachment job.
+     * A false P360 feature flag should not create an attachment job.
      *
      * @since 2026-10
      */
@@ -107,15 +108,17 @@ private class P360_ContentVersionArchiveHandlerTest {
     }
 
     /**
-     * Missing settings and unset checkbox values should fail closed.
+     * Missing and unset feature flags should fail closed.
      *
      * @since 2026-10
      */
     @IsTest
-    static void shouldFailClosedWhenSettingOrCheckboxIsNull() {
-        P360_Integration_Setting__c unsetSetting = new P360_Integration_Setting__c();
-        System.Assert.isFalse(P360_ArchiveProcessingGate.isExplicitlyEnabled(null));
-        System.Assert.isFalse(P360_ArchiveProcessingGate.isExplicitlyEnabled(unsetSetting));
+    static void shouldFailClosedWhenFeatureFlagIsNullOrMissing() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(null);
+        System.Assert.isFalse(P360_ArchiveProcessingGate.isEnabled());
+
+        P360_TestDataFactory.clearArchiveProcessingFlag();
+        System.Assert.isFalse(P360_ArchiveProcessingGate.isEnabled());
     }
 
     private static User createProcessingUser() {

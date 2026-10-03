@@ -8,22 +8,13 @@
 @IsTest
 private class P360_ApplicationDecisionArchiveGuardTest {
     /**
-     * Enables the P360 gate for tests that exercise active release behavior.
-     *
-     * @since 2026-10
-     */
-    @TestSetup
-    static void enableArchiveProcessing() {
-        P360_TestDataFactory.setArchiveProcessingEnabled(true);
-    }
-
-    /**
      * Verifies that an authorized user can release a decision for archiving.
      *
      * @since 2026-09
      */
     @IsTest
     static void shouldAllowReleaseFlagToBeSetByAuthorizedUser() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User releaseUser = createReleaseUser();
 
         System.runAs(releaseUser) {
@@ -50,6 +41,7 @@ private class P360_ApplicationDecisionArchiveGuardTest {
      */
     @IsTest
     static void shouldRejectReleaseFlagWhenUserLacksReleasePermission() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User standardUser = createStandardUser();
 
         System.runAs(standardUser) {
@@ -73,6 +65,7 @@ private class P360_ApplicationDecisionArchiveGuardTest {
      */
     @IsTest
     static void shouldBlockRegularFieldChangesAfterRelease() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User releaseUser = createReleaseUser();
 
         System.runAs(releaseUser) {
@@ -106,6 +99,7 @@ private class P360_ApplicationDecisionArchiveGuardTest {
      */
     @IsTest
     static void shouldRejectResetAfterRelease() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User releaseUser = createReleaseUser();
 
         System.runAs(releaseUser) {
@@ -128,6 +122,7 @@ private class P360_ApplicationDecisionArchiveGuardTest {
      */
     @IsTest
     static void shouldAllowTechnicalReferenceChangesAfterRelease() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User releaseUser = createReleaseProcessingUser();
 
         System.runAs(releaseUser) {
@@ -160,6 +155,7 @@ private class P360_ApplicationDecisionArchiveGuardTest {
      */
     @IsTest
     static void shouldCreateDecisionDocumentJobAfterRelease() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User releaseUser = createReleaseProcessingUser();
 
         System.runAs(releaseUser) {
@@ -200,6 +196,7 @@ private class P360_ApplicationDecisionArchiveGuardTest {
     static void shouldPreserveDecisionUpdatesWhenArchiveProcessingIsDisabled() {
         P360_TestDataFactory.setArchiveProcessingEnabled(false);
         User standardUser = createStandardUser();
+        Id decisionId;
 
         System.runAs(standardUser) {
             Application_Decision__c decision = new Application_Decision__c(
@@ -208,6 +205,7 @@ private class P360_ApplicationDecisionArchiveGuardTest {
                 Decision_description__c = 'Initial decision'
             );
             insert decision;
+            decisionId = decision.Id;
 
             update new Application_Decision__c(Id = decision.Id, Ready_For_P360_Archive__c = true);
             update new Application_Decision__c(Id = decision.Id, Decision_description__c = 'Edited while disabled');
@@ -218,15 +216,20 @@ private class P360_ApplicationDecisionArchiveGuardTest {
                 WHERE Id = :decision.Id
                 LIMIT 1
             ];
-            Integer jobCount = [
-                SELECT COUNT()
-                FROM P360_Archive_Job__c
-                WHERE Application_Decision__c = :decision.Id
-            ];
             System.Assert.isTrue(savedDecision.Ready_For_P360_Archive__c);
             System.Assert.areEqual('Edited while disabled', savedDecision.Decision_description__c);
-            System.Assert.areEqual(0, jobCount);
         }
+
+        User processingUser = createReleaseProcessingUser();
+        Integer jobCount;
+        System.runAs(processingUser) {
+            jobCount = [
+                SELECT COUNT()
+                FROM P360_Archive_Job__c
+                WHERE Application_Decision__c = :decisionId
+            ];
+        }
+        System.Assert.areEqual(0, jobCount);
     }
 
     private static User createReleaseUser() {

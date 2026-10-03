@@ -8,22 +8,13 @@
 @IsTest
 private class P360_ArchiveJobSchedulerTest {
     /**
-     * Enables the P360 gate for tests that exercise scheduler behavior.
-     *
-     * @since 2026-10
-     */
-    @TestSetup
-    static void enableArchiveProcessing() {
-        P360_TestDataFactory.setArchiveProcessingEnabled(true);
-    }
-
-    /**
      * A scheduled run should claim a pending job before dispatching the worker.
      *
      * @since 2026-09
      */
     @IsTest
     static void shouldClaimPendingJobsAndDispatchWorker() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User processingUser = createProcessingUser();
 
         System.runAs(processingUser) {
@@ -60,6 +51,7 @@ private class P360_ArchiveJobSchedulerTest {
      */
     @IsTest
     static void shouldNotClaimPendingJobsWhenArchiveProcessingIsDisabled() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
         User processingUser = createProcessingUser();
         Id jobId;
 
