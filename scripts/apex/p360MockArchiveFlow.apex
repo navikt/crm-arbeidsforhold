@@ -1,0 +1,79 @@
+// P360 mock smoke flow for the approved default scratch org: crm-arbeidsforhold.
+// Prerequisite: the running user has P360_Archive_Job_Processing and current P360 metadata.
+// This script never performs a live P360 call. It enables the explicit mock transport,
+// creates an application and attachment, creates the document job, and dispatches the
+// scheduler. Query P360_Archive_Job__c after the async worker finishes.
+
+Schema.SObjectType archiveJobType = Schema.getGlobalDescribe().get('P360_Archive_Job__c');
+if (archiveJobType == null) {
+    throw new P360_ContractException('P360_Archive_Job__c is missing. Deploy P360 metadata first.');
+}
+Set<String> requiredJobFields = new Set<String>{
+    'Access_Request__c',
+    'Application__c',
+    'Application_Decision__c',
+    'Agreement__c',
+    'Idempotency_Key__c',
+    'Archive_Event_Type__c',
+    'Status__c'
+};
+Map<String, Schema.SObjectField> availableJobFields = archiveJobType.getDescribe().fields.getMap();
+List<String> missingJobFields = new List<String>();
+for (String requiredJobField : requiredJobFields) {
+    if (!availableJobFields.containsKey(requiredJobField)) {
+        missingJobFields.add(requiredJobField);
+    }
+}
+if (!missingJobFields.isEmpty()) {
+    throw new P360_ContractException(
+        'P360_Archive_Job__c is missing fields: ' + String.join(missingJobFields, ', ') +
+        '. Deploy P360 metadata first.'
+    );
+}
+
+if (!P360_ArchiveProcessingGate.isEnabled()) {
+    throw new P360_ContractException(
+        'Enable Feature_Flag__mdt.P360_Archive_Processing only in the approved non-production org before running this smoke flow.'
+    );
+}
+
+P360_Integration_Setting__c settings = P360_Integration_Setting__c.getOrgDefaults();
+if (settings == null) {
+    settings = new P360_Integration_Setting__c(SetupOwnerId = UserInfo.getOrganizationId());
+}
+settings.SetupOwnerId = UserInfo.getOrganizationId();
+settings.Use_Mock_Transport__c = true;
+upsert settings;
+
+Access_Request__c accessRequest = new Access_Request__c();
+insert accessRequest;
+
+Application__c application = new Application__c(Access_Request__c = accessRequest.Id);
+insert application;
+
+ContentVersion attachment = new ContentVersion(
+    Title = 'p360-mock-attachment',
+    PathOnClient = 'p360-mock-attachment.txt',
+    VersionData = Blob.valueOf('P360 mock attachment'),
+    FirstPublishLocationId = application.Id
+);
+insert attachment;
+
+P360_Archive_Job__c documentJob = P360_ArchiveJobService.getOrCreateApplicationDocumentJob(
+    accessRequest.Id,
+    application.Id,
+    'mock-script-document-' + application.Id
+);
+
+new P360_ArchiveJobScheduler().execute(null);
+
+Map<String, String> smokeResult = new Map<String, String>{
+    'applicationId' => application.Id,
+    'attachmentId' => attachment.Id,
+    'documentJobId' => documentJob.Id
+};
+System.debug('P360_SMOKE_RESULT=' + JSON.serialize(smokeResult));
+System.debug('P360 mock application: ' + application.Id);
+System.debug('P360 mock attachment: ' + attachment.Id);
+System.debug('P360 mock document job: ' + documentJob.Id);
+System.debug('P360 mock flow dispatched scheduler; query P360_Archive_Job__c after async processing.');

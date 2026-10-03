@@ -1,0 +1,55 @@
+# P360 Custom Metadata
+
+Denne mappa inneheld P360-relaterte custom metadata records.
+
+Custom metadata skal brukast til konfigurasjon, kodeverk, mappingverdiar og miljøuavhengige oppslag for P360-integrasjonen.
+
+## Ansvar
+
+Custom metadata her kan brukast til:
+
+- P360-kodeverk
+- mapping mellom Salesforce-verdiar og P360-verdiar
+- default-verdiar for arkivering
+- aktiv/inaktiv status for mapping
+- transportverdiar
+- visingslabelar
+- sortering eller prioritering der relevant
+
+## Skal ikkje
+
+Custom metadata her skal ikkje:
+
+- innehalde hemmeligheiter
+- innehalde access tokens
+- innehalde AuthKey
+- innehalde sensitiv personinformasjon
+- brukast til miljøspesifikke secrets
+
+## Gjeldande records
+
+```text
+MyTriggerSetting.P360_ArchiveGuard_I.md-meta.xml
+MyTriggerSetting.P360_ArchiveGuard_U.md-meta.xml
+P360_Code_Table_Value.*.md-meta.xml
+```
+
+P360-kodeverkrecordane inneheld berre godkjende, ikkje-sensitive standardverdiar frå P360-avklaringa. Dei brukar `Salesforce_Key__c = Default` som eksplisitt standardprofil. Manglande eller blanke P360-verdiar er ikkje oppretta som tomme records.
+
+## Eigarskap
+
+Desse recordane registrerer `P360_ArchiveGuardHandler` for `BEFORE_INSERT` og `BEFORE_UPDATE` på `Application_Decision__c` gjennom MyTriggers.
+
+Framtidig P360-relatert kodeverk skal ha tydeleg eigarskap.
+
+Endringar i kodeverk eller mappingverdiar skal vurderast mot:
+
+- P360-kontrakt
+- arkivkrav
+- eksisterande mapping
+- testdata
+- konsekvens for eksisterande flytar
+
+## Test
+
+Metadata-baserte oppslag skal testast via service-lag, ikkje ved at mapperar les metadata direkte.
