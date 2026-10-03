@@ -77,10 +77,10 @@
 
 # # community classes
 # ----------------------------------------------------------------------------------------
-**/classes/ChangePasswordController.cls
-**/classes/ChangePasswordControllerTest.cls
-**/classes/CommunitiesLandingController.cls
-**/classes/CommunitiesLandingControllerTest.cls
+# **/classes/ChangePasswordController.cls
+# **/classes/ChangePasswordControllerTest.cls
+# **/classes/CommunitiesLandingController.cls
+# **/classes/CommunitiesLandingControllerTest.cls
 **/classes/CommunitiesLoginController.cls
 **/classes/CommunitiesLoginControllerTest.cls
 **/classes/CommunitiesSelfRegConfirmController.cls
