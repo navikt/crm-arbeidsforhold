@@ -1,0 +1,33 @@
+---
+title: P360 archive contract-boundary sequence
+---
+sequenceDiagram
+    participant Caller as Use case caller
+    participant Factory as P360_AdapterFactory
+    participant Orchestrator as AAREG_ArchiveApplicationOrchestrator
+    participant Adapter as P360_IArchiveAdapter
+    participant Client as P360_IRpcClient
+    participant Boundary as Live SIF RPC boundary
+
+    Caller->>Factory: Resolve adapter from org setting
+    alt Use_Mock_Transport__c = true
+        Factory-->>Caller: P360_StubArchiveAdapter
+    else Mock mode disabled
+        Factory-->>Caller: P360_ArchiveAdapter(P360_RpcClient)
+    end
+    Caller->>Orchestrator: archive(command)
+    alt command is null or required values missing
+        Orchestrator-->>Caller: P360_ContractException
+    else command is valid
+        Orchestrator->>Adapter: archive(request)
+        alt Explicit mock mode
+            Adapter-->>Orchestrator: controlled success response
+        else Live transport boundary
+            Adapter->>Client: archive RPC request
+            Client-->>Adapter: pending live response contract
+            Adapter-->>Orchestrator: response or classified exception
+        end
+        Orchestrator-->>Caller: AAREG_ArchiveApplicationResult
+    end
+
+    Note over Client,Boundary: Live endpoint, authentication, payload and response mapping remain externally blocked

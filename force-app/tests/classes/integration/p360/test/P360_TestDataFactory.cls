@@ -1,0 +1,382 @@
+/**
+ * Test-only factory and builders for P360 integration scenarios.
+ *
+ * @author Kenneth Sørensen
+ * @since 2026-09
+ * @group P360 Test Utility
+ */
+@IsTest
+public with sharing class P360_TestDataFactory {
+    /**
+     * Creates a minimum-access user for tests that do not require elevated permissions.
+     *
+     * @return User Inserted minimum-access test user.
+     * @since 2026-09
+     */
+    public static User createMinimumAccessUser() {
+        Profile profile = [
+            SELECT Id
+            FROM Profile
+            WHERE Name = 'Minimum Access - Salesforce'
+            LIMIT 1
+        ];
+
+        User minimumAccessUser = new User(
+            FirstName = 'P360',
+            LastName = 'Tester',
+            Email = 'p360.min.access@example.com',
+            Username = 'p360.min.access.' + System.currentTimeMillis() + '@example.com',
+            Alias = 'p360min',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            TimeZoneSidKey = 'Europe/Oslo',
+            EmailEncodingKey = 'UTF-8',
+            ProfileId = profile.Id
+        );
+
+        insert minimumAccessUser;
+        return minimumAccessUser;
+    }
+
+    /**
+     * Supplies an isolated P360 feature-flag record to tests.
+     *
+     * @param enabled Whether P360 archive processing should be enabled; null models an unset flag.
+     * @since 2026-10
+     */
+    public static void setArchiveProcessingEnabled(Boolean enabled) {
+        Feature_Flag__mdt featureFlag = new Feature_Flag__mdt(
+            MasterLabel = 'P360 Archive Processing',
+            DeveloperName = 'P360_Archive_Processing',
+            Description__c = 'Test fixture for P360 archive processing.',
+            Is_Enabled__c = enabled
+        );
+        CustomMetadataDAO.customMetadataRecordsMap.put(
+            FeatureToggleBase.METADATA_QUERY,
+            new List<Feature_Flag__mdt>{ featureFlag }
+        );
+        P360_ArchiveProcessingGate.resetFeatureToggle();
+    }
+
+    /**
+     * Removes the P360 processing flag from test metadata fixtures.
+     *
+     * @since 2026-10
+     */
+    public static void clearArchiveProcessingFlag() {
+        CustomMetadataDAO.customMetadataRecordsMap.put(FeatureToggleBase.METADATA_QUERY, new List<Feature_Flag__mdt>());
+        P360_ArchiveProcessingGate.resetFeatureToggle();
+    }
+
+    /**
+     * Starts building a standard archive request.
+     *
+     * @return ArchiveRequestBuilder Fluent builder for an archive request.
+     * @since 2026-09
+     */
+    public static ArchiveRequestBuilder archiveRequest() {
+        return new ArchiveRequestBuilder();
+    }
+
+    /**
+     * Starts building a standard successful archive response.
+     *
+     * @return ArchiveResponseBuilder Fluent builder for an archive response.
+     * @since 2026-09
+     */
+    public static ArchiveResponseBuilder archiveResponse() {
+        return new ArchiveResponseBuilder();
+    }
+
+    /**
+     * Starts building a standard RPC transport request.
+     *
+     * @return RpcRequestBuilder Fluent builder for an RPC request.
+     * @since 2026-09
+     */
+    public static RpcRequestBuilder rpcRequest() {
+        return new RpcRequestBuilder();
+    }
+
+    /**
+     * Starts building a standard RPC transport response.
+     *
+     * @return RpcResponseBuilder Fluent builder for an RPC response.
+     * @since 2026-09
+     */
+    public static RpcResponseBuilder rpcResponse() {
+        return new RpcResponseBuilder();
+    }
+
+    /**
+     * Fluent builder for the temporary archive request DTO used by the P360 adapter tests.
+     *
+     * @since 2026-09
+     */
+    public class ArchiveRequestBuilder {
+        private String correlationId = 'p360-test-correlation';
+        private String externalId = 'p360-test-external-id';
+        private String title = 'P360 test archive request';
+
+        /**
+         * Sets the archive request correlation id.
+         *
+         * @param value Correlation id used by the request.
+         * @return ArchiveRequestBuilder This builder.
+         * @since 2026-09
+         */
+        public ArchiveRequestBuilder withCorrelationId(String value) {
+            correlationId = value;
+            return this;
+        }
+
+        /**
+         * Sets the archive request external id.
+         *
+         * @param value External id used by the request.
+         * @return ArchiveRequestBuilder This builder.
+         * @since 2026-09
+         */
+        public ArchiveRequestBuilder withExternalId(String value) {
+            externalId = value;
+            return this;
+        }
+
+        /**
+         * Sets the archive request title.
+         *
+         * @param value Title used by the request.
+         * @return ArchiveRequestBuilder This builder.
+         * @since 2026-09
+         */
+        public ArchiveRequestBuilder withTitle(String value) {
+            title = value;
+            return this;
+        }
+
+        /**
+         * Builds the archive request DTO.
+         *
+         * @return P360_ArchiveRequestDto Configured archive request DTO.
+         * @since 2026-09
+         */
+        public P360_ArchiveRequestDto build() {
+            P360_ArchiveRequestDto request = new P360_ArchiveRequestDto();
+            request.correlationId = correlationId;
+            request.externalId = externalId;
+            request.title = title;
+            return request;
+        }
+    }
+
+    /**
+     * Fluent builder for the temporary archive response DTO used by P360 adapter tests.
+     *
+     * @since 2026-09
+     */
+    public class ArchiveResponseBuilder {
+        private Boolean success = true;
+        private String message = 'P360 test archive response.';
+        private String externalCaseId = 'p360-test-case-id';
+        private String externalDocumentId = 'p360-test-document-id';
+
+        /**
+         * Sets whether the archive operation succeeded.
+         *
+         * @param value Success value used by the response.
+         * @return ArchiveResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public ArchiveResponseBuilder withSuccess(Boolean value) {
+            success = value;
+            return this;
+        }
+
+        /**
+         * Sets the archive response message.
+         *
+         * @param value Message used by the response.
+         * @return ArchiveResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public ArchiveResponseBuilder withMessage(String value) {
+            message = value;
+            return this;
+        }
+
+        /**
+         * Sets the external case id.
+         *
+         * @param value External case id used by the response.
+         * @return ArchiveResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public ArchiveResponseBuilder withExternalCaseId(String value) {
+            externalCaseId = value;
+            return this;
+        }
+
+        /**
+         * Sets the external document id.
+         *
+         * @param value External document id used by the response.
+         * @return ArchiveResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public ArchiveResponseBuilder withExternalDocumentId(String value) {
+            externalDocumentId = value;
+            return this;
+        }
+
+        /**
+         * Builds the archive response DTO.
+         *
+         * @return P360_ArchiveResponseDto Configured archive response DTO.
+         * @since 2026-09
+         */
+        public P360_ArchiveResponseDto build() {
+            P360_ArchiveResponseDto response = new P360_ArchiveResponseDto();
+            response.success = success;
+            response.message = message;
+            response.externalCaseId = externalCaseId;
+            response.externalDocumentId = externalDocumentId;
+            return response;
+        }
+    }
+
+    /**
+     * Fluent builder for the temporary RPC request wrapper used by P360 client tests.
+     *
+     * @since 2026-09
+     */
+    public class RpcRequestBuilder {
+        private String serviceName = 'DocumentService';
+        private String operationName = 'CreateDocument';
+        private String body = '{}';
+        private Map<String, String> headers = new Map<String, String>();
+
+        /**
+         * Sets the RPC service name.
+         *
+         * @param value Service name used by the request.
+         * @return RpcRequestBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcRequestBuilder withServiceName(String value) {
+            serviceName = value;
+            return this;
+        }
+
+        /**
+         * Sets the RPC operation name.
+         *
+         * @param value Operation name used by the request.
+         * @return RpcRequestBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcRequestBuilder withOperationName(String value) {
+            operationName = value;
+            return this;
+        }
+
+        /**
+         * Sets the serialized RPC body.
+         *
+         * @param value Body used by the request.
+         * @return RpcRequestBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcRequestBuilder withBody(String value) {
+            body = value;
+            return this;
+        }
+
+        /**
+         * Sets the transport headers.
+         *
+         * @param value Headers used by the request.
+         * @return RpcRequestBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcRequestBuilder withHeaders(Map<String, String> value) {
+            headers = value;
+            return this;
+        }
+
+        /**
+         * Builds the RPC request wrapper.
+         *
+         * @return P360_RpcRequest Configured RPC request.
+         * @since 2026-09
+         */
+        public P360_RpcRequest build() {
+            P360_RpcRequest request = new P360_RpcRequest();
+            request.serviceName = serviceName;
+            request.operationName = operationName;
+            request.body = body;
+            request.headers = headers;
+            return request;
+        }
+    }
+
+    /**
+     * Fluent builder for the temporary RPC response wrapper used by P360 client tests.
+     *
+     * @since 2026-09
+     */
+    public class RpcResponseBuilder {
+        private Integer statusCode = 200;
+        private String body = '{"result":"ok"}';
+        private Map<String, String> headers = new Map<String, String>();
+
+        /**
+         * Sets the transport status code.
+         *
+         * @param value Status code used by the response.
+         * @return RpcResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcResponseBuilder withStatusCode(Integer value) {
+            statusCode = value;
+            return this;
+        }
+
+        /**
+         * Sets the serialized response body.
+         *
+         * @param value Body used by the response.
+         * @return RpcResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcResponseBuilder withBody(String value) {
+            body = value;
+            return this;
+        }
+
+        /**
+         * Sets the response headers.
+         *
+         * @param value Headers used by the response.
+         * @return RpcResponseBuilder This builder.
+         * @since 2026-09
+         */
+        public RpcResponseBuilder withHeaders(Map<String, String> value) {
+            headers = value;
+            return this;
+        }
+
+        /**
+         * Builds the RPC response wrapper.
+         *
+         * @return P360_RpcResponse Configured RPC response.
+         * @since 2026-09
+         */
+        public P360_RpcResponse build() {
+            P360_RpcResponse response = new P360_RpcResponse();
+            response.statusCode = statusCode;
+            response.body = body;
+            response.headers = headers;
+            return response;
+        }
+    }
+}
