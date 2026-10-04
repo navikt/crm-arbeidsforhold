@@ -1,6 +1,6 @@
 # P360 teknisk oversikt
 
-Status per 2026-10-04. P360 runtime-koden er i `main` etter PR #1094; den avgrensa felles loggeren kom inn med PR #1097. Produksjonsbehandling er framleis av som standard, og ekte SIF-transport er ikkje ferdig.
+Status per 2026-10-04. P360 runtime-koden er i `main` etter PR #1094; den avgrensa felles loggeren kom inn med PR #1097, og worker-feilkoplinga kom med PR #1102. Produksjonsbehandling er framleis av som standard, og ekte SIF-transport er ikkje ferdig.
 
 ## Statusnøklar
 
@@ -19,7 +19,7 @@ Status per 2026-10-04. P360 runtime-koden er i `main` etter PR #1094; den avgren
 - `P360_ArchiveJobService` støttar idempotent oppretting av `ApplicationDocument`, `ApplicationAttachment`, `DecisionDocument` og `AgreementDocument`.
 - `P360_ArchiveJobClaimService`, `P360_ArchiveJobScheduler` og `P360_ArchiveJobWorker` støttar claim/lease, dispatch, retryklassifisering og manuell oppfølging. Workeren sjekkar gate på nytt og returnerer ein claim utan å bruke opp forsøk dersom behandling er slått av.
 - `P360_Archive_Release` er brukarautorisasjon. `AAREG_Arbeidsforhold_Saksbehandling` gir vanleg les/skriv-FLS til frigjevingsfeltet; P360-guarden krev framleis den separate custom permission-en når gate er på.
-- DTO-ar, mapper, domenegrenser, mock-adapter, logging-/korrelasjonsgrunnlag, Custom Metadata-kodeverk og P360-testsuite ligg i repoet.
+- DTO-ar, mapper, domenegrenser, mock-adapter, logging-/korrelasjonsgrunnlag, Custom Metadata-kodeverk og P360-testsuite ligg i repoet. Worker-feil blir logga med avgrensa teknisk kontekst; dette er ikkje ende-til-ende-korrelasjon gjennom SIF.
 
 ## Faktisk kopling per arkivhending
 
@@ -67,13 +67,14 @@ Før produksjon må målarkitekturen også ha avtalt retry/duplicate-kontrakt, e
 - PR #1097: Jest/Prettier, metadata compile, Apex tests, coverage, setup og cleanup bestod før merge.
 - P360 Apex suite etter loggerendringen i godkjent scratch-org: 90/90 bestod (test run `707QI00001IdqiI`).
 - Logger, context og redactor etter loggerendringen: 6/6 bestod (test run `707QI00001IdNeK`).
+- PR #1102: worker-testklassen bestod 6/6 i godkjent scratch-org (test run `707QI00001IeSQt`); Jest/Prettier, metadata compile, Apex tests, coverage, setup og cleanup bestod i CI.
 - Post-merge mock smoke `npm run test:p360:mock` bestod: to jobbar (`ApplicationDocument`, `ApplicationAttachment`) vart `Succeeded` med eitt forsøk, worker vart `Completed` utan feil, ingen duplikatnøklar og ingen live-callout. Evidensen står i #1092.
 - Etter testen er `P360_Archive_Processing=false`, `Use_Mock_Transport__c`-org-default og mellombels permission assignment fjerna, og smoke-data kontrollert sletta.
 - Den tidlegare full-deploy-kommandoen med `--ignore-errors` tel ikkje som komponentvis deploy-evidens.
 
 ## Logging og neste kopling
 
-PR #1097 har mergea `IntegrationLogger.logFailure(IntegrationLogContext)` til `main`, og #1096 er lukka. Helperen persisterer berre system, operasjon, status og ein validert opaque correlation-ID gjennom `LoggerUtility`. Han tek ikkje imot payload eller exception-meldingar. Loggeren har førebels ingen produksjonskallarar; kvar framtidig caller må velje tekniske labels eksplisitt og få ei eiga security/privacy-review før wiring.
+PR #1097 har mergea `IntegrationLogger.logFailure(IntegrationLogContext)` til `main`, og #1096 er lukka. Helperen persisterer berre system, operasjon, status og ein validert opaque correlation-ID gjennom `LoggerUtility`. PR #1102 koplar workeren sitt kontrollerte exception-path til loggeren med faste labels (`P360`, `ArchiveJob`, `Failed`) og jobbens correlation-ID. Kallet er best-effort; exception-melding og request-/response-payload blir ikkje sende til loggeren. Dette stadfestar ikkje live transportkorrelasjon eller komplett ende-til-ende-logging.
 
 ## Trygg aktiveringsrekkjefølgje
 
