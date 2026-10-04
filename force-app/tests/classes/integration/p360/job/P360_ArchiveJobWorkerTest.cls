@@ -74,12 +74,65 @@ private class P360_ArchiveJobWorkerTest {
         Map<String, Object> payload = (Map<String, Object>) JSON.deserializeUntyped(savedLog.Pay_Load__c);
 
         System.Assert.areEqual('P360', payload.get('systemName'));
-        System.Assert.areEqual('ArchiveJob', payload.get('operationName'));
-        System.Assert.areEqual('Failed', payload.get('status'));
+        System.Assert.areEqual('ApplicationDocument', payload.get('operationName'));
+        System.Assert.areEqual('ManualReview', payload.get('status'));
         System.Assert.areEqual(correlationId, payload.get('correlationId'));
         System.Assert.areEqual(4, payload.size());
         System.Assert.isFalse(savedLog.Log_Message__c.contains('not implemented yet'));
         System.Assert.isFalse(savedLog.Pay_Load__c.contains('not implemented yet'));
+    }
+
+    /**
+     * Verifies that a retryable failure log identifies the archive type and scheduled retry outcome.
+     *
+     * @since 2026-10
+     */
+    @IsTest
+    static void retryableFailureLogsArchiveTypeAndRetryStatus() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+        User processingUser = createProcessingUser();
+        String correlationId = 'abcdef0123456789abcdef0123456789';
+
+        System.runAs(processingUser) {
+            Access_Request__c accessRequest = new Access_Request__c();
+            insert accessRequest;
+            Application__c application = new Application__c(Access_Request__c = accessRequest.Id);
+            insert application;
+            ContentVersion attachment = new ContentVersion(
+                Title = 'attachment',
+                PathOnClient = 'attachment.pdf',
+                VersionData = Blob.valueOf('attachment content')
+            );
+            insert attachment;
+
+            P360_ArchiveJobService.getOrCreateApplicationAttachmentJob(
+                accessRequest.Id,
+                application.Id,
+                attachment.Id,
+                correlationId
+            );
+            Id jobId = P360_ArchiveJobClaimService.claimNextBatch(1)[0];
+            P360_ArchiveJobWorker worker = new P360_ArchiveJobWorker(new Set<Id>{ jobId });
+            worker.adapter = new P360_TestRetryableArchiveAdapter();
+
+            System.Test.startTest();
+            worker.execute(null);
+            System.Test.stopTest();
+        }
+
+        Application_Log__c savedLog = [
+            SELECT Pay_Load__c
+            FROM Application_Log__c
+            WHERE Category__c = 'P360'
+            ORDER BY CreatedDate DESC
+            LIMIT 1
+        ];
+        Map<String, Object> payload = (Map<String, Object>) JSON.deserializeUntyped(savedLog.Pay_Load__c);
+
+        System.Assert.areEqual('ApplicationAttachment', payload.get('operationName'));
+        System.Assert.areEqual('RetryScheduled', payload.get('status'));
+        System.Assert.areEqual(correlationId, payload.get('correlationId'));
+        System.Assert.areEqual(4, payload.size());
     }
 
     /**
