@@ -170,6 +170,43 @@ private class P360_ArchiveJobWorkerTest {
     }
 
     /**
+     * Verifies that an oversized exception message is bounded to the archive job field length.
+     *
+     * @since 2026-10
+     */
+    @IsTest
+    static void retryableFailureMessageIsBoundedToFieldLength() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+        User processingUser = createProcessingUser();
+        Integer maximumLength = P360_Archive_Job__c.Last_Error_Message__c.getDescribe().getLength();
+        String failureMessage = 'x';
+        while (failureMessage.length() <= maximumLength) {
+            failureMessage += failureMessage;
+        }
+        failureMessage = failureMessage.substring(0, maximumLength + 1);
+
+        System.runAs(processingUser) {
+            Id jobId = claimedJobId('correlation-worker-long-error');
+            P360_ArchiveJobWorker worker = new P360_ArchiveJobWorker(new Set<Id>{ jobId });
+            worker.adapter = new P360_TestRetryableArchiveAdapter(failureMessage);
+
+            System.Test.startTest();
+            worker.execute(null);
+            System.Test.stopTest();
+
+            P360_Archive_Job__c job = [
+                SELECT Status__c, Last_Error_Message__c
+                FROM P360_Archive_Job__c
+                WHERE Id = :jobId
+                LIMIT 1
+            ];
+            System.Assert.areEqual('Failed', job.Status__c);
+            System.Assert.areEqual(maximumLength, job.Last_Error_Message__c.length());
+            System.Assert.areEqual(failureMessage.substring(0, maximumLength), job.Last_Error_Message__c);
+        }
+    }
+
+    /**
      * Verifies that a retryable failure at the final attempt moves the job to Manual Review instead of retrying.
      *
      * @since 2026-09

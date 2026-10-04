@@ -112,6 +112,7 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
     private P360_Archive_Job__c classifyFailure(P360_Archive_Job__c job, P360_IntegrationException error) {
         Integer attempts = job.Attempt_Count__c == null ? 1 : job.Attempt_Count__c.intValue();
         String errorCode = error.getTypeName();
+        String errorMessage = limitErrorMessage(error.getMessage());
 
         if (error.isRetryable && attempts < MAX_ATTEMPTS) {
             Integer backoffIndex = Math.min(attempts - 1, BACKOFF_MINUTES_SCHEDULE.size() - 1);
@@ -119,7 +120,7 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
                 Id = job.Id,
                 Status__c = 'Failed',
                 Last_Error_Code__c = errorCode,
-                Last_Error_Message__c = error.getMessage(),
+                Last_Error_Message__c = errorMessage,
                 Next_Attempt_Date__c = System.now().addMinutes(BACKOFF_MINUTES_SCHEDULE[backoffIndex])
             );
         }
@@ -128,7 +129,15 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
             Id = job.Id,
             Status__c = 'Manual Review',
             Last_Error_Code__c = errorCode,
-            Last_Error_Message__c = error.getMessage()
+            Last_Error_Message__c = errorMessage
         );
+    }
+
+    private static String limitErrorMessage(String errorMessage) {
+        Integer maximumLength = P360_Archive_Job__c.Last_Error_Message__c.getDescribe().getLength();
+        return errorMessage != null &&
+            errorMessage.length() > maximumLength
+            ? errorMessage.substring(0, maximumLength)
+            : errorMessage;
     }
 }
