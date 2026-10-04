@@ -1,6 +1,6 @@
 # P360 teknisk oversikt
 
-Status per 2026-10-04. Runtime-koden og testane er i `main` etter PR #1094. Produksjonsbehandling er framleis av som standard, og ekte SIF-transport er ikkje ferdig.
+Status per 2026-10-04. P360 runtime-koden er i `main` etter PR #1094; den avgrensa felles loggeren kom inn med PR #1097. Produksjonsbehandling er framleis av som standard, og ekte SIF-transport er ikkje ferdig.
 
 ## Statusnøklar
 
@@ -64,13 +64,14 @@ Før produksjon må målarkitekturen også ha avtalt retry/duplicate-kontrakt, e
 ## Verifikasjon
 
 - PR #1094: metadata compile, Apex tests, 85% coverage gate og Jest/Prettier bestod på merged head.
-- P360 Apex suite i godkjent scratch-org før merge: 90/90 bestod (test run `707QI00001IcWgz`).
-- Fokusert release guard i same scratch-org: 7/7 bestod (test run `707QI00001IcIUo`).
+- PR #1097: Jest/Prettier, metadata compile, Apex tests, coverage, setup og cleanup bestod før merge.
+- P360 Apex suite etter loggerendringen i godkjent scratch-org: 90/90 bestod (test run `707QI00001IdqiI`).
+- Logger, context og redactor etter loggerendringen: 6/6 bestod (test run `707QI00001IdNeK`).
 - Post-merge disabled/mock smoke er framleis open i #1092. Den tidlegare full-deploy-kommandoen med `--ignore-errors` tel ikkje som komponentvis deploy-evidens.
 
-## Aktivt arbeid utanfor main
+## Logging og neste kopling
 
-GitHub #1096 sporar ein felles `IntegrationLogger.logFailure(IntegrationLogContext)`-helper som berre persisterer dei fire tekniske context-felta. Lokal implementasjon har bestått 6/6 common-logging/context-testar og P360-suite 90/90, men er ikkje mergea og har ingen produksjonskallarar. Review av correlation-ID- og label-policy må vere ferdig før ein caller blir lagt til.
+PR #1097 har mergea `IntegrationLogger.logFailure(IntegrationLogContext)` til `main`, og #1096 er lukka. Helperen persisterer berre system, operasjon, status og ein validert opaque correlation-ID gjennom `LoggerUtility`. Han tek ikkje imot payload eller exception-meldingar. Loggeren har førebels ingen produksjonskallarar; kvar framtidig caller må velje tekniske labels eksplisitt og få ei eiga security/privacy-review før wiring.
 
 ## Trygg aktiveringsrekkjefølgje
 
