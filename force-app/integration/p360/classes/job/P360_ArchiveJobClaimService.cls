@@ -13,12 +13,15 @@ public with sharing class P360_ArchiveJobClaimService {
      * Claims up to `batchSize` eligible jobs (new Pending jobs, or Failed jobs whose next attempt is due)
      * into In Progress with a fresh lease, and increments their attempt count.
      *
-     * @param batchSize Maximum number of jobs to claim in this call.
+     * @param batchSize Maximum number of jobs to claim in this call; null or non-positive values claim no jobs.
      * @return Ids of the jobs that were claimed, in claim order.
      * @since 2026-10
      */
     public static List<Id> claimNextBatch(Integer batchSize) {
         if (!P360_ArchiveProcessingGate.isEnabled()) {
+            return new List<Id>();
+        }
+        if (batchSize == null || batchSize <= 0) {
             return new List<Id>();
         }
 
