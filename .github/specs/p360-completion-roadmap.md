@@ -25,7 +25,7 @@ Implemented in `main` and covered by CI:
 Still to verify or complete:
 
 - Live SIF transport, mapping, external idempotency/recovery, operations ownership, and complete end-to-end evidence remain outstanding.
-- The bounded shared logger from #1096 is merged by PR #1097. It has no production callers yet; wire it into approved flows only after reviewing each caller's technical-field allowlist and privacy boundary.
+- The bounded shared logger from #1096 is merged by PR #1097 and has one P360 caller: controlled worker failures are logged by `P360_ArchiveJobWorker` after PR #1102. The caller sends only fixed technical context; live transport correlation and end-to-end logging remain unverified.
 - Replace the current unresolved SIF transport boundary with an approved live contract only after external decisions are recorded.
 - Complete the agreed Salesforce-to-SIF mappings, file strategy, duplicate/recovery semantics, operations ownership, and end-to-end evidence.
 - Refresh repo-owned technical status documents and prepare Jira updates. Jira remains the authority for Jira status; mirrored Jira/Confluence exports must not be edited as substitutes for the source.
