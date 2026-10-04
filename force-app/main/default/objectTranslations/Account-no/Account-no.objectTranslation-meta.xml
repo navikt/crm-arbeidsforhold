@@ -6,6 +6,10 @@
         <name>AA_AccountDetails</name>
     </quickActions>
     <quickActions>
+        <label><!-- Oppgrader bruker til frilanstolk --></label>
+        <name>Oppgrader_bruker_til_frilanstolk</name>
+    </quickActions>
+    <quickActions>
         <label><!-- Test SMS --></label>
         <name>Test_SMS</name>
     </quickActions>
