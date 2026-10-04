@@ -1,6 +1,6 @@
 ---
 slug: p360-default-off-archive-processing
-status: proposed
+status: completed
 ---
 
 # P360 default-off archive processing gate

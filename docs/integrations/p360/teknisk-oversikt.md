@@ -1,357 +1,85 @@
 # P360 teknisk oversikt
 
-Denne sida forklarer kva P360-integrasjonen i Salesforce består av per 2026-09-14, korleis dei implementerte delane verkar, og kvar grensene mot framtidig arbeid går.
+Status per 2026-10-04. P360 runtime-koden er i `main` etter PR #1094; den avgrensa felles loggeren kom inn med PR #1097, og worker-feilkoplinga kom med PR #1102. Produksjonsbehandling er framleis av som standard, og ekte SIF-transport er ikkje ferdig.
 
 ## Statusnøklar
 
-| Status                | Tyding                                                                                          |
-| --------------------- | ----------------------------------------------------------------------------------------------- |
-| Implementert og testa | Kode og metadata finst, og relevant Apex-test er køyrd i `crm-arbeidsforhold`.                  |
-| Implementert kontrakt | Intern grense eller DTO er implementert og testa, men produksjonsflyten bak grensa finst ikkje. |
-| Planlagt              | Arkitekturen er dokumentert, men produksjonskode manglar.                                       |
-| Eksternt blokkert     | Krev stadfesta P360/SIF-kontrakt, autentisering, miljøverdiar eller mapping.                    |
+| Status                        | Meining                                                                                   |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| Implementert og CI-verifisert | Kode er i `main`, og relevant PR-kontroll har bestått.                                    |
+| Scratch-verifisert            | Test eller deployment er køyrd i det godkjende scratch-org-et; run-ID/evidens er oppgitt. |
+| Kontraktgrense                | Intern kontrakt er testa, men produksjonskoplinga stoppar kontrollert.                    |
+| Avventar avklaring            | Krev godkjend fag-, P360-, sikkerheits- eller driftsavgjerd.                              |
 
-## Status i korte trekk
+## Implementert i main
 
-Implementert og testa:
+- `P360_Archive_Processing` bruker `FeatureToggleBase.getFeatureFlag` og er fail-closed. Metadata-defaulten er `false`; manglande/null setting, lookup-feil eller ikkje-tom `Required_Custom_Permission__c` held prosessering av.
+- `P360_ContentVersionArchiveHandler` opprettar `ApplicationAttachment`-jobb for Application-publiserte filer berre når prosessering er slått på.
+- `P360_ArchiveGuardHandler` brukar gate rundt P360-validering/låsing og opprettar `DecisionDocument`-jobb etter at eit vedtak blir frigjeve med gyldig brukarrett.
+- `P360_ArchiveJobService` støttar idempotent oppretting av `ApplicationDocument`, `ApplicationAttachment`, `DecisionDocument` og `AgreementDocument`.
+- `P360_ArchiveJobClaimService`, `P360_ArchiveJobScheduler` og `P360_ArchiveJobWorker` støttar claim/lease, dispatch, retryklassifisering og manuell oppfølging. Workeren sjekkar gate på nytt og returnerer ein claim utan å bruke opp forsøk dersom behandling er slått av.
+- `P360_Archive_Release` er brukarautorisasjon. `AAREG_Arbeidsforhold_Saksbehandling` gir vanleg les/skriv-FLS til frigjevingsfeltet; P360-guarden krev framleis den separate custom permission-en når gate er på.
+- DTO-ar, mapper, domenegrenser, mock-adapter, logging-/korrelasjonsgrunnlag, Custom Metadata-kodeverk og P360-testsuite ligg i repoet. Worker-feil blir logga med avgrensa teknisk kontekst; dette er ikkje ende-til-ende-korrelasjon gjennom SIF.
 
-- operation-spesifikke DTO-ar for dokumenterte delar av Case-, Document- og File-kontraktane
-- adapter-, RPC-, domene- og orkestreringsgrenser som stoppar kontrollert før uavklart transport
-- constructor injection gjennom `P360_AdapterFactory`
-- felles korrelasjonskontekst og test builders
-- P360 exception-hierarki
-- P360-referansefelt og `P360_Archive_Job__c`
-- frigivingssignal og låsing av `Application_Decision__c` gjennom MyTriggers
-- eigne permission sets for frigiving og jobbprosessering
-- deterministiske idempotensnøklar for fire arkivhendingar
-- idempotent oppretting av alle fire jobbtypar: `ApplicationDocument`, `ApplicationAttachment`, `DecisionDocument` og `AgreementDocument`
-- Apex-testsuiten `P360` med alle P360-testklassane
-- Custom Metadata Type `P360_Code_Table_Value__mdt` med godkjende, ikkje-sensitive standardrecordar (lookup-nøkkel `Default`) og `P360_CodeTableMetadataService` for kodeverksoppslag med per-transaksjon-cache
-- første mock-baserte CreateCase-mapping via `AAREG_ApplicationToP360CaseMapper`, med metadataoppslag for standard value set, status, type, tilgang og ClassCode 1
-- første mock-baserte CreateDocument-mapping via `AAREG_ApplicationToP360DocumentMapper`, med metadataoppslag for dokumentarkiv, journalstatus, tilgangskode og tilgangsgruppe
-- første mock-baserte vedtaksdokument-mapping via `AAREG_DecisionToP360DocumentMapper`, med `Sak`, `Dokument ut`, journalstatus og tilgang frå godkjende metadata
-- mock-file-parametrar blir mappa av `AAREG_ApplicationFileToP360FileMapper` og inkluderte i begge CreateDocument-requestane; ContentVersion-oppslag og upload er framleis ikkje valt
-- file-parameter-mapping via `AAREG_ApplicationFileToP360FileMapper`, integrert i begge mock-baserte CreateDocument-mapperane, utan å velje upload-endpoint
-- mock-kompatibel `AAREG_ArchiveApplicationOrchestrator`-kopling som vidarefører `externalId`/`correlationId` til den injiserte adapteren og mappar kontrollert stub-respons tilbake til internt resultat
-- schema-safe typed domain contexts for verifisert `Application__c.Id` og `Agreement__c.Id`
-- miljøstyrt konfigurasjonslag for `#1017`: Custom Setting `P360_Integration_Setting__c` for kva Named Credential som skal brukast, pluss Permission Set-ar (`P360_RPC_Callout_Access`, `P360_Code_Table_Access`) samla i Permission Set Group `P360_Integration_User`
-- eksplisitt mock-transport for scratch orgar og sandkasser via `P360_Integration_Setting__c.Use_Mock_Transport__c`; når feltet er `true`, brukar `P360_AdapterFactory` `P360_StubArchiveAdapter`, medan ekte transport framleis er standard når feltet er `false` eller ikkje sett
-- R2 worker-grunnmur: `P360_ArchiveJobClaimService` for lease/claim og `P360_ArchiveJobWorker` for statusklassifisering, retry-backoff og manuell oppfølging
-- eksterne P360-ID-felt for lagring (`Access_Request__c.P360_Case_Id__c`/`P360_Case_Number__c`, `P360_Document_Id__c`/`P360_Document_Number__c`/`P360_File_Id__c` på `Application__c`/`Application_Decision__c`/`Agreement__c`)
+## Faktisk kopling per arkivhending
 
-Ikkje implementert:
+| Hending                 | Automatisk inngang i dag                                                      | Kva som framleis manglar                                                                                |
+| ----------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `ApplicationAttachment` | Application-publisert `ContentVersion` utløyser jobb når gate er på.          | Godkjend storleiksgrense, upload-kontrakt og live filtransport.                                         |
+| `DecisionDocument`      | Gyldig overgang av `Ready_For_P360_Archive__c` opprettar jobb når gate er på. | Endeleg vedtaksfeltmapping, SIF-svar og live transport.                                                 |
+| `ApplicationDocument`   | Jobbservice kan opprette jobben; smoke-flyten kallar service eksplisitt.      | Godkjend forretningshending som automatisk skal opprette jobben, komplett mapping og live transport.    |
+| `AgreementDocument`     | Jobbservice kan opprette jobben.                                              | Produkteigar må avgjere om avtaledokument er i MVP, kva hending som utløyser det, og godkjenne mapping. |
 
-- reelt SIF RPC-kall
-- Named Credential, autentisering og miljøkonfigurasjon
-- endeleg Salesforce-til-P360-mapping og kodeverk
-- full orkestreringsflyt frå alle domeneobjekt til P360
-- automatisk `DecisionDocument`-jobb ved frigiving (jobbservice er implementert; automatisk triggering er ikkje)
-- filopplasting mot P360; ContentVersion-hendingar for Application er no kopla til intern jobboppretting
-- org-schedule som automatisk kallar `P360_ArchiveJobScheduler` (schedulable dispatch seam er implementert)
-- integrasjonstest mot P360-miljø
+`P360_ArchiveJobScheduler` er ein schedulable klasse, ikkje ein oppretta org-cron. Produksjonsfrekvens, overlapp, driftsvakt og trygg pause/gjenopptaking er ikkje fastsette.
 
-## Lag og ansvar
+## Kontraktgrensa mot SIF
 
-Diagramkjelde: [P360 current architecture](diagrams/p360-current-architecture.mmd) · [P360 component architecture](../../architecture/p360-component-diagram.mmd) · [P360 implementation class diagram](../../architecture/p360-class-diagram.mmd)
+`P360_ArchiveAdapter` og `P360_RpcClient` er interne grenser. Reell endpoint, RPC-envelope, operasjonsnamn, headers, autentisering og miljøkonfigurasjon er ikkje godkjende; klienten stoppar kontrollert i staden for å gjette. `Use_Mock_Transport__c=true` vel stub-adapter i utvikling, medan `false` ikkje er ein trygg aktiveringsmekanisme før live-kontrakten er implementert og godkjend.
 
-```mermaid
-graph LR
-    subgraph Salesforce[Salesforce - implementert grunnmur]
-        Decision[Application_Decision__c]
-        Trigger[P360 trigger]
-        MyTriggers[MyTriggers]
-        Guard[P360_ApplicationDecisionArchiveGuard]
-        Key[P360_IdempotencyKey]
-        JobService[P360_ArchiveJobService]
-        Job[(P360_Archive_Job__c)]
-        Claim[P360_ArchiveJobClaimService]
-        Domain[AAREG application/agreement domain services]
-        Orchestrator[AAREG_ArchiveApplicationOrchestrator]
-        Factory[P360_AdapterFactory]
-        Adapter[P360_IArchiveAdapter]
-        LiveAdapter[P360_ArchiveAdapter]
-        StubAdapter[P360_StubArchiveAdapter]
-        Rpc[P360_IRpcClient / P360_RpcClient]
-        Worker[P360_ArchiveJobWorker]
-        Mapper[Case / Document / File mappers]
-        CodeTable[(P360_Code_Table_Value__mdt)]
-        CodeTableService[P360_CodeTableMetadataService]
-        Config[P360_Integration_Setting__c]
-    end
+Følgjande eksterne avgjerder blokkerer live-flyten:
 
-    subgraph Future[Planlagt eller eksternt blokkert]
-        Auth[Named Credential and auth]
-        P360[Public 360 SIF RPC]
-    end
+- [#1017](https://github.com/navikt/crm-arbeidsforhold/issues/1017): endpoint, RPC og autentisering.
+- [#1016](https://github.com/navikt/crm-arbeidsforhold/issues/1016): Salesforce-til-SIF-mapping, kodeverdiar, dataomfang og personvern.
+- [#1018](https://github.com/navikt/crm-arbeidsforhold/issues/1018): filformat, storleik, upload og delvis-feil-handtering.
+- [#1015](https://github.com/navikt/crm-arbeidsforhold/issues/1015): ekstern idempotens, duplicate-semantikk, retry og recovery.
+- [#993](https://github.com/navikt/crm-arbeidsforhold/issues/993) og [#994](https://github.com/navikt/crm-arbeidsforhold/issues/994): harmonisering av exception-/namnestandard med Jira/ADR.
 
-    Decision --> Trigger --> MyTriggers --> Guard
-    JobService --> Key
-    JobService --> Job
-    Job --> Claim --> Worker
-    Worker --> Factory
-    Worker --> Adapter
-    Domain --> Orchestrator --> Adapter
-    Factory --> StubAdapter
-    Factory --> LiveAdapter --> Rpc
-    Rpc -.-> Auth -.-> P360
-    Mapper --> Adapter
-    CodeTableService --> CodeTable
-    Mapper --> CodeTableService
-    Config -. selects .-> StubAdapter
-    Config -. selects .-> LiveAdapter
+## Målarkitektur
 
-    classDef implemented fill:#d4f4dd,stroke:#2d7a3e,color:#111
-    classDef contract fill:#fff3cd,stroke:#946200,color:#111
-    classDef blocked fill:#f8d7da,stroke:#9b2c2c,color:#111
-    class Decision,Trigger,MyTriggers,Guard,Key,JobService,Job,Claim,Worker,Mapper,CodeTable,CodeTableService,Config,StubAdapter implemented
-    class Domain,Orchestrator,Factory,Adapter,LiveAdapter,Rpc contract
-    class Auth,P360 blocked
+Berre godkjende forretningshendingar skal gå gjennom denne flyten. Mappere og domenegrenser byggjer SIF-requestar etter godkjend mapping; jobbtabellen er kjelda for teknisk status, ikkje P360-ID-felta.
+
+```text
+Godkjend Salesforce-hending
+    -> domain context og godkjend mapper
+    -> idempotent P360_Archive_Job__c
+    -> gated scheduler og lease/claim
+    -> worker, retry og manuell recovery
+    -> adapterkontrakt
+    -> RPC-klient / godkjend Named Credential
+    -> P360/SIF
 ```
 
-Den heiltrukne delen viser kode som finst. Stipla overgangar viser planlagde eller blokkerte koplingar. Diagrammet skal ikkje lesast som at ein ende-til-ende arkivflyt allereie køyrer.
+Før produksjon må målarkitekturen også ha avtalt retry/duplicate-kontrakt, external-ID-oppslag, overvaking, runbook og eigarskap. Full målscope og fasar ligg i [completion roadmap](../../../.github/specs/p360-completion-roadmap.md).
 
-## Frigiving og låsing av vedtak
+## Verifikasjon
 
-`Ready_For_P360_Archive__c` er eit einvegs forretningssignal. Triggeren inneheld ikkje forretningslogikk; han delegerer til MyTriggers, som finn `P360_ArchiveGuardHandler` gjennom `MyTriggerSetting__mdt`.
+- PR #1094: metadata compile, Apex tests, 85% coverage gate og Jest/Prettier bestod på merged head.
+- PR #1097: Jest/Prettier, metadata compile, Apex tests, coverage, setup og cleanup bestod før merge.
+- P360 Apex suite etter loggerendringen i godkjent scratch-org: 90/90 bestod (test run `707QI00001IdqiI`).
+- Logger, context og redactor etter loggerendringen: 6/6 bestod (test run `707QI00001IdNeK`).
+- PR #1102: worker-testklassen bestod 6/6 i godkjent scratch-org (test run `707QI00001IeSQt`); Jest/Prettier, metadata compile, Apex tests, coverage, setup og cleanup bestod i CI.
+- Post-merge mock smoke `npm run test:p360:mock` bestod: to jobbar (`ApplicationDocument`, `ApplicationAttachment`) vart `Succeeded` med eitt forsøk, worker vart `Completed` utan feil, ingen duplikatnøklar og ingen live-callout. Evidensen står i #1092.
+- Etter testen er `P360_Archive_Processing=false`, `Use_Mock_Transport__c`-org-default og mellombels permission assignment fjerna, og smoke-data kontrollert sletta.
+- Den tidlegare full-deploy-kommandoen med `--ignore-errors` tel ikkje som komponentvis deploy-evidens.
 
-Begge triggerregistreringane har `IsBypassAllowed__c = false`. Frigivings- og låsekontrollen kan derfor ikkje koplast ut gjennom den generelle MyTriggers bypass-permissionen.
+## Logging og neste kopling
 
-Diagramkjelde: [P360 decision release sequence](diagrams/p360-decision-release-sequence.mmd)
+PR #1097 har mergea `IntegrationLogger.logFailure(IntegrationLogContext)` til `main`, og #1096 er lukka. Helperen persisterer berre system, operasjon, status og ein validert opaque correlation-ID gjennom `LoggerUtility`. PR #1102 koplar workeren sitt kontrollerte exception-path til loggeren med faste labels (`P360`, `ArchiveJob`, `Failed`) og jobbens correlation-ID. Kallet er best-effort; exception-melding og request-/response-payload blir ikkje sende til loggeren. Dette stadfestar ikkje live transportkorrelasjon eller komplett ende-til-ende-logging.
 
-```mermaid
-sequenceDiagram
-    actor User as Saksbehandlar
-    participant Decision as Application_Decision__c
-    participant Trigger as P360 trigger
-    participant Framework as MyTriggers
-    participant Guard as Archive guard
-    participant Permission as Custom permission
+## Trygg aktiveringsrekkjefølgje
 
-    User->>Decision: Set Ready_For_P360_Archive__c = true
-    Decision->>Trigger: before update
-    Trigger->>Framework: run()
-    Framework->>Guard: onBeforeUpdate(oldMap)
-    Guard->>Permission: check P360_Archive_Release
-    alt Permission missing
-        Guard-->>Decision: addError
-    else Permission granted
-        Guard-->>Decision: allow one-way release
-    end
-
-    Note over Guard,Decision: After release, regular fields are locked.
-    Note over Guard,Decision: P360_Document_Id__c, P360_Document_Number__c and P360_File_Id__c remain writable.
-    Note over Decision: Automatic DecisionDocument job creation runs after authorized release; business-completeness validation remains separate work.
-```
-
-Permission-modellen er todelt:
-
-- `AAREG_Arbeidsforhold_Saksbehandling` gir ordinær tilgang til feltet.
-- `P360_Archive_Release` gir custom permission som sjølve guarden kontrollerer.
-
-Dermed blir manglande frigivingsrett handtert av domeneregelen, ikkje som ein tilfeldig FLS-feil.
-
-## Idempotensnøklar
-
-`P360_IdempotencyKey` byggjer stabile interne nøklar:
-
-| Hending         | Format                                                      |
-| --------------- | ----------------------------------------------------------- |
-| Søknadsdokument | `APPLICATION_DOCUMENT:{ApplicationId}`                      |
-| Søknadsvedlegg  | `APPLICATION_ATTACHMENT:{ApplicationId}:{ContentVersionId}` |
-| Vedtaksdokument | `DECISION_DOCUMENT:{ApplicationDecisionId}`                 |
-| Avtaledokument  | `AGREEMENT_DOCUMENT:{AgreementId}`                          |
-
-Manglande ID-ar gir `P360_ContractException`. Nøklane identifiserer Salesforce-arkivhendinga; dei definerer ikkje P360 si eksterne duplicate- eller recovery-åtferd.
-
-## Idempotent jobboppretting
-
-Alle fire arkivhendingane er kopla til jobbservice no; automatisk triggering frå domenehendingar er framleis planlagt.
-
-Diagramkjelde: [P360 idempotent archive job creation](diagrams/p360-idempotent-job-creation-sequence.mmd)
-
-```mermaid
-sequenceDiagram
-    participant Caller
-    participant Service as P360_ArchiveJobService
-    participant Key as P360_IdempotencyKey
-    participant Store as P360_Archive_Job__c
-
-    alt Application document
-        Caller->>Service: getOrCreateApplicationDocumentJob(accessRequestId, applicationId, correlationId)
-        Service->>Service: validate required context
-        Service->>Key: forApplicationDocument(applicationId)
-        Key-->>Service: APPLICATION_DOCUMENT:{id}
-    else Application attachment
-        Caller->>Service: getOrCreateApplicationAttachmentJob(accessRequestId, applicationId, contentVersionId, correlationId)
-        Service->>Service: validate required context
-        Service->>Key: forApplicationAttachment(applicationId, contentVersionId)
-        Key-->>Service: APPLICATION_ATTACHMENT:{applicationId}:{contentVersionId}
-    end
-    Service->>Store: query unique Idempotency_Key__c
-    alt Existing job
-        Store-->>Service: existing job
-        Service-->>Caller: same job, unchanged
-    else No job
-        Service->>Store: insert Pending job
-        alt Insert succeeds
-            Store-->>Service: new job
-            Service-->>Caller: new job
-        else DUPLICATE_VALUE race
-            Service->>Store: query same key again
-            Store-->>Service: winning job
-            Service-->>Caller: existing job
-        end
-    end
-```
-
-Ein ny jobb får:
-
-- `Access_Request__c`
-- `Application__c`
-- `Archive_Event_Type__c = ApplicationDocument`
-- `Status__c = Pending`
-- `Attempt_Count__c = 0`
-- første korrelasjons-ID
-- køtid
-- unik idempotensnøkkel
-
-Retry med same nøkkel returnerer den eksisterande jobben og overskriv ikkje status eller opphavleg korrelasjonskontekst.
-
-## Jobbstatus og worker
-
-Diagramkjelde: [P360 archive job state model](diagrams/p360-archive-job-state.mmd)
-
-```mermaid
-stateDiagram-v2
-    [*] --> Pending: Job service oppretter idempotent jobb
-    Pending --> InProgress: Claim service tek lease
-    InProgress --> Succeeded: Worker får suksess frå adapter
-    InProgress --> Failed: Worker får retrybar feil
-    Failed --> Pending: Due etter 1m / 5m / 15m / 1t / 6t
-    Failed --> ManualReview: Ikkje retrybar eller maks 5 forsøk
-    ManualReview --> Pending: Manuell frigiving
-    Succeeded --> [*]
-```
-
-Claim-service og worker er implementerte og testa mot stub. Scheduler/cron og endeleg live transport er framleis ikkje kopla inn.
-
-## Sikkerheit
-
-- `P360_Archive_Release` avgrensar kven som kan frigive vedtak.
-- `P360_Archive_Job_Processing` gir minste nødvendige objekt- og felttilgang for jobboppretting i den noverande slicen.
-- Dei tre tekniske vedtaksreferansane er berre gitt gjennom processing-settet; release-settet gir custom permission og frigivingsfeltet, men ingen ekstra objekt-C/R/U.
-- Permission-set-tildeling i testar blir gjort som setup-DML i ein separat `System.runAs`-grense for å unngå `MIXED_DML_OPERATION`.
-- Domene- og jobb-DML blir køyrd som den aktuelle testbrukaren.
-- Ingen secrets, AuthKey, token eller miljø-URL ligg i source.
-
-### Maskering av sensitive felt i logging
-
-`IntegrationLogRedactor` (`force-app/integration/common/classes/`) fjernar feltverdiar før dei kan hamne i teknisk logging. Ein felt-nøkkel blir rekna som sensitiv når nøkkelen inneheld (utan omsyn til store/små bokstavar) eitt av: `token`, `password`, `secret`, `authorization`, `cookie`, `fnr`, `ssn`, `personnummer`. Verdien blir då erstatta med `[REDACTED]`; nøkkelen og alle ikkje-sensitive verdiar er uendra. Input-mapen blir aldri mutert.
-
-`IntegrationLogContext` held berre tekniske felt (systemnamn, operasjonsnamn, correlation-ID og status) og har ingen felt for nyttelast eller dokumentinnhald, slik at desse aldri kan hamne i loggkonteksten i utgangspunktet.
-
-`P360_IntegrationException` kan bere ein correlation-ID vidare gjennom eit `catch`-grense via `withCorrelationId(...)`, verifisert av `P360_IntegrationExceptionCorrelationTest`. Dette gjer det mogleg å korrelere ein feil tilbake til det opphavlege loggkonteksten utan å logge nyttelast.
-
-`IntegrationLogger` (`force-app/integration/common/classes/`) byggjer eit redigert loggpayload frå `IntegrationLogContext` og `IntegrationLogRedactor`, og persisterer det som `Application_Log__c` via den etablerte `LoggerUtility`/`Application_Event__e`-platform-event-pipelinen frå `crm-platform-base`. `Category__c` blir sett til systemnamnet (t.d. `P360`), og `Application_Domain__c` blir sett til den eksisterande `AAREG`-verdien, sidan det ikkje finst ein P360-spesifikk verdi i det delte, pakke-eigde verdisettet. Correlation-ID og andre tekniske felt blir serialiserte inn i `Pay_Load__c`; det finst ikkje eit dedikert correlation-ID-felt på `Application_Log__c`, og `Referrence_ID__c` (18 teikn) er for kort for ein 32-teikns correlation-ID.
-
-Deploy `0AfQI00000jKxV30AK` mot `crm-arbeidsforhold`: `IntegrationLogRedactor` har 100 % dekning, 2/2 fokuserte testar bestått. Deploy `0AfQI00000jKxmn0AC`: `P360_IntegrationExceptionCorrelationTest` og eksisterande `P360_ExceptionHierarchyTest`, 4/4 testar bestått. Deploy `0AfQI00000jKyB40AK`: `IntegrationLoggerTest`, 4/4 testar bestått, inkludert verifisert `Application_Log__c`-persistens og at eit `authorization`-felt blir redigert før det når `Pay_Load__c`.
-
-Permission set-et for jobbprosessering gir no felt-tilgang for claim/lease og retry-status på den implementerte workeren. Nye jobbtypar og worker-felt krev eksplisitt utviding og sikkerheitsgjennomgang.
-
-## Kontraktgrensa mot P360
-
-DTO-ane er baserte på den tilgjengelege SIF PDF-dokumentasjonen. Dei er interne, testbare kontraktar og ikkje bevis på at wire-formatet fungerer mot eit konkret miljø.
-
-Følgjande klassar stoppar med kontrollerte exceptions i staden for å gjette:
-
-- `AAREG_ApplicationDomainService`
-- `AAREG_AgreementDomainService`
-- `AAREG_ArchiveApplicationOrchestrator`
-- `P360_ArchiveAdapter`
-- `P360_RpcClient`
-
-Før desse grensene kan opnast må Team P360 stadfeste endpoint, autentisering, envelope, mapping, kodeverk, feilmodell og duplicate/recovery-semantikk.
-
-## Testing og verifikasjon
-
-`force-app/tests/testSuites/P360.testSuite-meta.xml` er den autoritative P360-testsuiten. Han skal innehalde nøyaktig alle `*Test.cls` under `force-app/tests/classes/integration/p360`.
-
-Siste verifiserte jobb- og idempotensslice:
-
-| Kontroll                 | Resultat                                |
-| ------------------------ | --------------------------------------- |
-| Deploy                   | `0AfRR00000g2PtN0AU`, 27/27 komponentar |
-| Testar i deploy          | 4/4 bestod                              |
-| Separat test run         | `707RR00001XtOIQ`, 4/4 bestod           |
-| `P360_ArchiveJobService` | 84 prosent dekning                      |
-| `P360_IdempotencyKey`    | 100 prosent dekning                     |
-
-Siste release-guard dry-run: `0AfRR00000g2QhN0AU`, 11/11 komponentar og 5/5 testar.
-
-Tidlegare specs inneheld eigne historiske deploy- og test-ID-ar. Desse dokumenterer den avgrensa slicen, ikkje dagens samla P360-suite.
-
-## Opne avgjerder
-
-Seks tidlegare opne punkt (`#994`, `#993`, `#1017`, `#1016`, `#1018`, `#1015`) er kategoriserte etter kven som faktisk kan avgjere dei:
-
-| Punkt     | Tema                                                     | Kven avgjer              | Status                                                                                                                                                  |
-| --------- | -------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `#994`    | Feil klassenamn i Jira-tekst (før namnestandarden fanst) | Internt (Jira-tekst)     | **Avgjort.** Behald `P360_`-prefiks med understrek, i tråd med eksisterande kode og ADR-0001. Jira-teksten sjølv må rettast eksternt, ikkje gjort enno. |
-| `#993`    | Exception-hierarki og retrybarheit                       | Internt (arkitektur)     | **Avgjort og implementert** (sjå under).                                                                                                                |
-| `#996`/K3 | Service locator vs. adapter factory                      | Internt (arkitektur)     | **Avgjort.** `P360_AdapterFactory` + constructor injection, ingen service locator. Sjå [dependency injection og adapterval](di-og-adapterval.md).       |
-| `#1017`   | RPC-miljø, endepunkt, auth-modell                        | P360-teamet              | Konfigurasjonslag bygd internt (sjå under). Endepunkt, auth-headerverdiar og secrets krev framleis ekstern stadfesting.                                 |
-| `#1016`   | Salesforce→SIF-mapping, kodeverdiar                      | P360-teamet/fagsida      | Krev ekstern stadfesting. Kodeverk-strukturen (`P360_Code_Table_Value__mdt`) er klar til å ta imot verdiane.                                            |
-| `#1018`   | Filstrategi (inline vs opplasting, PDF/A)                | P360-teamet/produkteigar | Krev ekstern stadfesting. "Alternativ 3" (P360 eig PDF/A) er valt internt.                                                                              |
-| `#1015`   | Idempotens/retry-detaljar (feilkodar, rate limits)       | P360-teamet              | MVP implementert internt; retry-semantikk og feilkodeklassifisering krev ekstern stadfesting.                                                           |
-
-### `#993` — retrybarheit i exception-modellen (avgjort 2026-09)
-
-Retrybarheit blir no uttrykt fleksibelt, ikkje berre gjennom klassehierarkiet:
-
-- `P360_IntegrationException.isRetryable` er ein `Boolean`-eigenskap (default `false`) sett via den flytande metoden `withRetryable(Boolean)`, same mønster som `withCorrelationId`.
-- Klassifiseringa skjer av kallaren (t.d. basert på HTTP-statuskode eller P360-feilkode), ikkje berre av exception-typen — dette matchar gjeldande Apex-praksis for callout-feilhandtering.
-- `P360_RetryableException` er behalde som eit bekvemt spesialtilfelle: han set `isRetryable = true` automatisk via ein instance-initializer-blokk, så eksisterande kode som kastar han treng ikkje endrast.
-- Verifisert: deploy `0AfQI00000jKzv30AC`, 7/7 testar (`P360_IntegrationExceptionRetryableTest`, `P360_ExceptionHierarchyTest`, `P360_IntegrationExceptionCorrelationTest`).
-
-### Konfigurasjonslag bygd for `#1017`
-
-Sjølve endepunkt-URL, autentiseringsverdiar og secrets er ikkje bygd inn i repoet (krev ekstern stadfesting og skal aldri liggje i Git). Det som derimot er bygd, basert på eit eksisterande sibling-oppsett (`NKS P360 Integration`) som allereie brukar OAuth 2.0 Client Credentials mot Entra ID via External Credential:
-
-- Hierarchy Custom Setting `P360_Integration_Setting__c` (felt `Named_Credential_Name__c`) held det miljøstyrte oppslaget for kva Named Credential Apex skal bruke. Verdien er data, ikkje metadata, og blir difor ikkje overskriven av ein vanleg deploy.
-- Permission Set `P360_RPC_Callout_Access` gir tilgang til Custom Setting og `P360_RpcClient`. External Credential Principal-tilgang må leggjast til manuelt i kvart target-org etter at Named Credential/External Credential er oppretta der.
-- Permission Set Group `P360_Integration_User` samlar `P360_RPC_Callout_Access`, `P360_Archive_Job_Processing` og `P360_Code_Table_Access`. Tildeling av gruppa til ein brukar er data og blir gjort separat per miljø (prod/sit2), slik at eit vanleg deploy ikkje overskriv kven som har integrasjonstilgang.
-
-### Mock-modus for scratch orgar og sandkasser
-
-`P360_Integration_Setting__c.Use_Mock_Transport__c` er ein eksplisitt org-innstilling for miljø utan live P360-integrasjon. Når han er `true`, vel `P360_AdapterFactory` `P360_StubArchiveAdapter`, slik at arkiveringsflyten kan køyrast ende-til-ende lokalt utan callout. Standardverdien er `false`; det finst ingen skjult fallback til mock dersom ekte transport feilar. Produksjonsmiljø skal la feltet vere `false`.
-
-### Draftforslag til P360-teamet (`#1017`)
-
-Kjelde: Salesforce Help stadfestar at "extensible, customizable" Named Credentials (introdusert Winter '23) er den sterkt anbefalte tilnærminga, og at gamle ("legacy") Named Credentials ikkje lenger blir oppdaterte. Forslag til P360-teamet bør difor be om:
-
-1. Kva autentiseringsprotokoll P360 sitt RPC-endepunkt støttar (OAuth 2.0 Client Credentials føretrekt om tilgjengeleg, elles API-nøkkel/sertifikat via ekstern legitimasjon).
-2. Test- og produksjonsendepunkt-URL-ar.
-3. Nøyaktige operasjonsnamn/kontraktar for kvar av dei fire arkivhendingane.
-4. Feilkodemodell (for `#1015`/`#1016`s retryklassifisering og mapping).
-
-Dette bør implementerast som ein _external credential + named credential_ (ikkje legacy named credential) når kontrakten er stadfesta.
-
-## Vidare arbeid
-
-Rekkjefølgja bør vere:
-
-1. Vel og implementer ekstern filopplasting mot P360.
-2. Kople `DecisionDocument`-jobboppretting til komplettheitsvalidering i tillegg til release-signalet.
-3. Kople `AgreementDocument`-jobboppretting til relevant domenehending.
-4. Konfigurer org-schedule og endeleg jobbtriggering for `P360_ArchiveJobScheduler`.
-5. Implementer manuell oppfølging og produksjonsstatusfelt som framleis manglar.
-6. Stadfest SIF-kontrakt, mapping, auth og miljøoppsett.
-7. Implementer adapter/RPC-transport og integrasjonstest mot P360-testmiljø.
-
-## Relaterte dokument
-
-- [P360 datamodell og arkiveringsjobb](../../architecture/p360-data-model-og-arkiveringsjob.md)
-- [SIF API-kontraktar](sif-api-kontrakter.md)
-- [SIF RPC-kontraktsoppslag](sif-rpc-kontrakt-oppslag.md)
-- [Dependency injection og adapterval](di-og-adapterval.md)
-- [Lokal implementasjonsstatus mot Jira](../../context/p360/lokal-implementasjonsstatus.md)
+1. Hald flagget av som normaltilstand.
+2. #1092 er fullført i godkjend scratch/sandbox; ved framtidig re-validering skal feature-flagget setjast tilbake til `false` etter testen.
+3. Lukk eksterne kontrakt- og mappingavgjerder og implementer dei avtalte flytane med focused tests.
+4. Valider scheduler, worker, retry, logging, tilgang og recovery i godkjend ikkje-produksjonsmiljø.
+5. Skaff eksplisitt eigar-/sikkerheits-/driftsgodkjenning før separat produksjonsdeploy eller aktivering via #1093.

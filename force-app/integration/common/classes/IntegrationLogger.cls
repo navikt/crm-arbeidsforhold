@@ -1,72 +1,82 @@
 /**
- * Builds a structured, redacted technical log entry for an integration flow and persists it via
- * the shared `LoggerUtility` / `Application_Event__e` pipeline, matching the Jira-named
- * `IntegrationLogger` helper (CRMAAREG-131). Complements `IntegrationLogContext`, which only
- * holds the technical fields.
+ * Persists bounded technical integration failure context through the shared log pipeline.
  *
  * @author Kenneth Sørensen
- * @since 2026-09 issue 1021
+ * @since 2026-10
  * @group Integration Common
  */
 public with sharing class IntegrationLogger {
-    /**
-     * Builds the redacted, structured log payload without persisting it.
-     *
-     * Exposed separately from {@link #log} so the payload can be verified in tests without
-     * depending on the platform-event pipeline.
-     *
-     * @param context Technical log context for the integration flow.
-     * @param additionalFields Optional operation-specific fields; sensitive values are redacted.
-     * @return Map<String, Object> The structured, redacted log payload.
-     * @since 2026-09
-     */
-    public static Map<String, Object> buildLogPayload(
-        IntegrationLogContext context,
-        Map<String, Object> additionalFields
-    ) {
-        Map<String, Object> payload = new Map<String, Object>{
-            'systemName' => context.systemName,
-            'operationName' => context.operationName,
-            'correlationId' => context.correlationId,
-            'status' => context.status
-        };
+    private static final String SAFE_LABEL_PATTERN = '^[A-Za-z][A-Za-z0-9_.-]{0,63}$';
+    private static final String SAFE_CORRELATION_PATTERN = '^[A-Fa-f0-9]{32}$';
+    private static final List<String> SENSITIVE_LABEL_FRAGMENTS = new List<String>{
+        'token',
+        'secret',
+        'password',
+        'authorization',
+        'cookie',
+        'fnr',
+        'ssn',
+        'personnummer'
+    };
 
-        if (additionalFields != null) {
-            payload.putAll(IntegrationLogRedactor.redactFields(additionalFields));
+    /**
+     * Persists only the four technical fields in the context; payloads and exception text are not accepted.
+     *
+     * @param context Technical context with non-sensitive labels and an opaque correlation id. Arbitrary payload data is not supported.
+     * @example {@code
+     * IntegrationLogContext context = new IntegrationLogContext('P360', 'CreateDocument', 'Failed');
+     * IntegrationLogger.logFailure(context);
+     * }
+     * @since 2026-10
+     */
+    public static void logFailure(IntegrationLogContext context) {
+        if (context == null) {
+            return;
         }
 
-        return payload;
-    }
+        String systemName = normalizeLabel(context.systemName, 'Integration');
+        String operationName = normalizeLabel(context.operationName, 'UnknownOperation');
+        String status = normalizeLabel(context.status, 'Unknown');
+        String correlationId = normalizeCorrelationId(context.correlationId);
 
-    /**
-     * Persists one structured, redacted log entry as an Application_Log__c, using the existing
-     * `LoggerUtility` / `Application_Event__e` platform-event pipeline shared across the org.
-     *
-     * Uses the existing `CRM_ApplicationDomain.Domain.AAREG` value because no P360-specific
-     * application domain is defined in the shared, package-owned value set.
-     *
-     * @param context Technical log context for the integration flow.
-     * @param additionalFields Optional operation-specific fields; sensitive values are redacted.
-     * @param logLevel Severity used by the shared `LoggerUtility` pipeline.
-     * @since 2026-09
-     */
-    public static void log(
-        IntegrationLogContext context,
-        Map<String, Object> additionalFields,
-        LoggerUtility.LogLevel logLevel
-    ) {
-        Map<String, Object> payload = buildLogPayload(context, additionalFields);
+        Map<String, Object> payload = new Map<String, Object>{
+            'systemName' => systemName,
+            'operationName' => operationName,
+            'correlationId' => correlationId,
+            'status' => status
+        };
 
-        LoggerUtility logger = new LoggerUtility(context.systemName);
+        LoggerUtility logger = new LoggerUtility(systemName);
         logger.logMessage(
-            logLevel,
+            LoggerUtility.LogLevel.ERROR,
             null,
-            context.operationName,
-            context.operationName + ': ' + context.status,
+            operationName,
+            operationName + ': ' + status,
             JSON.serialize(payload),
             null,
             CRM_ApplicationDomain.Domain.AAREG
         );
         logger.publish();
+    }
+
+    private static String normalizeLabel(String value, String fallback) {
+        if (value == null || !Pattern.compile(SAFE_LABEL_PATTERN).matcher(value).matches()) {
+            return fallback;
+        }
+
+        String normalizedValue = value.toLowerCase();
+        for (String sensitiveFragment : SENSITIVE_LABEL_FRAGMENTS) {
+            if (normalizedValue.contains(sensitiveFragment)) {
+                return fallback;
+            }
+        }
+
+        return value;
+    }
+
+    private static String normalizeCorrelationId(String value) {
+        return value != null && Pattern.compile(SAFE_CORRELATION_PATTERN).matcher(value).matches()
+            ? value
+            : '[REDACTED]';
     }
 }

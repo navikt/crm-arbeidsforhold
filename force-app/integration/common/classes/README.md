@@ -9,6 +9,7 @@ Klassane her skal kunne brukast på tvers av integrasjonar utan å kjenne til P3
 ```text
 CorrelationContext.cls
 IntegrationLogContext.cls
+IntegrationLogger.cls
 IntegrationException.cls
 ConfigurationException.cls
 TransportException.cls
@@ -52,6 +53,14 @@ Held strukturert loggkontekst for integrasjonsflyt.
 Kan innehalde tekniske felt som operasjon, system, correlation ID og status.
 
 Skal ikkje innehalde dokumentinnhald eller sensitiv informasjon.
+
+### IntegrationLogger
+
+Persisterer ein `IntegrationLogContext` gjennom den etablerte `LoggerUtility`-pipen.
+
+Loggeren tek ikkje imot vilkårlege maps, request-/response-DTO-ar, dokumentinnhald eller exception-meldingar. Han lagrar berre systemnamn, operasjonsnamn, status og ein gyldig, opaque 32-teikns correlation-ID. Ugyldige labels og correlation-ID-ar blir erstatta med trygge fallback-verdiar.
+
+Ikkje legg til payload-felt eller produksjonskallarar utan separat security-/privacy-review og fokuserte testar.
 
 ### IntegrationException
 

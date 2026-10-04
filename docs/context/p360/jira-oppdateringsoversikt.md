@@ -1,39 +1,84 @@
-# Jira-oppdateringsoversikt for P360
+---
+title: Jira update proposal for P360
+updated: 2026-10-04
+status: proposal-not-applied
+---
 
-Oppdatert 2026-09-14. Dette er ein Jira-klar statuspakke basert på verifisert kode, metadata og scratch-org testar. Statusane skil mellom intern teknisk slice og full ende-til-ende leveranse.
+# Jira update proposal for P360
 
-## Klar for Jira-statusoppdatering
+This is a proposed Jira update set based on the merged `main` tree, PR #1094, and post-merge scratch evidence. **Jira has not been changed by this document.** Jira remains authoritative for status, ownership, priority, and estimates. The last repository Jira snapshot is from 2026-09-13 and must not be treated as current state.
 
-| Jira/tema                     | Føreslått status            | Jira-kommentar/evidens                                                                                                                                                                                                                                                                                                                     |
-| ----------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| CRMAAREG-89 / F2              | Ferdig                      | Intern grunnmur er implementert: interfaces, adaptergrense, RPC-grense, orchestrator-validering og mock-kompatibel request/response-kopling. Application- og Agreement-domain context er typed og schema-safe på verifiserte record-ID-ar. Testar: orchestrator 3/3, domain 4/4. Ekte transport og full mapping er ikkje del av F2-slicen. |
-| CRMAAREG-143 / K1             | Ferdig intern slice         | `P360_Code_Table_Value__mdt` og 10 ikkje-sensitive standardrecordar er deploya. `P360_Code_Table_Access` er lagt i `P360_Integration_User`. Deploy `0AfQI00000jLALp0AO`, lookup-test 2/2. Konkrete Salesforce-feltmappingar utover `Default`-profilen ligg i #1016.                                                                        |
-| CRMAAREG-155 / K2             | Ferdig intern slice         | `P360_ICodeTableService`, `P360_CodeTableMetadataService`, per-transaksjon-cache og kontrollert missing-mapping-feil er implementert. Treff og manglande mapping er testa. Jira-namna må harmoniserast med `P360_`-standarden, jf. #994.                                                                                                   |
-| CRMAAREG-163 / K3 / #996      | Avgjort / klar for lukking  | Constructor injection er valt. `P360_AdapterFactory` er composition root; ingen service locator skal byggjast. Dette er dokumentert i `docs/integrations/p360/di-og-adapterval.md` og verifisert av factory-testar.                                                                                                                        |
-| #993 / F5 + R2 retry-grunnmur | Intern avgjerd implementert | `isRetryable`/`withRetryable(Boolean)` og `P360_RetryableException` er implementert og testa. R2 claim/lease/worker/statusklassifisering er implementert mot stub med 8/8 testar grøne. P360-spesifikke feilkodar og duplicate-semantikk står framleis opne mot P360.                                                                      |
-| CRMAAREG-129 / F6             | Intern logging-slice ferdig | Redaksjon, correlation-ID og `Application_Log__c`-persistens via `LoggerUtility` er verifisert. HTTP-transportpropagering står open.                                                                                                                                                                                                       |
-| CRMAAREG-115 / F4             | Delvis, mock-slices ferdige | CreateCase-, søknadsdokument-, vedtaksdokument- og file-parameter-mapper er implementert med godkjende standardverdiar. Live transport, ContentVersion-henting og komplett Salesforce-feltmapping manglar.                                                                                                                                 |
-| X1 / CRMAAREG-255             | Intern lagring ferdig       | Eksisterande Text-felt for case-, document- og file-ID-ar er dokumentert som lagringsmodell. Endeleg P360-format/eigarskap må stadfestast før ekstern recovery.                                                                                                                                                                            |
+Do not update Confluence/Jira mirror files manually. After Jira changes are accepted, export them again and refresh files marked `speilkopi: ja`.
 
-## Skal framleis stå opne
+## Verified evidence
 
-| Sak      | Kvifor open                                                                                                                                        |
-| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| #1016    | Standardkodeverk er lagt inn, men full Salesforce-feltmapping, obligatoriske felt, kondisjonelle verdiar og personvernvurdering er ikkje komplett. |
-| #1017    | Mock-modus gjer utvikling mogleg. Live Named Credential/External Credential og ekte RPC-verifisering er ikkje aktivert i repoet.                   |
-| #1018    | Mock-filer kan leggjast i CreateDocument-payload, men ContentVersion, storleik, upload-endpoint og cleanup/retry er ikkje implementert.            |
-| #1015    | Intern retry/backoff/lease er implementert. P360 duplicate-, timeout-, feilkode- og recovery-semantikk er ikkje endeleg verifisert.                |
-| F7       | TestDataFactory/stubbar finst, men Jira sine fire Fake-serviceklassar manglar produksjonsinterfaces å implementere.                                |
-| O2/D2/T2 | Scheduler, drift/runbook og ekte integrasjonstest krev endeleg transport- og driftsavklaring.                                                      |
+- PR #1094 merged to `main` as `05f7d2985b04850ac44c00a43434a3f64abbd361`.
+- PR #1097 merged the bounded logger and completion documentation to `main` as `3e126df44420491616f93a4eb9787ee6e04db897`; GitHub task #1096 is closed.
+- PR #1102 merged the bounded worker-failure logger caller to `main` as `590828b8b8ab47cedea6290cf4a087b57a0fdfb2`; its focused worker suite passed 6/6 (`707QI00001IeSQt`) and all PR CI checks passed.
+- The merged code defaults `Feature_Flag__mdt.P360_Archive_Processing` to false and keeps release permission and mock transport separate.
+- Post-merge P360 regression suite after PR #1097: 90/90 passed, run `707QI00001IdqiI`.
+- Logger, context, and redactor tests after PR #1097: 6/6 passed, run `707QI00001IdNeK`.
+- Scratch org flag query: `Is_Enabled__c=false`, `Required_Custom_Permission__c=null`.
+- PR CI passed metadata compilation, Apex tests, and code coverage.
+- Post-merge mock smoke passed and #1092 is closed. It created two successful jobs, completed the worker without errors, found no duplicate keys, made no live call, and verified cleanup back to the default-off state.
+- Mainline integration epic #1089 is closed as complete; production activation remains separate in #1093.
+- `IntegrationLogger.logFailure(IntegrationLogContext)` is in `main` after PR #1097; GitHub task #1096 is closed. PR #1102 wires one caller for controlled archive-worker failures using only fixed technical fields. Do not mark F6 complete until live transport correlation and end-to-end log behavior are verified.
 
-## Lukking
+## Jira changes to make first
 
-Repoet kan ikkje lukke Jira/GitHub-saker automatisk frå denne fila. For saker merkte «klar for lukking» bør Jira-eigar oppdatere status etter å ha kontrollert evidenslenkene. Saker med ekstern avhengigheit skal ikkje lukkast berre fordi mock-slicen er grøn.
+| Jira item           | Proposed Jira action                                                                                                      | Evidence / boundary                                                                                                    |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| CRMAAREG-84 / F1    | Confirm `Ferdig`.                                                                                                         | Naming/architecture baseline exists.                                                                                   |
+| CRMAAREG-89 / F2    | Confirm `Ferdig`, with an explicit note that the transport/orchestration stops at unresolved contracts.                   | DTO, adapter, domain, and mock boundaries are in `main`; not live interoperability.                                    |
+| CRMAAREG-101 / F3   | Keep `Under arbeid`; list remaining DTO/domain contexts and approved operation scope.                                     | DTO foundations exist; not all use cases or update operations are composed.                                            |
+| CRMAAREG-115 / F4   | Keep `Under arbeid`; split mock mapper coverage from approved production mapping.                                         | Case/document/file parameter mapper foundations exist; full field mapping and live use are blocked by #1016/#1018.     |
+| CRMAAREG-121 / F5   | Keep open until the Jira exception list is reconciled with implemented hierarchy and retryability.                        | Classes and tests exist; #993 tracks the contract/text decision.                                                       |
+| CRMAAREG-129 / F6   | Keep `Under arbeid`; record one worker-failure logger caller; keep live correlation open.                                 | #1097 adds the logger; #1102 adds the worker caller. Live correlation remains unverified.                              |
+| CRMAAREG-135 / F7   | Keep `Under arbeid`; record the test factory/builders that exist and the remaining reusable fake/service requirements.    | P360 test factory, stub adapter, and test RPC client exist; not every Jira-named fake is present.                      |
+| CRMAAREG-143 / K1   | Propose `Ferdig` for the metadata schema and standard records; link #1016 for domain-specific values.                     | Custom Metadata type, fields, access, and standard profile are in `main`.                                              |
+| CRMAAREG-155 / K2   | Propose `Ferdig` for the metadata lookup service; keep concrete domain mappings under #1016.                              | `P360_ICodeTableService` and `P360_CodeTableMetadataService` exist and are tested.                                     |
+| CRMAAREG-163 / K3   | Mark resolved through constructor injection and `P360_AdapterFactory`; remove any work to build a service locator.        | GitHub #996 is closed; update Jira wording, not the implementation.                                                    |
+| CRMAAREG-169 / K4   | Verify and propose `Ferdig` for approved non-sensitive default records only.                                              | Keep any unapproved case/document values out of Jira as accepted values; link #1016.                                   |
+| CRMAAREG-175 / K5   | Keep backlog/future; document that RPC code-table lookup is not MVP unless the external contract requires it.             | Depends on #1017 and an approved need.                                                                                 |
+| CRMAAREG-181 / S1   | Keep open/blocked pending endpoint and authentication decisions.                                                          | Configuration scaffolding is not a Named/External Credential or a live auth implementation; #1017.                     |
+| CRMAAREG-188 / S2   | Keep `Under arbeid`; record permission-set design separately from production assignment and audit approval.               | Permission sets/group are metadata; production assignment is a separate controlled action.                             |
+| CRMAAREG-195 / C1   | Keep open until product/P360 owners approve case lifecycle, trigger event, and required data.                             | Needed before automatic ApplicationDocument/Case orchestration.                                                        |
+| CRMAAREG-200 / C2   | Keep `Under arbeid` only for the tested mock mapping slice; do not call it a completed live CreateCase flow.              | Full mapping and RPC remain blocked by #1016/#1017.                                                                    |
+| CRMAAREG-208 / C3   | Keep backlog until case-update semantics and triggers are approved.                                                       | No live update flow is implemented.                                                                                    |
+| CRMAAREG-216 / J1   | Keep open until journalpost/business metadata rules are approved.                                                         | Required before committing final document mapping.                                                                     |
+| CRMAAREG-221 / J2   | Keep `Under arbeid` for internal/mock CreateDocument mapping only; clarify whether it covers journalpost creation.        | No approved live mapping or transport.                                                                                 |
+| CRMAAREG-229 / J3   | Keep backlog until update-document contract and use case are approved.                                                    | No live metadata update flow.                                                                                          |
+| CRMAAREG-237 / FLS1 | Keep open and blocked on file ownership/size/upload decisions.                                                            | #1018.                                                                                                                 |
+| CRMAAREG-242 / FLS2 | Keep `Under arbeid` only for file parameter/mock payload mapping; state that upload is absent.                            | #1018 blocks ContentVersion retrieval, limits, endpoint, cleanup, and live upload.                                     |
+| CRMAAREG-250 / FLS3 | Keep later-phase backlog unless approved file sizes require it for MVP.                                                   | Do not select an endpoint in advance.                                                                                  |
+| CRMAAREG-255 / X1   | Split “fields exist” from the external ID format/ownership decision; keep the latter open under #1016/#1015.              | P360 reference fields exist; interoperability and ownership are not fully approved.                                    |
+| CRMAAREG-261 / X2   | Keep open until lookup semantics, sharing, and uniqueness are approved.                                                   | Stored fields are not a tested external-ID recovery lookup.                                                            |
+| CRMAAREG-266 / X3   | Keep future backlog; make recovery lookup dependent on #1015 and the confirmed SIF operation.                             | Do not implement guessed `GetEntitiesExternalIds` behavior.                                                            |
+| CRMAAREG-268 / R1   | Keep `Under arbeid`; mark Salesforce-side internal job idempotency as delivered, external duplicate semantics as open.    | Four internal job keys/services exist; #1015 remains external-owner blocker.                                           |
+| CRMAAREG-274 / R2   | Keep `Under arbeid`; mark lease/claim/worker/backoff as implemented against stub, with live failure/recovery policy open. | P360 suite covers internal worker behavior; #1015/#1017 still block external semantics.                                |
+| CRMAAREG-284 / O1   | Keep `Under arbeid`; record worker-failure logs; keep operations and transport readiness open.                            | #1102 adds bounded worker logs. Live transport correlation and monitoring are unverified.                              |
+| CRMAAREG-290 / O2   | Keep backlog until monitoring, alert thresholds, owners, and runbook source are approved.                                 | Coordinate ownership through GitHub #997; Confluence remains operational source.                                       |
+| CRMAAREG-296 / T1   | Update evidence for #1102; keep `Under arbeid` for missing live tests.                                                    | Worker suite 6/6 (`707QI00001IeSQt`); #1092 mock smoke passed; live SIF verification is blocked.                       |
+| CRMAAREG-303 / T2   | Keep backlog/blocked until an approved non-production P360 environment and contract exist.                                | A mock test is not an integration test against P360.                                                                   |
+| CRMAAREG-310 / D1   | Confirm `Ferdig` for the approved technical baseline only after the updated technical overview is reviewed.               | Link this repo's P360 technical overview and completion roadmap; do not copy runtime claims from the September mirror. |
+| CRMAAREG-315 / D2   | Keep `Under arbeid`; assign one runbook owner and define handover/support content.                                        | GitHub #997 tracks the ownership decision.                                                                             |
 
-## Evidens
+## Dependency links to record in Jira
 
-- [Lokal implementasjonsstatus](lokal-implementasjonsstatus.md)
-- [Teknisk oversikt](../../integrations/p360/teknisk-oversikt.md)
-- [F2 validation spec](../../../.github/specs/p360-f2-validation-status.md)
-- [Orchestrator validation spec](../../../.github/specs/p360-orchestrator-validation.md)
-- [User testing guide](../../integrations/p360/user-testing-guide.md)
+Review and add explicit Jira issue links; these are proposed dependencies, not claims that the Jira links already exist:
+
+- Mapping/event scope (#1016 / F4, C1, C2, J1, J2) before live case/document orchestration.
+- RPC endpoint/auth (#1017 / S1) before a real `P360_IRpcClient` call.
+- File MVP decision (#1018 / FLS1) before ContentVersion extraction or upload.
+- External idempotency/recovery (#1015 / X1-X3, R1-R2) before production retry/replay.
+- Exception contract (#993) before final error mapping and Jira acceptance text; naming correction (#994) is Jira text work only.
+- Runbook ownership (#997 / O2, D2, R2) before operational handover.
+- Post-merge mock verification (#1092) and mainline integration epic (#1089) are complete; neither implies production activation approval.
+
+## Jira synchronization checklist
+
+1. Confirm the current Jira issue state, assignee, and acceptance text before changing it; this repository proposal is not a Jira export.
+2. Update the completed and partial stories above without marking mock-only or code-scaffold work as live integration.
+3. Add the missing `issuelinks` and identify one owner for runbook creation/maintenance.
+4. Correct the exception and code-table naming text in Jira (#993/#994), then export Jira again.
+5. Refresh any repository files with `speilkopi: ja` only from the updated Jira/Confluence source.

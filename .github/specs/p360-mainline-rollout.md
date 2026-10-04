@@ -1,6 +1,6 @@
 ---
 slug: p360-mainline-rollout
-status: proposed
+status: completed
 ---
 
 # P360 mainline rollout
@@ -18,9 +18,9 @@ The P360 implementation can be integrated into `main` and validated in a non-pro
 
 ## Rollout stages
 
-1. Implement and validate the gate in `.github/specs/p360-default-off-archive-processing.md` before integrating runtime entry points.
-2. Merge the P360 feature set to `main` with processing disabled. A merge to `main` is not approval to create/release a package or deploy to production.
-3. Deploy and run the focused P360 tests only in an explicitly approved non-production org. Verify both disabled and enabled-with-mock behavior, plus unchanged existing Application and ContentVersion behavior while disabled.
+1. **Complete:** Implement and validate the gate in `.github/specs/p360-default-off-archive-processing.md` before integrating runtime entry points.
+2. **Complete:** Merge the P360 feature set to `main` with processing disabled. A merge to `main` is not approval to create/release a package or deploy to production.
+3. **Complete:** Repeat deployment and focused P360 verification after the merge in the approved default scratch org. The P360 suite passed and the enabled-with-mock smoke verified ApplicationDocument and ApplicationAttachment jobs without a live callout; #1092 records the evidence and cleanup.
 4. Keep production activation blocked until the external P360/SIF contract, endpoint, authentication, permissions, mapping, duplicate behavior, and retry/recovery policy are confirmed and reviewed by the responsible owners.
 5. Treat production deployment and enabling the setting as separate, explicitly approved actions with a rollback/disable procedure.
 
@@ -30,6 +30,7 @@ The P360 implementation can be integrated into `main` and validated in a non-pro
 - CI compiles all included metadata and runs focused P360 and existing regression tests.
 - With the feature flag absent or disabled in the validation org, normal application DML is unchanged and no P360 archive job is created or processed.
 - With the feature flag explicitly enabled and mock transport selected in non-production, the focused P360 archive flow tests pass without a live P360 callout.
+- Post-merge disabled-path tests and enabled-with-mock smoke evidence are recorded in #1092. The flag is reset to false and temporary mock configuration/permissions/test records were cleaned up.
 - No production deploy, package release, permission assignment, or setting activation is performed by this work item.
 - Production activation remains blocked by open external contract work, including issue #1017, until its acceptance criteria and related mapping/retry decisions are complete.
 
