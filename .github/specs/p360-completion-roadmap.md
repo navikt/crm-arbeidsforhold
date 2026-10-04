@@ -25,7 +25,7 @@ Implemented in `main` and covered by CI:
 Still to verify or complete:
 
 - Repeat disabled and mock-enabled runtime validation after merge; issue #1092 is open.
-- Complete review and merge of the bounded shared logger slice in #1096; its implementation is local and has no production callers yet.
+- The bounded shared logger from #1096 is merged by PR #1097. It has no production callers yet; wire it into approved flows only after reviewing each caller's technical-field allowlist and privacy boundary.
 - Replace the current unresolved SIF transport boundary with an approved live contract only after external decisions are recorded.
 - Complete the agreed Salesforce-to-SIF mappings, file strategy, duplicate/recovery semantics, operations ownership, and end-to-end evidence.
 - Refresh repo-owned technical status documents and prepare Jira updates. Jira remains the authority for Jira status; mirrored Jira/Confluence exports must not be edited as substitutes for the source.
