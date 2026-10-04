@@ -41,7 +41,7 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
         }
 
         List<P360_Archive_Job__c> jobs = [
-            SELECT Id, Idempotency_Key__c, Attempt_Count__c
+            SELECT Id, Idempotency_Key__c, Attempt_Count__c, Correlation_Id__c
             FROM P360_Archive_Job__c
             WHERE Id IN :jobIds
         ];
@@ -92,7 +92,17 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
             adapter.archive(request);
             return new P360_Archive_Job__c(Id = job.Id, Status__c = 'Succeeded');
         } catch (P360_IntegrationException error) {
+            logFailureSafely(job);
             return classifyFailure(job, error);
+        }
+    }
+
+    private void logFailureSafely(P360_Archive_Job__c job) {
+        try {
+            IntegrationLogger.logFailure(
+                new IntegrationLogContext('P360', 'ArchiveJob', 'Failed').withCorrelationId(job.Correlation_Id__c)
+            );
+        } catch (Exception ignored) {
         }
     }
 
