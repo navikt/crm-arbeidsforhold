@@ -46,6 +46,39 @@ private class P360_ArchiveJobWorkerTest {
     }
 
     /**
+     * Verifies that an unsuccessful adapter response cannot mark an archive job Succeeded.
+     *
+     * @since 2026-10
+     */
+    @IsTest
+    static void unsuccessfulAdapterResponseMovesJobToManualReview() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+        User processingUser = createProcessingUser();
+
+        System.runAs(processingUser) {
+            Id jobId = claimedJobId('correlation-worker-unsuccessful-response');
+            P360_ArchiveJobWorker worker = new P360_ArchiveJobWorker(new Set<Id>{ jobId });
+            worker.adapter = new UnsuccessfulArchiveAdapter();
+
+            System.Test.startTest();
+            worker.execute(null);
+            System.Test.stopTest();
+
+            P360_Archive_Job__c job = [
+                SELECT Status__c, Last_Error_Code__c, Last_Error_Message__c, Next_Attempt_Date__c
+                FROM P360_Archive_Job__c
+                WHERE Id = :jobId
+                LIMIT 1
+            ];
+            System.Assert.areEqual('Manual Review', job.Status__c);
+            System.Assert.areEqual('P360_ContractException', job.Last_Error_Code__c);
+            System.Assert.areEqual('P360 adapter did not confirm a successful archive.', job.Last_Error_Message__c);
+            System.Assert.isNull(job.Next_Attempt_Date__c);
+            System.Assert.isFalse(job.Last_Error_Message__c.contains('untrusted response detail'));
+        }
+    }
+
+    /**
      * Verifies that a worker failure persists bounded technical log context without the exception message.
      *
      * @since 2026-10
@@ -315,6 +348,18 @@ private class P360_ArchiveJobWorkerTest {
         );
         List<Id> claimedIds = P360_ArchiveJobClaimService.claimNextBatch(1);
         return claimedIds[0];
+    }
+
+    /**
+     * Returns a controlled unsuccessful response containing detail the worker must not trust.
+     */
+    private class UnsuccessfulArchiveAdapter implements P360_IArchiveAdapter {
+        public P360_ArchiveResponseDto archive(P360_ArchiveRequestDto request) {
+            P360_ArchiveResponseDto response = new P360_ArchiveResponseDto();
+            response.success = false;
+            response.message = 'untrusted response detail';
+            return response;
+        }
     }
 
     private static User createProcessingUser() {
