@@ -46,6 +46,43 @@ private class P360_ArchiveJobWorkerTest {
     }
 
     /**
+     * Verifies that a worker failure persists bounded technical log context without the exception message.
+     *
+     * @since 2026-10
+     */
+    @IsTest
+    static void failurePersistsOnlyBoundedTechnicalLog() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+        User processingUser = createProcessingUser();
+        String correlationId = '0123456789abcdef0123456789abcdef';
+
+        System.runAs(processingUser) {
+            Id jobId = claimedJobId(correlationId);
+
+            System.Test.startTest();
+            new P360_ArchiveJobWorker(new Set<Id>{ jobId }).execute(null);
+            System.Test.stopTest();
+        }
+
+        Application_Log__c savedLog = [
+            SELECT Category__c, Log_Message__c, Pay_Load__c
+            FROM Application_Log__c
+            WHERE Category__c = 'P360'
+            ORDER BY CreatedDate DESC
+            LIMIT 1
+        ];
+        Map<String, Object> payload = (Map<String, Object>) JSON.deserializeUntyped(savedLog.Pay_Load__c);
+
+        System.Assert.areEqual('P360', payload.get('systemName'));
+        System.Assert.areEqual('ArchiveJob', payload.get('operationName'));
+        System.Assert.areEqual('Failed', payload.get('status'));
+        System.Assert.areEqual(correlationId, payload.get('correlationId'));
+        System.Assert.areEqual(4, payload.size());
+        System.Assert.isFalse(savedLog.Log_Message__c.contains('not implemented yet'));
+        System.Assert.isFalse(savedLog.Pay_Load__c.contains('not implemented yet'));
+    }
+
+    /**
      * Verifies that a retryable adapter failure schedules the next attempt using the documented backoff.
      *
      * @since 2026-09
