@@ -89,7 +89,10 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
         request.externalId = job.Idempotency_Key__c;
 
         try {
-            adapter.archive(request);
+            P360_ArchiveResponseDto response = adapter.archive(request);
+            if (response == null || response.success != true) {
+                throw new P360_ContractException('P360 adapter did not confirm a successful archive.');
+            }
             return new P360_Archive_Job__c(Id = job.Id, Status__c = 'Succeeded');
         } catch (P360_IntegrationException error) {
             P360_Archive_Job__c failure = classifyFailure(job, error);
