@@ -1,12 +1,12 @@
 ---
 tittel: P360 datamodell og asynkron arkiveringsjobb
 status: delvis implementert
-dato: 2026-09-12
+dato: 2026-10-04
 ---
 
 # P360 datamodell og asynkron arkiveringsjobb
 
-**Beslutningsstatus:** Datamodell, frigivingsvern, idempotensnøklar, jobboppretting, lease/claim, schedulable dispatch og worker-statusklassifisering er implementerte og testa. Org-schedule, ekstern filopplasting og endeleg teamgodkjenning står att.
+**Beslutningsstatus:** Datamodell, fail-closed prosesseringsgate, frigivingsvern, idempotensnøklar, jobbservice, lease/claim, schedulable dispatch og worker-statusklassifisering er implementerte og testa. SIF-kontrakt, endeleg event-/mappingomfang, org-schedule og live transport står att.
 
 **Implementeringsføresetnad:** Vidare implementering startar før teamet har landa alle vala. Dette er ein medviten risiko fordi modellen kan måtte justerast etter teamavklaring. Større endringar skal handterast som ein eksplisitt endringsbeslutning med oppdatert dokumentasjon, migreringsvurdering og relevante regresjonstestar.
 
@@ -16,7 +16,7 @@ Dette dokumentet fastset datamodellen for P360-arkivering i Salesforce. Modellen
 
 ## Implementeringsstatus
 
-Implementert og org-validert:
+Implementert og CI-/scratch-verifisert:
 
 - `P360_Archive_Job__c` med status-, korrelasjons-, idempotens-, retry- og leasefelt
 - P360 case-, dokument- og filreferansar på domeneobjekta
@@ -24,16 +24,22 @@ Implementert og org-validert:
 - MyTriggers-basert frigivingsvern og låsing etter frigiving
 - `P360_Archive_Release` og `P360_Archive_Job_Processing`
 - deterministiske idempotensnøklar for fire arkivhendingar
-- idempotent oppretting av `ApplicationDocument`- og `ApplicationAttachment`-jobbar med status `Pending`
-- `ContentVersion`-after-insert kopling til `ApplicationAttachment`-jobb når fila blir publisert direkte på `Application__c`
+- idempotent jobbservice for `ApplicationDocument`, `ApplicationAttachment`, `DecisionDocument` og `AgreementDocument`
+- automatisk `ContentVersion`-after-insert kopling til `ApplicationAttachment`-jobb for filer publiserte direkte på `Application__c`, når prosesseringsflagget er på
+- automatisk `DecisionDocument`-jobb etter autorisert frigiving av vedtak, når prosesseringsflagget er på
+- fail-closed `P360_Archive_Processing`-gate rundt P360-spesifikk DML, jobboppretting, claims, scheduler og worker; metadata-defaulten er av
+- schedulable dispatcher og worker som kan køyrast eksplisitt; det finst ikkje ein aktiv org-schedule
 
-Planlagt, men ikkje implementert:
+Ikkje ferdig eller ikkje avgjort:
 
 - komplettheitsvalidering av vedtak før frigiving
-- automatisk triggering av `DecisionDocument`- og `AgreementDocument`-jobb
-- org-schedule, automatisk triggering, manuell frigiving og endelege produksjonsstatusar
+- godkjend forretningshending for automatisk `ApplicationDocument`-jobb
+- om `AgreementDocument` høyrer til MVP, og eventuell automatisk utløyser
+- org-schedule, frekvens, overlapp og driftsansvar
+- ekstern duplicate-/idempotenskontrakt, permanent-feilklassifisering og endeleg recovery-prosess
 - `Succeeded_Date__c` og `Failed_Date__c`
-- P360/SIF-mapping, transport og autentisering
+- godkjend P360/SIF-feltmapping, live transport, Named Credential og autentisering
+- ContentVersion-storleik, filopplasting, cleanup og delvis-feil-handtering
 
 Sjå [teknisk oversikt](../integrations/p360/teknisk-oversikt.md) for diagram og runtime-flyt.
 
@@ -311,9 +317,11 @@ Ved frigiving skal `Attempt_Count__c`, tidlegare feilkode og feilmelding bevaras
 
 ## Arkiveringsreglar
 
+Reglane nedanfor beskriv målsemantikken. Dei er ikkje alle implementerte eller godkjende. I dagens kode opprettar ContentVersion-inngangen `ApplicationAttachment`-jobb, og frigiving av vedtak opprettar `DecisionDocument`-jobb, begge berre når `P360_Archive_Processing` er på. `ApplicationDocument` og `AgreementDocument` har jobbservice, men manglar godkjende automatiske forretningsutløysarar.
+
 - Utkast skal ikkje opprette arkiveringsjobb.
-- Ved innsending skal ein jobb av typen `ApplicationDocument` opprettast.
-- Ved ferdig vedtak skal ein jobb av typen `DecisionDocument` opprettast.
+- Ved innsending kan ein jobb av typen `ApplicationDocument` opprettast når produkteigar har stadfesta nøyaktig innsendingstidspunkt og nødvendige data.
+- Ved frigiving av vedtak blir ein jobb av typen `DecisionDocument` oppretta i implementasjonen når gate og brukarrett er på plass.
 - `DecisionDocument` skal berre opprettast når `Application_Decision__c.Ready_For_P360_Archive__c = true`.
 - `Ready_For_P360_Archive__c` skal vere eit eingongssignal. Når feltet er sett til `true`, kan det ikkje setjast tilbake til `false`.
 - Når signalet er sett til `true`, skal vedtaksdata som inngår i arkiveringa låsast for ordinære endringar. Nye forsøk på å endre vedtaket skal avvisast, også medan arkiveringsjobben står i `Pending`, `In Progress`, `Failed` eller `Manual Review`.
@@ -334,6 +342,8 @@ Ved frigiving skal `Attempt_Count__c`, tidlegare feilkode og feilmelding bevaras
 - Nye P360-referansar skal skrivast både til rett domeneobjekt og jobbresultatet dersom jobbobjektet skal vere søkbart i drift.
 
 ## Frigiving av vedtak til arkivering
+
+Dette er målkrav, ikkje ei fullstendig implementert forretningsvalidering. Koden handhevar i dag custom permission, eingongsignal og låsing av ordinære felt når gate er på, og opprettar deretter jobb. Komplettheitsvalidering, godkjend personvern-/mappinggrunnlag og full audit-prosess må avklarast før live behandling.
 
 Følgjande modell er vald for denne fasen:
 
@@ -360,7 +370,7 @@ Dei skal ikkje brukast som full teknisk jobbstatus. `P360_Archive_Job__c` skal v
 
 ## Implementert rekkjefølgje og vidare migrering
 
-Steg 1–4 er implementerte. Steg 5 er delvis dekt gjennom jobbservicevalidering. Steg 6–10 står att:
+Steg 1–4 er implementerte. Steg 5 er delvis dekt gjennom jobbservicevalidering. Steg 6 er delvis implementert: jobbservice og automatisk inngang finst for vedlegg og frigjevne vedtak, men ikkje alle forretningshendingar. Steg 7–10 krev dataeigar, avklaring og separat migreringsgodkjenning:
 
 1. Opprett `P360_Archive_Job__c` med obligatorisk `Access_Request__c`.
 2. Opprett nye, tydeleg namngjevne P360-felt på dei fire domeneobjekta.
