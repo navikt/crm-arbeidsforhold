@@ -24,7 +24,7 @@ Implemented in `main` and covered by CI:
 
 Still to verify or complete:
 
-- Repeat disabled and mock-enabled runtime validation after merge; issue #1092 is open.
+- Live SIF transport, mapping, external idempotency/recovery, operations ownership, and complete end-to-end evidence remain outstanding.
 - The bounded shared logger from #1096 is merged by PR #1097. It has no production callers yet; wire it into approved flows only after reviewing each caller's technical-field allowlist and privacy boundary.
 - Replace the current unresolved SIF transport boundary with an approved live contract only after external decisions are recorded.
 - Complete the agreed Salesforce-to-SIF mappings, file strategy, duplicate/recovery semantics, operations ownership, and end-to-end evidence.
@@ -53,9 +53,9 @@ Business scope is not assumed by the diagram. The product owner and P360 owner m
 
 ### 1. Establish post-merge baseline
 
-- Run the approved non-production disabled-path verification and mock smoke flow; retain component-level deploy output and test run IDs.
-- Confirm the effective feature flag is false after the test and mock transport cannot select the live adapter during smoke validation.
-- Reconcile the P360 implementation status document and close completed mainline-integration tracking only after the evidence is recorded.
+- **Complete:** Run the post-merge disabled-path suite and approved scratch mock smoke; retain the test run IDs and smoke output in #1092.
+- **Complete:** Confirm the effective feature flag is false after testing, remove the temporary mock setting and permission assignment, and clean up smoke-created records.
+- **Complete:** Close mainline integration tracking #1089 after #1092 passed; keep production activation tracked separately in #1093.
 
 ### 2. Resolve contract and ownership decisions
 
