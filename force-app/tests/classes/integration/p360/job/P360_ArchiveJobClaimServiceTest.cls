@@ -8,6 +8,28 @@
 @IsTest
 private class P360_ArchiveJobClaimServiceTest {
     /**
+     * Verifies that null and non-positive batch sizes do not reach the claim query.
+     *
+     * @since 2026-10
+     */
+    @IsTest
+    static void doesNotClaimJobsForInvalidBatchSize() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+        User processingUser = createProcessingUser();
+
+        System.runAs(processingUser) {
+            List<Integer> invalidBatchSizes = new List<Integer>{ null, 0, -1 };
+
+            for (Integer batchSize : invalidBatchSizes) {
+                System.Assert.isTrue(
+                    P360_ArchiveJobClaimService.claimNextBatch(batchSize).isEmpty(),
+                    'Expected an invalid batch size to claim no jobs.'
+                );
+            }
+        }
+    }
+
+    /**
      * Verifies that a Pending job is claimed into In Progress with a lease and an incremented attempt count.
      *
      * @since 2026-09
