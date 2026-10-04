@@ -67,7 +67,9 @@ Før produksjon må målarkitekturen også ha avtalt retry/duplicate-kontrakt, e
 - PR #1097: Jest/Prettier, metadata compile, Apex tests, coverage, setup og cleanup bestod før merge.
 - P360 Apex suite etter loggerendringen i godkjent scratch-org: 90/90 bestod (test run `707QI00001IdqiI`).
 - Logger, context og redactor etter loggerendringen: 6/6 bestod (test run `707QI00001IdNeK`).
-- Post-merge disabled/mock smoke er framleis open i #1092. Den tidlegare full-deploy-kommandoen med `--ignore-errors` tel ikkje som komponentvis deploy-evidens.
+- Post-merge mock smoke `npm run test:p360:mock` bestod: to jobbar (`ApplicationDocument`, `ApplicationAttachment`) vart `Succeeded` med eitt forsøk, worker vart `Completed` utan feil, ingen duplikatnøklar og ingen live-callout. Evidensen står i #1092.
+- Etter testen er `P360_Archive_Processing=false`, `Use_Mock_Transport__c`-org-default og mellombels permission assignment fjerna, og smoke-data kontrollert sletta.
+- Den tidlegare full-deploy-kommandoen med `--ignore-errors` tel ikkje som komponentvis deploy-evidens.
 
 ## Logging og neste kopling
 
@@ -76,7 +78,7 @@ PR #1097 har mergea `IntegrationLogger.logFailure(IntegrationLogContext)` til `m
 ## Trygg aktiveringsrekkjefølgje
 
 1. Hald flagget av som normaltilstand.
-2. Fullfør #1092 i godkjend scratch/sandbox og kontroller at feature-flagget blir sett tilbake til `false` etter testen.
+2. #1092 er fullført i godkjend scratch/sandbox; ved framtidig re-validering skal feature-flagget setjast tilbake til `false` etter testen.
 3. Lukk eksterne kontrakt- og mappingavgjerder og implementer dei avtalte flytane med focused tests.
 4. Valider scheduler, worker, retry, logging, tilgang og recovery i godkjend ikkje-produksjonsmiljø.
 5. Skaff eksplisitt eigar-/sikkerheits-/driftsgodkjenning før separat produksjonsdeploy eller aktivering via #1093.
