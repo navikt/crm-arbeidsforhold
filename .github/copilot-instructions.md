@@ -15,6 +15,8 @@ use `.github/skills/code-review-two-axis/SKILL.md`.
 
 - Do not invent Salesforce IDs, org URLs, package versions, permission-set assignments, or dependency APIs.
 - Do not expose credentials, package installation keys, personal data, or authentication details in code, logs, prompts, or test fixtures.
+- Use only the default `crm-arbeidsforhold` scratch org for authenticated Salesforce commands. Do not use SIT2, production, DevHub, or another org unless the user explicitly approves it first and the reason is explained.
+- An authenticated org alias is not permission to use that org. Ask before running Apex tests, deployment previews, deployments, retrievals, or metadata commands against any other org.
 - Treat org creation, package installation, deployment, package creation, and package promotion as explicit user actions. Ask before running them against a shared or production org.
 - Do not modify package-owned directories without explicit approval. The repository already contains `.copilot/reference-only.instructions.md` for this boundary.
 
