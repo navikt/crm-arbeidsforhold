@@ -1,8 +1,6 @@
 name: User story
 description: Beskriv eit behov med testbar effekt og akseptansekriterium
 title: "[Story] "
-labels:
-  - user-story
 body:
   - type: markdown
     attributes:
