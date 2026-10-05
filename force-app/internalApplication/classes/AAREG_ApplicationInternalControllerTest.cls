@@ -14,7 +14,7 @@ public class AAREG_ApplicationInternalControllerTest {
      * @since January 2026
      */
     @IsTest
-    static void testGetApplicationDetailsCounty() {
+    static void shouldReturnApplicationDetailsForCounty() {
         // Create a test Account
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
@@ -80,7 +80,7 @@ public class AAREG_ApplicationInternalControllerTest {
      * @since January 2026
      */
     @IsTest
-    static void testGetApplicationDetailsState() {
+    static void shouldReturnApplicationDetailsForState() {
         // Create a test Account
         Account testAccount = AAREG_TestDataFactory.getAccountState();
         insert testAccount;
@@ -120,7 +120,7 @@ public class AAREG_ApplicationInternalControllerTest {
      * @since January 2026
      */
     @IsTest
-    static void testGetApplicationDetailsEL() {
+    static void shouldReturnApplicationDetailsForEl() {
         // Create a test Account
         Account testAccount = AAREG_TestDataFactory.getAccountEL();
         insert testAccount;
@@ -164,7 +164,7 @@ public class AAREG_ApplicationInternalControllerTest {
      * @since January 2026
      */
     @IsTest
-    static void testGetApplicationDetailsPension() {
+    static void shouldReturnApplicationDetailsForPension() {
         // Create a test Account
         Account testAccount = AAREG_TestDataFactory.getAccountPension();
         insert testAccount;
@@ -208,7 +208,7 @@ public class AAREG_ApplicationInternalControllerTest {
      * @since January 2026
      */
     @IsTest
-    static void testGetApplicationDetailsMunicipality() {
+    static void shouldReturnApplicationDetailsForMunicipality() {
         // Create a test Account
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
@@ -252,7 +252,7 @@ public class AAREG_ApplicationInternalControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testGetApplicationDetailsWithOtherOrganizationType() {
+    static void shouldReturnApplicationDetailsForOtherOrganizationType() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
 
@@ -292,7 +292,7 @@ public class AAREG_ApplicationInternalControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testGetApplicationDetailsWithNoRelatedContacts() {
+    static void shouldReturnApplicationDetailsWithoutRelatedContacts() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
 
@@ -318,7 +318,7 @@ public class AAREG_ApplicationInternalControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testApplicationInternalWrapperProperties() {
+    static void shouldSetApplicationInternalWrapperProperties() {
         Date today = Date.today();
         Date deadline = Date.today().addDays(7);
 
@@ -372,7 +372,7 @@ public class AAREG_ApplicationInternalControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testGetApplicationDetailsWithUnknownOrganizationType() {
+    static void shouldReturnApplicationDetailsForUnknownOrganizationType() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
 
@@ -401,7 +401,7 @@ public class AAREG_ApplicationInternalControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testGetApplicationDetailsMunicipalityWithOtherLegalBasis() {
+    static void shouldReturnMunicipalityDetailsWithOtherLegalBasis() {
         Account testAccount = AAREG_TestDataFactory.getAccountCounty();
         insert testAccount;
 
@@ -434,7 +434,7 @@ public class AAREG_ApplicationInternalControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testTranslateOrganizationTypeOther() {
+    static void shouldTranslateOtherOrganizationType() {
         System.assertEquals('Annet', AAREG_ApplicationInternalController.translateOrganizationType('Other'));
     }
 }

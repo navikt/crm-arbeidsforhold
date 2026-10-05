@@ -40,7 +40,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testGetUsersAgreementsSuccess() {
+    static void shouldReturnUsersAgreements() {
         User testUser = [SELECT Id FROM User LIMIT 1];
         Account testAccount = [SELECT Id, INT_OrganizationNumber__c FROM Account LIMIT 1];
 
@@ -66,7 +66,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since June 2026
      */
     @IsTest
-    static void testGetUsersAgreementsInvalidUserId() {
+    static void shouldRejectInvalidUserId() {
         // Call the method with an invalid userId
         System.Test.startTest();
         try {
@@ -146,7 +146,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since June 2026
      */
     @IsTest
-    static void testGetUsersAgreementsWithoutLastUsedOrganization() {
+    static void shouldHandleMissingLastUsedOrganization() {
         User userWithoutOrg;
         System.runAs(new User(Id = UserInfo.getUserId())) {
             userWithoutOrg = AAREG_TestDataFactory.getStandardUser();
@@ -172,7 +172,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since June 2026
      */
     @IsTest
-    static void testGetUsersAgreementsWithUnknownOrganization() {
+    static void shouldHandleUnknownOrganization() {
         User testUser;
         System.runAs(new User(Id = UserInfo.getUserId())) {
             testUser = AAREG_TestDataFactory.getStandardUser();
@@ -198,7 +198,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testSaveAgreementContactsSuccess() {
+    static void shouldSaveAgreementContacts() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
 
         RelatedContact__c contact = new RelatedContact__c(Name = 'Test Contact', Phone__c = '1234567890');
@@ -224,7 +224,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since June 2026
      */
     @IsTest
-    static void testSaveAgreementContactsNullAgreementId() {
+    static void shouldRejectNullAgreementIdWhenSavingContacts() {
         Test.startTest();
         Boolean exceptionThrown = false;
         try {
@@ -246,7 +246,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testSaveAgreementContactsEmptyListEarlyReturn() {
+    static void shouldReturnEarlyForEmptyContactList() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
 
         Test.startTest();
@@ -265,7 +265,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testAddContactToAgreementSuccess() {
+    static void shouldAddContactToAgreement() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
 
         Test.startTest();
@@ -295,7 +295,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testAddContactToAgreementMissingAgreementId() {
+    static void shouldRejectMissingAgreementIdWhenAddingContact() {
         Test.startTest();
         Boolean exceptionThrown = false;
         try {
@@ -314,7 +314,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testAddContactToAgreementMissingName() {
+    static void shouldRejectMissingContactName() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
 
         Test.startTest();
@@ -344,7 +344,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testGetAgreementContactsSuccess() {
+    static void shouldReturnAgreementContacts() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
 
         // Add a contact first
@@ -369,7 +369,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testRemoveContactFromAgreementSuccess() {
+    static void shouldRemoveContactFromAgreement() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
 
         // Add a contact first
@@ -394,7 +394,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testRemoveContactFromAgreementNullId() {
+    static void shouldRejectNullContactIdWhenRemoving() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
 
         Test.startTest();
@@ -415,7 +415,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testEndAgreementSuccess() {
+    static void shouldEndAgreement() {
         Agreement__c agreement = [SELECT Id, Status__c FROM Agreement__c LIMIT 1];
 
         Test.startTest();
@@ -434,7 +434,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testDeleteAgreementContactNullId() {
+    static void shouldRejectNullContactIdWhenDeleting() {
         Test.startTest();
         Boolean exceptionThrown = false;
         try {
@@ -453,7 +453,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testEndAgreementNullId() {
+    static void shouldRejectNullAgreementIdWhenEnding() {
         Test.startTest();
         Boolean exceptionThrown = false;
         try {
@@ -472,7 +472,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since June 2026
      */
     @IsTest
-    static void testEndAgreementNoUpdateAccess() {
+    static void shouldHandleMissingUpdateAccess() {
         // Create a user WITHOUT permission set that grants edit rights to Agreement__c
         User restrictedUser;
         System.runAs(new User(Id = UserInfo.getUserId())) {
@@ -513,7 +513,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testDeleteAgreementContactApplicationBranch() {
+    static void shouldDeleteContactFromApplicationBranch() {
         Agreement__c agreement = [SELECT Id, Application__c FROM Agreement__c LIMIT 1];
         RelatedContact__c contact = new RelatedContact__c(
             Name = 'Keep Contact',
@@ -540,7 +540,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testDeleteAgreementContactDeleteBranch() {
+    static void shouldDeleteContactFromDeletedAgreementBranch() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
         RelatedContact__c contact = new RelatedContact__c(Name = 'Delete Contact', Agreement__c = agreement.Id);
         insert contact;
@@ -558,7 +558,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testForcedAgreementContactErrorBranches() {
+    static void shouldHandleForcedAgreementContactErrors() {
         Agreement__c agreement = [SELECT Id, Application__c FROM Agreement__c LIMIT 1];
         RelatedContact__c contact = new RelatedContact__c(Name = 'Branch Contact', Agreement__c = agreement.Id);
         insert contact;
@@ -703,7 +703,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testGetAgreementContactsQueryExceptionBranches() {
+    static void shouldHandleAgreementContactQueryExceptions() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
 
         Test.startTest();
@@ -731,7 +731,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testRemoveContactFromAgreementApplicationBranch() {
+    static void shouldRemoveContactFromApplicationBranch() {
         Agreement__c agreement = [SELECT Id, Application__c FROM Agreement__c LIMIT 1];
         RelatedContact__c contact = new RelatedContact__c(
             Name = 'Remove Keep',
@@ -763,7 +763,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testGetDecisionPdfNoDocumentsAndNoMatchingAndUnexpected() {
+    static void shouldHandleDecisionPdfWithoutMatchingDocuments() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
         Application__c app = [SELECT Id FROM Application__c LIMIT 1];
 
@@ -821,7 +821,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testGetDecisionPdfNullAgreementId() {
+    static void shouldRejectNullAgreementIdForDecisionPdf() {
         Test.startTest();
         Boolean thrown = false;
         try {
@@ -840,7 +840,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testGetUsersAgreementsForcedExceptionAndMapping() {
+    static void shouldHandleForcedAgreementQueryExceptionAndMapping() {
         Account account = AAREG_TestDataFactory.getAccountCounty();
         insert account;
 
@@ -874,7 +874,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testGetAgreementContactsMissingFieldHookAndTranslateStatus() {
+    static void shouldHandleMissingFieldHookAndTranslateStatus() {
         Agreement__c agreement = [SELECT Id FROM Agreement__c LIMIT 1];
 
         Test.startTest();
@@ -899,7 +899,7 @@ public class AAREG_MyAgreementsControllerTest {
      * @since August 2026
      */
     @IsTest
-    static void testRemoveContactFromAgreementInjectedBranchCoverage() {
+    static void shouldCoverInjectedContactRemovalBranch() {
         Agreement__c agreement = [SELECT Id, Application__c FROM Agreement__c LIMIT 1];
 
         RelatedContact__c withApplication = new RelatedContact__c(

@@ -26,7 +26,7 @@ private class AAREG_ApplicationControllerTest {
      * @since May 2021
      */
     @IsTest
-    private static void testGetAccountNameByOrgNumber() {
+    private static void shouldReturnAccountNameByOrganizationNumber() {
         Account acct = [SELECT Id, INT_OrganizationNumber__c FROM Account LIMIT 1];
 
         System.Test.startTest();
@@ -42,7 +42,7 @@ private class AAREG_ApplicationControllerTest {
      * @since May 2021
      */
     @IsTest
-    private static void testProcessNewApplication() {
+    private static void shouldProcessNewApplication() {
         Account account = [SELECT Id FROM Account LIMIT 1];
 
         Application__c application = new Application__c();
@@ -87,7 +87,7 @@ private class AAREG_ApplicationControllerTest {
      * @since July 2026
      */
     @IsTest
-    private static void testProcessAdditionalInformationApplication() {
+    private static void shouldProcessAdditionalInformationApplication() {
         Account account = [SELECT Id FROM Account LIMIT 1];
 
         Application__c application = new Application__c();
@@ -126,7 +126,7 @@ private class AAREG_ApplicationControllerTest {
      * @since May 2021
      */
     @IsTest
-    private static void testGetLastUsedOrganizationInformation() {
+    private static void shouldReturnLastUsedOrganizationInformation() {
         Profile profile = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
         Account account = [SELECT Id, INT_OrganizationNumber__c FROM Account LIMIT 1];
 
@@ -157,7 +157,7 @@ private class AAREG_ApplicationControllerTest {
      * @since July 2026
      */
     @IsTest
-    private static void testGetDraftApplication() {
+    private static void shouldReturnDraftApplication() {
         Account account = [
             SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
             FROM Account
@@ -194,7 +194,7 @@ private class AAREG_ApplicationControllerTest {
      * @since July 2026
      */
     @IsTest
-    private static void testDeleteDraftRecord() {
+    private static void shouldDeleteDraftRecord() {
         Account account = [
             SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
             FROM Account
@@ -217,7 +217,7 @@ private class AAREG_ApplicationControllerTest {
      * @since July 2026
      */
     @IsTest
-    private static void testSaveAsDraft() {
+    private static void shouldSaveApplicationAsDraft() {
         Account account = [SELECT Id FROM Account LIMIT 1];
 
         Application__c application = new Application__c();
@@ -249,7 +249,7 @@ private class AAREG_ApplicationControllerTest {
      * @since August 2026
      */
     @IsTest
-    private static void testGetDraftApplicationWithAccessRequest() {
+    private static void shouldReturnDraftApplicationWithAccessRequest() {
         Account account = [
             SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
             FROM Account
@@ -278,7 +278,7 @@ private class AAREG_ApplicationControllerTest {
      * @since August 2026
      */
     @IsTest
-    private static void testUpdateExistingApplicationReusesAccessRequest() {
+    private static void shouldReuseAccessRequestWhenUpdatingApplication() {
         Account account = [
             SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
             FROM Account
@@ -329,7 +329,7 @@ private class AAREG_ApplicationControllerTest {
      * @since August 2026
      */
     @IsTest
-    private static void testProcessApplicationForceSanitizeAllowedBranch() {
+    private static void shouldProcessApplicationThroughForcedSanitizeBranch() {
         Account account = [SELECT Id FROM Account LIMIT 1];
 
         Application__c application = new Application__c();
@@ -357,7 +357,7 @@ private class AAREG_ApplicationControllerTest {
      * @since August 2026
      */
     @IsTest
-    private static void testProcessApplicationExistingRecordReusesAccessRequest() {
+    private static void shouldReuseAccessRequestForExistingApplication() {
         Account account = [
             SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
             FROM Account
@@ -410,7 +410,7 @@ private class AAREG_ApplicationControllerTest {
      * @since August 2026
      */
     @IsTest
-    private static void testSanitizeApplicationForDmlNullInput() {
+    private static void shouldHandleNullInputDuringSanitization() {
         Application__c sanitized = AAREG_ApplicationController.sanitizeApplicationForDmlForTest(null);
         System.Assert.areEqual(null, sanitized, 'Sanitize should return null when input is null.');
     }
@@ -421,7 +421,7 @@ private class AAREG_ApplicationControllerTest {
      * @since August 2026
      */
     @IsTest
-    private static void testSanitizeApplicationForDmlForcedUnknownFieldBranch() {
+    private static void shouldHandleUnknownFieldDuringForcedSanitization() {
         Application__c application = new Application__c(Status__c = 'Draft', IsConfirmationEmailSent__c = true);
 
         AAREG_ApplicationController.forceSanitizeUnknownFieldBranch = true;

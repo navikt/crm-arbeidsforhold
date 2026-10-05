@@ -12,7 +12,7 @@ public class AAREG_distributionAccessRequestTest {
      * @since July 2026
      */
     @IsTest
-    static void testGenerateJsonWithOrgNumber() {
+    static void shouldGenerateJsonWithOrganizationNumber() {
         Test.startTest();
         String json = AAREG_distributionAccessRequest.generateJson('999888777');
         Test.stopTest();
@@ -27,7 +27,7 @@ public class AAREG_distributionAccessRequestTest {
      * @since July 2026
      */
     @IsTest
-    static void testGenerateJsonFormat() {
+    static void shouldGenerateJsonWithExpectedFormat() {
         Test.startTest();
         String json = AAREG_distributionAccessRequest.generateJson('123456789');
         Test.stopTest();
@@ -44,7 +44,7 @@ public class AAREG_distributionAccessRequestTest {
      * @since July 2026
      */
     @IsTest
-    static void testGenerateJsonWithVariousOrgNumbers() {
+    static void shouldGenerateJsonWithVariousOrganizationNumbers() {
         Test.startTest();
         String json1 = AAREG_distributionAccessRequest.generateJson('111111111');
         String json2 = AAREG_distributionAccessRequest.generateJson('222222222');
@@ -61,7 +61,7 @@ public class AAREG_distributionAccessRequestTest {
      * @since July 2026
      */
     @IsTest
-    static void testGenerateJsonWithSpecialCharacters() {
+    static void shouldGenerateJsonWithSpecialCharacters() {
         Test.startTest();
         String json = AAREG_distributionAccessRequest.generateJson('999-888-777');
         Test.stopTest();
@@ -76,7 +76,7 @@ public class AAREG_distributionAccessRequestTest {
      * @since July 2026
      */
     @IsTest
-    static void testStatusCodeExceptionInstantiation() {
+    static void shouldInstantiateStatusCodeException() {
         Test.startTest();
         AAREG_distributionAccessRequest.StatusCodeException ex = new AAREG_distributionAccessRequest.StatusCodeException(
             'Test error message'
@@ -92,7 +92,7 @@ public class AAREG_distributionAccessRequestTest {
      * @since July 2026
      */
     @IsTest
-    static void testGenerateHeaderToDistributionCanBeCalled() {
+    static void shouldCallHeaderGenerationWithoutError() {
         Test.startTest();
         try {
             // Note: @future methods cannot be called directly in tests, but we verify no compile error
@@ -110,7 +110,7 @@ public class AAREG_distributionAccessRequestTest {
      * @since July 2026
      */
     @IsTest
-    static void testGenerateJsonWithEmptyString() {
+    static void shouldGenerateJsonWithEmptyString() {
         Test.startTest();
         String json = AAREG_distributionAccessRequest.generateJson('');
         Test.stopTest();
@@ -124,7 +124,7 @@ public class AAREG_distributionAccessRequestTest {
      * @since July 2026
      */
     @IsTest
-    static void testGenerateJsonConsistency() {
+    static void shouldGenerateConsistentJson() {
         Test.startTest();
         String json1 = AAREG_distributionAccessRequest.generateJson('999999999');
         String json2 = AAREG_distributionAccessRequest.generateJson('999999999');
@@ -138,7 +138,7 @@ public class AAREG_distributionAccessRequestTest {
      * @since July 2026
      */
     @IsTest
-    static void testGenerateJsonWithNorwegianCharacters() {
+    static void shouldGenerateJsonWithNorwegianCharacters() {
         Test.startTest();
         String json = AAREG_distributionAccessRequest.generateJson('ÆØÅ123');
         Test.stopTest();
@@ -152,7 +152,7 @@ public class AAREG_distributionAccessRequestTest {
      * @since July 2026
      */
     @IsTest
-    static void testStatusCodeExceptionThrowAndCatch() {
+    static void shouldThrowAndCatchStatusCodeException() {
         Test.startTest();
         Boolean exceptionCaught = false;
         try {
@@ -173,7 +173,7 @@ public class AAREG_distributionAccessRequestTest {
      * @since July 2026
      */
     @IsTest
-    static void testMultipleJsonGenerations() {
+    static void shouldGenerateMultipleJsonResponses() {
         Test.startTest();
         List<String> jsonList = new List<String>();
         for (Integer i = 1; i <= 5; i++) {

@@ -39,7 +39,7 @@ public class AAREG_DeactivateAccessBatchTest {
      * @since December 2022
      */
     @IsTest
-    static void testBatch() {
+    static void shouldDeactivateAgreementsAndCreateFollowUpRecords() {
         Account account = [
             SELECT Id
             FROM Account
