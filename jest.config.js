@@ -5,13 +5,13 @@ module.exports = {
     ...jestConfig,
     moduleNameMapper: {
         '^lwc$': require.resolve('@lwc/engine-dom/dist/index.cjs'),
-        '^@salesforce/apex$': '<rootDir>/force-app/test/jest-mocks/apex',
-        '^@salesforce/community/basePath$': '<rootDir>/force-app/test/jest-mocks/community/basePath',
-        '^@salesforce/schema$': '<rootDir>/force-app/test/jest-mocks/schema',
-        '^lightning/navigation$': '<rootDir>/force-app/test/jest-mocks/lightning/navigation',
-        '^lightning/platformShowToastEvent$': '<rootDir>/force-app/test/jest-mocks/lightning/platformShowToastEvent',
-        '^lightning/uiRecordApi$': '<rootDir>/force-app/test/jest-mocks/lightning/uiRecordApi',
-        '^lightning/messageService$': '<rootDir>/force-app/test/jest-mocks/lightning/messageService'
+        '^@salesforce/apex$': '<rootDir>/force-app/tests/jest-mocks/apex',
+        '^@salesforce/community/basePath$': '<rootDir>/force-app/tests/jest-mocks/community/basePath',
+        '^@salesforce/schema$': '<rootDir>/force-app/tests/jest-mocks/schema',
+        '^lightning/navigation$': '<rootDir>/force-app/tests/jest-mocks/lightning/navigation',
+        '^lightning/platformShowToastEvent$': '<rootDir>/force-app/tests/jest-mocks/lightning/platformShowToastEvent',
+        '^lightning/uiRecordApi$': '<rootDir>/force-app/tests/jest-mocks/lightning/uiRecordApi',
+        '^lightning/messageService$': '<rootDir>/force-app/tests/jest-mocks/lightning/messageService'
     },
     setupFiles: ['jest-canvas-mock'],
     setupFilesAfterEnv,
