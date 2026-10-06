@@ -1,5 +1,5 @@
 /**
- * @description This class checks the object type name and updates the thread record accordingly.
+ * This class checks the object type name and updates the thread record accordingly.
  * @author Your Name
  * @date 2023-10-15
  */

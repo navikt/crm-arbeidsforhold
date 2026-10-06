@@ -1,5 +1,5 @@
 /**
- * @description Controller for the "My Agreements" LWC. Returns the agreements
+ * Controller for the "My Agreements" LWC. Returns the agreements
  * belonging to the organization the user last selected.
  *
  * @author AAREG Team
@@ -41,7 +41,7 @@ public with sharing class AAREG_MyAgreementsController {
     private static RelatedContact__c injectedRemoveContactRecord = null;
 
     /**
-     * @description Returns active agreements for the organization last used by the given user.
+     * Returns active agreements for the organization last used by the given user.
      * @param userId Id of the user whose last used organization should be looked up.
      * @return List of AAREG_Agreement wrappers; empty list when no organization is set.
      */
@@ -80,7 +80,7 @@ public with sharing class AAREG_MyAgreementsController {
     }
 
     /**
-     * @description Queries active agreements for the given organization number and maps
+     * Queries active agreements for the given organization number and maps
      * them to AAREG_Agreement wrappers.
      * @param lastUsedOrganization Organization number to filter agreements by.
      * @return List of AAREG_Agreement wrappers for active agreements.
@@ -220,7 +220,7 @@ public with sharing class AAREG_MyAgreementsController {
     }
 
     /**
-     * @description Sets the agreement status to inactive/Avsluttet without deleting it.
+     * Sets the agreement status to inactive/Avsluttet without deleting it.
      * @param agreementId Id of the Agreement__c record to deactivate.
      */
     @AuraEnabled
@@ -273,7 +273,7 @@ public with sharing class AAREG_MyAgreementsController {
     }
 
     /**
-     * @description Returns all related contacts for the agreement.
+     * Returns all related contacts for the agreement.
      * @param currentRecordId Id of the Agreement record.
      * @return List of RelatedContact__c records with all fields used by the contact LWC.
      */
@@ -518,7 +518,7 @@ public with sharing class AAREG_MyAgreementsController {
     }
 
     /**
-     * @description Translates an agreement status code into a Norwegian display label.
+     * Translates an agreement status code into a Norwegian display label.
      * @param status Status value from the Agreement__c record.
      * @return Localized status label, or 'Ukjent status' when the value is not recognized.
      */

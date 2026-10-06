@@ -94,7 +94,7 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
     }
 
     /**
-     * @description Queries application data for PDF presentation.
+     * Queries application data for PDF presentation.
      * @param currentRecordId Id of the Application__c record
      * @return AAREG_ApplicationInternal wrapper with application details
      */
@@ -186,7 +186,7 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
     }
 
     /**
-     * @description Queries decision record data for PDF presentation.
+     * Queries decision record data for PDF presentation.
      * @param currentRecordId Id of the Application_Decision__c record
      * @return AAREG_ApplicationDecision wrapper with decision details
      */
@@ -270,7 +270,7 @@ public with sharing class AAREG_ApplicationDecisionPDFController {
     }
 
     /**
-     * @description Queries decision detail records for PDF presentation.
+     * Queries decision detail records for PDF presentation.
      * @param currentRecordId Id of the Application_Decision__c record
      * @return List of AAREG_BasisCodesInternal wrappers with detail data
      */

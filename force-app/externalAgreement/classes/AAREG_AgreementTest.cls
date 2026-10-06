@@ -1,5 +1,5 @@
 /**
- * @description Test class for AAREG_Agreement wrapper class
+ * Test class for AAREG_Agreement wrapper class
  * Tests data encapsulation and property access for agreement LWC interface
  * @author Ann Kristin Olsen
  * @since July 2026
@@ -8,7 +8,7 @@
 @IsTest
 public class AAREG_AgreementTest {
     /**
-     * @description Tests basic instantiation of agreement wrapper
+     * Tests basic instantiation of agreement wrapper
      * @since July 2026
      */
     @IsTest
@@ -21,7 +21,7 @@ public class AAREG_AgreementTest {
     }
 
     /**
-     * @description Tests setting and getting agreement core properties
+     * Tests setting and getting agreement core properties
      * @since July 2026
      */
     @IsTest
@@ -41,7 +41,7 @@ public class AAREG_AgreementTest {
     }
 
     /**
-     * @description Tests setting and getting access permission properties
+     * Tests setting and getting access permission properties
      * @since July 2026
      */
     @IsTest
@@ -59,7 +59,7 @@ public class AAREG_AgreementTest {
     }
 
     /**
-     * @description Tests setting and getting consumer properties
+     * Tests setting and getting consumer properties
      * @since July 2026
      */
     @IsTest
@@ -87,7 +87,7 @@ public class AAREG_AgreementTest {
     }
 
     /**
-     * @description Tests setting and getting data processor properties
+     * Tests setting and getting data processor properties
      * @since July 2026
      */
     @IsTest
@@ -113,7 +113,7 @@ public class AAREG_AgreementTest {
     }
 
     /**
-     * @description Tests multiple agreement instances don't interfere
+     * Tests multiple agreement instances don't interfere
      * @since July 2026
      */
     @IsTest
@@ -135,7 +135,7 @@ public class AAREG_AgreementTest {
     }
 
     /**
-     * @description Tests null values handling
+     * Tests null values handling
      * @since July 2026
      */
     @IsTest
@@ -151,7 +151,7 @@ public class AAREG_AgreementTest {
     }
 
     /**
-     * @description Tests property defaults after instantiation
+     * Tests property defaults after instantiation
      * @since July 2026
      */
     @IsTest

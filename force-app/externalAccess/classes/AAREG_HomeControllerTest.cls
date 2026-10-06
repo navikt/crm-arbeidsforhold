@@ -212,7 +212,7 @@ public with sharing class AAREG_HomeControllerTest {
         String bodyDeny = '{"response":[{"decision":"Deny","action":"Access","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
 
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', bodyDeny, new Map<String, String>());
-        Test.setMock(HttpCalloutMock.class, mock);
+        System.Test.setMock(HttpCalloutMock.class, mock);
 
         System.Test.startTest();
         AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
@@ -390,16 +390,16 @@ public with sharing class AAREG_HomeControllerTest {
 
         String bodyDeny = '{"response":[{"decision":"Deny","action":"Access","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', bodyDeny, new Map<String, String>());
-        Test.setMock(HttpCalloutMock.class, mock);
+        System.Test.setMock(HttpCalloutMock.class, mock);
 
-        Test.startTest();
+        System.Test.startTest();
         AAREG_HomeController.forceSupportAccessPermitInTest = true;
         AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
             user.Id,
             '929882989'
         );
         AAREG_HomeController.forceSupportAccessPermitInTest = false;
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(true, response.hasAccess, 'Fallback support access path should set hasAccess=true.');
         System.assertEquals(
@@ -435,7 +435,7 @@ public with sharing class AAREG_HomeControllerTest {
         }
         update con;
 
-        Test.startTest();
+        System.Test.startTest();
         AAREG_HomeController.forceAgreementShareInsertException = true;
         AAREG_HomeController.forceRelatedContactShareInsertException = true;
         AAREG_HomeController.forceRelatedContactOwnerSkipBranch = true;
@@ -443,7 +443,7 @@ public with sharing class AAREG_HomeControllerTest {
         AAREG_HomeController.forceAgreementShareInsertException = false;
         AAREG_HomeController.forceRelatedContactShareInsertException = false;
         AAREG_HomeController.forceRelatedContactOwnerSkipBranch = false;
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(
             true,

@@ -7,8 +7,10 @@ dato: 2026-09-10
 
 # ADR-0004: P360 composition root og kontraktsgrense
 
-**Status:** Foreslått  
-**Beslutningsstatus:** Retninga er valt i dette arbeidet. Teamavklaring og endeleg normativ godkjenning står att.  
+**Status:** Foreslått
+
+**Beslutningsstatus:** Retninga er valt i dette arbeidet. Teamavklaring og endeleg normativ godkjenning står att.
+
 **Dato:** 2026-09-10
 
 ## Kontekst

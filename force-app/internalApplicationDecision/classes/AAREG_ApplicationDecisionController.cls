@@ -44,7 +44,7 @@ public with sharing class AAREG_ApplicationDecisionController {
     static List<ApplicationBasisCode__c> injectedBasisCodes = null;
 
     /**
-     * @description Henter vedtaksdata for en gitt søknad.
+     * Henter vedtaksdata for en gitt søknad.
      * @param recordId Id til Application__c
      * @return Liste med AAREG_ApplicationDecision wrappere
      */
@@ -100,7 +100,7 @@ public with sharing class AAREG_ApplicationDecisionController {
     }
 
     /**
-     * @description Oppretter et nytt vedtak basert på søknad, og kopierer
+     * Oppretter et nytt vedtak basert på søknad, og kopierer
      *              behandlingsgrunnlag til Application_Decision_Details__c.
      * @param recordId Id til Application__c
      * @return Id til det opprettede Application_Decision__c

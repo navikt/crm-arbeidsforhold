@@ -1,5 +1,5 @@
 /**
- * @description Wrapper-klasse brukt av AAREG_ApplicationDecisionController
+ * Wrapper-klasse brukt av AAREG_ApplicationDecisionController
  *              for å sende vedtaksdata til LWC.
  * @author AAREG Team
  * @version 66
@@ -34,7 +34,7 @@ public with sharing class AAREG_ApplicationDecision {
     public Decimal webTilgang { get; set; }
 
     /**
-     * @description Tom konstruktør for enkel instansiering.
+     * Tom konstruktør for enkel instansiering.
      */
     public AAREG_ApplicationDecision() {
     }
