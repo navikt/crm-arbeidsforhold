@@ -27,16 +27,16 @@ private class DecisionControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testWithoutHTMLTags() {
+    static void shouldLoadApplicationIdWithoutHtmlTags() {
         Application__c application = [SELECT Id FROM Application__c];
         String applicationId = (String) application.Id;
 
-        Test.setCurrentPage(Page.AAREG_decisionPDF);
+        System.Test.setCurrentPage(Page.AAREG_decisionPDF);
         ApexPages.currentPage().getParameters().put('Id', applicationId);
 
-        Test.startTest();
+        System.Test.startTest();
         DecisionController dc = new DecisionController();
-        Test.stopTest();
+        System.Test.stopTest();
 
         application = [SELECT Id FROM Application__c];
         applicationId = (String) application.Id;
@@ -50,18 +50,18 @@ private class DecisionControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testWithHTMLTags() {
+    static void shouldLoadApplicationIdWithHtmlTags() {
         Application__c application = [SELECT Id, AA_CasehandlerDecisionTemplate__c FROM Application__c];
         application.AA_CasehandlerDecisionTemplate__c = 'testdata testdata testdata testdata <img src="testimg"></img> testdata testdata testdata testdata';
         update application;
         String applicationId = (String) application.Id;
 
-        Test.setCurrentPage(Page.AAREG_decisionPDF);
+        System.Test.setCurrentPage(Page.AAREG_decisionPDF);
         ApexPages.currentPage().getParameters().put('Id', applicationId);
 
-        Test.startTest();
+        System.Test.startTest();
         DecisionController dc = new DecisionController();
-        Test.stopTest();
+        System.Test.stopTest();
 
         application = [SELECT Id FROM Application__c];
         applicationId = (String) application.Id;
@@ -75,12 +75,12 @@ private class DecisionControllerTest {
      * @since July 2026
      */
     @IsTest
-    static void testWithoutIdParameter() {
-        Test.setCurrentPage(Page.AAREG_decisionPDF);
+    static void shouldLeaveApplicationNullWithoutIdParameter() {
+        System.Test.setCurrentPage(Page.AAREG_decisionPDF);
 
-        Test.startTest();
+        System.Test.startTest();
         DecisionController dc = new DecisionController();
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(null, dc.application, 'Application should remain null when no id parameter is provided.');
     }

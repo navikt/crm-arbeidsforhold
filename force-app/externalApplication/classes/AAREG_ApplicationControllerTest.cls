@@ -82,12 +82,12 @@ private class AAREG_ApplicationControllerTest {
     }
 
     /**
-     * processApplication should upsert an existing application and reset status to New.
+     * processApplication should upsert an application requiring additional information and reset status to New.
      *
      * @since July 2026
      */
     @IsTest
-    private static void shouldProcessAdditionalInformationApplication() {
+    private static void shouldResetAdditionalInformationApplicationToNew() {
         Account account = [SELECT Id FROM Account LIMIT 1];
 
         Application__c application = new Application__c();

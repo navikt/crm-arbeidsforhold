@@ -14,7 +14,7 @@ public class AAREG_MultiSelectFlowValuesTest {
      * @since July 2026
      */
     @IsTest
-    static void testMultiSelectFlowValuesWithMultipleItems() {
+    static void shouldSplitMultipleItems() {
         List<String> tempList = new List<String>();
         tempList.add('Access API with dataprocessor');
         tempList.add('Access Online');
@@ -32,7 +32,7 @@ public class AAREG_MultiSelectFlowValuesTest {
      * @since July 2026
      */
     @IsTest
-    static void testMultiSelectFlowValuesWithEmptyList() {
+    static void shouldReturnEmptyListForEmptyInput() {
         List<String> tempList = new List<String>();
 
         System.Test.startTest();
@@ -48,7 +48,7 @@ public class AAREG_MultiSelectFlowValuesTest {
      * @since July 2026
      */
     @IsTest
-    static void testMultiSelectFlowValuesWithSingleSemicolonSeparatedValue() {
+    static void shouldSplitSingleSemicolonSeparatedValue() {
         List<String> tempList = new List<String>();
         tempList.add('value1;value2;value3');
 
@@ -70,7 +70,7 @@ public class AAREG_MultiSelectFlowValuesTest {
      * @since July 2026
      */
     @IsTest
-    static void testMultiSelectFlowValuesWithNullInput() {
+    static void shouldReturnEmptyListForNullInput() {
         System.Test.startTest();
         List<List<String>> result = AAREG_MultiSelectFlowValues.checkSelectedValues(null);
         System.Test.stopTest();
@@ -84,7 +84,7 @@ public class AAREG_MultiSelectFlowValuesTest {
      * @since July 2026
      */
     @IsTest
-    static void testMultiSelectFlowValuesWithNorwegianCharacters() {
+    static void shouldPreserveNorwegianCharacters() {
         List<String> tempList = new List<String>();
         tempList.add('Øst;Vest;Nord;Sør');
 
@@ -103,7 +103,7 @@ public class AAREG_MultiSelectFlowValuesTest {
      * @since July 2026
      */
     @IsTest
-    static void testMultiSelectFlowValuesWithEmptyString() {
+    static void shouldPreserveEmptyElementForEmptyString() {
         List<String> tempList = new List<String>();
         tempList.add('');
 
@@ -121,7 +121,7 @@ public class AAREG_MultiSelectFlowValuesTest {
      * @since July 2026
      */
     @IsTest
-    static void testMultiSelectFlowValuesWithSpecialCharacters() {
+    static void shouldPreserveSpecialCharacters() {
         List<String> tempList = new List<String>();
         tempList.add('item@1;item#2;item$3');
 
@@ -139,7 +139,7 @@ public class AAREG_MultiSelectFlowValuesTest {
      * @since July 2026
      */
     @IsTest
-    static void testMultiSelectFlowValuesWithSpacesInValues() {
+    static void shouldPreserveSpacesInValues() {
         List<String> tempList = new List<String>();
         tempList.add('value one;value two;value three');
 
