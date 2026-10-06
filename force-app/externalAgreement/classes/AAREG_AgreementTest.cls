@@ -13,9 +13,9 @@ public class AAREG_AgreementTest {
      */
     @IsTest
     static void shouldInstantiateAgreement() {
-        Test.startTest();
+        System.Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.Assert.isNotNull(agreement, 'Agreement should be instantiated');
     }
@@ -26,13 +26,13 @@ public class AAREG_AgreementTest {
      */
     @IsTest
     static void shouldSetAndGetCoreProperties() {
-        Test.startTest();
+        System.Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         agreement.avtaleId = '001000000000001';
         agreement.avtaleDato = DateTime.now();
         agreement.avtaleNummer = 'AVT-2026-001';
         agreement.soknadsNummer = 'SØK-2026-001';
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals('001000000000001', agreement.avtaleId, 'Agreement ID should be set');
         System.Assert.isNotNull(agreement.avtaleDato, 'Agreement date should be set');
@@ -46,12 +46,12 @@ public class AAREG_AgreementTest {
      */
     @IsTest
     static void shouldSetAndGetAccessProperties() {
-        Test.startTest();
+        System.Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         agreement.apiTilgang = true;
         agreement.uttrekk = false;
         agreement.webTilgang = true;
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(true, agreement.apiTilgang, 'API access should be true');
         System.assertEquals(false, agreement.uttrekk, 'Extract access should be false');
@@ -64,7 +64,7 @@ public class AAREG_AgreementTest {
      */
     @IsTest
     static void shouldSetAndGetConsumerProperties() {
-        Test.startTest();
+        System.Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         agreement.konsumentId = 'K001';
         agreement.konsumentNavn = 'Test Konsument';
@@ -74,7 +74,7 @@ public class AAREG_AgreementTest {
         agreement.konsumentPoststed = 'Oslo';
         agreement.konsumentPostnummer = '0150';
         agreement.konsumentEpost = 'test@example.com';
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals('K001', agreement.konsumentId, 'Consumer ID should be set');
         System.assertEquals('Test Konsument', agreement.konsumentNavn, 'Consumer name should be set');
@@ -92,14 +92,14 @@ public class AAREG_AgreementTest {
      */
     @IsTest
     static void shouldSetAndGetDataProcessorProperties() {
-        Test.startTest();
+        System.Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         agreement.databehandlerNavn = 'Data Processor AS';
         agreement.databehandlerOrganisasjonsnummer = '888888888';
         agreement.organisasjonsType = 'AS';
         agreement.sakseier = 'NAV';
         agreement.status = 'Aktiv';
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals('Data Processor AS', agreement.databehandlerNavn, 'Data processor name should be set');
         System.assertEquals(
@@ -118,7 +118,7 @@ public class AAREG_AgreementTest {
      */
     @IsTest
     static void shouldKeepAgreementInstancesIndependent() {
-        Test.startTest();
+        System.Test.startTest();
         AAREG_Agreement agreement1 = new AAREG_Agreement();
         agreement1.avtaleId = 'ID1';
         agreement1.avtaleNummer = 'NUM1';
@@ -126,7 +126,7 @@ public class AAREG_AgreementTest {
         AAREG_Agreement agreement2 = new AAREG_Agreement();
         agreement2.avtaleId = 'ID2';
         agreement2.avtaleNummer = 'NUM2';
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals('ID1', agreement1.avtaleId, 'First agreement ID should not be affected');
         System.assertEquals('NUM1', agreement1.avtaleNummer, 'First agreement number should not be affected');
@@ -140,10 +140,10 @@ public class AAREG_AgreementTest {
      */
     @IsTest
     static void shouldAllowNullValues() {
-        Test.startTest();
+        System.Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         // All properties should be null initially
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(null, agreement.avtaleId, 'Unset ID should be null');
         System.assertEquals(null, agreement.konsumentNavn, 'Unset consumer name should be null');
@@ -156,12 +156,12 @@ public class AAREG_AgreementTest {
      */
     @IsTest
     static void shouldUseDefaultValues() {
-        Test.startTest();
+        System.Test.startTest();
         AAREG_Agreement agreement = new AAREG_Agreement();
         agreement.apiTilgang = false;
         agreement.uttrekk = false;
         agreement.webTilgang = false;
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(false, agreement.apiTilgang, 'API access should default to false');
         System.assertEquals(false, agreement.uttrekk, 'Extract should default to false');

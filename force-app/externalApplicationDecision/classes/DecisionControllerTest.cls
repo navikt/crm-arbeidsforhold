@@ -31,12 +31,12 @@ private class DecisionControllerTest {
         Application__c application = [SELECT Id FROM Application__c];
         String applicationId = (String) application.Id;
 
-        Test.setCurrentPage(Page.AAREG_decisionPDF);
+        System.Test.setCurrentPage(Page.AAREG_decisionPDF);
         ApexPages.currentPage().getParameters().put('Id', applicationId);
 
-        Test.startTest();
+        System.Test.startTest();
         DecisionController dc = new DecisionController();
-        Test.stopTest();
+        System.Test.stopTest();
 
         application = [SELECT Id FROM Application__c];
         applicationId = (String) application.Id;
@@ -56,12 +56,12 @@ private class DecisionControllerTest {
         update application;
         String applicationId = (String) application.Id;
 
-        Test.setCurrentPage(Page.AAREG_decisionPDF);
+        System.Test.setCurrentPage(Page.AAREG_decisionPDF);
         ApexPages.currentPage().getParameters().put('Id', applicationId);
 
-        Test.startTest();
+        System.Test.startTest();
         DecisionController dc = new DecisionController();
-        Test.stopTest();
+        System.Test.stopTest();
 
         application = [SELECT Id FROM Application__c];
         applicationId = (String) application.Id;
@@ -76,11 +76,11 @@ private class DecisionControllerTest {
      */
     @IsTest
     static void shouldLeaveApplicationNullWithoutIdParameter() {
-        Test.setCurrentPage(Page.AAREG_decisionPDF);
+        System.Test.setCurrentPage(Page.AAREG_decisionPDF);
 
-        Test.startTest();
+        System.Test.startTest();
         DecisionController dc = new DecisionController();
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(null, dc.application, 'Application should remain null when no id parameter is provided.');
     }
