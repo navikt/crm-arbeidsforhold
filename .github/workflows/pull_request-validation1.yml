@@ -6,6 +6,7 @@ on:
       - synchronize
       - reopened
       - ready_for_review
+      - converted_to_draft
     branches:
       - "*"
 jobs:
