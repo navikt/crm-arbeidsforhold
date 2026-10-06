@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>51.0</apiVersion>
-    <isExposed>false</isExposed>
+    <apiVersion>67.0</apiVersion>
     <isExposed>true</isExposed>
     <description>NAV Link Panel </description>
     <masterLabel>Link Panel</masterLabel>
@@ -11,9 +10,11 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightningCommunity__Default">
-            <property name="title" type="string" label="Lenkepanel tittel" default="Standard Tittel"/>
-            <property name="subTitle" type="string" label="Lenkepanel undertittel" default="Standard undertittel"/>
-            <property name="relativePath" type="string" label="URL" description="Legg inn relative path feks. /Home" default="/Home"/>
+            <property name="title" type="String" label="Lenkepanel tittel" default="Standard Tittel" />
+            <property name="subTitle" type="String" label="Lenkepanel undertittel"
+                default="Standard undertittel" />
+            <property name="relativePath" type="String" label="URL"
+                description="Legg inn relative path feks. /Home" default="/Home" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
