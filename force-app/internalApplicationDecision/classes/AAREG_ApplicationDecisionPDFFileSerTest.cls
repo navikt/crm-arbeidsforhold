@@ -1,5 +1,5 @@
 /**
- * @description Test class for AAREG_ApplicationDecisionPDFFileService invocable service.
+ * Test class for AAREG_ApplicationDecisionPDFFileService invocable service.
  *              Tests PDF file creation, ContentVersion handling, and ContentDocumentLink generation.
  * @author Ann Kristin Olsen
  * @author Kenneth Sørensen
@@ -9,7 +9,7 @@
 @IsTest
 public class AAREG_ApplicationDecisionPDFFileSerTest {
     /**
-     * @description Setter opp felles testdata før hver test:
+     * Setter opp felles testdata før hver test:
      *              - En Account av typen County
      *              - En tilhørende Application__c
      *              - En Application_Decision__c
@@ -52,7 +52,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     }
 
     /**
-     * @description Tester at createFile metoden returnerer valid ContentDocumentId for ny PDF.
+     * Tester at createFile metoden returnerer valid ContentDocumentId for ny PDF.
      *              Verifiserer at:
      *              - ContentVersion opprettes
      *              - ContentDocumentLink opprettes for relevante records
@@ -89,7 +89,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     }
 
     /**
-     * @description Tester at createFile håndterer null input gracefully.
+     * Tester at createFile håndterer null input gracefully.
      *              Verifiserer at exception kastes med user-friendly error message.
      * @since July 2026
      */
@@ -111,7 +111,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     }
 
     /**
-     * @description Tester at createFile håndterer tom input liste gracefully.
+     * Tester at createFile håndterer tom input liste gracefully.
      *              Verifiserer at exception kastes.
      * @since July 2026
      */
@@ -133,7 +133,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     }
 
     /**
-     * @description Tester at createFile håndterer manglende påkrevde felter gracefully.
+     * Tester at createFile håndterer manglende påkrevde felter gracefully.
      *              Verifiserer at exception kastes når decisionRecordId er null.
      * @since July 2026
      */
@@ -166,7 +166,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     }
 
     /**
-     * @description Tester at createFile håndterer manglende applicationRecordId gracefully.
+     * Tester at createFile håndterer manglende applicationRecordId gracefully.
      *              Verifiserer at exception kastes.
      * @since July 2026
      */
@@ -199,7 +199,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     }
 
     /**
-     * @description Tester at createFile håndterer manglende filTittel gracefully.
+     * Tester at createFile håndterer manglende filTittel gracefully.
      *              Verifiserer at exception kastes.
      * @since July 2026
      */
@@ -237,7 +237,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     }
 
     /**
-     * @description Tester at FlowInput inner class can be instantiated og populated.
+     * Tester at FlowInput inner class can be instantiated og populated.
      *              Verifiserer at alle InvocableVariable felter er accessible.
      * @since July 2026
      */
@@ -259,7 +259,7 @@ public class AAREG_ApplicationDecisionPDFFileSerTest {
     }
 
     /**
-     * @description Tester at FlowOutput inner class can be instantiated og populated.
+     * Tester at FlowOutput inner class can be instantiated og populated.
      *              Verifiserer at contentDocumentId er accessible.
      * @since July 2026
      */

@@ -1,5 +1,5 @@
 /**
- * @description Test class for AAREG_ApplicationDecision wrapper class
+ * Test class for AAREG_ApplicationDecision wrapper class
  * Tests data encapsulation and property access for application decision LWC interface
  * @author Ann Kristin Olsen
  * @since July 2026
@@ -8,7 +8,7 @@
 @IsTest
 public class AAREG_ApplicationDecisionTest {
     /**
-     * @description Tests default constructor instantiation
+     * Tests default constructor instantiation
      * @since July 2026
      */
     @IsTest
@@ -21,7 +21,7 @@ public class AAREG_ApplicationDecisionTest {
     }
 
     /**
-     * @description Tests setting and getting decision core properties
+     * Tests setting and getting decision core properties
      * @since July 2026
      */
     @IsTest
@@ -43,7 +43,7 @@ public class AAREG_ApplicationDecisionTest {
     }
 
     /**
-     * @description Tests setting and getting decision text properties
+     * Tests setting and getting decision text properties
      * @since July 2026
      */
     @IsTest
@@ -69,7 +69,7 @@ public class AAREG_ApplicationDecisionTest {
     }
 
     /**
-     * @description Tests setting and getting date properties
+     * Tests setting and getting date properties
      * @since July 2026
      */
     @IsTest
@@ -86,7 +86,7 @@ public class AAREG_ApplicationDecisionTest {
     }
 
     /**
-     * @description Tests setting and getting numeric properties
+     * Tests setting and getting numeric properties
      * @since July 2026
      */
     @IsTest
@@ -100,7 +100,7 @@ public class AAREG_ApplicationDecisionTest {
     }
 
     /**
-     * @description Tests multiple decision instances independence
+     * Tests multiple decision instances independence
      * @since July 2026
      */
     @IsTest
@@ -122,7 +122,7 @@ public class AAREG_ApplicationDecisionTest {
     }
 
     /**
-     * @description Tests null values handling
+     * Tests null values handling
      * @since July 2026
      */
     @IsTest
@@ -138,7 +138,7 @@ public class AAREG_ApplicationDecisionTest {
     }
 
     /**
-     * @description Tests all properties can be set together
+     * Tests all properties can be set together
      * @since July 2026
      */
     @IsTest
@@ -166,7 +166,7 @@ public class AAREG_ApplicationDecisionTest {
     }
 
     /**
-     * @description Tests property modification after initial setting
+     * Tests property modification after initial setting
      * @since July 2026
      */
     @IsTest

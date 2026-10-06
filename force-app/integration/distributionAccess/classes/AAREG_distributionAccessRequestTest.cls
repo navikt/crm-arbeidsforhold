@@ -1,5 +1,5 @@
 /**
- * @description Test class for AAREG_distributionAccessRequest integration handler
+ * Test class for AAREG_distributionAccessRequest integration handler
  * Tests HTTP callout and JSON generation for distribution access operations
  * @author Ann Kristin Olsen
  * @since July 2026
@@ -8,7 +8,7 @@
 @IsTest
 public class AAREG_distributionAccessRequestTest {
     /**
-     * @description Tests JSON generation with organization number
+     * Tests JSON generation with organization number
      * @since July 2026
      */
     @IsTest
@@ -23,7 +23,7 @@ public class AAREG_distributionAccessRequestTest {
     }
 
     /**
-     * @description Tests JSON generation format
+     * Tests JSON generation format
      * @since July 2026
      */
     @IsTest
@@ -40,7 +40,7 @@ public class AAREG_distributionAccessRequestTest {
     }
 
     /**
-     * @description Tests JSON generation with different organization numbers
+     * Tests JSON generation with different organization numbers
      * @since July 2026
      */
     @IsTest
@@ -57,7 +57,7 @@ public class AAREG_distributionAccessRequestTest {
     }
 
     /**
-     * @description Tests JSON generation with special characters in org number
+     * Tests JSON generation with special characters in org number
      * @since July 2026
      */
     @IsTest
@@ -72,7 +72,7 @@ public class AAREG_distributionAccessRequestTest {
     }
 
     /**
-     * @description Tests StatusCodeException instantiation
+     * Tests StatusCodeException instantiation
      * @since July 2026
      */
     @IsTest
@@ -88,7 +88,7 @@ public class AAREG_distributionAccessRequestTest {
     }
 
     /**
-     * @description Tests that future method can be called without error
+     * Tests that future method can be called without error
      * @since July 2026
      */
     @IsTest
@@ -106,7 +106,7 @@ public class AAREG_distributionAccessRequestTest {
     }
 
     /**
-     * @description Tests JSON with empty string
+     * Tests JSON with empty string
      * @since July 2026
      */
     @IsTest
@@ -120,7 +120,7 @@ public class AAREG_distributionAccessRequestTest {
     }
 
     /**
-     * @description Tests JSON generation is consistent across multiple calls
+     * Tests JSON generation is consistent across multiple calls
      * @since July 2026
      */
     @IsTest
@@ -134,7 +134,7 @@ public class AAREG_distributionAccessRequestTest {
     }
 
     /**
-     * @description Tests JSON with Norwegian characters in org number
+     * Tests JSON with Norwegian characters in org number
      * @since July 2026
      */
     @IsTest
@@ -148,7 +148,7 @@ public class AAREG_distributionAccessRequestTest {
     }
 
     /**
-     * @description Tests StatusCodeException can be thrown and caught
+     * Tests StatusCodeException can be thrown and caught
      * @since July 2026
      */
     @IsTest
@@ -169,7 +169,7 @@ public class AAREG_distributionAccessRequestTest {
     }
 
     /**
-     * @description Tests multiple JSON generations don't interfere
+     * Tests multiple JSON generations don't interfere
      * @since July 2026
      */
     @IsTest

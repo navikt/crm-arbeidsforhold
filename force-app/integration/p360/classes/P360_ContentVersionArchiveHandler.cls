@@ -1,5 +1,5 @@
 /**
- * @description Creates P360 attachment jobs for new ContentVersion records published to applications.
+ * Creates P360 attachment jobs for new ContentVersion records published to applications.
  *
  * @author Kenneth Sørensen
  * @since 2026-09
@@ -7,7 +7,7 @@
  */
 public with sharing class P360_ContentVersionArchiveHandler {
     /**
-     * @description Creates one idempotent attachment job per application-linked ContentVersion.
+     * Creates one idempotent attachment job per application-linked ContentVersion.
      *
      * @param versions Newly inserted ContentVersion records.
      * @since 2026-10

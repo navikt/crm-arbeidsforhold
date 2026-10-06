@@ -1,5 +1,5 @@
 /**
- * @description Test class for AAREG_createContentVersionForAgreement invocable method
+ * Test class for AAREG_createContentVersionForAgreement invocable method
  * Tests content file duplication from Application to Agreement records
  * @author Ann Kristin Olsen
  * @since July 2026
@@ -8,7 +8,7 @@
 @IsTest
 public class AAREG_CreateContentAgreementTest {
     /**
-     * @description Tests successful file creation from application to agreement
+     * Tests successful file creation from application to agreement
      * @since July 2026
      */
     @IsTest
@@ -50,7 +50,7 @@ public class AAREG_CreateContentAgreementTest {
     }
 
     /**
-     * @description Tests handling when application has no content
+     * Tests handling when application has no content
      * @since July 2026
      */
     @IsTest
@@ -83,7 +83,7 @@ public class AAREG_CreateContentAgreementTest {
     }
 
     /**
-     * @description Tests handling when agreement has no application
+     * Tests handling when agreement has no application
      * @since July 2026
      */
     @IsTest
@@ -111,7 +111,7 @@ public class AAREG_CreateContentAgreementTest {
     }
 
     /**
-     * @description Tests FlowInput instantiation
+     * Tests FlowInput instantiation
      * @since July 2026
      */
     @IsTest
@@ -126,7 +126,7 @@ public class AAREG_CreateContentAgreementTest {
     }
 
     /**
-     * @description Tests method handles multiple inputs
+     * Tests method handles multiple inputs
      * @since July 2026
      */
     @IsTest
@@ -163,7 +163,7 @@ public class AAREG_CreateContentAgreementTest {
     }
 
     /**
-     * @description Tests that content version data is properly preserved
+     * Tests that content version data is properly preserved
      * @since July 2026
      */
     @IsTest
@@ -204,7 +204,7 @@ public class AAREG_CreateContentAgreementTest {
     }
 
     /**
-     * @description Tests file extension handling
+     * Tests file extension handling
      * @since July 2026
      */
     @IsTest

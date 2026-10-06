@@ -9,7 +9,7 @@
 @IsTest
 public class AAREG_ApplicationDecisionControllerTest {
     /**
-     * @description Setter opp felles testdata før hver test:
+     * Setter opp felles testdata før hver test:
      *              - En Account av typen County
      *              - En tilhørende Application__c
      *              - To ApplicationBasisCode__c-poster
@@ -41,7 +41,7 @@ public class AAREG_ApplicationDecisionControllerTest {
     }
 
     /**
-     * @description Verifiserer at getApplicationDecision returnerer alle
+     * Verifiserer at getApplicationDecision returnerer alle
      *              vedtaksposter knyttet til en gitt søknad.
      *              Forventer 2 vedtak basert på testdata fra @TestSetup.
      * @since January 2026
@@ -67,7 +67,7 @@ public class AAREG_ApplicationDecisionControllerTest {
     }
 
     /**
-     * @description Tester opprettelse av nytt vedtak for en County-søknad.
+     * Tester opprettelse av nytt vedtak for en County-søknad.
      *              Verifiserer at:
      *              - Vedtaket knyttes korrekt til søknaden
      *              - Status settes til 'In progress'
@@ -119,7 +119,7 @@ public class AAREG_ApplicationDecisionControllerTest {
     }
 
     /**
-     * @description Verifiserer at null som recordId fanges og kastet som exception.
+     * Verifiserer at null som recordId fanges og kastet som exception.
      * @since June 2026
      */
     @IsTest
@@ -138,7 +138,7 @@ public class AAREG_ApplicationDecisionControllerTest {
     }
 
     /**
-     * @description Tester opprettelse av vedtak for OrganizationType 'State'.
+     * Tester opprettelse av vedtak for OrganizationType 'State'.
      *              Verifiserer at:
      *              - Riktig orgtype gjenspeiles i basisCodes
      *              - Decision details opprettes
@@ -187,7 +187,7 @@ public class AAREG_ApplicationDecisionControllerTest {
     }
 
     /**
-     * @description Tester opprettelse av vedtak for OrganizationType 'Pension'.
+     * Tester opprettelse av vedtak for OrganizationType 'Pension'.
      *              Verifiserer at switch-casen for Pension i
      *              assignLegalBasisAndPurpose treffes, og at decision details
      *              med korrekt tilgangs-flagg opprettes.
@@ -235,7 +235,7 @@ public class AAREG_ApplicationDecisionControllerTest {
     }
 
     /**
-     * @description Tester opprettelse av vedtak for OrganizationType 'Municipality'.
+     * Tester opprettelse av vedtak for OrganizationType 'Municipality'.
      *              Verifiserer at switch-casen for Municipality treffes og at
      *              kommunens lovgrunnlag/formål kopieres til detaljpostene.
      * @since January 2026
@@ -285,7 +285,7 @@ public class AAREG_ApplicationDecisionControllerTest {
     }
 
     /**
-     * @description Tester opprettelse av vedtak for OrganizationType
+     * Tester opprettelse av vedtak for OrganizationType
      *              'Electricity Supervision' (EL-tilsyn).
      *              Verifiserer at switch-casen for EL-tilsyn treffes og at
      *              tilhørende lovgrunnlag/formål kopieres korrekt.
@@ -336,7 +336,7 @@ public class AAREG_ApplicationDecisionControllerTest {
     }
 
     /**
-     * @description Tester opprettelse av vedtak for OrganizationType 'Other'.
+     * Tester opprettelse av vedtak for OrganizationType 'Other'.
      *              Verifiserer at fritekstfeltene (OtherLegalBasis__c og
      *              OtherPurpose__c) brukes når orgtype = 'Other', siden
      *              switch-statementen ikke har en matchende case.
@@ -418,7 +418,7 @@ public class AAREG_ApplicationDecisionControllerTest {
     }
 
     /**
-     * @description Verifiserer at createApplicationDecision lykkes for County-data
+     * Verifiserer at createApplicationDecision lykkes for County-data
      *              og faktisk oppretter vedtaksdetaljer.
      * @since July 2026
      */
@@ -464,7 +464,7 @@ public class AAREG_ApplicationDecisionControllerTest {
     }
 
     /**
-     * @description Covers empty-list paths when an application has no decisions and no basis codes.
+     * Covers empty-list paths when an application has no decisions and no basis codes.
      * @since July 2026
      */
     @IsTest
