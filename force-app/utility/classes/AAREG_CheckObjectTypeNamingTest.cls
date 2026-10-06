@@ -1,5 +1,5 @@
 /**
- * @description Test class for AAREG_checkObjectTypeNameche flow invocable action
+ * Test class for AAREG_checkObjectTypeNameche flow invocable action
  * Tests object type name checking and thread updates
  * @author Ann Kristin Olsen
  * @since July 2026
@@ -29,7 +29,7 @@ public class AAREG_CheckObjectTypeNamingTest {
     }
 
     /**
-     * @description Test checkObjectTypeName with valid Application ID
+     * Test checkObjectTypeName with valid Application ID
      * @since July 2026
      */
     @IsTest
@@ -50,7 +50,7 @@ public class AAREG_CheckObjectTypeNamingTest {
     }
 
     /**
-     * @description Test checkObjectTypeName with empty list
+     * Test checkObjectTypeName with empty list
      * @since July 2026
      */
     @IsTest
@@ -68,7 +68,7 @@ public class AAREG_CheckObjectTypeNamingTest {
     }
 
     /**
-     * @description Test checkObjectTypeName with null list
+     * Test checkObjectTypeName with null list
      * @since July 2026
      */
     @IsTest
@@ -85,7 +85,7 @@ public class AAREG_CheckObjectTypeNamingTest {
     }
 
     /**
-     * @description Test that checkObjectTypeName processes the first ID in list
+     * Test that checkObjectTypeName processes the first ID in list
      * @since July 2026
      */
     @IsTest
@@ -106,7 +106,7 @@ public class AAREG_CheckObjectTypeNamingTest {
     }
 
     /**
-     * @description Test checkObjectTypeName retrieves correct object type
+     * Test checkObjectTypeName retrieves correct object type
      * @since July 2026
      */
     @IsTest

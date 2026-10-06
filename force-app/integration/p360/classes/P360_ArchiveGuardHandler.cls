@@ -1,5 +1,5 @@
 /**
- * @description P360 archive release guard handler used by MyTriggers.
+ * P360 archive release guard handler used by MyTriggers.
  *
  * @author Kenneth Sørensen
  * @since 2026-04
@@ -7,7 +7,7 @@
  */
 public with sharing class P360_ArchiveGuardHandler extends MyTriggers {
     /**
-     * @description Runs the archive release guard before insert of `Application_Decision__c`.
+     * Runs the archive release guard before insert of `Application_Decision__c`.
      *
      * @since 2026-04
      */
@@ -16,7 +16,7 @@ public with sharing class P360_ArchiveGuardHandler extends MyTriggers {
     }
 
     /**
-     * @description Runs the archive release guard before update of `Application_Decision__c`.
+     * Runs the archive release guard before update of `Application_Decision__c`.
      *
      * @param triggerOldMap Old field values keyed by record id, supplied by MyTriggers.
      * @since 2026-04
@@ -29,7 +29,7 @@ public with sharing class P360_ArchiveGuardHandler extends MyTriggers {
     }
 
     /**
-     * @description Creates DecisionDocument jobs after an authorized archive release.
+     * Creates DecisionDocument jobs after an authorized archive release.
      *
      * @param triggerOldMap Old decision values keyed by id, supplied by MyTriggers.
      * @since 2026-09

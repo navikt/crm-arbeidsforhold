@@ -1,5 +1,5 @@
 /**
- * @description Controller for the "My Agreements" LWC. Returns the agreements
+ * Controller for the "My Agreements" LWC. Returns the agreements
  * belonging to the organization the user last selected.
  *
  * @author AAREG Team
@@ -41,7 +41,7 @@ public with sharing class AAREG_MyAgreementsController {
     private static RelatedContact__c injectedRemoveContactRecord = null;
 
     /**
-     * @description Returns active agreements for the organization last used by the given user.
+     * Returns active agreements for the organization last used by the given user.
      * @param userId Id of the user whose last used organization should be looked up.
      * @return List of AAREG_Agreement wrappers; empty list when no organization is set.
      */
@@ -69,14 +69,18 @@ public with sharing class AAREG_MyAgreementsController {
             return getAgreements(usr.LastUsedOrganization__c);
         } catch (Exception e) {
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Error loading agreements for user: ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
+            logger.error(
+                'Error loading agreements for user: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             return new List<AAREG_Agreement>();
         }
     }
 
     /**
-     * @description Queries active agreements for the given organization number and maps
+     * Queries active agreements for the given organization number and maps
      * them to AAREG_Agreement wrappers.
      * @param lastUsedOrganization Organization number to filter agreements by.
      * @return List of AAREG_Agreement wrappers for active agreements.
@@ -139,14 +143,22 @@ public with sharing class AAREG_MyAgreementsController {
         } catch (DmlException e) {
             // Handle database operation exceptions (validation rules, duplicates, etc.)
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Error saving agreement contacts: ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
+            logger.error(
+                'Error saving agreement contacts: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             // Provide user-facing error message in Norwegian
             throw new AuraHandledException('Feil ved lagring av kontakter: ' + e.getMessage());
         } catch (Exception e) {
             // Handle unexpected errors and provide generic user message
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Unexpected error saving agreement contacts: ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
+            logger.error(
+                'Unexpected error saving agreement contacts: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Uventet feil ved lagring av kontakter.');
         }
@@ -187,20 +199,28 @@ public with sharing class AAREG_MyAgreementsController {
         } catch (DmlException e) {
             // Handle database operation failures (permission issues, validation rules, etc.)
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Error deleting agreement contact: ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
+            logger.error(
+                'Error deleting agreement contact: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Feil ved sletting av kontakt: ' + e.getMessage());
         } catch (Exception e) {
             // Log unexpected errors and provide generic user feedback
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Unexpected error deleting agreement contact: ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
+            logger.error(
+                'Unexpected error deleting agreement contact: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Uventet feil ved sletting av kontakt.');
         }
     }
 
     /**
-     * @description Sets the agreement status to inactive/Avsluttet without deleting it.
+     * Sets the agreement status to inactive/Avsluttet without deleting it.
      * @param agreementId Id of the Agreement__c record to deactivate.
      */
     @AuraEnabled
@@ -242,14 +262,18 @@ public with sharing class AAREG_MyAgreementsController {
         } catch (Exception e) {
             // Handle unexpected errors and provide user feedback
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Unexpected error ending agreement: ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
+            logger.error(
+                'Unexpected error ending agreement: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Uventet feil ved avslutting av avtale.');
         }
     }
 
     /**
-     * @description Returns all related contacts for the agreement.
+     * Returns all related contacts for the agreement.
      * @param currentRecordId Id of the Agreement record.
      * @return List of RelatedContact__c records with all fields used by the contact LWC.
      */
@@ -350,13 +374,21 @@ public with sharing class AAREG_MyAgreementsController {
         } catch (DmlException e) {
             // Handle database operation failures (validation rules, permission issues, etc.)
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Error adding contact to agreement: ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
+            logger.error(
+                'Error adding contact to agreement: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Feil ved tillegging av kontakt: ' + e.getMessage());
         } catch (Exception e) {
             // Log unexpected errors and provide generic user message
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Unexpected error adding contact to agreement: ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
+            logger.error(
+                'Unexpected error adding contact to agreement: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Uventet feil ved tillegging av kontakt.');
         }
@@ -403,13 +435,21 @@ public with sharing class AAREG_MyAgreementsController {
         } catch (DmlException e) {
             // Handle database operation failures
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Error removing contact from agreement: ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
+            logger.error(
+                'Error removing contact from agreement: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Feil ved fjerning av kontakt: ' + e.getMessage());
         } catch (Exception e) {
             // Handle unexpected errors and provide user feedback
             LoggerUtility logger = new LoggerUtility();
-            logger.error('Unexpected error removing contact from agreement: ' + e.getMessage(), null, CRM_ApplicationDomain.Domain.AAREG);
+            logger.error(
+                'Unexpected error removing contact from agreement: ' + e.getMessage(),
+                null,
+                CRM_ApplicationDomain.Domain.AAREG
+            );
             logger.publish();
             throw new AuraHandledException('Uventet feil ved fjerning av kontakt.');
         }
@@ -478,7 +518,7 @@ public with sharing class AAREG_MyAgreementsController {
     }
 
     /**
-     * @description Translates an agreement status code into a Norwegian display label.
+     * Translates an agreement status code into a Norwegian display label.
      * @param status Status value from the Agreement__c record.
      * @return Localized status label, or 'Ukjent status' when the value is not recognized.
      */

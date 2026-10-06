@@ -9,7 +9,7 @@ public with sharing class P360_ArchiveProcessingGate {
     private static final String ARCHIVE_PROCESSING_FEATURE = 'P360_Archive_Processing';
 
     /**
-     * @description Per-transaction feature-toggle instance; test-visible so tests can reset it after changing metadata fixtures.
+     * Per-transaction feature-toggle instance; test-visible so tests can reset it after changing metadata fixtures.
      */
     @TestVisible
     private static FeatureToggleBase featureToggle;

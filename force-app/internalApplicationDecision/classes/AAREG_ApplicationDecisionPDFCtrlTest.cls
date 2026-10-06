@@ -9,7 +9,7 @@
 @isTest
 public class AAREG_ApplicationDecisionPDFCtrlTest {
     /**
-     * @description Setter opp felles testdata før hver test:
+     * Setter opp felles testdata før hver test:
      *              - En Account av typen County
      *              - En tilhørende Application__c
      *              - En Application_Decision__c med vedtaksdetaljer
@@ -62,7 +62,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Verifiserer at PDF-controlleren initialiseres korrekt
+     * Verifiserer at PDF-controlleren initialiseres korrekt
      *              med en valid Application_Decision__c record.
      *              Kontrollerer at alle private data-loading metoder kjøres.
      * @since February 2026
@@ -92,7 +92,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Strict happy-path test to ensure constructor executes all data-loading paths.
+     * Strict happy-path test to ensure constructor executes all data-loading paths.
      * @since July 2026
      */
     @isTest
@@ -119,7 +119,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Tester at getApplicationRecord() returnerer alle relevante søknadsdata.
+     * Tester at getApplicationRecord() returnerer alle relevante søknadsdata.
      *              Verifiserer at alle 15 felter mappes korrekt fra databasen.
      * @since July 2026
      */
@@ -144,7 +144,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Tester at getApplicationDecisionRecord() returnerer alle relevante vedtaksdata.
+     * Tester at getApplicationDecisionRecord() returnerer alle relevante vedtaksdata.
      *              Verifiserer at alle 11 felter mappes korrekt fra Application_Decision__c.
      * @since July 2026
      */
@@ -179,7 +179,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Tester at getApplicationDecisionDetails() returnerer alle Application_Decision_Details__c poster.
+     * Tester at getApplicationDecisionDetails() returnerer alle Application_Decision_Details__c poster.
      *              Verifiserer at listen ikke er tom og alle details mappes korrekt.
      * @since July 2026
      */
@@ -211,7 +211,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Tester at controlleren håndterer manglende Application_Decision__c record korrekt.
+     * Tester at controlleren håndterer manglende Application_Decision__c record korrekt.
      *              Verifiserer at exception kastes og håndteres.
      * @since July 2026
      */
@@ -241,7 +241,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Tester PDF-generation med alle required felter satt.
+     * Tester PDF-generation med alle required felter satt.
      *              Verifiserer at PDF controller kan instantieres for PDF rendering.
      * @since July 2026
      */
@@ -261,7 +261,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Tester at currentRecord property inneholder korrekte vedtaksdata
+     * Tester at currentRecord property inneholder korrekte vedtaksdata
      * @since July 2026
      */
     @isTest
@@ -293,7 +293,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Tester at applicationRecord property inneholder korrekte søknadsdata
+     * Tester at applicationRecord property inneholder korrekte søknadsdata
      * @since July 2026
      */
     @isTest
@@ -321,7 +321,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Tester at decisionDetailsRecords property inneholder alle vedtaksdetaljer
+     * Tester at decisionDetailsRecords property inneholder alle vedtaksdetaljer
      * @since July 2026
      */
     @isTest
@@ -360,7 +360,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Test decision with minimal required fields
+     * Test decision with minimal required fields
      * @since July 2026
      */
     @isTest
@@ -389,7 +389,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Tester med Application_Decision__c uten Application_Decision_Details__c poster
+     * Tester med Application_Decision__c uten Application_Decision_Details__c poster
      * @since July 2026
      */
     @isTest
@@ -420,7 +420,7 @@ public class AAREG_ApplicationDecisionPDFCtrlTest {
     }
 
     /**
-     * @description Tester at alle 11 fields i AAREG_ApplicationDecision er korrekt satt
+     * Tester at alle 11 fields i AAREG_ApplicationDecision er korrekt satt
      * @since July 2026
      */
     @isTest
