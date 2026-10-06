@@ -35,15 +35,17 @@ public with sharing class AAREG_HomeControllerTest {
 
         insert user;
 
-        Altinn3IntegrationSetting__c settings = new Altinn3IntegrationSetting__c();
-        settings.Name = 'Altinn3IntegrationSettings';
-        settings.CachePartitionName__c = 'TestPartition';
-        settings.CalloutName__c = 'Altinn_Test_Access_Token';
-        settings.Endpoint__c = 'Altinn_Endpoint_Test';
-        settings.CacheKeyName__c = 'altinn3CalloutService';
-        settings.SubscriptionKey__c = 'altinn3subscriptionkey';
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            Altinn3IntegrationSetting__c settings = new Altinn3IntegrationSetting__c();
+            settings.Name = 'Altinn3IntegrationSettings';
+            settings.CachePartitionName__c = 'TestPartition';
+            settings.CalloutName__c = 'Altinn_Test_Access_Token';
+            settings.Endpoint__c = 'Altinn_Endpoint_Test';
+            settings.CacheKeyName__c = 'altinn3CalloutService';
+            settings.SubscriptionKey__c = 'altinn3subscriptionkey';
 
-        insert settings;
+            insert settings;
+        }
     }
 
     /**
@@ -52,7 +54,7 @@ public with sharing class AAREG_HomeControllerTest {
      * @since May 2021
      */
     @IsTest
-    private static void testGetOrganizationsWithRoles() {
+    private static void shouldReturnOrganizationsWithRoles() {
         List<Feature_Flag__mdt> featureFlags = new List<Feature_Flag__mdt>();
         featureFlags.add(
             new Feature_Flag__mdt(
@@ -84,7 +86,7 @@ public with sharing class AAREG_HomeControllerTest {
      * @since May 2021
      */
     @IsTest
-    private static void testGetLastUsedOrganizationNumber() {
+    private static void shouldReturnLastUsedOrganizationNumber() {
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
 
         String lastUsedOrganizationNumber = AAREG_HomeController.getLastUsersLastUsedOrganization(user.Id);
@@ -102,7 +104,7 @@ public with sharing class AAREG_HomeControllerTest {
      * @since May 2021
      */
     @IsTest
-    private static void testUpdateLastUsedOrganization() {
+    private static void shouldPersistLastUsedOrganization() {
         String orgNumber = '999999999';
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
 
@@ -119,7 +121,7 @@ public with sharing class AAREG_HomeControllerTest {
      * @since November 2022
      */
     @IsTest
-    private static void testShareAgreementsWithUser() {
+    private static void shouldShareAgreementsAndRelatedContacts() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
@@ -163,7 +165,7 @@ public with sharing class AAREG_HomeControllerTest {
      * @since January 2026
      */
     @IsTest
-    private static void testCheckAndShareIfAuthorizedWithAccess() {
+    private static void shouldGrantAccessAndShareAgreement() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
@@ -203,14 +205,14 @@ public with sharing class AAREG_HomeControllerTest {
      * @since October 2025
      */
     @IsTest
-    private static void testCheckAndShareIfAuthorizedNoAccess() {
+    private static void shouldDenyAccessWithoutSharing() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
 
         // Mock response with Deny decision
         String bodyDeny = '{"response":[{"decision":"Deny","action":"Access","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
 
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', bodyDeny, new Map<String, String>());
-        Test.setMock(HttpCalloutMock.class, mock);
+        System.Test.setMock(HttpCalloutMock.class, mock);
 
         System.Test.startTest();
         AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
@@ -229,7 +231,7 @@ public with sharing class AAREG_HomeControllerTest {
      * @since January 2026
      */
     @IsTest
-    private static void testCheckAndShareIfAuthorizedInvalidParameters() {
+    private static void shouldRejectInvalidParameters() {
         System.Test.startTest();
 
         // Test with null userId - should throw an exception
@@ -262,7 +264,7 @@ public with sharing class AAREG_HomeControllerTest {
      * @since January 2026
      */
     @IsTest
-    private static void testShareAgreementsWithUserIsOwner() {
+    private static void shouldSkipAgreementShareForOwner() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
@@ -311,7 +313,7 @@ public with sharing class AAREG_HomeControllerTest {
      * @since August 2026
      */
     @IsTest
-    private static void testUpdateLastUsedOrganizationException() {
+    private static void shouldSurfaceUpdateException() {
         User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
         System.Test.startTest();
         Boolean exceptionThrown = false;
@@ -332,7 +334,7 @@ public with sharing class AAREG_HomeControllerTest {
      * @since October 2025
      */
     @IsTest
-    private static void testShareAgreementsWithUserNoAgreements() {
+    private static void shouldSkipWhenNoAgreementsExist() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
 
         // No agreements exist for the organization
@@ -354,7 +356,7 @@ public with sharing class AAREG_HomeControllerTest {
      * @since October 2025
      */
     @IsTest
-    private static void testCheckAndShareIfAuthorizedNullRightsResponse() {
+    private static void shouldDenyWhenRightsResponseIsEmpty() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
 
         // Mock response with null rights
@@ -383,21 +385,21 @@ public with sharing class AAREG_HomeControllerTest {
      * @since August 2026
      */
     @IsTest
-    private static void testCheckAndShareIfAuthorizedFallbackSupportAccess() {
+    private static void shouldGrantSupportAccessFallback() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
 
         String bodyDeny = '{"response":[{"decision":"Deny","action":"Access","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', bodyDeny, new Map<String, String>());
-        Test.setMock(HttpCalloutMock.class, mock);
+        System.Test.setMock(HttpCalloutMock.class, mock);
 
-        Test.startTest();
+        System.Test.startTest();
         AAREG_HomeController.forceSupportAccessPermitInTest = true;
         AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
             user.Id,
             '929882989'
         );
         AAREG_HomeController.forceSupportAccessPermitInTest = false;
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(true, response.hasAccess, 'Fallback support access path should set hasAccess=true.');
         System.assertEquals(
@@ -413,7 +415,7 @@ public with sharing class AAREG_HomeControllerTest {
      * @since August 2026
      */
     @IsTest
-    private static void testShareAgreementsForcedCatchAndOwnerSkip() {
+    private static void shouldTolerateShareFailuresAndOwnerSkip() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
@@ -433,7 +435,7 @@ public with sharing class AAREG_HomeControllerTest {
         }
         update con;
 
-        Test.startTest();
+        System.Test.startTest();
         AAREG_HomeController.forceAgreementShareInsertException = true;
         AAREG_HomeController.forceRelatedContactShareInsertException = true;
         AAREG_HomeController.forceRelatedContactOwnerSkipBranch = true;
@@ -441,7 +443,7 @@ public with sharing class AAREG_HomeControllerTest {
         AAREG_HomeController.forceAgreementShareInsertException = false;
         AAREG_HomeController.forceRelatedContactShareInsertException = false;
         AAREG_HomeController.forceRelatedContactOwnerSkipBranch = false;
-        Test.stopTest();
+        System.Test.stopTest();
 
         System.assertEquals(
             true,

@@ -5,6 +5,8 @@
  *
  * Runs `without sharing` because it must share records with community users
  * who would not otherwise have access through standard sharing rules.
+ * This system-mode boundary is intentional and requires separate CRUD/FLS review;
+ * this class must not be changed to user mode without validating the sharing contract.
  *
  * @author Jordan Mathews
  * @author Erik Fladby
@@ -15,19 +17,29 @@
  */
 public without sharing class AAREG_HomeController {
     public static final String DEFAULT_ORGANIZATION_NUMBER = '929882989';
-    /** Test-only toggle to simulate a DML failure in updateLastUsedOrganization. */
+    /**
+     * Test-only toggle to simulate a DML failure in updateLastUsedOrganization.
+     */
     @TestVisible
     private static Boolean forceUpdateLastUsedOrganizationException = false;
-    /** Test-only toggle to force support-access permit branch in checkAndShareIfAuthorized. */
+    /**
+     * Test-only toggle to force support-access permit branch in checkAndShareIfAuthorized.
+     */
     @TestVisible
     private static Boolean forceSupportAccessPermitInTest = false;
-    /** Test-only toggle to simulate an agreement-share insert failure in shareAgreementsWithUser. */
+    /**
+     * Test-only toggle to simulate an agreement-share insert failure in shareAgreementsWithUser.
+     */
     @TestVisible
     private static Boolean forceAgreementShareInsertException = false;
-    /** Test-only toggle to simulate a related-contact-share insert failure in shareAgreementRelatedContacts. */
+    /**
+     * Test-only toggle to simulate a related-contact-share insert failure in shareAgreementRelatedContacts.
+     */
     @TestVisible
     private static Boolean forceRelatedContactShareInsertException = false;
-    /** Test-only toggle to force the owner-skip branch in shareAgreementRelatedContacts. */
+    /**
+     * Test-only toggle to force the owner-skip branch in shareAgreementRelatedContacts.
+     */
     @TestVisible
     private static Boolean forceRelatedContactOwnerSkipBranch = false;
 
