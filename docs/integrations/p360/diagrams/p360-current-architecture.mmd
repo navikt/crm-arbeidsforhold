@@ -1,0 +1,58 @@
+---
+title: P360 current architecture and boundaries
+---
+graph LR
+    subgraph Salesforce[Salesforce - implementert grunnmur]
+        Decision[Application_Decision__c]
+        Trigger[P360 trigger]
+        MyTriggers[MyTriggers]
+        Guard[P360_ApplicationDecisionArchiveGuard]
+        Key[P360_IdempotencyKey]
+        JobService[P360_ArchiveJobService]
+        Job[(P360_Archive_Job__c)]
+        Domain[AAREG application/agreement domain services]
+        Orchestrator[AAREG_ArchiveApplicationOrchestrator]
+        Factory[P360_AdapterFactory]
+        Adapter[P360_IArchiveAdapter]
+        LiveAdapter[P360_ArchiveAdapter]
+        StubAdapter[P360_StubArchiveAdapter]
+        Rpc[P360_IRpcClient / P360_RpcClient]
+        Worker[P360_ArchiveJobWorker]
+        Claim[P360_ArchiveJobClaimService]
+        CodeTable[(P360_Code_Table_Value__mdt)]
+        CodeTableService[P360_CodeTableMetadataService]
+        Mapper[Case / Document / File mappers]
+        Config[P360_Integration_Setting__c]
+    end
+
+    subgraph Future[Planlagt eller eksternt blokkert]
+        Auth[Named Credential and auth]
+        P360[Public 360 SIF RPC]
+    end
+
+    Decision --> Trigger --> MyTriggers --> Guard
+    JobService --> Key
+    JobService --> Job
+    Job --> Claim --> Worker
+    Worker --> Factory
+    Worker --> Adapter
+    Domain --> Orchestrator
+    Orchestrator --> Adapter
+    Factory --> StubAdapter
+    Factory --> LiveAdapter
+    LiveAdapter --> Rpc
+    StubAdapter --> Adapter
+    Rpc -.-> Auth -.-> P360
+    Mapper --> Adapter
+    CodeTableService --> CodeTable
+    Mapper --> CodeTableService
+    Config -. selects .-> StubAdapter
+    Config -. selects .-> LiveAdapter
+
+    classDef implemented fill:#d4f4dd,stroke:#2d7a3e,color:#111
+    classDef contract fill:#fff3cd,stroke:#946200,color:#111
+    classDef blocked fill:#f8d7da,stroke:#9b2c2c,color:#111
+    class Decision,Trigger,MyTriggers,Guard,Key,JobService,Job,CodeTable,CodeTableService,Config implemented
+    class Domain,Orchestrator,Factory,Adapter,Rpc contract
+    class Worker,CodeTable,CodeTableService,Config implemented
+    class Mapper,Auth,P360 blocked
