@@ -1,11 +1,18 @@
 name: "[PR] Validate"
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - converted_to_draft
     branches:
       - "*"
 jobs:
   run-pr-validation:
     name: Validate PR
+    if: github.event.pull_request.draft == false
     uses: navikt/crm-workflows-base/.github/workflows/validate.yml@master
     permissions:
       contents: read
