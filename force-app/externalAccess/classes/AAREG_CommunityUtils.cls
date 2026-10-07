@@ -9,9 +9,10 @@
  * @date [Date]
  */
 public without sharing class AAREG_CommunityUtils {
+    
     /**
      * Retrieves the user rights from the Altinn service.
-     *
+     * 
      * @return AltinnCalloutService.AltinnRightsResponse - The response containing the user rights information.
      */
     @AuraEnabled
