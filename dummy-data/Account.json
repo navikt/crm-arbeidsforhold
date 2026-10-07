@@ -47,6 +47,102 @@
             "INT_OrganizationNumber__c": "929882989",
             "INT_OrganizationalStructure__c": "FYLK",
             "INT_SectorCode__c": "6500"
+        },
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef5"
+            },
+            "Name": "STATENS PENSJONSKASSE",
+            "INT_Industry__c": "Forsikring og pensjonskasser, unntatt trygdeordninger underlagt offentlig forvaltning",
+            "INT_IndustryCode__c": "65.300",
+            "INT_OrganizationNumber__c": "982583462",
+            "INT_OrganizationalStructure__c": "ORGL",
+            "INT_SectorCode__c": "6100"
+        },
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef6"
+            },
+            "Name": "NETTSELSKAPET AS",
+            "INT_Industry__c": "Overføring av elektrisitet",
+            "INT_IndustryCode__c": "35.120",
+            "INT_OrganizationNumber__c": "917422891",
+            "INT_OrganizationalStructure__c": "AS",
+            "INT_SectorCode__c": "2100"
+        },
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef7"
+            },
+            "Name": "BYKOMMUNE",
+            "INT_Industry__c": "Generell offentlig administrasjon",
+            "INT_IndustryCode__c": "84.110",
+            "INT_OrganizationNumber__c": "964338531",
+            "INT_OrganizationalStructure__c": "KOMM",
+            "INT_SectorCode__c": "6500"
+        },
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef8"
+            },
+            "Name": "INNLANDET FYLKESKOMMUNE",
+            "INT_Industry__c": "Generell offentlig administrasjon",
+            "INT_IndustryCode__c": "84.110",
+            "INT_OrganizationNumber__c": "920717152",
+            "INT_OrganizationalStructure__c": "FYLK",
+            "INT_SectorCode__c": "6500"
+        },
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef9"
+            },
+            "Name": "ARBEIDSTILSYNET",
+            "INT_Industry__c": "Offentlig administrasjon tilknyttet næringsvirksomhet og arbeidsmarked",
+            "INT_IndustryCode__c": "84.130",
+            "INT_OrganizationNumber__c": "974761211",
+            "INT_OrganizationalStructure__c": "STAT",
+            "INT_SectorCode__c": "6100"
+        },
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef10"
+            },
+            "Name": "DIREKTORATET FOR FORVALTNING",
+            "INT_Industry__c": "Generell offentlig administrasjon",
+            "INT_IndustryCode__c": "84.110",
+            "INT_OrganizationNumber__c": "991825827",
+            "INT_OrganizationalStructure__c": "STAT",
+            "INT_SectorCode__c": "6100"
+        },
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef11"
+            },
+            "Name": "SPAREBANK PENSJON",
+            "INT_Industry__c": "Forsikring og pensjonskasser, unntatt trygdeordninger underlagt offentlig forvaltning",
+            "INT_IndustryCode__c": "65.300",
+            "INT_OrganizationNumber__c": "913448276",
+            "INT_OrganizationalStructure__c": "AS",
+            "INT_SectorCode__c": "2100"
+        },
+        {
+            "attributes": {
+                "type": "Account",
+                "referenceId": "AccountRef12"
+            },
+            "Name": "TRØNDELAG FYLKESKOMMUNE",
+            "INT_Industry__c": "Generell offentlig administrasjon",
+            "INT_IndustryCode__c": "84.110",
+            "INT_OrganizationNumber__c": "917621677",
+            "INT_OrganizationalStructure__c": "FYLK",
+            "INT_SectorCode__c": "6500"
         }
     ]
 }

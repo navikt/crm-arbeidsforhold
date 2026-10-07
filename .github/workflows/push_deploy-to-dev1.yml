@@ -13,15 +13,15 @@ jobs:
     steps:
       # Checkout source code
       - name: Checkout source code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       # Install SFDX
       - name: Install SFDX
-        uses: navikt/crm-workflows-base/.github/actions/installSFDX@master
+        uses: navikt/crm-workflows-base/.github/actions/installSF@aad6b4f48e419d71490db436da697cd7581a2c6a
 
       # Authenticate prod
       - name: Authenticate prod
-        uses: navikt/crm-workflows-base/.github/actions/authenticateOrg@master
+        uses: navikt/crm-workflows-base/.github/actions/authenticateOrg@aad6b4f48e419d71490db436da697cd7581a2c6a
         with:
           auth-url: ${{ secrets.CRM_PROD_SFDX_URL }}
           alias: prod
@@ -30,7 +30,7 @@ jobs:
 
       # Authenticate dev sandbox
       - name: Authenticate dev sandbox
-        uses: navikt/crm-workflows-base/.github/actions/authenticateOrg@master
+        uses: navikt/crm-workflows-base/.github/actions/authenticateOrg@aad6b4f48e419d71490db436da697cd7581a2c6a
         with:
           auth-url: ${{ secrets.DEV_SFDX_URL }}
           alias: dev

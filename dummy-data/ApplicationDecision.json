@@ -1,0 +1,51 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "Application_Decision__c",
+                "referenceId": "Application_Decision__cRef1"
+            },
+            "Application__c": "@Application__cRef7",
+            "Agreement__c": "@AgreementRef1",
+            "Decision_date__c": "2026-03-01",
+            "Process_status__c": "Completed",
+            "Data_elements__c": false,
+            "Decision_description__c": "Søknaden er delvis innvilget. Ikke alle dataelement er godkjent for utlevering."
+        },
+        {
+            "attributes": {
+                "type": "Application_Decision__c",
+                "referenceId": "Application_Decision__cRef2"
+            },
+            "Application__c": "@Application__cRef8",
+            "Agreement__c": "@AgreementRef2",
+            "Decision_date__c": "2026-03-05",
+            "Process_status__c": "Completed",
+            "Data_elements__c": true,
+            "Decision_description__c": "Søknaden er innvilget i sin helhet."
+        },
+        {
+            "attributes": {
+                "type": "Application_Decision__c",
+                "referenceId": "Application_Decision__cRef3"
+            },
+            "Application__c": "@Application__cRef9",
+            "Decision_date__c": "2026-03-09",
+            "Process_status__c": "Completed",
+            "Data_elements__c": false,
+            "Decision_description__c": "Søknaden er avslått. Grunnlaget for utlevering er ikke tilstrekkelig dokumentert."
+        },
+        {
+            "attributes": {
+                "type": "Application_Decision__c",
+                "referenceId": "Application_Decision__cRef4"
+            },
+            "Application__c": "@Application__cRef11",
+            "Agreement__c": "@AgreementRef3",
+            "Decision_date__c": "2026-03-20",
+            "Process_status__c": "Closed",
+            "Data_elements__c": true,
+            "Decision_description__c": "Avtalen var opprinnelig innvilget, men er nå suspendert i påvente av ny vurdering."
+        }
+    ]
+}
