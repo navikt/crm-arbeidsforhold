@@ -20,10 +20,10 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm test
-      - name: Prettier check changed files
+      - name: Prettier check changed files (newline-aware)
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |
           git diff --name-only --diff-filter=ACMR -z "origin/${BASE_REF}...HEAD" -- \
             '*.cls' '*.cmp' '*.component' '*.css' '*.html' '*.js' '*.json' '*.md' '*.page' '*.trigger' '*.xml' '*.yaml' '*.yml' \
-            | xargs -0 -r npx prettier --check --no-error-on-unmatched-pattern
+            | xargs -0 -r node scripts/prettier-staged.cjs --check

@@ -1,0 +1,49 @@
+{
+    "records": [
+        {
+            "attributes": {
+                "type": "Agreement__c",
+                "referenceId": "AgreementRef1"
+            },
+            "Application__c": "@Application__cRef7",
+            "Access_Request__c": "@Access_Request__cRef7",
+            "account__c": "@AccountRef7",
+            "Status__c": "Active",
+            "OnlineAccess__c": true,
+            "APIAccess__c": true,
+            "ExtractionAccess__c": false,
+            "DataProcessorName__c": "Kommunal Databehandler AS",
+            "DataProcessorOrganizationNumber__c": "988334455"
+        },
+        {
+            "attributes": {
+                "type": "Agreement__c",
+                "referenceId": "AgreementRef2"
+            },
+            "Application__c": "@Application__cRef8",
+            "Access_Request__c": "@Access_Request__cRef8",
+            "account__c": "@AccountRef8",
+            "Status__c": "Active",
+            "OnlineAccess__c": true,
+            "APIAccess__c": false,
+            "ExtractionAccess__c": true,
+            "DataProcessorName__c": "Fylkesdata Behandler AS",
+            "DataProcessorOrganizationNumber__c": "988445566"
+        },
+        {
+            "attributes": {
+                "type": "Agreement__c",
+                "referenceId": "AgreementRef3"
+            },
+            "Application__c": "@Application__cRef11",
+            "Access_Request__c": "@Access_Request__cRef11",
+            "account__c": "@AccountRef11",
+            "Status__c": "Deactivated",
+            "OnlineAccess__c": true,
+            "APIAccess__c": true,
+            "ExtractionAccess__c": false,
+            "DataProcessorName__c": "Sparebank Databehandler AS",
+            "DataProcessorOrganizationNumber__c": "988778899"
+        }
+    ]
+}
