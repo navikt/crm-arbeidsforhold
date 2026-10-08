@@ -1,10 +1,10 @@
 import { LightningElement, api } from 'lwc';
 
 export default class Aareg_modal extends LightningElement {
-  showModal = false;
+    showModal = false;
 
-  @api
-  toggle() {
-    this.showModal === false ? (this.showModal = true) : (this.showModal = false);
-  }
+    @api
+    toggle() {
+        this.showModal === false ? (this.showModal = true) : (this.showModal = false);
+    }
 }

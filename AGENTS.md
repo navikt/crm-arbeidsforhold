@@ -14,6 +14,8 @@ Use `.github/skills/tdd-salesforce/SKILL.md` for test-first feature work and
 The active setup backlog is `.github/AI-SETUP-TODO.md`.
 Shared domain language and verification vocabulary are in `CONTEXT.md`; read it before planning feature work, TDD slices, or architecture reviews.
 
+Technical documentation is organized under `docs/`: ADRs in `docs/adr/`, cross-cutting architecture in `docs/architecture/`, domain guidance in `docs/domain/`, surface guidance in `docs/surfaces/`, integration documentation in `docs/integrations/`, and shared development standards in `docs/utviklingsstandarder.md`.
+
 ## Standards hierarchy
 
 Apply standards in this order:
@@ -28,6 +30,7 @@ When standards conflict, preserve deployed public contracts and record the devia
 ## Source boundaries
 
 - Make product changes in `force-app/` unless the task explicitly targets another area.
+- Place Apex test classes and reusable Apex test utilities under `force-app/tests/classes/<matching-area>/`; keep production Apex classes under their feature or integration package paths.
 - Treat these directories as read-only by default: `src-temp`, `platform-data-model`, `custom-metadata-dao`, `custom-permission-helper`, `feature-toggle`, `record-type-cache`, `crm-platform-base`, `crm-platform-reporting`, `crm-platform-access-control`, `crm-thread-view`, `crm-shared-timeline`, `crm-community-base`, `crm-platform-integration`, `crm-platform-email-scheduling`, `crm-journal-utilities`, `crm-shared-user-notification`, `crm-shared-flowComponents`, `crm-platform-oppgave`, `crm-henvendelse-base`, and `crm-henvendelse`.
 - Do not edit generated, cache, log, scratch-org, or dependency-installation output.
 - Never commit secrets, package installation keys, Salesforce credentials, session files, or real personal data.
@@ -35,9 +38,18 @@ When standards conflict, preserve deployed public contracts and record the devia
 
 ## Salesforce conventions
 
+### Org safety
+
+- Use only the default `crm-arbeidsforhold` scratch org for authenticated Salesforce commands unless the user explicitly approves another org.
+- Never use SIT2, production, DevHub, or any other org merely because an authenticated alias is available. Authentication is not permission.
+- Ask the user first and explain the technical reason before using another org, deploying to any org, or running Apex tests against another org.
+- A deployment preview is read-only, but it still must target `crm-arbeidsforhold` unless the user explicitly approves a different target.
+
 - Preserve Salesforce metadata XML and source format. Do not rename metadata only to make it look cleaner.
 - Apex must follow `force-app/main/default/AGENTS.md`: use `with sharing` by default, bulkify SOQL/DML, avoid hardcoded IDs and URLs, and use the established error-logging pattern.
 - Add or update focused Apex tests and LWC Jest tests when behavior changes.
+- In Apex tests, always call the Salesforce framework with the fully qualified namespace: use `System.Assert.*` for assertions and `System.Test.*` for lifecycle APIs such as `System.Test.startTest()` and `System.Test.stopTest()`. Do not use bare `Assert` or unqualified `Test` calls.
+- Include at least one `System.runAs(minimumAccessUser)` in Apex test classes when the behaviour under test does not require elevated permissions. Use a user created from the minimum-access profile (`Profile.Name = 'Minimum Access - Salesforce'`) unless the scenario genuinely requires a stronger profile.
 - Keep package dependencies and package aliases consistent with `sfdx-project.json`.
 - Prefer existing utilities, Custom Metadata, Custom Labels, and permission sets over new hardcoded configuration.
 - Use English for metadata labels, API names, Apex, and backend identifiers; use Translation Workbench for user-facing Norwegian text.

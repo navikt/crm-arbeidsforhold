@@ -333,36 +333,12 @@
             </value>
         </valueSetDefinition>
         <valueSettings>
-            <controllingFieldValue>FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
-            <valueName>Personkontroll ved sikkerhetsklarering</valueName>
-        </valueSettings>
-        <valueSettings>
             <controllingFieldValue>LOV-2002-06-14-20 Brann- og eksplosjonsvernloven § 33</controllingFieldValue>
             <valueName>Kontroll av virksomheter som benytter eksplosiver.</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>LOV-2005-06-03-37 om utdanningsstøttel § 23</controllingFieldValue>
             <valueName>Vurdere en søkers eller lånetakers rett til utdanningsstøtte</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
-            <valueName>Forvaltning av bostøtteordningen</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
-            <valueName>Innkalling av personell til Sivilforsvaret</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
-            <valueName>Ajourholde av verneplikts- og tjenesteregisteret</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
-            <valueName>Innkalling av tjenestepliktig personell</valueName>
-        </valueSettings>
-        <valueSettings>
-            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
-            <valueName>Annet - oppgi i tekstfelt under</valueName>
         </valueSettings>
         <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
@@ -579,6 +555,30 @@
         <valueSettings>
             <controllingFieldValue>FOR-2008-08-18-942 om Arbeidsgiver- og arbeidstakerregisteret § 10 bokstav f</controllingFieldValue>
             <valueName>Vurdering av statlige tilvirkningsbevillinger etter alkoholloven</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>LOV-2009-05-29-30 om Husbanken § 10</controllingFieldValue>
+            <valueName>Forvaltning av bostøtteordningen</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>LOV-2010-06-25-45 sivilbeskyttelsesloven § 8</controllingFieldValue>
+            <valueName>Innkalling av personell til Sivilforsvaret</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Ajourholde av verneplikts- og tjenesteregisteret</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>LOV-2016-08-12-77 om verneplikt og tjeneste i Forsvaret m.m. § 58</controllingFieldValue>
+            <valueName>Innkalling av tjenestepliktig personell</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>FOR-2018-12-20-2054 klareringsforskriften § 8 første ledd bokstav e</controllingFieldValue>
+            <valueName>Personkontroll ved sikkerhetsklarering</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Annet - oppgi i tekstfelt under</controllingFieldValue>
+            <valueName>Annet - oppgi i tekstfelt under</valueName>
         </valueSettings>
     </valueSet>
 </CustomField>

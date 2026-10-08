@@ -1,52 +1,71 @@
 <template>
-  <c-aareg_main-banner>
-    Aa-registeret - Mine Meldinger
-    <template if:true={totalUnread}>
-      &nbsp;<span style="display: inline-block; background-color: #ba3a26; color: #fff; border-radius: 1rem; padding: 0 0.5rem; font-size: 0.875rem; font-weight: 700; vertical-align: middle;">{totalUnread}</span>
-    </template>
-  </c-aareg_main-banner>
-  <div class="container">
-    <div class="inner-container">
-      <div class="slds-grid slds-grid_vertical">
-        <div class="slds-col">
-          <div class="slds-clearfix">
-            <div class="slds-float_left">
-              <div class="breadcrumbs">
-                <c-breadcrumbs url-list={breadcrumbs}></c-breadcrumbs>
-              </div>
+    <c-aareg_main-banner>
+        Aa-registeret - Mine Meldinger
+        <template if:true={totalUnread}>
+            &nbsp;<span
+                style="
+                    display: inline-block;
+                    background-color: #ba3a26;
+                    color: #fff;
+                    border-radius: 1rem;
+                    padding: 0 0.5rem;
+                    font-size: 0.875rem;
+                    font-weight: 700;
+                    vertical-align: middle;
+                "
+                >{totalUnread}</span
+            >
+        </template>
+    </c-aareg_main-banner>
+    <div class="container">
+        <div class="inner-container">
+            <div class="slds-grid slds-grid_vertical">
+                <div class="slds-col">
+                    <div class="slds-clearfix">
+                        <div class="slds-float_left">
+                            <div class="breadcrumbs">
+                                <c-breadcrumbs url-list={breadcrumbs}></c-breadcrumbs>
+                            </div>
+                        </div>
+                        <div class="slds-float_right">
+                            <button
+                                type="button"
+                                name="Ny_Melding__c"
+                                class="button button-main"
+                                onclick={navigateToPage}
+                            >
+                                Ny melding
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-col">
+                    <div if:true={isMobile} style="height: 600px">
+                        <lightning-datatable
+                            key-field="id"
+                            data={threads}
+                            class="slds-max-medium-table_stacked"
+                            columns={columns}
+                            onrowaction={viewThread}
+                            hide-checkbox-column="true"
+                        >
+                        </lightning-datatable>
+                    </div>
+                    <div if:false={isMobile}>
+                        <lightning-datatable
+                            key-field="id"
+                            data={threads}
+                            columns={columns}
+                            onrowaction={viewThread}
+                            hide-checkbox-column="true"
+                        >
+                        </lightning-datatable>
+                    </div>
+                    <div if:false={threads} class="no-applications-container">
+                        <p>Du har ingen meldinger.</p>
+                    </div>
+                </div>
             </div>
-            <div class="slds-float_right">
-              <button type="button" name="Ny_Melding__c" class="button button-main" onclick={navigateToPage}>
-                Ny melding
-              </button>
-            </div>
-          </div>
         </div>
-        <div class="slds-col">
-          <div if:true={isMobile} style="height: 600px;">
-            <lightning-datatable
-              key-field="id"
-              data={threads}
-              class="slds-max-medium-table_stacked"
-              columns={columns}
-              onrowaction={viewThread}
-              hide-checkbox-column="true">
-            </lightning-datatable>
-          </div>
-          <div if:false={isMobile}>
-            <lightning-datatable
-              key-field="id"
-              data={threads}
-              columns={columns}
-              onrowaction={viewThread}
-              hide-checkbox-column="true">
-            </lightning-datatable>
-          </div>
-          <div if:false={threads} class="no-applications-container">
-            <p>Du har ingen meldinger.</p>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 </template>
