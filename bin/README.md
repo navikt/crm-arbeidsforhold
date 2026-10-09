@@ -37,6 +37,16 @@ Or run PowerShell directly:
 .\bin\create-scratch-org.ps1 -UpdatePackages -InstallLatest
 ```
 
+From the repository root, npm selects the platform-specific script:
+
+```powershell
+npm run scratch-org -- -Help
+npm run scratch-org -- -DryRun
+```
+
+The npm launcher accepts `--help`, `--Help`, `-Help`, and `-h` on every platform.
+For other options, use PowerShell parameter names on Windows; on macOS/Linux, use the Bash options shown below.
+
 Parameters use PowerShell names such as `-OrgAlias`, `-DurationDays`, `-DefinitionFile`, `-PostSteps`, `-UsePool`, `-PackagePlan`, and `-RefreshDependencySources`. `-DryRun` plans mutations without running them. The old positional installation-key argument is no longer supported. Supply package keys through the environment variable named by `packageInstallKeyEnvironmentVariable`; never put a key in the config file or command history.
 
 ## macOS/Linux
@@ -48,6 +58,8 @@ Parameters use PowerShell names such as `-OrgAlias`, `-DurationDays`, `-Definiti
 ./bin/create-scratch-org.sh
 ./bin/create-scratch-org.sh --post-steps-only --post-steps data
 ./bin/create-scratch-org.sh --redeploy
+npm run scratch-org -- --help
+npm run scratch-org -- --dry-run
 ```
 
 The `deploy` post-step only sends changes that source tracking has recorded, and tracking is reset after the post-steps. If the org is missing metadata but a deploy reports "No changes to deploy", run `--redeploy` (Windows: `-Redeploy`). It deletes local source tracking for the org and deploys all local source; org data is untouched. `--full-deploy` / `-FullDeploy` adds the same behaviour to any run that includes the deploy step.
@@ -80,6 +92,7 @@ Bash tests use a fake `sf` and temporary project directories:
 
 ```bash
 bash bin/tests/create-scratch-org.test.sh
+node --test bin/tests/create-scratch-org-launcher.test.js
 ```
 
 On Windows, run the PowerShell dry-run/config harness:
