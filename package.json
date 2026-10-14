@@ -11,6 +11,9 @@
         "test:p360:mock": "scripts/p360-mock-smoke.sh",
         "prettier:write": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
         "scratch-org": "node ./bin/create-scratch-org.js",
+        "metadata:audit:anonymous": "node scripts/audit-salesforce-metadata-history.cjs --anonymous",
+        "metadata:audit:export": "node scripts/audit-salesforce-metadata-history.cjs --export-log",
+        "metadata:audit:destructive": "node scripts/audit-salesforce-metadata-history.cjs --destructive",
         "prettier:check": "prettier --check --no-error-on-unmatched-pattern \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
         "prepare": "husky",
         "precommit": "lint-staged",
@@ -22,6 +25,7 @@
         "@salesforce/sfdx-lwc-jest": "^8.0.0",
         "husky": "^9.1.7",
         "jest-canvas-mock": "^2.5.8",
+        "jsdom": "20.0.3",
         "lint-staged": "^17.6.0",
         "prettier": "^3.9.9",
         "prettier-plugin-apex": "^2.3.0"
