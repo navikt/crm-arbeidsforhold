@@ -6,6 +6,7 @@ P360 archive processing is integrated into `main` behind the `P360_Archive_Proce
 
 - [Technical overview](teknisk-oversikt.md): implemented behavior, remaining gaps, and target architecture.
 - [Mock test guide](user-testing-guide.md): approved default scratch-org validation. It is not evidence of live SIF interoperability.
+- [Step-by-step regression and mock validation](../../operations/p360-og-crm-arbeidsforhold-testgjennomgang.md): manual scenarios, expected outcomes, and result matrices for scratch-org and integration sandbox.
 - [P360 completion roadmap](../../../.github/specs/p360-completion-roadmap.md): phases, acceptance criteria, and contract gates.
 - [Jira update proposal](../../context/p360/jira-oppdateringsoversikt.md): proposed Jira changes; Jira itself remains the status authority.
 - [Archive data model](../../architecture/p360-data-model-og-arkiveringsjob.md): object ownership, event jobs, and persistence contract.

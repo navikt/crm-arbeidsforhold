@@ -26,6 +26,7 @@ For prioriterte tekniske forbetringar og målmodell, sjå [Forbetringsforslag og
 P360-dokumentasjonen ligg under [integrations/p360](integrations/p360/README.md). Viktige repo-eigde dokument er:
 
 - [P360 teknisk oversikt](integrations/p360/teknisk-oversikt.md)
+- [Testgjennomgang: P360 og crm-arbeidsforhold med mock](operations/p360-og-crm-arbeidsforhold-testgjennomgang.md)
 - [P360 dependency injection og adapterval](integrations/p360/di-og-adapterval.md)
 - [P360 datamodell og asynkron arkiveringsjobb](architecture/p360-data-model-og-arkiveringsjob.md)
 - [P360 SIF RPC-operasjonar og kontraktsstatus](integrations/p360/sif-rpc-operasjonar.md)
