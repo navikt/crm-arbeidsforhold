@@ -40,6 +40,7 @@ try {
         defaultOrgAlias = 'profile-test-org'
         dummyDataPlan = 'data/Plan.json'
         postSteps = @('data')
+        customPostSteps = @([ordered]@{ name = 'seed'; executable = 'echo'; arguments = @('ready') })
         dummyUsers = [ordered]@{
             file = 'data/User.json'
             profileName = 'Standard User'

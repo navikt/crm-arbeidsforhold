@@ -3,7 +3,8 @@
 Creates and configures a Salesforce scratch org without sf-project tooling.
 
 .DESCRIPTION
-Reads project settings from sf-project.config.json and invokes Salesforce CLI (sf) directly.
+        $property = $Config.PSObject.Properties[$name]
+        if ($null -ne $property -and $property.Value -isnot [array]) { throw "$name must be an array." }
 #>
 [CmdletBinding()]
 param(
