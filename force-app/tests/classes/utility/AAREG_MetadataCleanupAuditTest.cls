@@ -15,19 +15,19 @@ private class AAREG_MetadataCleanupAuditTest {
     static void shouldReportFoundComponent() {
         System.Test.setMock(
             HttpCalloutMock.class,
-            new MetadataMock(200, '<records><fullName>LegacyClass</fullName></records>')
+            new MetadataMock(200, '<records><fullName>LegacyFlow</fullName></records>')
         );
 
         System.Test.startTest();
         List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
             new List<AAREG_MetadataCleanupAudit.Candidate>{
-                new AAREG_MetadataCleanupAudit.Candidate('ApexClass', 'LegacyClass')
+                new AAREG_MetadataCleanupAudit.Candidate('Flow', 'LegacyFlow')
             }
         );
         System.Test.stopTest();
 
         System.Assert.areEqual('FOUND', results[0].status);
-        System.Assert.areEqual('LegacyClass', results[0].fullName);
+        System.Assert.areEqual('LegacyFlow', results[0].fullName);
         System.Assert.isNull(results[0].errorCode);
     }
 
@@ -45,7 +45,7 @@ private class AAREG_MetadataCleanupAuditTest {
         System.Test.startTest();
         List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
             new List<AAREG_MetadataCleanupAudit.Candidate>{
-                new AAREG_MetadataCleanupAudit.Candidate('ApexClass', 'LegacyClass')
+                new AAREG_MetadataCleanupAudit.Candidate('Flow', 'LegacyFlow')
             }
         );
         System.Test.stopTest();
@@ -66,7 +66,7 @@ private class AAREG_MetadataCleanupAuditTest {
             System.Test.startTest();
             List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
                 new List<AAREG_MetadataCleanupAudit.Candidate>{
-                    new AAREG_MetadataCleanupAudit.Candidate('ApexClass', 'LegacyClass')
+                    new AAREG_MetadataCleanupAudit.Candidate('Flow', 'LegacyFlow')
                 }
             );
             System.Test.stopTest();
@@ -87,7 +87,7 @@ private class AAREG_MetadataCleanupAuditTest {
         System.Test.startTest();
         List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
             new List<AAREG_MetadataCleanupAudit.Candidate>{
-                new AAREG_MetadataCleanupAudit.Candidate('ApexClass', 'LegacyClass')
+                new AAREG_MetadataCleanupAudit.Candidate('Flow', 'LegacyFlow')
             }
         );
         System.Test.stopTest();
@@ -116,6 +116,117 @@ private class AAREG_MetadataCleanupAuditTest {
     }
 
     /**
+     * Verifies that an Apex class is checked through a same-org Tooling API query.
+     * @since 2026-10-12
+     */
+    @IsTest
+    static void shouldFindApexClassThroughToolingApi() {
+        System.Test.setMock(
+            HttpCalloutMock.class,
+            new ToolingApiMock(200, '{"totalSize":1,"done":true,"records":[{"Name":"LegacyClass"}]}')
+        );
+
+        System.Test.startTest();
+        List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
+            new List<AAREG_MetadataCleanupAudit.Candidate>{
+                new AAREG_MetadataCleanupAudit.Candidate('ApexClass', 'LegacyClass')
+            }
+        );
+        System.Test.stopTest();
+
+        System.Assert.areEqual('FOUND', results[0].status);
+        System.Assert.areEqual('LegacyClass', results[0].fullName);
+        System.Assert.isNull(results[0].errorCode);
+    }
+
+    /**
+     * Verifies that a complete exact-name Tooling query confirms an absent Apex class.
+     * @since 2026-10-12
+     */
+    @IsTest
+    static void shouldReportApexClassMissingForCompleteToolingQuery() {
+        System.Test.setMock(HttpCalloutMock.class, new ToolingApiMock(200, '{"totalSize":0,"done":true,"records":[]}'));
+
+        System.Test.startTest();
+        List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
+            new List<AAREG_MetadataCleanupAudit.Candidate>{
+                new AAREG_MetadataCleanupAudit.Candidate('ApexClass', 'LegacyClass')
+            }
+        );
+        System.Test.stopTest();
+
+        System.Assert.areEqual('NOT_FOUND', results[0].status);
+        System.Assert.isNull(results[0].errorCode);
+    }
+
+    /**
+     * Verifies that a partial Tooling query cannot confirm an Apex class is absent.
+     * @since 2026-10-12
+     */
+    @IsTest
+    static void shouldKeepIncompleteToolingQueryInconclusive() {
+        System.Test.setMock(
+            HttpCalloutMock.class,
+            new ToolingApiMock(200, '{"totalSize":1,"done":false,"records":[]}')
+        );
+
+        System.Test.startTest();
+        List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
+            new List<AAREG_MetadataCleanupAudit.Candidate>{
+                new AAREG_MetadataCleanupAudit.Candidate('ApexClass', 'LegacyClass')
+            }
+        );
+        System.Test.stopTest();
+
+        System.Assert.areEqual('UNKNOWN', results[0].status);
+        System.Assert.areEqual('INCOMPLETE_QUERY', results[0].errorCode);
+    }
+
+    /**
+     * Verifies that Tooling API failures expose only the HTTP and Salesforce error codes.
+     * @since 2026-10-12
+     */
+    @IsTest
+    static void shouldExposeSanitizedToolingApiErrorCode() {
+        System.Test.setMock(
+            HttpCalloutMock.class,
+            new ToolingApiMock(404, '[{"errorCode":"NOT_FOUND","message":"sensitive detail"}]')
+        );
+
+        System.Test.startTest();
+        List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
+            new List<AAREG_MetadataCleanupAudit.Candidate>{
+                new AAREG_MetadataCleanupAudit.Candidate('ApexClass', 'LegacyClass')
+            }
+        );
+        System.Test.stopTest();
+
+        System.Assert.areEqual('UNKNOWN', results[0].status);
+        System.Assert.areEqual('HTTP_404_NOT_FOUND', results[0].errorCode);
+        System.Assert.isFalse(results[0].errorCode.contains('sensitive detail'));
+    }
+
+    /**
+     * Verifies that namespaced Apex classes are not guessed from the Tooling API Name field.
+     * @since 2026-10-12
+     */
+    @IsTest
+    static void shouldKeepNamespacedApexClassInconclusive() {
+        System.Test.startTest();
+        List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
+            new List<AAREG_MetadataCleanupAudit.Candidate>{
+                new AAREG_MetadataCleanupAudit.Candidate('ApexClass', 'example__LegacyClass')
+            }
+        );
+        Integer callouts = Limits.getCallouts();
+        System.Test.stopTest();
+
+        System.Assert.areEqual('UNKNOWN', results[0].status);
+        System.Assert.areEqual('NAMESPACE_OR_UNSUPPORTED_APEX_CLASS_NAME', results[0].errorCode);
+        System.Assert.areEqual(0, callouts);
+    }
+
+    /**
      * Verifies that a different returned fullName cannot confirm the requested component.
      * @since 2026-10-09
      */
@@ -129,7 +240,7 @@ private class AAREG_MetadataCleanupAuditTest {
         System.Test.startTest();
         List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
             new List<AAREG_MetadataCleanupAudit.Candidate>{
-                new AAREG_MetadataCleanupAudit.Candidate('ApexClass', 'LegacyClass')
+                new AAREG_MetadataCleanupAudit.Candidate('Flow', 'LegacyFlow')
             }
         );
         System.Test.stopTest();
@@ -148,7 +259,7 @@ private class AAREG_MetadataCleanupAuditTest {
             HttpCalloutMock.class,
             new MetadataMock(
                 200,
-                '<records><fullName>LegacyClass</fullName></records>' +
+                '<records><fullName>LegacyFlow</fullName></records>' +
                 '<records xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>'
             )
         );
@@ -156,7 +267,7 @@ private class AAREG_MetadataCleanupAuditTest {
         System.Test.startTest();
         List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
             new List<AAREG_MetadataCleanupAudit.Candidate>{
-                new AAREG_MetadataCleanupAudit.Candidate('ApexClass', 'LegacyClass')
+                new AAREG_MetadataCleanupAudit.Candidate('Flow', 'LegacyFlow')
             }
         );
         System.Test.stopTest();
@@ -196,13 +307,34 @@ private class AAREG_MetadataCleanupAuditTest {
         System.Test.startTest();
         List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
             new List<AAREG_MetadataCleanupAudit.Candidate>{
-                new AAREG_MetadataCleanupAudit.Candidate('ApexClass', 'LegacyClass')
+                new AAREG_MetadataCleanupAudit.Candidate('Flow', 'LegacyFlow')
             }
         );
         System.Test.stopTest();
 
         System.Assert.areEqual('UNKNOWN', results[0].status);
         System.Assert.areEqual('REQUEST_OR_RESPONSE_FAILED', results[0].errorCode);
+    }
+
+    /**
+     * Verifies that SOAP fault codes are exposed without returning the fault message.
+     * @since 2026-10-12
+     */
+    @IsTest
+    static void shouldReturnSanitizedSoapFaultCode() {
+        System.Test.setMock(HttpCalloutMock.class, new SoapFaultMock());
+
+        System.Test.startTest();
+        List<AAREG_MetadataCleanupAudit.CheckResult> results = AAREG_MetadataCleanupAudit.checkCandidates(
+            new List<AAREG_MetadataCleanupAudit.Candidate>{
+                new AAREG_MetadataCleanupAudit.Candidate('Flow', 'LegacyFlow')
+            }
+        );
+        System.Test.stopTest();
+
+        System.Assert.areEqual('UNKNOWN', results[0].status);
+        System.Assert.areEqual('SOAP_INVALID_TYPE', results[0].errorCode);
+        System.Assert.isFalse(JSON.serialize(results).contains('synthetic fault detail'));
     }
 
     private static Schema.User createMinimumAccessUser() {
@@ -254,11 +386,11 @@ private class AAREG_MetadataCleanupAuditTest {
             Dom.XmlNode operation = body.getChildElement('readMetadata', 'http://soap.sforce.com/2006/04/metadata');
             System.Assert.isNotNull(operation, 'Only the readMetadata operation may be sent.');
             System.Assert.areEqual(
-                'ApexClass',
+                'Flow',
                 operation.getChildElement('type', 'http://soap.sforce.com/2006/04/metadata').getText()
             );
             System.Assert.areEqual(
-                'LegacyClass',
+                'LegacyFlow',
                 operation.getChildElement('fullNames', 'http://soap.sforce.com/2006/04/metadata').getText()
             );
 
@@ -269,6 +401,60 @@ private class AAREG_MetadataCleanupAuditTest {
                     '<Body><readMetadataResponse xmlns="http://soap.sforce.com/2006/04/metadata"><result>' +
                     this.records +
                     '</result></readMetadataResponse></Body></Envelope>'
+            );
+            return response;
+        }
+    }
+
+    private class ToolingApiMock implements HttpCalloutMock {
+        private Integer statusCode;
+        private String responseBody;
+
+        private ToolingApiMock(Integer statusCode, String responseBody) {
+            this.statusCode = statusCode;
+            this.responseBody = responseBody;
+        }
+
+        /**
+         * Verifies the Tooling API query request and returns a synthetic query result.
+         * @param request Request intercepted by the Salesforce test framework.
+         * @return Synthetic Tooling API response.
+         */
+        public HttpResponse respond(HttpRequest request) {
+            System.Assert.areEqual('GET', request.getMethod());
+            System.Assert.isTrue(
+                request.getEndpoint()
+                    .startsWith(URL.getOrgDomainUrl().toExternalForm() + '/services/data/v67.0/tooling/query/?q='),
+                'ApexClass checks must use the same-org Tooling REST endpoint.'
+            );
+            String query = EncodingUtil.urlDecode(request.getEndpoint().substringAfter('?q='), 'UTF-8');
+            System.Assert.isTrue(query.contains('SELECT Name FROM ApexClass'));
+            System.Assert.isFalse(query.contains('NamespacePrefix'));
+            System.Assert.isTrue(query.contains('FROM ApexClass'));
+            System.Assert.isTrue(query.contains('Name = \'LegacyClass\''));
+            System.Assert.isTrue(request.getHeader('Authorization').startsWith('Bearer '));
+
+            HttpResponse response = new HttpResponse();
+            response.setStatusCode(this.statusCode);
+            response.setHeader('Content-Type', 'application/json');
+            response.setBody(this.responseBody);
+            return response;
+        }
+    }
+
+    private class SoapFaultMock implements HttpCalloutMock {
+        /**
+         * Returns a synthetic SOAP fault without any session or org-specific values.
+         * @param request Request intercepted by the Salesforce test framework.
+         * @return Synthetic HTTP 500 SOAP fault response.
+         */
+        public HttpResponse respond(HttpRequest request) {
+            HttpResponse response = new HttpResponse();
+            response.setStatusCode(500);
+            response.setBody(
+                '<Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">' +
+                    '<Body><Fault><faultcode>sf:INVALID_TYPE</faultcode>' +
+                    '<faultstring>synthetic fault detail</faultstring></Fault></Body></Envelope>'
             );
             return response;
         }

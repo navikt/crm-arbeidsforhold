@@ -1,8 +1,8 @@
 /**
- * Checks historical metadata candidates through readMetadata in the executing Salesforce org.
+ * Checks historical metadata candidates through Tooling and Metadata APIs in the executing Salesforce org.
  *
- * Uses the caller's API-enabled session without elevating permissions. Requires an approved
- * same-org callout configuration and Metadata API access. No metadata or data is modified.
+ * Uses the caller's API-enabled session without elevating permissions. ApexClass lookups use Tooling API REST;
+ * other supported metadata types use Metadata API SOAP readMetadata. No metadata or data is modified.
  * Session identifiers, response payloads and exception messages are never logged or returned.
  *
  * @author Kenneth Sørensen
@@ -10,9 +10,6 @@
  * @group AAREG Utility
  */
 public with sharing class AAREG_MetadataCleanupAudit {
-    private static final String SOAP_NAMESPACE = 'http://schemas.xmlsoap.org/soap/envelope/';
-    private static final String METADATA_NAMESPACE = 'http://soap.sforce.com/2006/04/metadata';
-    private static final String INSTANCE_NAMESPACE = 'http://www.w3.org/2001/XMLSchema-instance';
     private static final Integer MAX_CANDIDATES = 10;
 
     /** Identifies one historical component using its Metadata API type and fullName. */
@@ -44,7 +41,13 @@ public with sharing class AAREG_MetadataCleanupAudit {
         /** Sanitized diagnostic code for UNKNOWN, otherwise null. */
         public String errorCode { get; private set; }
 
-        private CheckResult(Candidate candidate, String status, String errorCode) {
+        /**
+         * Creates a sanitized result for one metadata candidate.
+         * @param candidate Component that was checked.
+         * @param status FOUND, NOT_FOUND, or UNKNOWN.
+         * @param errorCode Sanitized diagnostic code, or null when no error occurred.
+         */
+        public CheckResult(Candidate candidate, String status, String errorCode) {
             this.metadataType = candidate.metadataType;
             this.fullName = candidate.fullName;
             this.status = status;
@@ -59,9 +62,9 @@ public with sharing class AAREG_MetadataCleanupAudit {
     /**
      * Checks at most ten candidates against the org in which this method executes.
      *
-     * Sends one synchronous readMetadata call per candidate to make nil-record attribution
-     * unambiguous. Missing sessions, unsupported settings, faults and malformed responses
-     * remain UNKNOWN. No absence is inferred from a failed request or an empty response.
+     * Sends one synchronous read call per candidate. ApexClass uses Tooling API; other types use
+     * readMetadata to make absence attribution unambiguous. Missing sessions, unsupported settings,
+     * faults and malformed responses remain UNKNOWN. No absence is inferred from a failed request.
      * Run only in an explicitly approved org using an authorized API-enabled session.
      *
      * @param candidates Non-null list of up to ten valid type/fullName references.
@@ -78,8 +81,24 @@ public with sharing class AAREG_MetadataCleanupAudit {
                 results.add(new CheckResult(candidate, 'UNKNOWN', 'SETTINGS_REQUIRE_MANUAL_REVIEW'));
             } else if (String.isBlank(sessionId) && !System.Test.isRunningTest()) {
                 results.add(new CheckResult(candidate, 'UNKNOWN', 'NO_API_SESSION'));
+            } else if (candidate.metadataType == 'ApexClass') {
+                results.add(
+                    fromLookup(
+                        candidate,
+                        AAREG_MetadataAuditToolingClient.checkApexClass(candidate.fullName, sessionId)
+                    )
+                );
             } else {
-                results.add(checkCandidate(candidate, sessionId));
+                results.add(
+                    fromLookup(
+                        candidate,
+                        AAREG_MetadataAuditSoapClient.readComponent(
+                            candidate.metadataType,
+                            candidate.fullName,
+                            sessionId
+                        )
+                    )
+                );
             }
         }
         return results;
@@ -112,72 +131,7 @@ public with sharing class AAREG_MetadataCleanupAudit {
         }
     }
 
-    private static CheckResult checkCandidate(Candidate candidate, String sessionId) {
-        try {
-            HttpRequest request = new HttpRequest();
-            request.setEndpoint(URL.getOrgDomainUrl().toExternalForm() + '/services/Soap/m/67.0');
-            request.setMethod('POST');
-            request.setHeader('Content-Type', 'text/xml; charset=UTF-8');
-            request.setHeader('SOAPAction', '""');
-            request.setTimeout(10000);
-            request.setBody(createRequestBody(candidate, sessionId));
-            HttpResponse response = new Http().send(request);
-            if (response.getStatusCode() != 200) {
-                return new CheckResult(candidate, 'UNKNOWN', 'HTTP_' + response.getStatusCode());
-            }
-            if (response.getBody().length() > 1000000) {
-                return new CheckResult(candidate, 'UNKNOWN', 'RESPONSE_TOO_LARGE');
-            }
-            return parseResponse(candidate, response.getBody());
-        } catch (System.Exception error) {
-            return new CheckResult(candidate, 'UNKNOWN', 'REQUEST_OR_RESPONSE_FAILED');
-        }
-    }
-
-    private static String createRequestBody(Candidate candidate, String sessionId) {
-        Dom.Document document = new Dom.Document();
-        Dom.XmlNode envelope = document.createRootElement('Envelope', SOAP_NAMESPACE, 'soapenv');
-        Dom.XmlNode header = envelope.addChildElement('Header', SOAP_NAMESPACE, 'soapenv');
-        Dom.XmlNode session = header.addChildElement('SessionHeader', METADATA_NAMESPACE, 'met');
-        session.addChildElement('sessionId', METADATA_NAMESPACE, 'met').addTextNode(sessionId == null ? '' : sessionId);
-        Dom.XmlNode body = envelope.addChildElement('Body', SOAP_NAMESPACE, 'soapenv');
-        Dom.XmlNode operation = body.addChildElement('readMetadata', METADATA_NAMESPACE, 'met');
-        operation.addChildElement('type', METADATA_NAMESPACE, 'met').addTextNode(candidate.metadataType);
-        operation.addChildElement('fullNames', METADATA_NAMESPACE, 'met').addTextNode(candidate.fullName);
-        return document.toXmlString();
-    }
-
-    private static CheckResult parseResponse(Candidate candidate, String responseBody) {
-        Dom.Document document = new Dom.Document();
-        document.load(responseBody);
-        Dom.XmlNode body = document.getRootElement().getChildElement('Body', SOAP_NAMESPACE);
-        if (body == null) {
-            return new CheckResult(candidate, 'UNKNOWN', 'UNEXPECTED_RESPONSE');
-        }
-        if (body.getChildElement('Fault', SOAP_NAMESPACE) != null) {
-            return new CheckResult(candidate, 'UNKNOWN', 'SOAP_FAULT');
-        }
-        Dom.XmlNode response = body.getChildElement('readMetadataResponse', METADATA_NAMESPACE);
-        Dom.XmlNode result = response == null ? null : response.getChildElement('result', METADATA_NAMESPACE);
-        return parseRecord(candidate, result);
-    }
-
-    private static CheckResult parseRecord(Candidate candidate, Dom.XmlNode result) {
-        if (result == null || result.getChildElements().size() != 1) {
-            return new CheckResult(candidate, 'UNKNOWN', 'UNEXPECTED_RESPONSE');
-        }
-        Dom.XmlNode record = result.getChildElements()[0];
-        if (record.getName() != 'records' || record.getNamespace() != METADATA_NAMESPACE) {
-            return new CheckResult(candidate, 'UNKNOWN', 'UNEXPECTED_RESPONSE');
-        }
-        String nilValue = record.getAttribute('nil', INSTANCE_NAMESPACE);
-        if (new Set<String>{ 'true', '1' }.contains(nilValue)) {
-            return new CheckResult(candidate, 'NOT_FOUND', null);
-        }
-        Dom.XmlNode fullName = record.getChildElement('fullName', METADATA_NAMESPACE);
-        if (fullName == null || !candidate.fullName.equals(fullName.getText())) {
-            return new CheckResult(candidate, 'UNKNOWN', 'NAME_MISMATCH_OR_MISSING');
-        }
-        return new CheckResult(candidate, 'FOUND', null);
+    private static CheckResult fromLookup(Candidate candidate, Map<String, String> lookup) {
+        return new CheckResult(candidate, lookup.get('status'), lookup.get('errorCode'));
     }
 }

@@ -35,23 +35,80 @@ Den bevarte testen er `AAREG_checkObjectTypeNamecheTest.cls`. Produksjonsklassen
 
 ## Lesebasert Apex-kontroll
 
-`AAREG_MetadataCleanupAudit` kan kontrollere kandidatane i
-[historikkrapporten](salesforce-metadata-history.md) via Salesforce Metadata API `readMetadata`.
-Klassen kontaktar berre orgen der han køyrer, med org-adresse frå `URL.getOrgDomainUrl()`.
+`AAREG_MetadataCleanupAudit` kontrollerer Apex-klasser via ein eksaktnamn Tooling API REST-query.
+Andre støtta metadata-typar blir kontrollerte via Metadata API SOAP `readMetadata`.
+Dette skiljet er nødvendig fordi `readMetadata(ApexClass)` i scratch-orgen returnerte SOAP-feilen
 Han har ingen slettemetode, ingen DML og inga automatisk aktivering av P360.
-
 Føresetnader per miljø:
 
-- Klassa og testane må vere deploya gjennom ein separat godkjend prosess.
-- Brukaren må ha API-tilgang og `Modify Metadata Through Metadata API Functions` eller
-  `Modify All Data`, slik Salesforce dokumenterer for `readMetadata`. Klassa aukar ikkje brukaren sine rettar.
-- Same-org HTTPS-callout må vere tillaten gjennom godkjend Remote Site Settings-konfigurasjon.
-  Oppsett av dette er ikkje gjort her. Ingen produksjonsadresse er hardkoda.
+- ApexClass-oppslag brukar Tooling API REST med den køyrande brukaren sin Salesforce-sesjon.
+  `Modify All Data`, slik Salesforce dokumenterer. Klassa aukar ikkje brukaren sine rettar.
+- Same-org HTTPS-callout frå dagens direkte-endepunkt må vere tillaten gjennom Remote Site Settings.
+  Oppsett må kontrollerast i kvart miljø. Ved seinare overgang til Named Credential skal Remote Site Settings
+  ikkje vere nødvendig for callouten som brukar Named Credential.
 - Koyr synkront frå ein godkjend API-aktiv sesjon, til dømes Execute Anonymous.
   Asynkrone kontekstar og enkelte UI-sesjonar gir ikkje ein brukbar API-sesjon.
 - Produksjon krev eksplisitt godkjenning, også for lesekontrollen. Ikkje legg sesjons-ID-ar i kode,
   loggar eller rapportar. SOAP-requesten inneheld sesjons-ID, og API-svaret kan innehalde sensitiv metadata;
-  ikkje logg request-/response-body.
+
+### Brukartilgang for dagens køyring
+
+Den dokumenterte inngangen er Execute Anonymous, ikkje ein brukarvend Apex-, REST- eller LWC-teneste.
+
+- `API Enabled` for API-sesjonen som `sf apex run` brukar.
+- `Author Apex` for å køyre Execute Anonymous. Dette er ei kraftig rett: brukaren kan køyre vilkårleg Apex.
+  Tildel henne berre til godkjende operatørar; ikkje til vanlege sluttbrukarar.
+- Det avgrensa permission set-et for audit-operatørar bør gi Apex Class Access til fasaden
+  `AAREG_MetadataCleanupAudit`; ikkje eksponer hjelpeklassene som eigne inngangar. Denne class access-en
+  erstattar ikkje `Author Apex` for Execute Anonymous.
+- `Modify Metadata Through Metadata API Functions` når kandidaten inneheld typar som blir kontrollerte med
+  Metadata API SOAP `readMetadata`. Bruk denne framfor `Modify All Data` når det er tilstrekkeleg.
+
+`API Enabled` åleine gir ikkje SOAP-metadatarettane. ApexClass Tooling API-oppslaget brukar den innlogga
+brukaren sin tilgang; `Modify Metadata Through Metadata API Functions` er ikkje dokumentert som krav for
+Tooling-oppslaget. Verifiser den minste rettskombinasjonen i kvar org med den faktiske operatørprofilen.
+Klassa har ikkje `@AuraEnabled`- eller `@RestResource`-inngang, så Apex Class Access åleine gjer ikkje
+verktøyet tilgjengeleg for vanlege brukarflater.
+
+Credential-administrator er ei eiga rolle. For å vise credentials krev Salesforce `View Setup and Configuration`;
+for å opprette eller endre Named/External Credentials krevst `Manage Named Credentials` eller `Customize Applications`.
+Ikkje gje desse administrasjonsrettane til audit-operatørar berre om dei skal køyre kontrollen.
+
+### Named Credential og External Credential
+
+Dette er oppsettet for ei mogleg credential-basert Tooling API-migrering; dagens Apex-kode brukar framleis
+`URL.getOrgDomainUrl()` og `UserInfo.getSessionId()`. Oppretting eller endring av credentials er ikkje del av
+runbook-køyringa og krev eiga godkjenning per miljø.
+
+1. I kvart målmiljø opprettar credential-administrator ein External Auth Identity Provider/OAuth-klient etter
+   organisasjonen sin godkjende Salesforce API-authstandard. Bruk My Domain for målorg; ikkje legg klient-ID,
+   klienthemmelegheit, token eller org-spesifikk URL i kjeldekode eller dokumentasjon.
+2. Opprett External Credential, til dømes `MetadataAudit_PerUser`, med OAuth og ein `Per User` principal.
+   Vel OAuth-flow, scope og refresh-policy etter godkjend identitetsoppsett; dei verdiane må stadfestast i
+   målorgen og kan ikkje utleiast frå P360-konfigurasjonen.
+3. Opprett Named Credential, til dømes `MetadataAudit_SameOrg`, med URL-rota
+   `https://<MyDomain>.my.salesforce.com`, aktiver callouts og knyt henne til External Credential.
+   Ikkje legg API-sti eller query i URL-rota. Apex byggjer då endepunktet som
+   `callout:MetadataAudit_SameOrg/services/data/v67.0/tooling/query/...`; Named Credential legg ved
+   autentiseringsheaderen automatisk.
+4. Lag eit eige permission set for audit-operatørar. Gje det Apex Class Access til fasaden og
+   External Credential Principal Access til `Per User`-principal-en. Tildel permission set berre til
+   godkjende operatørar. Kvar brukar må òg fullføre si eiga OAuth-autorisering før Per User-callouten kan gå.
+5. Verifiser i scratch med den faktiske operatørbrukaren at Named Credential-callouten finn ein eksisterande
+   klasse og returnerer `NOT_FOUND` for ein kontrollert manglande klasse. Ingen produksjonscredential eller
+   delt brukar skal brukast i denne testen.
+
+Salesforce-referansar: [Opprett External Credential](https://help.salesforce.com/s/articleView?id=sf.nc_create_edit_external_credential.htm&type=5),
+[opprett Named Credential](https://help.salesforce.com/s/articleView?id=sf.nc_create_edit_named_credential.htm&type=5),
+og [OAuth Named Credential-oppsett](https://developer.salesforce.com/docs/platform/named-credentials/guide/nc-create-oauth-cred.html).
+Per User bevarer at resultatet blir avgrensa av den som køyrer kontrollen. Ein Named Principal ville i staden
+gjeve alle kall identiteten og tilgangen til ein delt integrasjonsbrukar, og ville endra tydinga av `FOUND` og
+`NOT_FOUND`; ikkje vel det utan eit medvite policyvedtak.
+
+Named Credential-migreringa fjernar ikkje automatisk rettskravet til Metadata API SOAP. SOAP-klienten sender i dag
+sesjons-ID i `SessionHeader`; ho skal ikkje endrast til å stole på Named Credential sin HTTP Authorization-header
+før SOAP-auth er testa med same External Credential i scratch. Fram til då gjeld gjeldande SOAP-rettar og direkte
+callout-føresetnader.
 
 Eksempel for eit godkjent miljø:
 
@@ -126,10 +183,11 @@ Han er ikkje implementert her. `UNKNOWN` og `HTTP_500` er framleis uavklarte API
 uavhengig av om dei blir viste i logg eller eksporterte til fil.
 
 - `FOUND`: API-et returnerte det nøyaktige gamle komponentnamnet; komponenten er ein stadfesta kandidat for vidare avhengigheits-/eigarkontroll.
-- `NOT_FOUND`: API-et returnerte ein eksplisitt nil-record for dette namnet. Dette er eit resultat for den innlogga brukaren si metadataoversikt, ikkje bevis for at komponenten aldri har vore deploya.
+- `NOT_FOUND`: For ApexClass fullførte Tooling-queryen med `totalSize=0`; for SOAP-typar returnerte API-et ein eksplisitt nil-record. Dette viser berre synlegheit for den innlogga brukaren, ikkje om komponenten nokon gong vart deploya.
 - `UNKNOWN`: tilgang, sesjon, callout, unsupported type, namn-/case-avvik eller uventa svar må avklarast. Ikkje tolk dette som sletta metadata.
 
 Settings, pakke-eigde komponentar og namn med berre endra bokstavstorleik krev særskild vurdering.
+Tooling-oppslaget brukar berre `ApexClass.Name`; namespace-kvalifiserte kandidatar blir derfor `UNKNOWN` og må kontrollerast manuelt. Ein namespace-aware query er ikkje validert.
 Ingen av statusane er godkjenning for sletting. `NOT_FOUND` er særleg ikkje ei oppmoding om destructive deploy.
 Named Credentials og sentral tilgang til andre orgar er ikkje implementerte i denne same-org-kontrollen.
 
@@ -140,7 +198,11 @@ sf apex run test --class-names AAREG_MetadataCleanupAuditTest --target-org crm-a
 ```
 
 Testane brukar `HttpCalloutMock` og kontaktar ikkje ein ekte Metadata API-endpoint.
-Reell org-kompilering, testkøyring og API-verifikasjon er ikkje utførte som del av implementasjonen.
+Den 2026-10-12 blei klassene deploya til den godkjende scratch-orgen `crm-arbeidsforhold`; den fokuserte
+`AAREG_MetadataCleanupAuditTest` køyrde 15 testar utan feil. Ei separat Tooling API-kontroll fann
+`AAREG_ApplicationController` (`FOUND`) og rapporterte `AAREG_CheckObjectTypeNamingTest` (`NOT_FOUND`).
+Direkte `readMetadata(ApexClass)` gav `sf:INVALID_TYPE`; vellykka SOAP-oppslag for andre metadata-typar
+er ikkje verifiserte mot ein ekte org. Named/External Credential er heller ikkje oppretta eller testa.
 
 ## Destructive deployment
 
