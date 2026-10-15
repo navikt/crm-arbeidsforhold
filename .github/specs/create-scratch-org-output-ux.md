@@ -122,7 +122,7 @@ Related fix found during manual use: the `deploy` post-step reset source trackin
 Validation for #1076 and #1077:
 
 - The new tests were written first and failed: 15 Bash assertions and 5 `sf-project` contract tests.
-- `bash bin/tests/create-scratch-org.test.sh` passes 281 assertions.
+- `bash bin/tests/create-scratch-org.test.sh` passes 286 assertions, including a fake-pool regression test confirming configured post-steps continue after a successful pool fetch.
 - `npm run check` in `tools/salesforce-project-cli` passes: 190 core tests, 16 web tests, docs check, type-check and build.
 - The PowerShell harness was not run because `pwsh` is not installed locally.
 
