@@ -1899,10 +1899,6 @@
     </flowDefinitions>
     <flowDefinitions>
         <flows/>
-        <fullName>sfdc_default_ReportExport_Protection_Flow</fullName>
-    </flowDefinitions>
-    <flowDefinitions>
-        <flows/>
         <fullName>updateApplicationStatusOnCasehandlerStatusAdditionalInformationRequired</fullName>
     </flowDefinitions>
     <quickActions>
