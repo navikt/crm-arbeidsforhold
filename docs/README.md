@@ -15,7 +15,7 @@ Dokumentasjonen er organisert etter dokumenttype og ansvar. Start i området som
 | Brukarflater         | Dokumentasjon for Experience Cloud, interne flater og andre brukarflater                        | [Brukarflater](surfaces/README.md)                                                 |
 | Drift                | Tekniske sjekklister for metadataopprydding og kontrollert org-endring                          | [Salesforce metadataopprydding](operations/salesforce-metadata-cleanup-runbook.md) |
 | Kontekst             | Spegla Jira-/Confluence-kontekst og prosjektspesifikke arbeidsnotat                             | [P360-kontekst](context/p360/jira/README.md)                                       |
-| Utviklingsstandardar | Spegla oversikt over standardar og lenker til operativ fasit                                    | [Utviklingsstandardar](utviklingsstandarder.md)                                    |
+| Utviklingsstandardar | Repo-eigd oversikt over standardar, skills og lenker til operativ fasit                         | [Utviklingsstandardar](utviklingsstandarder.md)                                    |
 | Arbeidsflyt          | Integrasjonsflyt, user stories, dokumentasjonsansvar og oppdateringsreglar                      | [Arbeidsflyt og dokumentasjon](arbeidsflyt-og-dokumentasjon.md)                    |
 
 ## P360
