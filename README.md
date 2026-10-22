@@ -38,7 +38,36 @@ npm test
 npm run prettier:check
 ```
 
-`npm test` kjører LWC Jest-testene. Apex-kompilering og Apex-tester er org-avhengige og må kjøres mot en autentisert Salesforce-org.
+`npm test` kjører først Node-testene for lokale utviklerverktøy og deretter LWC Jest-testene.
+Bruk `npm run test:node` for bare Node-testene og `npm run test:unit` for bare LWC-testene.
+Node-testene under `bin/tests/` og `scripts/tests/` bruker `node:test` og er derfor
+utelatt fra Jest sitt testsøk. Begge runnerne må lykkes for at `npm test` skal lykkes,
+og den eksisterende PR-valideringen kjører begge uten endringer i workflowen.
+Apex-kompilering og Apex-tester er org-avhengige og må kjøres mot en autentisert Salesforce-org.
+
+### Pre-commit på Windows, Linux og macOS
+
+Husky installeres av `prepare`-scriptet ved `npm install` eller `npm ci`.
+Bruk Git (Git for Windows på Windows), Node.js som støttes av avhengighetene
+(`lint-staged` 17.6.0 krever Node.js >=22.22.1), og npm. Git og Node må være
+tilgjengelige i PATH også når commit startes fra VS Code.
+
+[Hooken](.husky/pre-commit) starter [Node-scriptet](scripts/pre-commit.cjs),
+som kontrollerer staged filer mot pakkemappene i `sfdx-project.json` og deretter
+kjører lokalt installert `lint-staged`. Verken `jq`, `grep`, `npx` eller WSL
+er nødvendig. Husky bruker fortsatt Git sin shell; LF-linjeskift for hooken
+er sikret i `.gitattributes`.
+
+Endringer i andre pakkemapper enn `force-app` blokkeres. Eksisterende unntak
+med miljøvariabelen `ALLOW_PACKAGE_DIR_COMMIT=1` krever eksplisitt godkjenning
+og hopper bare over pakkekontrollen, ikke formateringen. Feil i konfigurasjon,
+Git eller formatering stopper commit.
+
+Kjør isolerte hook-tester uten å endre repoets Git-indeks:
+
+```bash
+node --test scripts/tests/pre-commit.test.cjs
+```
 
 ## Salesforce Project CLI
 

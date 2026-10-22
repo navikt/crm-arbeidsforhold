@@ -52,9 +52,9 @@ Dokumenter som er merket `speilkopi: ja` i frontmatter er kopiert fra Confluence
 
 ## Utviklingsstandarder
 
-Maskinlesbare instruksjonsfiler, `AGENTS.md` og relevante skills er fasit for agentadferd og operativ utvikling. `docs/utviklingsstandarder.md` er en speilkopi som beskriver standardområdene og peker til den operative fasiten; den skal ikke konkurrere med eller overstyre instruksjonsfilene.
+Maskinlesbare instruksjonsfiler, `AGENTS.md` og relevante skills er fasit for agentadferd og operativ utvikling. [Utviklingsstandardene](../utviklingsstandarder.md) er fra 2026-10-22 en repo-eid oversikt som peker til den operative fasiten; den skal ikke konkurrere med eller overstyre instruksjonsfilene. Confluence skal oppdateres til å vise denne kildeoppdelingen.
 
-README-struktur og dokumentasjonsstandarder håndheves gjennom repository-instruksjonene og etablerte dokumentmaler. Det opprettes ikke en separat, parallell standardtekst i speilkopien uten at Confluence-kilden oppdateres samtidig.
+README-struktur og dokumentasjonsstandarder håndheves gjennom repository-instruksjonene og etablerte dokumentmaler. Confluence kan beskrive og lenke til standardene, men skal ikke være en konkurrerende operativ fasit.
 
 ## Dokumenter i dette området
 
