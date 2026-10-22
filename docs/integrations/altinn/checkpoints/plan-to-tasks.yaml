@@ -1,0 +1,47 @@
+metadata:
+    generated: '2026-10-20'
+    source_plan: 'docs/integrations/altinn/implementation-plan.md'
+    target_tasks: 'docs/integrations/altinn/implementation-plan.md'
+summary:
+    total_plan_items: 10
+    covered_plan_items: 10
+    missing_plan_items: 0
+    coverage_percentage: 100.0
+    total_tasks_generated: 19
+    orphan_tasks: 0
+phases:
+    - phase_id: '1'
+      items:
+          - { item_id: '1.1', tasks: ['T001', 'T002'], depends_on: [] }
+    - phase_id: '2'
+      items:
+          - { item_id: '2.1', tasks: ['T003', 'T004', 'T005'], depends_on: ['T001'] }
+    - phase_id: '3'
+      items:
+          - { item_id: '3.1', tasks: ['T006', 'T007'], depends_on: ['T002'] }
+          - { item_id: '3.2', tasks: ['T008', 'T009'], depends_on: ['T002'] }
+          - { item_id: '3.3', tasks: ['T010', 'T011'], depends_on: ['T005', 'T007', 'T009'] }
+    - phase_id: '4'
+      items:
+          - { item_id: '4.1', tasks: ['T012', 'T013'], depends_on: ['T011'] }
+    - phase_id: '5'
+      items:
+          - { item_id: '5.1', tasks: ['T014'], depends_on: ['T002'] }
+          - { item_id: '5.2', tasks: ['T015', 'T016'], depends_on: ['T013', 'T014'], condition: 'D01=A' }
+          - { item_id: '5.3', tasks: ['T017'], depends_on: ['T013', 'T014'], condition: 'D01=B' }
+    - phase_id: '6'
+      items:
+          - item_id: '6.1'
+            tasks: ['T018', 'T019']
+            depends_on: ['T013']
+            any_of: ['T016', 'T017']
+missing_plan_items: []
+orphan_tasks: []
+validation:
+    scope: 'Traceability only; tasks are planned, not executed'
+    passed: true
+    errors: []
+    warnings:
+        - '5.2 and 5.3 are mutually exclusive; select exactly one after D01.'
+        - 'Dependencies within each item follow red, implement, verify order.'
+        - 'Publishing, installation and deployment need separate approval.'
