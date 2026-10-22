@@ -38,7 +38,12 @@ npm test
 npm run prettier:check
 ```
 
-`npm test` kjører LWC Jest-testene. Apex-kompilering og Apex-tester er org-avhengige og må kjøres mot en autentisert Salesforce-org.
+`npm test` kjører først Node-testene for lokale utviklerverktøy og deretter LWC Jest-testene.
+Bruk `npm run test:node` for bare Node-testene og `npm run test:unit` for bare LWC-testene.
+Node-testene under `bin/tests/` og `scripts/tests/` bruker `node:test` og er derfor
+utelatt fra Jest sitt testsøk. Begge runnerne må lykkes for at `npm test` skal lykkes,
+og den eksisterende PR-valideringen kjører begge uten endringer i workflowen.
+Apex-kompilering og Apex-tester er org-avhengige og må kjøres mot en autentisert Salesforce-org.
 
 ### Pre-commit på Windows, Linux og macOS
 
