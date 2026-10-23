@@ -9,6 +9,9 @@ av Altinn-integrasjonen. Spesifikasjonane er
 [applikasjonsscenario](../../../.github/specs/altinn-consumer-scenarios.md).
 Sjå også [kritiske avklaringar](grill.md) og [gjennomføringsplan](implementation-plan.md).
 
+For arbeid i integrasjonspakka: ta med
+[sjølvstendig overlevering til pakkeagenten](package-agent-handoff.md).
+
 ## Kjeldegrunnlag og avgrensing
 
 Lesne lokale kjelder:
