@@ -24,7 +24,7 @@ A developer can see at a glance which phase is running, how far it has come, and
 - Show animated spinners only on an interactive terminal outside CI. Non-interactive output prints one start line and one result line.
 - Keep the dry-run `Would run:` lines, error messages, and documented messages unchanged in wording so existing tests and habits keep working.
 - Do not change behaviour, defaults, or the commands the script runs.
-- PowerShell parity (`bin/create-scratch-org.ps1`) is out of scope.
+- The initial delivery covered Bash. The PowerShell parity extension below applies the same output contract following the user's request on 2026-10-23.
 
 ## Functional requirements
 
@@ -91,7 +91,7 @@ Manual use exposed a defect shared by `create-scratch-org.sh`, `create-scratch-o
 
 ## Out of scope
 
-- PowerShell and CMD launchers, except the source-tracking fix and `-FullDeploy`/`-Redeploy` (REQ-340 to REQ-342, REQ-352).
+- Changes to CMD launchers beyond forwarding the PowerShell output parameters.
 - Changing which Salesforce CLI commands run, or their arguments, except the source-tracking order and full-deploy option (REQ-340 to REQ-342).
 - `sf-project` web API support for `fullDeploy`; the CLI option is enough for recovery.
 - Moving warnings and errors from stdout to stderr.
@@ -102,6 +102,34 @@ Manual use exposed a defect shared by `create-scratch-org.sh`, `create-scratch-o
 - Delivery issues: #1071, #1072, #1073, #1074, #1076, #1077
 
 ## Implementation status
+
+### PowerShell parity extension (2026-10-23)
+
+PowerShell must provide the same readable phases and outcome model as Bash, not just functional command parity.
+This extension does not authorize Salesforce access or change command arguments, source scope or org lifecycle.
+
+- **PS-UX-001:** Show grouped settings, effective target/configuration, active modes and selected post-steps before work starts. Never print the installation key.
+- **PS-UX-002:** Number only active phases; show `[i/N]` counters for packages and selected post-steps. Print operation start and result with elapsed seconds.
+- **PS-UX-003:** While a command is running, show an elapsed-time spinner in an interactive terminal outside CI. In redirected logs/CI, emit plain `Still running:` feedback every five seconds with no cursor-control animation. Do not invent Salesforce completion percentages.
+- **PS-UX-004:** Keep command results separate from UI so JSON parsing and exit codes are preserved. Hide successful raw CLI output unless `-Verbose`; always show failed command details and redact the configured key.
+- **PS-UX-005:** Provide `-Color` / `-NoColor` with the same CLI/environment/terminal precedence as Bash; plain-text/ASCII output remains readable without color or UTF-8.
+- **PS-UX-006:** Print a final summary on success and failure, including status, timing, org action, package categories and completed/skipped post-steps. Dry-run actions are planned, not completed. Failed or skipped steps must not be counted as run.
+- **PS-UX-007:** Offline tests must assert the actual output shape, color precedence, quiet/verbose/error output and package/step counts. A delayed fake command must prove progress appears before the script exits, not merely in a captured result afterwards.
+
+The PowerShell worker uses the ThreadJob module bundled with PowerShell 7 to capture CLI results while the main runspace renders progress. The worker retains native invocation rather than evaluating a constructed shell command; existing argument-boundary and failure tests remain mandatory.
+
+Windows rendering and process execution still require #1148; Mac offline results must not be described as Windows or authenticated Salesforce verification.
+
+PowerShell validation evidence:
+
+- Output tests initially failed with 27 assertions before the implementation.
+- `pwsh -NoLogo -NoProfile -File bin/tests/create-scratch-org.Tests.ps1`: 179 assertions passed on macOS, with one explicitly skipped Windows-only group. The delayed fake deploy emitted a heartbeat while the child process was still running.
+- `npm run test:node`: 34 tests passed.
+- `bash bin/tests/create-scratch-org.test.sh`: 282 assertions passed.
+- Focused Prettier checks and `git diff --check` passed.
+- These checks use fake CLI executables. They do not verify Windows terminal rendering or an authenticated Salesforce setup.
+
+### Earlier Bash delivery
 
 All delivery issues are implemented and committed on `scripts-tooling-pr`; they are awaiting PR review and merge. Validation run on 2026-10-02:
 

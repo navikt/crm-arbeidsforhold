@@ -22,6 +22,7 @@ if ($null -eq $rule) {
     [Console]::Error.WriteLine("Unexpected fake CLI call: $tool $($arguments -join ' ')")
     exit 97
 }
+if ($rule.delaySeconds) { Start-Sleep -Seconds $rule.delaySeconds }
 if ($rule.stderr) { [Console]::Error.WriteLine($rule.stderr) }
 if ($rule.output) { [Console]::Out.WriteLine($rule.output) }
 exit $rule.exitCode

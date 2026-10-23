@@ -85,6 +85,31 @@ The Bash script supports org create/delete, pool acquisition, package install/up
 
 Output is grouped into numbered phases (`[1/3] Scratch org`, `[2/3] Packages`, `[3/3] Post-steps`) with `[i/N]` counters per package and post-step. Package installs show a spinner with elapsed time in an interactive terminal; Salesforce CLI output from a successful install is hidden unless you pass `--verbose`, and is always shown when an install fails. Colour is used only in a terminal: `NO_COLOR=1` or `--no-color` turns it off, and `FORCE_COLOR=1` or `--color` turns it on for CI logs. Icons fall back to ASCII when the locale is not UTF-8. See [the output specification](../.github/specs/create-scratch-org-output-ux.md).
 
+PowerShell uses the same output structure: grouped settings, numbered active phases,
+package/post-step counters, operation start/result lines and a final run summary on
+success or failure. Long CLI commands (including org creation, pool acquisition,
+package resolution/installation and deployment) show a spinner with elapsed seconds
+in an interactive terminal. Redirected output and CI instead get plain start/result
+lines plus a `Still running:` heartbeat every five seconds while waiting. This is
+elapsed-time feedback, not a fabricated percentage of Salesforce work completed.
+
+PowerShell captures CLI output for internal JSON parsing; it does not stream raw CLI
+JSON into the progress display. Successful CLI details are hidden by default and
+available with `-Verbose`. Failure details are always shown, with the configured
+installation key redacted. `-Color` / `-NoColor` override `NO_COLOR`, then `FORCE_COLOR`,
+then terminal detection. CI never animates the output. These flags work through
+CMD and npm as well:
+
+```powershell
+.\bin\create-scratch-org.ps1 -PostStepsOnly -Verbose -NoColor
+```
+
+The summary distinguishes installed/updated/current/higher-version/planned packages,
+completed/skipped post-steps, and warnings. Dry-run labels mutations as planned;
+it never reports them as actually installed or deployed. A failed operation stays
+failed and shows its label and elapsed duration; no later steps are claimed as run.
+Output changes do not change Salesforce CLI arguments, org targets or deployment scope.
+
 Package-version maintenance is preview-only unless explicitly applied. Coverage uses the target project config unless flags override it:
 
 ```bash

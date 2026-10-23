@@ -48,8 +48,8 @@ function Reset-Scenario {
 }
 
 function Add-Rule {
-    param([string]$Tool, [string[]]$Prefix, [string]$Output = '{"status":0,"result":{}}', [int]$ExitCode = 0, [string]$ErrorOutput = '')
-    $script:Rules += @{ tool = $Tool; prefix = $Prefix; output = $Output; exitCode = $ExitCode; stderr = $ErrorOutput }
+    param([string]$Tool, [string[]]$Prefix, [string]$Output = '{"status":0,"result":{}}', [int]$ExitCode = 0, [string]$ErrorOutput = '', [int]$DelaySeconds = 0)
+    $script:Rules += @{ tool = $Tool; prefix = $Prefix; output = $Output; exitCode = $ExitCode; stderr = $ErrorOutput; delaySeconds = $DelaySeconds }
 }
 
 function Set-PackageProject {
@@ -68,7 +68,8 @@ function Invoke-Scenario {
         [string]$Executable = $HostPath,
         [string[]]$LeadingArguments = @('-NoLogo', '-NoProfile', '-File', $ScriptPath),
         [switch]$AllowUnexpected,
-        [switch]$WithoutRuntime
+        [switch]$WithoutRuntime,
+        [switch]$ObserveProgress
     )
     Write-Json (Join-Path $ProjectDirectory 'sf-project.config.json') $Config
     Write-Json $RulePath @($Rules)
@@ -80,7 +81,7 @@ function Invoke-Scenario {
     $info.WorkingDirectory = $ProjectDirectory
     foreach ($argument in @($LeadingArguments) + @($Options)) { $info.ArgumentList.Add($argument) }
     foreach ($name in @($info.Environment.Keys)) {
-        if ($name -match '^(ORG_ALIAS|DURATION_DAYS|PROJECT_FILE|SF_|SFDX_|SCRATCH_|DUMMY_|COMMUNITY_|PERMISSION_|POST_STEPS|PACKAGE_|PACKAGES_|POOL_|USE_POOL|COVERAGE_|FALLBACK_|RUN_|INSTALL_|VERIFY_|DRY_RUN|FULL_DEPLOY)') {
+        if ($name -match '^(ORG_ALIAS|DURATION_DAYS|PROJECT_FILE|SF_|SFDX_|SCRATCH_|DUMMY_|COMMUNITY_|PERMISSION_|POST_STEPS|PACKAGE_|PACKAGES_|POOL_|USE_POOL|COVERAGE_|FALLBACK_|RUN_|INSTALL_|VERIFY_|DRY_RUN|FULL_DEPLOY|NO_COLOR|FORCE_COLOR|VERBOSE|CI|TERM|LC_ALL|LC_CTYPE|LANG)') {
             $info.Environment.Remove($name) | Out-Null
         }
     }
@@ -100,13 +101,27 @@ function Invoke-Scenario {
     $info.Environment['SCRATCH_TEST_HOST'] = $HostPath
     $info.Environment['SCRATCH_TEST_FIXTURE'] = Join-Path $PSScriptRoot 'fixtures/scratch-cli.ps1'
     $info.Environment['PACKAGE_INSTALL_MAX_ATTEMPTS'] = '1'
+    $info.Environment['TERM'] = 'dumb'
     foreach ($entry in $Overrides.GetEnumerator()) { $info.Environment[$entry.Key] = $entry.Value }
     $process = [Diagnostics.Process]::Start($info)
     try {
-        $stdout = $process.StandardOutput.ReadToEndAsync()
         $stderr = $process.StandardError.ReadToEndAsync()
+        $prefix = ''
+        $liveProgress = $false
+        if ($ObserveProgress) {
+            $watch = [Diagnostics.Stopwatch]::StartNew()
+            while ($watch.Elapsed.TotalSeconds -lt 30) {
+                $lineTask = $process.StandardOutput.ReadLineAsync()
+                if (-not $lineTask.Wait(30000)) { $process.Kill($true); throw 'Timed out waiting for progress output.' }
+                $line = $lineTask.Result
+                if ($null -eq $line) { break }
+                $prefix += $line + "`n"
+                if ($line -match 'Still running:') { $liveProgress = -not $process.HasExited; break }
+            }
+        }
+        $stdout = $process.StandardOutput.ReadToEndAsync()
         if (-not $process.WaitForExit(60000)) { $process.Kill($true); throw 'Offline scenario timed out.' }
-        $result = [pscustomobject]@{ ExitCode = $process.ExitCode; Output = $stdout.GetAwaiter().GetResult() + $stderr.GetAwaiter().GetResult() }
+        $result = [pscustomobject]@{ ExitCode = $process.ExitCode; Output = $prefix + $stdout.GetAwaiter().GetResult() + $stderr.GetAwaiter().GetResult(); LiveProgress = $liveProgress }
     } finally { $process.Dispose() }
     $script:Calls = @(Get-Content -LiteralPath $LogPath | ForEach-Object { $_ | ConvertFrom-Json })
     if (-not $AllowUnexpected) {
@@ -335,6 +350,11 @@ try {
     Assert-Exit $result 1 'install failure propagates'
     Assert-True ($result.Output -notmatch 'offline-secret-marker') 'install key never appears in output'
     Assert-True ((Get-Content -LiteralPath $LogPath -Raw) -notmatch 'offline-secret-marker') 'fake CLI journal redacts key arguments'
+    $script:Rules = @($Rules | Where-Object { $_.prefix[1] -ne 'install' })
+    Add-Rule sf @('package', 'install') 'successful install echoed offline-secret-marker'
+    $result = Invoke-Scenario -Options @('-SkipOrg', '-PostSteps', 'none', '-Verbose')
+    Assert-Exit $result 0 'verbose install succeeds'
+    Assert-True ($result.Output -match 'successful install echoed \*\*\*' -and $result.Output -notmatch 'offline-secret-marker') 'verbose successful CLI output redacts the install key'
 
     Reset-Scenario
     Add-Rule sf @('--version')
@@ -353,6 +373,87 @@ try {
     $result = Invoke-Scenario -Options @('-PostStepsOnly', '-PostSteps', 'deploy') -AllowUnexpected
     Assert-Exit $result 1 'unexpected fake CLI command fails closed'
     Assert-True (@($Calls | Where-Object unexpected).Count -eq 1) 'unexpected call is recorded, not sent to real CLI'
+
+    Reset-Scenario
+    Set-PackageProject
+    Add-Rule sf @('org', 'delete', 'scratch')
+    Add-Rule sf @('org', 'create', 'scratch')
+    Add-Rule sf @('package', 'install') 'successful install detail'
+    Add-Rule sf @('project', 'deploy', 'start')
+    Add-Rule sf @('project', 'reset', 'tracking')
+    $result = Invoke-Scenario
+    Assert-Exit $result 0 'full setup output succeeds'
+    foreach ($text in @('Scratch org setup', 'Target', 'offline-org', 'Active modes', '[1/3] Scratch org', '[2/3] Packages', '[3/3] Post-steps', '[1/1] offline-package', '[1/1] deploy', 'Run summary', 'SUCCESS', 'Installed', 'Duration', 'Started', 'Ended')) {
+        Assert-True ($result.Output.Contains($text)) "output includes $text"
+    }
+    Assert-True ($result.Output -notmatch 'successful install detail|SubscriberPackageVersionId') 'default output hides successful raw CLI/JSON noise'
+    Assert-True ($result.Output -notmatch "`e\[|`r") 'redirected output has no ANSI codes or animation'
+    Assert-True ($result.Output -match 'Installed\s+1' -and $result.Output -match 'Ran\s+deploy') 'summary counts only completed install and post-step'
+    $result = Invoke-Scenario -Options @('-Verbose')
+    Assert-True ($result.Output -match 'successful install detail') 'verbose includes successful CLI details'
+
+    Reset-Scenario
+    Set-PackageProject
+    $script:Rules = @($Rules | Where-Object { $_.prefix[1] -ne 'installed' })
+    Add-Rule sf @('package', 'installed', 'list') '{"status":0,"result":[{"SubscriberPackageName":"offline-package","SubscriberPackageVersionNumber":"2.0.0.1"}]}'
+    $result = Invoke-Scenario -Options @('-UpdatePackages')
+    Assert-Exit $result 0 'higher installed version is preserved'
+    Assert-True ($result.Output -match 'Higher\s+1' -and $result.Output -match 'Not downgrading') 'higher-version skip is visible in summary'
+    Assert-True (@($Calls | Where-Object { $_.arguments[1] -eq 'install' }).Count -eq 0) 'output changes never trigger a downgrade'
+
+    Reset-Scenario
+    $result = Invoke-Scenario -Options @('-PostStepsOnly', '-PostSteps', 'permsets')
+    Assert-Exit $result 0 'unconfigured post-step is explicitly skipped'
+    Assert-True ($result.Output -match 'Skipped: permsets' -and $result.Output -match 'Ran\s+none') 'skipped post-step is not counted as run'
+    Assert-True ($result.Output -match 'COMPLETED WITH WARNINGS' -and $Calls.Count -eq 0) 'warnings are not presented as unconditional success'
+
+    Reset-Scenario
+    $Config.Remove('defaultOrgAlias')
+    Add-Rule sf @('config', 'get', 'target-org') '{"status":0,"result":[{"name":"target-org","value":"offline-default"}]}'
+    Add-Rule sf @('project', 'deploy', 'start')
+    Add-Rule sf @('project', 'reset', 'tracking')
+    $result = Invoke-Scenario -Options @('-PostStepsOnly')
+    Assert-Exit $result 0 'partial run resolves CLI default target'
+    Assert-True ($result.Output -match 'Effective target org\s+offline-default') 'resolved CLI default is shown before work'
+    Assert-True ($result.Output.IndexOf('Effective target org') -lt $result.Output.IndexOf('Deploying metadata')) 'effective target appears before deployment starts'
+
+    Reset-Scenario
+    Add-Rule sf @('project', 'deploy', 'start') 'offline deployment detail' 9
+    $result = Invoke-Scenario -Options @('-PostStepsOnly')
+    Assert-Exit $result 1 'failed output scenario fails'
+    Assert-True ($result.Output -match 'FAILED' -and $result.Output -match 'offline deployment detail') 'failure summary includes CLI details'
+    Assert-True ($result.Output -notmatch 'Post-steps completed|Ran\s+deploy|SUCCESS') 'failed step is not reported completed'
+
+    Reset-Scenario
+    Add-Rule sf @('project', 'deploy', 'start') -DelaySeconds 7
+    Add-Rule sf @('project', 'reset', 'tracking')
+    $result = Invoke-Scenario -Options @('-PostStepsOnly') -ObserveProgress
+    Assert-Exit $result 0 'delayed deployment succeeds'
+    Assert-True $result.LiveProgress 'elapsed progress is emitted before the subprocess exits'
+    Assert-True ($result.Output -match 'Still running:.*[0-9]+s') 'long operation reports elapsed seconds'
+
+    foreach ($style in @('default', 'force', 'no-color', 'explicit-color', 'explicit-no-color')) {
+        Reset-Scenario
+        $options = @('-PostStepsOnly', '-DryRun')
+        if ($style -ne 'default') { $Overrides['FORCE_COLOR'] = '1' }
+        if ($style -in @('no-color', 'explicit-color')) { $Overrides['NO_COLOR'] = '1' }
+        if ($style -eq 'explicit-color') { $options += '-Color' }
+        if ($style -eq 'explicit-no-color') { $options += '-NoColor' }
+        $result = Invoke-Scenario -Options $options
+        Assert-Exit $result 0 "$style output succeeds"
+        $expectedColor = $style -in @('force', 'explicit-color')
+        Assert-True (($result.Output -match "`e\[") -eq $expectedColor) "$style color precedence"
+        Assert-True ($Calls.Count -eq 0 -and $result.Output -match 'DRY RUN') 'dry-run is labelled as planned, not executed'
+    }
+
+    Reset-Scenario
+    $Overrides['LC_ALL'] = 'C'
+    $result = Invoke-Scenario -Options @('-PostStepsOnly', '-DryRun', '-DurationDays', '7')
+    Assert-True ($result.Output -notmatch '[✔✖⚠▸•○]') 'non-UTF8 locale uses readable ASCII status markers'
+    Assert-True ($result.Output -match 'Duration days\s+7') 'settings show the effective CLI override'
+    $result = Invoke-Scenario -Options @('-PostStepsOnly', '-DryRun', '-Color', '-NoColor')
+    Assert-Exit $result 1 'conflicting color options fail before CLI'
+    Assert-True ($Calls.Count -eq 0) 'output option validation has no org side effects'
 
     if ($IsWindows) {
         Reset-Scenario
