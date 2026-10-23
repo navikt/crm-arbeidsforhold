@@ -156,6 +156,23 @@ CMD/npm process execution and missing-runtime tests run only on Windows. On Mac
 they are explicitly reported as skipped, not passed. Simulating version 5.1 in a
 child process tests the runtime guard only; it is not an actual Windows PowerShell test.
 Windows CI is tracked by [#1148](https://github.com/navikt/crm-arbeidsforhold/issues/1148).
+The approved [offline workflow](../.github/workflows/scratch-org-offline.yml)
+uses Windows 2025 and checksum-pinned PowerShell 7.6.6 LTS. It runs
+`pwsh -NoLogo -NoProfile -File bin/tests/create-scratch-org.Tests.ps1 -RequireWindows`,
+which rejects non-Windows hosts or skipped mandatory Windows groups. Actions are
+pinned to immutable commits, repository permissions are read-only, checkout
+credentials are not persisted, and no Salesforce secrets are supplied.
+Node regression runs on Windows and Ubuntu; Ubuntu also runs the Bash harness.
+The jobs record the checkout revision, OS and tool versions. Missing tools fail
+the job rather than skipping coverage.
+
+Windows fixes are ported from the failing-then-green real runner results in
+[navikt/crm-platform-integration#475](https://github.com/navikt/crm-platform-integration/pull/475):
+explicit standard native argument passing preserves empty/quoted arguments,
+the harness uses CMD-specific launch quoting, and output tests distinguish CRLF
+line endings from terminal animation. This repository still needs its own green
+workflow result before claiming Windows offline verification.
+
 Mac results do not establish Windows support, and even green Windows offline tests
 do not verify real Salesforce CLI, `sfp`, authentication, pool contents or deployment.
 
