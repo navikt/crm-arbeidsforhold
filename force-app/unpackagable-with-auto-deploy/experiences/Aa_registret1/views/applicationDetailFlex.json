@@ -31,7 +31,7 @@
             "env" : "Dev"
           },
           "componentName" : "c:decoratorHeader",
-          "id" : "ee512874-4ebe-4520-bfde-94369dfc6585",
+          "id" : "bce30d6e-5a51-4dc7-8619-27c8f3b88756",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
@@ -109,7 +109,7 @@
         "components" : [ {
           "componentAttributes" : { },
           "componentName" : "c:decoratorFooter",
-          "id" : "119dfffe-c3c5-4e62-b490-6128cae67566",
+          "id" : "654f02e5-c676-4ab0-bd16-0bc382e678e3",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
@@ -145,5 +145,5 @@
   } ],
   "themeLayoutType" : "Inner",
   "type" : "view",
-  "viewType" : "detail-a0i"
+  "viewType" : "detail-a1e"
 }

@@ -31,7 +31,7 @@
             "env" : "Dev"
           },
           "componentName" : "c:decoratorHeader",
-          "id" : "30238a68-909b-4850-b9cd-8d6ba8bcb5dd",
+          "id" : "636b1722-4ce0-4606-9b91-1d448887b099",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
@@ -45,7 +45,7 @@
         }, {
           "componentAttributes" : { },
           "componentName" : "c:decoratorFooter",
-          "id" : "5b17dfad-cf29-4121-8bf2-20bb1a2525ec",
+          "id" : "feaa8a5f-95f3-4d3e-83ed-1bc801f8656a",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
