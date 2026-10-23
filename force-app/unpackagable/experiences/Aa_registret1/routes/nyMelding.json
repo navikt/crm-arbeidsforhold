@@ -1,8 +1,9 @@
 {
-  "activeViewId" : "37d13b7e-dd5e-4d04-8b5f-5dffb27e7993",
+  "activeViewId" : "8694cd56-a6c0-4c4c-b754-883533c5bacb",
   "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
   "configurationTags" : [ ],
-  "id" : "0263579b-397c-436d-86de-3c9b7eeac748",
+  "devName" : "Ny_Melding__c",
+  "id" : "7a89f2f5-cb53-4623-a092-418991bbfe1b",
   "label" : "Ny Melding",
   "pageAccess" : "UseParent",
   "routeType" : "custom-ny-melding",

@@ -1,8 +1,9 @@
 {
-  "activeViewId" : "7521fe37-02a2-4d49-b245-913957908649",
+  "activeViewId" : "5900e79e-153c-47a7-9894-2b09fa7881cc",
   "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
   "configurationTags" : [ ],
-  "id" : "5beb0d1c-3c27-4ecf-9486-2661cc1f5b01",
+  "devName" : "Mine_Meldinger__c",
+  "id" : "bf037755-1faf-463f-a707-0553fc8d5b56",
   "label" : "Mine Meldinger",
   "pageAccess" : "UseParent",
   "routeType" : "custom-mine-meldinger",

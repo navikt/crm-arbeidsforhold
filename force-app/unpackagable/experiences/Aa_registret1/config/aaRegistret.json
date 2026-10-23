@@ -7,5 +7,108 @@
   "mainAppPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
   "preferredDomain" : "none",
   "selfRegistrationRouteId" : "57c7d74c-3d5e-45c0-a2db-57dfa3959d28",
+  "trustedSitesForScript" : [ {
+    "id" : "6b471f1a-38ba-4827-b40c-36f8f4e798e8",
+    "isActive" : true,
+    "trustedSiteName" : "Dekoratøren",
+    "trustedSiteUrl" : "https://dekoratoren.ekstern.dev.nav.no/",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "9a268600-6ecf-48a1-9293-49cf821c933a",
+    "isActive" : true,
+    "trustedSiteName" : "Taskanalytics",
+    "trustedSiteUrl" : "https://in2.taskanalytics.com",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "72b82275-8658-45e9-b290-6875e1b30ac9",
+    "isActive" : true,
+    "trustedSiteName" : "Nav CDN",
+    "trustedSiteUrl" : "https://cdn.nav.no",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "344968f0-3f4f-4ab6-82da-0dc6d6478b6f",
+    "isActive" : true,
+    "trustedSiteName" : "*.nav.no",
+    "trustedSiteUrl" : "https://*.nav.no",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "5c852bd1-b5e4-48b6-9bc0-fe8d0bde075a",
+    "isActive" : true,
+    "trustedSiteName" : "*.psplugin.com",
+    "trustedSiteUrl" : "https://*.psplugin.com",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "5c3546e9-b2b9-4f23-afe6-2255497df340",
+    "isActive" : true,
+    "trustedSiteName" : "*.googletagmanager.com",
+    "trustedSiteUrl" : "https://*.googletagmanager.com",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "9b257699-acdb-4de7-96e0-c3a7e43d922e",
+    "isActive" : true,
+    "trustedSiteName" : "*.google-analytics.com",
+    "trustedSiteUrl" : "https://*.google-analytics.com",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "80586e65-8841-449e-8da4-d7d4a65a666e",
+    "isActive" : true,
+    "trustedSiteName" : "*.hotjar.com",
+    "trustedSiteUrl" : "https://*.hotjar.com",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "5d96dd90-621c-403b-9f0d-a1692031559a",
+    "isActive" : true,
+    "trustedSiteName" : "*.taskanalytics.com",
+    "trustedSiteUrl" : "https://*.taskanalytics.com",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "4ff529cc-43ce-48dd-8be4-957d18abe550",
+    "isActive" : true,
+    "trustedSiteName" : "Account_psplugin",
+    "trustedSiteUrl" : "https://account.psplugin.com",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "c28d1ffa-f711-421a-83c6-4b4fa362b2ab",
+    "isActive" : true,
+    "trustedSiteName" : "Static_Hotjar",
+    "trustedSiteUrl" : "https://static.hotjar.com",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "f293dd43-40b4-4f66-b1e7-0d4f300e5dc5",
+    "isActive" : true,
+    "trustedSiteName" : "Script_Hotjar",
+    "trustedSiteUrl" : "https://script.hotjar.com",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "bd4d42f4-5aaa-4b13-8b3f-a48f4a24a16e",
+    "isActive" : true,
+    "trustedSiteName" : "Aksel",
+    "trustedSiteUrl" : "https://*.cdn.nav.no",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "21b3575a-0c71-46c0-98eb-0c4ed1a7ec0b",
+    "isActive" : true,
+    "trustedSiteName" : "navtest.boost.ai",
+    "trustedSiteUrl" : "https://navtest.boost.ai/chatPanel/chatPanel.js",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "13786dbb-5b18-4134-8270-f7dff998ef1b",
+    "isActive" : true,
+    "trustedSiteName" : "nav.boost.ai",
+    "trustedSiteUrl" : "https://nav.boost.ai/chatPanel/chatPanel.js",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "0eb4245e-bf56-4c58-95c9-4a82871b3be4",
+    "isActive" : true,
+    "trustedSiteName" : "*.dev.nav.no",
+    "trustedSiteUrl" : "https://*.dev.nav.no",
+    "type" : "trustedSitesForScripts"
+  }, {
+    "id" : "4b837143-b6b6-452c-8b2f-302c2bfdb42c",
+    "isActive" : true,
+    "trustedSiteName" : "oauth2 session",
+    "trustedSiteUrl" : "https://login.ekstern.dev.nav.no/oauth2/session",
+    "type" : "trustedSitesForScripts"
+  } ],
   "type" : "site"
 }

@@ -1,11 +1,12 @@
 {
-  "activeViewId" : "9b868f90-7261-4d6f-8daf-f40025495a37",
+  "activeViewId" : "da04e8bb-7a33-4f88-a743-4b20eb473b45",
   "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
   "configurationTags" : [ ],
-  "id" : "71158bae-5871-4115-9426-16acaa8a5f2e",
+  "devName" : "Application_Detail__c",
+  "id" : "ebd14f78-f8eb-4f10-9c82-8835dff21f7e",
   "label" : "Application Detail",
   "objectApiName" : "Application__c",
-  "routeType" : "detail-a1c",
+  "routeType" : "detail-a1e",
   "type" : "route",
   "urlPrefix" : "application"
 }

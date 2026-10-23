@@ -1,8 +1,9 @@
 {
-  "activeViewId" : "7ee36226-0e10-414e-87ba-a321aad669fe",
+  "activeViewId" : "1ddfb8d9-ddb2-4fb9-a28b-5bda2d72b54b",
   "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
   "configurationTags" : [ ],
-  "id" : "ae315344-dbe1-4e96-ae58-4242349417b9",
+  "devName" : "custom_mine_soknader__c",
+  "id" : "5f4707aa-598e-49e8-af5e-396ac6735904",
   "label" : "Mine Søknader",
   "pageAccess" : "UseParent",
   "routeType" : "custom-mine-soknader",

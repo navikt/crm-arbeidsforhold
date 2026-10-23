@@ -1,8 +1,9 @@
 {
-  "activeViewId" : "6a8535bc-43ef-47b1-b1cc-6513791c6026",
+  "activeViewId" : "498e06ac-8195-4930-af07-88f2f4ca09b3",
   "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
   "configurationTags" : [ ],
-  "id" : "ae7a3e1a-5044-42d0-9e34-3ddc0d67c156",
+  "devName" : "Mine_Avtaler__c",
+  "id" : "9146f5ff-e907-4ff4-8ffe-851979f26725",
   "label" : "Mine Avtaler",
   "pageAccess" : "UseParent",
   "routeType" : "custom-mine-avtaler",

@@ -1,7 +1,8 @@
 {
   "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
   "componentName" : "siteforce:dynamicLayout",
-  "id" : "b7708f3e-5ed4-41fb-9b1a-a9a6ed999c15",
+  "dataProviders" : [ ],
+  "id" : "b1d9d9a9-e0f5-45ef-a660-23fd161623b5",
   "label" : "Thread Detail Flex",
   "regions" : [ {
     "components" : [ {
@@ -10,49 +11,9 @@
         "backgroundOverlay" : "rgba(0,0,0,0.5)",
         "contentAreaWidth" : 100,
         "sectionConfig" : {
-          "UUID" : "f4a6111d-71b1-4991-b05e-a05786af3a08",
+          "UUID" : "c1824739-2805-4cd1-874b-8cd17130cc84",
           "columns" : [ {
-            "UUID" : "9a23aeab-9816-4a66-8018-3df97d866d79",
-            "columnKey" : "1",
-            "columnName" : "Column 1",
-            "columnWidth" : "12",
-            "seedComponents" : [ ]
-          } ]
-        },
-        "sectionHeight" : 32
-      },
-      "componentName" : "forceCommunity:section",
-      "id" : "f4a6111d-71b1-4991-b05e-a05786af3a08",
-      "regions" : [ {
-        "components" : [ {
-          "componentAttributes" : {
-            "NAVarea" : "Samarbeidspartner",
-            "navareapicklist" : "Samarbeidspartner"
-          },
-          "componentName" : "c:globalCommunityHeader",
-          "id" : "60ac69fa-9e6b-46c4-89d3-bc241f020559",
-          "renderPriority" : "NEUTRAL",
-          "renditionMap" : { },
-          "type" : "component"
-        } ],
-        "id" : "9a23aeab-9816-4a66-8018-3df97d866d79",
-        "regionLabel" : "Column 1",
-        "regionName" : "1",
-        "renditionMap" : { },
-        "type" : "region"
-      } ],
-      "renderPriority" : "NEUTRAL",
-      "renditionMap" : { },
-      "type" : "component"
-    }, {
-      "componentAttributes" : {
-        "background" : "background: rgba(0,0,0,0)",
-        "backgroundOverlay" : "rgba(0,0,0,0.5)",
-        "contentAreaWidth" : 100,
-        "sectionConfig" : {
-          "UUID" : "651e181e-a78b-489b-bf5c-8dcc0187224f",
-          "columns" : [ {
-            "UUID" : "85b5f778-e17a-4090-8e67-94f63625a54a",
+            "UUID" : "c4e2014b-cc19-45ca-9ce0-9427d09ea9d4",
             "columnKey" : "1",
             "columnName" : "Column 1",
             "columnWidth" : "12",
@@ -62,82 +23,42 @@
         "sectionHeight" : 300
       },
       "componentName" : "forceCommunity:section",
-      "id" : "651e181e-a78b-489b-bf5c-8dcc0187224f",
+      "id" : "c1824739-2805-4cd1-874b-8cd17130cc84",
       "regions" : [ {
         "components" : [ {
           "componentAttributes" : {
-            "title" : "Aa-registeret - Henvendelse"
+            "NAVarea" : "Samarbeidspartner",
+            "navareapicklist" : "Samarbeidspartner"
           },
-          "componentName" : "c:aareg_mainBanner",
-          "id" : "18037155-015a-440c-85d4-a647594b979c",
+          "componentName" : "c:globalCommunityHeader",
+          "id" : "d004fcdd-a25c-42f3-88bc-844038caf981",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
         }, {
           "componentAttributes" : {
-            "firstHref" : "Hjem",
-            "secondHref" : "Mine Meldinger",
-            "thirdHref" : "Henvendelse"
-          },
-          "componentName" : "c:aareg_breadcrumbs",
-          "id" : "458da2e4-c684-40da-8346-10dbbea08567",
-          "renderPriority" : "NEUTRAL",
-          "renditionMap" : { },
-          "type" : "component"
-        }, {
-          "componentAttributes" : {
-            "alertopen" : "Dialogen er åpen",
+            "alertopen" : "",
             "alerttext" : "Dialogen er lukket",
-            "header" : "Min melding",
-            "recordId" : "{!recordId}",
-            "secondheader" : "Min melding"
+            "header" : "Henvendelse til NAV",
+            "recordId" : "{!recordId}"
           },
           "componentName" : "c:crmMessagingCommunityThreadViewer",
-          "id" : "e6714e84-3c75-4b7f-8e92-dc5d92ee8276",
+          "id" : "8ee63b9f-3c8b-4743-ad31-864211a26a61",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
-        } ],
-        "id" : "85b5f778-e17a-4090-8e67-94f63625a54a",
-        "regionLabel" : "Column 1",
-        "regionName" : "1",
-        "renditionMap" : { },
-        "type" : "region"
-      } ],
-      "renderPriority" : "NEUTRAL",
-      "renditionMap" : { },
-      "type" : "component"
-    }, {
-      "componentAttributes" : {
-        "background" : "background: rgba(0,0,0,0)",
-        "backgroundOverlay" : "rgba(0,0,0,0.5)",
-        "contentAreaWidth" : 100,
-        "sectionConfig" : {
-          "UUID" : "1bd09b15-c3ef-4be4-a39e-e54e49c16d2d",
-          "columns" : [ {
-            "UUID" : "0eb7ef52-86d9-49f1-a400-c48295b54c0a",
-            "columnKey" : "1",
-            "columnName" : "Column 1",
-            "columnWidth" : "12",
-            "seedComponents" : [ ]
-          } ]
-        },
-        "sectionHeight" : 32
-      },
-      "componentName" : "forceCommunity:section",
-      "id" : "1bd09b15-c3ef-4be4-a39e-e54e49c16d2d",
-      "regions" : [ {
-        "components" : [ {
+        }, {
           "componentAttributes" : {
-            "NAVarea" : "Privatperson"
+            "NAVarea" : "Privatperson",
+            "navareapicklist" : "Privatperson"
           },
           "componentName" : "c:globalCommunityFooter",
-          "id" : "1d5d3c21-51e2-4800-8077-e82ff150a45a",
+          "id" : "0e233ded-ef63-4e10-be54-e6129f60a786",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
         } ],
-        "id" : "0eb7ef52-86d9-49f1-a400-c48295b54c0a",
+        "id" : "c4e2014b-cc19-45ca-9ce0-9427d09ea9d4",
         "regionLabel" : "Column 1",
         "regionName" : "1",
         "renditionMap" : { },
@@ -147,7 +68,7 @@
       "renditionMap" : { },
       "type" : "component"
     } ],
-    "id" : "52653ede-3822-44fd-823a-647ff375108b",
+    "id" : "894e3e83-0d45-4266-8ee2-34bdb4dc03e0",
     "regionName" : "content",
     "type" : "region"
   }, {
@@ -158,15 +79,15 @@
         "title" : "{!Record._Object}: {!Record._Title}"
       },
       "componentName" : "forceCommunity:seoAssistant",
-      "id" : "96d81395-71ac-48e7-88b2-0a8e8249e4f5",
+      "id" : "2ddd733a-faba-494b-856d-0faeb1536b5e",
       "renditionMap" : { },
       "type" : "component"
     } ],
-    "id" : "8507a42a-6173-4f7b-b820-2c5cf3ee6d3b",
+    "id" : "ce60855b-7dc6-4082-b350-4d28f2d6b226",
     "regionName" : "sfdcHiddenRegion",
     "type" : "region"
   } ],
   "themeLayoutType" : "Inner",
   "type" : "view",
-  "viewType" : "detail-a1h"
+  "viewType" : "detail-a1j"
 }

@@ -1,10 +1,11 @@
 {
   "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
   "componentName" : "siteforce:sldsOneColLayout",
-  "id" : "138c77de-b32c-4ee4-9c3e-707c8cf1ab14",
-  "label" : "Thread Detail",
+  "dataProviders" : [ ],
+  "id" : "5820a478-2cca-43d7-8bbe-89556e6fcc06",
+  "label" : "Thread Detaljer",
   "regions" : [ {
-    "id" : "fc7ae2e0-d42e-42b0-9463-8fd97ea24e48",
+    "id" : "b1c5baa3-a688-4d80-be22-f63dd665b307",
     "regionName" : "header",
     "type" : "region"
   }, {
@@ -13,7 +14,7 @@
         "recordId" : "{!recordId}"
       },
       "componentName" : "forceCommunity:recordHeadline",
-      "id" : "9dd99819-6ff4-485a-b811-4aaa1b2ef146",
+      "id" : "efe396e1-5dcf-4bfd-bc36-19db10f50fda",
       "renderPriority" : "NEUTRAL",
       "renditionMap" : { },
       "type" : "component"
@@ -30,16 +31,16 @@
         "timelineTabLabel" : "Activity"
       },
       "componentName" : "forceCommunity:recordHomeTabs",
-      "id" : "84097192-e2cb-40c4-9834-3a2bfdf8448f",
+      "id" : "bb409ce8-d49d-4f4e-a658-396e3e2041fb",
       "renderPriority" : "NEUTRAL",
       "renditionMap" : { },
       "type" : "component"
     } ],
-    "id" : "e58cd0c0-824d-41b3-b781-e668dc0f79ee",
+    "id" : "1eaf176d-1e55-4f30-94ff-92c494edc7f3",
     "regionName" : "content",
     "type" : "region"
   }, {
-    "id" : "ab8fb82f-dd6f-4ce5-b6dc-85892ff0b85b",
+    "id" : "614be2c6-d3ab-4ab2-abad-dd5009aa9aef",
     "regionName" : "footer",
     "type" : "region"
   }, {
@@ -50,15 +51,15 @@
         "title" : "{!Record._Object}: {!Record._Title}"
       },
       "componentName" : "forceCommunity:seoAssistant",
-      "id" : "7989cee0-0315-4330-9430-ee4554178df3",
+      "id" : "017e03d1-4325-4cfd-88c3-1876bc479ed7",
       "renditionMap" : { },
       "type" : "component"
     } ],
-    "id" : "465dcea9-8744-4807-bc82-5861abb8587e",
+    "id" : "2649e887-2f0b-4f1b-979d-ab01c4cf21ae",
     "regionName" : "sfdcHiddenRegion",
     "type" : "region"
   } ],
   "themeLayoutType" : "Inner",
   "type" : "view",
-  "viewType" : "detail-a1h"
+  "viewType" : "detail-a1j"
 }

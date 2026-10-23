@@ -1,11 +1,12 @@
 {
-  "activeViewId" : "5e50f459-5c03-4629-a7fc-093a85ae489d",
+  "activeViewId" : "d6bb4513-b44f-430b-8fe9-7e8d90459519",
   "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
   "configurationTags" : [ ],
-  "id" : "1ea0ed96-4648-46f7-bb9f-a087945996c8",
+  "devName" : "Agreement_List__c",
+  "id" : "257a70b1-b7b2-4584-9222-cbb170ee9b09",
   "label" : "Agreement List",
   "objectApiName" : "Agreement__c",
-  "routeType" : "list-a1a",
+  "routeType" : "list-a1c",
   "type" : "route",
   "urlPrefix" : "agreement"
 }

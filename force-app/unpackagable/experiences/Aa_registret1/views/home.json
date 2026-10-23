@@ -1,15 +1,17 @@
 {
   "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
   "componentName" : "siteforce:sldsOneColLayout",
+  "dataProviders" : [ ],
   "id" : "20726d37-39b6-46d2-b806-a77f8d0c53d8",
   "label" : "Home",
   "regions" : [ {
     "components" : [ {
       "componentAttributes" : {
-        "NAVarea" : "Privatperson"
+        "context" : "Samarbeidspartner",
+        "env" : "Dev"
       },
-      "componentName" : "c:globalCommunityHeader",
-      "id" : "dffe95fa-f303-4bc8-94d6-834975193b3e",
+      "componentName" : "c:decoratorHeader",
+      "id" : "d3925c3d-e401-4371-98dc-7b5c9c36ff40",
       "renderPriority" : "NEUTRAL",
       "renditionMap" : { },
       "type" : "component"
@@ -32,8 +34,8 @@
   }, {
     "components" : [ {
       "componentAttributes" : { },
-      "componentName" : "c:globalCommunityFooter",
-      "id" : "0457d82d-bc1a-4b0e-b830-4c4cf834a0c2",
+      "componentName" : "c:decoratorFooter",
+      "id" : "e1532646-49c0-4fad-9389-72bf876c085b",
       "renderPriority" : "NEUTRAL",
       "renditionMap" : { },
       "type" : "component"

@@ -1,10 +1,11 @@
 {
   "appPageId" : "243ab891-940a-4e29-8684-27d02286cee1",
   "componentName" : "siteforce:sldsOneColLayout",
-  "id" : "746f2235-d631-4f5c-ad79-cda55d48aa9e",
+  "dataProviders" : [ ],
+  "id" : "b0693718-5bb0-4909-85da-8e660bb22d42",
   "label" : "Agreement Detail",
   "regions" : [ {
-    "id" : "2d8728c0-c4ed-41c3-8343-ad0a7e9ad053",
+    "id" : "320639bc-73e8-4d0a-87a3-6dd256b307ca",
     "regionName" : "header",
     "type" : "region"
   }, {
@@ -13,7 +14,7 @@
         "recordId" : "{!recordId}"
       },
       "componentName" : "forceCommunity:recordHeadline",
-      "id" : "467f33d3-0cac-4443-8312-25c47b980864",
+      "id" : "9af3fe47-cbe0-4803-ac5e-f36ef3853761",
       "renderPriority" : "NEUTRAL",
       "renditionMap" : { },
       "type" : "component"
@@ -30,16 +31,16 @@
         "timelineTabLabel" : "Activity"
       },
       "componentName" : "forceCommunity:recordHomeTabs",
-      "id" : "974a623e-7111-46d3-a0f4-4891ad89fe83",
+      "id" : "10ed9eb2-485a-4b6b-915f-4e46423b018d",
       "renderPriority" : "NEUTRAL",
       "renditionMap" : { },
       "type" : "component"
     } ],
-    "id" : "c5bc309b-dd17-4bb3-8a4f-107b92689181",
+    "id" : "83ea5023-6cb7-4144-9d47-09eb520f7ba8",
     "regionName" : "content",
     "type" : "region"
   }, {
-    "id" : "b9d3f425-8312-446f-9958-cbd1e2f30163",
+    "id" : "74ccb8bf-89fd-4a32-8b26-0ea036f4a0e7",
     "regionName" : "footer",
     "type" : "region"
   }, {
@@ -50,15 +51,15 @@
         "title" : "{!Record._Object}: {!Record._Title}"
       },
       "componentName" : "forceCommunity:seoAssistant",
-      "id" : "cd57e0ce-66fc-49aa-a0d1-9462f61b0856",
+      "id" : "b04e5833-0e96-4fd7-91cc-c104dd891713",
       "renditionMap" : { },
       "type" : "component"
     } ],
-    "id" : "9c5a4517-0832-4da9-adaf-77eb24b50061",
+    "id" : "236c0406-af0b-4697-ba35-8a14eda5ff42",
     "regionName" : "sfdcHiddenRegion",
     "type" : "region"
   } ],
   "themeLayoutType" : "Inner",
   "type" : "view",
-  "viewType" : "detail-a1a"
+  "viewType" : "detail-a1c"
 }
