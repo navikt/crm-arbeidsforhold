@@ -1,7 +1,8 @@
 ---
+name: tdd-salesforce-slice
 description: Start one Salesforce behavioural change using the repository's Nav-first red-green-refactor workflow.
+disable-model-invocation: true
 ---
-
 Use the repository's `.github/skills/tdd-salesforce/SKILL.md`, `.github/instructions/agentic-development.instructions.md`, and `CONTEXT.md`.
 
 Before editing:
