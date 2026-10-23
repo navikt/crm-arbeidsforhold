@@ -151,7 +151,7 @@
     "sourceApiVersion": "67.0",
     "replacements": [
     {
-        "filename": "force-app/unpackagable/experiences/Aa_registret1/views/home.json",
+        "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/home.json",
         "stringToReplace": "\"Dev\"",
         "replaceWithEnv": "HEADER_ENV_REPLACER",
         "replaceWhenEnv": [
@@ -162,7 +162,7 @@
         ]
     },
     {
-        "filename": "force-app/unpackagable/experiences/Aa_registret1/views/mineAvtaler.json",
+        "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/mineAvtaler.json",
         "stringToReplace": "\"Dev\"",
         "replaceWithEnv": "HEADER_ENV_REPLACER",
         "replaceWhenEnv": [
