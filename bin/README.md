@@ -15,7 +15,21 @@ The CMD file launches PowerShell and forwards its arguments and exit code. `bin/
 - Salesforce CLI (`sf`) installed and authenticated to an appropriate Dev Hub.
 - `jq` for the Bash script only. The PowerShell implementation uses built-in JSON support.
 - `sfp` only if scratch-org pool acquisition is enabled.
-- Bash for macOS/Linux; PowerShell 5.1 or PowerShell 7+ for Windows.
+- Bash for macOS/Linux; PowerShell 7 LTS for Windows. The local PowerShell test baseline is 7.6 LTS.
+
+### Migrating from Windows PowerShell 5.1
+
+Install PowerShell 7 LTS through your approved software channel, open a new terminal,
+and check `pwsh -NoLogo -NoProfile -Command '$PSVersionTable'`. PowerShell 7 is
+installed alongside Windows PowerShell; it does not require removing the Windows component.
+CMD and npm now select `pwsh.exe` only. They fail with installation guidance if it
+is missing rather than falling back to `powershell.exe`. Direct invocation from
+Windows PowerShell 5.1 is rejected before configuration or org access.
+
+Use a PowerShell 7 terminal for direct `.ps1` commands, or explicitly start
+`pwsh -NoProfile -File .\bin\create-scratch-org.ps1 -Help`.
+Do not bypass execution policy, AppLocker/WDAC, or other managed-machine restrictions
+to run the scripts; resolve installation and policy requirements through the approved channel.
 
 ## Windows
 
@@ -48,6 +62,9 @@ The npm launcher accepts `--help`, `--Help`, `-Help`, and `-h` on every platform
 For other options, use PowerShell parameter names on Windows; on macOS/Linux, use the Bash options shown below.
 
 Parameters use PowerShell names such as `-OrgAlias`, `-DurationDays`, `-DefinitionFile`, `-PostSteps`, `-UsePool`, `-PackagePlan`, and `-RefreshDependencySources`. `-DryRun` plans mutations without running them. The old positional installation-key argument is no longer supported. Supply package keys through the environment variable named by `packageInstallKeyEnvironmentVariable`; never put a key in the config file or command history.
+
+Dry-run is not an offline test: package-version resolution and pool status can still
+contact Salesforce. Org/environment access requires the normal target/action approval.
 
 ## macOS/Linux
 
@@ -95,13 +112,49 @@ bash bin/tests/create-scratch-org.test.sh
 node --test bin/tests/create-scratch-org-launcher.test.js
 ```
 
-On Windows, run the PowerShell dry-run/config harness:
+The portable PowerShell harness runs on macOS and Windows:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\bin\tests\create-scratch-org.Tests.ps1
+pwsh -NoLogo -NoProfile -File ./bin/tests/create-scratch-org.Tests.ps1
+npm run test:scratch-org:powershell
 ```
 
-Neither harness contacts Salesforce.
+It starts the real script against temporary projects with spaces and Unicode in the
+path. A restricted subprocess PATH contains fake `sf`/`sfp` programs that record
+arguments and exit codes, reject unexpected calls, and cannot fall back to an
+authenticated CLI. Synthetic fixtures exercise configuration, pool acquisition,
+packages, post-steps, JSON/error handling and install-key redaction. Test projects
+and journals are removed on exit. Windows uses `.cmd` fakes; macOS uses executable
+shell wrappers. Neither harness contacts Salesforce.
+
+CMD/npm process execution and missing-runtime tests run only on Windows. On Mac
+they are explicitly reported as skipped, not passed. Simulating version 5.1 in a
+child process tests the runtime guard only; it is not an actual Windows PowerShell test.
+Windows CI is tracked by [#1148](https://github.com/navikt/crm-arbeidsforhold/issues/1148).
+Mac results do not establish Windows support, and even green Windows offline tests
+do not verify real Salesforce CLI, `sfp`, authentication, pool contents or deployment.
+
+### PowerShell tests on Mac
+
+On Apple Silicon, install the current supported PowerShell 7 LTS **macOS ARM64**
+package from [Microsoft's installation guide](https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell-on-macos)
+through your approved software channel. Choose the signed/notarized `.pkg`, not
+Preview or the x64 build. Use the x64 package on an Intel Mac.
+
+Open a new terminal after installation and check:
+
+```bash
+command -v pwsh
+pwsh -NoLogo -NoProfile -Command '$PSVersionTable'
+pwsh -NoLogo -NoProfile -File ./bin/tests/create-scratch-org.Tests.ps1
+```
+
+No Docker, Windows licence, VM, separate .NET SDK, Salesforce CLI, `sfp`, `jq`,
+Salesforce login or package key is needed for this PowerShell harness. Node/npm
+are needed for the npm convenience command and for Windows npm-launcher tests,
+not for direct Mac PowerShell tests. Installation may require approval on a managed
+machine; do not disable Gatekeeper, execution policy or sandbox restrictions.
+The harness uses `$TMPDIR` when set and otherwise the OS temporary directory.
 
 ## Scratch-org pool
 

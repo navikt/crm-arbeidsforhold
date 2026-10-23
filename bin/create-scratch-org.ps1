@@ -3,8 +3,7 @@
 Creates and configures a Salesforce scratch org without sf-project tooling.
 
 .DESCRIPTION
-        $property = $Config.PSObject.Properties[$name]
-        if ($null -ne $property -and $property.Value -isnot [array]) { throw "$name must be an array." }
+Uses PowerShell 7 and Salesforce CLI with the project's shared configuration.
 #>
 [CmdletBinding()]
 param(
@@ -52,14 +51,17 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+if ($PSVersionTable.PSVersion.Major -ne 7) {
+    throw 'PowerShell 7 LTS is required. Install it through your approved software channel and run this script with pwsh.'
+}
 $script:BoundParameters = $PSBoundParameters
 
 function Get-ObjectProperty {
     param($Object, [string]$Name, $Default = $null)
-    if ($null -eq $Object) { return $Default }
+    if ($null -eq $Object) { return ,$Default }
     $property = $Object.PSObject.Properties[$Name]
-    if ($null -eq $property) { return $Default }
-    return $property.Value
+    if ($null -eq $property) { return ,$Default }
+    return ,$property.Value
 }
 
 function Test-HasProperty {
@@ -116,7 +118,7 @@ function Test-Configuration {
         if ((Test-HasProperty $Config $name) -and (Get-ObjectProperty $Config $name) -isnot [array]) { throw "$name must be an array." }
     }
     $steps = ConvertTo-StringArray (Get-ObjectProperty $Config 'postSteps' @('deploy'))
-    $customSteps = @(Get-ObjectProperty $Config 'customPostSteps' @())
+    $customSteps = Get-ObjectProperty $Config 'customPostSteps' @()
     $knownSteps = @('deploy', 'permsets', 'data', 'community') + @($customSteps | ForEach-Object { $_.name })
     foreach ($step in $steps) {
         if ($step -notin $knownSteps) { throw "Unknown post step '$step'." }
@@ -197,7 +199,7 @@ function Test-Configuration {
             if ((Test-HasProperty $dummyUsers $name) -and (Get-ObjectProperty $dummyUsers $name) -isnot [array]) { throw "dummyUsers.$name must be an array." }
         }
         $profileUsernames = @()
-        foreach ($assignment in @(Get-ObjectProperty $dummyUsers 'profileAssignments' @())) {
+        foreach ($assignment in (Get-ObjectProperty $dummyUsers 'profileAssignments' @())) {
             if (-not (Test-NonEmptyString $assignment.profileName) -or $assignment.usernames -isnot [array] -or @($assignment.usernames).Count -eq 0) {
                 throw 'Each dummyUsers.profileAssignments entry requires profileName and at least one username.'
             }
@@ -209,7 +211,7 @@ function Test-Configuration {
         if (@($profileUsernames | Select-Object -Unique).Count -ne $profileUsernames.Count) {
             throw 'Each dummy user can have only one profile assignment.'
         }
-        foreach ($assignment in @(Get-ObjectProperty $dummyUsers 'permissionSetAssignments' @())) {
+        foreach ($assignment in (Get-ObjectProperty $dummyUsers 'permissionSetAssignments' @())) {
             if ($assignment.permissionSets -isnot [array] -or $assignment.usernames -isnot [array] -or
                 @($assignment.permissionSets).Count -eq 0 -or @($assignment.usernames).Count -eq 0) {
                 throw 'Each dummyUsers.permissionSetAssignments entry requires permissionSets and usernames.'
@@ -234,6 +236,9 @@ function Invoke-External {
     }
     $output = @(& $Executable @Arguments 2>&1 | ForEach-Object { $_.ToString() })
     $exitCode = $LASTEXITCODE
+    if ($script:InstallationKey) {
+        $output = @($output | ForEach-Object { $_.Replace($script:InstallationKey, '***') })
+    }
     return [pscustomobject]@{ ExitCode = $exitCode; Output = $output }
 }
 
@@ -276,7 +281,7 @@ function ConvertTo-SoqlLiteral {
 function Get-PackageDependencies {
     $dependencies = @()
     foreach ($directory in @($script:SfdxProject.packageDirectories)) {
-        foreach ($dependency in @(Get-ObjectProperty $directory 'dependencies' @())) { $dependencies += $dependency }
+        foreach ($dependency in (Get-ObjectProperty $directory 'dependencies' @())) { $dependencies += $dependency }
     }
     return $dependencies
 }
@@ -602,8 +607,9 @@ function Invoke-PoolAcquire {
     $text = $result.Output -join "`n"
     $match = [regex]::Match($text, 'Unused Scratch Orgs in the Pool\s*:\s*(\d+)', 'IgnoreCase')
     if ($match.Success -and [int]$match.Groups[1].Value -gt 0) {
-        Invoke-Sf @('org', 'delete', 'scratch', '--target-org', $script:TargetOrg, '--no-prompt') -AllowFailure | Out-Null
-        Invoke-Sf @('pool', 'fetch', '--tag', $script:PoolTag, '--targetdevhubusername', $devHub, '--alias', $script:TargetOrg, '--setdefaultusername') -PlanOnly:$script:DryRun | Out-Null
+        Invoke-Sf @('org', 'delete', 'scratch', '--target-org', $script:TargetOrg, '--no-prompt') -PlanOnly:$script:DryRun -AllowFailure | Out-Null
+        $fetch = Invoke-External -Executable 'sfp' -Arguments @('pool', 'fetch', '--tag', $script:PoolTag, '--targetdevhubusername', $devHub, '--alias', $script:TargetOrg, '--setdefaultusername') -PlanOnly:$script:DryRun
+        if ($fetch.ExitCode -ne 0) { throw "Could not fetch pool org: $($fetch.Output -join "`n")" }
         return $true
     }
     if (-not $script:FallbackToCreate) { throw 'No unused scratch org is available in the pool.' }
@@ -631,7 +637,7 @@ function Resolve-DependencyFolders {
 }
 
 function Clear-DependencyFolders {
-    $preserved = @(Get-ObjectProperty $script:Config.dependencySourcePolicy 'preserveRootFiles' @('README.md'))
+    $preserved = Get-ObjectProperty $script:Config.dependencySourcePolicy 'preserveRootFiles' @('README.md')
     foreach ($dependency in @(Resolve-DependencyFolders)) {
         if (-not (Test-Path $dependency.Path -PathType Container)) { continue }
         $rootItem = Get-Item -LiteralPath $dependency.Path -Force
@@ -758,7 +764,7 @@ Options:
 -FullDeploy deletes local source tracking before the deploy step so all local source is
 deployed, not only tracked changes. -Redeploy = -PostStepsOnly -PostSteps deploy -FullDeploy.
 
-Reads sf-project.config.json beside sfdx-project.json. Requires only PowerShell,
+Reads sf-project.config.json beside sfdx-project.json. Requires PowerShell 7 LTS,
 jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-project.
 '@ | Write-Host
         return

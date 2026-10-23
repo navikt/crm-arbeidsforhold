@@ -6,7 +6,8 @@ status: draft
 # Feature Specification: Verifiserbar PowerShell-støtte utan lokal Windows-maskin
 
 **Oppretta:** 2026-10-23  
-**Status:** Krav avklarte med brukar; implementasjon og CI-endring er ikkje godkjende gjennom denne specen.  
+**Status:** Krav avklarte med brukar; lokal implementasjon av #1147 er bestilt. CI-endring krev framleis separat godkjenning.
+
 **Styring:** [AGENTS.md](../../AGENTS.md), [agentarbeidsflyt](../instructions/agentic-development.instructions.md) og Nav sine verktøyreglar.  
 **Relatert kontrakt:** [Cross-platform standalone scripts](cross-platform-scratch-org-scripts.md), særleg REQ-300–306.
 
@@ -159,9 +160,9 @@ Etter at den portable harnessen er implementert, er planlagd lokal kommando frå
 pwsh -NoLogo -NoProfile -File ./bin/tests/create-scratch-org.Tests.ps1
 ```
 
-**Denne testkommandoen er eit framtidig akseptansemål. Dagens harness er Windows-bunden og er ikkje verifisert på Mac.**
-Han byggjer `pwsh.exe`, brukar `;` i PATH, lagar `sf.cmd` og startar `ComSpec`. Dette må rettast før kommandoen kan forventast å bli grøn.
-Ingen PowerShell-installasjon eller testkøyring er utført som del av denne specen.
+**Oppdatert under #1147:** Brukaren installerte PowerShell 7.6.6 ARM64 på Mac. Den portable harnessen er no køyrd mot faktiske PowerShell-underprosessar med fake CLI.
+Den opphavlege harnessen bygde `pwsh.exe`, brukte `;` i PATH, laga `sf.cmd` og starta `ComSpec` også på Mac. Dette er erstatta med plattformrett host/PATH og fake program.
+Windows-only scenario blir eksplisitt hoppa over på Mac og må framleis køyrast på Windows.
 
 Eksakt LTS-patch og støtta OS-versjon skal kontrollerast ved installasjon og registrerast i resultatet, ikkje kopierast ukritisk frå dette dokumentet.
 Ein global installasjon kan krevje ekstra godkjenning etter lokal maskinpolicy; det er ikkje løyve til å skrive utanfor sandbox.
@@ -203,8 +204,16 @@ Brukaren har uttrykkeleg akseptert denne avgrensinga: støtte skal omtalast som 
 3. Overfør same kontrakt og rettingar til integrasjonsrepoet, med eigne prosjektassertions og eigen Windows-køyring.
 4. Registrer eksakte kommandoar, resultat, skip, OS/runtime, repo og revisjon. Ingen test er bestått berre fordi testfila finst.
 
-Ingen nye påstandar om PowerShell-funksjon er verifiserte gjennom denne dokumentasjonsoppgåva.
-Den tidlegare Bash-/Node-valideringa er ikkje PowerShell-evidens.
+### Lokal evidens frå implementasjon av #1147
+
+- Miljø: macOS 26.7.1 ARM64, PowerShell 7.6.6; branch `chore/1147-powershell-verification`, arbeidskopi basert på `6aa45855`.
+- Raud: opphavleg harness stoppa fordi `pwsh.exe` ikkje finst på Mac. Node-launchertesten feila når han kravde `pwsh.exe` framfor `powershell.exe`.
+- Raud ved faktisk scriptkøyring: array-validering avviste tomme/ein-element-lister, pool-fetch brukte `sf` framfor `sfp`, pool-dry-run sletta org gjennom fake CLI, og eit syntetisk installasjonsnøkkelmerke blei vist i CLI-feil.
+- Grønt etter retting: `npm run test:scratch-org:powershell` (køyrer `pwsh -NoLogo -NoProfile -File bin/tests/create-scratch-org.Tests.ps1`) bestod 108 assertions med éi eksplisitt Windows-only skip-gruppe. Parserkontroll omfattar script, harness og fake CLI.
+- `npm run test:node` bestod 34 testar, inkludert launcher-val, argumentgrenser og eksisterande pre-commit-regresjon.
+- `bash bin/tests/create-scratch-org.test.sh` bestod 282 assertions. Dette er Bash-regresjon, ikkje ekstra PowerShell-bevis.
+- Ingen ekte Salesforce-kall, maskininstallasjon frå agenten eller CI-endring. Integrasjonsrepoet er ikkje endra i #1147.
+- Windows/CMD/npm-åtferd er ikkje køyrd på Windows. Ekte Salesforce ende til ende er ikkje verifisert. #1148 og `navikt/crm-platform-integration#467` står att.
 
 ## GitHub-arbeid
 

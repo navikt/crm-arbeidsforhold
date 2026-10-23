@@ -29,6 +29,9 @@ Scratch-org-flyten og avhengighetsinstallasjon er dokumentert i [bin/README.md](
 En typisk CLI-flyt starter med at du logger inn mot en Dev Hub med `sf org login web`, og deretter bruker den dokumenterte scratch-org-flyten. Installasjonsnøkler skal aldri legges i README, kildekode eller shell-historikk.
 
 På Windows er `bin/create-scratch-org.bat` den anbefalte CMD-inngangen.
+PowerShell 7 LTS må vere installert og `pwsh.exe` må vere på PATH; Windows
+PowerShell 5.1 er ikkje lenger støtta, og launcherane fell ikkje tilbake til han.
+Sjå [migrering og lokale PowerShell-testar](bin/README.md#migrating-from-windows-powershell-51).
 
 ## Lokal validering
 
@@ -40,6 +43,9 @@ npm run prettier:check
 
 `npm test` kjører først Node-testene for lokale utviklerverktøy og deretter LWC Jest-testene.
 Bruk `npm run test:node` for bare Node-testene og `npm run test:unit` for bare LWC-testene.
+Med PowerShell 7 LTS installert kan `npm run test:scratch-org:powershell` køyre
+den portable offline-harnessen på Mac og Windows, utan Salesforce-tilgang.
+Mac-testane verifiserer ikkje Windows-entrypoints; desse krev eiga Windows-køyring.
 Node-testene under `bin/tests/` og `scripts/tests/` bruker `node:test` og er derfor
 utelatt fra Jest sitt testsøk. Begge runnerne må lykkes for at `npm test` skal lykkes,
 og den eksisterende PR-valideringen kjører begge uten endringer i workflowen.
