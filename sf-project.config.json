@@ -31,7 +31,7 @@
     },
     "postSteps": ["deploy", "permsets", "data", "community"],
     "pool": {
-        "use": false,
+        "use": true,
         "tag": "dev",
         "fallbackToCreate": true
     },
