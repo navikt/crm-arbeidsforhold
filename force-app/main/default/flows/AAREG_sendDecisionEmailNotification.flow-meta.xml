@@ -56,7 +56,7 @@
             <assignToReference>varTemplateName</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>aaRegApplicationDecisionConfirmation</stringValue>
+                <stringValue>aaRegApplicationApprovedDecisionConfirmation</stringValue>
             </value>
         </assignmentItems>
         <connector>
