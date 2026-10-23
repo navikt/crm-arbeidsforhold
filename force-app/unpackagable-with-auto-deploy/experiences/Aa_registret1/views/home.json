@@ -7,7 +7,7 @@
   "regions" : [ {
     "components" : [ {
       "componentAttributes" : {
-        "context" : "Samarbeidspartner",
+        "context" : "Privatperson",
         "env" : "Dev"
       },
       "componentName" : "c:decoratorHeader",

@@ -27,10 +27,11 @@
       "regions" : [ {
         "components" : [ {
           "componentAttributes" : {
-            "NAVarea" : "Samarbeidspartner"
+            "context" : "Privatperson",
+            "env" : "Dev"
           },
-          "componentName" : "c:globalCommunityHeader",
-          "id" : "fa875156-c481-462d-ba76-636357983a6e",
+          "componentName" : "c:decoratorHeader",
+          "id" : "a20c7fd7-36af-4b76-a3dc-882d2531d9cc",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
@@ -114,8 +115,8 @@
       "regions" : [ {
         "components" : [ {
           "componentAttributes" : { },
-          "componentName" : "c:globalCommunityFooter",
-          "id" : "4d6ce347-cfa9-4df2-8faa-40c1fdfb37e5",
+          "componentName" : "c:decoratorFooter",
+          "id" : "9fb967ac-bd60-47ad-b459-bb0f0f00ca19",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"

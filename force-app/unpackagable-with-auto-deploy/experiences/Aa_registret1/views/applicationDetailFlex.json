@@ -27,10 +27,11 @@
       "regions" : [ {
         "components" : [ {
           "componentAttributes" : {
-            "NAVarea" : "Samarbeidspartner"
+            "context" : "Privatperson",
+            "env" : "Dev"
           },
-          "componentName" : "c:globalCommunityHeader",
-          "id" : "8ec865a1-7350-4974-8527-17fbf6c44ab1",
+          "componentName" : "c:decoratorHeader",
+          "id" : "ee512874-4ebe-4520-bfde-94369dfc6585",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
@@ -106,11 +107,9 @@
       "id" : "dd41bfb9-2851-4aea-ab81-2b3b782c20d8",
       "regions" : [ {
         "components" : [ {
-          "componentAttributes" : {
-            "NAVarea" : "Privatperson"
-          },
-          "componentName" : "c:globalCommunityFooter",
-          "id" : "8ebf7b82-8fde-486f-a181-03826e3ec9fe",
+          "componentAttributes" : { },
+          "componentName" : "c:decoratorFooter",
+          "id" : "119dfffe-c3c5-4e62-b490-6128cae67566",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
@@ -146,5 +145,5 @@
   } ],
   "themeLayoutType" : "Inner",
   "type" : "view",
-  "viewType" : "detail-a1e"
+  "viewType" : "detail-a0i"
 }

@@ -150,28 +150,60 @@
     "sfdcLoginUrl": "https://login.salesforce.com",
     "sourceApiVersion": "67.0",
     "replacements": [
-    {
-        "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/home.json",
-        "stringToReplace": "\"Dev\"",
-        "replaceWithEnv": "HEADER_ENV_REPLACER",
-        "replaceWhenEnv": [
         {
-            "env": "DEPLOY_DESTINATION",
-            "value": "PROD"
-        }
-        ]
-    },
-    {
-        "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/mineAvtaler.json",
-        "stringToReplace": "\"Dev\"",
-        "replaceWithEnv": "HEADER_ENV_REPLACER",
-        "replaceWhenEnv": [
+            "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/home.json",
+            "stringToReplace": "\"Dev\"",
+            "replaceWithEnv": "HEADER_ENV_REPLACER",
+            "replaceWhenEnv": [{ "env": "DEPLOY_DESTINATION", "value": "PROD" }]
+        },
         {
-            "env": "DEPLOY_DESTINATION",
-            "value": "PROD"
+            "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/mineAvtaler.json",
+            "stringToReplace": "\"Dev\"",
+            "replaceWithEnv": "HEADER_ENV_REPLACER",
+            "replaceWhenEnv": [{ "env": "DEPLOY_DESTINATION", "value": "PROD" }]
+        },
+        {
+            "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/agreementDetailFlex.json",
+            "stringToReplace": "\"Dev\"",
+            "replaceWithEnv": "HEADER_ENV_REPLACER",
+            "replaceWhenEnv": [{ "env": "DEPLOY_DESTINATION", "value": "PROD" }]
+        },
+        {
+            "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/applicationDetailFlex.json",
+            "stringToReplace": "\"Dev\"",
+            "replaceWithEnv": "HEADER_ENV_REPLACER",
+            "replaceWhenEnv": [{ "env": "DEPLOY_DESTINATION", "value": "PROD" }]
+        },
+        {
+            "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/mineMeldinger.json",
+            "stringToReplace": "\"Dev\"",
+            "replaceWithEnv": "HEADER_ENV_REPLACER",
+            "replaceWhenEnv": [{ "env": "DEPLOY_DESTINATION", "value": "PROD" }]
+        },
+        {
+            "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/mineSøknader.json",
+            "stringToReplace": "\"Dev\"",
+            "replaceWithEnv": "HEADER_ENV_REPLACER",
+            "replaceWhenEnv": [{ "env": "DEPLOY_DESTINATION", "value": "PROD" }]
+        },
+        {
+            "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/nyMelding.json",
+            "stringToReplace": "\"Dev\"",
+            "replaceWithEnv": "HEADER_ENV_REPLACER",
+            "replaceWhenEnv": [{ "env": "DEPLOY_DESTINATION", "value": "PROD" }]
+        },
+        {
+            "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/nySøknadAaRegistret.json",
+            "stringToReplace": "\"Dev\"",
+            "replaceWithEnv": "HEADER_ENV_REPLACER",
+            "replaceWhenEnv": [{ "env": "DEPLOY_DESTINATION", "value": "PROD" }]
+        },
+        {
+            "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/threadDetailFlex.json",
+            "stringToReplace": "\"Dev\"",
+            "replaceWithEnv": "HEADER_ENV_REPLACER",
+            "replaceWhenEnv": [{ "env": "DEPLOY_DESTINATION", "value": "PROD" }]
         }
-        ]
-    }
     ],
     "packageAliases": {
         "crm-arbeidsforhold": "0Ho2o000000fxX1CAI",
