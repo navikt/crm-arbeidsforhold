@@ -111,7 +111,7 @@ public without sharing class AAREG_ApplicationController {
         upsert application;
         upsertRelatedContacts(application.Id, relatedContacts);
         upsertBasisCodes(application.Id, basisCode);
-        insertDocumentWithLink(application.Id, base64, filename);
+        insertDocumentWithLink(application.Id, application.Access_Request__c, base64, filename);
         return application.Id;
     }
 
@@ -157,7 +157,7 @@ public without sharing class AAREG_ApplicationController {
         upsert application;
         upsertRelatedContacts(application.Id, relatedContacts);
         upsertBasisCodes(application.Id, basisCode);
-        insertDocumentWithLink(application.Id, base64, fileName);
+        insertDocumentWithLink(application.Id, application.Access_Request__c, base64, fileName);
         return application.Id;
     }
 
@@ -198,32 +198,45 @@ public without sharing class AAREG_ApplicationController {
 
     // File is uploaded on saveAsDraft and on submit. If user presses save, then submit, only files from
     // save will be uploaded, because when saving it navigates to new Application which resets context and filedata in js.
-    private static void insertDocumentWithLink(Id applicationId, String base64, String fileName) {
+    private static void insertDocumentWithLink(Id applicationId, Id accessRequestId, String base64, String fileName) {
         if (base64 == null || fileName == null) {
             return;
         }
-        ContentVersion cv = generateContentVersion(base64, filename);
-        generateContentDocumentLink(applicationId, cv.Id);
+        ContentVersion cv = generateContentVersion(base64, fileName);
+        generateContentDocumentLink(applicationId, accessRequestId, cv.Id);
     }
 
-    private static ContentVersion generateContentVersion(String base64, String filename) {
+    private static ContentVersion generateContentVersion(String base64, String fileName) {
         ContentVersion cv = new ContentVersion();
         cv.VersionData = EncodingUtil.base64Decode(base64);
-        cv.Title = filename;
-        cv.PathOnClient = filename;
+        cv.Title = fileName;
+        cv.PathOnClient = fileName;
         insert cv;
         return cv;
     }
 
-    private static void generateContentDocumentLink(Id applicationId, Id contentVersionId) {
+    private static void generateContentDocumentLink(Id applicationId, Id accessRequestId, Id contentVersionId) {
         ContentVersion version = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :contentVersionId];
 
-        ContentDocumentLink documentLink = new ContentDocumentLink();
-        documentLink.LinkedEntityId = applicationId;
-        documentLink.ContentDocumentId = version.ContentDocumentId;
-        documentLink.ShareType = 'I';
+        List<ContentDocumentLink> documentLinks = new List<ContentDocumentLink>();
+        if (applicationId != null) {
+            documentLinks.add(buildContentDocumentLink(applicationId, version.ContentDocumentId));
+        }
+        if (accessRequestId != null && accessRequestId != applicationId) {
+            documentLinks.add(buildContentDocumentLink(accessRequestId, version.ContentDocumentId));
+        }
 
-        insert documentLink;
+        if (!documentLinks.isEmpty()) {
+            insert documentLinks;
+        }
+    }
+
+    private static ContentDocumentLink buildContentDocumentLink(Id linkedEntityId, Id contentDocumentId) {
+        ContentDocumentLink documentLink = new ContentDocumentLink();
+        documentLink.LinkedEntityId = linkedEntityId;
+        documentLink.ContentDocumentId = contentDocumentId;
+        documentLink.ShareType = 'I';
+        return documentLink;
     }
 
     private static Application__c getApplication(Id applicationId) {
