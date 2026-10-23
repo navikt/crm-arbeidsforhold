@@ -356,17 +356,19 @@ private class AAREG_ApplicationControllerTest {
         );
         System.Test.stopTest();
 
-        List<ContentDocumentLink> links = [
-            SELECT LinkedEntityId
+        Integer applicationLinks = [
+            SELECT COUNT()
             FROM ContentDocumentLink
-            WHERE LinkedEntityId IN :new Set<Id>{ appId, accessRequest.Id }
+            WHERE LinkedEntityId = :appId
+        ];
+        Integer accessRequestLinks = [
+            SELECT COUNT()
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId = :accessRequest.Id
         ];
 
-        System.Assert.areEqual(
-            2,
-            links.size(),
-            'Uploaded file should be linked to both the application and the access request.'
-        );
+        System.Assert.areEqual(1, applicationLinks, 'Uploaded file should be linked to the application.');
+        System.Assert.areEqual(1, accessRequestLinks, 'Uploaded file should be linked to the access request.');
     }
 
     /**
