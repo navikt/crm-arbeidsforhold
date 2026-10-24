@@ -223,10 +223,10 @@ function Get-OperationLabel {
 
 function Get-ObjectProperty {
     param($Object, [string]$Name, $Default = $null)
-    if ($null -eq $Object) { return ,$Default }
+    if ($null -eq $Object) { return , $Default }
     $property = $Object.PSObject.Properties[$Name]
-    if ($null -eq $property) { return ,$Default }
-    return ,$property.Value
+    if ($null -eq $property) { return , $Default }
+    return , $property.Value
 }
 
 function Test-HasProperty {
@@ -255,7 +255,8 @@ function Read-JsonFile {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { throw "File not found: $Path" }
     try {
         return (Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json)
-    } catch {
+    }
+    catch {
         throw "Invalid JSON in $Path`: $($_.Exception.Message)"
     }
 }
@@ -424,14 +425,16 @@ function Invoke-External {
             if ($script:InteractiveOutput) {
                 [Console]::Out.Write("`r  $($frames[$frame % $frames.Count]) $(Protect-OutputText $Label) ${seconds}s   ")
                 $frame++
-            } elseif ($seconds -ge $lastHeartbeat + 5) {
+            }
+            elseif ($seconds -ge $lastHeartbeat + 5) {
                 Write-RunLine "Still running: $Label (${seconds}s)" Info
                 $lastHeartbeat = $seconds
             }
             Start-Sleep -Milliseconds 100
         }
         $result = Receive-Job -Job $job -Wait -ErrorAction Stop
-    } finally {
+    }
+    finally {
         if ($script:InteractiveOutput) {
             [Console]::Out.Write("`r$(' ' * ($Label.Length + 32))`r")
         }
@@ -509,10 +512,12 @@ function Invoke-DependencyCheck {
         $script:CurrentOperation = 'Checking complete package dependencies'
         & node @arguments 2>&1 | ForEach-Object { [Console]::Out.WriteLine((Protect-OutputText $_.ToString())) }
         if ($LASTEXITCODE -ne 0) { throw 'Dependency preflight failed; no setup mutations were started.' }
+        $script:SfdxProject = Read-JsonFile $script:ProjectFilePath
         if ($ForInstallation) {
             $script:DependencyPlan = Read-JsonFile (Join-Path $planDirectory 'plan.json')
         }
-    } finally {
+    }
+    finally {
         if ($planDirectory) { Remove-Item -LiteralPath $planDirectory -Recurse -Force }
     }
 }
@@ -521,11 +526,11 @@ function Get-PackageVersionData {
     param([string]$PackageName)
     $response = Invoke-SfJson @('package', 'version', 'list', '--packages', $PackageName, '--released', '--order-by', 'CreatedDate')
     return @($response.result | Where-Object { $_.SubscriberPackageVersionId } | Sort-Object -Property @(
-        @{ Expression = { [int]$_.MajorVersion } },
-        @{ Expression = { [int]$_.MinorVersion } },
-        @{ Expression = { [int]$_.PatchVersion } },
-        @{ Expression = { [int]$_.BuildNumber } }
-    ))
+            @{ Expression = { [int]$_.MajorVersion } },
+            @{ Expression = { [int]$_.MinorVersion } },
+            @{ Expression = { [int]$_.PatchVersion } },
+            @{ Expression = { [int]$_.BuildNumber } }
+        ))
 }
 
 function Get-ProjectVersionChanges {
@@ -579,7 +584,8 @@ function Invoke-ProjectVersionCheck {
         Write-Utf8JsonFile -Path $tempPath -Value $script:SfdxProject
         Copy-Item -LiteralPath $script:ProjectFilePath -Destination $backupPath -Force
         Move-Item -LiteralPath $tempPath -Destination $script:ProjectFilePath -Force
-    } finally { Remove-Item -LiteralPath $tempPath -Force -ErrorAction SilentlyContinue }
+    }
+    finally { Remove-Item -LiteralPath $tempPath -Force -ErrorAction SilentlyContinue }
     Write-RunLine "Updated project constraints. Backup: $backupPath" Success
 }
 
@@ -596,10 +602,10 @@ function Select-PackageVersion {
     $parts = $RequestedVersion -split '\.'
     if ($parts.Count -lt 3) { throw "Invalid version '$RequestedVersion' for package '$PackageName'." }
     $matchingVersions = @($versions | Where-Object {
-        [int]$_.MajorVersion -eq [int]$parts[0] -and
-        [int]$_.MinorVersion -eq [int]$parts[1] -and
-        [int]$_.PatchVersion -eq [int]$parts[2]
-    })
+            [int]$_.MajorVersion -eq [int]$parts[0] -and
+            [int]$_.MinorVersion -eq [int]$parts[1] -and
+            [int]$_.PatchVersion -eq [int]$parts[2]
+        })
     if ($parts.Count -ge 4 -and $parts[3] -match '^\d+$') {
         $matchingVersions = @($matchingVersions | Where-Object { [int]$_.BuildNumber -eq [int]$parts[3] })
     }
@@ -747,7 +753,8 @@ function Invoke-DummyUsers {
         try {
             Write-Utf8JsonFile -Path $tempFile -Value @{ records = $newRecords }
             Invoke-Sf @('data', 'import', 'tree', '--target-org', $script:TargetOrg, '--files', $tempFile) | Out-Null
-        } finally { Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue }
+        }
+        finally { Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue }
     }
     $permissionAssignments = @($dummy.permissionSetAssignments)
     if ($env:DUMMY_USER_PERMSET_ASSIGNMENTS) {
@@ -801,8 +808,8 @@ function Invoke-Packages {
         $latest = if ($script:DependencyPlan) { $target.LatestVersion } else { @(Get-PackageVersionData $name)[-1] }
         if (-not $script:SkipVersionCheck -and $target -and $latest -and
             ([int]$target.MajorVersion -ne [int]$latest.MajorVersion -or
-             [int]$target.MinorVersion -ne [int]$latest.MinorVersion -or
-             [int]$target.PatchVersion -ne [int]$latest.PatchVersion)) {
+            [int]$target.MinorVersion -ne [int]$latest.MinorVersion -or
+            [int]$target.PatchVersion -ne [int]$latest.PatchVersion)) {
             Write-RunWarning "$name is configured at $($target.VersionNumber); latest released is $($latest.VersionNumber)."
         }
         $current = @($installed | Where-Object { (Get-PackageNameFromInstall $_) -eq $name }) | Select-Object -First 1
@@ -914,7 +921,8 @@ function Refresh-DependencyFolders {
         foreach ($dependency in @(Resolve-DependencyFolders)) {
             Invoke-Sf @('project', 'retrieve', 'start', '--target-org', $script:TargetOrg, '-n', $dependency.Name) -PlanOnly:$script:DryRun | Out-Null
         }
-    } finally {
+    }
+    finally {
         if ($moved -and (Test-Path -LiteralPath $backup)) { Move-Item -LiteralPath $backup -Destination $forceignore -Force }
     }
 }
@@ -967,7 +975,8 @@ function Invoke-CoverageCheck {
             if (-not $testRunId) { throw 'Could not parse testRunId from asynchronous Apex test run.' }
             Invoke-Sf @('apex', 'get', 'test', '--target-org', $script:TargetOrg, '--test-run-id', $testRunId, '--code-coverage', '--result-format', 'human') | Out-Null
         }
-    } else {
+    }
+    else {
         Invoke-Sf @('apex', 'run', 'test', '--target-org', $script:TargetOrg, '--tests', $testClass, '--code-coverage', '--synchronous', '--result-format', 'human') | Out-Null
     }
 
@@ -1037,7 +1046,8 @@ jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-proje
     if (-not $ConfigFile -and $env:SF_PROJECT_CONFIG) { $ConfigFile = $env:SF_PROJECT_CONFIG }
     $configPath = if ($ConfigFile) {
         if ([IO.Path]::IsPathRooted($ConfigFile)) { [IO.Path]::GetFullPath($ConfigFile) } else { [IO.Path]::GetFullPath((Join-Path $script:ProjectRoot $ConfigFile)) }
-    } else { Join-Path $script:ProjectRoot 'sf-project.config.json' }
+    }
+    else { Join-Path $script:ProjectRoot 'sf-project.config.json' }
     $script:Config = [pscustomobject]@{
         schemaVersion = 1; scratchDefinition = 'config/project-scratch-def.json'; scratchDurationDays = 14
         permissionSets = @(); dummyDataPlan = $null; communityName = $null; postSteps = @('deploy')
@@ -1050,7 +1060,8 @@ jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-proje
         $loaded = Read-JsonFile $configPath
         foreach ($property in $loaded.PSObject.Properties) { $script:Config | Add-Member -NotePropertyName $property.Name -NotePropertyValue $property.Value -Force }
         Test-Configuration $script:Config
-    } elseif (-not $NoConfig -and $ConfigFile) { throw "Configuration file not found: $configPath" }
+    }
+    elseif (-not $NoConfig -and $ConfigFile) { throw "Configuration file not found: $configPath" }
 
     if ($null -eq $script:Config.pool) { $script:Config.pool = [pscustomobject]@{ use = $false; tag = 'dev'; fallbackToCreate = $true } }
     if ($null -eq $script:Config.coverage) { $script:Config.coverage = [pscustomobject]@{ minimumPercent = 75; testClass = $null; classNamePattern = '%' } }
@@ -1190,14 +1201,16 @@ jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-proje
             if (Invoke-PostStep $step) {
                 $script:CompletedSteps += $step
                 Write-RunLine "$(if ($script:DryRun) { 'Would run' } else { 'Completed' }): $step" Success
-            } else {
+            }
+            else {
                 $script:SkippedSteps += $step
                 Write-RunLine "Skipped: $step" Skip
             }
         }
         if ($RefreshDependencySources) { Write-Phase 'Dependency sources'; Refresh-DependencyFolders }
         Write-RunLine $(if ($script:DryRun) { 'Scratch-org setup plan completed.' } else { 'Scratch-org setup completed.' }) Success
-    } finally { Pop-Location }
+    }
+    finally { Pop-Location }
 }
 
 $exitCode = 1
@@ -1205,9 +1218,11 @@ try {
     Initialize-Output
     Invoke-Main
     $exitCode = 0
-} catch {
+}
+catch {
     Write-RunLine "ERROR: $($_.Exception.Message)" Failure
-} finally {
+}
+finally {
     Write-RunSummary $exitCode
 }
 exit $exitCode

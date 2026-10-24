@@ -39,14 +39,14 @@ function Write-Json {
 function Reset-Scenario {
     $script:Config = @{
         defaultOrgAlias = 'offline-org'
-        postSteps = @('deploy')
-        pool = @{ use = $false; tag = 'dev'; fallbackToCreate = $false }
+        postSteps       = @('deploy')
+        pool            = @{ use = $false; tag = 'dev'; fallbackToCreate = $false }
     }
     $script:Rules = @()
     $script:Overrides = @{}
     Write-Json (Join-Path $ProjectDirectory 'sfdx-project.json') @{
         packageDirectories = @(@{ path = 'force-app' })
-        packageAliases = @{}
+        packageAliases     = @{}
     }
 }
 
@@ -58,8 +58,8 @@ function Add-Rule {
 function Set-PackageProject {
     Write-Json (Join-Path $ProjectDirectory 'sfdx-project.json') @{
         packageDirectories = @(@{ path = 'force-app'; dependencies = @(@{ package = 'offline-package'; versionNumber = '1.0.0.LATEST' }) })
-        packageAliases = @{ 'offline-package' = 'offline-package-id' }
-        packageKeyConfig = @{ 'offline-package' = $false }
+        packageAliases     = @{ 'offline-package' = 'offline-package-id' }
+        packageKeyConfig   = @{ 'offline-package' = $false }
     }
     Add-Rule sf @('package', 'version', 'list') $VersionJson
     Add-Rule sf @('package', 'version', 'report') '{"status":0,"result":{"SubscriberPackageVersionId":"offline-version","Package2Id":"offline-package-id","MajorVersion":1,"MinorVersion":0,"PatchVersion":0,"BuildNumber":3,"SubscriberPackageVersion":{"Dependencies":null}}}'
@@ -82,10 +82,12 @@ function Invoke-Scenario {
     $info.UseShellExecute = $false
     $info.RedirectStandardOutput = $true
     $info.RedirectStandardError = $true
+    $info.RedirectStandardInput = $true
     $info.WorkingDirectory = $ProjectDirectory
     if ($IsWindows -and $Executable -eq $env:ComSpec) {
         $info.Arguments = '/d /s /c "' + $LeadingArguments[-1] + '"'
-    } else {
+    }
+    else {
         foreach ($argument in @($LeadingArguments) + @($Options)) { $info.ArgumentList.Add($argument) }
     }
     foreach ($name in @($info.Environment.Keys)) {
@@ -115,6 +117,7 @@ function Invoke-Scenario {
     $info.Environment['TERM'] = 'dumb'
     foreach ($entry in $Overrides.GetEnumerator()) { $info.Environment[$entry.Key] = $entry.Value }
     $process = [Diagnostics.Process]::Start($info)
+    $process.StandardInput.Close()
     try {
         $stderr = $process.StandardError.ReadToEndAsync()
         $prefix = ''
@@ -133,7 +136,8 @@ function Invoke-Scenario {
         $stdout = $process.StandardOutput.ReadToEndAsync()
         if (-not $process.WaitForExit(60000)) { $process.Kill($true); throw 'Offline scenario timed out.' }
         $result = [pscustomobject]@{ ExitCode = $process.ExitCode; Output = $prefix + $stdout.GetAwaiter().GetResult() + $stderr.GetAwaiter().GetResult(); LiveProgress = $liveProgress }
-    } finally { $process.Dispose() }
+    }
+    finally { $process.Dispose() }
     $script:Calls = @(Get-Content -LiteralPath $LogPath | ForEach-Object { $_ | ConvertFrom-Json })
     if (-not $AllowUnexpected) {
         $unexpected = @($Calls | Where-Object unexpected).Count -gt 0
@@ -167,11 +171,12 @@ try {
     foreach ($tool in @('sf', 'sfp')) {
         if ($IsWindows) {
             "@echo off`r`n`"%SCRATCH_TEST_HOST%`" -NoLogo -NoProfile -File `"%SCRATCH_TEST_FIXTURE%`" $tool %*`r`nexit /b %errorlevel%`r`n" |
-                Set-Content -LiteralPath (Join-Path $FakeBin "$tool.cmd") -Encoding ascii
-        } else {
+            Set-Content -LiteralPath (Join-Path $FakeBin "$tool.cmd") -Encoding ascii
+        }
+        else {
             $wrapper = Join-Path $FakeBin $tool
             "#!/bin/sh`nexec '$($HostPath.Replace("'", "'\''"))' -NoLogo -NoProfile -File '$($fixture.Replace("'", "'\''"))' $tool `"`$@`"`n" |
-                Set-Content -LiteralPath $wrapper -Encoding utf8NoBOM
+            Set-Content -LiteralPath $wrapper -Encoding utf8NoBOM
             [IO.File]::SetUnixFileMode($wrapper, [IO.UnixFileMode]::UserRead -bor [IO.UnixFileMode]::UserWrite -bor [IO.UnixFileMode]::UserExecute)
         }
     }
@@ -223,8 +228,8 @@ try {
     $Config['dummyDataPlan'] = 'data/Plan.json'
     $Config.postSteps = @('data')
     $Config['dummyUsers'] = @{
-        file = 'data/User.json'
-        profileName = 'Standard User'
+        file               = 'data/User.json'
+        profileName        = 'Standard User'
         profileAssignments = @(
             @{ profileName = 'Case Handler'; usernames = @('handler@example.test') },
             @{ profileName = 'Support User'; usernames = @('support@example.test') }
@@ -324,9 +329,11 @@ try {
         Assert-True ($Calls.Count -eq 1) 'JSON scenario reached the fake CLI'
         if ($output -eq 'not JSON' -or $output -eq '') {
             Assert-True ($result.Output -match 'returned no JSON') 'empty/invalid output has actionable JSON error'
-        } elseif ($output -eq '{"broken":') {
+        }
+        elseif ($output -eq '{"broken":') {
             Assert-True ($result.Output -match 'Could not parse JSON') 'malformed JSON has actionable error'
-        } elseif ($output.StartsWith('{"status":1')) {
+        }
+        elseif ($output.StartsWith('{"status":1')) {
             Assert-True ($result.Output -match 'offline JSON failure') 'failed JSON status is surfaced'
         }
     }
@@ -336,7 +343,7 @@ try {
     $project = Get-Content -LiteralPath (Join-Path $ProjectDirectory 'sfdx-project.json') -Raw | ConvertFrom-Json
     $project.packageDirectories[0].dependencies[0].versionNumber = '0.9.0.LATEST'
     $project.packageDirectories += [pscustomobject]@{
-        path = 'second-package'
+        path         = 'second-package'
         dependencies = @([pscustomobject]@{ package = 'offline-package'; versionNumber = '0.9.0.NEXT' })
     }
     Write-Json (Join-Path $ProjectDirectory 'sfdx-project.json') $project
@@ -528,39 +535,39 @@ try {
     Assert-Exit $result 1 'dependency apply and dry-run cannot be combined'
 
     foreach ($case in @(
-        @{ Name = 'schema version'; Expected = 'Unsupported schemaVersion'; Change = { $script:Config['schemaVersion'] = 2 } },
-        @{ Name = 'duration type'; Expected = 'scratchDurationDays must be an integer'; Change = { $script:Config['scratchDurationDays'] = 14.5 } },
-        @{ Name = 'permissionSets array'; Expected = 'permissionSets must be an array'; Change = { $script:Config['permissionSets'] = 'Admins' } },
-        @{ Name = 'permissionSets values'; Expected = 'permissionSets must contain non-empty strings'; Change = { $script:Config['permissionSets'] = @('') } },
-        @{ Name = 'postSteps values'; Expected = "Unknown post step"; Change = { $script:Config['postSteps'] = @('not-a-step') } },
-        @{ Name = 'customPostSteps array'; Expected = 'customPostSteps must be an array'; Change = { $script:Config['customPostSteps'] = 'capture' } },
-        @{ Name = 'customPostSteps entry'; Expected = 'require non-empty name and executable'; Change = { $script:Config['customPostSteps'] = @(@{ name = ''; executable = 'sf' }) } },
-        @{ Name = 'customPostSteps arguments'; Expected = 'customPostSteps.arguments must be a string array'; Change = { $script:Config['customPostSteps'] = @(@{ name = 'capture'; executable = 'sf'; arguments = @('ok', 2) }) } },
-        @{ Name = 'customPostSteps label'; Expected = 'customPostSteps.label must be a non-empty string'; Change = { $script:Config['customPostSteps'] = @(@{ name = 'capture'; executable = 'sf'; label = '' }) } },
-        @{ Name = 'customPostSteps built-in conflict'; Expected = "conflicts with a built-in step"; Change = { $script:Config['customPostSteps'] = @(@{ name = 'deploy'; executable = 'sf' }) } },
-        @{ Name = 'pool object'; Expected = 'pool must be an object'; Change = { $script:Config['pool'] = @() } },
-        @{ Name = 'pool boolean'; Expected = 'pool.use must be a boolean'; Change = { $script:Config.pool.use = 'true' } },
-        @{ Name = 'pool fallback boolean'; Expected = 'pool.fallbackToCreate must be a boolean'; Change = { $script:Config.pool.fallbackToCreate = 'false' } },
-        @{ Name = 'pool string'; Expected = 'pool.tag must be a non-empty string'; Change = { $script:Config.pool.tag = '' } },
-        @{ Name = 'dependencySourcePolicy object'; Expected = 'dependencySourcePolicy must be an object'; Change = { $script:Config['dependencySourcePolicy'] = @() } },
-        @{ Name = 'dependencySourcePolicy boolean'; Expected = 'requireLocalDirectories must be a boolean'; Change = { $script:Config['dependencySourcePolicy'] = @{ requireLocalDirectories = 'yes' } } },
-        @{ Name = 'dependencySourcePolicy values'; Expected = 'preserveRootFiles must be an array of non-empty strings'; Change = { $script:Config['dependencySourcePolicy'] = @{ preserveRootFiles = @('') } } },
-        @{ Name = 'commandTimeouts object'; Expected = 'commandTimeouts must be an object'; Change = { $script:Config['commandTimeouts'] = @() } },
-        @{ Name = 'commandTimeouts readMs'; Expected = 'commandTimeouts.readMs must be a positive integer'; Change = { $script:Config['commandTimeouts'] = @{ readMs = 0 } } },
-        @{ Name = 'commandTimeouts mutationMs'; Expected = 'commandTimeouts.mutationMs must be a positive integer'; Change = { $script:Config['commandTimeouts'] = @{ mutationMs = 1.5 } } },
-        @{ Name = 'coverage object'; Expected = 'coverage must be an object'; Change = { $script:Config['coverage'] = @() } },
-        @{ Name = 'coverage threshold'; Expected = 'coverage.minimumPercent must be a number from 0 to 100'; Change = { $script:Config['coverage'] = @{ minimumPercent = 101 } } },
-        @{ Name = 'coverage testClass'; Expected = 'coverage.testClass must be a non-empty string or null'; Change = { $script:Config['coverage'] = @{ testClass = '' } } },
-        @{ Name = 'coverage classNamePattern'; Expected = 'coverage.classNamePattern must be a non-empty string'; Change = { $script:Config['coverage'] = @{ classNamePattern = '' } } },
-        @{ Name = 'dummyUsers object'; Expected = 'dummyUsers must be an object'; Change = { $script:Config['dummyUsers'] = @() } },
-        @{ Name = 'dummyUsers file'; Expected = 'dummyUsers.file is required'; Change = { $script:Config['dummyUsers'] = @{ file = '' } } },
-        @{ Name = 'dummyUsers profileAssignments'; Expected = 'dummyUsers.profileAssignments must be an array'; Change = { $script:Config['dummyUsers'] = @{ file = 'users.json'; profileAssignments = 'bad' } } },
-        @{ Name = 'dummyUsers profile assignment'; Expected = 'requires profileName and at least one username'; Change = { $script:Config['dummyUsers'] = @{ file = 'users.json'; profileAssignments = @(@{ profileName = 'Admin'; usernames = @() }) } } },
-        @{ Name = 'dummyUsers username values'; Expected = 'usernames must be non-empty strings'; Change = { $script:Config['dummyUsers'] = @{ file = 'users.json'; profileAssignments = @(@{ profileName = 'Admin'; usernames = @('') }) } } },
-        @{ Name = 'dummyUsers permissionSetAssignments'; Expected = 'dummyUsers.permissionSetAssignments must be an array'; Change = { $script:Config['dummyUsers'] = @{ file = 'users.json'; permissionSetAssignments = 'bad' } } },
-        @{ Name = 'dummyUsers permission-set assignment'; Expected = 'requires permissionSets and usernames'; Change = { $script:Config['dummyUsers'] = @{ file = 'users.json'; permissionSetAssignments = @(@{ permissionSets = @(); usernames = @('user@example.test') }) } } },
-        @{ Name = 'dummyUsers permission-set values'; Expected = 'permissionSetAssignments values must be non-empty strings'; Change = { $script:Config['dummyUsers'] = @{ file = 'users.json'; permissionSetAssignments = @(@{ permissionSets = @(''); usernames = @('user@example.test') }) } } }
-    )) {
+            @{ Name = 'schema version'; Expected = 'Unsupported schemaVersion'; Change = { $script:Config['schemaVersion'] = 2 } },
+            @{ Name = 'duration type'; Expected = 'scratchDurationDays must be an integer'; Change = { $script:Config['scratchDurationDays'] = 14.5 } },
+            @{ Name = 'permissionSets array'; Expected = 'permissionSets must be an array'; Change = { $script:Config['permissionSets'] = 'Admins' } },
+            @{ Name = 'permissionSets values'; Expected = 'permissionSets must contain non-empty strings'; Change = { $script:Config['permissionSets'] = @('') } },
+            @{ Name = 'postSteps values'; Expected = "Unknown post step"; Change = { $script:Config['postSteps'] = @('not-a-step') } },
+            @{ Name = 'customPostSteps array'; Expected = 'customPostSteps must be an array'; Change = { $script:Config['customPostSteps'] = 'capture' } },
+            @{ Name = 'customPostSteps entry'; Expected = 'require non-empty name and executable'; Change = { $script:Config['customPostSteps'] = @(@{ name = ''; executable = 'sf' }) } },
+            @{ Name = 'customPostSteps arguments'; Expected = 'customPostSteps.arguments must be a string array'; Change = { $script:Config['customPostSteps'] = @(@{ name = 'capture'; executable = 'sf'; arguments = @('ok', 2) }) } },
+            @{ Name = 'customPostSteps label'; Expected = 'customPostSteps.label must be a non-empty string'; Change = { $script:Config['customPostSteps'] = @(@{ name = 'capture'; executable = 'sf'; label = '' }) } },
+            @{ Name = 'customPostSteps built-in conflict'; Expected = "conflicts with a built-in step"; Change = { $script:Config['customPostSteps'] = @(@{ name = 'deploy'; executable = 'sf' }) } },
+            @{ Name = 'pool object'; Expected = 'pool must be an object'; Change = { $script:Config['pool'] = @() } },
+            @{ Name = 'pool boolean'; Expected = 'pool.use must be a boolean'; Change = { $script:Config.pool.use = 'true' } },
+            @{ Name = 'pool fallback boolean'; Expected = 'pool.fallbackToCreate must be a boolean'; Change = { $script:Config.pool.fallbackToCreate = 'false' } },
+            @{ Name = 'pool string'; Expected = 'pool.tag must be a non-empty string'; Change = { $script:Config.pool.tag = '' } },
+            @{ Name = 'dependencySourcePolicy object'; Expected = 'dependencySourcePolicy must be an object'; Change = { $script:Config['dependencySourcePolicy'] = @() } },
+            @{ Name = 'dependencySourcePolicy boolean'; Expected = 'requireLocalDirectories must be a boolean'; Change = { $script:Config['dependencySourcePolicy'] = @{ requireLocalDirectories = 'yes' } } },
+            @{ Name = 'dependencySourcePolicy values'; Expected = 'preserveRootFiles must be an array of non-empty strings'; Change = { $script:Config['dependencySourcePolicy'] = @{ preserveRootFiles = @('') } } },
+            @{ Name = 'commandTimeouts object'; Expected = 'commandTimeouts must be an object'; Change = { $script:Config['commandTimeouts'] = @() } },
+            @{ Name = 'commandTimeouts readMs'; Expected = 'commandTimeouts.readMs must be a positive integer'; Change = { $script:Config['commandTimeouts'] = @{ readMs = 0 } } },
+            @{ Name = 'commandTimeouts mutationMs'; Expected = 'commandTimeouts.mutationMs must be a positive integer'; Change = { $script:Config['commandTimeouts'] = @{ mutationMs = 1.5 } } },
+            @{ Name = 'coverage object'; Expected = 'coverage must be an object'; Change = { $script:Config['coverage'] = @() } },
+            @{ Name = 'coverage threshold'; Expected = 'coverage.minimumPercent must be a number from 0 to 100'; Change = { $script:Config['coverage'] = @{ minimumPercent = 101 } } },
+            @{ Name = 'coverage testClass'; Expected = 'coverage.testClass must be a non-empty string or null'; Change = { $script:Config['coverage'] = @{ testClass = '' } } },
+            @{ Name = 'coverage classNamePattern'; Expected = 'coverage.classNamePattern must be a non-empty string'; Change = { $script:Config['coverage'] = @{ classNamePattern = '' } } },
+            @{ Name = 'dummyUsers object'; Expected = 'dummyUsers must be an object'; Change = { $script:Config['dummyUsers'] = @() } },
+            @{ Name = 'dummyUsers file'; Expected = 'dummyUsers.file is required'; Change = { $script:Config['dummyUsers'] = @{ file = '' } } },
+            @{ Name = 'dummyUsers profileAssignments'; Expected = 'dummyUsers.profileAssignments must be an array'; Change = { $script:Config['dummyUsers'] = @{ file = 'users.json'; profileAssignments = 'bad' } } },
+            @{ Name = 'dummyUsers profile assignment'; Expected = 'requires profileName and at least one username'; Change = { $script:Config['dummyUsers'] = @{ file = 'users.json'; profileAssignments = @(@{ profileName = 'Admin'; usernames = @() }) } } },
+            @{ Name = 'dummyUsers username values'; Expected = 'usernames must be non-empty strings'; Change = { $script:Config['dummyUsers'] = @{ file = 'users.json'; profileAssignments = @(@{ profileName = 'Admin'; usernames = @('') }) } } },
+            @{ Name = 'dummyUsers permissionSetAssignments'; Expected = 'dummyUsers.permissionSetAssignments must be an array'; Change = { $script:Config['dummyUsers'] = @{ file = 'users.json'; permissionSetAssignments = 'bad' } } },
+            @{ Name = 'dummyUsers permission-set assignment'; Expected = 'requires permissionSets and usernames'; Change = { $script:Config['dummyUsers'] = @{ file = 'users.json'; permissionSetAssignments = @(@{ permissionSets = @(); usernames = @('user@example.test') }) } } },
+            @{ Name = 'dummyUsers permission-set values'; Expected = 'permissionSetAssignments values must be non-empty strings'; Change = { $script:Config['dummyUsers'] = @{ file = 'users.json'; permissionSetAssignments = @(@{ permissionSets = @(''); usernames = @('user@example.test') }) } } }
+        )) {
         Assert-InvalidConfig -Name $case.Name -Mutation $case.Change -ExpectedMessage $case.Expected
     }
 
@@ -598,7 +605,8 @@ try {
         Assert-Exit $result ([int](-not $fallback)) "unparseable pool listing fallback=$fallback"
         if ($fallback) {
             Assert-True (@($Calls | Where-Object { $_.tool -eq 'sf' -and $_.arguments[1] -eq 'create' }).Count -eq 1) 'unparseable pool count with fallback creates org'
-        } else {
+        }
+        else {
             Assert-True ($result.Output -match 'No unused scratch org is available in the pool' -and @($Calls | Where-Object { $_.tool -eq 'sf' -and $_.arguments[1] -in @('delete', 'create') }).Count -eq 0) 'unparseable pool count without fallback fails before mutation'
         }
     }
@@ -703,7 +711,7 @@ try {
                 @{ path = 'force-app'; dependencies = @(@{ package = 'offline-package'; versionNumber = '1.0.0.LATEST' }) },
                 @{ path = $DependencyPath; package = 'offline-package' }
             )
-            packageAliases = @{}
+            packageAliases     = @{}
         }
     }
 
@@ -752,7 +760,8 @@ try {
     try {
         New-Item -ItemType SymbolicLink -Path $linkPath -Target $linkTarget -ErrorAction Stop | Out-Null
         $linkCreated = $true
-    } catch {
+    }
+    catch {
         if ($IsWindows) { Write-Host 'SKIP: Windows symbolic-link creation requires unavailable privilege.' }
         else { Assert-True $false "could not create required dependency symlink: $($_.Exception.Message)" }
     }
@@ -826,25 +835,29 @@ exit $LASTEXITCODE
             Add-Rule sf @('project', 'deploy', 'start') '' 9 'offline Windows deployment failed'
             $command = if ($launcher -eq 'cmd') {
                 "`"$LauncherPath`" -PostStepsOnly -OrgAlias `"alias with spaces`""
-            } else { "`"$NpmPath`" run scratch-org -- -PostStepsOnly -OrgAlias `"alias with spaces`"" }
+            }
+            else { "`"$NpmPath`" run scratch-org -- -PostStepsOnly -OrgAlias `"alias with spaces`"" }
             $result = Invoke-Scenario -Executable $env:ComSpec -LeadingArguments @('/d', '/c', $command)
             Assert-Exit $result 1 "$launcher propagates script failure"
             Assert-True ($Calls.Count -eq 1 -and $Calls[0].arguments[4] -eq 'alias with spaces') "$launcher preserves spaced argument"
             Assert-True ($result.Output -match 'offline Windows deployment failed') "$launcher surfaces script failure details"
             if ($launcher -eq 'cmd') {
                 $result = Invoke-Scenario -Executable $env:ComSpec -LeadingArguments @('/d', '/c', "`"$LauncherPath`" -Help") -WithoutRuntime
-            } else {
+            }
+            else {
                 $result = Invoke-Scenario -Executable $env:ComSpec -LeadingArguments @('/d', '/c', "`"$NpmPath`" run scratch-org -- --help") -WithoutRuntime
             }
             Assert-Exit $result 1 "$launcher rejects missing pwsh"
             Assert-True ($result.Output -match 'PowerShell 7 LTS' -and $result.Output -match 'Install') "$launcher gives installation guidance"
             Assert-True ($Calls.Count -eq 0) "$launcher never contacts CLI without runtime"
         }
-    } else {
+    }
+    else {
         $Skipped += 1
         Write-Host 'SKIP: Windows CMD/npm execution and missing-runtime scenarios require Windows; not verified on Mac.'
     }
-} finally {
+}
+finally {
     Remove-Item -LiteralPath $WorkDirectory -Recurse -Force
 }
 Write-Host "Passed: $Passed; failed: $Failures; skipped groups: $Skipped"

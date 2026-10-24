@@ -12,6 +12,20 @@
 
 This README is the starting guide; the reference pages hold exhaustive details.
 
+## Choose a workflow
+
+| Task                                                           | Where to start                                                                                                          |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| First setup, prerequisites or Windows migration                | Requirements and first-run checklist below                                                                              |
+| Read dependencies without creating an org                      | [Complete package dependency preflight](#complete-package-dependency-preflight)                                         |
+| Understand PASS/FAIL, prompts and automatic fixes              | [Scenario examples](#scenario-examples) and [apply behavior](#apply-fixes-without-starting-setup)                       |
+| Full setup, pool, package update, deployment, data or coverage | [Command examples](COMMANDS.md#4-eksempelbibliotek)                                                                     |
+| Custom project/config, flags and environment variables         | [Complete reference](COMMANDS.md)                                                                                       |
+| Reports, no-colour output, backups or failed checks            | [Preflight guide](#complete-package-dependency-preflight) and [troubleshooting](COMMANDS.md#9-feilsøking-og-exitstatus) |
+| Offline tests and supported platforms                          | [Offline tests](#offline-tests) and [compatibility](COMPATIBILITY.md)                                                   |
+| Hooks, CI filtering, formatting or P360 smoke checks           | [Supporting scripts](../scripts/README.md)                                                                              |
+| Optional `sf-project` CLI                                      | [Separate CLI documentation](../tools/salesforce-project-cli/README.md)                                                 |
+
 Standalone scratch-org setup is available without the Salesforce Project CLI. All three entry points use `sf-project.config.json` beside `sfdx-project.json`:
 
 | Platform           | Entry point                  |
@@ -38,6 +52,36 @@ directly on macOS; npm still selects Bash on macOS/Linux.
 For a full root npm development installation, use a Node version satisfying all
 devDependency engine requirements: `lint-staged` 17.6.0 requires >=22.22.1.
 The helper's Node 22+ requirement alone does not guarantee a supported npm install.
+
+### First-run checklist
+
+1. Install the required runtime and Salesforce tools. Run from the repository root.
+2. Have the intended packaging Dev Hub and scratch-org actions approved. Authentication
+   does not itself grant permission to use another org. If login is needed, use your
+   approved interactive authentication flow; do not put tokens or auth URLs in commands.
+3. Review `sfdx-project.json` and `sf-project.config.json`. This repository enables
+   pool use and multiple post-steps; generic script defaults are different.
+4. Arrange the installation key through the configured environment variable or the
+   Bash macOS Keychain lookup. Never pass a real key in a command, config or commit.
+5. Read the effective help/settings, check dependencies, then run approved setup.
+
+```bash
+npm run scratch-org -- --help
+npm run scratch-org -- --check-dependencies
+npm run scratch-org -- --dry-run
+npm run scratch-org
+```
+
+On Windows CMD, replace the Bash options with `-Help`, `-CheckDependencies` and
+`-DryRun`. In Windows PowerShell, quote npm's separator, for example
+`npm run scratch-org '--' -CheckDependencies`. To choose the PowerShell engine
+on macOS, run `pwsh -File ./bin/create-scratch-org.ps1 -CheckDependencies`
+directly; npm on macOS still selects Bash.
+
+Only help is offline in this sequence. Check and dry-run can contact Salesforce;
+normal setup can replace an org, install packages and execute post-steps.
+`sf-project` is not needed. Root devDependencies are needed for Jest, formatting
+and the full npm test suite, not for the dependency helper's core graph logic.
 
 ### Migrating from Windows PowerShell 5.1
 
@@ -79,8 +123,8 @@ PowerShell removes an unquoted `--` before `npm.ps1` receives it, so npm consume
 From the repository root, npm selects the platform-specific script:
 
 ```powershell
-npm run scratch-org -- -Help
-npm run scratch-org -- -DryRun
+npm run scratch-org '--' -Help
+npm run scratch-org '--' -DryRun
 ```
 
 The npm launcher accepts `--help`, `--Help`, `-Help`, and `-h` on every platform.
@@ -139,16 +183,53 @@ fails the check rather than claiming completeness. Nothing is inferred from
 local reference-package folders. Managed or external packages whose version
 metadata is unavailable cannot be certified by this check.
 
-The report names the requiring package, missing dependency and exact required
-version, and detects cycles, duplicate declarations, conflicting versions and
-incorrect installation order. It checks each package directory separately.
-For safety, a different selected version, **including a higher version**, is a
-version mismatch, not an automatic compatibility claim. Reconcile such versions
-manually; this is a conservative manifest check, not Salesforce upgrade-lineage
-validation or a substitute for installing against an approved test org.
+The checker treats dependency versions as **minimum requirements**, comparing
+major, minor, patch and build numerically. It checks each package directory and
+the dependencies of the version actually selected for installation.
 
-If only dependencies are missing or incorrectly ordered, review the report and
-explicitly request an update:
+| Condition                                                              | Check result          | Normal interactive setup                                        |
+| ---------------------------------------------------------------------- | --------------------- | --------------------------------------------------------------- |
+| Selected equals required                                               | PASS                  | Continue automatically                                          |
+| Selected is higher                                                     | PASS: HIGHER VERSION  | Show an informational review notice; continue without prompting |
+| Selected is lower                                                      | FAIL: VERSION TOO LOW | Explain the requirement, impact and fix; ask what to do         |
+| Dependency is not declared                                             | FAIL: MISSING         | Explain which package requires it; ask what to do               |
+| Dependencies are in the wrong order                                    | ACTION REQUIRED       | Show current and required order; ask what to do                 |
+| Metadata cannot be read, a cycle is found, or declarations are invalid | FAILED                | Stop; do not offer an unchecked installation plan               |
+
+For example, selected `0.1.49.3` satisfies required `0.1.33.1`, and build
+`1.0.0.10` satisfies `1.0.0.2`. Higher selections are never downgraded merely
+to match an older requirement. Passing is a manifest-policy result, not proof
+of Salesforce upgrade lineage, installability, permissions or runtime compatibility.
+
+#### Choose a fix or stop
+
+Only **actual issues** trigger a question during interactive installation or
+update. Higher-version review notices do not. Immediately above the question,
+the terminal repeats the package, directory, required minimum, selected version,
+requiring package, impact and proposed fix, or the current and required order.
+These details appear after the graph so they are visible when deciding.
+
+```text
+[c] Continue unchanged | [f] Apply safe fixes and continue | [s] Stop (default):
+```
+
+- `c` explicitly accepts the unresolved issues, keeps the manifest unchanged
+  and lets setup continue. Installation can still fail; this is not a passing check.
+- `f` upgrades low selections, adds missing declarations and fixes installation
+  order. The proposed complete graph must pass before the manifest is written.
+  Setup then continues with the validated version IDs.
+- `s`, Enter, or closed input stops setup without manifest changes or org setup.
+  No answer is treated as approval. Metadata-read failures stop before this menu.
+
+Unattended runs do not ask questions: passing checks continue, actual issues fail
+unless autofix was explicitly requested. `--dry-run` / `-DryRun` never asks for
+an apply decision and never changes the manifest, although metadata reads and
+local report writes still occur. `--skip-version-check` / `-SkipVersionCheck`
+only disables newer-release warnings; it does not bypass dependency preflight.
+
+#### Apply fixes without starting setup
+
+Review the findings and request autofix explicitly:
 
 ```bash
 bash bin/create-scratch-org.sh --apply-dependencies
@@ -158,12 +239,33 @@ bash bin/create-scratch-org.sh --apply-dependencies
 pwsh -NoLogo -NoProfile -File ./bin/create-scratch-org.ps1 -ApplyDependencies
 ```
 
-This adds exact dependency versions/aliases and reorders dependencies before
-dependants, then exits **without starting org setup**. Other project fields are
-preserved. It saves the original bytes as `sfdx-project.json.dependencies.backup`
-(or beside a custom project file) and refuses to overwrite an existing backup.
-Review the diff and rerun setup yourself. Existing conflicting versions are never
-silently replaced. Applying and dry-run cannot be combined.
+These standalone wrapper modes fix the manifest, then exit **without starting
+org setup**. In contrast, choosing `f` during normal setup fixes and continues
+within that run. The shared helper can also be used directly:
+
+```bash
+node bin/package-dependencies.js --apply --report dependency-review.md
+```
+
+Autofix uses version IDs found in actual dependency metadata, not invented
+versions or an unconditional latest-release upgrade. If several packages require
+different minimums, it selects the highest required version, rechecks that
+version's dependencies, and repeats as needed. Already-higher selections stay
+unchanged. New dependencies are added and put before their dependants. Metadata
+is cached within the process; each new run still reads current Salesforce metadata.
+
+The complete proposed graph must pass before any manifest write. Unreadable
+metadata, cycles, unresolved issues or lack of progress stop autofix without a
+partially updated manifest. Other project fields are preserved. Before writing,
+the checker verifies that the manifest has not changed since it was read.
+
+The exact original bytes are saved as `sfdx-project.json.dependencies.backup`
+(or `<custom-project-file>.dependencies.backup`). An existing backup is never
+overwritten: preserve or move it after reviewing its contents, then rerun.
+The new manifest is written through a temporary file. Review its Git diff after
+autofix. Do not restore an old backup blindly over subsequent manual changes.
+Applying and dry-run cannot be combined. An actual Salesforce installation can
+still fail after local manifest validation; autofix does not roll back org changes.
 
 During normal setup the successfully checked root versions are held in a
 temporary plan and used for installation; symbolic `LATEST` is not resolved
@@ -172,11 +274,10 @@ manifest changes. Post-steps-only/deploy-only and standalone coverage workflows
 are not manifest package installation and do not invoke this preflight.
 
 Offline verification: `node --test bin/tests/package-dependencies.test.js`
-tests the graph/provider contract. The existing Bash and PowerShell harnesses
-exercise failed preflight before mutations and explicit apply/backup with fake
-CLI responses. Actual Dev Hub validation was attempted in the agent environment
-but blocked by missing authorization for the approved alias; no package
-completeness or actual Salesforce installation is claimed from those mocks.
+tests the graph/provider contract, minimum-version comparison, recursive upgrades,
+no-downgrade behavior, safe failure, prompts, reports and colour output. The Bash
+and PowerShell harnesses use fake CLI responses. Passing local tests does not
+establish actual Salesforce installation success or native Windows compatibility.
 
 The checker prints the active package as `[current/total]`, its selected version,
 and each metadata read as it starts and finishes. A slow read prints a
@@ -194,15 +295,22 @@ Missing dependencies are listed first with exact versions and requiring packages
 followed by version differences, installation-order problems and numbered next
 steps.
 
-An ASCII **Dependency graph** shows parent-to-dependency relationships and
-versions, labelled `[OK]`, `[MISSING]` or `[VERSION DIFF; selected ...]`.
+An ASCII **Dependency graph** shows parent-to-dependency relationships with
+colour-independent labels: `[PASS]`, `[PASS: HIGHER VERSION]`, `[FAIL: MISSING]`
+and `[FAIL: VERSION TOO LOW]`. Non-exact entries put the required minimum and
+selected version on a separate line. Higher-version notices remain informational.
+When terminal colour is enabled, passes use green, notices/warnings use **bold
+magenta rather than yellow**, and failures use red. Required/selected details
+use the terminal's default text colour. The labels remain complete with
+`--no-color`, `-NoColor` or `NO_COLOR=1`.
 Vertical continuation lines and spacing separate top-level packages without
 hiding any dependency edges. Shared subtrees expand once and subsequent references
 say `(shared subtree)`; repeated leaves have no redundant reference annotation.
-Branches ending in a version difference remain unexpanded, matching the check:
-their descendants have not been verified, so a zero missing count is not a
-completeness claim when version conflicts remain. This graph describes the
-manifest/required versions, not packages installed in a scratch org.
+Below-minimum requirement branches are not expanded; the selected versions are
+checked instead. A zero missing count does not mean the graph passed when lower
+versions or order issues remain. The graph describes manifest requirements, not
+packages installed in a scratch org. Markdown/HTML retain their own status labels
+and graph colours; the terminal palette does not change the HTML palette.
 
 Every completed check also writes `package-dependencies-report.md` beside the
 project file, including checks that return a nonzero exit code because they
@@ -255,23 +363,118 @@ Custom paths resolve from the working directory and must have an existing parent
 directory. Either report write failure stops the check before setup continues. A metadata
 read failure does not replace the previous report: check its timestamp, and do
 not mistake an old report for the failed run. The report covers the inspected
-graph only; conflicting-version descendants remain unchecked. Reports from an
+graph only; below-minimum requirement descendants are not expanded. Reports from an
 apply run describe the findings **before** manifest repair; rerun to refresh.
 Dry-run writes both reports but still never applies manifest changes.
+
+#### Scenario examples
+
+These shortened excerpts omit progress, IDs and report paths. They illustrate
+terminal behavior; package names and versions are examples, not installation instructions.
+
+**Exact version: no decision required**
+
+```text
+Result: PASSED
++-- crm-shared-flowComponents 0.4.0.3 [PASS]
+Dependency preflight PASSED: complete, minimum-version, dependency-first manifest.
+```
+
+**Higher version: visible notice, automatic continuation**
+
+```text
++-- platform-data-model [PASS: HIGHER VERSION]
+|   Required: >= 0.1.33.1; selected: 0.1.49.3
+Higher selected versions are informational only; no decision is required.
+```
+
+**Missing declaration: fix, explicitly accept the risk, or stop**
+
+```text
+ISSUE: Missing dependency declaration
+Package: child (force-app)
+Required minimum: 1.0.0.1; selected: NOT DECLARED
+Required by: parent 1.0.0.1
+Impact: setup will not install a dependency required by this package.
+Fix: add the missing dependency to the manifest.
+[c] Continue unchanged | [f] Apply safe fixes and continue | [s] Stop (default):
+```
+
+**Lower version: autofix upgrades it after approval**
+
+```text
+ISSUE: Selected version is too low
+Package: child (force-app)
+Required minimum: 2.0.0.1; selected: 1.0.0.1
+Required by: parent 1.0.0.1
+Impact: the selected version does not meet this requirement; installation may fail.
+Fix: upgrade the selected version to meet all required minimums.
+[c] Continue unchanged | [f] Apply safe fixes and continue | [s] Stop (default): f
+Upgrade: child 1.0.0.1 -> 2.0.0.1
+Autofix validation PASSED: upgraded versions, dependencies and installation order checked.
+```
+
+If another requiring package needs `3.0.0.1`, autofix chooses at least that
+version and validates any newly introduced dependencies. If a selected version
+was already `4.0.0.1`, no downgrade to `2.0.0.1` or `3.0.0.1` is proposed.
+
+**Incorrect order: show the exact correction**
+
+```text
+ISSUE: Incorrect installation order (force-app)
+Current order: parent -> child
+Required order: child -> parent
+Impact: a package may be installed before a dependency it needs.
+Fix: reorder the manifest so dependencies are installed first.
+```
+
+**Metadata unavailable or autofix cannot validate**
+
+```text
+Dependency preflight FAILED:
+  Missing dependency metadata; completeness cannot be verified.
+```
+
+Stop and resolve access, metadata or the reported graph issue. Do not use
+`Continue unchanged` to bypass a failed metadata read: that choice is not offered.
+The manifest is not partially written. Reports from an earlier completed check
+can still exist; inspect their timestamp before using them.
+
+**Existing backup or manifest changed during the check**
+
+The checker refuses to overwrite the backup or a concurrently edited manifest.
+Preserve the backup, review the current diff and rerun against the current file.
+Do not delete backups automatically or assume an earlier installation plan is current.
+
+**Stop, redirected input, and no colour**
+
+With actual issues, `s`, Enter or EOF stops interactive setup. With only higher
+versions, setup does not ask even in an interactive terminal. With redirected
+input, issues fail instead of waiting for an answer; standalone `--apply` remains
+an explicit opt-in. Capturing stdout alone does not disable questions: terminal
+detection uses stdin, and `CI=true` is not a universal noninteractive override.
+Close/redirect stdin in automated callers. The following command changes only
+output presentation:
+
+```bash
+bash bin/create-scratch-org.sh --check-dependencies --no-color
+```
 
 ```bash
 node bin/package-dependencies.js --dev-hub '<approved-dev-hub-alias>' --report dependency-review.md
 ```
 
-Terminal output uses cyan headings/progress, green success, yellow version
-differences and red missing packages. Status labels remain readable without
+Preflight terminal output uses cyan headings/progress, green success, **bold
+magenta** higher-version notices/warnings and red failures. Status labels remain readable without
 colour. The helper supports `--color` / `--no-color`, `NO_COLOR` and `FORCE_COLOR`;
 explicit flags take precedence, then `NO_COLOR`, then `FORCE_COLOR`, then terminal
 detection. Both wrappers forward their effective colour setting (PowerShell:
 `-Color` / `-NoColor`). Redirected logs are plain by default. Text is wrapped at
 100 visible columns before colouring, without spinner frames.
-An exact-version difference is not proof of incompatibility and is not advice to
-downgrade: the conservative policy still requires manual reconciliation.
+Equal or higher versions pass without a decision. Lower versions can be upgraded
+by explicitly selected autofix; no downgrade is performed. See the scenarios above.
+
+## Setup output and package maintenance
 
 The `deploy` post-step only sends changes that source tracking has recorded, and tracking is reset after the post-steps. If the org is missing metadata but a deploy reports "No changes to deploy", run `--redeploy` (Windows: `-Redeploy`). It deletes local source tracking for the org and deploys all local source; org data is untouched. `--full-deploy` / `-FullDeploy` adds the same behaviour to any run that includes the deploy step.
 
@@ -313,6 +516,44 @@ Package-version maintenance is preview-only unless explicitly applied. Coverage 
 ```
 
 Windows offers matching `-CheckVersions`, `-ApplyProjectVersions`, and `-CoverageCheck` PowerShell parameters. `sf-project` provides `packages check-versions [--apply]` and `coverage check`; its coverage mutations are scratch-only by default. The scripts run Salesforce CLI directly and do not depend on `sf-project`.
+
+### Recover from a failed or interrupted setup
+
+The dependency decision menu is not a general repair system for every later
+Salesforce failure. Autofix changes manifest versions, declarations and order;
+it does not repair authentication, missing metadata access, package keys, org
+permissions, Salesforce installation errors or failing application tests.
+
+| Failure or interruption                                                                                | What to do before retrying                                                                                                        |
+| ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| Missing authentication or metadata access                                                              | Resolve access to the approved target; do not silently switch Dev Hubs or orgs                                                    |
+| Invalid/duplicate declarations, inconsistent selections across directories, alias collisions or cycles | Correct the reported manifest/graph problem; do not guess a package identity or skip unreadable metadata                          |
+| Autofix validation fails                                                                               | The proposed manifest is not written; resolve the metadata/graph cause and rerun the check                                        |
+| Package installation fails after preflight                                                             | Inspect the failed package and actual installed state; a passing graph does not guarantee installation                            |
+| Deploy fails or reports no changes unexpectedly                                                        | Review the deployment result and tracking; use an approved redeploy only when appropriate                                         |
+| Data import, community publish or custom step fails                                                    | Review what already ran before repeating it; there is no generic data rollback or idempotency guarantee                           |
+| Ctrl+C during setup                                                                                    | Inspect the last completed operation and org state; interruption does not undo earlier installations, deployments or data changes |
+| Existing backup or concurrently edited manifest                                                        | Preserve the backup/current diff and rerun against the current file; do not overwrite either automatically                        |
+
+Known transient **installation** failures have bounded retry controlled by
+`PACKAGE_INSTALL_MAX_ATTEMPTS` and `PACKAGE_INSTALL_RETRY_DELAY_SECONDS`.
+This is not a retry policy for every metadata-read, deployment or validation
+failure. Do not wrap full setup in an unconditional retry loop: full setup can
+delete/replace the org, and post-steps may already have changed data.
+
+After reviewing the current state and obtaining approval for the remaining
+actions, choose an existing-org workflow rather than blindly repeating creation:
+
+```bash
+bash bin/create-scratch-org.sh --alias crm-arbeidsforhold --update-packages
+bash bin/create-scratch-org.sh --alias crm-arbeidsforhold --post-steps-only --post-steps deploy
+```
+
+PowerShell equivalents are `-OrgAlias crm-arbeidsforhold -UpdatePackages` and
+`-OrgAlias crm-arbeidsforhold -PostStepsOnly -PostSteps deploy`. They still
+perform the named org actions and require the normal approval. For all modes,
+read nonzero exits and operation details rather than treating an old report,
+heartbeat, planned step or isolated success line as evidence that setup finished.
 
 ## Shared config
 
@@ -412,7 +653,7 @@ sf org open --target-org <alias>
 
 - `check-sfdx-versions.js` and `post-package-coverage-check.ps1` are legacy
   standalone utilities, not the preferred workflow. Their limitations, including
-  nonportable retries and unsafe legacy key logging, are documented in the
+  incomplete success reporting and coverage fallback semantics, are documented in the
   [legacy reference](COMMANDS.md#6-legacy-og-interne-modular). Do not use them as
   equivalent validation gates.
 - `../scripts/p360-mock-smoke.sh` is run by the root `npm run test:p360:mock`.

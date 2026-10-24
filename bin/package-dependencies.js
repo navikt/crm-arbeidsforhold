@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
+const { createInterface } = require('node:readline/promises');
 const { createInteractiveReport } = require('./package-dependency-report');
 
 function versionNumber(record) {
@@ -11,14 +12,23 @@ function versionNumber(record) {
     return parts.join('.');
 }
 
+function compareVersions(first, second) {
+    return (
+        ['MajorVersion', 'MinorVersion', 'PatchVersion', 'BuildNumber']
+            .map((key) => first[key] - second[key])
+            .find((difference) => difference !== 0) ?? 0
+    );
+}
+
 async function checkDependencies(project, provider, progress = () => {}) {
     if (!Array.isArray(project.packageDirectories)) throw new Error('packageDirectories must be an array.');
     const updated = structuredClone(project);
     updated.packageAliases ??= {};
     const errors = [];
     const issues = [];
+    const reviews = [];
     const graphs = [];
-    let fixable = true;
+    const fixable = true;
     const reports = new Map();
     const knownNames = new Map();
     const versions = {};
@@ -80,18 +90,37 @@ async function checkDependencies(project, provider, progress = () => {}) {
             const name = knownNames.get(record.Package2Id) ?? (await provider.name(record.Package2Id));
             knownNames.set(record.Package2Id, name);
             const existing = selected.get(record.Package2Id);
+            const selectedRecord = existing ? await report(existing.id) : null;
+            const versionDifference = selectedRecord ? compareVersions(selectedRecord, record) : 0;
             if (!graph.nodes.has(id)) {
                 graph.nodes.set(id, {
                     name,
                     version: versionNumber(record),
-                    status: !declared.has(record.Package2Id) ? 'MISSING' : existing.id !== id ? 'VERSION DIFF' : 'OK',
+                    status: !declared.has(record.Package2Id)
+                        ? 'MISSING'
+                        : versionDifference < 0
+                          ? 'VERSION DIFF'
+                          : 'OK',
                     selected: existing && existing.id !== id ? versionNumber(await report(existing.id)) : null,
+                    review: versionDifference > 0,
                     children: []
                 });
             }
             if (existing && existing.id !== id) {
+                if (versionDifference >= 0) {
+                    if (versionDifference > 0) {
+                        reviews.push({
+                            directory: directory.path,
+                            package: name,
+                            parent,
+                            required: versionNumber(record),
+                            selected: versionNumber(selectedRecord)
+                        });
+                    }
+                    return visit(existing.id, parent);
+                }
                 errors.push(
-                    `${directory.path}: version mismatch: ${parent} requires ${name} ${versionNumber(record)} (${id}), declared ${existing.id}. Manual version reconciliation required.`
+                    `${directory.path}: version mismatch: ${parent} requires ${name} ${versionNumber(record)} (${id}), declared ${existing.id}. Upgrade required.`
                 );
                 issues.push({
                     type: 'conflict',
@@ -103,7 +132,6 @@ async function checkDependencies(project, provider, progress = () => {}) {
                     selected: versionNumber(await report(existing.id)),
                     selectedId: existing.id
                 });
-                fixable = false;
                 return;
             }
             if (!declared.has(record.Package2Id)) {
@@ -127,6 +155,7 @@ async function checkDependencies(project, provider, progress = () => {}) {
                     id,
                     dependency: { package: name, versionNumber: versionNumber(record) }
                 });
+                versions[name] = record;
             }
             visiting.add(id);
             progress(`  Checking requirements: ${name} ${versionNumber(record)}`);
@@ -150,7 +179,62 @@ async function checkDependencies(project, provider, progress = () => {}) {
             directory.dependencies = ordered;
         }
     }
-    return { valid: errors.length === 0, fixable, errors, issues, graphs, project: updated, versions };
+    return { valid: errors.length === 0, fixable, errors, issues, reviews, graphs, project: updated, versions };
+}
+
+async function fixDependencies(project, result, provider, progress) {
+    let updated = structuredClone(project);
+    let checked = result;
+    const pinned = new Map(Object.entries(result.versions));
+    const attempted = new Set();
+    const pinnedProvider = {
+        ...provider,
+        resolve: (dependency) =>
+            pinned.get(dependency.package)?.SubscriberPackageVersionId ?? provider.resolve(dependency)
+    };
+    while (!checked.valid) {
+        const conflicts = checked.issues.filter((issue) => issue.type === 'conflict');
+        if (conflicts.length) {
+            const upgrades = new Set();
+            for (const issue of conflicts) {
+                const required = await provider.report(issue.requiredId);
+                const selected = pinned.get(issue.package);
+                if (!selected || compareVersions(required, selected) > 0) {
+                    progress(
+                        `Upgrade: ${issue.package} ${selected ? versionNumber(selected) : 'NOT DECLARED'} -> ${versionNumber(required)}`
+                    );
+                    pinned.set(issue.package, required);
+                }
+                upgrades.add(issue.package);
+                const directory = updated.packageDirectories.find((entry) => entry.path === issue.directory);
+                if (!directory.dependencies.some((dependency) => dependency.package === issue.package)) {
+                    directory.dependencies.push({ package: issue.package });
+                }
+            }
+            for (const directory of updated.packageDirectories) {
+                for (const dependency of directory.dependencies ?? []) {
+                    if (upgrades.has(dependency.package)) {
+                        dependency.versionNumber = versionNumber(pinned.get(dependency.package));
+                    }
+                }
+            }
+            for (const name of upgrades) {
+                if (updated.packageAliases?.[name]?.startsWith('04t')) {
+                    updated.packageAliases[name] = pinned.get(name).SubscriberPackageVersionId;
+                }
+            }
+        } else {
+            updated = structuredClone(checked.project);
+            for (const [name, record] of Object.entries(checked.versions)) pinned.set(name, record);
+        }
+        const signature = JSON.stringify(updated);
+        if (attempted.has(signature))
+            throw new Error('Autofix could not resolve all dependency issues. No manifest changes were written.');
+        attempted.add(signature);
+        checked = await checkDependencies(updated, pinnedProvider, progress);
+    }
+    progress('Autofix validation PASSED: upgraded versions, dependencies and installation order checked.');
+    return checked;
 }
 
 function createProvider(project, run, latest) {
@@ -162,6 +246,7 @@ function createProvider(project, run, latest) {
     );
     let packagesLoaded = false;
     const latestVersions = new Map();
+    const reports = new Map();
     return {
         async resolve(dependency) {
             const reference = aliases[dependency.package] ?? dependency.package;
@@ -203,10 +288,12 @@ function createProvider(project, run, latest) {
             latestVersions.set(id, { ...newest, VersionNumber: versionNumber(newest) });
             return id;
         },
-        report: async (id) => ({
-            ...(await run(['package', 'version', 'report', '--package', id, '--verbose'])),
-            LatestVersion: latestVersions.get(id)
-        }),
+        report: async (id) => {
+            if (!reports.has(id)) {
+                reports.set(id, await run(['package', 'version', 'report', '--package', id, '--verbose']));
+            }
+            return { ...reports.get(id), LatestVersion: latestVersions.get(id) };
+        },
         async name(id) {
             if (!names.has(id) && !packagesLoaded) {
                 const packages = await run(['package', 'list']);
@@ -221,6 +308,18 @@ function createProvider(project, run, latest) {
 }
 
 function printFindings(result, write) {
+    if (result.reviews.length) {
+        write(`\nHigher selected versions: ${result.reviews.length} (PASS; review recommended)`, 'warning');
+        write('-'.repeat(72));
+        for (const review of result.reviews) {
+            write(`  ${review.package} (${review.directory})`, 'warning');
+            write(
+                `  Required: ${review.required} -> Selected: ${review.selected} -> PASS; review recommended`,
+                'warning'
+            );
+            write(`  Required by: ${review.parent}`);
+        }
+    }
     for (const [type, title] of [
         ['missing', 'Missing dependencies'],
         ['conflict', 'Version conflicts']
@@ -270,8 +369,9 @@ function printGraph(graphs, write) {
     write('\nDependency graph', 'heading');
     write('-'.repeat(72), 'muted');
     write('Parent package -> required dependency version. Shared subtrees expand once.');
-    write('[OK] declared version | [MISSING] no declaration | [VERSION DIFF] differs');
-    write('Version-difference branches are not expanded; their descendants are unchecked.', 'warning');
+    write('[PASS] exact version | [PASS: HIGHER VERSION] informational; continues automatically');
+    write('[FAIL: MISSING] no declaration | [FAIL: VERSION TOO LOW] selected version below minimum');
+    write('Below-minimum branches are not expanded; selected versions are checked instead.', 'warning');
     if (!graphs.length) write('  No package dependencies declared.', 'muted');
     for (const graph of graphs) {
         write(`\n  ${graph.directory}`, 'heading');
@@ -279,11 +379,21 @@ function printGraph(graphs, write) {
         const visit = (id, prefix) => {
             const node = graph.nodes.get(id);
             const shared = expanded.has(id) && node.children.length > 0;
-            const selected = node.selected ? `; selected ${node.selected}` : '';
+            const status = node.review
+                ? 'PASS: HIGHER VERSION'
+                : node.status === 'MISSING'
+                  ? 'FAIL: MISSING'
+                  : node.status === 'VERSION DIFF'
+                    ? 'FAIL: VERSION TOO LOW'
+                    : 'PASS';
+            const showVersions = node.review || node.status !== 'OK';
             write(
-                `${prefix}+-- ${node.name} ${node.version} [${node.status}${selected}]${shared ? ' (shared subtree)' : ''}`,
-                node.status === 'MISSING' ? 'failure' : node.status === 'VERSION DIFF' ? 'warning' : 'success'
+                `${prefix}+-- ${node.name}${showVersions ? '' : ` ${node.version}`} [${status}]${shared ? ' (shared subtree)' : ''}`,
+                node.status !== 'OK' ? 'failure' : node.review ? 'warning' : 'success'
             );
+            if (showVersions) {
+                write(`${prefix}|   Required: >= ${node.version}; selected: ${node.selected ?? 'NOT DECLARED'}`);
+            }
             if (shared) return;
             expanded.add(id);
             for (const child of node.children) visit(child, prefix + '|   ');
@@ -307,8 +417,8 @@ function mermaidGraph(nodes) {
         '    classDef conflict fill:#fef3c7,stroke:#92400e,color:#78350f'
     ];
     for (const [id, node] of nodes) {
-        const status = node.status === 'OK' ? 'ok' : node.status === 'MISSING' ? 'missing' : 'conflict';
-        const text = `${node.name} ${node.version} [${node.status}${node.selected ? `; selected ${node.selected}` : ''}]`;
+        const status = node.status === 'OK' && !node.review ? 'ok' : node.status === 'MISSING' ? 'missing' : 'conflict';
+        const text = `${node.name} ${node.version} [${node.status}${node.selected ? `; selected ${node.selected}` : ''}]${node.review ? ' PASS; review recommended' : ''}`;
         lines.push(`    ${ids.get(id)}["${label(text)}"]:::${status}`);
     }
     for (const [id, node] of nodes) {
@@ -350,8 +460,8 @@ function createMarkdownReport(result, projectName, htmlName) {
         `- Installation-order problems: ${result.issues.filter((issue) => issue.type === 'order').length}`,
         '',
         'This report describes manifest declarations and required versions, not installed org packages.',
-        'Exact-version differences are not proof of incompatibility. No automatic downgrade is performed.',
-        'Version-difference branches are not expanded; their descendants are unchecked.',
+        'Selected versions must meet or exceed required versions. No automatic downgrade is performed.',
+        'Below-minimum branches are not expanded; selected versions are checked instead.',
         'A zero missing count does not certify completeness when version conflicts remain.',
         ''
     );
@@ -374,7 +484,19 @@ function createMarkdownReport(result, projectName, htmlName) {
         }
         lines.push('');
     }
-    lines.push('## Installation order', '');
+    lines.push(
+        '## Higher selected versions (PASS; review recommended)',
+        '',
+        '| Directory | Package | Required | Selected | Result | Required by |',
+        '| --- | --- | --- | --- | --- | --- |',
+        ...result.reviews.map(
+            (review) =>
+                `| ${escape(review.directory)} | ${escape(review.package)} | ${escape(review.required)} | ${escape(review.selected)} | PASS; review recommended | ${escape(review.parent)} |`
+        ),
+        '',
+        '## Installation order',
+        ''
+    );
     const ordering = result.issues.filter((issue) => issue.type === 'order');
     lines.push(
         ...(ordering.length
@@ -384,7 +506,7 @@ function createMarkdownReport(result, projectName, htmlName) {
         '## Dependency graph',
         '',
         'Arrows point from a package to its required dependency version. Shared nodes retain all incoming edges.',
-        'Green: declared exact version. Red: missing declaration. Yellow: version difference (not expanded).',
+        'Green: minimum met. Red: missing declaration. Yellow: higher version to review or below minimum.',
         ''
     );
     for (const graph of result.graphs) {
@@ -436,20 +558,21 @@ function createMarkdownReport(result, projectName, htmlName) {
             ? ['No manifest corrections required by this check.']
             : result.fixable
               ? [
-                    '1. Review missing declarations and installation order.',
-                    '2. Explicitly apply with a backup, review the manifest diff and rerun the check.'
+                    '1. Review low selected versions, missing declarations and installation order.',
+                    '2. Choose autofix to upgrade low versions, add missing declarations and fix order with a backup.',
+                    '3. The proposed manifest is validated before any changes are written.'
                 ]
               : [
                     '1. Review selected and required versions.',
-                    '2. Reconcile versions manually; do not downgrade just to silence this check.',
-                    '3. Rerun the check. Automatic apply is disabled for version conflicts.'
+                    '2. Review unresolved issues before continuing; no automatic downgrade is performed.',
+                    '3. Rerun the check after resolving the issues.'
                 ]),
         ''
     );
     return lines.join('\n');
 }
 
-async function runCli(args) {
+async function runCli(args, { interactive = Boolean(process.stdin.isTTY), ask } = {}) {
     const options = {};
     for (let index = 0; index < args.length; index++) {
         const argument = args[index];
@@ -473,7 +596,7 @@ async function runCli(args) {
             : process.env.FORCE_COLOR && process.env.FORCE_COLOR !== '0'
               ? true
               : Boolean(process.stdout.isTTY && process.env.TERM !== 'dumb');
-    const tones = { heading: '1;36', info: '36', success: '32', warning: '33', failure: '31', muted: '90' };
+    const tones = { heading: '1;36', info: '36', success: '32', warning: '1;35', failure: '31', muted: '90' };
     const file = path.resolve(options['--project-file'] ?? 'sfdx-project.json');
     const reportFile = path.resolve(
         options['--report'] ?? path.join(path.dirname(file), 'package-dependencies-report.md')
@@ -578,9 +701,8 @@ async function runCli(args) {
     write(`Dev Hub: ${hub ?? 'Salesforce CLI packaging default'}`);
     write('Read-only metadata checks. No org mutations.');
     write('Progress counts declared packages; recursive metadata reads may add work.\n');
-    const result = await checkDependencies(project, createProvider(project, run, options['--latest']), (text) =>
-        write(text, 'info')
-    );
+    const provider = createProvider(project, run, options['--latest']);
+    const result = await checkDependencies(project, provider, (text) => write(text, 'info'));
     write(
         `\nResult: ${result.valid ? 'PASSED' : 'ACTION REQUIRED'} | ${reads} metadata reads | ${((Date.now() - started) / 1000).toFixed(1)}s`,
         result.valid ? 'success' : 'warning'
@@ -627,10 +749,108 @@ async function runCli(args) {
     fs.writeFileSync(reportFile, redact(createMarkdownReport(result, path.basename(file), path.basename(htmlFile))));
     write(`\nFull Markdown / Mermaid report: ${reportFile}`, 'info');
     write(`Interactive HTML graph: ${htmlFile}`, 'info');
+    if (!result.valid) {
+        write('\nDependency issues requiring attention', 'failure');
+        write('-'.repeat(72));
+        for (const issue of result.issues) {
+            if (issue.type === 'order') {
+                write(`ISSUE: Incorrect installation order (${issue.directory})`, 'failure');
+                const packages = (manifest) =>
+                    manifest.packageDirectories
+                        .find((directory) => directory.path === issue.directory)
+                        .dependencies.map((dependency) => dependency.package)
+                        .join(' -> ');
+                write(`Current order: ${packages(project)}`);
+                write(`Required order: ${packages(result.project)}`);
+                write('Impact: a package may be installed before a dependency it needs.');
+                write('Fix: reorder the manifest so dependencies are installed first.');
+            } else {
+                write(
+                    `ISSUE: ${issue.type === 'missing' ? 'Missing dependency declaration' : 'Selected version is too low'}`,
+                    'failure'
+                );
+                write(`Package: ${issue.package} (${issue.directory})`);
+                write(`Required minimum: ${issue.required}; selected: ${issue.selected ?? 'NOT DECLARED'}`);
+                write(`Required by: ${issue.parent}`);
+                if (issue.type === 'missing') {
+                    write('Impact: setup will not install a dependency required by this package.');
+                    write('Fix: add the missing dependency to the manifest.');
+                } else {
+                    write('Impact: the selected version does not meet this requirement; installation may fail.');
+                    write('Fix: upgrade the selected version to meet all required minimums.');
+                }
+            }
+            write('');
+        }
+    }
+    let acceptedIssues = false;
+    if (options['--plan-file'] && !options['--dry-run'] && interactive && !result.valid) {
+        const canApply = !result.valid && result.fixable;
+        write('Continue unchanged: accept these issues; installation may fail.', 'warning');
+        if (canApply) {
+            write(
+                'Apply safe fixes: upgrade low versions, add missing declarations and reorder dependencies, with a backup.',
+                'info'
+            );
+        } else {
+            write('Automatic fixes are unavailable. Stop, update the selected versions, then rerun setup.', 'warning');
+        }
+        write('Stop: make no manifest changes and do not start setup.');
+        const prompt = `[c] Continue unchanged | ${canApply ? '[f] Apply safe fixes and continue | ' : ''}[s] Stop (default): `;
+        const terminal = ask
+            ? null
+            : createInterface({ input: process.stdin, output: process.stdout, terminal: false });
+        const cancellation = new AbortController();
+        terminal?.once('close', () => cancellation.abort());
+        const question =
+            ask ??
+            ((text) => {
+                if (!process.stdout.isTTY) {
+                    write(text, 'warning');
+                    return terminal.question('', { signal: cancellation.signal });
+                }
+                return terminal.question(text, { signal: cancellation.signal });
+            });
+        try {
+            while (true) {
+                const answer = (await question(prompt)).trim().toLowerCase();
+                if (!answer || ['s', 'stop'].includes(answer)) {
+                    write('Setup stopped by choice. No manifest changes or setup mutations were started.', 'warning');
+                    return 1;
+                }
+                if (['c', 'continue'].includes(answer)) {
+                    acceptedIssues = !result.valid;
+                    break;
+                }
+                if (canApply && ['f', 'fix'].includes(answer)) {
+                    options['--apply'] = true;
+                    break;
+                }
+                write(canApply ? 'Choose c, f, or s (default).' : 'Choose c or s (default).', 'warning');
+            }
+        } catch (error) {
+            if (error.name !== 'AbortError') throw error;
+            write('Setup stopped because input closed before a decision. No setup mutations were started.', 'warning');
+            return 1;
+        } finally {
+            terminal?.close();
+        }
+    }
+    if (options['--plan-file'] && fs.readFileSync(file, 'utf8') !== original) {
+        throw new Error('Project file changed during dependency review; rerun the check.');
+    }
+    if (acceptedIssues) {
+        fs.writeFileSync(options['--plan-file'], JSON.stringify(result.versions), { flag: 'wx' });
+        write('Dependency issues explicitly accepted; continuing unchanged. Installation may still fail.', 'warning');
+        return 0;
+    }
     if (result.valid) {
+        if (result.reviews.length) {
+            write('Higher selected versions are informational only; no decision is required.', 'info');
+        }
         if (options['--plan-file'])
             fs.writeFileSync(options['--plan-file'], JSON.stringify(result.versions), { flag: 'wx' });
-        write('Dependency preflight PASSED: complete, exact-version, dependency-first manifest.', 'success');
+        write('Dependency preflight PASSED: complete, minimum-version, dependency-first manifest.', 'success');
         return 0;
     }
     if (!options['--apply'] || !result.fixable) {
@@ -638,8 +858,8 @@ async function runCli(args) {
         write('-'.repeat(72));
         write(
             result.fixable
-                ? '1. Review the missing dependencies and installation order above.\n2. To apply with a backup, rerun this command with --apply.\n   Bash wrapper: --apply-dependencies | PowerShell: -ApplyDependencies\n3. Review the manifest diff, then rerun the check.'
-                : 'Exact-version differences are not proof of incompatibility.\nHigher versions are not assumed compatible by this check.\n\n1. Review the selected version and the requirements listed for each package.\n2. Reconcile versions manually; do not downgrade just to silence this check.\n3. Rerun the check after reviewing the manifest.\n\nAutomatic apply is disabled for version conflicts. No downgrade is performed.'
+                ? '1. Review the selected versions, missing dependencies and installation order above.\n2. To upgrade low versions and apply dependency fixes with a backup, rerun with --apply.\n   Bash wrapper: --apply-dependencies | PowerShell: -ApplyDependencies\n3. The proposed manifest is validated before any changes are written.'
+                : 'Selected versions must meet or exceed required versions.\nEqual or higher versions are accepted.\n\nReview any unresolved issues and rerun the check. No downgrade is performed.'
         );
         write(
             'No files changed in the manifest. Only the Markdown and HTML reports were written. No org mutations were started.'
@@ -649,19 +869,24 @@ async function runCli(args) {
     const backup = `${file}.dependencies.backup`;
     if (fs.existsSync(backup))
         throw new Error(`Backup already exists: ${backup}. Preserve or move it before applying.`);
+    const fixed = await fixDependencies(project, result, provider, (text) => write(text, 'info'));
     if (fs.readFileSync(file, 'utf8') !== original)
         throw new Error('Project file changed during dependency check; retry after reviewing it.');
     fs.writeFileSync(backup, original, { flag: 'wx' });
     const temporary = `${file}.dependencies-${process.pid}.tmp`;
     try {
-        fs.writeFileSync(temporary, JSON.stringify(result.project, null, 4) + '\n', { flag: 'wx' });
+        fs.writeFileSync(temporary, JSON.stringify(fixed.project, null, 4) + '\n', { flag: 'wx' });
         fs.renameSync(temporary, file);
     } finally {
         if (fs.existsSync(temporary)) fs.unlinkSync(temporary);
     }
-    write(
-        `Applied missing exact-version dependencies and dependency-first ordering. Backup: ${backup}. Review the diff and rerun setup.`
-    );
+    write(`Applied required version upgrades, missing dependencies and dependency-first ordering. Backup: ${backup}.`);
+    if (options['--plan-file']) {
+        fs.writeFileSync(options['--plan-file'], JSON.stringify(fixed.versions), { flag: 'wx' });
+        write('Safe manifest fixes applied by request; continuing setup with the checked versions.', 'success');
+    } else {
+        write('Review the manifest diff and rerun setup.');
+    }
     return 0;
 }
 
