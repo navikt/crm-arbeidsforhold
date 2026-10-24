@@ -49,7 +49,8 @@ CMD nyttar backslash. Alle `sf`-kommandoar treng rett autentisering **og** lov t
 | PowerShell 7 på alle tre system | `pwsh -NoLogo -NoProfile -File ./bin/create-scratch-org.ps1 -Help` | PowerShell-parameter             |
 | Windows CMD                     | `bin\create-scratch-org.bat -Help`                                 | PowerShell-parameter             |
 | npm på macOS/Linux              | `npm run scratch-org -- --help`                                    | Bash-flagg                       |
-| npm på Windows                  | `npm run scratch-org -- -Help`                                     | PowerShell-parameter             |
+| npm i Windows CMD               | `npm run scratch-org -- -Help`                                     | PowerShell-parameter             |
+| npm i PowerShell 7              | `npm run scratch-org '--' -Help`                                   | PowerShell-parameter             |
 | Direkte Node-launcher           | `node bin/create-scratch-org.js --help`                            | Vel dialekt etter operativsystem |
 
 Launcherane normaliserer berre hjelpeflagga `-h`, `--help`, `-Help`, `--Help`
@@ -57,6 +58,11 @@ Launcherane normaliserer berre hjelpeflagga `-h`, `--help`, `-Help`, `--Help`
 argument og exitkode til PowerShell. npm/Node vel Bash på Mac/Linux og `pwsh.exe`
 på Windows; at du startar npm frå PowerShell på Mac endrar ikkje det valet.
 Den gamle inngangen `newScratchOrg.bat` finst ikkje i denne checkouten.
+
+I PowerShell er `npm` ofte `npm.ps1`. PowerShell fjernar då ein usitert `--`
+før npm får argumenta, slik at npm tolkar `-Help` og andre flagg som eigne
+innstillingar. Siter skiljet (`'--'`), bruk `npm.cmd`, eller køyr
+`.\bin\create-scratch-org.ps1` direkte.
 
 ## 3. Alle flagg i scratch-org-motorane
 
@@ -228,7 +234,8 @@ pwsh -NoProfile -File ./bin/create-scratch-org.ps1 -CheckDependencies -InstallLa
 
 Same reportvalg via CMD: `bin\create-scratch-org.bat -CheckDependencies`.
 Via npm: `npm run scratch-org -- --check-dependencies` på Mac/Linux,
-`npm run scratch-org -- -CheckDependencies` på Windows.
+`npm run scratch-org -- -CheckDependencies` i Windows CMD og
+`npm run scratch-org '--' -CheckDependencies` i PowerShell.
 
 Opne HTML-fila i nettlesaren, ikkje berre som ei tekstfil:
 
@@ -351,17 +358,16 @@ ein atomisk transaksjon over begge filer.
 
 ### Viktige legacy-avvik
 
-Legacy-versjonsskriptet brukar Windows-spesifikk `ping -n ... > nul` ved
-timeout-retry; det er ikkje ein portabel Mac/Linux-retry. Per-pakke-feil blir
+Legacy-versjonsskriptet ventar portabelt mellom timeout-retry på alle system.
+Per-pakke-feil blir
 skrivne ut, men kan likevel ende i «all packages up to date» og exit 0.
 Det er **ikkje** ein påliteleg valideringsgate. Det samanliknar tre versjonsledd,
 vel siste release etter `CreatedDate` og skriv `.LATEST`; det sjekkar ikkje grafen.
 Ikkje stol på siste suksesslinje utan å lese alle pakkeresultata.
 
-Legacy-coverage-scriptet brukar `Invoke-Expression` og skriv ut kommandostrengar.
-`-InstallationKey` kan dermed bli skrive i klartekst. **Ikkje bruk den
-parameteren for secrets**, og ikkje bruk ubetrodde verdiar i parameter.
-Det er ikkje dekt av den portable scratch-org-harnessen.
+Legacy-coverage-scriptet sender kvar parameter som eitt native argument til `sf`
+og maskerer `-InstallationKey` i kommandoutskrifta. Det er dekt av
+[post-package-coverage-check.Tests.ps1](tests/post-package-coverage-check.Tests.ps1).
 
 | Legacy-parameter   | Default og funksjon                                  |
 | ------------------ | ---------------------------------------------------- |
@@ -477,7 +483,10 @@ ligg i [sfdx-project.json](../sfdx-project.json), ikkje i configfila.
 | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | [create-scratch-org.test.sh](tests/create-scratch-org.test.sh)                               | `bash bin/tests/create-scratch-org.test.sh`; falsk CLI, prosjekt-/modus-/pakke-/rapportkontraktar; brukar `jq`                                  |
 | [create-scratch-org.Tests.ps1](tests/create-scratch-org.Tests.ps1)                           | `pwsh -NoProfile -File ./bin/tests/create-scratch-org.Tests.ps1`; Node + pwsh; `-RequireWindows` krev ekte Windows og ingen obligatoriske skips |
-| [create-scratch-org-launcher.test.js](tests/create-scratch-org-launcher.test.js)             | `node --test bin/tests/create-scratch-org-launcher.test.js`; launcher-val og argument                                                           |
+| [create-scratch-org-launcher.test.js](tests/create-scratch-org-launcher.test.js)             | `node --test bin/tests/create-scratch-org-launcher.test.js`; launcher-val, argument, spawn-feil og exitkode                                     |
+| [check-sfdx-versions.test.js](tests/check-sfdx-versions.test.js)                             | `node --test bin/tests/check-sfdx-versions.test.js`; versjonssamanlikning, retry, YES/NO og backup med falsk CLI                                |
+| [post-package-coverage-check.Tests.ps1](tests/post-package-coverage-check.Tests.ps1)         | `pwsh -NoProfile -File ./bin/tests/post-package-coverage-check.Tests.ps1`; legacy-coverage, quoting, nøkkelmaskering og exitkodar               |
+| [post-package-coverage-cli.ps1](tests/fixtures/post-package-coverage-cli.ps1)                | Intern fake `sf` for legacy-coverage-testen; styrt av `COVERAGE_TEST_*`                                                                         |
 | [package-dependencies.test.js](tests/package-dependencies.test.js)                           | `node --test bin/tests/package-dependencies.test.js`; graf, CLI, rapportskriving og feil                                                        |
 | [package-dependency-report.dom.test.cjs](tests/package-dependency-report.dom.test.cjs)       | `npm run test:dependency-report`; faktisk generert JS køyrer i Jest/jsdom                                                                       |
 | [package-dependency-report.jest.config.cjs](tests/package-dependency-report.jest.config.cjs) | Isolert Jest-oppsett for DOM-testane; ikkje ein brukar-CLI                                                                                      |

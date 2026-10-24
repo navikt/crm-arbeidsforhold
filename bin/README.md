@@ -73,6 +73,9 @@ Or run PowerShell directly:
 .\bin\create-scratch-org.ps1 -UpdatePackages -InstallLatest
 ```
 
+When using npm from PowerShell, quote the separator: `npm run scratch-org '--' -Help`.
+PowerShell removes an unquoted `--` before `npm.ps1` receives it, so npm consumes the flags.
+
 From the repository root, npm selects the platform-specific script:
 
 ```powershell
