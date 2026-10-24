@@ -26,9 +26,28 @@ Scratch-org-flyten og avhengighetsinstallasjon er dokumentert i [bin/README.md](
 - henting fra scratch-org-pool
 - pakkeoppløsning og nødvendige Dev Hub-forutsetninger
 
+For komplett bruk og alle kommandoalternativ:
+
+- [Samla kommandoreferanse](bin/COMMANDS.md) — flagg, eksempel, miljøvariablar,
+  konfigurasjon, sideeffektar og legacy-avgrensingar.
+- [Funksjons- og plattformmatriser](bin/COMPATIBILITY.md) — Bash, PowerShell,
+  CMD/npm, macOS/Linux/Windows og kva som faktisk er verifisert.
+- [Alle støtteskript](scripts/README.md) — pre-commit, formatering, P360-smoke,
+  Apex-hjelpeskript og testar.
+
+Vanleg pakkeinstallasjon/oppdatering har ein felles Node-basert rekursiv
+avhengigheitssjekk før org-oppsettet. Sjekken lagar Markdown med både full og
+pakkevis Mermaid-graf, pluss ein sjølvstendig HTML-graf for lokal interaktiv
+utforsking. Dette krev Node også ved direkte Bash-/PowerShell-køyring.
+Versjonsavvik blir ikkje automatisk tolka som kompatible eller retta ved
+nedgradering; sjå [rapport- og sjekkflyten](bin/README.md#complete-package-dependency-preflight).
+
 En typisk CLI-flyt starter med at du logger inn mot en Dev Hub med `sf org login web`, og deretter bruker den dokumenterte scratch-org-flyten. Installasjonsnøkler skal aldri legges i README, kildekode eller shell-historikk.
 
 På Windows er `bin/create-scratch-org.bat` den anbefalte CMD-inngangen.
+PowerShell 7 LTS må vere installert og `pwsh.exe` må vere på PATH; Windows
+PowerShell 5.1 er ikkje lenger støtta, og launcherane fell ikkje tilbake til han.
+Sjå [migrering og lokale PowerShell-testar](bin/README.md#migrating-from-windows-powershell-51).
 
 ## Lokal validering
 
@@ -40,10 +59,45 @@ npm run prettier:check
 
 `npm test` kjører først Node-testene for lokale utviklerverktøy og deretter LWC Jest-testene.
 Bruk `npm run test:node` for bare Node-testene og `npm run test:unit` for bare LWC-testene.
+`npm run test:dependency-report` køyrer dei isolerte Jest/jsdom-testane for
+interaktiv HTML (hover/fokus, retning, låsing, tastatur og zoom). Denne separate
+kommandoen er ikkje inkludert i `npm test` eller den avhengigheitsfrie offline-CI.
+Han krev prosjektets installerte devDependencies, men ingen Salesforce-org.
+Med PowerShell 7 LTS installert kan `npm run test:scratch-org:powershell` køyre
+den portable offline-harnessen på Mac og Windows, utan Salesforce-tilgang.
+Mac-testane verifiserer ikkje Windows-entrypoints; desse krev eiga Windows-køyring.
 Node-testene under `bin/tests/` og `scripts/tests/` bruker `node:test` og er derfor
-utelatt fra Jest sitt testsøk. Begge runnerne må lykkes for at `npm test` skal lykkes,
-og den eksisterende PR-valideringen kjører begge uten endringer i workflowen.
+utelatt fra Jest sitt testsøk. Begge runnerne må lykkes for at `npm test` skal lykkes.
 Apex-kompilering og Apex-tester er org-avhengige og må kjøres mot en autentisert Salesforce-org.
+
+### Behovsstyrte PR-sjekkar
+
+PR-workflowane startar alltid, slik at påkravde sjekkar ikkje blir ståande som
+«Pending» på grunn av sti-filter. [Endringsfilteret](scripts/ci-changes.cjs)
+les heile Git-diffen, inkludert slettingar og begge sider av omdøypingar.
+Filteret og pakkemappene blir lesne frå den godkjende basegreina, ikkje frå
+PR-koden. Dersom basegreina ikkje har filteret enno, køyrer full validering.
+Endringar i sjølve workflowane krev framleis særleg grundig menneskeleg review.
+
+- Salesforce-validering og LWC-testar køyrer ved endringar i pakkemappene frå
+  `sfdx-project.json`, npm-manifest/låsfil, prosjektfila, workflows eller sjølve
+  endringsfilteret og testane.
+- Salesforce-validering køyrer òg ved endringar i `config/`, `manifest/`,
+  `scripts/apex/` og `.forceignore`. Jest-konfigurasjon utløyser LWC-testar.
+- Reine endringar i til dømes `bin/` eller dokumentasjon krev ikkje Salesforce
+  eller LWC. Node-verktøytestane og formatering av endra filer køyrer framleis.
+
+[Salesforce-wrapperen](.github/workflows/salesforce-validation.yml) bevarer
+dei påkravde sjekknamna `Validate PR / Compile Metadata`,
+`Validate PR / Run Apex Tests` og `Validate PR / Validate 85% Code Coverage`.
+Dei blir grøne når Salesforce-validering er unødvendig, og feilar dersom
+endringsdeteksjon eller nødvendig validering feilar. Alle tre ventar på heile
+Salesforce-køyringa. Draft-PR-ar bevarer eksisterande unntak frå Salesforce-validering.
+
+Den eksterne valideringa er framleis eigd av `navikt/crm-workflows-base` og
+køyrer kompilering, Apex-testar og dekningskontroll. Wrapperen erstattar ikkje
+desse kontrollane. Endringa er lokalt testa; endeleg rapportering av sjekknamn
+og status må òg stadfestast i ein GitHub PR med og utan Salesforce-endringar.
 
 ### Pre-commit på Windows, Linux og macOS
 
@@ -124,5 +178,8 @@ Nøklar, tokens og credentials skal ikkje skrivast til `sf-project.config.json`,
 - [docs/surfaces/](docs/surfaces/) — brukerflate-dokumentasjon
 - [docs/integrations/](docs/integrations/) — integrasjonsspesifikk teknisk dokumentasjon
 - [docs/utviklingsstandarder.md](docs/utviklingsstandarder.md) — speilet oversikt over utviklingsstandarder
+- [bin/COMMANDS.md](bin/COMMANDS.md) — total kommandoreferanse for lokale skript
+- [bin/COMPATIBILITY.md](bin/COMPATIBILITY.md) — funksjons-, system- og testmatriser
+- [scripts/README.md](scripts/README.md) — full oversikt over støtteskript
 
 Testtilgang, testbrukere, tokens, credentials og miljøspesifikke URL-er skal håndteres i godkjent, ikke-offentlig dokumentasjon.
