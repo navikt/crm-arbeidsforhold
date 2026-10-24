@@ -46,7 +46,7 @@
     "dependencies": {
         "commander": "^14.0.1",
         "execa": "^9.6.0",
-        "zod": "^4.1.8"
+        "zod": "^4.6.6"
     },
     "devDependencies": {
         "@axe-core/playwright": "^4.10.2",
