@@ -814,6 +814,7 @@ exit $LASTEXITCODE
         Assert-Exit $result 0 'npm.ps1 from PowerShell 7 starts help with quoted separator'
         Assert-True ($result.Output -match 'Options:' -and $Calls.Count -eq 0) 'npm.ps1 forwards -Help to the PowerShell script'
         $Config.postSteps = @('deploy')
+        $script:Rules = @()
         Add-Rule sf @('project', 'deploy', 'start') '' 9 'offline npm.ps1 deployment failed'
         $result = Invoke-Scenario -LeadingArguments @('-NoLogo', '-NoProfile', '-Command', "& '$npmScriptPath' run scratch-org '--' -PostStepsOnly -OrgAlias 'alias with spaces'")
         Assert-Exit $result 1 'npm.ps1 propagates script failure'
