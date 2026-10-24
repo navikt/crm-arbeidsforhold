@@ -67,9 +67,37 @@ Med PowerShell 7 LTS installert kan `npm run test:scratch-org:powershell` køyre
 den portable offline-harnessen på Mac og Windows, utan Salesforce-tilgang.
 Mac-testane verifiserer ikkje Windows-entrypoints; desse krev eiga Windows-køyring.
 Node-testene under `bin/tests/` og `scripts/tests/` bruker `node:test` og er derfor
-utelatt fra Jest sitt testsøk. Begge runnerne må lykkes for at `npm test` skal lykkes,
-og den eksisterende PR-valideringen kjører begge uten endringer i workflowen.
+utelatt fra Jest sitt testsøk. Begge runnerne må lykkes for at `npm test` skal lykkes.
 Apex-kompilering og Apex-tester er org-avhengige og må kjøres mot en autentisert Salesforce-org.
+
+### Behovsstyrte PR-sjekkar
+
+PR-workflowane startar alltid, slik at påkravde sjekkar ikkje blir ståande som
+«Pending» på grunn av sti-filter. [Endringsfilteret](scripts/ci-changes.cjs)
+les heile Git-diffen, inkludert slettingar og begge sider av omdøypingar.
+Filteret og pakkemappene blir lesne frå den godkjende basegreina, ikkje frå
+PR-koden. Dersom basegreina ikkje har filteret enno, køyrer full validering.
+Endringar i sjølve workflowane krev framleis særleg grundig menneskeleg review.
+
+- Salesforce-validering og LWC-testar køyrer ved endringar i pakkemappene frå
+  `sfdx-project.json`, npm-manifest/låsfil, prosjektfila, workflows eller sjølve
+  endringsfilteret og testane.
+- Salesforce-validering køyrer òg ved endringar i `config/`, `manifest/`,
+  `scripts/apex/` og `.forceignore`. Jest-konfigurasjon utløyser LWC-testar.
+- Reine endringar i til dømes `bin/` eller dokumentasjon krev ikkje Salesforce
+  eller LWC. Node-verktøytestane og formatering av endra filer køyrer framleis.
+
+[Salesforce-wrapperen](.github/workflows/salesforce-validation.yml) bevarer
+dei påkravde sjekknamna `Validate PR / Compile Metadata`,
+`Validate PR / Run Apex Tests` og `Validate PR / Validate 85% Code Coverage`.
+Dei blir grøne når Salesforce-validering er unødvendig, og feilar dersom
+endringsdeteksjon eller nødvendig validering feilar. Alle tre ventar på heile
+Salesforce-køyringa. Draft-PR-ar bevarer eksisterande unntak frå Salesforce-validering.
+
+Den eksterne valideringa er framleis eigd av `navikt/crm-workflows-base` og
+køyrer kompilering, Apex-testar og dekningskontroll. Wrapperen erstattar ikkje
+desse kontrollane. Endringa er lokalt testa; endeleg rapportering av sjekknamn
+og status må òg stadfestast i ein GitHub PR med og utan Salesforce-endringar.
 
 ### Pre-commit på Windows, Linux og macOS
 
