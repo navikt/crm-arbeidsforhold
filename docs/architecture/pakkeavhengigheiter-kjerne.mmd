@@ -1,0 +1,23 @@
+flowchart TB
+    HENV["crm-henvendelse<br/>vald 0.209.0.2"]
+    TASK["crm-platform-oppgave<br/>vald 0.84.0.1"]
+    COMMUNITY["crm-community-base<br/>vald 0.146.0.1"]
+    INTEGRATION["crm-platform-integration<br/>vald 0.176.0.1"]
+    ACCESS["crm-platform-access-control<br/>vald 0.179.0.1"]
+    HBASE["crm-henvendelse-base<br/>vald 0.42.0.1"]
+    BASE["crm-platform-base<br/>vald 0.311.0.1"]
+    DATA["platform-data-model<br/>vald 0.1.49.3"]
+    HENV --> TASK
+    HENV --> COMMUNITY
+    HENV --> INTEGRATION
+    HENV --> HBASE
+    HENV -->|"min 0.304.0.1"| BASE
+    TASK --> INTEGRATION
+    TASK --> BASE
+    COMMUNITY --> ACCESS
+    COMMUNITY --> BASE
+    INTEGRATION --> HBASE
+    INTEGRATION -->|"min 0.299.0.1"| BASE
+    ACCESS --> BASE
+    HBASE -->|"min 0.309.0.1"| BASE
+    BASE -->|"min 0.1.33.1"| DATA

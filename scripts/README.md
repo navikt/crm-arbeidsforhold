@@ -11,6 +11,8 @@ endrar org-data eller innstillingar, og røykprøva brukar eit fast org-alias.
 | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
 | [`pre-commit.cjs`](pre-commit.cjs)                                 | Kontrollerer staged filer mot pakkemappene i `sfdx-project.json`, og køyrer deretter lokalt installert `lint-staged`. | Nei                                  |
 | [`prettier-staged.cjs`](prettier-staged.cjs)                       | Formaterer filer frå `lint-staged`, eller kontrollerer dei med `--check`.                                             | Nei                                  |
+| [`ci-changes.cjs`](ci-changes.cjs)                                 | Klassifiserer Git-diffen for behovsstyrt Salesforce-/LWC-validering og skriv GitHub Actions-output.                   | Nei                                  |
+| [`tests/ci-changes.test.cjs`](tests/ci-changes.test.cjs)           | Testar endringsfilter, base-konfigurasjon, filnamn, slettingar og omdøypingar.                                        | Nei                                  |
 | [`tests/pre-commit.test.cjs`](tests/pre-commit.test.cjs)           | Node-testar for pre-commit-kontrollen og Husky-hooken.                                                                | Nei                                  |
 | [`tests/prettier-staged.test.cjs`](tests/prettier-staged.test.cjs) | Node-testar for `prettier-staged.cjs`; blir hoppa over utan `npm ci`, men køyrer i PR-LWC-workflowen.                 | Nei                                  |
 | [`p360-mock-smoke.sh`](p360-mock-smoke.sh)                         | Konfigurerer mock-transport for ein P360-røykprøve og kontrollerer oppretta arkivjobbar.                              | Ja; aliaset er fast                  |
@@ -76,6 +78,15 @@ node scripts/prettier-staged.cjs <fil> [fil ...]
 node scripts/prettier-staged.cjs --check <fil> [fil ...]
 ```
 
+Eksempel på eksisterande dokument, først berre kontroll og deretter eksplisitt
+formatering av arbeidskopien:
+
+```sh
+node scripts/prettier-staged.cjs --check README.md bin/README.md
+node scripts/prettier-staged.cjs README.md bin/README.md
+node --test scripts/tests/prettier-staged.test.cjs
+```
+
 Køyr frå prosjektrota. `--check` kan stå kvar som eit argument. Utan dette flagget
 formatert innhald blir skrive til arbeidskopien; med `--check` blir fila berre
 kontrollert. Skriptet leitar etter Prettier-konfigurasjon og brukar
@@ -115,6 +126,79 @@ Testane kallar ikkje Salesforce. Dei brukar lokale fixture-filer og Git-kommando
 testmiljøet må tillate oppretting og sletting av mellombelse mapper. Kommandoane
 over er testinstruksjonar, ikkje dokumentasjon på at testane er køyrde i alle
 operativsystem.
+
+## Behovsstyrte CI-sjekkar
+
+### `ci-changes.cjs`
+
+Dette er ein lokal Git-/Node-CLI for workflow-output, ikkje ein Salesforce-CLI:
+
+```sh
+node scripts/ci-changes.cjs <base-ref> <head-ref>
+```
+
+Begge Git-referansane må finnast lokalt. Miljøvariabelen `GITHUB_OUTPUT` må peike
+på ei skrivbar fil. Programmet les trepunktsdiffen `<base>...<head>`, med
+slettingar og begge sider av omdøypingar, og les `sfdx-project.json` frå
+**base-revisjonen**. Han skriv `salesforce=true|false` og `lwc=true|false` til
+outputfila med append og viser resultatet i terminalen. Han endrar ikkje Git-indeks,
+kjeldekode eller org; ein ugyldig referanse, manglande base-konfigurasjon eller
+manglande outputfil-innstilling gir feil i staden for eit trygt-liknande resultat.
+
+Lokalt Bash-eksempel med ein mellombels outputfil:
+
+```bash
+output_file="$(mktemp)"
+GITHUB_OUTPUT="$output_file" node scripts/ci-changes.cjs origin/main HEAD
+cat "$output_file"
+rm "$output_file"
+```
+
+I PowerShell 7:
+
+```powershell
+$outputFile = [IO.Path]::GetTempFileName()
+$previousOutput = $env:GITHUB_OUTPUT
+try {
+  $env:GITHUB_OUTPUT = $outputFile
+  node scripts/ci-changes.cjs origin/main HEAD
+  if ($LASTEXITCODE -ne 0) { throw 'Endringsfilteret feila.' }
+  Get-Content -LiteralPath $outputFile
+} finally {
+  $env:GITHUB_OUTPUT = $previousOutput
+  Remove-Item -LiteralPath $outputFile
+}
+```
+
+`origin/main` er eit eksempel på ein lokal base-ref, ikkje ein kommando som
+oppdaterer referansen. Eit likt base-/head-tre gir ingen relevante endringar.
+I ein PR skal workflowen velje og køyre den godkjende baseversjonen av filteret;
+ikkje la ugodkjend PR-kode bestemme kva kontrollar som blir hoppa over.
+
+| Endring                                                      | Salesforce                                        | LWC                                        |
+| ------------------------------------------------------------ | ------------------------------------------------- | ------------------------------------------ |
+| Berre dokumentasjon eller `bin/`                             | false                                             | false                                      |
+| Konfigurert pakkemappe, npm-manifest/låsfil eller workflow   | true                                              | true                                       |
+| Filteret sjølv eller testane for det                         | true                                              | true                                       |
+| `config/`, `manifest/`, `scripts/apex/` eller `.forceignore` | true                                              | false, med mindre andre filer utløyser LWC |
+| Jest-konfigurasjon                                           | false, med mindre andre filer utløyser Salesforce | true                                       |
+
+`false` tyder berre at dette filteret ikkje krev den aktuelle tunge sjekken.
+Det hoppar ikkje over Node-testar, formatering, review eller andre nødvendige
+gates. Workflow-wrapperane bevarer dei påkravde sjekknamna også når ei tung
+validering ikkje er nødvendig. Manglande filter i ei eldre basegrein gir full
+validering i wrapperen, ikkje automatisk skip.
+
+Køyr isolerte testar utan Salesforce eller workflow-endringar:
+
+```sh
+node --test scripts/tests/ci-changes.test.cjs
+```
+
+Testane lagar isolerte Git-fixtures og dekkjer klassifisering, base-konfigurasjon,
+filnamn med mellomrom/linjeskift, slettingar, omdøypingar og feilhandtering.
+Ein lokal test er ikkje dokumentasjon på at GitHub faktisk har rapportert dei
+forventa branch-protection-statusane; det krev ei reell PR-køyring.
 
 ## P360-mock-røykprøve
 

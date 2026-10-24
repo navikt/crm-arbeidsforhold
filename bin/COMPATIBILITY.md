@@ -32,53 +32,55 @@ CLI-argument, feiltilfelle eller fallbackar er identiske.
 **Ja** = kjelda har denne inngangen/funksjonen. **Vilkår** = krev ekstra runtime.
 Ingen av delane betyr at siste endring har grøn CI på den plattforma.
 
-| Inngang / funksjon          | macOS       | Linux                | Windows               | Føresetnad / avgrensing                                                   |
-| --------------------------- | ----------- | -------------------- | --------------------- | ------------------------------------------------------------------------- |
-| Bash-motor                  | Ja          | Ja                   | Ikkje native kontrakt | WSL/Git Bash er ikkje testa/støtta som Windows-løysinga her               |
-| PowerShell-motor            | Vilkår      | Vilkår               | Ja                    | PowerShell 7; Mac-harness finst, Linux-PS er ikkje dokumentert køyrd      |
-| CMD-launcher                | Nei         | Nei                  | Ja                    | `cmd.exe` + `pwsh.exe`; ingen fallback til PowerShell 5.1                 |
-| npm/Node-launcher           | Bash        | Bash                 | PowerShell            | Node + valt runtime; flaggdialekt følgjer OS, ikkje terminal              |
-| Dependency-helper direkte   | Ja          | Ja                   | Vilkår                | Node 22+, `sf`; Windows krev òg `pwsh.exe` som native CLI-bru             |
-| MD/Mermaid-rapport          | Ja          | Ja                   | Ja                    | Mermaid-kompatibel visar for graf-rendering                               |
-| Lokal interaktiv HTML       | Tiltenkt    | Tiltenkt             | Tiltenkt              | Moderne nettlesar + JS; DOM-testar er ikkje full visuell plattformtest    |
-| Automatisk Keychain-oppslag | Bash berre  | Nei                  | Nei                   | `security` på macOS + eksplisitt teneste/ev. konto                        |
-| Nøkkel via miljøvariabel    | Ja          | Ja                   | Ja                    | Ikkje logg eller skriv nøkkelen til fil                                   |
-| Bash offline-harness        | Ja          | Ja                   | Ikkje native          | Bash, jq og Node for preflight                                            |
-| PowerShell offline-harness  | Ja          | Ikkje verifisert her | Ja                    | pwsh + Node; Windows-only CMD/npm-grupper krev Windows                    |
-| Node offline-tests          | Ja          | Ja                   | Ja                    | Windows hoppar over éin eksisterande newline-filnamn-fixture              |
-| Interaksjonstestar for HTML | Ja lokalt   | Tiltenkt             | Tiltenkt              | `npm run test:dependency-report`, eksisterande Jest/jsdom-devDependencies |
-| Legacy versjonsskript       | Delvis      | Delvis               | Windows-retry         | Timeout-retry er Windows-spesifikk; ikkje ein gate                        |
-| Legacy coverage-script      | pwsh mogleg | pwsh mogleg          | PowerShell            | Ingen dokumentert portabilitetsgate; secrets kan lekke i kommandologg     |
-| Hooks/formatering           | Sjå scripts | Sjå scripts          | Sjå scripts           | [Eigen matrise og kommandoar](../scripts/README.md)                       |
-| P360 smoke/Apex             | Sjå scripts | Sjå scripts          | Sjå scripts           | Org-/mock-avhengig, ikkje offline OS-verifikasjon                         |
+| Inngang / funksjon          | macOS       | Linux                | Windows               | Føresetnad / avgrensing                                                         |
+| --------------------------- | ----------- | -------------------- | --------------------- | ------------------------------------------------------------------------------- |
+| Bash-motor                  | Ja          | Ja                   | Ikkje native kontrakt | WSL/Git Bash er ikkje testa/støtta som Windows-løysinga her                     |
+| PowerShell-motor            | Vilkår      | Vilkår               | Ja                    | PowerShell 7; Mac-harness finst, Linux-PS er ikkje dokumentert køyrd            |
+| CMD-launcher                | Nei         | Nei                  | Ja                    | `cmd.exe` + `pwsh.exe`; ingen fallback til PowerShell 5.1                       |
+| npm/Node-launcher           | Bash        | Bash                 | PowerShell            | Node + valt runtime; flaggdialekt følgjer OS, ikkje terminal                    |
+| Dependency-helper direkte   | Ja          | Ja                   | Vilkår                | Node 22+, `sf`; Windows krev òg `pwsh.exe` som native CLI-bru                   |
+| MD/Mermaid-rapport          | Ja          | Ja                   | Ja                    | Mermaid-kompatibel visar for graf-rendering                                     |
+| Lokal interaktiv HTML       | Tiltenkt    | Tiltenkt             | Tiltenkt              | Moderne nettlesar + JS; DOM-testar er ikkje full visuell plattformtest          |
+| Automatisk Keychain-oppslag | Bash berre  | Nei                  | Nei                   | `security` på macOS + eksplisitt teneste/ev. konto                              |
+| Nøkkel via miljøvariabel    | Ja          | Ja                   | Ja                    | Ikkje logg eller skriv nøkkelen til fil                                         |
+| Bash offline-harness        | Ja          | Ja                   | Ikkje native          | Bash, jq og Node for preflight                                                  |
+| PowerShell offline-harness  | Ja          | Ikkje verifisert her | Ja                    | pwsh + Node; Windows-only CMD/npm-grupper krev Windows                          |
+| Node offline-tests          | Ja          | Ja                   | Ja                    | Windows hoppar over éin eksisterande newline-filnamn-fixture                    |
+| Interaksjonstestar for HTML | Ja lokalt   | Tiltenkt             | Tiltenkt              | `npm run test:dependency-report`, eksisterande Jest/jsdom-devDependencies       |
+| Legacy versjonsskript       | Delvis      | Delvis               | Delvis                | Portabel timeout-retry; andre legacy-avgrensingar gjer det ueigna som gate      |
+| Legacy coverage-script      | pwsh mogleg | pwsh mogleg          | PowerShell            | Isolert argument-/maskeringstest; ikkje live coverage- eller installasjonsbevis |
+| Hooks/formatering           | Sjå scripts | Sjå scripts          | Sjå scripts           | [Eigen matrise og kommandoar](../scripts/README.md)                             |
+| P360 smoke/Apex             | Sjå scripts | Sjå scripts          | Sjå scripts           | Org-/mock-avhengig, ikkje offline OS-verifikasjon                               |
 
 ## 3. Funksjonsmatrise for motorane
 
-| Funksjon                                    | Bash            | PowerShell      | CMD/npm     | Paritet og vesentleg tradeoff                                                       |
-| ------------------------------------------- | --------------- | --------------- | ----------- | ----------------------------------------------------------------------------------- |
-| Shared config, manifest, generiske defaults | Ja              | Ja              | Delegerer   | CLI/config er tryggare felles kontrakt enn alle miljøbrytarar                       |
-| Org-oppretting/sletting                     | Ja              | Ja              | Delegerer   | Kan erstatte eksisterande scratch; inga generell rollback                           |
-| Pool + fallback                             | Ja              | Ja              | Delegerer   | Sfp-outputparser og CLI-default må verke i ekte miljø                               |
-| Ikkje fallback ved tom pool                 | Miljø           | Parameter/miljø | Delegerer   | Bash har ikkje `--no-fallback-to-create`                                            |
-| Manifestinstall/update                      | Ja              | Ja              | Delegerer   | Same preflight; installasjonsargument er ikkje byte-identiske                       |
-| Nøkkelkrav frå packageKeyConfig             | Ja              | Ja              | Delegerer   | Manglande oppføring betyr normalt nøkkel påkravd                                    |
-| Install-retry ved transient feil            | Ja              | Ja              | Delegerer   | Ikkje retry av alle feil; npm/metadata-lesing er ikkje same retry-løkke             |
-| Nyaste release / versjonsvarsel             | Ja              | Ja              | Delegerer   | `skip-version-check` hoppar ikkje over grafkontrollen                               |
-| Package-plan                                | Ja              | Ja              | Delegerer   | Ikkje komplettheitskontroll; ikkje det same som preflight                           |
-| Self-check                                  | Ja              | Ja              | Delegerer   | Omfang varierer; PS sjekkar ikkje rekursiv graf/pakkeoppløysing som eigen preflight |
-| Dependency check/apply                      | Felles Node     | Felles Node     | Delegerer   | Eksakte ID-ar; konfliktar krev menneskeleg avklaring                                |
-| Rapport MD + HTML                           | Felles Node     | Felles Node     | Delegerer   | Begge skriv lokale filer, òg i dry-run                                              |
-| Deploy/permsets/data/community              | Ja              | Ja              | Delegerer   | Reell metadata-/dataendring og publisering                                          |
-| Custom-steg                                 | Ja              | Ja              | Delegerer   | Frå prosjektrot; executable må vere tilgjengeleg på valt OS                         |
-| Dummybrukarar/profilmapping                 | Ja              | Ja              | Delegerer   | Gjeld nye brukarar; ikkje generell migrering av eksisterande brukarar               |
-| Full-deploy/redeploy                        | Ja              | Ja              | Delegerer   | Lokal tracking blir sletta før deploy; ikkje org-datareset                          |
-| Manifestversjon check/apply                 | Ja              | Ja              | Delegerer   | Eiga vedlikehaldsflyt, ikkje dependency-kompatibilitetsløysing                      |
-| Coverage                                    | Ja              | Ja              | Delegerer   | Eiga flyt utan manifestpreflight; kan installere/deploye                            |
-| Dependency-kjelde cleanup/retrieve          | Ja              | Ja              | Delegerer   | Referansemapper er normalt read-only; eksplisitt godkjenning                        |
-| Framdrift/heartbeat/fargar                  | Ja              | Ja              | Delegerer   | CLI-JSON blir ikkje framstilt som framdriftsprosent                                 |
-| Dry-run via miljø                           | `DRY_RUN=true`  | Nei             | OS-avhengig | Bruk alltid `--dry-run` / `-DryRun`                                                 |
-| Keychain                                    | macOS           | Nei             | OS-avhengig | PS treng nøkkel via miljø, også på Mac                                              |
-| Timeout frå commandTimeouts                 | Validert skjema | Validert skjema | Delegerer   | Ikkje implementert som generell prosesstimeout                                      |
+| Funksjon                                    | Bash            | PowerShell      | CMD/npm     | Paritet og vesentleg tradeoff                                                                       |
+| ------------------------------------------- | --------------- | --------------- | ----------- | --------------------------------------------------------------------------------------------------- |
+| Shared config, manifest, generiske defaults | Ja              | Ja              | Delegerer   | CLI/config er tryggare felles kontrakt enn alle miljøbrytarar                                       |
+| Org-oppretting/sletting                     | Ja              | Ja              | Delegerer   | Kan erstatte eksisterande scratch; inga generell rollback                                           |
+| Pool + fallback                             | Ja              | Ja              | Delegerer   | Sfp-outputparser og CLI-default må verke i ekte miljø                                               |
+| Ikkje fallback ved tom pool                 | Miljø           | Parameter/miljø | Delegerer   | Bash har ikkje `--no-fallback-to-create`                                                            |
+| Manifestinstall/update                      | Ja              | Ja              | Delegerer   | Same preflight; installasjonsargument er ikkje byte-identiske                                       |
+| Nøkkelkrav frå packageKeyConfig             | Ja              | Ja              | Delegerer   | Manglande oppføring betyr normalt nøkkel påkravd                                                    |
+| Install-retry ved transient feil            | Ja              | Ja              | Delegerer   | Ikkje retry av alle feil; npm/metadata-lesing er ikkje same retry-løkke                             |
+| Nyaste release / versjonsvarsel             | Ja              | Ja              | Delegerer   | `skip-version-check` hoppar ikkje over grafkontrollen                                               |
+| Package-plan                                | Ja              | Ja              | Delegerer   | Ikkje komplettheitskontroll; ikkje det same som preflight                                           |
+| Self-check                                  | Ja              | Ja              | Delegerer   | Omfang varierer; PS sjekkar ikkje rekursiv graf/pakkeoppløysing som eigen preflight                 |
+| Dependency check/apply                      | Felles Node     | Felles Node     | Delegerer   | Numeriske minimumskrav; eksplisitt autofiks oppgraderer og revaliderer utan nedgradering            |
+| Høgare vald versjon                         | Felles Node     | Felles Node     | Delegerer   | PASS med informasjonsmerking; ingen spørsmål                                                        |
+| Avgjerder ved reelle preflightfunn          | Felles Node     | Felles Node     | Delegerer   | Interaktiv stdin: godta risiko, autofiks eller stopp; ikkje-interaktivt: feil utan eksplisitt apply |
+| Rapport MD + HTML                           | Felles Node     | Felles Node     | Delegerer   | Begge skriv lokale filer, òg i dry-run                                                              |
+| Deploy/permsets/data/community              | Ja              | Ja              | Delegerer   | Reell metadata-/dataendring og publisering                                                          |
+| Custom-steg                                 | Ja              | Ja              | Delegerer   | Frå prosjektrot; executable må vere tilgjengeleg på valt OS                                         |
+| Dummybrukarar/profilmapping                 | Ja              | Ja              | Delegerer   | Gjeld nye brukarar; ikkje generell migrering av eksisterande brukarar                               |
+| Full-deploy/redeploy                        | Ja              | Ja              | Delegerer   | Lokal tracking blir sletta før deploy; ikkje org-datareset                                          |
+| Manifestversjon check/apply                 | Ja              | Ja              | Delegerer   | Eiga vedlikehaldsflyt, ikkje dependency-kompatibilitetsløysing                                      |
+| Coverage                                    | Ja              | Ja              | Delegerer   | Eiga flyt utan manifestpreflight; kan installere/deploye                                            |
+| Dependency-kjelde cleanup/retrieve          | Ja              | Ja              | Delegerer   | Referansemapper er normalt read-only; eksplisitt godkjenning                                        |
+| Framdrift/heartbeat/fargar                  | Ja              | Ja              | Delegerer   | CLI-JSON blir ikkje framstilt som framdriftsprosent                                                 |
+| Dry-run via miljø                           | `DRY_RUN=true`  | Nei             | OS-avhengig | Bruk alltid `--dry-run` / `-DryRun`                                                                 |
+| Keychain                                    | macOS           | Nei             | OS-avhengig | PS treng nøkkel via miljø, også på Mac                                                              |
+| Timeout frå commandTimeouts                 | Validert skjema | Validert skjema | Delegerer   | Ikkje implementert som generell prosesstimeout                                                      |
 
 ### Konkrete avvik som ikkje må skjulast
 
@@ -96,7 +98,11 @@ Ingen av delane betyr at siste endring har grøn CI på den plattforma.
    fleire eksklusive hovudmodus berre fordi parseren tek imot flagga.
 7. `package-plan`, self-check og coverage er ikkje bevis på komplett manifestgraf.
 8. Dependency-helperen gir berre grafen han faktisk fekk undersøkt.
-   Greiner som stoppar ved ulik versjon er uttrykkeleg uundersøkte vidare.
+   Han følgjer vald versjon. Uløyste, høgare minimumskrav blir ikkje ekspanderte
+   før autofiks foreslår oppgradering og revaliderer grafen.
+9. Preflighten har grøn PASS, feit magenta merknad/varsel og raud FAIL, med
+   sjølvforklarande tekst også utan farge. Motorens øvrige fargar og HTML-fargar
+   er separate. Omdirigert stdout er ikkje det same som ikkje-interaktiv stdin.
 
 ## 4. Kva endrar kva?
 
@@ -107,7 +113,7 @@ Ingen av delane betyr at siste endring har grøn CI på den plattforma.
 | Init config                     | Nei                                 | Nei                                                              | Config, med force ved erstatning                                | Nei                      |
 | Dependency check                | Ja                                  | Nei                                                              | Nei                                                             | MD + HTML                |
 | Dependency apply                | Ja                                  | Nei                                                              | Manifest + eksklusiv backup                                     | MD + HTML, før retting   |
-| Normal install/update preflight | Ja                                  | Nei i preflight                                                  | Midlertidig versjonsplan                                        | MD + HTML                |
+| Normal install/update preflight | Ja                                  | Nei i preflight                                                  | Midlertidig plan; manifest + backup berre ved godkjend autofiks | MD + HTML                |
 | Fullt oppsett                   | Ja                                  | Kan slette/opprette/hente/installere/deploye/importere/publisere | Tracking, ev. kjeldefiler                                       | Ja når pakkephase        |
 | Package-plan                    | Ja                                  | Nei                                                              | Ikkje manifest                                                  | Ikkje dependency-rapport |
 | Version check                   | Ja                                  | Nei                                                              | Nei                                                             | Terminal                 |
@@ -124,15 +130,15 @@ Ein read-only kommando kan framleis lese persondata/privilegerte metadata.
 
 ## 5. Verifikasjonsmatrise og vedlikehald
 
-| Lag                       | Kva testen beviser                                                             | Kva han ikkje beviser                                                       |
-| ------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| Node `test:node`          | CLI-val, rekursiv graf, feil/backup/rapportkontraktar og hooks                 | Levande Salesforce API eller installasjonskompatibilitet                    |
-| Bash-harness              | Reelle Bash-script mot falsk CLI, ingen mutasjon etter preflightfeil           | `sf`/`sfp`-versjonar, auth og pool i ekte miljø                             |
-| PS-harness                | Reell PS-script mot falsk CLI; live output, native argument, feil og rapportar | Mac-køyring er ikkje Windows CMD/native CLI-verifikasjon                    |
-| PS `-RequireWindows`      | Køyrer på Windows og ingen obligatoriske Windows-grupper blir hoppa over       | Ekte Salesforce install/deploy                                              |
-| Jest/jsdom HTML           | Hover/fokus, retning, låsing, tastatur, zoom og inert tekst                    | SVG-layout, browser-CSP-handheving, peikar-drag og faktisk visuell kvalitet |
-| Menneskeleg browser-sjekk | Piler, layout, hover og panorering i faktisk nettlesar                         | Ekte metadatafullstendigheit eller org-kompatibilitet                       |
-| Godkjend live preflight   | Tilgjengeleg pakkemetadata og observerte krav for køyringa                     | Uundersøkte konfliktgreiner eller at høgare versjonar er kompatible         |
+| Lag                       | Kva testen beviser                                                                                                     | Kva han ikkje beviser                                                       |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Node `test:node`          | CLI-val, minimumskrav, rekursive oppgraderingar, ingen nedgradering, avgjerder, feil/backup/rapportkontraktar og hooks | Levande Salesforce API eller installasjonskompatibilitet                    |
+| Bash-harness              | Reelle Bash-script mot falsk CLI, ingen mutasjon etter preflightfeil                                                   | `sf`/`sfp`-versjonar, auth og pool i ekte miljø                             |
+| PS-harness                | Reell PS-script mot falsk CLI; live output, native argument, feil og rapportar                                         | Mac-køyring er ikkje Windows CMD/native CLI-verifikasjon                    |
+| PS `-RequireWindows`      | Køyrer på Windows og ingen obligatoriske Windows-grupper blir hoppa over                                               | Ekte Salesforce install/deploy                                              |
+| Jest/jsdom HTML           | Hover/fokus, retning, låsing, tastatur, zoom og inert tekst                                                            | SVG-layout, browser-CSP-handheving, peikar-drag og faktisk visuell kvalitet |
+| Menneskeleg browser-sjekk | Piler, layout, hover og panorering i faktisk nettlesar                                                                 | Ekte metadatafullstendigheit eller org-kompatibilitet                       |
+| Godkjend live preflight   | Tilgjengeleg pakkemetadata og observerte krav for køyringa                                                             | Uundersøkte konfliktgreiner eller at høgare versjonar er kompatible         |
 
 ### Dokumentert Windows-evidens
 
@@ -160,22 +166,22 @@ etter `npm ci`.
 
 ### Lokal avslutningskontroll
 
-Dei enno ikkje publiserte endringane er kontrollerte på macOS med følgjande
-resultat:
+Bruk ferske resultat frå den aktuelle arbeidskopien. Testtal aukar når nye
+regresjonar blir lagde til og er ikkje ein varig produktkontrakt. Desse kontrollane
+har ulike ansvar:
 
-| Kommando                                         | Resultat                                                       |
-| ------------------------------------------------ | -------------------------------------------------------------- |
-| `npm run test:node`                              | 99 bestått, 0 feil, 0 hoppa over                               |
-| `npm run test:dependency-report`                 | 8 bestått                                                      |
-| `npm run test:scratch-org:powershell`            | 409 + 47 assertions, 0 feil; éi Windows-only-gruppe hoppa over |
-| `bash bin/tests/create-scratch-org.test.sh`      | 513 assertions, 0 feil                                         |
-| Same Bash-harness med `/bin/bash` 3.2 først PATH | 513 assertions, 0 feil                                         |
-| Målretta Prettier, Bash-syntaks og whitespace    | Bestått                                                        |
+| Kommando                                         | Kva skal kontrollerast                                                              |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| `npm run test:node`                              | Alle relevante Node-testar består; les eventuelle skips                             |
+| `npm run test:dependency-report`                 | Generert HTML-åtferd består i Jest/jsdom                                            |
+| `npm run test:scratch-org:powershell`            | Portable PowerShell- og legacy-coverage-testar; native Windows-grupper krev Windows |
+| `bash bin/tests/create-scratch-org.test.sh`      | Fake-CLI-kontraktar består for Bash-motoren                                         |
+| Same Bash-harness med `/bin/bash` 3.2 først PATH | Kontraktane består òg med system-Bash på macOS                                      |
+| Målretta Prettier og dokumentasjonskontroll      | Endra filer er formaterte, lokale lenkjer finst, og flagg er dokumenterte           |
 
-Dokumentasjonskontrollen fann ingen manglande bin-filer i referansen eller
-brotne lokale lenkjemål; alle oppdaga eigendefinerte Bash-/PowerShell-flagg er
-omtalte. Dette er lokal arbeidskopi-evidens, ikkje ein ny Windows-CI-køyring.
-Browser-rendering og live Salesforce-integrasjon er framleis ikkje sertifisert.
+Det historiske Windows-resultatet ovanfor gjeld berre den oppgitte revisjonen.
+Ein dokumentasjonskontroll er ikkje ei ny Windows-CI-køyring, og lokale
+fake-CLI-/DOM-testar sertifiserer ikkje browser-layout eller live Salesforce.
 
 ### Reproduser lokal gate
 

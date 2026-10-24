@@ -19,35 +19,10 @@ Klon repoet og kjør kommandoene fra prosjektroten.
 
 ## Scratch org
 
-Scratch-org-flyten og avhengighetsinstallasjon er dokumentert i [bin/README.md](bin/README.md). Der finner du blant annet:
-
-- opprettelse med `bin/create-scratch-org.sh`
-- Windows-flyt med `bin/create-scratch-org.bat` (PowerShell engine, no `sf-project` dependency)
-- henting fra scratch-org-pool
-- pakkeoppløsning og nødvendige Dev Hub-forutsetninger
-
-For komplett bruk og alle kommandoalternativ:
-
-- [Samla kommandoreferanse](bin/COMMANDS.md) — flagg, eksempel, miljøvariablar,
-  konfigurasjon, sideeffektar og legacy-avgrensingar.
-- [Funksjons- og plattformmatriser](bin/COMPATIBILITY.md) — Bash, PowerShell,
-  CMD/npm, macOS/Linux/Windows og kva som faktisk er verifisert.
-- [Alle støtteskript](scripts/README.md) — pre-commit, formatering, P360-smoke,
-  Apex-hjelpeskript og testar.
-
-Vanleg pakkeinstallasjon/oppdatering har ein felles Node-basert rekursiv
-avhengigheitssjekk før org-oppsettet. Sjekken lagar Markdown med både full og
-pakkevis Mermaid-graf, pluss ein sjølvstendig HTML-graf for lokal interaktiv
-utforsking. Dette krev Node også ved direkte Bash-/PowerShell-køyring.
-Versjonsavvik blir ikkje automatisk tolka som kompatible eller retta ved
-nedgradering; sjå [rapport- og sjekkflyten](bin/README.md#complete-package-dependency-preflight).
-
-En typisk CLI-flyt starter med at du logger inn mot en Dev Hub med `sf org login web`, og deretter bruker den dokumenterte scratch-org-flyten. Installasjonsnøkler skal aldri legges i README, kildekode eller shell-historikk.
-
-På Windows er `bin/create-scratch-org.bat` den anbefalte CMD-inngangen.
-PowerShell 7 LTS må vere installert og `pwsh.exe` må vere på PATH; Windows
-PowerShell 5.1 er ikkje lenger støtta, og launcherane fell ikkje tilbake til han.
-Sjå [migrering og lokale PowerShell-testar](bin/README.md#migrating-from-windows-powershell-51).
+Oppsett, pool, avhengigheter, preflight, autofiks og feilsøking er samlet i
+[scratch-org-guiden](bin/README.md). Se [kommandoreferansen](bin/COMMANDS.md)
+for alle flagg og eksempler og [plattformmatrisen](bin/COMPATIBILITY.md) for
+forskjeller mellom macOS, Linux og Windows. Org-endringer krever godkjenning.
 
 ## Lokal validering
 
@@ -72,100 +47,29 @@ Apex-kompilering og Apex-tester er org-avhengige og må kjøres mot en autentise
 
 ### Behovsstyrte PR-sjekkar
 
-PR-workflowane startar alltid, slik at påkravde sjekkar ikkje blir ståande som
-«Pending» på grunn av sti-filter. [Endringsfilteret](scripts/ci-changes.cjs)
-les heile Git-diffen, inkludert slettingar og begge sider av omdøypingar.
-Filteret og pakkemappene blir lesne frå den godkjende basegreina, ikkje frå
-PR-koden. Dersom basegreina ikkje har filteret enno, køyrer full validering.
-Endringar i sjølve workflowane krev framleis særleg grundig menneskeleg review.
-
-- Salesforce-validering og LWC-testar køyrer ved endringar i pakkemappene frå
-  `sfdx-project.json`, npm-manifest/låsfil, prosjektfila, workflows eller sjølve
-  endringsfilteret og testane.
-- Salesforce-validering køyrer òg ved endringar i `config/`, `manifest/`,
-  `scripts/apex/` og `.forceignore`. Jest-konfigurasjon utløyser LWC-testar.
-- Reine endringar i til dømes `bin/` eller dokumentasjon krev ikkje Salesforce
-  eller LWC. Node-verktøytestane og formatering av endra filer køyrer framleis.
-
-[Salesforce-wrapperen](.github/workflows/salesforce-validation.yml) bevarer
-dei påkravde sjekknamna `Validate PR / Compile Metadata`,
-`Validate PR / Run Apex Tests` og `Validate PR / Validate 85% Code Coverage`.
-Dei blir grøne når Salesforce-validering er unødvendig, og feilar dersom
-endringsdeteksjon eller nødvendig validering feilar. Alle tre ventar på heile
-Salesforce-køyringa. Draft-PR-ar bevarer eksisterande unntak frå Salesforce-validering.
-
-Den eksterne valideringa er framleis eigd av `navikt/crm-workflows-base` og
-køyrer kompilering, Apex-testar og dekningskontroll. Wrapperen erstattar ikkje
-desse kontrollane. Endringa er lokalt testa; endeleg rapportering av sjekknamn
-og status må òg stadfestast i ein GitHub PR med og utan Salesforce-endringar.
+PR-workflowene bevarer påkrevde sjekknavn og velger Salesforce-/LWC-validering
+ut fra endringene. Rene dokumentasjons- og verktøyendringer trenger normalt
+ikke org-validering; lokale tester og formatering gjelder fortsatt.
+Se [endringsfilteret og eksemplene](scripts/README.md#behovsstyrte-ci-sjekkar)
+for regler, sikkerhetsgrenser og lokal kontroll. Endringer i workflows krever
+særskilt menneskelig gjennomgang.
 
 ### Pre-commit på Windows, Linux og macOS
 
-Husky installeres av `prepare`-scriptet ved `npm install` eller `npm ci`.
-Bruk Git (Git for Windows på Windows), Node.js som støttes av avhengighetene
-(`lint-staged` 17.6.0 krever Node.js >=22.22.1), og npm. Git og Node må være
-tilgjengelige i PATH også når commit startes fra VS Code.
-
-[Hooken](.husky/pre-commit) starter [Node-scriptet](scripts/pre-commit.cjs),
-som kontrollerer staged filer mot pakkemappene i `sfdx-project.json` og deretter
-kjører lokalt installert `lint-staged`. Verken `jq`, `grep`, `npx` eller WSL
-er nødvendig. Husky bruker fortsatt Git sin shell; LF-linjeskift for hooken
-er sikret i `.gitattributes`.
-
-Endringer i andre pakkemapper enn `force-app` blokkeres. Eksisterende unntak
-med miljøvariabelen `ALLOW_PACKAGE_DIR_COMMIT=1` krever eksplisitt godkjenning
-og hopper bare over pakkekontrollen, ikke formateringen. Feil i konfigurasjon,
-Git eller formatering stopper commit.
-
-Kjør isolerte hook-tester uten å endre repoets Git-indeks:
-
-```bash
-node --test scripts/tests/pre-commit.test.cjs
-```
+Husky installeres ved `npm install` eller `npm ci`. Git og Node må være i PATH,
+og Node må oppfylle npm-avhengighetenes krav (`lint-staged` 17.6.0 krever >=22.22.1).
+Hooken beskytter pakkeeide mapper og formaterer staged filer. Se
+[hook- og formateringsguiden](scripts/README.md#pre-commit-og-formatering) for
+oppsett, godkjente unntak, eksempler og isolerte tester.
 
 ## Salesforce Project CLI
 
-CLI-en er ein sjølvstendig lokal pakke i [tools/salesforce-project-cli](tools/salesforce-project-cli). Root-prosjektet har ingen npm-script eller dependency som startar verktøyet automatisk.
-
-Installer verktøyet frå tool-mappa. Denne eine kommandoen installerer avhengigheiter, byggjer CLI-en, opprettar prosjektkonfigurasjonen og lenkjer `sf-project` lokalt:
-
-```bash
-cd tools/salesforce-project-cli
-npm run setup
-```
-
-Setup opprettar eller gjennomgår `sf-project.config.json` ved sida av `sfdx-project.json`. Kvar innstilling viser eksisterande verdi og defaultverdi. Trykk Enter for å bevare eksisterande verdi; dersom innstillinga manglar, brukar Enter defaultverdien.
-
-Gå så tilbake til repo-rota:
-
-```bash
-cd ../..
-```
-
-Køyr deretter kommandoane frå repo-rota:
-
-```bash
-sf-project doctor
-sf-project org list
-sf-project packages plan
-sf-project web start
-```
-
-Utan global lenking kan du køyre CLI-en direkte frå tool-mappa:
-
-```bash
-cd tools/salesforce-project-cli
-npx sf-project doctor --project-dir ../..
-```
-
-Konfigurasjonen inneheld ikkje installasjonsnøklar. Nøkkelen må ligge i miljøvariabelen som står i `packageInstallKeyEnvironmentVariable`. På macOS kan ein lagre ein nøkkel i Keychain og berre eksportere han for éi køyring:
-
-```bash
-security add-generic-password -a "$USER" -s PACKAGE_INSTALL_KEY -w
-PACKAGE_INSTALL_KEY="$(security find-generic-password -a "$USER" -s PACKAGE_INSTALL_KEY -w)" sf-project packages install --target-org my-org
-```
-
-Nøklar, tokens og credentials skal ikkje skrivast til `sf-project.config.json`, shell-script eller README.
+Den valgfrie [Salesforce Project CLI-en](tools/salesforce-project-cli/README.md)
+er en separat lokal pakke med egen installasjon, kommandoreferanse og webflate.
+Den kreves ikke av scratch-org-skriptene og startes ikke automatisk fra rotprosjektet.
+Se [verktøyets dokumentasjon](tools/salesforce-project-cli/docs/README.md) for bruk
+og forskjeller fra skriptene. Nøkler og credentials skal ikke lagres i kildekode
+eller konfigurasjonsfiler.
 
 ## Dokumentasjon og agentregler
 

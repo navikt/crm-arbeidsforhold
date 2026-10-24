@@ -130,7 +130,7 @@ write_config() {
 }
 
 run_script() {
-    OUTPUT="$(cd "$PROJECT" && env PATH="$FAKE_BIN:$PATH" TMPDIR="$WORK_DIR" SF_LOG="$SF_LOG" SF_ARG_LOG="$SF_ARG_LOG" "$@" 2>&1)"
+    OUTPUT="$(cd "$PROJECT" && env PATH="$FAKE_BIN:$PATH" TMPDIR="$WORK_DIR" SF_LOG="$SF_LOG" SF_ARG_LOG="$SF_ARG_LOG" "$@" </dev/null 2>&1)"
     EXIT_CODE=$?
 }
 
@@ -199,7 +199,8 @@ test_missing_dependency_blocks_setup_and_apply_is_explicit() {
     assert_exit_nonzero
     assert_contains $'\033[31mMissing packages: 1'
     assert_contains $'\033[1;36mDependency graph'
-    assert_contains '+-- child 1.0.0.1 [MISSING]'
+    assert_contains '+-- child [FAIL: MISSING]'
+    assert_contains 'Required: >= 1.0.0.1; selected: NOT DECLARED'
     run_script env MISSING_DEPENDENCY=true FORCE_COLOR=1 bash "$SCRIPT" --check-dependencies --no-color
     assert_exit_nonzero
     assert_not_contains $'\033['

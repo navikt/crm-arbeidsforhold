@@ -124,19 +124,19 @@ I PowerShell-terminalen kan du bruke `-PostSteps deploy,data`. Ved
 
 ### Pakkar, avhengigheiter og kjeldefiler
 
-| Bash                              | PowerShell / CMD              | Kva skjer                                                                                                          |
-| --------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `--install-latest`                | `-InstallLatest`              | Vel nyaste publiserte versjon, ikkje berre manifestets versjonsserie                                               |
-| `--skip-version-check`            | `-SkipVersionCheck`           | Slå av varsel om nyare release; **ikkje** slå av dependency-preflight                                              |
-| `--check-dependencies`            | `-CheckDependencies`          | Les rekursiv graf, skriv MD/HTML, ikkje endre manifest/org                                                         |
-| `--apply-dependencies`            | `-ApplyDependencies`          | Rett manglande deklarasjonar/rekkjefølgje med backup; avslutt utan oppsett; konfliktar blir ikkje retta automatisk |
-| `--dependency-report <fil.md>`    | `-DependencyReport <fil.md>`  | Vel MD-fil; HTML får same basename                                                                                 |
-| `--check-versions`                | `-CheckVersions`              | Sjå nyare manifestversjonar; ikkje ein dependency-sjekk                                                            |
-| `--apply-project-versions`        | `-ApplyProjectVersions`       | Skriv nyare versjonar i manifestet, med `.backup`; ikkje installer noko                                            |
-| `--refresh-dependency-sources`    | `-RefreshDependencySources`   | Kan rydde lokale referansemapper og hente pakkekjelder; krev eksplisitt løyve                                      |
-| `--clear-dependency-sources-only` | `-ClearDependencySourcesOnly` | Slett innhald i avhengigheitsmapper utan org-oppsett; bevar konfigurerte rotfiler                                  |
-| `--keychain-service <teneste>`    | Ikkje støtta                  | macOS Bash: hent nøkkel frå denne Keychain-tenesta                                                                 |
-| `--keychain-account <konto>`      | Ikkje støtta                  | macOS Bash: avgrens Keychain-oppslag til konto                                                                     |
+| Bash                              | PowerShell / CMD              | Kva skjer                                                                                                                       |
+| --------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `--install-latest`                | `-InstallLatest`              | Vel nyaste publiserte versjon, ikkje berre manifestets versjonsserie                                                            |
+| `--skip-version-check`            | `-SkipVersionCheck`           | Slå av varsel om nyare release; **ikkje** slå av dependency-preflight                                                           |
+| `--check-dependencies`            | `-CheckDependencies`          | Les rekursiv graf, skriv MD/HTML, ikkje endre manifest/org                                                                      |
+| `--apply-dependencies`            | `-ApplyDependencies`          | Oppgrader låge versjonar, legg til manglande deklarasjonar og rett rekkjefølgje med backup; valider og avslutt utan org-oppsett |
+| `--dependency-report <fil.md>`    | `-DependencyReport <fil.md>`  | Vel MD-fil; HTML får same basename                                                                                              |
+| `--check-versions`                | `-CheckVersions`              | Sjå nyare manifestversjonar; ikkje ein dependency-sjekk                                                                         |
+| `--apply-project-versions`        | `-ApplyProjectVersions`       | Skriv nyare versjonar i manifestet, med `.backup`; ikkje installer noko                                                         |
+| `--refresh-dependency-sources`    | `-RefreshDependencySources`   | Kan rydde lokale referansemapper og hente pakkekjelder; krev eksplisitt løyve                                                   |
+| `--clear-dependency-sources-only` | `-ClearDependencySourcesOnly` | Slett innhald i avhengigheitsmapper utan org-oppsett; bevar konfigurerte rotfiler                                               |
+| `--keychain-service <teneste>`    | Ikkje støtta                  | macOS Bash: hent nøkkel frå denne Keychain-tenesta                                                                              |
+| `--keychain-account <konto>`      | Ikkje støtta                  | macOS Bash: avgrens Keychain-oppslag til konto                                                                                  |
 
 Versjonssjekk, dependency-sjekk og installasjonsplan er tre ulike produkt:
 «nyaste release» er ikkje bevis på komplett graf eller kompatibilitet.
@@ -175,6 +175,13 @@ deretter terminaldeteksjon. `NO_COLOR` må vere ikkje-tom; `FORCE_COLOR=0`
 er ikkje «tving på». Framdrift og femsekunds-heartbeat er status, ikkje ein
 estimert Salesforce-prosent.
 
+Den delte preflighten brukar grøn for PASS, **feit magenta** for høgare
+versjonar/varsel og raud for feil. Han brukar ikkje gul til å skilje høgare
+versjonar frå grøne resultat. Kvar grafnode har ei tydeleg tekstmerking:
+`PASS`, `PASS: HIGHER VERSION`, `FAIL: MISSING` eller `FAIL: VERSION TOO LOW`.
+Krav og vald versjon står på eiga linje. Fargane i motorens øvrige oppsett og
+i HTML-rapporten er separate; tekstmerkinga er nødvendig også der.
+
 ## 4. Eksempelbibliotek
 
 ### Lokalt utan autentisering
@@ -210,6 +217,79 @@ pwsh -NoProfile -File ./bin/create-scratch-org.ps1 -InitConfig -Force
 
 Generiske defaults er ikkje repository-defaults: dette repoet konfigurerer
 pool og fleire ettersteg. `--no-config` endrar dermed flyten vesentleg.
+
+### Vel manifest og konfigurasjon eksplisitt
+
+Desse eksempla brukar dei vanlege filene, men viser overstyringane du kan byte
+ut med eigne godkjende stiar. Filene må finnast og ha gyldig innhald:
+
+```bash
+bash bin/create-scratch-org.sh --project-file sfdx-project.json --config sf-project.config.json --check-dependencies
+bash bin/create-scratch-org.sh --no-config --alias crm-arbeidsforhold --package-plan
+```
+
+```powershell
+pwsh -NoProfile -File ./bin/create-scratch-org.ps1 -ProjectFile sfdx-project.json -ConfigFile sf-project.config.json -CheckDependencies
+pwsh -NoProfile -File ./bin/create-scratch-org.ps1 -NoConfig -OrgAlias crm-arbeidsforhold -PackagePlan
+```
+
+`NoConfig` er ikkje ein tryggings-/offline-modus: miljøvariablar og andre val
+gjeld framleis. Siter stiar med mellomrom. Sjå konfigurasjonstabellen nedanfor
+for CLI > miljø > config > default og skilnadene mellom motorane.
+
+### Eigne ettersteg
+
+Legg eit gjennomgått steg til `customPostSteps` i den eksisterande konfigurasjonen;
+ikkje erstatt resten av prosjektkonfigurasjonen med dette utdraget:
+
+```json
+{
+    "customPostSteps": [
+        {
+            "name": "runtime-check",
+            "label": "Show Node version",
+            "executable": "node",
+            "arguments": ["--version"]
+        }
+    ]
+}
+```
+
+Køyr steget i ein allereie godkjend org-flyt:
+
+```bash
+bash bin/create-scratch-org.sh --alias crm-arbeidsforhold --post-steps-only --post-steps runtime-check
+```
+
+```powershell
+pwsh -NoProfile -File ./bin/create-scratch-org.ps1 -OrgAlias crm-arbeidsforhold -PostStepsOnly -PostSteps runtime-check
+```
+
+Eksempelsteget viser berre Node-versjonen, men wrapperen kan framleis lese orgstatus.
+Andre executable/argument er vilkårleg kodekøyring. Namnet må vere unikt og ikkje
+kollidere med innebygde steg. Valde custom-steg køyrer etter innebygde steg, i
+konfigurasjonsrekkjefølgje, frå prosjektrota. Ta med nødvendige innebygde steg
+eksplisitt dersom dei skal køyre i same avgrensa køyring.
+
+### Installasjonsnøkkel utan secrets i kommandoen
+
+`packageInstallKeyEnvironmentVariable` vel namnet på nøkkelvariabelen, normalt
+`PACKAGE_INSTALL_KEY`. Få verdien inn frå ei godkjend secret-løysing; ikkje skriv
+han i eksempelfiler, shell-historikk, logger eller kommandolinjeargument.
+`packageKeyConfig` i manifestet styrer kva pakkar som ikkje treng nøkkel.
+
+På macOS kan Bash hente ei allereie oppretta Keychain-oppføring. Byt berre ut
+teneste/konto med eksisterande metadata, ikkje sjølve nøkkelen:
+
+```bash
+bash bin/create-scratch-org.sh --keychain-service '<existing-service>' --keychain-account '<existing-account>' --dry-run
+```
+
+Denne kommandoen kan lese Keychain og Salesforce; han er ikkje offline. Opprett
+oppføringa gjennom den godkjende Keychain-/secret-flyten, ikkje ved å lime nøkkelen
+inn i ein kommando. PowerShell har ikkje automatisk Keychain-oppslag, heller
+ikkje på macOS; han treng nøkkelen gjennom den konfigurerte miljøvariabelen.
+Del aldri output frå `sf org display` eller auth-/secret-verktøy som feilsøkingsdata.
 
 ### Les pakkemetadata og lag rapport
 
@@ -269,6 +349,42 @@ Backupen er `sfdx-project.json.dependencies.backup`. Eksisterande backup blir
 ikkje overskriven. Bevar han før du ryddar. Rapporten frå apply viser funna
 **før** retting; køyr sjekken igjen. Apply og dry-run kan ikkje kombinerast.
 
+Autofiks oppgraderer òg for låge valde versjonar til det høgaste minimumskravet
+som finst i avhengigheitsmetadata. Han validerer oppgraderte versjonar og nye
+avhengigheiter før skriving, og bevarer allereie høgare val. `--install-latest`
+er eit anna val: det vel nyaste publiserte root-versjon, ikkje berre ei
+minimumsoppgradering. Sjå [scenario og eksempel](README.md#scenario-examples).
+
+### Avgjerder under vanleg oppsett
+
+Høgare valde versjonar er informasjonsmerknader: dei gir PASS og ingen spørsmål.
+Berre reelle versjons-, deklarasjons- eller rekkjefølgjefeil gir denne menyen
+ved interaktiv installasjon/oppdatering:
+
+```text
+[c] Continue unchanged | [f] Apply safe fixes and continue | [s] Stop (default):
+```
+
+Rett over menyen står pakken, kravet, vald versjon, kven som krev han, påverknad
+og retting. Ved feil rekkjefølgje står både noverande og påkravd rekkjefølgje.
+
+| Svar                 | Verknad                                                                                    |
+| -------------------- | ------------------------------------------------------------------------------------------ |
+| `c`                  | Godta uløyste problem eksplisitt; ingen manifestendring; installasjon kan framleis feile   |
+| `f`                  | Valider og skriv autofiks med backup; fortset same oppsett med kontrollerte versjons-ID-ar |
+| `s`, Enter eller EOF | Stopp utan manifestendring eller org-oppsett                                               |
+
+Metadatafeil, ugyldige deklarasjonar og syklar gir feil utan å tilby ein ukontrollert
+plan. Standalone check/apply spør ikkje om vidare org-oppsett. Dry-run spør ikkje
+om autofiks. Ein ikkje-interaktiv installasjon feilar ved reelle funn, men held
+fram ved berre høgare versjonar.
+
+Checkerens terminaldeteksjon brukar stdin. At stdout er omdirigert, eller at
+`CI=true` er sett, er ikkje åleine eit løfte om at han ikkje spør. Automatiserte
+prosessar må omdirigere/lukke stdin; bruk den eksplisitte standalone apply-modusen
+for godkjend manifestretting før eit unattended oppsett. Det finst ikkje noko
+generelt `--yes`-flagg. Ikkje bruk `--skip-version-check` som bypass av preflight.
+
 ### Planlegg og utfør oppsett
 
 Berre etter org-/pakke-/deploy-godkjenning og secrets-oppsett:
@@ -317,16 +433,16 @@ Ikkje køyr fleire vedlikehalds-/apply-prosessar mot same manifest samtidig.
 
 [package-dependencies.js](package-dependencies.js) er ein sjølvstendig Node-CLI.
 
-| Flagg                   | Default / åtferd                                                                      |
-| ----------------------- | ------------------------------------------------------------------------------------- |
-| `--project-file <fil>`  | `sfdx-project.json` relativt til arbeidsmappe                                         |
-| `--dev-hub <alias>`     | `SF_TARGET_DEV_HUB`, elles CLI packaging-default                                      |
-| `--latest`              | Vel nyaste publiserte root-versjon; elles manifestets eksakte/build-symbolske versjon |
-| `--dry-run`             | Metadata og rapportar blir framleis lesne/skrive; ikkje manifestendring               |
-| `--apply`               | Rett manglande deklarasjonar og rekkjefølgje; aldri automatisk konfliktløysing        |
-| `--report <fil.md>`     | `package-dependencies-report.md` ved prosjektfila; HTML same basename                 |
-| `--plan-file <fil>`     | Intern eksklusiv JSON-versjonsplan ved gyldig graf; må ikkje finnast frå før          |
-| `--color`, `--no-color` | Fargepolicy som over; begge samtidig er feil                                          |
+| Flagg                   | Default / åtferd                                                                                                        |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `--project-file <fil>`  | `sfdx-project.json` relativt til arbeidsmappe                                                                           |
+| `--dev-hub <alias>`     | `SF_TARGET_DEV_HUB`, elles CLI packaging-default                                                                        |
+| `--latest`              | Vel nyaste publiserte root-versjon; elles manifestets eksakte/build-symbolske versjon                                   |
+| `--dry-run`             | Metadata og rapportar blir framleis lesne/skrive; ikkje manifestendring                                                 |
+| `--apply`               | Oppgrader for låge versjonar, legg til manglande deklarasjonar og rett rekkjefølgje; valider før skriving og lag backup |
+| `--report <fil.md>`     | `package-dependencies-report.md` ved prosjektfila; HTML same basename                                                   |
+| `--plan-file <fil>`     | Intern eksklusiv JSON-versjonsplan ved gyldig graf; må ikkje finnast frå før                                            |
+| `--color`, `--no-color` | Fargepolicy som over; begge samtidig er feil                                                                            |
 
 Helperen har **ikkje** `--help`; denne tabellen er kommandoreferansen.
 Ukjende eller ufullstendige flagg feilar. Metadata-lesing er
@@ -335,11 +451,23 @@ Ukjende eller ufullstendige flagg feilar. Metadata-lesing er
 Ingen `sfp`, `jq`, installasjonsnøkkel eller fungerande scratch-org trengst for
 denne reine metadata-sjekken, men Dev Hub må sjå alle nødvendige metadata.
 
-Exit `0` betyr gyldig graf eller fullført eksplisitt apply; `1` betyr funn,
-lesefeil, ugyldig input eller rapportfeil. Detaljen i utskrifta skil desse.
-Forskjellig subscriber-version-ID blir handsama konservativt som konflikt,
-også når den valde versjonen er høgare. Slike greiner blir ikkje ekspanderte.
-Ein nullteljar for manglande pakkar er då **ikkje** komplettheitsbevis.
+Exit `0` betyr gyldig graf, validert eksplisitt apply eller eksplisitt godtekne
+problem ved interaktivt oppsett. Det siste er ikkje ein godkjend graf: utskrifta
+åtvarar om at installasjon framleis kan feile. Exit `1` betyr uløyste funn,
+Stop/Enter/EOF, lesefeil, ugyldig input, rapportfeil eller mislukka autofiks.
+
+Versjonsledda major, minor, patch og build blir samanlikna numerisk. Lik eller
+høgare vald versjon består; berre lågare versjonar blir versjonskonfliktar.
+Sjekken følgjer avhengigheitene til den **valde** versjonen, ikkje den eldre
+kravversjonen. Kravgreiner under eit uløyst minimum blir ikkje ekspanderte;
+autofiks kontrollerer heile den foreslåtte grafen på nytt før skriving.
+Ein nullteljar for manglande pakkar opphevar ikkje låge versjonar eller ordrefeil.
+PASS er ikkje eit Salesforce-installasjons- eller runtime-kompatibilitetsbevis.
+
+`--plan-file` er til intern bruk for wrapperane. Filen må ikkje finnast frå før.
+Ein godkjend plan frys kontrollerte root-ID-ar, også når manifestet seier
+`LATEST`. Ved eksplisitt autofiks inneheld planen dei revaliderte versjonane.
+Hjelpeprogrammet installerar aldri pakkar i org-en sjølv.
 
 Rapportfilene blir oppdaterte etter fullført grafkontroll, ikkje etter kvar
 metadata-lesing. Ved lesefeil blir førre rapport liggjande: sjekk tidsstempelet.
@@ -369,16 +497,16 @@ Legacy-coverage-scriptet sender kvar parameter som eitt native argument til `sf`
 og maskerer `-InstallationKey` i kommandoutskrifta. Det er dekt av
 [post-package-coverage-check.Tests.ps1](tests/post-package-coverage-check.Tests.ps1).
 
-| Legacy-parameter   | Default og funksjon                                  |
-| ------------------ | ---------------------------------------------------- |
-| `-TargetOrg`       | `crm-arbeidsforhold`                                 |
-| `-PackageId`       | Ingen; installer berre når sett og ikkje SkipInstall |
-| `-InstallationKey` | Ingen; utrygg logging i legacy, ikkje tilrådd        |
-| `-MinCoverage`     | 75                                                   |
-| `-SkipInstall`     | Ikkje installer                                      |
-| `-SkipDeploy`      | Ikkje deploy `force-app`                             |
-| `-TestRunAll`      | Alle Apex-testar, med async-fallback ved feil        |
-| `-TestClass`       | `AAREG_ApplicationDecisionControllerTest`            |
+| Legacy-parameter   | Default og funksjon                                                               |
+| ------------------ | --------------------------------------------------------------------------------- |
+| `-TargetOrg`       | `crm-arbeidsforhold`                                                              |
+| `-PackageId`       | Ingen; installer berre når sett og ikkje SkipInstall                              |
+| `-InstallationKey` | Ingen; maskert i kommandoutskrift, men secrets som CLI-argument er ikkje tilrådde |
+| `-MinCoverage`     | 75                                                                                |
+| `-SkipInstall`     | Ikkje installer                                                                   |
+| `-SkipDeploy`      | Ikkje deploy `force-app`                                                          |
+| `-TestRunAll`      | Alle Apex-testar, med async-fallback ved feil                                     |
+| `-TestClass`       | `AAREG_ApplicationDecisionControllerTest`                                         |
 
 Avgrensa legacy-eksempel, berre etter godkjenning av Apex-køyringa:
 
@@ -499,20 +627,25 @@ kommandoar i [scripts README](../scripts/README.md). Root npm-scriptet
 
 ## 9. Feilsøking og exitstatus
 
-| Symptom                                      | Tiltak / avgrensing                                                                                        |
-| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| «Still running»                              | Sjå aktivt pakkenamn/metadata-ID og ventetid; ikkje ein garantert tidsgrense                               |
-| Ingen Dev Hub-autorisering                   | Bruk godkjend autentisert terminal for det konkrete målet; ikkje bytt automatisk til anna org              |
-| Manglande metadatarettar                     | Kontrollen kan ikkje sertifisere grafen; lesetilgang til alle versjonar er nødvendig                       |
-| VERSION DIFF                                 | Sjå krav/vald versjon og innkomande piler; ikkje nedgrader for å få grøn farge                             |
-| Rapport frå førre køyring                    | Sjekk tidsstempelet; lesefeil oppdaterer ikkje rapporten                                                   |
-| HTML som tekst i VS Code/GitHub              | Opne den lokale fila i ein nettlesar                                                                       |
-| Blank Mermaid-vising                         | Visaren må støtte Mermaid; HTML har ingen slik ekstern runtime-føresetnad                                  |
-| Rapportskriving feilar                       | Sjekk mappe/skrivetilgang; inga automatisk oppretting av foreldremapper; ikkje bruk symlink som rapportmål |
-| Backup finst frå før                         | Bevar/flytt backup etter gjennomgang før ny dependency-apply; ikkje overskriv automatisk                   |
-| Manglande PowerShell                         | Installer godkjend PowerShell 7 og gjer `pwsh.exe` tilgjengeleg på Windows PATH                            |
-| «No changes to deploy», men metadata manglar | Vurder godkjend `--redeploy` / `-Redeploy`; vanleg deploy brukar tracking                                  |
-| Jest/jsdom manglar                           | Installer prosjektets devDependencies med vanleg npm-flyt; ikkje legg til ein ny renderer                  |
+| Symptom                                      | Tiltak / avgrensing                                                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| «Still running»                              | Sjå aktivt pakkenamn/metadata-ID og ventetid; ikkje ein garantert tidsgrense                                 |
+| Ingen Dev Hub-autorisering                   | Bruk godkjend autentisert terminal for det konkrete målet; ikkje bytt automatisk til anna org                |
+| Manglande metadatarettar                     | Kontrollen kan ikkje sertifisere grafen; lesetilgang til alle versjonar er nødvendig                         |
+| PASS: HIGHER VERSION                         | Informasjon, ikkje ein feil; ingen nedgradering eller spørsmål er nødvendig                                  |
+| FAIL: VERSION TOO LOW / VERSION DIFF         | Sjå minimum/vald versjon; vel autofiks for kontrollert oppgradering, eller stopp                             |
+| FAIL: MISSING                                | Manglande deklarasjon; autofiks kan legge han til med rett rekkjefølgje                                      |
+| Autofiks kan ikkje validere grafen           | Les siste metadata-/syklus-/framdriftsfeil; manifestet blir ikkje delvis skrive; rett årsaka og køyr på nytt |
+| Manifestet blei endra under køyringa         | Avslutt konkurrerande skriving, vurder Git-diffen og køyr mot oppdatert fil                                  |
+| Uventa spørsmål i automatisering             | Lukk/omdiriger stdin; berre omdirigert stdout eller CI-variabel er ikkje nok                                 |
+| Rapport frå førre køyring                    | Sjekk tidsstempelet; lesefeil oppdaterer ikkje rapporten                                                     |
+| HTML som tekst i VS Code/GitHub              | Opne den lokale fila i ein nettlesar                                                                         |
+| Blank Mermaid-vising                         | Visaren må støtte Mermaid; HTML har ingen slik ekstern runtime-føresetnad                                    |
+| Rapportskriving feilar                       | Sjekk mappe/skrivetilgang; inga automatisk oppretting av foreldremapper; ikkje bruk symlink som rapportmål   |
+| Backup finst frå før                         | Bevar/flytt backup etter gjennomgang før ny dependency-apply; ikkje overskriv automatisk                     |
+| Manglande PowerShell                         | Installer godkjend PowerShell 7 og gjer `pwsh.exe` tilgjengeleg på Windows PATH                              |
+| «No changes to deploy», men metadata manglar | Vurder godkjend `--redeploy` / `-Redeploy`; vanleg deploy brukar tracking                                    |
+| Jest/jsdom manglar                           | Installer prosjektets devDependencies med vanleg npm-flyt; ikkje legg til ein ny renderer                    |
 
 PowerShell-motoren returnerer 0 ved fullført modus og 1 ved fanga feil.
 Bash returnerer ikkje alltid same numeriske kode (til dømes fleire inputfeil
