@@ -1,7 +1,8 @@
 # Altinn-resultat som testscenario i Arbeidsforhold
 
 **Dato:** 2026-10-20  
-**Status:** Føreslått design. Ingen implementering, deploy eller org-verifikasjon.
+**Status:** Policygrunnlaget T006–T007 er implementert og dry-run-verifisert.
+Resten er planlagt; ingen varig deploy eller ende-til-ende-verifikasjon er utført.
 
 Dette dokumentet gjeld konsumenten si teststøtte, ikkje simulering eller testing
 av Altinn-integrasjonen. Spesifikasjonane er
@@ -12,12 +13,82 @@ Sjå også [kritiske avklaringar](grill.md) og [gjennomføringsplan](implementat
 For arbeid i integrasjonspakka: ta med
 [sjølvstendig overlevering til pakkeagenten](package-agent-handoff.md).
 
+## Implementert policygrunnlag — 2026-10-25
+
+[AAREG_AltinnScenarioPolicy](../../../force-app/integration/altinn/classes/AAREG_AltinnScenarioPolicy.cls)
+eksponerer `resolveAssignment(targetUserId, personIdent)`. Metoden returnerer den
+rå brukarsettinga etter godkjende sperrer, eller `null` når scenario er av.
+Han opprettar ikkje ein provider, gjer ingen callouts og skriv ingen data.
+
+- Hierarkisk `AAREG_AltinnScenarioSetting__c` har dei tre planlagde felta.
+  `getValues(userId)` les rå brukarverdiar; ein manglande record blir identifisert
+  med manglande `Id`. Org-/profilverdiar aktiverer aldri scenario gjennom arv.
+- Manglande oppsett, utelaten aktivering og eksplisitt false gir ordinær bane
+  utan miljøoppslag eller krav om testpermission. Checkbox-feltet kan ikkje lagre
+  eksplisitt null; utelaten verdi får metadataens default false.
+- Brei aktivering utan brukarrecord gir eksplisitt feil. Brukarrecord med false
+  overstyrer breitt oppsett for den brukaren.
+- Aktiv brukarsetting krev verifisert ikkje-produksjon, custom permission
+  `AAREG_UseAltinnScenario`, same målbrukar som innlogga brukar, namn/alias og
+  samsvarande ikkje-tom identitet frå brukarens kontakt-/kontokjede.
+- `AAREG_AltinnScenarioUser` gir berre custom permission, ikkje Setup- eller
+  skriverettar. Setting-records blir ikkje leverte eller automatisk oppretta.
+- Policy og privat plattformlesar brukar `with sharing`. To eksplisitte
+  `WITH SYSTEM_MODE`-oppslag les berre `Organization.IsSandbox` og den innlogga
+  brukarens tilknytte identitet. Dette er den menneskeleg godkjende,
+  avgrensa privilegiegrensa; ingen personident blir logga eller returnert.
+  `without sharing` åleine løyste ikkje plattformens tilgangsfeil.
+- Lesefeil blir vidareførte; ingen catch gjer feil om til «av» eller live-fallback.
+  Katalogvalidering av namn/alias kjem i T008–T009.
+
+### Verifikasjon
+
+[Policytestane](../../../force-app/tests/classes/integration/altinn/AAREG_AltinnScenarioPolicyTest.cls)
+brukar minimumstilgangsbrukar, reelle setting-records og reell permission-tildeling.
+Testfixtures blir skrivne som administrator; runtime-kalla går som testbrukaren.
+Produksjon, ukjent miljø, lesefeil og vellukka syntetisk identitetsbinding blir
+testa gjennom ein privat testseam, ikkje mot ein produksjonsorg. Den faktiske
+scratch-statusen og avvising av ein brukar utan kontaktidentitet er òg testa.
+Gyldig identitetsbinding mot ein faktisk community-brukar står att i seinare
+konsument-/UI-verifikasjon.
+
+Første raude dry-run stoppa i kompilering fordi policyklassen mangla; ingen test
+køyrde då. Utvida raud køyring avdekte òg testsyntaks som vart retta. Første
+implementasjon køyrde 13 testar med feil i tilgang/oppsett. Seinare køyring hadde
+14 av 15 grøne og avdekte at eksplisitt null ikkje kan skrivast til Checkbox.
+Dette er ikkje ei påstand om ei ubrutt rein raud–grøn-rekkje.
+
+Følgjande kommando gav **Succeeded, checkOnly=true, 15/15 testar, null feil og
+34/34 køyrbare policylinjer dekte**, også etter refaktorering. Siste validering:
+`0AfJW00000nmQ0n0AE`.
+
+```sh
+sf project deploy start --dry-run \
+  --source-dir force-app/integration/altinn \
+  --source-dir force-app/tests/classes/integration/altinn \
+  --source-dir force-app/tests/classes/integration/common/Integration_TestDataFactory.cls \
+  --target-org crm-arbeidsforhold \
+  --test-level RunSpecifiedTests \
+  --tests AAREG_AltinnScenarioPolicyTest \
+  --wait 10 --json
+```
+
+Ein mellomliggjande dry-run stoppa med «That object name is already in use»;
+seinare identisk validering fullførte utan omdøyping eller sletting av metadata.
+Ingen varig deploy, pakkeoperasjon eller aktivering er utført.
+
+Factory, provider, scenariofiler og kopling til controller/UI er **ikkje**
+implementerte. Cache-val D01 er framleis ope. Policygrunnlaget åleine gir ikkje
+moglegheit til å gjennomføre ein mocka brukarjourney.
+
 ## Kjeldegrunnlag og avgrensing
 
 Lesne lokale kjelder:
 
 - [AltinnCalloutService](../../../crm-platform-integration/main/default/classes/AltinnCalloutService.cls)
-  held ein privat provider og opprettar standardimplementasjonen i konstruktøren.
+  held ein privat provider og opprettar standardimplementasjonen i standardkonstruktøren.
+  Referansekjelda har no òg den additive konstruktøren for provider-injeksjon;
+  faktisk pakkeleveranse og konsumentåtkomst må framleis dokumenterast separat.
 - [IAltinnCalloutService](../../../crm-platform-integration/main/default/classes/IAltinnCalloutService.cls)
   har to operasjonar med `Object` som returtype.
 - [AAREG_HomeController](../../../force-app/externalAccess/classes/AAREG_HomeController.cls)

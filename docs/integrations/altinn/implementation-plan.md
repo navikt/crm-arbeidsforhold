@@ -1,7 +1,9 @@
 # Implementation Plan: Konsumentstyrte Altinn-scenario
 
 **Dato:** 2026-10-20  
-**Status:** Utkast med gater; ikkje startløyve for implementering eller org-endring.
+**Status:** T006–T007 er implementerte etter klarsignal og verifiserte med
+godkjend dry-run i `crm-arbeidsforhold` 2026-10-25. Resten har framleis eigne gater;
+dette dokumentet gir ikkje løyve til varig deploy eller andre org-endringar.
 
 ## Summary
 
@@ -63,7 +65,7 @@ Les relevante lokale instruksjonar på nytt før kodeendring.
 
 ## Implementation Steps
 
-Oppgåvene er planlagde, ikkje utførte. Alle filbaner for nye komponentar er
+Oppgåvene er planlagde med mindre dei er markerte utførte nedanfor. Filbaner for ikkje-implementerte komponentar er
 føreslåtte frå designet. Ingen oppgåve autoriserer ei pakkeutgiving eller deploy.
 
 ### 1.1 - Godkjenne scope og pakkegrense
@@ -95,8 +97,15 @@ eiga godkjenning, ikkje bruk av andre autentiserte org-ar her.
 **Input:** Designets innstillingstabell og produksjonspolicy.  
 **Avhengigheit:** T002; kan utviklast uavhengig av pakke-API.
 
-- [ ] T006 [US1] [US3] [Plan:3.1] Skriv raude testar i `force-app/tests/classes/integration/altinn/AAREG_AltinnScenarioPolicyTest.cls`: ingen org-record, ingen brukarrecord, null/false, brukar true utan org-record, ulovleg org/profil-arv, manglande permission, annan målbrukar, feil identitet, produksjon, ukjent miljø og lesefeil.
-- [ ] T007 [US1] [US3] [Plan:3.1] Implementer `force-app/integration/altinn/classes/AAREG_AltinnScenarioPolicy.cls`, setting under `force-app/integration/altinn/objects/AAREG_AltinnScenarioSetting__c/` og runtime-permission/-sett under same funksjonsmappe. Køyr T006 grøn. Stadfest rå-record-semantikk og scratch-miljøstatus i godkjend scratch.
+- [x] T006 [US1] [US3] [Plan:3.1] Skriv raude testar i `force-app/tests/classes/integration/altinn/AAREG_AltinnScenarioPolicyTest.cls`: ingen org-record, ingen brukarrecord, null/false, brukar true utan org-record, ulovleg org/profil-arv, manglande permission, annan målbrukar, feil identitet, produksjon, ukjent miljø og lesefeil.
+- [x] T007 [US1] [US3] [Plan:3.1] Implementer `force-app/integration/altinn/classes/AAREG_AltinnScenarioPolicy.cls`, setting under `force-app/integration/altinn/objects/AAREG_AltinnScenarioSetting__c/` og runtime-permission/-sett under same funksjonsmappe. Køyr T006 grøn. Stadfest rå-record-semantikk og scratch-miljøstatus i godkjend scratch.
+
+Utført 2026-10-25: 15/15 testar grøne i dry-run, 34/34 policylinjer dekte.
+Rå `getValues`-semantikk og faktisk `Organization.IsSandbox` er verifiserte.
+Checkbox kan ikkje lagre eksplisitt null; utelaten aktivering blir testa som
+default false. Privilegert plattformlesing er avgrensa til to eksplisitte
+system-mode-oppslag, godkjende av brukaren. Kommando, resultat, testavgrensingar
+og gjenståande arbeid står i [implementasjonsstatusen](README.md#implementert-policygrunnlag--2026-10-25).
 
 Policy får ein smal testbar miljølesing, ikkje eit offentleg produksjons-override.
 Testpermission skal ikkje leggjast til det generelle community-settet.
