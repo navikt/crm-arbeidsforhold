@@ -52,15 +52,16 @@ Dokumenter som er merket `speilkopi: ja` i frontmatter er kopiert fra Confluence
 
 ## Utviklingsstandarder
 
-Maskinlesbare instruksjonsfiler, `AGENTS.md` og relevante skills er fasit for agentadferd og operativ utvikling. `docs/utviklingsstandarder.md` er en speilkopi som beskriver standardområdene og peker til den operative fasiten; den skal ikke konkurrere med eller overstyre instruksjonsfilene.
+Maskinlesbare instruksjonsfiler, `AGENTS.md` og relevante skills er fasit for agentadferd og operativ utvikling. [Utviklingsstandardene](../utviklingsstandarder.md) er fra 2026-10-22 en repo-eid oversikt som peker til den operative fasiten; den skal ikke konkurrere med eller overstyre instruksjonsfilene. Confluence skal oppdateres til å vise denne kildeoppdelingen.
 
-README-struktur og dokumentasjonsstandarder håndheves gjennom repository-instruksjonene og etablerte dokumentmaler. Det opprettes ikke en separat, parallell standardtekst i speilkopien uten at Confluence-kilden oppdateres samtidig.
+README-struktur og dokumentasjonsstandarder håndheves gjennom repository-instruksjonene og etablerte dokumentmaler. Confluence kan beskrive og lenke til standardene, men skal ikke være en konkurrerende operativ fasit.
 
 ## Dokumenter i dette området
 
 | Dokument                                                                                           | Innhold                                                                                          | Status              |
 | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------- |
 | [Heile løysinga: arkitektur og flyt](hele-loysinga.md)                                             | Samla oversikt over repository, domene, brukarjourneys, integrasjonar, testar og edge cases      | Repo-eigd oversikt  |
+| [Pakkeavhengigheiter](pakkeavhengigheiter.md)                                                      | Dei 19 avhengigheitene, pakkeroller, daterte versjonar, minimumskrav og Mermaid-diagram          | Repo-eigd oversikt  |
 | [Forbetringsforslag og målmodell](forbetringsforslag-og-malmodell.md)                              | Prioriterte forslag til data, sikkerheit, automasjon, integrasjon og Well-Architected-forbetring | Forslag             |
 | [Arkitekturprinsipp, lagdeling og namnestandard](arkitekturprinsipp-lagdeling-og-namnestandard.md) | Normativ side for lagdeling, designprinsipp og navnestandard                                     | Speilkopi           |
 | [Repositorystruktur](repositorystruktur.md)                                                        | `domain/`, `integration/`, `surfaces/`, `tests/` under `force-app`                               | UTKAST              |
