@@ -778,7 +778,7 @@ try {
         $result = Invoke-Scenario -Executable $env:ComSpec -LeadingArguments @('/d', '/c', "`"$LauncherPath`" -Help")
         Assert-Exit $result 0 'CMD launcher actually starts PowerShell help'
         Reset-Scenario
-        $Config.pool.use = $true; $Config.pool.tag = 'shim tag with spaces'; $Config.pool.devHub = 'shim hub with spaces'
+        $Config.pool.use = $true; $Config.pool.tag = 'shim tag with spaces'; $Config.pool.devHub = 'shim hub with spaces'; $Config.pool.fallbackToCreate = $true
         Add-Rule sfp @('pool', 'list') 'Unused Scratch Orgs in the Pool: 0'
         Add-Rule sf @('org', 'delete', 'scratch'); Add-Rule sf @('org', 'create', 'scratch')
         $sfpShimPath = Join-Path $FakeBin 'sfp.ps1'
@@ -797,7 +797,7 @@ exit $LASTEXITCODE
         Remove-Item -LiteralPath $sfpShimPath -Force
         Reset-Scenario
         $Config.postSteps = @('deploy')
-        Add-Rule sf @('project', 'deploy', 'start')
+        Add-Rule sf @('project', 'deploy', 'start'); Add-Rule sf @('project', 'reset', 'tracking')
         $specialAlias = 'alias ø & caret^ percent% and "quoted"'
         $cmdAlias = $specialAlias.Replace('"', '\"')
         $specialCommand = "`"$LauncherPath`" -PostStepsOnly -OrgAlias `"$cmdAlias`""
@@ -809,7 +809,7 @@ exit $LASTEXITCODE
         Assert-True ($forwardedExactly -or $cleanFailure) 'CMD launcher forwards special/non-ASCII alias exactly or fails cleanly'
         $result = Invoke-Scenario -Executable $env:ComSpec -LeadingArguments @('/d', '/c', "`"$NpmPath`" run scratch-org -- --help")
         Assert-Exit $result 0 'npm run actually starts PowerShell help'
-        $npmScriptPath = (Get-Command npm.ps1 -CommandType ExternalScript -ErrorAction Stop).Source
+        $npmScriptPath = (Get-Command npm.ps1 -CommandType ExternalScript -ErrorAction Stop | Select-Object -First 1).Source
         $result = Invoke-Scenario -LeadingArguments @('-NoLogo', '-NoProfile', '-Command', "& '$npmScriptPath' run scratch-org '--' -Help")
         Assert-Exit $result 0 'npm.ps1 from PowerShell 7 starts help with quoted separator'
         Assert-True ($result.Output -match 'Options:' -and $Calls.Count -eq 0) 'npm.ps1 forwards -Help to the PowerShell script'
