@@ -1,7 +1,7 @@
 # Altinn-resultat som testscenario i Arbeidsforhold
 
 **Dato:** 2026-10-20  
-**Status:** Policygrunnlaget T006–T007 er implementert og dry-run-verifisert.
+**Status:** Policy og scenariokatalog, T006–T009, er implementerte og dry-run-verifiserte.
 Resten er planlagt; ingen varig deploy eller ende-til-ende-verifikasjon er utført.
 
 Dette dokumentet gjeld konsumenten si teststøtte, ikkje simulering eller testing
@@ -39,7 +39,7 @@ Han opprettar ikkje ein provider, gjer ingen callouts og skriv ingen data.
   avgrensa privilegiegrensa; ingen personident blir logga eller returnert.
   `without sharing` åleine løyste ikkje plattformens tilgangsfeil.
 - Lesefeil blir vidareførte; ingen catch gjer feil om til «av» eller live-fallback.
-  Katalogvalidering av namn/alias kjem i T008–T009.
+  Katalogen validerer namn/alias uavhengig av policyen; framtidig provider må bruke begge.
 
 ### Verifikasjon
 
@@ -77,9 +77,115 @@ Ein mellomliggjande dry-run stoppa med «That object name is already in use»;
 seinare identisk validering fullførte utan omdøyping eller sletting av metadata.
 Ingen varig deploy, pakkeoperasjon eller aktivering er utført.
 
-Factory, provider, scenariofiler og kopling til controller/UI er **ikkje**
+Factory, provider og kopling til controller/UI er **ikkje**
 implementerte. Cache-val D01 er framleis ope. Policygrunnlaget åleine gir ikkje
 moglegheit til å gjennomføre ein mocka brukarjourney.
+
+## Implementert scenariokatalog — 2026-10-25
+
+[AAREG_AltinnScenarioRepository](../../../force-app/integration/altinn/classes/AAREG_AltinnScenarioRepository.cls)
+les den pakkeleverte
+[JSON-ressursen](../../../force-app/integration/altinn/staticresources/AAREG_AltinnScenarios.resource)
+éin gong per instans. Ressursen har `schemaVersion=1`; alle S01–S08 har
+definisjonsversjon 1 og ei beskriving av det forventa applikasjonsutfallet.
+Ukjende schema-/definisjonsversjonar blir avviste, ikkje normaliserte.
+
+Lesaren har fire Apex-operasjonar:
+
+- `getScenarios()` listar definisjonane i katalogrekkjefølgje.
+- `getScenario(name)` finn ei eksakt, case-sensitiv scenarioidentitet.
+- `getSubject(name, alias)` finn organisasjonsresultat og rettsmatrise for eit logisk alias.
+- `getRights(name, alias, organizationNumber, resource)` finn berre ei eksplisitt
+  definert kombinasjon. Ukjende eller tomme nøklar gir feil, aldri implisitt Permit/Deny.
+
+Dette er **definisjonslesing, ikkje scenarioautorisasjon eller Altinn-svar**.
+Lesaren kjenner verken Setup-tildeling, faktisk brukaridentitet eller UI.
+Framtidig factory/provider må bruke policyen, også ved direkte providerkall.
+Eitt godkjent `WITH SYSTEM_MODE`-oppslag les berre `StaticResource.Body` for det
+eksakte namnet `AAREG_AltinnScenarios` med tom namespace. Ingen nye brukarrettar,
+callouts, DML eller cache på tvers av brukarar/transaksjonar er innførte.
+
+### Format og forventa scenario
+
+Katalogen blir deserialisert strengt til typa interne modellar. Heile innhaldet
+blir validert før definisjonar blir tilgjengelege. Ukjende JSON-felt, manglande
+felt/lister, duplikate scenario/alias/organisasjonar/rettsnøklar og motstridande
+utfall gir eksplisitte feil utan kjeldedata i feilmeldinga.
+
+Kvart alias har eitt organisasjonsutfall og ei liste med rettsutfall:
+
+- Organisasjonar: `Success` med ei ikkje-null liste, eller `ResponseError`/
+  `Exception` med syntetisk feilmelding og utan liste. Ei tom liste er eit
+  gyldig vellukka resultat, ikkje ein oppsettsfeil.
+- Rettar: `Decision` med `action=Access` og eksplisitt `decision=Permit|Deny`,
+  eller `ResponseError`/`Exception` utan action/decision.
+- Feilvariantar krev klassifiseringa `Robustness`. `ContractShape` beskriv berre
+  strukturen i dagens referansekode, ikkje verifisert Altinn-interoperabilitet.
+- Organisasjonsnummer er syntetiske ni-sifra plasshaldarar, ikkje gyldig
+  testdatagrunnlag for oppslag mot andre integrasjonar. Person-oppføringa har
+  ingen personident, organisasjonsnummer eller organisasjonsform.
+
+| Scenario | Alias                          | Definisjon og forventa seinare applikasjonsobservasjon                                                                                               |
+| -------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| S01      | `subject-a`                    | A (`111111111`): søknad og brukerstøtte Permit. Ordinær søknads-/delingsflyt.                                                                        |
+| S02      | `subject-a`                    | A: søknad Deny, brukerstøtte Permit. Berre brukerstøttetilgang.                                                                                      |
+| S03      | `subject-a`                    | A: begge Deny. Rein brukar skal ikkje få nye delingar; tidlegare delingar blir observerte separat.                                                   |
+| S04      | `subject-a`                    | A: søknad Permit/støtte Deny. B (`222222222`): søknad Deny/støtte Permit. Organisasjonsbyte skal bruke rett matrise.                                 |
+| S05      | `subject-a`                    | Vellukka tom organisasjonsliste og tom rettsmatrise. Observer tomtilstand.                                                                           |
+| S06      | `subject-a`                    | A med AS, B med ENK, C (`333333333`) med BEDR og éi Person-oppføring. Alle organisasjonane har begge Permit; berre UI filtrerer partar/former.       |
+| S07      | `subject-a` / `subject-throws` | `ResponseError` respektive `Exception` for begge operasjonar. Separate robustheitsinput, ikkje live-kontraktevidens.                                 |
+| S08      | `subject-a`                    | Berre B med søknad Deny/støtte Permit. Start seinare med A valt gjennom S01 og observer at A manglar; katalogen endrar ikkje lagra organisasjonsval. |
+
+Ingen av UI-utfalla i tabellen er verifiserte enno. Katalogen opprettar ikkje
+produktdata eller fjernar delingar. Administrator må framleis sikre syntetiske
+brukarar, produktdata og andre utgåande kanalar før ende-til-ende-testing.
+
+Provider-mapping står att i T010–T011: organisasjonssvar skal merkast `v3`, og
+dagens rettssemantikk må bevarast. Referansekoden returnerer Permit med
+`success=true`; Deny har `success=false`, `errorMessage='Access denied'` og ein
+eksplisitt `Access/Deny/Resource`-rett. Vi endrar ikkje dette i katalogskiva.
+S07 sitt organisasjons-ResponseError er eit robustheitsinput, fordi dagens
+v3-metode normalt returnerer `success=true` med ei liste, også når den interne
+organisasjons-callouten ikkje gir organisasjonar.
+
+### Katalog- og policyverifikasjon
+
+[Katalogtestane](../../../force-app/tests/classes/integration/altinn/AAREG_AltinnScenarioRepositoryTest.cls)
+testar den pakkeleverte ressursen gjennom lesaren sine Apex-operasjonar, inkludert
+minimumstilgang, eitt ressursoppslag og null DML/callouts. Ugyldige JSON-fixtures
+går gjennom same konstruksjons-/valideringsbane via ein privat testkonstruktør;
+det finst ikkje eit offentleg API for å erstatte kjelda.
+
+- Raud førstetest: kompilatorfeil for manglande repository/type; null testar køyrde.
+- Grøn førstetest: 1/1 bestått for minimumstilgang, alle åtte identitetar og S01.
+- Raud valideringsrunde: 15 testar køyrde, 8 bestått og 7 feila på manglande
+  semantisk validering eller uomsett JSON-feil.
+- Grøn valideringsrunde: 15/15 bestått etter innhaldsvalidering.
+- Utvida regresjon: ein ny test av null-listeelement avdekte at
+  `JSON.deserializeStrict` avviser slike element som JSON-feil før den semantiske
+  valideringa. Testforventninga vart tilpassa dette eksplisitte, trygge feilutfallet.
+- Endeleg samla køyring: **Succeeded, checkOnly=true, 31/31 bestått**, fordelt på
+  16 katalogtestar og 15 policytestar. Repository: **116/117 linjer dekte**;
+  policy: **34/34**. Manglande ressurs er ikkje simulert; den siste udekte
+  repositorylinja er denne feilbana. Ingen dekningsvarsel.
+
+Eksakt samla kommando, siste validering `0AfJW00000nmR050AE`:
+
+```sh
+sf project deploy start --dry-run \
+  --source-dir force-app/integration/altinn \
+  --source-dir force-app/tests/classes/integration/altinn \
+  --source-dir force-app/tests/classes/integration/common/Integration_TestDataFactory.cls \
+  --target-org crm-arbeidsforhold \
+  --test-level RunSpecifiedTests \
+  --tests AAREG_AltinnScenarioRepositoryTest \
+  --tests AAREG_AltinnScenarioPolicyTest \
+  --wait 10 --json
+```
+
+Ingen varig deploy, pakkeoperasjon, provider-/controller-/UI-endring eller
+aktivering vart utført i denne skiva. Cache-val D01 og faktisk pakkeleveranse/
+konsumentkompilering for provider-injeksjon er framleis eigne gater.
 
 ## Kjeldegrunnlag og avgrensing
 

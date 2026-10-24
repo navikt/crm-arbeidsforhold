@@ -1,7 +1,7 @@
 # Implementation Plan: Konsumentstyrte Altinn-scenario
 
 **Dato:** 2026-10-20  
-**Status:** T006–T007 er implementerte etter klarsignal og verifiserte med
+**Status:** T006–T009 er implementerte etter klarsignal og verifiserte med
 godkjend dry-run i `crm-arbeidsforhold` 2026-10-25. Resten har framleis eigne gater;
 dette dokumentet gir ikkje løyve til varig deploy eller andre org-endringar.
 
@@ -116,8 +116,15 @@ Testpermission skal ikkje leggjast til det generelle community-settet.
 **Input:** S01-S08 og designets identitetskontrakt.  
 **Avhengigheit:** T002.
 
-- [ ] T008 [US2] [Plan:3.2] Skriv raude katalogtestar i `force-app/tests/classes/integration/altinn/AAREG_AltinnScenarioRepositoryTest.cls` for ID/versjon, alias, rettsmatrise, tomt resultat og ukjent/ugyldig innhald.
-- [ ] T009 [US2] [Plan:3.2] Implementer typa lesing i `force-app/integration/altinn/classes/AAREG_AltinnScenarioRepository.cls` og `force-app/integration/altinn/staticresources/AAREG_AltinnScenarios.resource` med metadata-følgesfil. Lever S01-S08 og køyr T008 grøn; ingen rå personidentar i ressursen.
+- [x] T008 [US2] [Plan:3.2] Skriv raude katalogtestar i `force-app/tests/classes/integration/altinn/AAREG_AltinnScenarioRepositoryTest.cls` for ID/versjon, alias, rettsmatrise, tomt resultat og ukjent/ugyldig innhald.
+- [x] T009 [US2] [Plan:3.2] Implementer typa lesing i `force-app/integration/altinn/classes/AAREG_AltinnScenarioRepository.cls` og `force-app/integration/altinn/staticresources/AAREG_AltinnScenarios.resource` med metadata-følgesfil. Lever S01-S08 og køyr T008 grøn; ingen rå personidentar i ressursen.
+
+Utført 2026-10-25: schema- og definisjonsversjon 1, alle S01–S08, eksplisitt
+rettsmatrise og separate S07-alias for responsfeil/exception. Eitt avgrensa
+systemoppslag les berre den namngitte ressursen, godkjent av brukaren. Samla dry-run
+gav 31/31 grøne testar (16 katalog, 15 policy), med 116/117 repositorylinjer og
+34/34 policylinjer dekte. Sjå [katalogstatus og testbevis](README.md#implementert-scenariokatalog--2026-10-25).
+Dette verifiserer definisjonane, ikkje faktisk provider-mapping eller UI-utfall.
 
 ### 3.3 - Provider og eksplisitt factory
 
