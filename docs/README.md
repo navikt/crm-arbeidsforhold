@@ -64,6 +64,9 @@ Sjå [Arbeidsflyt og dokumentasjon](arbeidsflyt-og-dokumentasjon.md) for korleis
 
 ## Dokumentasjonsprinsipp
 
+Historikk for sletta og omnamna Salesforce-metadata, med datoar og kandidatar for org-kontroll, ligg i
+[metadatahistorikkrapporten](operations/salesforce-metadata-history.md).
+
 Dokumentasjonen skal:
 
 - skilje mellom vedtekne val, foreslåtte retningar og opne spørsmål;
