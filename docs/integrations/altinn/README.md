@@ -1,7 +1,7 @@
 # Altinn-resultat som testscenario i Arbeidsforhold
 
 **Dato:** 2026-10-20  
-**Status:** Policy og scenariokatalog, T006–T009, er implementerte og dry-run-verifiserte.
+**Status:** Policy, scenariokatalog, provider og factory, T006–T011, er implementerte og dry-run-verifiserte.
 Resten er planlagt; ingen varig deploy eller ende-til-ende-verifikasjon er utført.
 
 Dette dokumentet gjeld konsumenten si teststøtte, ikkje simulering eller testing
@@ -39,7 +39,7 @@ Han opprettar ikkje ein provider, gjer ingen callouts og skriv ingen data.
   avgrensa privilegiegrensa; ingen personident blir logga eller returnert.
   `without sharing` åleine løyste ikkje plattformens tilgangsfeil.
 - Lesefeil blir vidareførte; ingen catch gjer feil om til «av» eller live-fallback.
-  Katalogen validerer namn/alias uavhengig av policyen; framtidig provider må bruke begge.
+  Katalogen validerer namn/alias uavhengig av policyen; provideren brukar begge.
 
 ### Verifikasjon
 
@@ -77,8 +77,8 @@ Ein mellomliggjande dry-run stoppa med «That object name is already in use»;
 seinare identisk validering fullførte utan omdøyping eller sletting av metadata.
 Ingen varig deploy, pakkeoperasjon eller aktivering er utført.
 
-Factory, provider og kopling til controller/UI er **ikkje**
-implementerte. Cache-val D01 er framleis ope. Policygrunnlaget åleine gir ikkje
+Kopling til controller/UI er **ikkje**
+implementert. Cache-val D01 er framleis ope. Policygrunnlaget åleine gir ikkje
 moglegheit til å gjennomføre ein mocka brukarjourney.
 
 ## Implementert scenariokatalog — 2026-10-25
@@ -100,7 +100,7 @@ Lesaren har fire Apex-operasjonar:
 
 Dette er **definisjonslesing, ikkje scenarioautorisasjon eller Altinn-svar**.
 Lesaren kjenner verken Setup-tildeling, faktisk brukaridentitet eller UI.
-Framtidig factory/provider må bruke policyen, også ved direkte providerkall.
+Provideren brukar policyen, også ved direkte providerkall.
 Eitt godkjent `WITH SYSTEM_MODE`-oppslag les berre `StaticResource.Body` for det
 eksakte namnet `AAREG_AltinnScenarios` med tom namespace. Ingen nye brukarrettar,
 callouts, DML eller cache på tvers av brukarar/transaksjonar er innførte.
@@ -140,7 +140,7 @@ Ingen av UI-utfalla i tabellen er verifiserte enno. Katalogen opprettar ikkje
 produktdata eller fjernar delingar. Administrator må framleis sikre syntetiske
 brukarar, produktdata og andre utgåande kanalar før ende-til-ende-testing.
 
-Provider-mapping står att i T010–T011: organisasjonssvar skal merkast `v3`, og
+Provider-mapping er implementert i T010–T011: organisasjonssvar blir merkte `v3`, og
 dagens rettssemantikk må bevarast. Referansekoden returnerer Permit med
 `success=true`; Deny har `success=false`, `errorMessage='Access denied'` og ein
 eksplisitt `Access/Deny/Resource`-rett. Vi endrar ikkje dette i katalogskiva.
@@ -184,8 +184,79 @@ sf project deploy start --dry-run \
 ```
 
 Ingen varig deploy, pakkeoperasjon, provider-/controller-/UI-endring eller
-aktivering vart utført i denne skiva. Cache-val D01 og faktisk pakkeleveranse/
-konsumentkompilering for provider-injeksjon er framleis eigne gater.
+aktivering vart utført i denne skiva. Pakkegrense og provider-mapping er seinare
+verifiserte nedanfor; cache-val D01 står framleis att.
+
+## Implementert provider og factory
+
+Installerte pakker i `crm-arbeidsforhold` viste `crm-platform-integration`
+**0.177.0.4**. Ein konsumenttest kompilerte mot det faktisk installerte API-et og
+verifiserte begge injiserte DTO-delegeringane, objektidentitet og eksplisitt
+null-provider-feil. Dry-run `0AfJW00000nmREb0AM` var grøn.
+Etter særskild godkjenning er avhengigheita i
+[`sfdx-project.json`](../../../sfdx-project.json) låst til denne versjonen.
+Ingen pakkeinstallasjon eller publisering vart utført. Konsumentbeviset lukkar
+ikkje automatisk pakkeeigarens separate review-/releasearbeid i
+[navikt/crm-platform-integration#478](https://github.com/navikt/crm-platform-integration/issues/478).
+
+[AAREG_AltinnServiceFactory](../../../force-app/integration/altinn/classes/AAREG_AltinnServiceFactory.cls)
+eksponerer `createService(targetUserId, personIdent)`:
+
+- Avslått eller manglande brukarsetting gir den uendra standardkonstruktøren.
+  Eksisterande v2/v3-val, oppsettskrav og feil blir bevarte.
+- Aktiv, godkjend setting gir fasaden med
+  [AAREG_AltinnScenarioProvider](../../../force-app/integration/altinn/classes/AAREG_AltinnScenarioProvider.cls).
+  Ukjende scenarionamn/alias blir avviste ved første operasjon, ikkje ved
+  factory-konstruksjonen. Feil gir aldri live-fallback.
+- Kvar provideroperasjon køyrer policyen på nytt. Deaktivering, endra tildeling,
+  identitet, permission eller miljø blir ikkje skjulte av ein tidlegare factory-
+  eller providerinstans. Berre den pakkeleverte katalogen blir lesen éin gong
+  per providerinstans.
+- Resultata er nye konkrete DTO-ar, utan filtrering av organisasjonar,
+  produkt-DML eller callouts. Endring av eit returnert svar endrar ikkje seinare
+  svar. S01–S08 bevarer dei definerte Permit-/Deny-, tomliste- og feilutfalla.
+- Ingen nye privilegerte oppslag eller brukarrettar er innførte.
+
+### Provider-/factoryverifikasjon
+
+[Factorytestane](../../../force-app/tests/classes/integration/altinn/AAREG_AltinnServiceFactoryTest.cls)
+og [providertestane](../../../force-app/tests/classes/integration/altinn/AAREG_AltinnScenarioProviderTest.cls)
+brukar felles
+[syntetiske fixtures](../../../force-app/tests/classes/integration/altinn/AAREG_AltinnTestDataFactory.cls).
+Scenario og sperrer blir testa med minimumstilgang og reelle setting-/permission-
+tildelingar; den vellukka identitetsbindinga brukar framleis den private
+syntetiske miljø-/identitetsseamen, ikkje ein faktisk community-journey.
+
+Raud førstetest stoppa på manglande klassar; første implementasjon gav 34/34
+samla grøne testar. Utvidinga avdekte to testkompileringsfeil som vart retta.
+Deretter gav 59 testar to feil i eksisterande Altinn 2-tokenkode:
+minimumsprofilen kunne ikkje lese `Maskinportenclient__mdt`.
+Dei to transportregresjonane køyrer difor som scratch-administratoren, med
+HTTP-mock. Dei beviser standardresultat for ein autorisert brukar, ikkje live
+metadata-tilgang for minimumsprofilen. Ingen dependency-kode eller tilgangar
+vart endra for å gjere testane grøne.
+
+Siste samla validering, **`0AfJW00000nmRjF0AU`: Succeeded, checkOnly=true,
+59/59 bestått**, utan dekningsvarsel. Fordeling: 11 factory-, 17 provider-,
+15 policy- og 16 katalogtestar. Provider **54/54**, factory **7/7**, policy
+**34/34** og repository **116/117** køyrbare linjer dekte.
+
+```sh
+sf project deploy start --dry-run \
+  --source-dir force-app/integration/altinn \
+  --source-dir force-app/tests/classes/integration/altinn \
+  --source-dir force-app/tests/classes/integration/common/Integration_TestDataFactory.cls \
+  --target-org crm-arbeidsforhold \
+  --test-level RunSpecifiedTests \
+  --tests AAREG_AltinnServiceFactoryTest \
+  --tests AAREG_AltinnScenarioProviderTest \
+  --tests AAREG_AltinnScenarioPolicyTest \
+  --tests AAREG_AltinnScenarioRepositoryTest \
+  --wait 10 --json
+```
+
+Ingen varig deploy, scenarioaktivering eller controller-/UI-kopling er utført.
+T012–T013 er neste skive; D01 krev framleis eit eksplisitt val.
 
 ## Kjeldegrunnlag og avgrensing
 
@@ -194,7 +265,7 @@ Lesne lokale kjelder:
 - [AltinnCalloutService](../../../crm-platform-integration/main/default/classes/AltinnCalloutService.cls)
   held ein privat provider og opprettar standardimplementasjonen i standardkonstruktøren.
   Referansekjelda har no òg den additive konstruktøren for provider-injeksjon;
-  faktisk pakkeleveranse og konsumentåtkomst må framleis dokumenterast separat.
+  faktisk konsumentåtkomst i installert 0.177.0.4 er verifisert ovanfor.
 - [IAltinnCalloutService](../../../crm-platform-integration/main/default/classes/IAltinnCalloutService.cls)
   har to operasjonar med `Object` som returtype.
 - [AAREG_HomeController](../../../force-app/externalAccess/classes/AAREG_HomeController.cls)

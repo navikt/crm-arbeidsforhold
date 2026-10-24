@@ -1,8 +1,8 @@
 # Implementation Plan: Konsumentstyrte Altinn-scenario
 
 **Dato:** 2026-10-20  
-**Status:** T006–T009 er implementerte etter klarsignal og verifiserte med
-godkjend dry-run i `crm-arbeidsforhold` 2026-10-25. Resten har framleis eigne gater;
+**Status:** T005 og T006–T011 er utførte etter klarsignal og verifiserte med
+godkjend pakkeinspeksjon og dry-run i `crm-arbeidsforhold`. Resten har framleis eigne gater;
 dette dokumentet gir ikkje løyve til varig deploy eller andre org-endringar.
 
 ## Summary
@@ -35,8 +35,10 @@ Dette er designet planen konsumerer; planen introduserer ikkje ein eigen datamod
   produksjonstest. Ingen nye npm-avhengigheiter er planlagde.
 - **Yting:** Ingen SOQL i løkker; les scenario/config avgrensa per transaksjon.
   Ingen cache på tvers av brukarar som kan blande tildelingar.
-- **Uavklart:** D01 om cache; pakkeeigarens faktiske repository, API-tilgang og
-  kompatible pakkeleveranse må stadfestast. Ingen versjon er føresett.
+- **Verifisert pakkegrense:** Konsumenttest mot installert `crm-platform-integration`
+  0.177.0.4; manifestet er låst til denne versjonen etter særskild godkjenning.
+- **Uavklart:** D01 om cache; pakkeeigarens separate review-/releasearbeid blir
+  ikkje automatisk lukka av konsumentverifikasjonen.
 
 ## Constitution Check
 
@@ -86,7 +88,13 @@ føreslåtte frå designet. Ingen oppgåve autoriserer ei pakkeutgiving eller de
 
 - [ ] T003 [US1] [Plan:2.1] I pakkeeigarens repository: skriv fokusert raud test i `AltinnCalloutServiceTest.cls` for injeksjon utan live-oppsett, begge delegeringar, vidareført feil og null. Bruk testplasseringa som det repositoryet krev.
 - [ ] T004 [US1] [Plan:2.1] Legg til konstruktøren i `AltinnCalloutService.cls`, dokumenter offentleg kontrakt og køyr same test grøn samt eksisterande fasaderegresjon. Bevar standardkonstruktøren.
-- [ ] T005 [Plan:2.1] Få separat godkjend kompatibel pakkeleveranse; oppdater først då avhengigheita i `sfdx-project.json` med faktisk verifisert versjon. Installer/deploy berre etter særskild godkjenning.
+- [x] T005 [Plan:2.1] Få separat godkjend kompatibel pakkeleveranse; oppdater først då avhengigheita i `sfdx-project.json` med faktisk verifisert versjon. Installer/deploy berre etter særskild godkjenning.
+
+Installert 0.177.0.4 er verifisert med godkjend pakkeinspeksjon og ein grøn
+konsumentgrensetest i dry-run `0AfJW00000nmREb0AM`. Brukaren godkjende deretter
+eksakt manifestversjon. Ingen installasjon eller publisering er utført her;
+T003–T004 og pakkeeigarens review/release blir ikkje markerte ferdige på dette
+grunnlaget. Sjå [pakke- og providerbevis](README.md#implementert-provider-og-factory).
 
 Lokale referansefiler er berre kjeldegrunnlag. Test/deploy i pakkeeigarens miljø krev
 eiga godkjenning, ikkje bruk av andre autentiserte org-ar her.
@@ -133,8 +141,15 @@ REQ-018, REQ-021, REQ-023.
 **Input:** Additivt API og godkjend policy/katalog.  
 **Avhengigheit:** T005, T007, T009.
 
-- [ ] T010 [US2] [US3] [Plan:3.3] Skriv raude offentlege seam-testar i `force-app/tests/classes/integration/altinn/AAREG_AltinnServiceFactoryTest.cls` og `AAREG_AltinnScenarioProviderTest.cls`. Bevis korrekt provider, null callouts i mock, ingen live-konstruksjon, feil utan fallback og vern også ved direkte providerbruk.
-- [ ] T011 [US2] [US3] [Plan:3.3] Implementer `force-app/integration/altinn/classes/AAREG_AltinnServiceFactory.cls` og `AAREG_AltinnScenarioProvider.cls` med metadata-følgesfiler. Returner konkrete DTO-ar, handhev policy og køyr T010 grøn; ingen produkt-DML i desse klassane.
+- [x] T010 [US2] [US3] [Plan:3.3] Skriv raude offentlege seam-testar i `force-app/tests/classes/integration/altinn/AAREG_AltinnServiceFactoryTest.cls` og `AAREG_AltinnScenarioProviderTest.cls`. Bevis korrekt provider, null callouts i mock, ingen live-konstruksjon, feil utan fallback og vern også ved direkte providerbruk.
+- [x] T011 [US2] [US3] [Plan:3.3] Implementer `force-app/integration/altinn/classes/AAREG_AltinnServiceFactory.cls` og `AAREG_AltinnScenarioProvider.cls` med metadata-følgesfiler. Returner konkrete DTO-ar, handhev policy og køyr T010 grøn; ingen produkt-DML i desse klassane.
+
+Samla dry-run `0AfJW00000nmRjF0AU`: 59/59 grøne testar, provider 54/54 og
+factory 7/7 linjer dekte. Kvar operasjon revaliderer tildeling og sperrer;
+berre katalogen blir halde per instans. Feil blir vidareførte utan fallback.
+Standard v2-transport blir testa som scratch-administrator fordi dependencyens
+metadataoppslag feila med minimumsprofilen; scenario/sperrer blir testa med
+minimumstilgang. Sjå [kontrakt og valideringsavgrensingar](README.md#provider-factoryverifikasjon).
 
 ### 4.1 - Kople på dei faktiske applikasjonsinngangane
 
