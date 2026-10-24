@@ -259,17 +259,30 @@ test('escapes untrusted package labels in Markdown and Mermaid reports', (contex
     const fixture = cliFixture(
         context,
         {
-            packageDirectories: [{ path: 'force-app', dependencies: [{ package: name, versionNumber: '1.0.0.1' }] }]
+            packageDirectories: [
+                { path: 'force-app', dependencies: [{ package: 'parent', versionNumber: '1.0.0.1' }] }
+            ],
+            packageAliases: { [name]: 'child-package' }
         },
         `
-        const record = { SubscriberPackageVersionId: 'root', Package2Id: 'package',
+        if (process.argv.slice(2).some(argument => argument.includes('unsafe'))) {
+            console.error('Report labels must come from metadata, not shell arguments.');
+            process.exit(1);
+        }
+        const child = { SubscriberPackageVersionId: 'child', Package2Id: 'child-package',
             MajorVersion: 1, MinorVersion: 0, PatchVersion: 0, BuildNumber: 1,
             SubscriberPackageVersion: { Dependencies: null } };
-        console.log(JSON.stringify({status: 0, result: process.argv[4] === 'list' ? [record] : record}));
+        const parent = { ...child, SubscriberPackageVersionId: 'root', Package2Id: 'parent-package',
+            SubscriberPackageVersion: { Dependencies: { ids: [{ subscriberPackageVersionId: 'child' }] } } };
+        const args = process.argv.slice(2);
+        const result = args[2] === 'list' ? [parent] : args[args.indexOf('--package') + 1] === 'root' ? parent : child;
+        console.log(JSON.stringify({status: 0, result}));
     `
     );
     const result = spawnSync(process.execPath, fixture.args, { env: fixture.env, encoding: 'utf8' });
-    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stdout, /Missing packages: 1/);
+    assert.doesNotMatch(result.stderr, /Report labels must come from metadata/);
     const report = fs.readFileSync(path.join(path.dirname(fixture.file), 'package-dependencies-report.md'), 'utf8');
     assert.doesNotMatch(report, /<script>/);
     assert.match(report, /#34;/);
