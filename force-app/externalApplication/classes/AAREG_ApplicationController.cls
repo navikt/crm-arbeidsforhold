@@ -157,7 +157,7 @@ public without sharing class AAREG_ApplicationController {
         upsert application;
         upsertRelatedContacts(application.Id, relatedContacts);
         upsertBasisCodes(application.Id, basisCode);
-        insertDocumentWithLink(application.Id, application.Access_Request__c, base64, fileName);
+        insertDocumentWithLink(application.Id, accessRequestId, base64, fileName);
         return application.Id;
     }
 
