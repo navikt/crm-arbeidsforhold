@@ -2,7 +2,19 @@ const assert = require('node:assert/strict');
 const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
-const { test } = require('node:test');
+const { test: nodeTest } = require('node:test');
+
+function prettierIsInstalled() {
+    try {
+        require.resolve('prettier', { paths: [path.resolve(__dirname, '..')] });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+const skip = prettierIsInstalled() ? false : 'prettier is not installed; run npm ci to exercise prettier-staged.cjs';
+const test = (name, fn) => nodeTest(name, { skip }, fn);
 
 let fixtureNumber = 0;
 function fixture(t) {
