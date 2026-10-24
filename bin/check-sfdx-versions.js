@@ -1,178 +1,237 @@
-const { execSync } = require('child_process');
-const fs = require('fs');
-const readline = require('readline');
-const path = require('path');
+const { execSync } = require('node:child_process');
+const fs = require('node:fs');
+const readline = require('node:readline');
+const path = require('node:path');
 
-const sfdxProjectPath = path.join(__dirname, '..', 'sfdx-project.json');
-const sfdxBackupPath = sfdxProjectPath + '.backup';
-const sfdxProject = JSON.parse(fs.readFileSync(sfdxProjectPath, 'utf-8'));
+const ROOT_PROJECT_PATH = path.join(__dirname, '..', 'sfdx-project.json');
 
-// Configuration
-const TIMEOUT_MS = 120000; // 2 minutes per command
+const TIMEOUT_MS = 120000;
 const MAX_RETRIES = 2;
-const RETRY_DELAY_MS = 5000; // 5 seconds between retries
+const RETRY_DELAY_MS = 5000;
 
-// Validation helpers
 function isValidPackageId(id) {
     return /^0Ho[a-zA-Z0-9]{12,15}$/.test(id);
+}
+
+function normalizeVersion(version) {
+    return version.replace(/\.(?:LATEST|NEXT)$/, '');
 }
 
 function isValidVersionString(version) {
     return /^\d+\.\d+\.\d+$/.test(version);
 }
 
-function sleep(ms) {
-    execSync(`ping -n ${Math.ceil(ms / 1000)} 127.0.0.1 > nul`, { stdio: 'ignore' });
+function compareVersions(left, right) {
+    const leftParts = normalizeVersion(left).split('.').map(Number);
+    const rightParts = normalizeVersion(right).split('.').map(Number);
+
+    for (let index = 0; index < 3; index++) {
+        if (leftParts[index] !== rightParts[index]) {
+            return leftParts[index] > rightParts[index] ? 1 : -1;
+        }
+    }
+    return 0;
 }
 
-function runWithRetry(command, retries = MAX_RETRIES) {
+function sleep(milliseconds) {
+    const waitTime = Math.max(0, Math.ceil(milliseconds));
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, waitTime);
+}
+
+function runWithRetry(command, retries = MAX_RETRIES, { exec = execSync, sleepFn = sleep, logger = console } = {}) {
     for (let attempt = 0; attempt <= retries; attempt++) {
         try {
-            return execSync(command, {
+            return exec(command, {
                 encoding: 'utf-8',
                 stdio: ['pipe', 'pipe', 'pipe'],
                 timeout: TIMEOUT_MS
             });
-        } catch (err) {
-            if (attempt < retries && (err.message.includes('ETIMEDOUT') || err.message.includes('TIMEOUT'))) {
-                console.log(`    ⏳ Timeout, retrying (${attempt + 1}/${retries})...`);
-                sleep(RETRY_DELAY_MS);
-            } else {
-                throw err;
+        } catch (error) {
+            const isTimeout = error.message.includes('ETIMEDOUT') || error.message.includes('TIMEOUT');
+            if (!isTimeout || attempt === retries) {
+                throw error;
             }
+
+            logger.log(`    ⏳ Timeout, retrying (${attempt + 1}/${retries})...`);
+            sleepFn(RETRY_DELAY_MS);
         }
     }
 }
 
-// Get all dependencies from packageDirectories
-const deps = sfdxProject.packageDirectories
-    .filter(dir => dir.dependencies)
-    .flatMap(dir => dir.dependencies);
-
-const aliases = sfdxProject.packageAliases || {};
-const updatesAvailable = [];
-
-// Verify SF CLI is authenticated
-try {
-    execSync('sf org list --json', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'], timeout: TIMEOUT_MS });
-} catch (err) {
-    console.error('\n❌ SF CLI not authenticated or not installed. Run: sf org login devhub\n');
-    process.exit(1);
+function promptForUpdate(question) {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    return new Promise((resolve) => {
+        rl.question(question, (answer) => {
+            rl.close();
+            resolve(answer);
+        });
+    });
 }
 
-console.log(`\n${'Package Name'.padEnd(40)} ${'Current'.padEnd(15)} ${'Latest Released'}`);
-console.log('-'.repeat(80));
-
-for (const dep of deps) {
-    const pkgName = dep.package;
-    const currentVersion = dep.versionNumber.replace('.LATEST', '').replace('.NEXT', '');
-    const packageId = aliases[pkgName];
-
-    if (!packageId) {
-        console.log(`${pkgName.padEnd(40)} ${currentVersion.padEnd(15)} NO ALIAS FOUND`);
-        continue;
-    }
-
-    if (!isValidPackageId(packageId)) {
-        console.log(`${pkgName.padEnd(40)} ${currentVersion.padEnd(15)} INVALID PACKAGE ID`);
-        continue;
-    }
-
-    try {
-        const result = runWithRetry(
-            `sf package version list --packages ${packageId} --released --order-by CreatedDate --json`
-        );
-        const json = JSON.parse(result);
-        const versions = json.result || [];
-        const latest = versions[versions.length - 1];
-
-        if (latest) {
-            const latestVersion = `${latest.MajorVersion}.${latest.MinorVersion}.${latest.PatchVersion}`;
-
-            if (!isValidVersionString(latestVersion)) {
-                console.log(`${pkgName.padEnd(40)} ${currentVersion.padEnd(15)} INVALID VERSION FORMAT`);
-                continue;
-            }
-
-            const outdated = currentVersion !== latestVersion;
-            const status = outdated ? ' ⚠️  UPDATE AVAILABLE' : ' ✅';
-            console.log(`${pkgName.padEnd(40)} ${currentVersion.padEnd(15)} ${latestVersion}${status}`);
-
-            if (outdated) {
-                updatesAvailable.push({
-                    packageName: pkgName,
-                    currentVersion: currentVersion,
-                    latestVersion: latestVersion
-                });
-            }
-        } else {
-            console.log(`${pkgName.padEnd(40)} ${currentVersion.padEnd(15)} NO RELEASED VERSION`);
-        }
-    } catch (err) {
-        const errorMsg = err.message.includes('ETIMEDOUT') ? 'TIMEOUT (try again later)' : err.message.split('\n')[0];
-        console.log(`${pkgName.padEnd(40)} ${currentVersion.padEnd(15)} ERROR: ${errorMsg}`);
-    }
-}
-
-// ...existing code... (rest of file stays the same)
-// After checking, ask user if they want to update
-if (updatesAvailable.length === 0) {
-    console.log('\n✅ All packages are up to date!\n');
-    process.exit(0);
-}
-
-console.log(`\n⚠️  ${updatesAvailable.length} package(s) have updates available:\n`);
-updatesAvailable.forEach((u, i) => {
-    console.log(`  ${i + 1}. ${u.packageName}: ${u.currentVersion} → ${u.latestVersion}`);
-});
-
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-rl.question('\nDo you want to update sfdx-project.json? (YES/NO): ', (answer) => {
-    if (answer.trim().toUpperCase() === 'YES') {
-        try {
-            updateSfdxProject(updatesAvailable);
-            console.log('\n✅ sfdx-project.json has been updated!\n');
-            console.log('Updated packages:');
-            updatesAvailable.forEach(u => {
-                console.log(`  ✅ ${u.packageName}: ${u.currentVersion} → ${u.latestVersion}`);
-            });
-            console.log(`\n💾 Backup saved to: ${sfdxBackupPath}`);
-        } catch (err) {
-            console.error(`\n❌ Error updating file: ${err.message}`);
-            if (fs.existsSync(sfdxBackupPath)) {
-                fs.copyFileSync(sfdxBackupPath, sfdxProjectPath);
-                console.log('🔄 Restored from backup.');
-            }
-        }
-    } else {
-        console.log('\n❌ No changes made to sfdx-project.json\n');
-    }
-    rl.close();
-});
-
-function updateSfdxProject(updates) {
-    const projectData = JSON.parse(fs.readFileSync(sfdxProjectPath, 'utf-8'));
-    fs.copyFileSync(sfdxProjectPath, sfdxBackupPath);
+function updateSfdxProject(projectPath, backupPath, updates) {
+    const projectData = JSON.parse(fs.readFileSync(projectPath, 'utf-8'));
+    fs.copyFileSync(projectPath, backupPath);
 
     for (const update of updates) {
         if (!isValidVersionString(update.latestVersion)) {
             throw new Error(`Invalid version format for ${update.packageName}: ${update.latestVersion}`);
         }
 
-        for (const dir of projectData.packageDirectories) {
-            if (!dir.dependencies) continue;
+        for (const directory of projectData.packageDirectories) {
+            if (!directory.dependencies) continue;
 
-            for (const dep of dir.dependencies) {
-                if (dep.package === update.packageName) {
-                    dep.versionNumber = update.latestVersion + '.LATEST';
+            for (const dependency of directory.dependencies) {
+                if (dependency.package === update.packageName) {
+                    dependency.versionNumber = `${update.latestVersion}.LATEST`;
                 }
             }
         }
     }
 
-    fs.writeFileSync(sfdxProjectPath, JSON.stringify(projectData, null, 4) + '\n', 'utf-8');
+    fs.writeFileSync(projectPath, `${JSON.stringify(projectData, null, 4)}\n`, 'utf-8');
 }
+
+async function main({
+    projectPath = ROOT_PROJECT_PATH,
+    exec = execSync,
+    prompt = promptForUpdate,
+    sleepFn = sleep,
+    retries = MAX_RETRIES,
+    logger = console
+} = {}) {
+    const backupPath = `${projectPath}.backup`;
+    let sfdxProject;
+    try {
+        sfdxProject = JSON.parse(fs.readFileSync(projectPath, 'utf-8'));
+    } catch (error) {
+        logger.error(`\n❌ Unable to read sfdx-project.json: ${error.message}\n`);
+        return 1;
+    }
+
+    try {
+        exec('sf org list --json', {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe'],
+            timeout: TIMEOUT_MS
+        });
+    } catch (error) {
+        logger.error('\n❌ SF CLI not authenticated or not installed. Run: sf org login devhub\n');
+        return 1;
+    }
+
+    const dependencies = sfdxProject.packageDirectories
+        .filter((directory) => directory.dependencies)
+        .flatMap((directory) => directory.dependencies);
+    const aliases = sfdxProject.packageAliases || {};
+    const updatesAvailable = [];
+
+    logger.log(`\n${'Package Name'.padEnd(40)} ${'Current'.padEnd(15)} ${'Latest Released'}`);
+    logger.log('-'.repeat(80));
+
+    for (const dependency of dependencies) {
+        const packageName = dependency.package;
+        const currentVersion = normalizeVersion(dependency.versionNumber);
+        const packageId = aliases[packageName];
+
+        if (!packageId) {
+            logger.log(`${packageName.padEnd(40)} ${currentVersion.padEnd(15)} NO ALIAS FOUND`);
+            continue;
+        }
+
+        if (!isValidPackageId(packageId)) {
+            logger.log(`${packageName.padEnd(40)} ${currentVersion.padEnd(15)} INVALID PACKAGE ID`);
+            continue;
+        }
+
+        try {
+            const result = runWithRetry(
+                `sf package version list --packages ${packageId} --released --order-by CreatedDate --json`,
+                retries,
+                { exec, sleepFn, logger }
+            );
+            const json = JSON.parse(result);
+            const versions = json.result || [];
+            const latest = versions[versions.length - 1];
+
+            if (!latest) {
+                logger.log(`${packageName.padEnd(40)} ${currentVersion.padEnd(15)} NO RELEASED VERSION`);
+                continue;
+            }
+
+            const latestVersion = `${latest.MajorVersion}.${latest.MinorVersion}.${latest.PatchVersion}`;
+            if (!isValidVersionString(latestVersion)) {
+                logger.log(`${packageName.padEnd(40)} ${currentVersion.padEnd(15)} INVALID VERSION FORMAT`);
+                continue;
+            }
+
+            const outdated = compareVersions(currentVersion, latestVersion) < 0;
+            const status = outdated ? ' ⚠️  UPDATE AVAILABLE' : ' ✅';
+            logger.log(`${packageName.padEnd(40)} ${currentVersion.padEnd(15)} ${latestVersion}${status}`);
+
+            if (outdated) {
+                updatesAvailable.push({ packageName, currentVersion, latestVersion });
+            }
+        } catch (error) {
+            const errorMessage = error.message.includes('ETIMEDOUT')
+                ? 'TIMEOUT (try again later)'
+                : error.message.split('\n')[0];
+            logger.log(`${packageName.padEnd(40)} ${currentVersion.padEnd(15)} ERROR: ${errorMessage}`);
+        }
+    }
+
+    if (updatesAvailable.length === 0) {
+        logger.log('\n✅ All packages are up to date!\n');
+        return 0;
+    }
+
+    logger.log(`\n⚠️  ${updatesAvailable.length} package(s) have updates available:\n`);
+    updatesAvailable.forEach((update, index) => {
+        logger.log(`  ${index + 1}. ${update.packageName}: ${update.currentVersion} → ${update.latestVersion}`);
+    });
+
+    const answer = await prompt('\nDo you want to update sfdx-project.json? (YES/NO): ');
+    if (answer.trim().toUpperCase() !== 'YES') {
+        logger.log('\n❌ No changes made to sfdx-project.json\n');
+        return 0;
+    }
+
+    try {
+        updateSfdxProject(projectPath, backupPath, updatesAvailable);
+        logger.log('\n✅ sfdx-project.json has been updated!\n');
+        logger.log('Updated packages:');
+        updatesAvailable.forEach((update) => {
+            logger.log(`  ✅ ${update.packageName}: ${update.currentVersion} → ${update.latestVersion}`);
+        });
+        logger.log(`\n💾 Backup saved to: ${backupPath}`);
+    } catch (error) {
+        logger.error(`\n❌ Error updating file: ${error.message}`);
+        if (fs.existsSync(backupPath)) {
+            fs.copyFileSync(backupPath, projectPath);
+            logger.log('🔄 Restored from backup.');
+        }
+        return 1;
+    }
+    return 0;
+}
+
+if (require.main === module) {
+    main()
+        .then((exitCode) => {
+            process.exitCode = exitCode;
+        })
+        .catch((error) => {
+            console.error(error);
+            process.exitCode = 1;
+        });
+}
+
+module.exports = {
+    compareVersions,
+    isValidPackageId,
+    isValidVersionString,
+    main,
+    normalizeVersion,
+    runWithRetry,
+    sleep,
+    updateSfdxProject
+};

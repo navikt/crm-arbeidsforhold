@@ -10,17 +10,36 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$PSNativeCommandArgumentPassing = 'Standard'
+
+function Get-SfCommandDisplay {
+    param([string[]]$Arguments)
+
+    $displayArguments = @($Arguments)
+    $keyIndex = [array]::IndexOf($displayArguments, '--installation-key')
+    if ($keyIndex -ge 0 -and $keyIndex + 1 -lt $displayArguments.Count) {
+        $displayArguments[$keyIndex + 1] = '<redacted>'
+    }
+
+    return "sf $($displayArguments -join ' ')"
+}
 
 function Invoke-SfJson {
     param(
         [Parameter(Mandatory = $true)]
-        [string]$Command
+        [string[]]$Arguments
     )
 
-    Write-Host "-> $Command" -ForegroundColor DarkGray
-    $raw = Invoke-Expression $Command
+    Write-Host "-> $(Get-SfCommandDisplay $Arguments)" -ForegroundColor DarkGray
+    $raw = & sf @Arguments
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -ne 0) {
+        $message = try { ($raw | ConvertFrom-Json -ErrorAction Stop).message } catch { $null }
+        $detail = if ($message) { ": $message" } else { '' }
+        throw "Command failed with exit code ${exitCode}$detail ($(Get-SfCommandDisplay $Arguments))"
+    }
     if (-not $raw) {
-        throw "No output from command: $Command"
+        throw "No output from sf command: $(Get-SfCommandDisplay $Arguments)"
     }
 
     $json = $raw | ConvertFrom-Json
@@ -35,27 +54,29 @@ function Invoke-SfJson {
 function Invoke-ShellChecked {
     param(
         [Parameter(Mandatory = $true)]
-        [string]$Command
+        [string[]]$Arguments
     )
 
-    Write-Host "-> $Command" -ForegroundColor DarkGray
-    Invoke-Expression $Command
-    if ($LASTEXITCODE -ne 0) {
-        throw "Command failed with exit code ${LASTEXITCODE}: $Command"
+    Write-Host "-> $(Get-SfCommandDisplay $Arguments)" -ForegroundColor DarkGray
+    & sf @Arguments
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -ne 0) {
+        throw "Command failed with exit code ${exitCode}: $(Get-SfCommandDisplay $Arguments)"
     }
 }
 
 function Invoke-ShellNoThrow {
     param(
         [Parameter(Mandatory = $true)]
-        [string]$Command
+        [string[]]$Arguments
     )
 
-    Write-Host "-> $Command" -ForegroundColor DarkGray
-    $output = Invoke-Expression $Command
+    Write-Host "-> $(Get-SfCommandDisplay $Arguments)" -ForegroundColor DarkGray
+    $output = & sf @Arguments
+    $exitCode = $LASTEXITCODE
     return @{
         Output = $output
-        ExitCode = $LASTEXITCODE
+        ExitCode = $exitCode
     }
 }
 
@@ -64,11 +85,11 @@ Write-Host "Target org: $TargetOrg"
 Write-Host "Minimum coverage threshold: $MinCoverage%"
 
 if (-not $SkipInstall -and $PackageId) {
-    $installCmd = "sf force:package:install --target-org $TargetOrg --package $PackageId -r --json"
+    $installArgs = @('force:package:install', '--target-org', $TargetOrg, '--package', $PackageId, '-r', '--json')
     if ($InstallationKey) {
-        $installCmd += " --installation-key $InstallationKey"
+        $installArgs += @('--installation-key', $InstallationKey)
     }
-    [void](Invoke-SfJson -Command $installCmd)
+    [void](Invoke-SfJson -Arguments $installArgs)
     Write-Host "Package install completed." -ForegroundColor Green
 } elseif (-not $SkipInstall -and -not $PackageId) {
     Write-Host "Package install skipped (no PackageId provided)." -ForegroundColor Yellow
@@ -77,7 +98,7 @@ if (-not $SkipInstall -and $PackageId) {
 }
 
 if (-not $SkipDeploy) {
-    [void](Invoke-SfJson -Command "sf project deploy start --target-org $TargetOrg --source-dir force-app --ignore-conflicts --json")
+    [void](Invoke-SfJson -Arguments @('project', 'deploy', 'start', '--target-org', $TargetOrg, '--source-dir', 'force-app', '--ignore-conflicts', '--json'))
     Write-Host "Deploy completed." -ForegroundColor Green
 } else {
     Write-Host "Deploy skipped by flag." -ForegroundColor Yellow
@@ -85,28 +106,27 @@ if (-not $SkipDeploy) {
 
 if ($TestRunAll) {
     try {
-        [void](Invoke-SfJson -Command "sf apex run test --target-org $TargetOrg --code-coverage --wait 120 --json")
+        [void](Invoke-SfJson -Arguments @('apex', 'run', 'test', '--target-org', $TargetOrg, '--code-coverage', '--wait', '120', '--json'))
     } catch {
         Write-Host "All-tests with --wait failed, retrying with async fallback." -ForegroundColor Yellow
-        $runAll = Invoke-SfJson -Command "sf apex run test --target-org $TargetOrg --code-coverage --json"
+        $runAll = Invoke-SfJson -Arguments @('apex', 'run', 'test', '--target-org', $TargetOrg, '--code-coverage', '--json')
         $testRunId = $runAll.result.testRunId
         if ([string]::IsNullOrWhiteSpace($testRunId)) {
             throw "Could not parse testRunId from async test run output."
         }
 
         Write-Host "Async test run started: $testRunId" -ForegroundColor Yellow
-        $getResult = Invoke-ShellNoThrow -Command "sf apex get test --target-org $TargetOrg --test-run-id $testRunId --code-coverage --result-format human"
+        $getResult = Invoke-ShellNoThrow -Arguments @('apex', 'get', 'test', '--target-org', $TargetOrg, '--test-run-id', $testRunId, '--code-coverage', '--result-format', 'human')
         if ($getResult.ExitCode -ne 0) {
             Write-Host "Warning: sf apex get test returned exit code $($getResult.ExitCode). Continuing with coverage query." -ForegroundColor Yellow
         }
     }
 } else {
-    $testCmd = "sf apex run test --target-org $TargetOrg --tests $TestClass --code-coverage --synchronous --result-format human"
-    Invoke-ShellChecked -Command $testCmd
+    Invoke-ShellChecked -Arguments @('apex', 'run', 'test', '--target-org', $TargetOrg, '--tests', $TestClass, '--code-coverage', '--synchronous', '--result-format', 'human')
 }
 
-$queryCmd = "sf data query --target-org $TargetOrg --use-tooling-api --query `"SELECT SUM(NumLinesCovered) covered, SUM(NumLinesUncovered) uncovered FROM ApexCodeCoverageAggregate WHERE ApexClassOrTrigger.Name LIKE 'AAREG_%'`" --result-format json"
-$aggregate = Invoke-SfJson -Command $queryCmd
+$query = "SELECT SUM(NumLinesCovered) covered, SUM(NumLinesUncovered) uncovered FROM ApexCodeCoverageAggregate WHERE ApexClassOrTrigger.Name LIKE 'AAREG_%'"
+$aggregate = Invoke-SfJson -Arguments @('data', 'query', '--target-org', $TargetOrg, '--use-tooling-api', '--query', $query, '--result-format', 'json')
 
 $covered = [double]$aggregate.result.records[0].covered
 $uncovered = [double]$aggregate.result.records[0].uncovered

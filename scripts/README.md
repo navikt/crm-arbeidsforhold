@@ -7,14 +7,15 @@ endrar org-data eller innstillingar, og røykprøva brukar eit fast org-alias.
 
 ## Oversikt
 
-| Fil                                                              | Føremål                                                                                                               | Salesforce-org                       |
-| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| [`pre-commit.cjs`](pre-commit.cjs)                               | Kontrollerer staged filer mot pakkemappene i `sfdx-project.json`, og køyrer deretter lokalt installert `lint-staged`. | Nei                                  |
-| [`prettier-staged.cjs`](prettier-staged.cjs)                     | Formaterer filer frå `lint-staged`, eller kontrollerer dei med `--check`.                                             | Nei                                  |
-| [`tests/pre-commit.test.cjs`](tests/pre-commit.test.cjs)         | Node-testar for pre-commit-kontrollen og Husky-hooken.                                                                | Nei                                  |
-| [`p360-mock-smoke.sh`](p360-mock-smoke.sh)                       | Konfigurerer mock-transport for ein P360-røykprøve og kontrollerer oppretta arkivjobbar.                              | Ja; aliaset er fast                  |
-| [`apex/activateMock.apex`](apex/activateMock.apex)               | Slår på mock-responsar for kvar Salesforce-profil.                                                                    | Ja; endrar innstillingar             |
-| [`apex/p360MockArchiveFlow.apex`](apex/p360MockArchiveFlow.apex) | Opprettar testdata og startar P360-arkivflyten med mock-transport.                                                    | Ja; endrar org-data og innstillingar |
+| Fil                                                                | Føremål                                                                                                               | Salesforce-org                       |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| [`pre-commit.cjs`](pre-commit.cjs)                                 | Kontrollerer staged filer mot pakkemappene i `sfdx-project.json`, og køyrer deretter lokalt installert `lint-staged`. | Nei                                  |
+| [`prettier-staged.cjs`](prettier-staged.cjs)                       | Formaterer filer frå `lint-staged`, eller kontrollerer dei med `--check`.                                             | Nei                                  |
+| [`tests/pre-commit.test.cjs`](tests/pre-commit.test.cjs)           | Node-testar for pre-commit-kontrollen og Husky-hooken.                                                                | Nei                                  |
+| [`tests/prettier-staged.test.cjs`](tests/prettier-staged.test.cjs) | Node-testar for `prettier-staged.cjs`; blir hoppa over utan `npm ci`, men køyrer i PR-LWC-workflowen.                 | Nei                                  |
+| [`p360-mock-smoke.sh`](p360-mock-smoke.sh)                         | Konfigurerer mock-transport for ein P360-røykprøve og kontrollerer oppretta arkivjobbar.                              | Ja; aliaset er fast                  |
+| [`apex/activateMock.apex`](apex/activateMock.apex)                 | Slår på mock-responsar for kvar Salesforce-profil.                                                                    | Ja; endrar innstillingar             |
+| [`apex/p360MockArchiveFlow.apex`](apex/p360MockArchiveFlow.apex)   | Opprettar testdata og startar P360-arkivflyten med mock-transport.                                                    | Ja; endrar org-data og innstillingar |
 
 Det finst ikkje eitt felles grensesnitt for alle filene: Node-verktøya tek
 kommandolinjeargument, shell-røykprøva har eit fast målorg, medan Apex-filene blir

@@ -151,23 +151,26 @@ På Mac kan Bash-harnessen køyre fleire assertions dersom det valfrie
 `sf-project`-verktøyet er installert; ulike tal er ikkje nødvendigvis regressjon.
 
 [Offline-workflowen](../.github/workflows/scratch-org-offline.yml) køyrer Node
-og shell-harness utan Salesforce-secrets. Han installerer ikkje heile root
-devDependencies og køyrer derfor **ikkje** `test:dependency-report`.
-DOM-testkommandoen må køyrast separat etter utviklarinstallasjon. Vi har ikkje
-endra CI som del av dokumentasjonsarbeidet.
+og shell-harness utan Salesforce-secrets: Windows (PowerShell 7.6.6, inkludert
+`post-package-coverage-check.Tests.ps1`), Ubuntu Bash 5 og macOS system-Bash 3.2.
+Bash-skriptet må difor fungere under Bash 3.2 med `set -u`; til dømes gir ein
+tom array `unbound variable` der. `test:dependency-report` køyrer i
+[PR-workflowen for LWC](../.github/workflows/pull_request-lwc-validation.yml)
+etter `npm ci`.
 
 ### Lokal avslutningskontroll
 
-Dei enno ikkje publiserte rapport-/dokumentasjonsendringane er kontrollerte
-på macOS med følgjande resultat:
+Dei enno ikkje publiserte endringane er kontrollerte på macOS med følgjande
+resultat:
 
-| Kommando                                      | Resultat                                                  |
-| --------------------------------------------- | --------------------------------------------------------- |
-| `npm run test:node`                           | 51 bestått, 0 feil, 0 hoppa over                          |
-| `npm run test:dependency-report`              | 8 bestått                                                 |
-| `npm run test:scratch-org:powershell`         | 213 assertions, 0 feil; éi Windows-only-gruppe hoppa over |
-| `bash bin/tests/create-scratch-org.test.sh`   | 305 assertions, 0 feil                                    |
-| Målretta Prettier, Bash-syntaks og whitespace | Bestått                                                   |
+| Kommando                                         | Resultat                                                       |
+| ------------------------------------------------ | -------------------------------------------------------------- |
+| `npm run test:node`                              | 99 bestått, 0 feil, 0 hoppa over                               |
+| `npm run test:dependency-report`                 | 8 bestått                                                      |
+| `npm run test:scratch-org:powershell`            | 409 + 47 assertions, 0 feil; éi Windows-only-gruppe hoppa over |
+| `bash bin/tests/create-scratch-org.test.sh`      | 513 assertions, 0 feil                                         |
+| Same Bash-harness med `/bin/bash` 3.2 først PATH | 513 assertions, 0 feil                                         |
+| Målretta Prettier, Bash-syntaks og whitespace    | Bestått                                                        |
 
 Dokumentasjonskontrollen fann ingen manglande bin-filer i referansen eller
 brotne lokale lenkjemål; alle oppdaga eigendefinerte Bash-/PowerShell-flagg er

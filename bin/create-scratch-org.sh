@@ -2019,7 +2019,9 @@ dependency_package_directory() {
 is_preserved_root_file() {
     local entry_name="$1"
     local preserved=""
+    local preserved_entries=()
 
+    [[ -n "$PRESERVE_ROOT_FILES" ]] || return 1
     IFS=',' read -ra preserved_entries <<< "$PRESERVE_ROOT_FILES"
     for preserved in "${preserved_entries[@]}"; do
         preserved="${preserved// /}"
