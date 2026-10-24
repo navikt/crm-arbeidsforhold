@@ -26,6 +26,22 @@ Scratch-org-flyten og avhengighetsinstallasjon er dokumentert i [bin/README.md](
 - henting fra scratch-org-pool
 - pakkeoppløsning og nødvendige Dev Hub-forutsetninger
 
+For komplett bruk og alle kommandoalternativ:
+
+- [Samla kommandoreferanse](bin/COMMANDS.md) — flagg, eksempel, miljøvariablar,
+  konfigurasjon, sideeffektar og legacy-avgrensingar.
+- [Funksjons- og plattformmatriser](bin/COMPATIBILITY.md) — Bash, PowerShell,
+  CMD/npm, macOS/Linux/Windows og kva som faktisk er verifisert.
+- [Alle støtteskript](scripts/README.md) — pre-commit, formatering, P360-smoke,
+  Apex-hjelpeskript og testar.
+
+Vanleg pakkeinstallasjon/oppdatering har ein felles Node-basert rekursiv
+avhengigheitssjekk før org-oppsettet. Sjekken lagar Markdown med både full og
+pakkevis Mermaid-graf, pluss ein sjølvstendig HTML-graf for lokal interaktiv
+utforsking. Dette krev Node også ved direkte Bash-/PowerShell-køyring.
+Versjonsavvik blir ikkje automatisk tolka som kompatible eller retta ved
+nedgradering; sjå [rapport- og sjekkflyten](bin/README.md#complete-package-dependency-preflight).
+
 En typisk CLI-flyt starter med at du logger inn mot en Dev Hub med `sf org login web`, og deretter bruker den dokumenterte scratch-org-flyten. Installasjonsnøkler skal aldri legges i README, kildekode eller shell-historikk.
 
 På Windows er `bin/create-scratch-org.bat` den anbefalte CMD-inngangen.
@@ -43,6 +59,10 @@ npm run prettier:check
 
 `npm test` kjører først Node-testene for lokale utviklerverktøy og deretter LWC Jest-testene.
 Bruk `npm run test:node` for bare Node-testene og `npm run test:unit` for bare LWC-testene.
+`npm run test:dependency-report` køyrer dei isolerte Jest/jsdom-testane for
+interaktiv HTML (hover/fokus, retning, låsing, tastatur og zoom). Denne separate
+kommandoen er ikkje inkludert i `npm test` eller den avhengigheitsfrie offline-CI.
+Han krev prosjektets installerte devDependencies, men ingen Salesforce-org.
 Med PowerShell 7 LTS installert kan `npm run test:scratch-org:powershell` køyre
 den portable offline-harnessen på Mac og Windows, utan Salesforce-tilgang.
 Mac-testane verifiserer ikkje Windows-entrypoints; desse krev eiga Windows-køyring.
@@ -130,5 +150,8 @@ Nøklar, tokens og credentials skal ikkje skrivast til `sf-project.config.json`,
 - [docs/surfaces/](docs/surfaces/) — brukerflate-dokumentasjon
 - [docs/integrations/](docs/integrations/) — integrasjonsspesifikk teknisk dokumentasjon
 - [docs/utviklingsstandarder.md](docs/utviklingsstandarder.md) — speilet oversikt over utviklingsstandarder
+- [bin/COMMANDS.md](bin/COMMANDS.md) — total kommandoreferanse for lokale skript
+- [bin/COMPATIBILITY.md](bin/COMPATIBILITY.md) — funksjons-, system- og testmatriser
+- [scripts/README.md](scripts/README.md) — full oversikt over støtteskript
 
 Testtilgang, testbrukere, tokens, credentials og miljøspesifikke URL-er skal håndteres i godkjent, ikke-offentlig dokumentasjon.

@@ -1,15 +1,27 @@
 ---
 slug: scratch-org-powershell-verification
-status: draft
+status: implemented-local-validation
 ---
 
 # Feature Specification: Verifiserbar PowerShell-støtte utan lokal Windows-maskin
 
 **Oppretta:** 2026-10-23  
-**Status:** Krav avklarte med brukar; lokal implementasjon av #1147 er bestilt. CI-endring krev framleis separat godkjenning.
+**Status:** Offline-løysinga er implementert; historisk Windows-evidens og avgrensingar for seinare lokale endringar står nedanfor.
 
 **Styring:** [AGENTS.md](../../AGENTS.md), [agentarbeidsflyt](../instructions/agentic-development.instructions.md) og Nav sine verktøyreglar.  
 **Relatert kontrakt:** [Cross-platform standalone scripts](cross-platform-scratch-org-scripts.md), særleg REQ-300–306.
+
+## Oppdatert leveransestatus
+
+Avklaringane og scope-baselinen nedanfor er historikk frå spesifikasjonsarbeidet.
+Brukaren har seinare godkjent CI-endringa; portable PowerShell-testar og
+repositoryets Windows offline-workflow er implementerte. Eiga grøn køyring er
+[40043090089](https://github.com/navikt/crm-arbeidsforhold/actions/runs/40043090089)
+på SHA `1979ef2c15529652cdd26cdff8ccd80f8155935b`.
+Dette er ikkje verifikasjon av seinare lokale graf-/HTML-endringar eller ekte
+Salesforce-operasjonar. Sjå [gjeldande matriser](../../bin/COMPATIBILITY.md) og
+[full kommandoreferanse](../../bin/COMMANDS.md). Direkte Mac-PowerShell-testar
+krev no òg Node fordi harnessen testar den felles dependency-preflighten.
 
 ## Scope Baseline
 
