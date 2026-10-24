@@ -15,6 +15,7 @@ The CMD file launches PowerShell and forwards its arguments and exit code. `bin/
 - Salesforce CLI (`sf`) installed and authenticated to an appropriate Dev Hub.
 - `jq` for the Bash script only. The PowerShell implementation uses built-in JSON support.
 - `sfp` only if scratch-org pool acquisition is enabled.
+- Node.js 22+ for the shared dependency preflight, including direct Bash/PowerShell setup.
 - Bash for macOS/Linux; PowerShell 7 LTS for Windows. The local PowerShell test baseline is 7.6 LTS.
 
 ### Migrating from Windows PowerShell 5.1
@@ -78,6 +79,80 @@ contact Salesforce. Org/environment access requires the normal target/action app
 npm run scratch-org -- --help
 npm run scratch-org -- --dry-run
 ```
+
+### Complete package dependency preflight
+
+Both scripts now check the complete version-specific dependency graph before the
+normal package install/update flow starts, **before scratch-org deletion, pool
+fetch, creation or dependency-folder cleanup**. The shared implementation is
+`bin/package-dependencies.js`; it requires Node.js even when invoking Bash or
+PowerShell directly.
+
+Run only the check, without setting up an org:
+
+```bash
+bash bin/create-scratch-org.sh --check-dependencies
+```
+
+```powershell
+pwsh -NoLogo -NoProfile -File ./bin/create-scratch-org.ps1 -CheckDependencies
+```
+
+The check reads `sf package version list --released`, then
+`sf package version report --verbose --json` recursively for the selected
+subscriber versions. It uses the packaging Dev Hub configured in Salesforce CLI
+or `SF_TARGET_DEV_HUB`; the pool Dev Hub is not implicitly substituted for it.
+To specify the approved packaging Dev Hub for a standalone check explicitly:
+
+```bash
+node bin/package-dependencies.js --dev-hub '<approved-dev-hub-alias>'
+```
+
+These are authenticated, read-only Salesforce commands, not offline tests.
+Confirm the exact target and action before agent execution. All dependencies
+must be visible to that Dev Hub; missing authorization or unreadable metadata
+fails the check rather than claiming completeness. Nothing is inferred from
+local reference-package folders. Managed or external packages whose version
+metadata is unavailable cannot be certified by this check.
+
+The report names the requiring package, missing dependency and exact required
+version, and detects cycles, duplicate declarations, conflicting versions and
+incorrect installation order. It checks each package directory separately.
+For safety, a different selected version, **including a higher version**, is a
+version mismatch, not an automatic compatibility claim. Reconcile such versions
+manually; this is a conservative manifest check, not Salesforce upgrade-lineage
+validation or a substitute for installing against an approved test org.
+
+If only dependencies are missing or incorrectly ordered, review the report and
+explicitly request an update:
+
+```bash
+bash bin/create-scratch-org.sh --apply-dependencies
+```
+
+```powershell
+pwsh -NoLogo -NoProfile -File ./bin/create-scratch-org.ps1 -ApplyDependencies
+```
+
+This adds exact dependency versions/aliases and reorders dependencies before
+dependants, then exits **without starting org setup**. Other project fields are
+preserved. It saves the original bytes as `sfdx-project.json.dependencies.backup`
+(or beside a custom project file) and refuses to overwrite an existing backup.
+Review the diff and rerun setup yourself. Existing conflicting versions are never
+silently replaced. Applying and dry-run cannot be combined.
+
+During normal setup the successfully checked root versions are held in a
+temporary plan and used for installation; symbolic `LATEST` is not resolved
+again after preflight. Dry-run still performs metadata reads but never applies
+manifest changes. Post-steps-only/deploy-only and standalone coverage workflows
+are not manifest package installation and do not invoke this preflight.
+
+Offline verification: `node --test bin/tests/package-dependencies.test.js`
+tests the graph/provider contract. The existing Bash and PowerShell harnesses
+exercise failed preflight before mutations and explicit apply/backup with fake
+CLI responses. Actual Dev Hub validation was attempted in the agent environment
+but blocked by missing authorization for the approved alias; no package
+completeness or actual Salesforce installation is claimed from those mocks.
 
 The `deploy` post-step only sends changes that source tracking has recorded, and tracking is reset after the post-steps. If the org is missing metadata but a deploy reports "No changes to deploy", run `--redeploy` (Windows: `-Redeploy`). It deletes local source tracking for the org and deploys all local source; org data is untouched. `--full-deploy` / `-FullDeploy` adds the same behaviour to any run that includes the deploy step.
 

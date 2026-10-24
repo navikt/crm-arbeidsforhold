@@ -9,6 +9,10 @@ set -euo pipefail
 # Project-specific values belong in sf-project.config.json, never in this file.
 
 DEFAULT_DURATION_DAYS=14
+CHECK_DEPENDENCIES_ONLY=false
+APPLY_DEPENDENCIES=false
+DEPENDENCY_PLAN_DIR=""
+DEPENDENCY_CHECK_SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/package-dependencies.js"
 DEFAULT_SCRATCH_DEF_FILE="config/project-scratch-def.json"
 DEFAULT_POST_STEPS="deploy"
 DEFAULT_POOL_TAG="dev"
@@ -446,6 +450,10 @@ on_exit() {
     local exit_code=$?
     set +e
     print_run_summary "$exit_code"
+    if [[ -n "$DEPENDENCY_PLAN_DIR" ]]; then
+        rm -f "$DEPENDENCY_PLAN_DIR/plan.json"
+        rmdir "$DEPENDENCY_PLAN_DIR"
+    fi
 }
 
 trap on_exit EXIT
@@ -1505,6 +1513,20 @@ RESOLVED_LATEST_SUBSCRIBER_PACKAGE_VERSION_ID=""
 resolve_package_version() {
     local package_name="$1"
     local requested_version="$2"
+    if [[ -n "$DEPENDENCY_PLAN_DIR" ]]; then
+        local validated
+        validated="$(jq -ce --arg name "$package_name" '.[$name]' "$DEPENDENCY_PLAN_DIR/plan.json")" \
+            || error 1 "No validated dependency version for $package_name"
+        RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID="$(subscriber_package_version_id_from_json "$validated")"
+        RESOLVED_SELECTED_VERSION="$(version_label_from_json "$validated")"
+        RESOLVED_SELECTED_BASE_VERSION="$(base_version_from_json "$validated")"
+        local validated_latest
+        validated_latest="$(jq -c '.LatestVersion // .' <<< "$validated")"
+        RESOLVED_LATEST_VERSION="$(version_label_from_json "$validated_latest")"
+        RESOLVED_LATEST_BASE_VERSION="$(base_version_from_json "$validated_latest")"
+        RESOLVED_LATEST_SUBSCRIBER_PACKAGE_VERSION_ID="$(subscriber_package_version_id_from_json "$validated_latest")"
+        return
+    fi
 
     local versions_json=""
     local selected_json=""
@@ -1593,6 +1615,7 @@ print_package_update_suggestions() {
     while IFS='|' read -r package_name current_version suggested_version latest_version latest_04t; do
         [[ -z "$package_name" ]] && continue
 
+        echo "Dependency checks: --check-dependencies (read-only), --apply-dependencies (explicit manifest update)"
         cat <<EOF_JSON
 {
     "package": "$package_name",
@@ -3207,6 +3230,15 @@ while [[ $# -gt 0 ]]; do
             PACKAGE_PLAN_ONLY=true
             shift
             ;;
+        --check-dependencies)
+            CHECK_DEPENDENCIES_ONLY=true
+            shift
+            ;;
+        --apply-dependencies)
+            CHECK_DEPENDENCIES_ONLY=true
+            APPLY_DEPENDENCIES=true
+            shift
+            ;;
         --check-versions)
             CHECK_PROJECT_VERSIONS_ONLY=true
             shift
@@ -3487,6 +3519,24 @@ fi
 
 require_command "sf"
 
+check_package_dependencies() {
+    require_command "node"
+    local arguments=("$DEPENDENCY_CHECK_SCRIPT" --project-file "$PROJECT_FILE")
+    [[ "$INSTALL_LATEST_PACKAGES" == "true" ]] && arguments+=(--latest)
+    [[ "$DRY_RUN" == "true" ]] && arguments+=(--dry-run)
+    [[ "$APPLY_DEPENDENCIES" == "true" ]] && arguments+=(--apply)
+    if [[ "$CHECK_DEPENDENCIES_ONLY" != "true" ]]; then
+        DEPENDENCY_PLAN_DIR="$(mktemp -d "${TMPDIR:-/tmp}/package-plan.XXXXXX")"
+        arguments+=(--plan-file "$DEPENDENCY_PLAN_DIR/plan.json")
+    fi
+    node "${arguments[@]}" || error 1 "Dependency preflight failed; no setup mutations were started."
+}
+
+if [[ "$CHECK_DEPENDENCIES_ONLY" == "true" ]]; then
+    check_package_dependencies
+    exit 0
+fi
+
 if [[ "$USE_POOL" == "true" ]]; then
     require_command "sfp"
     require_command "jq"
@@ -3568,6 +3618,9 @@ done
 [[ "$REFRESH_DEPENDENCY_SOURCES" == "true" ]] && PHASE_TOTAL=$((PHASE_TOTAL + 1))
 
 check_if_package_install_key_is_required
+if [[ "$RUN_PACKAGE_PHASE" == "true" ]]; then
+    check_package_dependencies
+fi
 setup_org
 
 if [[ "$RUN_PACKAGE_PHASE" == "true" ]]; then

@@ -194,6 +194,8 @@ src-temp/**
 
 # Backup file when running check-sfdx-versions.js
 sfdx-project.json.backup
+*.dependencies.backup
+*.dependencies-*.tmp
 
 
 

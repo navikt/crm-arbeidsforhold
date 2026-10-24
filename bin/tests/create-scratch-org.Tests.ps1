@@ -8,7 +8,7 @@ $BinDirectory = Split-Path -Parent $PSScriptRoot
 $ScriptPath = Join-Path $BinDirectory 'create-scratch-org.ps1'
 $LauncherPath = Join-Path $BinDirectory 'create-scratch-org.bat'
 $HostPath = (Get-Process -Id $PID).Path
-$NodePath = if ($IsWindows) { (Get-Command node -ErrorAction Stop).Source } else { $null }
+$NodePath = (Get-Command node -ErrorAction Stop).Source
 $NpmPath = if ($IsWindows) { (Get-Command npm.cmd -ErrorAction Stop).Source } else { $null }
 $TempRoot = if ($env:TMPDIR) { $env:TMPDIR } else { [IO.Path]::GetTempPath() }
 $WorkDirectory = Join-Path $TempRoot ('scratch-tests-' + [guid]::NewGuid().ToString('N'))
@@ -62,6 +62,7 @@ function Set-PackageProject {
         packageKeyConfig = @{ 'offline-package' = $false }
     }
     Add-Rule sf @('package', 'version', 'list') $VersionJson
+    Add-Rule sf @('package', 'version', 'report') '{"status":0,"result":{"SubscriberPackageVersionId":"offline-version","Package2Id":"offline-package-id","MajorVersion":1,"MinorVersion":0,"PatchVersion":0,"BuildNumber":3,"SubscriberPackageVersion":{"Dependencies":null}}}'
     Add-Rule sf @('package', 'installed', 'list') '{"status":0,"result":[]}'
 }
 
@@ -93,9 +94,9 @@ function Invoke-Scenario {
         }
     }
     $paths = @($FakeBin)
+    $paths += Split-Path -Parent $NodePath
     if ($IsWindows) {
         $paths += Join-Path $env:SystemRoot 'System32'
-        $paths += Split-Path -Parent $NodePath
         if (-not $WithoutRuntime) { $paths += $PSHOME }
     }
     $info.Environment['PATH'] = $paths -join [IO.Path]::PathSeparator
@@ -461,6 +462,28 @@ try {
     $result = Invoke-Scenario -Options @('-PostStepsOnly', '-DryRun', '-Color', '-NoColor')
     Assert-Exit $result 1 'conflicting color options fail before CLI'
     Assert-True ($Calls.Count -eq 0) 'output option validation has no org side effects'
+
+    Reset-Scenario
+    Set-PackageProject
+    $project = Get-Content -LiteralPath (Join-Path $ProjectDirectory 'sfdx-project.json') -Raw | ConvertFrom-Json
+    $project.packageAliases | Add-Member -NotePropertyName 'offline-child' -NotePropertyValue 'offline-child-package'
+    Write-Json (Join-Path $ProjectDirectory 'sfdx-project.json') $project
+    $original = Get-Content -LiteralPath (Join-Path $ProjectDirectory 'sfdx-project.json') -Raw
+    $script:Rules = @($Rules | Where-Object { $_.prefix[2] -ne 'report' })
+    Add-Rule sf @('package', 'version', 'report', '--package', 'offline-version') '{"status":0,"result":{"SubscriberPackageVersionId":"offline-version","Package2Id":"offline-package-id","MajorVersion":1,"MinorVersion":0,"PatchVersion":0,"BuildNumber":3,"SubscriberPackageVersion":{"Dependencies":{"ids":[{"subscriberPackageVersionId":"offline-child-version"}]}}}}'
+    Add-Rule sf @('package', 'version', 'report', '--package', 'offline-child-version') '{"status":0,"result":{"SubscriberPackageVersionId":"offline-child-version","Package2Id":"offline-child-package","MajorVersion":1,"MinorVersion":0,"PatchVersion":0,"BuildNumber":1,"SubscriberPackageVersion":{"Dependencies":null}}}'
+    $result = Invoke-Scenario
+    Assert-Exit $result 1 'missing transitive dependency blocks full setup'
+    Assert-True ($result.Output -match 'offline-child' -and $result.Output -match '1.0.0.1') 'preflight reports requiring package and missing exact version'
+    Assert-True (@($Calls | Where-Object { $_.arguments[0] -ne 'package' -or $_.arguments[1] -ne 'version' }).Count -eq 0) 'failed dependency preflight runs no deletion, creation, pool fetch or install'
+    Assert-True ((Get-Content -LiteralPath (Join-Path $ProjectDirectory 'sfdx-project.json') -Raw) -ceq $original) 'default check preserves original manifest bytes'
+    $result = Invoke-Scenario -Options @('-ApplyDependencies')
+    Assert-Exit $result 0 'explicit dependency apply updates manifest without org mutations'
+    Assert-True ((Get-Content -LiteralPath (Join-Path $ProjectDirectory 'sfdx-project.json.dependencies.backup') -Raw) -ceq $original) 'dependency apply preserves exact backup'
+    $applied = Get-Content -LiteralPath (Join-Path $ProjectDirectory 'sfdx-project.json') -Raw | ConvertFrom-Json
+    Assert-True ($applied.packageDirectories[0].dependencies[0].package -eq 'offline-child' -and $applied.packageDirectories[0].dependencies[0].versionNumber -eq '1.0.0.1') 'apply inserts exact child version before parent'
+    $result = Invoke-Scenario -Options @('-ApplyDependencies', '-DryRun')
+    Assert-Exit $result 1 'dependency apply and dry-run cannot be combined'
 
     if ($IsWindows) {
         Reset-Scenario
