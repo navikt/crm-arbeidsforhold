@@ -1,0 +1,84 @@
+name: Salesforce validation
+
+on:
+    workflow_call:
+
+permissions:
+    contents: read
+
+jobs:
+    changes:
+        name: Detect relevant changes
+        runs-on: ubuntu-latest
+        outputs:
+            salesforce: ${{ steps.changes.outputs.salesforce }}
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+            - name: Classify PR changes
+              id: changes
+              env:
+                  BASE_SHA: ${{ github.event.pull_request.base.sha }}
+                  HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+              run: |
+                  filter=scripts/ci-changes.cjs
+                  if [ -z "$(git ls-tree --name-only "$BASE_SHA" -- "$filter")" ]; then
+                    echo "Trusted base filter is not available yet; run full validation."
+                    echo "salesforce=true" >> "$GITHUB_OUTPUT"
+                    echo "lwc=true" >> "$GITHUB_OUTPUT"
+                  else
+                    git show "$BASE_SHA:$filter" > "$RUNNER_TEMP/ci-changes.cjs"
+                    node "$RUNNER_TEMP/ci-changes.cjs" "$BASE_SHA" "$HEAD_SHA"
+                  fi
+
+    salesforce:
+        name: Salesforce validation
+        needs: changes
+        if: needs.changes.outputs.salesforce == 'true'
+        uses: navikt/crm-workflows-base/.github/workflows/validate.yml@aad6b4f48e419d71490db436da697cd7581a2c6a
+        secrets: inherit
+
+    compile:
+        name: Compile Metadata
+        needs: [changes, salesforce]
+        if: always()
+        runs-on: ubuntu-latest
+        steps:
+            - name: Require successful or unnecessary Salesforce validation
+              env:
+                  CHANGES_RESULT: ${{ needs.changes.result }}
+                  RELEVANT: ${{ needs.changes.outputs.salesforce }}
+                  VALIDATION_RESULT: ${{ needs.salesforce.result }}
+              run: |
+                  test "$CHANGES_RESULT" = success
+                  if [ "$RELEVANT" = false ]; then
+                    test "$VALIDATION_RESULT" = skipped
+                    echo "No Salesforce changes; metadata compilation is not required."
+                  else
+                    test "$RELEVANT" = true
+                    test "$VALIDATION_RESULT" = success
+                  fi
+
+    run-tests:
+        name: Run Apex Tests
+        needs: compile
+        if: always()
+        runs-on: ubuntu-latest
+        steps:
+            - name: Require successful Salesforce validation gate
+              env:
+                  RESULT: ${{ needs.compile.result }}
+              run: test "$RESULT" = success
+
+    check-code-coverage:
+        name: Validate 85% Code Coverage
+        needs: compile
+        if: always()
+        runs-on: ubuntu-latest
+        steps:
+            - name: Require successful Salesforce validation gate
+              env:
+                  RESULT: ${{ needs.compile.result }}
+              run: test "$RESULT" = success

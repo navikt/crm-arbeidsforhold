@@ -154,7 +154,7 @@ Runneren skriv ei kort rapport med:
 - kontroll av forventa jobbtypar, `Succeeded`, idempotens og mock transport
 - endeleg `Result: PASS` eller `Result: FAIL`
 
-ContentVersion-triggeren opprettar ApplicationAttachment-jobben. Runneren følgjer workeren gjennom den asynkrone overgangen og returnerer exitkode 1 dersom ein kontroll feilar. For full Apex-debuglogg kan det underliggjande scriptet framleis køyrast direkte:
+ContentVersion-triggeren opprettar ApplicationAttachment-jobben. Runneren spør etter statusen til den nyaste `P360_ArchiveJobWorker`-jobben opptil fem gonger utan eit synleg ventesteg mellom spørjingane. Han returnerer exitkode 1 dersom worker-jobben ikkje er `Completed` utan feil, eller dersom ein annan kontroll feilar. Ein worker som bruker lengre tid enn desse spørjingane kan difor føre til feil sjølv om han fullfører seinare; runneren ventar ikkje til async-behandlinga garantert er ferdig. For full Apex-debuglogg kan det underliggjande scriptet framleis køyrast direkte:
 
 ```bash
 sf apex run \
