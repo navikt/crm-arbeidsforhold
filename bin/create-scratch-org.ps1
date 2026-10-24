@@ -11,6 +11,7 @@ param(
     [int]$DurationDays,
     [string]$DefinitionFile,
     [string]$ProjectFile,
+    [string]$DependencyReport,
     [string]$ConfigFile,
     [switch]$NoConfig,
     [switch]$InitConfig,
@@ -492,6 +493,8 @@ function Get-PackageDependencies {
 function Invoke-DependencyCheck {
     param([switch]$Apply, [switch]$ForInstallation)
     $arguments = @((Join-Path $PSScriptRoot 'package-dependencies.js'), '--project-file', $script:ProjectFilePath)
+    if ($DependencyReport) { $arguments += @('--report', $DependencyReport) }
+    $arguments += if ($script:UseColor) { '--color' } else { '--no-color' }
     if ($Apply) { $arguments += '--apply' }
     if ($script:InstallLatest) { $arguments += '--latest' }
     if ($script:DryRun) { $arguments += '--dry-run' }
@@ -503,9 +506,9 @@ function Invoke-DependencyCheck {
             New-Item -ItemType Directory -Path $planDirectory | Out-Null
             $arguments += @('--plan-file', (Join-Path $planDirectory 'plan.json'))
         }
-        $result = Invoke-External -Executable 'node' -Arguments $arguments -Label 'Checking complete package dependencies'
-        foreach ($line in $result.Output) { Write-RunLine $line }
-        if ($result.ExitCode -ne 0) { throw 'Dependency preflight failed; no setup mutations were started.' }
+        $script:CurrentOperation = 'Checking complete package dependencies'
+        & node @arguments 2>&1 | ForEach-Object { [Console]::Out.WriteLine((Protect-OutputText $_.ToString())) }
+        if ($LASTEXITCODE -ne 0) { throw 'Dependency preflight failed; no setup mutations were started.' }
         if ($ForInstallation) {
             $script:DependencyPlan = Read-JsonFile (Join-Path $planDirectory 'plan.json')
         }
@@ -1009,7 +1012,7 @@ Options:
                 -ClearDependencySourcesOnly
   Config:       -ConfigFile <file> -NoConfig -InitConfig -Force
   Output:       -Verbose -Color -NoColor
-  Dependencies: -CheckDependencies -ApplyDependencies
+  Dependencies: -CheckDependencies -ApplyDependencies -DependencyReport <file.md>
 
 -FullDeploy deletes local source tracking before the deploy step so all local source is
 deployed, not only tracked changes. -Redeploy = -PostStepsOnly -PostSteps deploy -FullDeploy.

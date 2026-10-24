@@ -157,9 +157,27 @@ test_missing_dependency_blocks_setup_and_apply_is_explicit() {
     : > "$SF_LOG"
     run_script env MISSING_DEPENDENCY=true bash "$SCRIPT" --alias offline-org --post-steps none
     assert_exit_nonzero
-    assert_contains "requires missing child 1.0.0.1"
+    assert_contains "Package: child"
+    assert_contains "Required: 1.0.0.1"
     ! grep -Eq '^(org delete|org create|package install|project deploy|pool fetch)' "$SF_LOG" && pass || fail "preflight allowed a mutation"
     [[ ! -f "$PROJECT/sfdx-project.json.dependencies.backup" ]] && pass || fail "read-only check created backup"
+    run_script env MISSING_DEPENDENCY=true NO_COLOR=1 bash "$SCRIPT" --check-dependencies --color
+    assert_exit_nonzero
+    assert_contains $'\033[31mMissing packages: 1'
+    assert_contains $'\033[1;36mDependency graph'
+    assert_contains '+-- child 1.0.0.1 [MISSING]'
+    run_script env MISSING_DEPENDENCY=true FORCE_COLOR=1 bash "$SCRIPT" --check-dependencies --no-color
+    assert_exit_nonzero
+    assert_not_contains $'\033['
+    run_script env MISSING_DEPENDENCY=true bash "$SCRIPT" --check-dependencies --dependency-report "$PROJECT/custom report.md"
+    assert_exit_nonzero
+    grep -q '```mermaid' "$PROJECT/custom report.md" && pass || fail "missing custom Mermaid report"
+    grep -q 'Missing packages: 1' "$PROJECT/custom report.md" && pass || fail "missing dependency absent from report"
+    grep -q 'Dependency graph explorer' "$PROJECT/custom report.html" && pass || fail "missing HTML companion for custom report"
+    : > "$SF_LOG"
+    script --dependency-report "$PROJECT/absent/report.md" --alias offline-org --post-steps none
+    assert_exit_nonzero
+    ! grep -Eq '^(org delete|org create|package install|project deploy|pool fetch)' "$SF_LOG" && pass || fail "report failure allowed mutations"
     run_script env MISSING_DEPENDENCY=true bash "$SCRIPT" --apply-dependencies
     assert_exit 0
     assert_json "$PROJECT/sfdx-project.json" '.packageDirectories[0].dependencies[0].package' '"child"'

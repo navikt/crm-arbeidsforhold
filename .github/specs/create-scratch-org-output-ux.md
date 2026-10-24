@@ -6,6 +6,17 @@ github-epic: 1075
 
 # create-scratch-org.sh: readable, coloured output and progress indicators
 
+## Current user documentation
+
+This specification records the original output contract and subsequent
+PowerShell extension. Later dependency-check output/reporting adds live metadata
+heartbeats, grouped findings, an ASCII dependency tree, full and per-package
+Mermaid diagrams, and a local interactive HTML/SVG explorer.
+See the maintained [usage guide](../../bin/README.md),
+[command reference](../../bin/COMMANDS.md) and
+[verification matrix](../../bin/COMPATIBILITY.md) for those surfaces and their
+current validation limits. The earlier problem statement below is historical.
+
 ## Problem statement
 
 `bin/create-scratch-org.sh` prints long, flat output. Settings appear as a list of more than 40 unaligned lines, phases are not separated, and statuses are hard to see. Only warnings and the final status use colour. Package installation can take many minutes per package without a sign that the script is still working, and there is no position indicator such as "package 3 of 12". The full Salesforce CLI output of every successful package install is printed, which hides the important lines.

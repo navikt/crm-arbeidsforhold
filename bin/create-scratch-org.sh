@@ -32,6 +32,7 @@ fi
 DURATION_DAYS="${DURATION_DAYS:-}"
 SCRATCH_DEF_FILE="${SCRATCH_DEF_FILE:-}"
 PROJECT_FILE="${PROJECT_FILE:-sfdx-project.json}"
+DEPENDENCY_REPORT=""
 COMMUNITY_NAME="${COMMUNITY_NAME:-}"
 DUMMY_DATA_PLAN="${DUMMY_DATA_PLAN:-}"
 PERMISSION_SETS="${PERMISSION_SETS:-}"
@@ -568,6 +569,7 @@ Maintenance:
 
 Configuration:
   -p, --project-file <file>       Salesforce DX project file. Default: sfdx-project.json
+  --dependency-report <file.md>   Override the automatic Markdown/Mermaid report path.
   --config <file>                 Config file. Default: sf-project.config.json next to the project file.
   --no-config                     Ignore the config file.
   --init-config                   Write sf-project.config.json from the effective settings and exit.
@@ -3145,6 +3147,11 @@ while [[ $# -gt 0 ]]; do
             PROJECT_FILE="$2"
             shift 2
             ;;
+        --dependency-report)
+            require_option_value "$1" "${2:-}"
+            DEPENDENCY_REPORT="$2"
+            shift 2
+            ;;
         -c|--community-name)
             require_option_value "$1" "${2:-}"
             COMMUNITY_NAME="$2"
@@ -3522,6 +3529,8 @@ require_command "sf"
 check_package_dependencies() {
     require_command "node"
     local arguments=("$DEPENDENCY_CHECK_SCRIPT" --project-file "$PROJECT_FILE")
+    [[ -n "$DEPENDENCY_REPORT" ]] && arguments+=(--report "$DEPENDENCY_REPORT")
+    if colour_enabled; then arguments+=(--color); else arguments+=(--no-color); fi
     [[ "$INSTALL_LATEST_PACKAGES" == "true" ]] && arguments+=(--latest)
     [[ "$DRY_RUN" == "true" ]] && arguments+=(--dry-run)
     [[ "$APPLY_DEPENDENCIES" == "true" ]] && arguments+=(--apply)

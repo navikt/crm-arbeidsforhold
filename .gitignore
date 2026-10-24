@@ -196,6 +196,8 @@ src-temp/**
 sfdx-project.json.backup
 *.dependencies.backup
 *.dependencies-*.tmp
+package-dependencies-report.md
+package-dependencies-report.html
 
 
 

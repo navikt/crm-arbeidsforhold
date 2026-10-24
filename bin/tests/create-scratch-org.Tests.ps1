@@ -465,6 +465,35 @@ try {
 
     Reset-Scenario
     Set-PackageProject
+    $script:Rules[0].delaySeconds = 6
+    $result = Invoke-Scenario -Options @('-CheckDependencies') -ObserveProgress
+    Assert-Exit $result 0 'standalone dependency check succeeds after a slow metadata read'
+    Assert-True $result.LiveProgress 'dependency check heartbeat is visible before the subprocess exits'
+    Assert-True ($result.Output -match '\[1/1\] offline-package' -and $result.Output -match 'Selected 1.0.0.3') 'dependency progress names the active package and selected version'
+    Assert-True (([regex]::Matches($result.Output, 'Package dependency check')).Count -eq 1) 'dependency output is streamed once, not replayed'
+    Assert-True ($result.Output -notmatch "`e\[|`r(?!`n)") 'redirected dependency progress contains no terminal control sequences'
+    Assert-True ((Get-Content -LiteralPath (Join-Path $ProjectDirectory 'package-dependencies-report.md') -Raw) -match '```mermaid') 'completed dependency check writes a Mermaid Markdown report'
+    Assert-True ((Get-Content -LiteralPath (Join-Path $ProjectDirectory 'package-dependencies-report.html') -Raw) -match 'Dependency graph explorer') 'completed dependency check writes the offline interactive HTML companion'
+    $script:Rules[0].delaySeconds = 0
+    foreach ($style in @('Color', 'NoColor')) {
+        $Overrides['NO_COLOR'] = '1'
+        $Overrides['FORCE_COLOR'] = '1'
+        $result = Invoke-Scenario -Options @('-CheckDependencies', "-$style")
+        Assert-Exit $result 0 "$style dependency check succeeds"
+        Assert-True (($result.Output -match "`e\[1;36mDependency graph") -eq ($style -eq 'Color')) "$style is forwarded to the streamed dependency graph"
+        Assert-True ($result.Output -match 'Missing packages: 0') 'dependency output separates missing packages from other problems'
+    }
+    $report = Join-Path $ProjectDirectory 'custom dependency report.md'
+    $result = Invoke-Scenario -Options @('-CheckDependencies', '-DependencyReport', $report)
+    Assert-Exit $result 0 'custom dependency report path is forwarded'
+    Assert-True ((Get-Content -LiteralPath $report -Raw) -match 'Version inventory') 'custom report includes exact version inventory'
+    Assert-True ((Get-Content -LiteralPath ([IO.Path]::ChangeExtension($report, '.html')) -Raw) -match 'data-action="clear"') 'custom report basename is used for the interactive HTML companion'
+    $result = Invoke-Scenario -Options @('-DependencyReport', (Join-Path $ProjectDirectory 'absent/report.md'))
+    Assert-Exit $result 1 'report write failure blocks setup'
+    Assert-True (@($Calls | Where-Object { $_.arguments[0] -ne 'package' -or $_.arguments[1] -ne 'version' }).Count -eq 0) 'report write failure starts no org mutations'
+
+    Reset-Scenario
+    Set-PackageProject
     $project = Get-Content -LiteralPath (Join-Path $ProjectDirectory 'sfdx-project.json') -Raw | ConvertFrom-Json
     $project.packageAliases | Add-Member -NotePropertyName 'offline-child' -NotePropertyValue 'offline-child-package'
     Write-Json (Join-Path $ProjectDirectory 'sfdx-project.json') $project
