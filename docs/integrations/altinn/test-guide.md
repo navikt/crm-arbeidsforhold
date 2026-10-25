@@ -5,8 +5,10 @@
 **Testlogg:** [altinn-test-log.md](./altinn-test-log.md)  
 **Status:** Brukarmigrering og godkjende deployar er gjennomførte i
 `nav-community-dev`. S05/S07/S08-regresjonane, sortering og S01-gjenoppretting
-er stadfesta i nettlesaren. S05 treng framleis betre forklaring/neste handling
-i tomtilstanden. Siste LWC-suite: 22/22 grøne; controller-deploy: 19/19 Apex.
+er stadfesta i nettlesaren. S05 si utvida forklaring med same sentrerte
+utforming som Deny-meldinga er deploya og visuelt godkjend. Gjenoppretting til
+S01 etter UX-testen er òg stadfesta.
+Siste LWC-suite: 22/22 grøne; controller-deploy: 19/19 Apex.
 
 ## 1. Kva testen beviser
 
@@ -332,6 +334,16 @@ deploya og stadfesta i nettlesaren i `nav-community-dev`.
    tomtilstanden eller be deg velje i ein nedtrekksmeny som ikkje finst.
 5. Trykk oppdater igjen. Tomtilstanden skal vere stabil.
 6. Gjenopprett S01 etter del 6.
+
+**Ny UX-retest etter deploy:** Tomtilstanden skal vere ein sentrert seksjon med
+same bakgrunn og typografi som den eksisterande meldinga om manglande tilgang,
+under organisasjonshandlingane, med overskrifta «Ingen virksomheter er
+tilgjengelige». Teksten skal forklare at ei verksemd må veljast før bruk av
+søknader, avtalar og brukerstøtte, og be brukaren prøve «Oppdater organisasjoner».
+Dersom brukaren ventar ei verksemd, skal teksten vise til den som administrerer
+tilgangar i verksemda for kontroll i Altinn, utan å påstå at rettar manglar.
+Knappen skal framleis kunne brukast. Etter tilbakeføring til S01 og oppfrisking
+skal seksjonen forsvinne, og A/B/C og tilgang fungere igjen.
 
 ### 5.7 S07 – teknisk feil og gjenoppretting
 

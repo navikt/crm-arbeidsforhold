@@ -5,8 +5,9 @@
 prøvde i nettlesaren. Rettingane etter S05/S07/S08 er òg deploya etter
 godkjenning, med 20/20 LWC-testar og 19/19 Apex-testar grøne.
 Nettlesarretest av S05/S07/S08, sortering og S01-gjenoppretting er no bestått.
-Siste LWC-suite etter sorteringsretting: 22/22. Ei betre forklaring/neste
-handling i S05-tomtilstanden er open UX-oppfølging.
+Siste LWC-suite: 22/22. S05 har no forklaring og neste handling i ei
+sentrert tomtilstand med same utforming som meldinga om manglande tilgang.
+Endringa er deploya og godkjend i nettlesaren, inkludert S01-gjenoppretting.
 Éin generisk Community Plus-testbrukar er sett opp.
 
 Dette dokumentet gjeld konsumenten si teststøtte, ikkje simulering eller testing
@@ -46,8 +47,8 @@ Rett etter den manuelle testøkta blei desse regresjonane retta og deploya:
   blir ikkje brukt som ein skjult tilgangsavgjerd.
 
 Jest stadfestar DOM, brukartilhendingar, feil og gjenoppretting; Apex-dry-run
-stadfestar controllerkontrakten. Nettlesarretesten er bestått; S05 si
-forklaring/neste handling treng framleis UX-oppfølging. Gamle
+stadfestar controllerkontrakten. Nettlesarretesten og S05 si etterfølgjande
+UX-oppfølging er bestått. Gamle
 avtaledelingar blir ikkje tilbakekalla ved scenariobyte, så gjenbruk av same
 brukar beviser ikkje record-nivå-Deny. Eldre avsnitt nedanfor dokumenterer
 historiske køyringar og lisensoppsett, ikkje dagens brukarfordeling.

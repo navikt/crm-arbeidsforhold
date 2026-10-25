@@ -278,6 +278,30 @@ Web lookup in the Aa register - nav.no see:https://aa-registeret.nav.no/</value>
         <value>Information and guidance.</value>
     </labels>
     <labels>
+        <fullName>AAREG_No_Organizations_Title</fullName>
+        <categories>Arbeidsforhold external access</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>No organizations available</shortDescription>
+        <value>No organizations are available</value>
+    </labels>
+    <labels>
+        <fullName>AAREG_No_Organizations_Description</fullName>
+        <categories>Arbeidsforhold external access</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>No organizations explanation</shortDescription>
+        <value>We cannot find any organizations you can represent on this page. You must select an organization before you can use applications, agreements and support.</value>
+    </labels>
+    <labels>
+        <fullName>AAREG_No_Organizations_Guidance</fullName>
+        <categories>Arbeidsforhold external access</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>No organizations next steps</shortDescription>
+        <value>Try "Refresh organizations" to reload the list. If you expect to see an organization, ask the person who manages access in the organization to check your access in Altinn.</value>
+    </labels>
+    <labels>
         <fullName>AAREG_Refresh_Organizations</fullName>
         <categories>Arbeidsforhold external access</categories>
         <language>en_US</language>

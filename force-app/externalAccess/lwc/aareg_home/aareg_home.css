@@ -48,7 +48,14 @@
 }
 
 .organization-empty-state {
-    margin: 0;
+    padding: 2rem;
+    text-align: center;
+}
+
+.missing-access-subtitle {
+    padding-top: 10px;
+    font-size: 1.25rem;
+    font-family: 'Source Sans Pro', Arial, sans-serif;
 }
 
 .error-dropdown {

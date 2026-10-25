@@ -421,6 +421,18 @@
         <name>applicantBusiness</name>
     </customLabels>
     <customLabels>
+        <label>Ingen virksomheter er tilgjengelige</label>
+        <name>AAREG_No_Organizations_Title</name>
+    </customLabels>
+    <customLabels>
+        <label>Vi finner ingen virksomheter du kan representere på denne siden. Du må velge en virksomhet før du kan bruke søknader, avtaler og brukerstøtte.</label>
+        <name>AAREG_No_Organizations_Description</name>
+    </customLabels>
+    <customLabels>
+        <label>Prøv «Oppdater organisasjoner» for å hente listen på nytt. Hvis du forventer å se en virksomhet, be den som administrerer tilganger i virksomheten om å kontrollere tilgangen din i Altinn.</label>
+        <name>AAREG_No_Organizations_Guidance</name>
+    </customLabels>
+    <customLabels>
         <label>Oppdater organisasjoner</label>
         <name>AAREG_Refresh_Organizations</name>
     </customLabels>

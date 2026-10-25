@@ -7,6 +7,9 @@ import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.up
 import checkAndShareIfAuthorized from '@salesforce/apex/AAREG_HomeController.checkAndShareIfAuthorized';
 import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreads';
 import refreshOrganizationsLabel from '@salesforce/label/c.AAREG_Refresh_Organizations';
+import noOrganizationsTitle from '@salesforce/label/c.AAREG_No_Organizations_Title';
+import noOrganizationsDescription from '@salesforce/label/c.AAREG_No_Organizations_Description';
+import noOrganizationsGuidance from '@salesforce/label/c.AAREG_No_Organizations_Guidance';
 
 export default class Aareg_home extends LightningElement {
     @track organizations;
@@ -18,7 +21,12 @@ export default class Aareg_home extends LightningElement {
     organizationError;
     accessCheckFailed = false;
     initializationStarted = false;
-    labels = { refreshOrganizations: refreshOrganizationsLabel };
+    labels = {
+        refreshOrganizations: refreshOrganizationsLabel,
+        noOrganizationsTitle,
+        noOrganizationsDescription,
+        noOrganizationsGuidance
+    };
 
     @wire(getUsersThreads, { userId: '$currentUser' })
     wiredThreads({ data }) {

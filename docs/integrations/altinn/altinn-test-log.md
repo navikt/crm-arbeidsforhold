@@ -253,6 +253,91 @@ lukka før ny stadfesta nettlesartest.
 
 ## Rettings- og oppsettsøkt 2026-10-25
 
+### S05 — utvida forklaring og neste handling
+
+- Etter godkjend teknisk regresjonsrunde bad brukaren om neste steg:
+  betre tomtilstand. Endringa er avgrensa til Home-UI, tre Custom Labels
+  med norsk omsetjing og den fokuserte Jest-testen. Ingen tilgangsregel
+  eller Apex-kontrakt er endra.
+- Den korte teksten ved veljaren blir erstatta med ein eigen seksjon under
+  organisasjonshandlingane, med overskrift, forklaring og neste handling.
+  Eksisterande oppdateringsknapp blir brukt vidare.
+- Norsk tekst:
+    - «Ingen virksomheter er tilgjengelige»
+    - «Vi finner ingen virksomheter du kan representere på denne siden. Du må
+      velge en virksomhet før du kan bruke søknader, avtaler og brukerstøtte.»
+    - «Prøv «Oppdater organisasjoner» for å hente listen på nytt. Hvis du
+      forventer å se en virksomhet, be den som administrerer tilganger i
+      virksomheten om å kontrollere tilgangen din i Altinn.»
+- Seksjonen har `role="status"`, semantisk overskrift og avsnitt. Dette er
+  informasjon om tomt resultat, ikkje ei teknisk feilmelding eller ein
+  påstand om manglande rettar.
+- **Raud:** Fokusert Jest gav 1 feil / 11 grøne fordi forklarande seksjon
+  med overskrift mangla.
+- **Grøn:** Same kommando
+  `rtk npm run test:unit -- -- --runInBand force-app/externalAccess/lwc/aareg_home/__tests__/aareg_home.test.js`
+  gav 12/12 grøne. Testen kontrollerer forklaring, neste handling,
+  ingen tilgang/teknisk feil/misvisande rettigheitspanel og at seksjonen
+  forsvinn ved vellukka oppfrisking tilbake til S01-data.
+- **Breiare validering:** `rtk npm run test:unit -- -- --runInBand`:
+  6 suiter, 22/22 grøne. Prettier-kontroll av dei seks endra UI-/test-/
+  metadatafilene bestod.
+- **Deploy-preview:** Berre `aareg_home`, dei tre nye Custom Labels og norsk
+  Translations-komponent blei valde, utan konfliktar. Salesforce deployer
+  norsk omsetjing som ein samla Translations-komponent. Registry-varsel om
+  `GenOpAgentConfig` blei meldt; preview fullførte med status 0.
+- **Ikkje deploya / ikkje nettlesarverifisert enno.** Den aktive scenario-
+  innstillinga er ikkje endra som del av denne lokale UI-rettinga.
+
+#### Første deploy og brukarprøving av S05-forklaringa
+
+- Brukaren godkjende deploy av `aareg_home`, tre nye Custom Labels og norsk
+  omsetjing til `nav-community-dev`.
+- Kommandoen
+  `rtk sf project deploy start --metadata LightningComponentBundle:aareg_home --metadata CustomLabel:AAREG_No_Organizations_Title --metadata CustomLabel:AAREG_No_Organizations_Description --metadata CustomLabel:AAREG_No_Organizations_Guidance --metadata Translations:no --target-org nav-community-dev --wait 10 --json`
+  gav **Succeeded**, fem komponentar, null komponentfeil og `checkOnly=false`,
+  deploy `0AfJW00000nnU2L0AU`. Ingen Apex-testar blei køyrde.
+- Testpersonen stadfesta ny kode og A med søknadstilgang under S01 og godkjende
+  mellombels S05. CLI stadfesta S05 / subject-a / true.
+- **Funksjon: Bestått, visuell utforming: Må justerast.** Testpersonen
+  stadfesta at det tekniske var riktig, men bad om sentrert plassering og
+  same utforming, font og storleik som den eksisterande meldinga om manglande
+  tilgang.
+- CLI sette tilbake S01 / subject-a / true og kontrollerte verdiane før
+  vidare kodearbeid. Nettlesargjenoppretting etter dette forsøket er ikkje
+  stadfesta enno.
+- Neste lokale justering bruker same community-temaklassar for bakgrunn og
+  overskrift som `aareg_missingAccess`, med same padding og brødtekstfont/
+  storleik. Teksten er framleis tomtilstandsteksten, ikkje Deny-meldinga.
+  Ingen eksisterande Deny-komponent eller community-tema er endra.
+- DOM-test for temaklassar feila før justeringa (1 feil / 11 grøne) og bestod
+  etterpå (12/12). Dette verifiserer markup og funksjon, ikkje faktisk
+  plassering eller font i nettlesaren. Ny visuell kontroll står att.
+
+#### Godkjend justert utforming og avslutta S05 UX-test
+
+- Etter uttrykkeleg godkjenning blei berre `aareg_home` deploya på nytt:
+  `rtk sf project deploy start --metadata LightningComponentBundle:aareg_home --target-org nav-community-dev --wait 10 --json`.
+  Deploy `0AfJW00000nnUjt0AE` gav **Succeeded**, éin komponent,
+  `checkOnly=false` og null komponentfeil. Ingen Apex-testar blei køyrde.
+  CLI gav same registry-varsel om `GenOpAgentConfig`; deployen fullførte.
+- Før deploy bestod heile LWC-suiten på nytt:
+  `rtk npm run test:unit -- -- --runInBand`, 6 suiter / 22 testar.
+  Prettier-kontroll av endra HTML, CSS og Jest-test bestod.
+- S05 / subject-a / true blei aktivert og kontrollert for ny visuell test.
+- **S05 UX-retest: Bestått.** Testpersonen stadfesta at visinga var sentrert
+  og i samsvar med den eksisterande tilgangsmeldinga, utan fleire merknader.
+  Teststeget omfatta ny kode, forklaring/neste steg, ingen veljar/tilgang og
+  stabil vising ved oppfrisking.
+- **CLI-tilbakeføring: Bestått.** S01 / subject-a / true blei gjenoppretta og
+  kontrollert.
+- **Nettlesargjenoppretting: Bestått.** Testpersonen stadfesta at forklaringa
+  forsvann, A/B/C kom tilbake og A gav søknadstilgang.
+- Den opne S05-oppfølginga om forklaring og visuell utforming er **lukka**
+  etter denne prøvinga. Tidlegare opne statuser nedanfor er historiske.
+  `subject-throws` og tilbakekalling av gamle avtaledelingar er ikkje
+  nettlesartesta som del av denne UX-endringa.
+
 ### Nettlesarretest etter deploy — S01-grunnlinje, 2026-10-25
 
 - **Innlogging med generisk kontakt: Bestått.** Testpersonen stadfesta

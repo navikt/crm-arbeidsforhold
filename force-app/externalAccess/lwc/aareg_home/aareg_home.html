@@ -42,11 +42,6 @@
                         </template>
                     </select>
                 </template>
-                <template if:true={hasNoOrganizations}>
-                    <p class="organization-empty-state" data-id="organization-empty-state" role="status">
-                        Ingen organisasjoner er tilgjengelige.
-                    </p>
-                </template>
                 <div class="organization-actions">
                     <lightning-button
                         data-id="refresh-organizations"
@@ -66,6 +61,17 @@
                 </div>
             </div>
         </div>
+        <template if:true={hasNoOrganizations}>
+            <section data-id="organization-empty-state" role="status">
+                <div class="mangler-tilgang-bakgrunn organization-empty-state">
+                    <h2 class="typo-innholdstittel mangler-tilgang-bakgrunn__innholdstittel">
+                        {labels.noOrganizationsTitle}
+                    </h2>
+                    <p class="missing-access-subtitle">{labels.noOrganizationsDescription}</p>
+                    <p class="missing-access-subtitle">{labels.noOrganizationsGuidance}</p>
+                </div>
+            </section>
+        </template>
         <template if:true={hasAccess}>
             <div class="slds-grid inner-container">
                 <div class="slds-col" style="flex: 50%">

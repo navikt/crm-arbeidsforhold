@@ -9,6 +9,27 @@ import { refreshApex } from '@salesforce/apex';
 
 jest.mock('@salesforce/user/Id', () => ({ default: 'test-user' }), { virtual: true });
 jest.mock(
+    '@salesforce/label/c.AAREG_No_Organizations_Title',
+    () => ({ default: 'Ingen virksomheter er tilgjengelige' }),
+    { virtual: true }
+);
+jest.mock(
+    '@salesforce/label/c.AAREG_No_Organizations_Description',
+    () => ({
+        default:
+            'Vi finner ingen virksomheter du kan representere på denne siden. Du må velge en virksomhet før du kan bruke søknader, avtaler og brukerstøtte.'
+    }),
+    { virtual: true }
+);
+jest.mock(
+    '@salesforce/label/c.AAREG_No_Organizations_Guidance',
+    () => ({
+        default:
+            'Prøv «Oppdater organisasjoner» for å hente listen på nytt. Hvis du forventer å se en virksomhet, be den som administrerer tilganger i virksomheten om å kontrollere tilgangen din i Altinn.'
+    }),
+    { virtual: true }
+);
+jest.mock(
     '@salesforce/apex/AAREG_HomeController.getOrganizationsWithRoles',
     () => {
         const { createApexTestWireAdapter } = jest.requireActual('@salesforce/sfdx-lwc-jest');
@@ -222,9 +243,29 @@ describe('c-aareg-home', () => {
         await flushPromises();
         await flushPromises();
 
-        expect(element.shadowRoot.querySelector('[data-id="organization-empty-state"]')).not.toBeNull();
+        const emptyState = element.shadowRoot.querySelector('[data-id="organization-empty-state"]');
+        expect(emptyState).not.toBeNull();
+        expect(emptyState.getAttribute('role')).toBe('status');
+        expect(emptyState.querySelector('h2').textContent).toBe('Ingen virksomheter er tilgjengelige');
+        expect(emptyState.querySelector('.mangler-tilgang-bakgrunn')).not.toBeNull();
+        expect(emptyState.querySelector('h2').classList.contains('typo-innholdstittel')).toBe(true);
+        expect(emptyState.querySelectorAll('.missing-access-subtitle')).toHaveLength(2);
+        expect(emptyState.textContent).toContain('Du må velge en virksomhet før du kan bruke søknader');
+        expect(emptyState.textContent).toContain('Prøv «Oppdater organisasjoner»');
+        expect(emptyState.textContent).toContain('Hvis du forventer å se en virksomhet');
+        expect(element.shadowRoot.querySelector('.organization-select')).toBeNull();
+        expect(element.shadowRoot.querySelector('.inner-container')).toBeNull();
+        expect(element.shadowRoot.querySelector('.error-message')).toBeNull();
         expect(element.shadowRoot.querySelector('[data-id="refresh-organizations"]')).not.toBeNull();
         expect(element.shadowRoot.querySelector('c-aareg_missing-access')).toBeNull();
+
+        refreshApex.mockImplementationOnce(async () => organizationsAdapter.emit(initialOrganizations));
+        element.shadowRoot.querySelector('[data-id="refresh-organizations"]').click();
+        await flushPromises();
+        await flushPromises();
+        expect(element.shadowRoot.querySelector('[data-id="organization-empty-state"]')).toBeNull();
+        expect(element.shadowRoot.querySelector('.organization-select').value).toBe('111111111');
+        expect(element.shadowRoot.querySelector('.inner-container')).not.toBeNull();
     });
 
     it('requires an explicit selection when the saved organization disappears, then grants support for B', async () => {
