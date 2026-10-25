@@ -160,6 +160,35 @@ public with sharing class AAREG_HomeControllerTest {
     }
 
     /**
+     * Uses the user's selected organization in tests instead of substituting the legacy default.
+     *
+     * @since 2026-10-25
+     */
+    @IsTest
+    private static void shouldShareAgreementsForSelectedOrganizationInTestContext() {
+        User user = [SELECT Id, LastUsedOrganization__c FROM User WHERE Username = 'John.Doe@nav.no' LIMIT 1];
+        user.LastUsedOrganization__c = '111111111';
+        update user;
+
+        Account account = AAREG_TestDataFactory.getAccountCounty();
+        account.INT_OrganizationNumber__c = user.LastUsedOrganization__c;
+        insert account;
+
+        Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
+        insert application;
+
+        Agreement__c agreement = AAREG_TestDataFactory.getAgreement(account.Id);
+        agreement.Application__c = application.Id;
+        insert agreement;
+
+        System.Test.startTest();
+        AAREG_HomeController.shareAgreementsWithUser(user.Id);
+        System.Test.stopTest();
+
+        System.Assert.areEqual(1, [SELECT COUNT() FROM Agreement__Share WHERE UserOrGroupId = :user.Id]);
+    }
+
+    /**
      * checkAndShareIfAuthorized should grant access and share the agreement on a Permit/Access decision.
      *
      * @since January 2026

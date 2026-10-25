@@ -1,9 +1,10 @@
 # Implementation Plan: Konsumentstyrte Altinn-scenario
 
 **Dato:** 2026-10-20  
-**Status:** T005 og T006–T011 er utførte etter klarsignal og verifiserte med
-godkjend pakkeinspeksjon og dry-run i `crm-arbeidsforhold`. Resten har framleis eigne gater;
-dette dokumentet gir ikkje løyve til varig deploy eller andre org-endringar.
+**Status:** T005–T013 er utførte etter klarsignal og dry-run-verifiserte.
+D01 er valt A, og T014–T016 er gjennomførte med fokuserte LWC Jest-testar.
+Samla validering, nettlesarverifikasjon og andre opne gater står att; dette
+dokumentet gir ikkje løyve til varig deploy eller andre org-endringar.
 
 ## Summary
 
@@ -37,8 +38,9 @@ Dette er designet planen konsumerer; planen introduserer ikkje ein eigen datamod
   Ingen cache på tvers av brukarar som kan blande tildelingar.
 - **Verifisert pakkegrense:** Konsumenttest mot installert `crm-platform-integration`
   0.177.0.4; manifestet er låst til denne versjonen etter særskild godkjenning.
-- **Uavklart:** D01 om cache; pakkeeigarens separate review-/releasearbeid blir
-  ikkje automatisk lukka av konsumentverifikasjonen.
+- **Valt:** D01/A, med dynamisk oppfrisking via `@wire` og `refreshApex`.
+  Pakkeeigarens separate review-/releasearbeid blir ikkje automatisk lukka av
+  konsumentverifikasjonen.
 
 ## Constitution Check
 
@@ -158,22 +160,30 @@ REQ-023, REQ-024.
 **Input:** Godkjend factory og S01-S08.  
 **Avhengigheit:** T011.
 
-- [ ] T012 [US1] [US2] [Plan:4.1] Skriv fokuserte scenario-regresjonstestar i `force-app/tests/classes/externalAccess/AAREG_AltinnScenarioJourneyTest.cls` ved dei offentlege controller-/utils-metodane. Bruk eksisterande testfactory og relevante minimumstilgangs-/community-brukarar. Test søknad Permit, ekte ressursavhengig brukerstøtte-fallback, rein Deny utan nye delingar og feil.
-- [ ] T013 [US1] [US2] [Plan:4.1] Byt dei to direkte fasadeopprettingane i `force-app/externalAccess/classes/AAREG_HomeController.cls` og `AAREG_CommunityUtils.cls` til felles factory. Køyr T012 grøn og eksisterande `AAREG_HomeControllerTest`/`AAREG_CommunityUtilsTest`; bevar legacy-testane utan unødig flytting.
+- [x] T012 [US1] [US2] [Plan:4.1] Skriv fokuserte scenario-regresjonstestar i `force-app/tests/classes/externalAccess/AAREG_AltinnScenarioJourneyTest.cls` ved dei offentlege controller-/utils-metodane. Bruk eksisterande testfactory og relevante minimumstilgangs-/community-brukarar. Test søknad Permit, ekte ressursavhengig brukerstøtte-fallback, rein Deny utan nye delingar og feil.
+- [x] T013 [US1] [US2] [Plan:4.1] Byt dei to direkte fasadeopprettingane i `force-app/externalAccess/classes/AAREG_HomeController.cls` og `AAREG_CommunityUtils.cls` til felles factory. Køyr T012 grøn og eksisterande `AAREG_HomeControllerTest`/`AAREG_CommunityUtilsTest`; bevar legacy-testane utan unødig flytting.
 
-Ny journey-test må verifisere eigne syntetiske organisasjonar. Dagens
-`Test.isRunningTest()`-overstyring av organisasjonsnummer i delingsmetoden kan
-skjule faktisk åtferd. Karakteriser dette først; eventuell fjerning/erstatning av
-testsnarvegen er ein tett kopla, eksplisitt testa endring, ikkje grunn til å la
-testen hevde at feil organisasjon er korrekt delt.
+Verifisert 2026-10-25 i dry-run `0AfJW00000nmT6j0AE`: 80/80 testar grøne
+med Altinn-, journey-, controller- og utility-testar samla. Testane brukar
+syntetisk community-identitet frå den faktiske konto-kjeda. Scratch-en har berre
+High Volume Customer Portal-profilar, så positive `Agreement__Share`-rader for
+den eksterne lisensen er ikkje verifiserte; ordinær delingsregresjon er grøn.
+Testspesifikk overstyring av organisasjonsvalet vart testa raud (14 testar, éin
+feil) og fjerna; same fokuserte køyring vart grøn (14/14). Ho maskerte
+scenarioorganisasjonen. Ingen permanent deploy eller scenarioaktivering.
+Sjå [journey-evidens og avgrensingar](README.md#controllerkopling-og-apex-journey--2026-10-25).
+
+Journey-testen brukar scenarioets syntetiske organisasjonsnummer. Positiv
+delingsverifikasjon for community-lisensen står att, fordi scratch-org-en berre
+tilbyr High Volume Customer Portal-profilar.
 
 ### 5.1 - Velje cache-strategi etter omfang
 
 **Krav:** REQ-015, REQ-016, REQ-017, REQ-024.  
 **Input:** D01 i design/spec.  
-**Avhengigheit:** T002; ta valet før 5.2 eller 5.3.
+**Avhengigheit:** T002; valet er teke før 5.2.
 
-- [ ] T014 [Plan:5.1] Gå gjennom endringsflate, lisensbehov og repeterbar Permit-til-Deny i `docs/integrations/altinn/README.md` saman med brukaren. Registrer A eller B i `grill.md` og marker den andre greina som ikkje vald. Ingen av dei er førehandsvald.
+- [x] T014 [Plan:5.1] Brukaren valde A etter gjennomgang av endringsflate og repeterbar testflyt. Valet er registrert i `docs/integrations/altinn/README.md`, `grill.md` og konsumentspesifikasjonen; B er ikkje vald.
 
 ### 5.2 - Alternativ A: eksplisitt dynamisk oppfrisking
 
@@ -181,8 +191,8 @@ testen hevde at feil organisasjon er korrekt delt.
 **Input:** Oppfriskingskontrakten.  
 **Avhengigheit:** T013, T014 og eksplisitt val av A.
 
-- [ ] T015 [US4] [Plan:5.2] Skriv raude LWC-testar i `force-app/externalAccess/lwc/aareg_home/__tests__/aareg_home.test.js` for ny liste, fjerna/filtrert organisasjon, gamle tilgangsverdiar, feil og overlappande oppfrisking.
-- [ ] T016 [US4] [Plan:5.2] Implementer støtta ferskhenting og vanleg oppfriskingshandling i `force-app/externalAccess/lwc/aareg_home/aareg_home.js` og `.html`, med Custom Labels/omsetjing i `force-app/main/default/` dersom nye UI-tekstar trengst. Køyr T015 grøn og verifiser ingen regresjon i ordinær modus.
+- [x] T015 [US4] [Plan:5.2] Skriv fokuserte LWC-testar i `force-app/externalAccess/lwc/aareg_home/__tests__/aareg_home.test.js` for ny liste, filtrert bortfall av valt organisasjon, rettssjekk på nytt, feil og overlappande oppfrisking.
+- [x] T016 [US4] [Plan:5.2] Implementer ferskhenting med `@wire`/`refreshApex` og oppfriskingshandling i `aareg_home.js` og `.html`, med Custom Label og norsk omsetjing. Fokusert Jest-test er grøn; breiare regresjon og nettlesarverifikasjon står att.
 
 Wire-/refresh-endring og eventuell medviten retting av forelda val skal ha
 eksplisitt godkjende akseptansar; ikkje bruk mock-modus til å skjule UI-feil.
@@ -298,4 +308,5 @@ Dette er planlagt evidens, ikkje ein påstand om implementasjon.
 
 Alle krav er sporbare i planen; REQ-016 er medvite vilkårsavhengig.
 Checkpointane kontrollerer berre sporbarheit, ikkje at funksjonen er godkjend
-eller ferdig. D01 og ekstern pakkeleveranse er framleis opne gater.
+eller ferdig. D01/A er valt og implementert; samla validering, UI-verifikasjon
+og pakkeeigarens separate review-/releasearbeid er framleis opne gater.

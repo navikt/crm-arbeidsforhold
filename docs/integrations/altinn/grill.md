@@ -87,9 +87,10 @@ provider-wiringa. Rein Deny må bevise ingen nye delingar.
 
 ### G11 - Er alle avgjerder låste?
 
-Nei. D01 om cache er eksplisitt open. Pakkeeigar/API-tilgang og
-avhengigheitsleveranse må stadfestast. Planen er eit utkast med avhengigheitsgater,
-ikkje løyve til deploy, installasjon eller pakkeutgiving.
+Nei. Brukaren har valt D01/A, og oppfriskingsflyten er implementert og
+Jest-verifisert. Ende-til-ende UI, positiv delingsverifikasjon for community-
+lisensen og pakkeeigaren sitt separate review-/releasearbeid er framleis eigne
+gater. Dette gir ikkje løyve til deploy, installasjon eller pakkeutgiving.
 
 ## Kravkvalitet og readiness
 
@@ -99,7 +100,7 @@ ikkje løyve til deploy, installasjon eller pakkeutgiving.
 - [x] Testdata, deling og andre kanalar er tekne med.
 - [x] Admin-app og administrasjonsteneste er eksplisitt utsette.
 - [x] Begge cache-alternativa har kostnad og avgrensingar.
-- [ ] D01 er valt etter omfangsgjennomgang.
+- [x] D01/A er valt etter omfangsgjennomgang; alternativ B er ikkje valt.
 - [ ] Pakkeeigar og kompatibel API-leveranse er stadfesta.
 - [ ] Detaljdesign og raud-sone-endringar er menneskeleg godkjende for implementering.
 

@@ -192,9 +192,9 @@ realistiske. Vi utvidar ikkje integrasjonstesting for å gjere dette.
   designforslag, ikkje eit krav om at Admin skal redigere JSON.
 - Eigen permission fungerer som eksplisitt godkjenning av den syntetiske brukaren.
   Administrator har ansvar for syntetisk identitet og isolerte testdata.
-- **D01 - [NEEDS CLARIFICATION: Vel dynamisk oppfrisking (A) eller faste,
-  separate testbrukarar og kontrollerte testøkter (B) etter omfangsgjennomgang.]**
-  REQ-016 gjeld berre A. Felles provider-/policyarbeid er ikkje avhengig av valet.
+- **D01 - Avklart: A, dynamisk oppfrisking.** Brukaren valde dette alternativet
+  etter omfangsgjennomgang; T015–T016 implementerer oppfrisking med `@wire` og
+  `refreshApex`. REQ-016 gjeld. Alternativ B er ikkje valt.
 
 Sjå [design og kritiske spørsmål](../../docs/integrations/altinn/README.md),
 [grill-runden](../../docs/integrations/altinn/grill.md) og

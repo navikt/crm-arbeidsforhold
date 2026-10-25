@@ -83,7 +83,10 @@ public without sharing class AAREG_HomeController {
             FROM User
             WHERE Id = :userId
         ];
-        AltinnCalloutService altinn = new AltinnCalloutService();
+        AltinnCalloutService altinn = AAREG_AltinnServiceFactory.createService(
+            currentUser.Id,
+            currentUser.Contact.Account.INT_PersonIdent__c
+        );
         AltinnCalloutService.AltinnOrganizationsResponse response = altinn.getOrganizations(
             currentUser.Contact.Account.INT_PersonIdent__c
         );
@@ -202,9 +205,6 @@ public without sharing class AAREG_HomeController {
     @AuraEnabled
     public static void shareAgreementsWithUser(String userId) {
         String lastUsedOrganization = getLastUsersLastUsedOrganization(userId);
-        if (Test.isRunningTest()) {
-            lastUsedOrganization = DEFAULT_ORGANIZATION_NUMBER;
-        }
         List<Agreement__c> agreements = [
             SELECT Id, OwnerId
             FROM Agreement__c

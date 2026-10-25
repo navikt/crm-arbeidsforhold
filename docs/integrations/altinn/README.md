@@ -1,8 +1,9 @@
 # Altinn-resultat som testscenario i Arbeidsforhold
 
 **Dato:** 2026-10-20  
-**Status:** Policy, scenariokatalog, provider og factory, T006–T011, er implementerte og dry-run-verifiserte.
-Resten er planlagt; ingen varig deploy eller ende-til-ende-verifikasjon er utført.
+**Status:** T005–T013 er dry-run-verifiserte. D01 er valt A, og T015–T016 er
+implementerte og Jest-verifiserte. Ende-til-ende UI-verifikasjon står att;
+ingen varig deploy er utført.
 
 Dette dokumentet gjeld konsumenten si teststøtte, ikkje simulering eller testing
 av Altinn-integrasjonen. Spesifikasjonane er
@@ -49,8 +50,9 @@ Testfixtures blir skrivne som administrator; runtime-kalla går som testbrukaren
 Produksjon, ukjent miljø, lesefeil og vellukka syntetisk identitetsbinding blir
 testa gjennom ein privat testseam, ikkje mot ein produksjonsorg. Den faktiske
 scratch-statusen og avvising av ein brukar utan kontaktidentitet er òg testa.
-Gyldig identitetsbinding mot ein faktisk community-brukar står att i seinare
-konsument-/UI-verifikasjon.
+Ei syntetisk identitet bunden til ein faktisk Contact/Account-kjede på ein
+syntetisk community-brukar blir testa i journey-skiva nedanfor; ingen reell
+personidentitet blir brukt.
 
 Første raude dry-run stoppa i kompilering fordi policyklassen mangla; ingen test
 køyrde då. Utvida raud køyring avdekte òg testsyntaks som vart retta. Første
@@ -77,9 +79,10 @@ Ein mellomliggjande dry-run stoppa med «That object name is already in use»;
 seinare identisk validering fullførte utan omdøyping eller sletting av metadata.
 Ingen varig deploy, pakkeoperasjon eller aktivering er utført.
 
-Kopling til controller/UI er **ikkje**
-implementert. Cache-val D01 er framleis ope. Policygrunnlaget åleine gir ikkje
-moglegheit til å gjennomføre ein mocka brukarjourney.
+Etter at policygrunnlaget var verifisert, stod koplinga til controller/UI att.
+Ho er sidan implementert og beskriven i
+[controller-/journey-statusen](#controllerkopling-og-apex-journey--2026-10-25).
+D01 er seinare valt som A; oppfriskingsarbeidet er beskrive nedanfor.
 
 ## Implementert scenariokatalog — 2026-10-25
 
@@ -185,7 +188,7 @@ sf project deploy start --dry-run \
 
 Ingen varig deploy, pakkeoperasjon, provider-/controller-/UI-endring eller
 aktivering vart utført i denne skiva. Pakkegrense og provider-mapping er seinare
-verifiserte nedanfor; cache-val D01 står framleis att.
+verifiserte nedanfor; D01/A er implementert og dokumentert nedanfor.
 
 ## Implementert provider og factory
 
@@ -255,8 +258,76 @@ sf project deploy start --dry-run \
   --wait 10 --json
 ```
 
-Ingen varig deploy, scenarioaktivering eller controller-/UI-kopling er utført.
-T012–T013 er neste skive; D01 krev framleis eit eksplisitt val.
+Ingen varig deploy, scenarioaktivering eller controller-/UI-kopling er utført
+i denne provider-/factoryskiva. T012–T013 og D01/A er dokumenterte nedanfor.
+
+## Controllerkopling og Apex-journey — 2026-10-25
+
+[AAREG_HomeController](../../../force-app/externalAccess/classes/AAREG_HomeController.cls)
+og [AAREG_CommunityUtils](../../../force-app/externalAccess/classes/AAREG_CommunityUtils.cls)
+brukar no den felles factoryen for organisasjons- og rettsoppslag. Dei sender
+innlogga brukar og identiteten frå brukarens kontakt-/kontokjede vidare; policyen
+kontrollerer at scenario berre svarar for same innlogga brukar.
+
+Den testspesifikke overstyringa som alltid sette siste organisasjon til
+`DEFAULT_ORGANIZATION_NUMBER` er fjerna frå `shareAgreementsWithUser`.
+Ho kunne få testar til å hevde deling mot standardorganisasjonen sjølv om
+scenarioet hadde valt ei anna. Produksjonsåtferda er uendra; testbane brukar no
+same lagra organisasjonsnummer som ordinær runtime.
+
+[AAREG_AltinnScenarioJourneyTest](../../../force-app/tests/classes/externalAccess/AAREG_AltinnScenarioJourneyTest.cls)
+køyrer offentlege controller-metodar som syntetisk community-brukar. Testane
+verifiserer organisasjonsrespons frå S01, søknads-Permit, reell
+ressursavhengig S02-fallback til brukerstøtte, rein S03-Deny utan nye delingar,
+S07-responsfeil utan tilgang og null callouts. Den eksisterande
+[HomeController-testen](../../../force-app/externalAccess/classes/AAREG_HomeControllerTest.cls)
+og [CommunityUtils-testen](../../../force-app/externalAccess/classes/AAREG_CommunityUtilsTest.cls)
+verifiserer ordinær bane og eksisterande delingslogikk.
+
+Raud køyring før wiring gav fire feil fordi standard Altinn 3 vart vald utan
+integrasjonsoppsett. Etter wiring var dei fem journey-testane grøne. Den første
+focused dry-run vart likevel avvist av 75 %-dekningsgaten fordi han berre køyrde
+journey-klassa. Samla dry-run `0AfJW00000nmT6j0AE` gav **80/80 testar,
+checkOnly=true, utan feil eller dekningsvarsel**. Dekning: HomeController
+106/106, CommunityUtils 10/10, provider 54/54, factory 7/7, policy 34/34 og
+repository 116/117 køyrbare linjer.
+
+Scratch-org-en har berre High Volume Customer Portal-profilar for eksterne
+testbrukarar; ingen rollebasert Customer Community Plus/Partner-profil er
+tilgjengeleg. Journey-testen beviser difor tilgangsavgjerda, ikkje at ei
+`Agreement__Share`-rad kan opprettast for denne lisensen. Eksisterande
+delingsregresjonar køyrde grønt for ordinær testbrukar. Positive scenario-delings-
+åtferd med den faktiske lisensen må avklarast/verifiserast separat før ein
+hevdar full community-delingsjourney.
+
+D01 er valt som A: dynamisk oppfrisking. Den lokale UI-endringa og Jest-
+verifikasjonen er dokumenterte i neste avsnitt; dette Apex-dry-run-beviset er
+ikkje ein ende-til-ende nettlesartest. Ingen permanent deploy eller
+scenarioaktivering er utført.
+
+Eksakt samla kommando, siste validering `0AfJW00000nmT6j0AE`:
+
+```sh
+sf project deploy start --dry-run \
+  --source-dir force-app/integration/altinn \
+  --source-dir force-app/externalAccess/classes/AAREG_HomeController.cls \
+  --source-dir force-app/externalAccess/classes/AAREG_CommunityUtils.cls \
+  --source-dir force-app/externalAccess/classes/AAREG_HomeControllerTest.cls \
+  --source-dir force-app/tests/classes/externalAccess/AAREG_AltinnScenarioJourneyTest.cls \
+  --source-dir force-app/tests/classes/integration/altinn \
+  --source-dir force-app/tests/classes/integration/common/Integration_TestDataFactory.cls \
+  --source-dir force-app/utility/classes/AAREG_TestDataFactory.cls \
+  --target-org crm-arbeidsforhold \
+  --test-level RunSpecifiedTests \
+  --tests AAREG_AltinnScenarioJourneyTest \
+  --tests AAREG_HomeControllerTest \
+  --tests AAREG_CommunityUtilsTest \
+  --tests AAREG_AltinnServiceFactoryTest \
+  --tests AAREG_AltinnScenarioProviderTest \
+  --tests AAREG_AltinnScenarioPolicyTest \
+  --tests AAREG_AltinnScenarioRepositoryTest \
+  --wait 10 --json
+```
 
 ## Kjeldegrunnlag og avgrensing
 
@@ -273,8 +344,8 @@ Lesne lokale kjelder:
 - [AAREG_CommunityUtils](../../../force-app/externalAccess/classes/AAREG_CommunityUtils.cls)
   opprettar fasaden ved rettsoppslag.
 - [aareg_home](../../../force-app/externalAccess/lwc/aareg_home/aareg_home.js)
-  hentar organisasjonar imperativt frå ein cacheable Apex-metode og sjekkar rettar
-  i separate kall.
+  hentar organisasjonar med `@wire`/`refreshApex` og sjekkar rettar i separate
+  kall.
 
 Dette er observasjonar i referansekjelda, ikkje bevis på deploya revisjon.
 Pakkeeigar må stadfeste kontrakten i autoritativt repository. Arkitekturretninga
@@ -418,6 +489,26 @@ Vi leverer ingen skrivefunksjon i produksjon og ingen «Allow in production».
 Forsøk på bruk skal gi tydeleg feil etter eksisterande feil-/loggstandard utan
 sensitivt innhald. Cacheable lesing må ikkje innføre DML for logging.
 
+## Dynamisk oppfrisking av organisasjonar — D01/A
+
+Brukaren valde alternativ A. `aareg_home` hentar organisasjonar gjennom `@wire`
+og `refreshApex`, slik at handlinga ber Salesforce om ei fersk cacheable
+Apex-respons. Ho nullstiller gammal tilgang før oppfrisking, brukar eksisterande
+organisasjonsfiltrering, validerer lagra val på nytt og sjekkar rettar berre når
+organisasjonen framleis er tilgjengeleg. Feil held tilgangen av og viser ei
+brukarmelding; overlappande oppfriskingskall blir avviste.
+
+Den fokuserte LWC-testen verifiserer ny organisasjon i lista, rettssjekk på nytt,
+filtrert bortfall av valt organisasjon, feil, overlappande handling og feil i
+første organisasjonsoppslag. `npm run test:unit -- -- --runInBand
+force-app/externalAccess/lwc/aareg_home/__tests__/aareg_home.test.js` gav
+5/5 grøne testar. Heile LWC-suiten med
+`npm run test:unit -- -- --runInBand` gav 6/6 suites og 15/15 testar.
+`sf project deploy preview --source-dir force-app --target-org crm-arbeidsforhold`
+melde ingen konfliktar og at 497 metadatafiler ville bli med i ein deploy;
+ingen deploy vart utført. Ende-til-ende nettlesartest og positiv
+delingsverifikasjon for High Volume Customer Portal-lisensen står framleis att.
+
 ## D01: To cache-alternativ, ikkje eit skjult val
 
 Dette er cache av organisasjonssvar i klienten, ikkje Altinn-token.
@@ -457,8 +548,9 @@ Permit-til-Deny blir karakterisert med fokuserte Apex-testar og, ved UI-testing,
 ei eksplisitt verifisert ny testøkt. Dersom det ikkje kan repeterast påliteleg,
 er B utilstrekkeleg for den reisa og A må vurderast.
 
-**Valstatus:** Begge er planlagde; brukaren ønskjer omfang før val. Ingen
-cache-/UI-endring eller påstand om full UI-verifikasjon før D01 er avgjort.
+**Valstatus:** Brukaren valde A. T015–T016 er implementerte og lokalt
+Jest-verifiserte. Alternativ B er ikkje valt. Lokal LWC-verifikasjon er ikkje
+det same som ende-til-ende UI- eller community-delingsverifikasjon.
 
 ## Delingar og andre sideeffektar
 

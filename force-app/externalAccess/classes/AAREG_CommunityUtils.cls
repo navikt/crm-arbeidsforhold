@@ -21,7 +21,10 @@ public without sharing class AAREG_CommunityUtils {
         String resourceName
     ) {
         User currentUser = [SELECT Id, Contact.Account.INT_PersonIdent__c FROM User WHERE Id = :userId];
-        AltinnCalloutService altinn = new AltinnCalloutService();
+        AltinnCalloutService altinn = AAREG_AltinnServiceFactory.createService(
+            currentUser.Id,
+            currentUser.Contact.Account.INT_PersonIdent__c
+        );
 
         AltinnCalloutService.AltinnRightsResponse response = altinn.getRights(
             currentUser.Contact.Account.INT_PersonIdent__c,

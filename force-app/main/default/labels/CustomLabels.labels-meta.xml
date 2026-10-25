@@ -277,4 +277,12 @@ Web lookup in the Aa register - nav.no see:https://aa-registeret.nav.no/</value>
         <shortDescription>Information section</shortDescription>
         <value>Information and guidance.</value>
     </labels>
+    <labels>
+        <fullName>AAREG_Refresh_Organizations</fullName>
+        <categories>Arbeidsforhold external access</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Refresh organizations</shortDescription>
+        <value>Refresh organizations</value>
+    </labels>
 </CustomLabels>

@@ -1,15 +1,23 @@
 import { LightningElement, track, wire } from 'lwc';
 import Id from '@salesforce/user/Id';
+import { refreshApex } from '@salesforce/apex';
 import getLastUsersLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganization';
 import getOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.getOrganizationsWithRoles';
 import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.updateLastUsedOrganization';
 import checkAndShareIfAuthorized from '@salesforce/apex/AAREG_HomeController.checkAndShareIfAuthorized';
 import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreads';
+import refreshOrganizationsLabel from '@salesforce/label/c.AAREG_Refresh_Organizations';
 
 export default class Aareg_home extends LightningElement {
     @track organizations;
     isLoaded = false;
+    isRefreshing = false;
     unreadThreadCount = 0;
+    organizationsWireResult;
+    organizationVersion;
+    organizationError;
+    initializationStarted = false;
+    labels = { refreshOrganizations: refreshOrganizationsLabel };
 
     @wire(getUsersThreads, { userId: '$currentUser' })
     wiredThreads({ data }) {
@@ -49,44 +57,95 @@ export default class Aareg_home extends LightningElement {
 
     onlyOrganizations = ['Organization'];
 
-    connectedCallback() {
-        this.init();
+    @wire(getOrganizationsWithRoles, { userId: '$currentUser' })
+    wiredOrganizations(result) {
+        this.organizationsWireResult = result;
+        if (result.data) {
+            try {
+                this.setOrganizations(result.data);
+                this.organizationError = null;
+            } catch (error) {
+                this.organizations = [];
+                this.organizationError = error;
+            }
+        } else if (result.error) {
+            this.organizations = [];
+            this.organizationError = result.error;
+        } else {
+            return;
+        }
+
+        if (!this.initializationStarted) {
+            this.initializationStarted = true;
+            void this.init();
+        }
+    }
+
+    setOrganizations(orgResult) {
+        this.organizations = undefined;
+        this.organizationVersion = orgResult.altinnVersion;
+        if (!orgResult.success) {
+            throw new Error(`Failed to get organizations ${orgResult.errorMessage}`);
+        }
+        if (orgResult.altinnVersion === 'v3') {
+            const organizations = Array.isArray(orgResult.organizations) ? orgResult.organizations : [];
+            this.organizations = organizations
+                .filter((organization) => this.onlyOrganizations.includes(organization.type))
+                .filter((organization) => !this.noAccessOrgForms.includes(organization.unitType));
+        }
     }
 
     async init() {
         try {
-            const orgResult = await getOrganizationsWithRoles({ userId: this.currentUser });
-            if (orgResult.success) {
-                if (orgResult.altinnVersion === 'v3') {
-                    this.organizations = orgResult.organizations.filter((el) =>
-                        this.onlyOrganizations.includes(el.type)
-                    );
-                    this.organizations = this.organizations.filter(
-                        (el) => !this.noAccessOrgForms.includes(el.unitType)
-                    );
-                }
-            } else {
-                throw `Failed to get organizations ${orgResult.errorMessage}`;
+            if (this.organizationError) {
+                throw this.organizationError;
             }
-
             this.lastUsedOrganization = await getLastUsersLastUsedOrganization({ userId: this.currentUser });
             this.sortOrganizations();
-
-            if (this.lastUsedOrganization) {
-                await this.secureAccessCheck();
-            }
+            await this.checkSelectedOrganization();
         } catch (error) {
             console.error(error);
+            this.clearAccess();
             this.showErrorMessage('En feil oppstod. Vennligst prøv igjen eller refresh siden.');
         } finally {
             this.isLoaded = true;
         }
     }
 
+    async handleRefresh() {
+        if (this.isRefreshing || !this.organizationsWireResult) return;
+
+        this.isRefreshing = true;
+        this.clearAccess();
+        this.showError = false;
+        this.organizations = [];
+        this.lastUsedOrganization = null;
+        this.organizationError = null;
+
+        try {
+            await refreshApex(this.organizationsWireResult);
+            if (this.organizationError) {
+                throw this.organizationError;
+            }
+
+            this.lastUsedOrganization = await getLastUsersLastUsedOrganization({ userId: this.currentUser });
+            this.sortOrganizations();
+            await this.checkSelectedOrganization();
+        } catch (error) {
+            console.error(error);
+            this.organizations = [];
+            this.lastUsedOrganization = null;
+            this.clearAccess();
+            this.showErrorMessage('Henting av organisasjoner feilet. Vennligst prøv igjen eller refresh siden.');
+        } finally {
+            this.isRefreshing = false;
+        }
+    }
+
     async handleOrganizationChange(event) {
+        if (this.isRefreshing) return;
         this.isLoaded = false;
-        this.hasAccess = false;
-        this.hasApplicationAccess = false;
+        this.clearAccess();
         this.lastUsedOrganization = event.target.value;
 
         try {
@@ -121,6 +180,28 @@ export default class Aareg_home extends LightningElement {
             this.organizations[0] = this.organizations[foundIndex];
             this.organizations[foundIndex] = placeholder;
         }
+    }
+
+    async checkSelectedOrganization() {
+        if (this.lastUsedOrganization && this.isSelectedOrganizationAvailable()) {
+            await this.secureAccessCheck();
+            return;
+        }
+
+        this.lastUsedOrganization = null;
+        this.clearAccess();
+    }
+
+    isSelectedOrganizationAvailable() {
+        if (this.organizationVersion !== 'v3') return true;
+        return this.organizations?.some(
+            (organization) => organization.organizationNumber === this.lastUsedOrganization
+        );
+    }
+
+    clearAccess() {
+        this.hasAccess = false;
+        this.hasApplicationAccess = false;
     }
 
     async secureAccessCheck() {

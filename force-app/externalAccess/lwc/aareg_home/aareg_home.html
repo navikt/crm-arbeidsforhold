@@ -23,7 +23,12 @@
             </div>
             <div class="org_picker">
                 <template if:true={organizations}>
-                    <select class="organization-select" aria-invalid="false" onchange={handleOrganizationChange}>
+                    <select
+                        class="organization-select"
+                        aria-invalid="false"
+                        disabled={isRefreshing}
+                        onchange={handleOrganizationChange}
+                    >
                         <option if:false={hasPreviouslySelectedOrganization} value="">-- Velg virksomhet --</option>
                         <template for:each={organizations} for:item="organization">
                             <option key={organization.organizationNumber} value={organization.organizationNumber}>
@@ -34,6 +39,20 @@
                         </template>
                     </select>
                 </template>
+                <div class="organization-actions">
+                    <lightning-button
+                        data-id="refresh-organizations"
+                        label={labels.refreshOrganizations}
+                        disabled={isRefreshing}
+                        onclick={handleRefresh}
+                    ></lightning-button>
+                    <template if:true={isRefreshing}>
+                        <lightning-spinner
+                            alternative-text={labels.refreshOrganizations}
+                            size="small"
+                        ></lightning-spinner>
+                    </template>
+                </div>
             </div>
         </div>
         <template if:true={hasAccess}>
