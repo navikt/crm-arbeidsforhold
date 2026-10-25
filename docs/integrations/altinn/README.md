@@ -10,6 +10,8 @@ av Altinn-integrasjonen. Spesifikasjonane er
 [pakkegrensa](../../../.github/specs/altinn-provider-injection.md) og
 [applikasjonsscenario](../../../.github/specs/altinn-consumer-scenarios.md).
 Sjå også [kritiske avklaringar](grill.md) og [gjennomføringsplan](implementation-plan.md).
+For guida scratch-org-verifikasjon, sjå [stegvis testguide](test-guide.md) og
+[løpande testlogg](altinn-test-log.md).
 
 For arbeid i integrasjonspakka: ta med
 [sjølvstendig overlevering til pakkeagenten](package-agent-handoff.md).
@@ -298,13 +300,20 @@ checkOnly=true, utan feil eller dekningsvarsel**. Dekning: HomeController
 106/106, CommunityUtils 10/10, provider 54/54, factory 7/7, policy 34/34 og
 repository 116/117 køyrbare linjer.
 
-Scratch-org-en har berre High Volume Customer Portal-profilar for eksterne
-testbrukarar; ingen rollebasert Customer Community Plus/Partner-profil er
-tilgjengeleg. Journey-testen beviser difor tilgangsavgjerda, ikkje at ei
+Den dåverande `crm-arbeidsforhold`-scratch-org-en hadde berre High Volume
+Customer Portal-profilar for eksterne testbrukarar; ingen rollebasert Customer
+Community Plus/Partner-profil var tilgjengeleg. Journey-testen beviste difor
+tilgangsavgjerda, ikkje at ei
 `Agreement__Share`-rad kan opprettast for denne lisensen. Eksisterande
 delingsregresjonar køyrde grønt for ordinær testbrukar. Positive scenario-delings-
 åtferd med den faktiske lisensen må avklarast/verifiserast separat før ein
 hevdar full community-delingsjourney.
+
+Frå 2026-10-25 er den separate `nav-community-dev`-scratch-org-en sett opp med
+éin aktiv Customer Community Plus-brukar for S01 og fire High Volume-brukarar.
+Dette fjernar lisensblokkeringa for guida nettlesartest, men nettlesarbasert
+avtalevising er enno ikkje stadfesta. Sjå [testguiden](./test-guide.md) og
+[testloggen](./altinn-test-log.md).
 
 D01 er valt som A: dynamisk oppfrisking. Den lokale UI-endringa og Jest-
 verifikasjonen er dokumenterte i neste avsnitt; dette Apex-dry-run-beviset er
@@ -518,12 +527,13 @@ Altinn-/LWC-endringane deployerte til scratch-org `crm-arbeidsforhold`:
 `0AfJW00000nmyDl0AI`, `Succeeded`, 60 komponentar og 80/80 Apex-testar.
 Dette var ikkje produksjon eller ein varig deploy.
 
-Eit målretta oppslag fann ingen eksisterande syntetisk community-testbrukar.
-Scenario er derfor ikkje aktivert, og ende-til-ende nettlesar-/delingsreise er
-ikkje utført. Ho krev ein syntetisk ekstern brukar som kan autentiserast i
+Eit tidlegare målretta oppslag i `crm-arbeidsforhold` fann ingen eksisterande
+syntetisk community-testbrukar. Scenario var derfor ikkje aktivert, og
+ende-til-ende nettlesar-/delingsreise var ikkje utført. Ho krev ein syntetisk ekstern brukar som kan autentiserast i
 nettlesaren; ingen innloggingsopplysningar er oppretta, etterspurde eller
 handterte her. Positiv delingsverifikasjon for High Volume Customer Portal-
-lisensen står òg att.
+lisensen står òg att. For Plus-brukaren i `nav-community-dev` står
+nettlesartesten att.
 
 ## D01: To cache-alternativ, ikkje eit skjult val
 

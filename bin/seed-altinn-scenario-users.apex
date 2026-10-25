@@ -4,16 +4,22 @@ if (!organization.IsSandbox) {
 }
 
 String organizationSuffix = UserInfo.getOrganizationId().right(8).toLowerCase();
-String portalProfileName = 'High Volume Customer Portal User';
+String highVolumeProfileName = 'High Volume Customer Portal User';
+String communityPlusProfileName = 'Customer Community Plus User';
 String communityPathPrefix = 'aaregisteret';
-List<Profile> portalProfiles = [
-    SELECT Id
+Map<String, Profile> portalProfilesByName = new Map<String, Profile>();
+for (Profile portalProfile : [
+    SELECT Id, Name
     FROM Profile
-    WHERE Name = :portalProfileName
-    LIMIT 1
-];
-if (portalProfiles.isEmpty()) {
+    WHERE Name IN :new Set<String>{ highVolumeProfileName, communityPlusProfileName }
+]) {
+    portalProfilesByName.put(portalProfile.Name, portalProfile);
+}
+if (!portalProfilesByName.containsKey(highVolumeProfileName)) {
     throw new IllegalArgumentException('The High Volume Customer Portal User profile is required.');
+}
+if (!portalProfilesByName.containsKey(communityPlusProfileName)) {
+    throw new IllegalArgumentException('The Customer Community Plus User profile is required.');
 }
 List<Network> communities = [
     SELECT Id
@@ -86,6 +92,8 @@ for (String username : usernames) {
     }
     String scenarioName = scenarioByUsername.get(username);
     String scenarioKey = scenarioName.toLowerCase();
+    String profileName = scenarioName == 'S01' ? communityPlusProfileName : highVolumeProfileName;
+    Profile portalProfile = portalProfilesByName.get(profileName);
     String lastName = 'Scenario User';
     if (scenarioName == 'S01') {
         lastName = 'Permit Scenario User';
@@ -96,7 +104,7 @@ for (String username : usernames) {
         User existingUser = usersByUsername.get(username);
         if (
             existingUser.ContactId != contact.Id ||
-            existingUser.ProfileId != portalProfiles[0].Id ||
+            existingUser.ProfileId != portalProfile.Id ||
             !existingUser.IsActive
         ) {
             throw new IllegalArgumentException('An existing synthetic Altinn user does not match its seed.');
@@ -113,7 +121,7 @@ for (String username : usernames) {
                 LocaleSidKey = 'en_US',
                 LanguageLocaleKey = 'en_US',
                 EmailEncodingKey = 'UTF-8',
-                ProfileId = portalProfiles[0].Id,
+                ProfileId = portalProfile.Id,
                 ContactId = contact.Id,
                 CommunityNickname = 'altinn-' + scenarioKey + '-' + organizationSuffix,
                 LastUsedOrganization__c = '111111111'
