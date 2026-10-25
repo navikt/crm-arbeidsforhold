@@ -1,6 +1,7 @@
 # Testlogg for Altinn-scenario
 
-**Historisk testøkt:** scratch-org-alias `crm-arbeidsforhold`  
+**Gjeldande målorg:** `nav-community-dev`; første økt nedanfor er historisk
+frå `crm-arbeidsforhold`  
 **Testguide:** [test-guide.md](./test-guide.md)  
 **Loggregel:** Berre observerte resultat blir markerte som bestått. Nettlesar-
 resultat blir stadfesta av testpersonen; CLI/Apex-resultat blir stadfesta av
@@ -55,10 +56,12 @@ køyringa.
 | Apex      | Fokuserte Home-delingsscenario                 | Bestått        | 3/3 testar bestod, inkludert `shouldGrantAccessAndShareAgreement` og `shouldShareAgreementsAndRelatedContacts`.                                                                                                                       |
 | Nettlesar | Community Plus-innlogging og avtalevising      | Ikkje testa    | Klar for guida nettlesartest; ventar på testpersonen.                                                                                                                                                                                 |
 
-Lisensen blir ikkje frigjord berre ved å deaktivere brukaren. Behald éin
-Community Plus-brukar og bruk S01-brukarens scenarioinnstilling for Plus-
-spesifikke testar. High Volume-brukarar kan framleis brukast for scenario som
-ikkje skal verifisere den vanlege Salesforce-delingsmodellen.
+**Retta lisensråd:** Den tidlegare påstanden her om at deaktivering ikkje
+frigjer lisenskapasitet var ikkje verifisert og er trekt tilbake. No bruker vi
+éin generisk Community Plus-brukar for alle scenario. Dei fire gamle High
+Volume-brukarane er deaktiverte; siste lisensquery viser 0 i bruk for High
+Volume. Brukarmodellen er vald for enkel testing med same historikk, ikkje
+fordi ein inaktiv brukar må halde på ei aktiv lisens.
 
 ## Løpande nettlesarlogg
 
@@ -244,6 +247,134 @@ Legg til ei rad per steg når testpersonen har utført steget:
 
 ## Avvik og oppfølging
 
-Ingen nettlesaravvik er stadfesta enno. Før inn avvik med scenario-ID, vald
-organisasjonsbokstav, synleg åtferd og eventuell feiltekst. Ikkje ta med
-brukarnamn, e-post, passord, token, cookie, personident eller org-URL.
+S05, S07 og S08 har stadfesta nettlesaravvik, som dokumentert ovanfor.
+Rettingane nedanfor er automatisk validerte og deploya, men avvika er ikkje
+lukka før ny stadfesta nettlesartest.
+
+## Rettings- og oppsettsøkt 2026-10-25
+
+### Éin generisk Community Plus-brukar
+
+- Brukaren godkjende konsolidering til éin generisk testbrukar.
+- Den tidlegare Permit-brukaren/kontakten er omnamna til
+  **Synthetic Community Test User**. User/Contact er migrerte, ikkje erstatta;
+  historikk, identitetskjede og gamle delingar er bevarte.
+- Dei fire gamle scenario-brukarane er deaktiverte, og settingane deira har
+  `UseScenarioProvider__c=false`. Historiske postar er ikkje sletta.
+- Ny `verify-altinn-test-user.apex` feila først fordi gamle scenario-brukarar
+  framleis var aktive. Etter migrering bestod han. Seed + verifikasjon er
+  gjentekne med vellukka resultat for å kontrollere idempotens.
+- Første seedforsøk viste at `upsert User` ikkje er støtta; skriptet bruker no
+  eksplisitt insert/update avhengig av om brukaren finst.
+- Read-only query stadfesta éin aktiv generisk brukar med Plus-lisens og fire
+  inaktive gamle brukarar. Lisensquery: Plus 1 totalt / 1 i bruk; High Volume
+  5 totalt / 0 i bruk. Aktiv brukarsetting er S01/subject-a/true.
+
+Kommandoar som er køyrde med vellukka resultat:
+
+```bash
+rtk bash bin/create-scratch-org.sh --alias nav-community-dev \
+  --post-steps-only --post-steps altinn-scenario-users
+rtk sf apex run --target-org nav-community-dev --file bin/verify-altinn-test-user.apex
+```
+
+Dette er brukt i org-en, ikkje berre lokalt eller som dry-run.
+
+### S05/S07/S08 – årsak og tilsikta åtferd
+
+- **S05:** Manglar-rett-panelet blei vist utan gyldig organisasjonsval.
+  Det blir no berre vist ved faktisk vald organisasjon og ordinær Deny,
+  ikkje ved tom liste eller teknisk feil.
+- **S07:** Feiltilstanden blei fjerna før ein ny wire-respons fanst.
+  Gjenteken identisk feil kunne derfor etterlate gamle val/feilfri tilstand.
+  Feilen blir no bevart fram til faktisk vellukka respons; gamle
+  organisasjonar/tilgang blir tømde ved feil. Controlleren skil i tillegg
+  teknisk rights-feil utan avgjerd frå eit eksplisitt Deny-svar.
+- **S08:** Native select kunne vise B som første val etter at A fall bort,
+  medan intern tilstand mangla eit gyldig val og ingen rettssjekk var køyrd.
+  Eksplisitt vald plasshaldar gjer UI og tilstand like. Manuelt val av B
+  utløyser lagring og rettssjekk; tomt/ugyldig val går ikkje til Apex.
+- Feil ved lagring av organisasjonsval blir viste eksplisitt utan tilgang.
+  Vellukka gjenoppretting frå response-feil til S01 er òg DOM-testa.
+
+### Automatisk evidens
+
+- **Jest raud:** Den fokuserte regresjonskøyringa gav 6 feil / 3 grøne før
+  implementasjon.
+- **Jest grøn:** 9/9 etter retting; utvida med feil ved lagring og
+  gjenopprettingsassertions til 10/10.
+- **Apex raud:** Journey-testen som krev teknisk exception feila med
+  «A technical lookup failure must not become an ordinary denial.»
+- **Apex grøn:** Samla controller-/journey-dry-run bestod 19/19, med
+  `checkOnly=true` og utan dekningsblokkering.
+  Ein gammal test for tom upstream-respons er oppdatert til teknisk
+  feilkontrakt; testar for eksplisitt Deny er bevarte.
+- Eksisterande `MIXED_DML_OPERATION` i
+  `shouldShareAgreementsForSelectedOrganizationInTestContext` er isolert
+  med `System.runAs` rundt User-oppdateringa i testoppsettet.
+
+Vellukka fokuserte kommandoar:
+
+```bash
+rtk npm run test:unit -- -- --runInBand force-app/externalAccess/lwc/aareg_home/__tests__/aareg_home.test.js
+
+rtk sf project deploy start --dry-run \
+  --source-dir force-app/externalAccess/classes/AAREG_HomeController.cls \
+  --source-dir force-app/externalAccess/classes/AAREG_HomeControllerTest.cls \
+  --source-dir force-app/tests/classes/externalAccess/AAREG_AltinnScenarioJourneyTest.cls \
+  --source-dir force-app/externalAccess/lwc/aareg_home \
+  --target-org nav-community-dev --test-level RunSpecifiedTests \
+  --tests AAREG_AltinnScenarioJourneyTest --tests AAREG_HomeControllerTest \
+  --wait 10 --json
+```
+
+### Attståande manuell verifikasjon
+
+| Kontroll                                   | Status      | Forventa                                                                |
+| ------------------------------------------ | ----------- | ----------------------------------------------------------------------- |
+| Permanent deploy av rettingar              | Bestått     | Godkjend deploy 0AfJW00000nnQA10AM, fire komponentar, 19/19 Apex-testar |
+| Innlogging med generisk kontaktnamn        | Ikkje køyrd | Same community-brukar/historikk                                         |
+| S05-regresjon                              | Ikkje køyrd | Tomtilstand utan misvisande manglar-rett-panel                          |
+| S07-regresjon                              | Ikkje køyrd | Varig teknisk feil ved gjenteken oppfrisking; ingen gamle val           |
+| S08-regresjon                              | Ikkje køyrd | Eksplisitt plasshaldar, deretter berre støtte ved direkte val av B      |
+| S01-gjenoppretting etter kvar negativ test | Ikkje køyrd | A/B/C og søknadstilgang utan teknisk feil                               |
+
+Følg [den sjølvbetente testguiden](./test-guide.md). Før nye resultat som
+nye observasjonar; dei historiske avvika ovanfor skal ikkje skrivast om til
+bestått på grunnlag av Jest/Apex åleine.
+
+### Endeleg validering og godkjend deploy
+
+- `rtk npm run test:unit -- -- --runInBand`: **Bestått**, 6 suiter / 20 testar.
+- `rtk bash bin/tests/create-scratch-org.test.sh`: **Bestått**, 530 assertions,
+  0 feil.
+- Prettier `--write` og deretter `--check` på dei ti endra støtta
+  Apex-/UI-/test-/dokumentasjonsfilene: **Bestått**. Dei anonyme `.apex`-
+  skripta inngår ikkje i prosjektets vanlege Prettier-glob; seed- og
+  verifikasjonsskripta er kompilerte/køyrde i scratch-org-en.
+- Brukaren godkjende uttrykkeleg den avgrensa permanente deployen til
+  `nav-community-dev`. Ingen andre orgar eller avhengigheitspakkar blei endra.
+- Deploy `0AfJW00000nnQA10AM`: **Bestått**, `checkOnly=false`,
+  `success=true`, fire komponentar og 19/19 Apex-testar, 0 testfeil.
+
+Faktisk deploykommando:
+
+```bash
+rtk sf project deploy start \
+  --source-dir force-app/externalAccess/classes/AAREG_HomeController.cls \
+  --source-dir force-app/externalAccess/classes/AAREG_HomeControllerTest.cls \
+  --source-dir force-app/tests/classes/externalAccess/AAREG_AltinnScenarioJourneyTest.cls \
+  --source-dir force-app/externalAccess/lwc/aareg_home \
+  --target-org nav-community-dev --test-level RunSpecifiedTests \
+  --tests AAREG_AltinnScenarioJourneyTest --tests AAREG_HomeControllerTest \
+  --wait 10 --json
+```
+
+Etter deploy:
+
+- `rtk sf apex run --target-org nav-community-dev --file bin/verify-altinn-test-user.apex`:
+  **Bestått**, utan dataendringar.
+- `rtk sf data query --target-org nav-community-dev --query "SELECT ScenarioName__c, SubjectAlias__c, UseScenarioProvider__c FROM AAREG_AltinnScenarioSetting__c WHERE UseScenarioProvider__c = true"`:
+  **Bestått**, nøyaktig éi rad med S01 / subject-a / true.
+- Nettlesarinnlogging og S05/S07/S08-retest er **ikkje køyrde** etter deploy.
+  Brukaren må stadfeste desse før avvika kan lukkast.

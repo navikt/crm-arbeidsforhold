@@ -1,9 +1,10 @@
 # Altinn-resultat som testscenario i Arbeidsforhold
 
 **Dato:** 2026-10-20  
-**Status:** T005–T013 er dry-run-verifiserte. D01 er valt A, og T015–T016 er
-implementerte og Jest-verifiserte. Ende-til-ende UI-verifikasjon står att;
-ingen varig deploy er utført.
+**Status:** Grunnoppsettet er deploya til `nav-community-dev`, og S01–S08 er
+prøvde i nettlesaren. Rettingane etter S05/S07/S08 er òg deploya etter
+godkjenning, med 20/20 LWC-testar og 19/19 Apex-testar grøne.
+Nettlesarretest står att. Éin generisk Community Plus-testbrukar er sett opp.
 
 Dette dokumentet gjeld konsumenten si teststøtte, ikkje simulering eller testing
 av Altinn-integrasjonen. Spesifikasjonane er
@@ -15,6 +16,37 @@ For guida scratch-org-verifikasjon, sjå [stegvis testguide](test-guide.md) og
 
 For arbeid i integrasjonspakka: ta med
 [sjølvstendig overlevering til pakkeagenten](package-agent-handoff.md).
+
+## Gjeldande testoppsett — 2026-10-25
+
+Bruk **Synthetic Community Test User** for alle scenario og andre community-
+testar som krev Plus-lisens. Den eksisterande Permit-brukaren og kontakten er
+migrerte med same identitet og historikk. Dei fire andre seed-brukarane og
+scenarioinnstillingane deira er deaktiverte, ikkje sletta. Lisenskontrollen i
+`nav-community-dev` viser Plus 1/1 i bruk og High Volume 0/5 i bruk.
+
+`altinn-scenario-users`-poststeget opprettar/migrerer no berre denne generiske
+brukaren og éi aktiv brukarsetting, med S01 og `subject-a`. Køyringa er
+idempotent og gjenopprettar S01; vanleg scenariobyte skal derfor gjerast ved å
+redigere brukarsettinga, ikkje ved å køyre seedet på nytt.
+Sjå [den sjølvbetente GUI-/CLI-guiden](./test-guide.md) for oppsett,
+kontrollskript, innlogging, alle scenario og gjenoppretting.
+
+Rett etter den manuelle testøkta blei desse regresjonane retta og deploya:
+
+- S05: tom liste viser ikkje lenger panelet som ber om val i ein manglande veljar.
+- S07: teknisk feil tømmer gamle organisasjonar og blir ståande gjennom
+  gjenteken oppfrisking. Tilgang er av; teknisk rights-feil utan avgjerd blir
+  ikkje omgjord til vanleg Deny i controlleren.
+- S08: dersom valt A fell bort, viser veljaren eksplisitt plasshaldar. B må
+  veljast før lagring/rettskontroll; nettlesarens automatiske visuelle førsteval
+  blir ikkje brukt som ein skjult tilgangsavgjerd.
+
+Jest stadfestar DOM, brukartilhendingar, feil og gjenoppretting; Apex-dry-run
+stadfestar controllerkontrakten. Nettlesarretest står att. Gamle
+avtaledelingar blir ikkje tilbakekalla ved scenariobyte, så gjenbruk av same
+brukar beviser ikkje record-nivå-Deny. Eldre avsnitt nedanfor dokumenterer
+historiske køyringar og lisensoppsett, ikkje dagens brukarfordeling.
 
 ## Implementert policygrunnlag — 2026-10-25
 
@@ -36,7 +68,7 @@ Han opprettar ikkje ein provider, gjer ingen callouts og skriv ingen data.
   samsvarande ikkje-tom identitet frå brukarens kontakt-/kontokjede.
 - `AAREG_AltinnScenarioUser` gir berre custom permission, ikkje Setup- eller
   skriverettar. Scratch-oppsettet køyrer eit eige seed-steg etter publisering av
-  nettstaden; det opprettar syntetiske scenario-brukarar og brukarsettingar utan
+  nettstaden; det opprettar éin generisk syntetisk brukar og brukarsetting utan
   å setje passord. Steget brukar ein eksisterande intern scratch-testbrukar som
   kontoeigar og gir brukaren lågaste tilgjengelege rolle dersom det trengst;
   dette endrar rollehierarkiet sin delingsåtferd og er avgrensa til scratch.
@@ -309,11 +341,11 @@ delingsregresjonar køyrde grønt for ordinær testbrukar. Positive scenario-del
 åtferd med den faktiske lisensen må avklarast/verifiserast separat før ein
 hevdar full community-delingsjourney.
 
-Frå 2026-10-25 er den separate `nav-community-dev`-scratch-org-en sett opp med
+Det første oppsettet i den separate `nav-community-dev`-scratch-org-en hadde
 éin aktiv Customer Community Plus-brukar for S01 og fire High Volume-brukarar.
-Dette fjernar lisensblokkeringa for guida nettlesartest, men nettlesarbasert
-avtalevising er enno ikkje stadfesta. Sjå [testguiden](./test-guide.md) og
-[testloggen](./altinn-test-log.md).
+Nettlesarøkta stadfesta seinare positiv avtalevising for C og D med Plus-
+brukaren. Oppsettet er no samla rundt éin generisk Plus-brukar; sjå gjeldande
+oppsett ovanfor, [testguiden](./test-guide.md) og [testloggen](./altinn-test-log.md).
 
 D01 er valt som A: dynamisk oppfrisking. Den lokale UI-endringa og Jest-
 verifikasjonen er dokumenterte i neste avsnitt; dette Apex-dry-run-beviset er
@@ -532,8 +564,9 @@ syntetisk community-testbrukar. Scenario var derfor ikkje aktivert, og
 ende-til-ende nettlesar-/delingsreise var ikkje utført. Ho krev ein syntetisk ekstern brukar som kan autentiserast i
 nettlesaren; ingen innloggingsopplysningar er oppretta, etterspurde eller
 handterte her. Positiv delingsverifikasjon for High Volume Customer Portal-
-lisensen står òg att. For Plus-brukaren i `nav-community-dev` står
-nettlesartesten att.
+lisensen var ikkje stadfesta i denne historiske køyringa. Seinare Plus-
+nettlesartest i `nav-community-dev` stadfesta avtalar for C og D; rettingane
+frå den siste testøkta krev ny nettlesartest.
 
 ## D01: To cache-alternativ, ikkje eit skjult val
 

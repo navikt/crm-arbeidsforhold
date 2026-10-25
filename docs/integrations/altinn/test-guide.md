@@ -1,255 +1,441 @@
-# Stegvis testguide for Altinn-scenario
+# Testguide: Altinn-scenario med éin Community Plus-brukar
 
-**Målmiljø:** berre scratch-org-aliaset `nav-community-dev`  
-**Status:** klar for guida brukarprøving; nettlesarforløpa er ikkje stadfesta  
-**Testlogg:** [altinn-test-log.md](./altinn-test-log.md)
+**Målorg:** `nav-community-dev`, aldri produksjon, SIT2 eller DevHub  
+**Testbrukar/kontakt:** `Synthetic Community Test User`  
+**Testlogg:** [altinn-test-log.md](./altinn-test-log.md)  
+**Status:** Brukarmigrering og godkjend deploy av UI-/Apex-rettingane er
+gjennomførte i `nav-community-dev`. 20/20 LWC-testar og 19/19 Apex-testar er
+grøne. Nettlesarretest av rettingane står att.
 
-## Føremål og avgrensing
+## 1. Kva testen beviser
 
-Guiden hjelper ein testperson gjennom den faktiske Experience Cloud-opplevinga
-med Altinn-scenario, syntetiske organisasjonar og kopla Salesforce-data. Han
-skil mellom det som er testa med Apex/Jest, det som er kontrollert direkte i
-scratch-org-en, og det testpersonen ser i nettlesaren.
+Scenario-provideren gir syntetiske Altinn-svar til den vanlege applikasjonen.
+Vi testar organisasjonsval, søknads-/brukerstøttetilgang og vising av kopla
+søknader/avtalar. Dette testar **ikkje** ekte Altinn, autentisering mot Altinn
+eller produksjonsdata.
 
-Scenario-provideren simulerer Altinn-svar. Testen stadfestar derfor ikkje ekte
-Altinn, Altinn-autentisering eller produksjonsdata.
+Den same generiske Plus-brukaren skal brukast i alle scenario og i andre
+community-testar som krev vanleg Salesforce-deling. Byt scenario, ikkje brukar.
+Dei fire gamle scenario-brukarane er inaktive historiske postar; dei er ikkje
+sletta. Den tidlegare Permit-brukaren og kontakten er omnamna, ikkje erstatta.
+Eksisterande historikk, identitet og delingar er bevarte.
 
-### Sikker bruk
+**Viktig tilgangsgrense:** Scenariobyte trekkjer ikkje tilbake tidlegare
+`Agreement__Share`-postar. Ein nettlesartest med denne gjenbrukte brukaren
+beviser derfor ikkje at gamle avtalar er utilgjengelege på record-nivå etter
+Deny. Isolerte Apex-testar kontrollerer at nye delingar ikkje blir oppretta ved
+Deny/feil. Ikkje rydd gamle delingar manuelt som del av guiden.
 
-- Kontroller alltid at kommandoar rettar seg mot `nav-community-dev`.
-- Ikkje bruk SIT2, produksjon, DevHub eller andre orgar.
-- Ikkje send passord, token, cookie eller innloggingsopplysningar i chat eller
-  testloggen.
-- Scratch-seedet set ikkje passord på portalbrukarane. Bruk berre ein godkjend
-  innloggingsmåte som alt er sett opp for testmiljøet. Ikkje nullstill eller
-  del ut passord som del av denne testen.
-- Ikkje endre scenarioinnstillingar under stega utan at guiden først ber om
-  uttrykkeleg stadfesting. Etter eventuelle mellombelse endringar skal
-  opphavleg scenario bli sett tilbake.
-- Ta skjermbilete eller noter berre syntetisk scenario, organisasjonsbokstav,
-  synleg resultat og feiltekst utan personopplysningar eller innloggingsdata.
+Bruk berre syntetiske data. Ikkje send inn søknader, avslutt avtalar, nullstill
+passord eller loggfør personident, brukarnamn, Salesforce-ID, token, cookie
+eller org-URL. Ta berre med scenario, organisasjonsbokstav, synleg resultat
+og sanitert feiltekst i testloggen.
 
-## Scenariooversikt
+## 2. Klargjering og målorg
 
-| Scenario | Organisasjonar i Altinn-svaret            | Forventa rettar                                                  | Kva vi ser etter                                                             |
-| -------- | ----------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| S01      | A, B, C                                   | Alle tre: søknad Permit og brukerstøtte Permit                   | Vanleg søknadstilgang og at rett organisasjon sine aktive avtalar blir delte |
-| S02      | A, B, C                                   | Alle tre: søknad Deny og brukerstøtte Permit                     | `hasAccess=true`, `hasApplicationAccess=false`                               |
-| S03      | A, B, C                                   | Alle tre: Deny på begge ressursar                                | Ingen tilgang og ingen nye delingar for den reine brukaren                   |
-| S04      | A, B, C                                   | A: søknad Permit; B: berre brukerstøtte Permit; C: søknad Permit | Byte mellom organisasjonar brukar rett matrise                               |
-| S05      | Tom liste                                 | Ingen rettar                                                     | Tomtilstand; krev mellombels tildeling til eksisterande testbrukar           |
-| S06      | A (AS), B (ENK), C (BEDR), D (AS), Person | Alle fire organisasjonar: Permit på begge ressursar              | UI viser berre A og D etter filtrering; Person har ikkje organisasjonsnummer |
-| S07      | Feil ved organisasjonsoppslag             | Feil ved rettsoppslag                                            | Feil blir vist, ikkje omgjort til tilgang; krev mellombels tildeling         |
-| S08      | Berre B                                   | B: søknad Deny, brukerstøtte Permit                              | Tidlegare valt A blir ikkje halde som gyldig val; krev mellombels tildeling  |
+Køyr kommandoane frå repository-rota i ein terminal med Salesforce CLI.
+Eksempla bruker `rtk`, som i dette prosjektet. Utan RTK kan du køyre same
+kommando utan det første `rtk`. CLI-kommandoar skal alltid ha eksplisitt alias;
+ikkje endre standardorg eller stol på han.
 
-Nettlesarbrukarar er seed-a for S01–S04 og S06. S01 brukar den eine
-Customer Community Plus-lisensen; S02–S04 og S06 brukar High Volume Customer
-Portal-lisensar. Bruk S01 når du testar avtalevising og funksjonar som er
-avhengige av den vanlege Salesforce-delingsmodellen. S05, S07 og S08 kan
-framleis testast interaktivt ved å endre scenarioinnstillinga på ein eksisterande
-syntetisk brukar, men det krev eit eige godkjent steg og at original innstilling
-blir sett tilbake. Apex-testane dekkjer desse scenarioa utan nettlesar.
-
-## Del 1 – Preflight
-
-### Steg 1. Stadfest målorg
-
-Køyr:
+### 2.1 Kontroller miljøet
 
 ```bash
-sf org display --target-org nav-community-dev
+rtk sf data query --target-org nav-community-dev \
+  --query "SELECT IsSandbox FROM Organization"
 ```
 
-Kontroller at aliaset er `nav-community-dev` og at orgen er den aktive
-scratch-org-en. Ikkje lim inn heile outputen; han kan innehalde miljødetaljar.
-Stopp dersom alias eller miljø ikkje stemmer.
+Forventa: éi rad med `IsSandbox=true`. Stadfest òg at aliaset peikar på den
+scratch-org-en du fekk oppretta for Community Plus. Stopp ved feil miljø,
+utgått org eller manglande autentisering; ikkje prøv ein annan org.
 
-### Steg 2. Stadfest syntetiske data
+### 2.2 Berre dersom org-en manglar oppsett
 
-Organisasjonskontoar:
+`nav-community-dev` er allereie sett opp. **Hopp over denne delen ved vanleg
+testing.** Oppsett endrar metadata og data, og krev godkjenning frå
+miljøansvarleg før køyring.
+
+For ein eksisterande, tom og godkjend scratch-org med dette aliaset og
+`CustomerCommunityPlus`-feature, sjå først skripthjelpa:
 
 ```bash
-sf data query --target-org nav-community-dev \
-  --query "SELECT INT_OrganizationNumber__c, Name FROM Account WHERE Name LIKE 'Synthetic Altinn Organization %' AND INT_OrganizationNumber__c IN ('111111111','222222222','333333333','444444444') ORDER BY INT_OrganizationNumber__c" \
-  --result-format table
+rtk bash bin/create-scratch-org.sh --help
 ```
 
-Søknader:
+Installer manifestavhengigheiter og køyr deploy, permission sets, grunnlagsdata,
+community-publisering og generisk testbrukaroppsett, **utan** å opprette eller
+slette org-en:
 
 ```bash
-sf data query --target-org nav-community-dev \
-  --query "SELECT OrganizationNumber__c, Status__c, Account__r.Name FROM Application__c WHERE Email__c LIKE 'aareg.altinn.application.%@example.invalid' AND OrganizationNumber__c IN ('111111111','222222222','333333333','444444444') ORDER BY OrganizationNumber__c" \
-  --result-format table
+rtk bash bin/create-scratch-org.sh --alias nav-community-dev --skip-org \
+  --post-steps deploy,permsets,data,community,altinn-scenario-users
 ```
 
-Avtalar:
+Ikkje køyr standardvarianten utan `--skip-org` på ein eksisterande testorg.
+Ikkje finn på installasjonsnøklar eller pakkeversjonar; bruk dokumentert
+oppsett i [bin-guiden](../../../bin/README.md). Stopp ved installasjonsfeil.
+
+For å reparere berre testdata/testbrukar i ein ferdig installert org:
 
 ```bash
-sf data query --target-org nav-community-dev \
-  --query "SELECT OrganizationNumber__c, Status__c, Application__r.Status__c FROM Agreement__c WHERE OrganizationNumber__c IN ('111111111','222222222','333333333','444444444') ORDER BY OrganizationNumber__c" \
-  --result-format table
+rtk bash bin/create-scratch-org.sh --alias nav-community-dev \
+  --post-steps-only --post-steps altinn-scenario-users
 ```
 
-Scenarioinnstillingar:
+Dette seedet er idempotent, men er **ikkje read-only**: det oppdaterer
+syntetiske data, migrerer/aktiverer den generiske brukaren, deaktiverer gamle
+seed-brukarar og set den aktive brukarinnstillinga tilbake til S01.
+Avslutt pågåande testar før du køyrer det. Ikkje bruk seedet for vanlege
+scenariobyte.
+
+### 2.3 Kontroller testbrukar og lisens
 
 ```bash
-sf data query --target-org nav-community-dev \
-  --query "SELECT ScenarioName__c, UseScenarioProvider__c, SubjectAlias__c FROM AAREG_AltinnScenarioSetting__c WHERE ScenarioName__c IN ('S01','S02','S03','S04','S06')" \
-  --result-format table
+rtk sf apex run --target-org nav-community-dev \
+  --file bin/verify-altinn-test-user.apex
+
+rtk sf data query --target-org nav-community-dev \
+  --query "SELECT Name, IsActive, Profile.UserLicense.Name FROM User WHERE Username LIKE 'aareg.community.test.%' OR Username LIKE 'aareg.altinn.%' ORDER BY IsActive DESC, Name"
+
+rtk sf data query --target-org nav-community-dev \
+  --query "SELECT Name, TotalLicenses, UsedLicenses FROM UserLicense WHERE Name IN ('Customer Community Plus','High Volume Customer Portal') ORDER BY Name"
 ```
 
-Lisensar:
+Forventa:
+
+- Verifikasjonsskriptet fullfører utan assertion-feil.
+- Éin aktiv seed-brukar heiter `Synthetic Community Test User`, med lisens
+  `Customer Community Plus`. Gamle scenario-brukarar, dersom dei finst, er
+  inaktive.
+- Dei to permission sets `AAREG_CommunityPermission` og
+  `AAREG_AltinnScenarioUser` er tildelte, og den eksplisitte brukarsettinga
+  er aktiv med eit kjent scenario og `subject-a`.
+- I den noverande org-en: Plus `TotalLicenses=1`, `UsedLicenses=1`;
+  High Volume `UsedLicenses=0`.
+
+Verifikasjonsskriptet les data og gjer assertions, men endrar ikkje scenario.
+Det godtek S01–S08 med `subject-a`; gjenopprett dette aliaset først dersom du
+har testa `subject-throws`.
+
+**GUI-alternativ:** Setup → Users → Users → finn den generiske brukaren.
+Kontroller Active, User License/Profile og Permission Set Assignments.
+Ikkje aktiver dei gamle scenario-brukarane.
+
+### 2.4 Kontroller organisasjonar og produktdata
 
 ```bash
-sf data query --target-org nav-community-dev \
-  --query "SELECT Name, TotalLicenses, UsedLicenses FROM UserLicense WHERE Name IN ('Customer Community Plus','High Volume Customer Portal') ORDER BY Name" \
-  --result-format table
+rtk sf data query --target-org nav-community-dev \
+  --query "SELECT INT_OrganizationNumber__c, Name FROM Account WHERE Name LIKE 'Synthetic Altinn Organization %' AND INT_OrganizationNumber__c IN ('111111111','222222222','333333333','444444444') ORDER BY INT_OrganizationNumber__c"
+
+rtk sf data query --target-org nav-community-dev \
+  --query "SELECT OrganizationNumber__c, Status__c, Account__r.Name FROM Application__c WHERE Email__c LIKE 'aareg.altinn.application.%@example.invalid' AND OrganizationNumber__c IN ('111111111','222222222','333333333','444444444') ORDER BY OrganizationNumber__c"
+
+rtk sf data query --target-org nav-community-dev \
+  --query "SELECT Name, OrganizationNumber__c, Status__c, Application__r.Status__c FROM Agreement__c WHERE OrganizationNumber__c IN ('111111111','222222222','333333333','444444444') ORDER BY OrganizationNumber__c"
 ```
 
-Forventa utgangspunkt: fire syntetiske organisasjonar A–D, fire søknader med
-status `New`, fire aktive avtalar og éi aktiv brukarinnstilling for kvart av
-S01, S02, S03, S04 og S06.
+| Bokstav | Syntetisk organisasjonsnummer | Forventa grunnlag                 |
+| ------- | ----------------------------- | --------------------------------- |
+| A       | `111111111`                   | Konto, søknad `New`, aktiv avtale |
+| B       | `222222222`                   | Konto, søknad `New`, aktiv avtale |
+| C       | `333333333`                   | Konto, søknad `New`, aktiv avtale |
+| D       | `444444444`                   | Konto, søknad `New`, aktiv avtale |
 
-Lisensfordelinga skal vise éin `Customer Community Plus User` og fire
-`High Volume Customer Portal User`. S01-brukaren brukar Customer Community
-Plus, medan dei andre scenario-brukarane brukar High Volume. Berre éin brukar
-kan få tildelt den eine Plus-lisensen om gongen; deaktivering av brukaren gjer
-ikkje lisensen tilgjengeleg for ein annan brukar. Bruk den same S01-brukaren
-for funksjonar som krev Customer Community Plus. For å køyre eit anna Altinn-
-scenario med Plus-lisensen, endrar du den same brukaren si
-`AAREG_AltinnScenarioSetting__c`-innstilling mellombels og set henne tilbake
-til S01 etterpå. Ikkje opprett fleire Plus-brukarar.
+Noter avtalane frå den faktiske queryen; autogenererte avtalenummer kan vere
+ulike mellom orgar. Ved manglande data: stopp og undersøk oppsettet. Ikkje
+opprett avtalar eller delingspostar manuelt for å få testen til å sjå grøn ut.
 
-Ved avvik: stopp før nettlesartest. Assistenten kan hente meir read-only
-informasjon frå scratch-org-en for å finne ut kva som manglar. Ikkje køyr seed
-på nytt før avviket er forstått.
+## 3. Opne testbrukaren i GUI
 
-### Steg 3. Stadfest testversjon
+1. Opne intern Salesforce med den godkjende administratorinnlogginga:
+   `rtk sf org open --target-org nav-community-dev`.
+2. Ha intern Salesforce/Setup i éi fane og community i ei anna.
+3. Opne **Contacts** frå navigasjonen eller App Launcher.
+4. Finn og opne **Synthetic Community Test User**.
+5. Bruk kontaktens etablerte **Log in to Experience as User**-handling
+   (kan liggje under handlingsmenyen).
+6. Vel Aa-registeret-community dersom du får nettstadval.
+7. Kontroller at Aa-registeret-startsida opnar som testbrukaren, ikkje som
+   intern administrator.
 
-Scenarioressursen og dei fokuserte Apex-testklassane skal vere deploya til
-scratch-org-en. Den registrerte deploymenten køyrde 21/21 Apex-testar. Katalogen
-skal svare med 3 organisasjonar for S01 og S04 og 5 ufiltrerte oppføringar for
-S06. LWC-suiten har 16/16 grøne testar.
+Det skal ikkje vere nødvendig å setje eller dele passord. Dersom handlinga
+manglar, kontroller at du har rett kontakt, at brukaren er aktiv, og at
+community er publisert med rett medlemskap. Stopp dersom dette ikkje er på
+plass; ikkje bruk ein tilfeldig annan portalbrukar.
 
-Dette er automatisert evidens, ikkje nettlesarverifikasjon.
+## 4. Slik byter du scenario – GUI eller CLI
 
-## Del 2 – Opne testbrukaren
+Bruk same brukar gjennom heile testen. Vel **éin** av metodane nedanfor.
+Endring av innstillinga åleine oppdaterer ikkje nettlesarens cache.
 
-### Steg 4. Finn godkjend community-innlogging
+### 4.1 GUI: hierarchy Custom Setting
 
-Bruk den etablerte, godkjende måten de loggar inn syntetiske Experience Cloud-
-brukarar på. Seed-skriptet har ikkje sett passord. Ikkje send innloggingsdata
-til assistenten.
+1. Gå til administratorfana → **Setup**.
+2. Søk etter **Custom Settings** i Quick Find.
+3. Finn **Altinn Scenario Setting**, og vel **Manage**.
+4. Under brukar-/profilinnstillingar: finn rada for
+   **Synthetic Community Test User**, og vel **Edit**.
+5. Kontroller at **Location** er denne brukaren. Ikkje rediger eller opprett
+   org-default eller profilinnstilling. Dersom brukar-rada manglar, stopp og
+   reparer seedoppsettet.
+6. Set **Scenario Name** til til dømes `S04`.
+7. Set **Subject Alias** til `subject-a`.
+8. La **Use Scenario Provider** vere avkryssa.
+9. Lagre, opne rada igjen og kontroller dei tre verdiane.
 
-Start med den eksisterande syntetiske Permit-brukaren (S01). Stadfest i
-nettlesaren at du er på Aa-registeret community-sida som denne brukaren, ikkje
-berre innlogga i intern Salesforce Setup.
+### 4.2 CLI: finn den faktiske setting-ID-en
 
-Testpersonen opplyste at den vanlege innloggingsflyten er via kontakten som er
-knytt til portalbrukaren. Finn kontakten for `Synthetic Permit Scenario User`
-og bruk den etablerte handlinga for å logge inn i Experience Cloud. Ikkje endre
-brukaren eller kontakten, og ikkje vel **Reset Password**. Om handlinga ikkje
-fører til Experience Cloud, stopp og fortel kva som skjedde; ikkje prøv andre
-innloggingshandlingar.
+```bash
+rtk sf data query --target-org nav-community-dev \
+  --query "SELECT Id, Name FROM User WHERE IsActive = true AND Username LIKE 'aareg.community.test.%'"
+```
 
-Om du ikkje har ein godkjend måte å autentisere community-brukaren på, stopp
-her og sei det. Vi finn først rett innloggingsflyt; vi skal ikkje lage eller
-dele passord i testloggen.
+Det skal vere nøyaktig éin brukar. Kopier den faktiske `Id`-verdien til
+terminalen, ikkje til testloggen:
 
-## Del 3 – Gå gjennom nettlesartestane
+```bash
+read -r ALTINN_USER_ID
+```
 
-For kvart scenario:
+Lim inn ID-en og trykk Enter. Finn deretter berre denne brukaren si setting:
 
-1. Noter scenario-ID og kva syntetisk brukarrolle som er aktiv, men ikkje
-   brukarnamn eller e-post.
-2. Last Aa-registeret community-sida på nytt.
-3. Noter kva organisasjonar som faktisk står i veljaren.
-4. Vel organisasjonen som er nemnd i teststeget.
-5. Vent til kontrollen er ferdig. Noter synlege handlingar/tilgang og eventuell
-   feiltekst.
-6. Samanlikn med forventa resultat og meld tilbake før vi går vidare.
+```bash
+rtk sf data query --target-org nav-community-dev \
+  --query "SELECT Id, SetupOwnerId, ScenarioName__c, SubjectAlias__c, UseScenarioProvider__c FROM AAREG_AltinnScenarioSetting__c WHERE SetupOwnerId = '$ALTINN_USER_ID'"
+```
 
-### Steg 5. S01 – vanleg Permit
+Det skal vere nøyaktig éi rad. Kopier denne rada sin `Id` til ein ny variabel:
 
-- Forventa val: A, B og C.
-- Vel A. Forventa: søknadstilgang og ordinær tilgangsvising.
-- Vel B, deretter C. Forventa: søknadstilgang for kvar vald organisasjon.
-- Etter at C er vald, gå til kortet **Mine avtaler** frå startsida. Avtaleoversikta
-  brukar organisasjonen som sist blei vald; for C ventar vi å sjå den aktive
-  syntetiske avtalen. Kontroller berre visinga no — ikkje avslutt eller endre
-  avtalen.
-- Om avtalen manglar, noter det som eit avvik og stopp denne delen. Ikkje opprett
-  avtale eller delingspost manuelt.
-- S01-brukaren har Customer Community Plus-lisens. Bruk denne brukaren for å
-  verifisere avtalevising og den vanlege Salesforce-delingsmodellen.
-- Noter om bytte av organisasjon oppdaterer tilgang og innhald.
+```bash
+read -r ALTINN_SETTING_ID
+```
 
-### Steg 6. S04 – ulike rettar per organisasjon
+Lim inn setting-ID-en og trykk Enter. ID-en er ikkje brukar-ID-en.
+Køyr kommandoane vidare i **same terminal**. Ved ny terminal må variablane
+lesast inn på nytt frå faktiske queryresultat.
 
-- Forventa val: A, B og C.
-- A: søknad Permit; forvent søknadstilgang.
-- B: søknad Deny, brukerstøtte Permit; forvent brukerstøtte, ikkje
-  søknadstilgang.
-- C: søknad Permit; forvent søknadstilgang.
-- Byt fram og tilbake mellom A og B. Kontroller at B ikkje arvar A sine
-  søknadsrettar.
+For kvart steg set du ønskja scenario og oppdaterer:
 
-### Steg 7. S02 og S03 – tilgangsgrenser
+```bash
+ALTINN_SCENARIO=S04
+rtk sf data update record --target-org nav-community-dev \
+  --sobject AAREG_AltinnScenarioSetting__c --record-id "$ALTINN_SETTING_ID" \
+  --values "ScenarioName__c='$ALTINN_SCENARIO' SubjectAlias__c='subject-a' UseScenarioProvider__c=true"
 
-S02:
+rtk sf data query --target-org nav-community-dev \
+  --query "SELECT ScenarioName__c, SubjectAlias__c, UseScenarioProvider__c FROM AAREG_AltinnScenarioSetting__c WHERE Id = '$ALTINN_SETTING_ID'"
+```
 
-- Test A. Forventa: `hasAccess=true`, `hasApplicationAccess=false`.
-- Kontroller at søknadshandlingar ikkje blir viste som tilgjengelege.
+Byt `S04` på første linje til `S01`, `S02`, `S03`, `S05`, `S06`, `S07` eller
+`S08` etter teststeget. Fortset berre dersom oppdateringa lukkast og queryen
+viser ønskja scenario, `subject-a` og `true`.
 
-S03:
+### 4.3 Hent ny tilstand i community
 
-- Test A. Forventa: ingen tilgang.
-- Brukaren er meint å vere rein for dette scenarioet. Ikkje fjern eller rydd
-  delingar automatisk; noter berre observerte delingar.
+Etter **kvart** scenariobyte:
 
-### Steg 8. S06 – UI-filtrering
+1. Gå tilbake til community-startsida.
+2. Trykk **Oppdater organisasjoner**, også dersom sida viser tom liste/feil.
+3. Vent til oppfrisking/rettskontroll er ferdig. Knappen skal vere sperra
+   medan oppfriskinga går. Ikkje dobbeltklikk.
+4. Kontroller organisasjonsliste, valt organisasjon, feiltekst og tilgang.
+5. Ved manglande gyldig val: vel organisasjon manuelt og vent på ny kontroll.
 
-- Altinn-svaret har A (AS), B (ENK), C (BEDR), D (AS) og Person.
-- Forventa synlege val i dagens UI: A og D.
-- Vel A og D. Begge har Permit på søknad og brukerstøtte.
-- B, C og Person skal ikkje bli viste som valbare organisasjonar.
+Ein vanleg reload åleine er ikkje bevis på at nye scenarioverdiar er henta:
+organisasjonsoppslaget er cacheable. Ikkje slå av scenario-provideren for å
+«rette» ein test; det ville velje ordinær integrasjon i staden.
 
-### Steg 9. Oppfrisk organisasjonar
+## 5. Scenario og testrekkjefølgje
 
-- Vel ein organisasjon med tilgang.
-- Trykk «Oppdater organisasjoner».
-- Forventa: lista blir ståande medan oppfriskinga går; gyldig val blir vurdert
-  på nytt; tilgang blir nullstilt dersom valet eller oppslaget feilar.
-- Noter om lista forsvinn, om tomtilstand kjem, og eventuell feilmelding.
+| Scenario | Val i UI               | Søknad                | Brukerstøtte                  |
+| -------- | ---------------------- | --------------------- | ----------------------------- |
+| S01      | A, B, C                | Ja, alle              | Ja, alle                      |
+| S04      | A, B, C                | Ja for A/C, nei for B | Ja, alle                      |
+| S02      | A, B, C                | Nei                   | Ja, alle                      |
+| S03      | A, B, C                | Nei                   | Nei                           |
+| S06      | A, D                   | Ja, begge             | Ja, begge                     |
+| S05      | Ingen                  | Nei                   | Nei                           |
+| S07      | Ingen ved oppslagsfeil | Nei                   | Nei                           |
+| S08      | B                      | Nei                   | Ja, etter eksplisitt val av B |
 
-## Del 4 – Valfrie kanttilfelle i nettlesaren
+Alle bruker `subject-a` med mindre steget seier noko anna. «Ja» gjeld
+tilgangsstyrt UI, ikkje påstand om tilbakekalling av gamle record-delingsrettar.
 
-S05, S07 og S08 krev ikkje nye community-lisensar. Vi kan mellombels tildele eitt
-av dei til ein eksisterande syntetisk testbrukar i Setup. Dette endrar
-Custom Setting i scratch-org-en. Før vi gjer det, stadfestar assistenten
-scenario, alias og tilbakeføringsverdi med deg. Etter kvar test skal den
-opphavlege innstillinga setjast tilbake og kontrollerast.
+### 5.1 S01 – grunnlinje og kopla data
 
-- S05: tom liste og tydeleg tomtilstand.
-- S07: kontrollert oppslagsfeil, feilvising og ingen tilgang.
-- S08: start med A vald frå S01, byt mellombels til S08 og oppdater; A skal ikkje
-  framleis vere eit gyldig val. S08 listar B.
+1. Set S01 med metoden i del 4, og oppfrisk.
+2. Kontroller at A, B og C står i veljaren. Ingen teknisk feil skal visast.
+3. Vel A. Kontroller søknadstilgang og synleg søknadsskjema.
+4. Gå gjennom relevante felt/visingar **utan** innsending eller lagring.
+   Noter kva felt/visingar du faktisk kontrollerer; tilgang åleine beviser
+   ikkje at heile søknadsflyten er testa.
+5. Opne **Mine avtaler** frå startsida. Kontroller den aktive avtalen for A
+   mot preflight-queryen. Ikkje endre eller avslutt han.
+6. Gå tilbake til startsida; gjenta val og avtalevising for B og C.
+7. Med C vald: trykk **Oppdater organisasjoner**.
+8. Forventa: A/B/C finst framleis, C er faktisk vald og tilgang blir
+   kontrollert på nytt. Ingen tomtilstand eller feil skal bli ståande.
+9. Loggfør resultata for kvar organisasjon og avtale, ikkje berre S01 samla.
 
-Ikkje endre Custom Setting manuelt før denne delen er avtalt.
+### 5.2 S04 – ulik tilgang ved organisasjonsbyte
 
-## Del 5 – Avslutt
+1. Set S04 og oppfrisk.
+2. Vel A → B → C → A → B, og vent etter kvart val.
+3. A/C skal ha søknadstilgang. B skal berre ha brukerstøtte, ikkje
+   søknadsskjema. B skal ikkje arve A/C si søknadstilgang.
+4. Loggfør kvart avvik med vald organisasjonsbokstav.
+5. Gjenopprett S01 etter del 6.
 
-1. Stadfest at scenarioinnstillingar ikkje blei endra, eller at mellombelse
-   endringar er sette tilbake.
-2. Noter eventuelle uventa avtaledelingar, feilmeldingar eller manglande data.
-3. Ikkje endre integrasjonsmodus, passord eller produksjonsoppsett som del av
-   denne guiden.
-4. Oppdater [testloggen](./altinn-test-log.md) med stadfesta resultat.
+### 5.3 S02 – berre brukerstøtte
 
-## Korleis vi køyrer dette saman
+1. Set S02 og oppfrisk.
+2. Vel A, B og C etter tur.
+3. Kontroller brukerstøtte, men ikkje søknadstilgang, for alle tre.
+4. Ikkje bruk eventuelle gamle avtaledelingar som bevis på feil Altinn-avgjerd.
+5. Gjenopprett S01 etter del 6.
 
-Vi tek berre eitt steg om gongen. Assistenten forklarer steget, hentar relevante
-read-only data frå `nav-community-dev` ved behov, ventar på det du ser eller
-gjer, og fører resultatet i testloggen. Vi markerer eit brukarsteg som bestått
-først når du har stadfesta nettlesarresultatet. Ikkje send passord, token eller
-cookie.
+### 5.4 S03 – eksplisitt Deny
+
+1. Set S03 og oppfrisk.
+2. Vel A, B og C etter tur.
+3. For kvar organisasjon: ingen søknads-/brukerstøttetilgang.
+   Det vanlege panelet om manglande Altinn-rett kan visast; ingen teknisk
+   oppslagsfeil skal visast.
+4. Testen beviser UI-gating. Han beviser ikkje at tidlegare avtaledelingar
+   er trekte tilbake.
+5. Gjenopprett S01 etter del 6.
+
+### 5.5 S06 – filtrering og organisasjon D
+
+1. Set S06 og oppfrisk.
+2. Kontroller at berre A og D er valbare.
+   Råsvaret har òg B/ENK, C/BEDR og Person; dei skal ikkje visast i dagens UI.
+3. Vel A og D. Begge skal gi søknadstilgang.
+4. Med D vald: opne **Mine avtaler** og kontroller D sin aktive avtale mot
+   preflight-queryen.
+5. Gjenopprett S01 etter del 6.
+
+### 5.6 S05 – tom liste utan misvisande rettleiing
+
+1. Start med S01 og A vald, med synleg tilgang.
+2. Set S05 og trykk **Oppdater organisasjoner**.
+3. Forventa: tydeleg tomtilstand, ingen organisasjonsveljar og ingen tilgang.
+4. Panelet «Du mangler rettighet i Altinn …» skal **ikkje** visast under
+   tomtilstanden eller be deg velje i ein nedtrekksmeny som ikkje finst.
+5. Trykk oppdater igjen. Tomtilstanden skal vere stabil.
+6. Gjenopprett S01 etter del 6.
+
+### 5.7 S07 – teknisk feil og gjenoppretting
+
+1. Start med S01 og A vald, med synleg tilgang.
+2. Set S07 med `subject-a`, og trykk **Oppdater organisasjoner**.
+3. Forventa: teknisk feilvarsel, ingen gammal organisasjonsveljar og ingen
+   søknads-/brukerstøttetilgang. Feilen skal ikkje presenterast som vanleg Deny.
+4. Trykk oppdater to gonger til, og vent mellom forsøka.
+   Feilen skal framleis visast; A/B/C skal ikkje bli valbare frå gammal tilstand.
+   Ikkje lukk feilvarselet manuelt når du testar at det blir ståande.
+5. Gjenopprett S01 etter del 6, og stadfest både liste og tilgang.
+
+**Ekstra exception-test:** Set S07 og **Subject Alias** til `subject-throws`
+i same brukarsetting. Oppfrisk, kontroller teknisk feil/ingen tilgang, og
+gjenopprett både S01 **og** `subject-a` etterpå. I CLI kan du bruke:
+
+```bash
+rtk sf data update record --target-org nav-community-dev \
+  --sobject AAREG_AltinnScenarioSetting__c --record-id "$ALTINN_SETTING_ID" \
+  --values "ScenarioName__c='S07' SubjectAlias__c='subject-throws' UseScenarioProvider__c=true"
+```
+
+Organisasjonsfeilen sperrar den vidare rights-flyten i nettlesaren.
+S07-feil ved direkte rettsoppslag er derfor i tillegg dekt av Apex-journey-
+testen, ikkje påstått nettlesarverifisert gjennom denne flyten.
+
+### 5.8 S08 – vald organisasjon fell bort
+
+1. Set S01, oppfrisk og **vel A**. Stadfest søknadstilgang.
+2. Set S08 utan å logge ut eller endre organisasjon først.
+3. Trykk **Oppdater organisasjoner**.
+4. Forventa: berre B finst som organisasjon, men veljaren viser
+   **-- Velg virksomhet --**, ikkje eit tilsynelatande automatisk val av B.
+   A si tilgang er borte; ingen søknad eller brukerstøtte er aktiv før nytt val.
+5. Vel B direkte. Du skal ikkje måtte velje plasshaldaren først.
+6. Forventa: berre brukerstøtte, ikkje søknadstilgang.
+7. Vel plasshaldaren. Ingen tilgang eller misvisande Deny-panel skal visast.
+8. Vel B igjen og kontroller brukerstøtte på nytt.
+9. Gjenopprett S01 etter del 6.
+
+## 6. Gjenoppretting – også ved avbroten test
+
+1. I Setup brukar du del 4.1 med **Scenario Name=S01**,
+   **Subject Alias=subject-a** og **Use Scenario Provider=true**.
+   Alternativt, i terminalen der setting-ID-en er kontrollert:
+
+    ```bash
+    rtk sf data update record --target-org nav-community-dev \
+      --sobject AAREG_AltinnScenarioSetting__c --record-id "$ALTINN_SETTING_ID" \
+      --values "ScenarioName__c='S01' SubjectAlias__c='subject-a' UseScenarioProvider__c=true"
+
+    rtk sf data query --target-org nav-community-dev \
+      --query "SELECT ScenarioName__c, SubjectAlias__c, UseScenarioProvider__c FROM AAREG_AltinnScenarioSetting__c WHERE Id = '$ALTINN_SETTING_ID'"
+    ```
+
+2. Kontroller dei lagra verdiane. Ein vellukka kommando åleine er ikkje
+   nettlesarbevis.
+3. Gå til community-startsida og trykk **Oppdater organisasjoner**.
+4. Stadfest A/B/C, vel A og kontroller søknadstilgang utan teknisk feil.
+5. Køyr `rtk sf apex run --target-org nav-community-dev --file bin/verify-altinn-test-user.apex`.
+6. Før både CLI-/GUI-innstillingskontrollen og nettlesargjenopprettinga i loggen.
+7. Dersom gjenoppretting feilar: loggfør blokkeringa og stopp vidare testing.
+
+## 7. Testlogg og feilsøking
+
+Før éi rad per handling i [testloggen](./altinn-test-log.md):
+
+| Dato/tid | Scenario/alias | Organisasjon | Handling                | Forventa     | Observert | Status      | Evidens/oppfølging |
+| -------- | -------------- | ------------ | ----------------------- | ------------ | --------- | ----------- | ------------------ |
+| Fyll inn | S08/subject-a  | B            | Vel B etter oppfrisking | Berre støtte | Fyll inn  | Ikkje køyrd | Fyll inn           |
+
+Bruk **Bestått**, **Avvik**, **Blokkert** eller **Ikkje køyrd**.
+Automatisk Jest/Apex-resultat er ikkje erstatning for observert GUI-resultat.
+Før også tilbakeføring, og marker scenarioet som uavslutta dersom ho manglar.
+
+Ved avvik:
+
+- **Gamle organisasjonar:** query/reopne den faktiske brukarsettinga; kontroller
+  alias, brukar og scenario. Trykk oppdater, ikkje berre reload.
+- **Ingen organisasjonar:** skil S05-tomtilstand frå S07-teknisk feil.
+- **Gamalt namn i kontaktlista:** kontroller migreringa med del 2.3; ikkje
+  opprett ein ny Plus-brukar.
+- **Tom avtaleoversikt:** kontroller vald organisasjon, preflight-data,
+  Plus-lisens og permission sets. Ikkje lag manuelle delingar.
+- **Permission-/policy-feil:** kontroller brukarsetting og scenario-permission;
+  ikkje aktiver org-/profil-default eller fjern sandbox-sperra.
+- **Nettlesaren har ikkje rettinga:** den registrerte deployen er gjennomført
+  i `nav-community-dev`. Ved ei ny kodeendring er kontrollen nedanfor berre
+  dry-run; ein ny permanent deploy må vere godkjend og fullført.
+
+### Automatiske kontrollar før nettlesarretest
+
+```bash
+rtk npm run test:unit -- -- --runInBand
+
+rtk sf project deploy start --dry-run \
+  --source-dir force-app/externalAccess/classes/AAREG_HomeController.cls \
+  --source-dir force-app/externalAccess/classes/AAREG_HomeControllerTest.cls \
+  --source-dir force-app/tests/classes/externalAccess/AAREG_AltinnScenarioJourneyTest.cls \
+  --source-dir force-app/externalAccess/lwc/aareg_home \
+  --target-org nav-community-dev --test-level RunSpecifiedTests \
+  --tests AAREG_AltinnScenarioJourneyTest --tests AAREG_HomeControllerTest \
+  --wait 10 --json
+```
+
+Dry-run endrar ikkje org-en permanent. Etter eksplisitt deploy-godkjenning kan
+same deploykommando køyrast **utan `--dry-run`**, med uendra målorg, source-
+avgrensing og testar. Noter faktisk deployresultat før du testar GUI på nytt.
+
+## 8. Når vi testar saman
+
+Vi tek eitt steg om gongen. Assistenten forklarer handlinga, kan hente
+read-only data frå `nav-community-dev`, spør kva du faktisk såg og fører
+resultatet i loggen. Ingen GUI-test blir kalla bestått før du har stadfesta
+han. Guiden over kan òg følgjast utan assistenten.

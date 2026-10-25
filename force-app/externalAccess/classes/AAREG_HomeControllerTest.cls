@@ -168,7 +168,9 @@ public with sharing class AAREG_HomeControllerTest {
     private static void shouldShareAgreementsForSelectedOrganizationInTestContext() {
         User user = [SELECT Id, LastUsedOrganization__c FROM User WHERE Username = 'John.Doe@nav.no' LIMIT 1];
         user.LastUsedOrganization__c = '111111111';
-        update user;
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            update user;
+        }
 
         Account account = AAREG_TestDataFactory.getAccountCounty();
         account.INT_OrganizationNumber__c = user.LastUsedOrganization__c;
@@ -380,32 +382,28 @@ public with sharing class AAREG_HomeControllerTest {
     }
 
     /**
-     * checkAndShareIfAuthorized should return no access when the rights response is null.
+     * Surfaces an empty upstream rights response as a lookup failure, not an explicit Deny decision.
      *
      * @since October 2025
      */
     @IsTest
-    private static void shouldDenyWhenRightsResponseIsEmpty() {
+    private static void shouldSurfaceFailureWhenRightsResponseIsEmpty() {
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
 
-        // Mock response with null rights
         String bodyNullRights = '{"response":[]}';
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', bodyNullRights, new Map<String, String>());
         System.Test.setMock(HttpCalloutMock.class, mock);
 
         System.Test.startTest();
-        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
-            user.Id,
-            '123456789'
-        );
+        Boolean lookupFailed = false;
+        try {
+            AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
+        } catch (AuraHandledException error) {
+            lookupFailed = true;
+        }
         System.Test.stopTest();
 
-        System.assertEquals(false, response.hasAccess, 'Should return false when rights response is null');
-        System.assertEquals(
-            false,
-            response.hasApplicationAccess,
-            'Should return false for application access when rights response is null'
-        );
+        System.Assert.isTrue(lookupFailed, 'An upstream error without a rights decision must be surfaced.');
     }
 
     /**

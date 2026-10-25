@@ -123,26 +123,27 @@ private with sharing class AAREG_AltinnScenarioJourneyTest {
     }
 
     /**
-     * Does not grant access or create shares when the assigned scenario returns response errors.
+     * Surfaces response-level lookup failures instead of reporting an ordinary rights denial.
      *
      * @since 2026-10-25
      */
     @IsTest
-    static void shouldDenyAccessWhenScenarioRightsReturnErrors() {
+    static void shouldSurfaceScenarioRightsResponseErrors() {
         User user = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S07', 'subject-a');
         insertAgreementForOrganization(organizationNumber);
 
         System.runAs(user) {
             System.Test.startTest();
-            AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
-                user.Id,
-                organizationNumber
-            );
+            Boolean lookupFailed = false;
+            try {
+                AAREG_HomeController.checkAndShareIfAuthorized(user.Id, organizationNumber);
+            } catch (AuraHandledException error) {
+                lookupFailed = true;
+            }
             Integer callouts = Limits.getCallouts();
             System.Test.stopTest();
 
-            System.Assert.isFalse(response.hasAccess);
-            System.Assert.isFalse(response.hasApplicationAccess);
+            System.Assert.isTrue(lookupFailed, 'A technical lookup failure must not become an ordinary denial.');
             System.Assert.areEqual(0, callouts);
         }
 

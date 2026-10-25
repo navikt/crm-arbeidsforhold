@@ -16,6 +16,7 @@ export default class Aareg_home extends LightningElement {
     organizationsWireResult;
     organizationVersion;
     organizationError;
+    accessCheckFailed = false;
     initializationStarted = false;
     labels = { refreshOrganizations: refreshOrganizationsLabel };
 
@@ -65,11 +66,11 @@ export default class Aareg_home extends LightningElement {
                 this.setOrganizations(result.data);
                 this.organizationError = null;
             } catch (error) {
-                if (!this.isRefreshing) this.organizations = [];
+                this.organizations = [];
                 this.organizationError = error;
             }
         } else if (result.error) {
-            if (!this.isRefreshing) this.organizations = [];
+            this.organizations = [];
             this.organizationError = result.error;
         } else {
             return;
@@ -120,7 +121,7 @@ export default class Aareg_home extends LightningElement {
         this.isRefreshing = true;
         this.clearAccess();
         this.showError = false;
-        this.organizationError = null;
+        this.accessCheckFailed = false;
 
         try {
             await refreshApex(this.organizationsWireResult);
@@ -134,6 +135,9 @@ export default class Aareg_home extends LightningElement {
         } catch (error) {
             console.error(error);
             this.clearAccess();
+            this.organizationError = error;
+            this.organizations = [];
+            this.lastUsedOrganization = null;
             this.showErrorMessage('Henting av organisasjoner feilet. Vennligst prøv igjen eller refresh siden.');
         } finally {
             this.isRefreshing = false;
@@ -144,9 +148,16 @@ export default class Aareg_home extends LightningElement {
         if (this.isRefreshing) return;
         this.isLoaded = false;
         this.clearAccess();
-        this.lastUsedOrganization = event.target.value;
+        this.showError = false;
+        this.accessCheckFailed = false;
+        const organizationNumber = event.target.value;
+        this.lastUsedOrganization = organizationNumber;
 
         try {
+            if (!organizationNumber || !this.isSelectedOrganizationAvailable() || this.organizationError) {
+                this.lastUsedOrganization = null;
+                return;
+            }
             await updateLastUsedOrganization({
                 organizationNumber: this.lastUsedOrganization,
                 userId: this.currentUser
@@ -155,6 +166,8 @@ export default class Aareg_home extends LightningElement {
             await this.secureAccessCheck();
         } catch (error) {
             console.error(error);
+            this.accessCheckFailed = true;
+            this.showErrorMessage('Valg av virksomhet feilet. Vennligst prøv igjen eller oppdater siden.');
         } finally {
             this.isLoaded = true;
         }
@@ -203,6 +216,7 @@ export default class Aareg_home extends LightningElement {
     }
 
     async secureAccessCheck() {
+        this.accessCheckFailed = false;
         try {
             const result = await checkAndShareIfAuthorized({
                 userId: this.currentUser,
@@ -213,6 +227,7 @@ export default class Aareg_home extends LightningElement {
             this.hasAccess = result.hasAccess;
             this.showError = false;
         } catch (error) {
+            this.accessCheckFailed = true;
             this.hasApplicationAccess = false;
             this.hasAccess = false;
             this.showErrorMessage(
@@ -222,8 +237,25 @@ export default class Aareg_home extends LightningElement {
         }
     }
 
-    get hasPreviouslySelectedOrganization() {
-        return this.lastUsedOrganization;
+    get hasNoSelectedOrganization() {
+        return !this.lastUsedOrganization;
+    }
+
+    get organizationOptions() {
+        return (this.organizations || []).map((organization) => ({
+            ...organization,
+            isSelected: organization.organizationNumber === this.lastUsedOrganization
+        }));
+    }
+
+    get showMissingAccess() {
+        return (
+            !this.hasAccess &&
+            !this.isRefreshing &&
+            !this.organizationError &&
+            !this.accessCheckFailed &&
+            Boolean(this.lastUsedOrganization)
+        );
     }
 
     get hasOrganizations() {

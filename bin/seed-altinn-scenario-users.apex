@@ -1,191 +1,122 @@
 Organization organization = [SELECT IsSandbox FROM Organization LIMIT 1];
 if (!organization.IsSandbox) {
-    throw new IllegalArgumentException('Synthetic Altinn scenario data can only be seeded in a sandbox.');
+    throw new IllegalArgumentException('Synthetic community test users can only be seeded in a sandbox.');
 }
 
 String organizationSuffix = UserInfo.getOrganizationId().right(8).toLowerCase();
-String highVolumeProfileName = 'High Volume Customer Portal User';
-String communityPlusProfileName = 'Customer Community Plus User';
-String communityPathPrefix = 'aaregisteret';
-Map<String, Profile> portalProfilesByName = new Map<String, Profile>();
-for (Profile portalProfile : [
-    SELECT Id, Name
+String username = 'aareg.community.test.' + organizationSuffix + '@example.invalid';
+String legacyPermitUsername = 'aareg.altinn.permit.' + organizationSuffix + '@example.invalid';
+Set<String> legacyUsernames = new Set<String>();
+for (String legacyKey : new List<String>{ 's02', 'deny', 's04', 's06' }) {
+    legacyUsernames.add('aareg.altinn.' + legacyKey + '.' + organizationSuffix + '@example.invalid');
+}
+List<Profile> profiles = [
+    SELECT Id
     FROM Profile
-    WHERE Name IN :new Set<String>{ highVolumeProfileName, communityPlusProfileName }
-]) {
-    portalProfilesByName.put(portalProfile.Name, portalProfile);
-}
-if (!portalProfilesByName.containsKey(highVolumeProfileName)) {
-    throw new IllegalArgumentException('The High Volume Customer Portal User profile is required.');
-}
-if (!portalProfilesByName.containsKey(communityPlusProfileName)) {
-    throw new IllegalArgumentException('The Customer Community Plus User profile is required.');
+    WHERE Name = 'Customer Community Plus User' AND UserLicense.Name = 'Customer Community Plus'
+    LIMIT 1
+];
+if (profiles.isEmpty()) {
+    throw new IllegalArgumentException('The Customer Community Plus User profile and license are required.');
 }
 List<Network> communities = [
     SELECT Id
     FROM Network
-    WHERE UrlPathPrefix = :communityPathPrefix
-        AND Status = 'Live'
+    WHERE UrlPathPrefix = 'aaregisteret' AND Status = 'Live'
     LIMIT 1
 ];
 if (communities.isEmpty()) {
     throw new IllegalArgumentException('The published Aa-registret community is required.');
 }
-
 Set<String> permissionNames = new Set<String>{ 'AAREG_AltinnScenarioUser', 'AAREG_CommunityPermission' };
-Map<String, PermissionSet> permissionsByName = new Map<String, PermissionSet>();
-for (PermissionSet permissionSet : [
-    SELECT Id, Name
-    FROM PermissionSet
-    WHERE Name IN :permissionNames
-]) {
-    permissionsByName.put(permissionSet.Name, permissionSet);
-}
-if (permissionsByName.size() != permissionNames.size()) {
+List<PermissionSet> permissions = [SELECT Id FROM PermissionSet WHERE Name IN :permissionNames];
+if (permissions.size() != permissionNames.size()) {
     throw new IllegalArgumentException('Both Altinn scenario and community permission sets must be installed.');
 }
-
-Map<String, String> scenarioByUsername = new Map<String, String>();
-for (String scenarioName : new List<String>{ 'S01', 'S02', 'S03', 'S04', 'S06' }) {
-    String scenarioKey;
-    if (scenarioName == 'S01') {
-        scenarioKey = 'permit';
-    } else if (scenarioName == 'S03') {
-        scenarioKey = 'deny';
-    } else {
-        scenarioKey = scenarioName.toLowerCase();
-    }
-    String username = 'aareg.altinn.' + scenarioKey + '.' + organizationSuffix + '@example.invalid';
-    scenarioByUsername.put(username, scenarioName);
-}
-List<String> usernames = new List<String>(scenarioByUsername.keySet());
-Map<String, String> emailByUsername = new Map<String, String>();
-for (String username : usernames) {
-    emailByUsername.put(username, username);
-}
-
 List<Contact> contacts = [
-    SELECT Id, Email
+    SELECT Id
     FROM Contact
-    WHERE Email IN :emailByUsername.values()
+    WHERE Email = :username AND Account.Name = :('Synthetic Community Test ' + organizationSuffix)
 ];
-Map<String, Contact> contactsByEmail = new Map<String, Contact>();
-for (Contact contact : contacts) {
-    contactsByEmail.put(contact.Email, contact);
+if (contacts.size() != 1) {
+    throw new IllegalArgumentException('Exactly one generic synthetic community contact must be seeded first.');
 }
 
 List<User> existingUsers = [
     SELECT Id, Username, ContactId, ProfileId, IsActive
     FROM User
-    WHERE Username IN :usernames
+    WHERE Username IN :new Set<String>{ username, legacyPermitUsername }
 ];
-Map<String, User> usersByUsername = new Map<String, User>();
-for (User existingUser : existingUsers) {
-    usersByUsername.put(existingUser.Username, existingUser);
+if (existingUsers.size() > 1) {
+    throw new IllegalArgumentException('Both legacy and generic community test users exist; resolve the duplicate first.');
 }
-
-List<User> usersToInsert = new List<User>();
-for (String username : usernames) {
-    Contact contact = contactsByEmail.get(emailByUsername.get(username));
-    if (contact == null) {
-        throw new IllegalArgumentException('Synthetic Altinn accounts and contacts must be seeded before users.');
-    }
-    String scenarioName = scenarioByUsername.get(username);
-    String scenarioKey = scenarioName.toLowerCase();
-    String profileName = scenarioName == 'S01' ? communityPlusProfileName : highVolumeProfileName;
-    Profile portalProfile = portalProfilesByName.get(profileName);
-    String lastName = 'Scenario User';
-    if (scenarioName == 'S01') {
-        lastName = 'Permit Scenario User';
-    } else if (scenarioName == 'S03') {
-        lastName = 'Deny Scenario User';
-    }
-    if (usersByUsername.containsKey(username)) {
-        User existingUser = usersByUsername.get(username);
-        if (
-            existingUser.ContactId != contact.Id ||
-            existingUser.ProfileId != portalProfile.Id ||
-            !existingUser.IsActive
-        ) {
-            throw new IllegalArgumentException('An existing synthetic Altinn user does not match its seed.');
-        }
-    } else {
-        usersToInsert.add(
-            new User(
-                FirstName = 'Synthetic',
-                LastName = lastName,
-                Email = emailByUsername.get(username),
-                Username = username,
-                Alias = 'alts' + scenarioName.right(2),
-                TimeZoneSidKey = 'Europe/Oslo',
-                LocaleSidKey = 'en_US',
-                LanguageLocaleKey = 'en_US',
-                EmailEncodingKey = 'UTF-8',
-                ProfileId = portalProfile.Id,
-                ContactId = contact.Id,
-                CommunityNickname = 'altinn-' + scenarioKey + '-' + organizationSuffix,
-                LastUsedOrganization__c = '111111111'
-            )
-        );
-    }
-}
-if (!usersToInsert.isEmpty()) {
-    insert usersToInsert;
-    for (User scenarioUser : usersToInsert) {
-        usersByUsername.put(scenarioUser.Username, scenarioUser);
-    }
-}
-
-Set<Id> userIds = new Set<Id>();
-for (User scenarioUser : usersByUsername.values()) {
-    userIds.add(scenarioUser.Id);
-}
-Set<Id> permissionIds = new Set<Id>();
-for (PermissionSet permissionSet : permissionsByName.values()) {
-    permissionIds.add(permissionSet.Id);
-}
-
-Set<String> existingAssignmentKeys = new Set<String>();
-for (PermissionSetAssignment assignment : [
-    SELECT AssigneeId, PermissionSetId
-    FROM PermissionSetAssignment
-    WHERE AssigneeId IN :userIds
-        AND PermissionSetId IN :permissionIds
-]) {
-    existingAssignmentKeys.add(String.valueOf(assignment.AssigneeId) + ':' + String.valueOf(assignment.PermissionSetId));
-}
-
-List<PermissionSetAssignment> assignmentsToInsert = new List<PermissionSetAssignment>();
-for (User scenarioUser : usersByUsername.values()) {
-    for (PermissionSet permissionSet : permissionsByName.values()) {
-        String assignmentKey = String.valueOf(scenarioUser.Id) + ':' + String.valueOf(permissionSet.Id);
-        if (!existingAssignmentKeys.contains(assignmentKey)) {
-            assignmentsToInsert.add(
-                new PermissionSetAssignment(
-                    AssigneeId = scenarioUser.Id,
-                    PermissionSetId = permissionSet.Id
-                )
-            );
-        }
-    }
-}
-if (!assignmentsToInsert.isEmpty()) {
-    insert assignmentsToInsert;
-}
-
-Set<Id> networkMemberIds = new Set<Id>();
-for (NetworkMember member : [
-    SELECT MemberId
-    FROM NetworkMember
-    WHERE NetworkId = :communities[0].Id
-        AND MemberId IN :userIds
-]) {
-    networkMemberIds.add(member.MemberId);
-}
-if (networkMemberIds.size() != userIds.size()) {
-    throw new IllegalArgumentException(
-        'Synthetic Altinn users were not added to the community; verify the community permission-set membership.'
+User testUser;
+if (existingUsers.isEmpty()) {
+    testUser = new User(
+        TimeZoneSidKey = 'Europe/Oslo',
+        LocaleSidKey = 'en_US',
+        LanguageLocaleKey = 'en_US',
+        EmailEncodingKey = 'UTF-8',
+        ProfileId = profiles[0].Id,
+        ContactId = contacts[0].Id,
+        LastUsedOrganization__c = '111111111'
     );
+} else {
+    testUser = existingUsers[0];
+    if (testUser.ContactId != contacts[0].Id || testUser.ProfileId != profiles[0].Id) {
+        throw new IllegalArgumentException('The existing test user must match the synthetic contact and Plus profile.');
+    }
+}
+testUser.FirstName = 'Synthetic';
+testUser.LastName = 'Community Test User';
+testUser.Username = username;
+testUser.Email = username;
+testUser.Alias = 'comtest';
+testUser.CommunityNickname = 'community-test-' + organizationSuffix;
+testUser.IsActive = true;
+
+List<User> retiredUsers = [
+    SELECT Id, Contact.Email, IsActive
+    FROM User
+    WHERE Username IN :legacyUsernames
+];
+List<User> usersToDeactivate = new List<User>();
+for (User retiredUser : retiredUsers) {
+    if (!legacyUsernames.contains(retiredUser.Contact?.Email)) {
+        throw new IllegalArgumentException('A legacy username is not linked to its expected synthetic contact.');
+    }
+    if (retiredUser.IsActive) {
+        retiredUser.IsActive = false;
+        usersToDeactivate.add(retiredUser);
+    }
+}
+if (!usersToDeactivate.isEmpty()) {
+    update usersToDeactivate;
+}
+if (testUser.Id == null) {
+    insert testUser;
+} else {
+    update testUser;
 }
 
-System.debug(LoggingLevel.INFO, 'Synthetic Altinn scenario users and permissions are ready.');
+Set<Id> existingPermissionIds = new Set<Id>();
+for (PermissionSetAssignment assignment : [
+    SELECT PermissionSetId
+    FROM PermissionSetAssignment
+    WHERE AssigneeId = :testUser.Id AND PermissionSet.Name IN :permissionNames
+]) {
+    existingPermissionIds.add(assignment.PermissionSetId);
+}
+List<PermissionSetAssignment> assignments = new List<PermissionSetAssignment>();
+for (PermissionSet permission : permissions) {
+    if (!existingPermissionIds.contains(permission.Id)) {
+        assignments.add(new PermissionSetAssignment(AssigneeId = testUser.Id, PermissionSetId = permission.Id));
+    }
+}
+if (!assignments.isEmpty()) {
+    insert assignments;
+}
+if ([SELECT COUNT() FROM NetworkMember WHERE NetworkId = :communities[0].Id AND MemberId = :testUser.Id] != 1) {
+    throw new IllegalArgumentException('Verify the generic test user community permission-set membership.');
+}
+System.debug(LoggingLevel.INFO, 'One generic Community Plus test user is ready; legacy scenario users are inactive.');

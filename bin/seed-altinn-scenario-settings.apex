@@ -1,59 +1,41 @@
 Organization organization = [SELECT IsSandbox FROM Organization LIMIT 1];
 if (!organization.IsSandbox) {
-    throw new IllegalArgumentException('Synthetic Altinn scenario data can only be seeded in a sandbox.');
+    throw new IllegalArgumentException('Synthetic Altinn settings can only be seeded in a sandbox.');
 }
-
 String organizationSuffix = UserInfo.getOrganizationId().right(8).toLowerCase();
-Map<String, String> scenarioByUsername = new Map<String, String>();
-for (String scenarioName : new List<String>{ 'S01', 'S02', 'S03', 'S04', 'S06' }) {
-    String scenarioKey;
-    if (scenarioName == 'S01') {
-        scenarioKey = 'permit';
-    } else if (scenarioName == 'S03') {
-        scenarioKey = 'deny';
-    } else {
-        scenarioKey = scenarioName.toLowerCase();
-    }
-    String username = 'aareg.altinn.' + scenarioKey + '.' + organizationSuffix + '@example.invalid';
-    scenarioByUsername.put(username, scenarioName);
-}
-List<String> usernames = new List<String>(scenarioByUsername.keySet());
+String username = 'aareg.community.test.' + organizationSuffix + '@example.invalid';
 List<User> users = [
-    SELECT Id, Username
+    SELECT Id
     FROM User
-    WHERE Username IN :usernames
+    WHERE Username = :username AND IsActive = true AND Profile.UserLicense.Name = 'Customer Community Plus'
 ];
-if (users.size() != scenarioByUsername.size()) {
-    throw new IllegalArgumentException('All seeded Altinn scenario users must exist before scenario settings are seeded.');
+if (users.size() != 1) {
+    throw new IllegalArgumentException('Exactly one active generic Community Plus test user is required.');
 }
-
-Set<Id> userIds = new Set<Id>();
-Map<Id, String> scenarioByUserId = new Map<Id, String>();
-for (User scenarioUser : users) {
-    userIds.add(scenarioUser.Id);
-    scenarioByUserId.put(scenarioUser.Id, scenarioByUsername.get(scenarioUser.Username));
+Id userId = users[0].Id;
+AAREG_AltinnScenarioSetting__c setting = AAREG_AltinnScenarioSetting__c.getValues(userId);
+if (setting?.Id == null) {
+    setting = new AAREG_AltinnScenarioSetting__c(SetupOwnerId = userId);
 }
+setting.UseScenarioProvider__c = true;
+setting.ScenarioName__c = 'S01';
+setting.SubjectAlias__c = 'subject-a';
+upsert setting;
 
-Map<Id, AAREG_AltinnScenarioSetting__c> settingsByUserId = new Map<Id, AAREG_AltinnScenarioSetting__c>();
-for (AAREG_AltinnScenarioSetting__c setting : [
-    SELECT Id, SetupOwnerId
+Set<String> legacyUsernames = new Set<String>();
+for (String legacyKey : new List<String>{ 's02', 'deny', 's04', 's06' }) {
+    legacyUsernames.add('aareg.altinn.' + legacyKey + '.' + organizationSuffix + '@example.invalid');
+}
+List<AAREG_AltinnScenarioSetting__c> retiredSettings = [
+    SELECT Id, UseScenarioProvider__c
     FROM AAREG_AltinnScenarioSetting__c
-    WHERE SetupOwnerId IN :userIds
-]) {
-    settingsByUserId.put(setting.SetupOwnerId, setting);
+    WHERE SetupOwnerId IN (SELECT Id FROM User WHERE Username IN :legacyUsernames AND IsActive = false)
+        AND UseScenarioProvider__c = true
+];
+for (AAREG_AltinnScenarioSetting__c retiredSetting : retiredSettings) {
+    retiredSetting.UseScenarioProvider__c = false;
 }
-
-List<AAREG_AltinnScenarioSetting__c> settingsToUpsert = new List<AAREG_AltinnScenarioSetting__c>();
-for (User scenarioUser : users) {
-    AAREG_AltinnScenarioSetting__c setting = settingsByUserId.get(scenarioUser.Id);
-    if (setting == null) {
-        setting = new AAREG_AltinnScenarioSetting__c(SetupOwnerId = scenarioUser.Id);
-    }
-    setting.UseScenarioProvider__c = true;
-    setting.ScenarioName__c = scenarioByUserId.get(scenarioUser.Id);
-    setting.SubjectAlias__c = 'subject-a';
-    settingsToUpsert.add(setting);
+if (!retiredSettings.isEmpty()) {
+    update retiredSettings;
 }
-upsert settingsToUpsert;
-
-System.debug(LoggingLevel.INFO, 'Synthetic Altinn scenario settings are ready.');
+System.debug(LoggingLevel.INFO, 'The generic community test user is assigned S01; retired scenario settings are disabled.');

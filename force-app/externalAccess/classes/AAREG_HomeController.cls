@@ -138,7 +138,7 @@ public without sharing class AAREG_HomeController {
      * @param userId Id of the community User record.
      * @param orgNumber The organization number to check access for.
      * @return An AccessResponse describing the access and application-access outcome.
-     * @throws AuraHandledException If userId or orgNumber is blank.
+     * @throws AuraHandledException If userId or orgNumber is blank or Altinn reports a technical rights lookup error.
      * @since May 2025
      */
     @AuraEnabled
@@ -155,6 +155,7 @@ public without sharing class AAREG_HomeController {
             orgNumber,
             'nav_arbeidsforhold_aa-registeret-sok-tilgang'
         );
+        requireSuccessfulRightsLookup(rightsResp);
 
         if (rightsResp?.rights != null) {
             for (AltinnCalloutService.Right right : rightsResp.rights) {
@@ -172,6 +173,7 @@ public without sharing class AAREG_HomeController {
                 orgNumber,
                 'nav_arbeidsforhold_aa-registeret-brukerstotte'
             );
+            requireSuccessfulRightsLookup(rightsResp);
 
             if (rightsResp?.rights != null) {
                 for (AltinnCalloutService.Right right : rightsResp.rights) {
@@ -191,6 +193,19 @@ public without sharing class AAREG_HomeController {
         }
 
         return new AccessResponse(hasAccess, hasApplicationAccess);
+    }
+
+    private static void requireSuccessfulRightsLookup(AltinnCalloutService.AltinnRightsResponse response) {
+        if (
+            response?.success == false &&
+            !String.isBlank(response.errorMessage) &&
+            (response.rights == null || response.rights.isEmpty())
+        ) {
+            LoggerUtility logger = new LoggerUtility();
+            logger.error('Altinn rights lookup returned a technical error without a rights decision.', null);
+            logger.publish();
+            throw new AuraHandledException('Henting av brukerrettigheter fra Altinn feilet. Vennligst prøv igjen.');
+        }
     }
 
     /**
