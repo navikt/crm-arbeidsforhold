@@ -4,7 +4,7 @@
         {
             "name": "S01",
             "version": 1,
-            "description": "Synthetic organization A permits application access. Observe the ordinary application and sharing flow.",
+            "description": "Synthetic organizations A, B and C permit application access. Observe the ordinary application and sharing flow.",
             "classification": "ContractShape",
             "subjects": [
                 {
@@ -15,6 +15,18 @@
                             {
                                 "name": "Synthetic organization A",
                                 "organizationNumber": "111111111",
+                                "type": "Organization",
+                                "unitType": "AS"
+                            },
+                            {
+                                "name": "Synthetic organization B",
+                                "organizationNumber": "222222222",
+                                "type": "Organization",
+                                "unitType": "AS"
+                            },
+                            {
+                                "name": "Synthetic organization C",
+                                "organizationNumber": "333333333",
                                 "type": "Organization",
                                 "unitType": "AS"
                             }
@@ -30,6 +42,34 @@
                         },
                         {
                             "organizationNumber": "111111111",
+                            "resource": "nav_arbeidsforhold_aa-registeret-brukerstotte",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Permit"
+                        },
+                        {
+                            "organizationNumber": "222222222",
+                            "resource": "nav_arbeidsforhold_aa-registeret-sok-tilgang",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Permit"
+                        },
+                        {
+                            "organizationNumber": "222222222",
+                            "resource": "nav_arbeidsforhold_aa-registeret-brukerstotte",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Permit"
+                        },
+                        {
+                            "organizationNumber": "333333333",
+                            "resource": "nav_arbeidsforhold_aa-registeret-sok-tilgang",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Permit"
+                        },
+                        {
+                            "organizationNumber": "333333333",
                             "resource": "nav_arbeidsforhold_aa-registeret-brukerstotte",
                             "outcome": "Decision",
                             "action": "Access",
@@ -42,7 +82,7 @@
         {
             "name": "S02",
             "version": 1,
-            "description": "Synthetic organization A denies application access and permits support. Expect support access only.",
+            "description": "Synthetic organizations A, B and C deny application access and permit support. Expect support access only.",
             "classification": "ContractShape",
             "subjects": [
                 {
@@ -53,6 +93,18 @@
                             {
                                 "name": "Synthetic organization A",
                                 "organizationNumber": "111111111",
+                                "type": "Organization",
+                                "unitType": "AS"
+                            },
+                            {
+                                "name": "Synthetic organization B",
+                                "organizationNumber": "222222222",
+                                "type": "Organization",
+                                "unitType": "AS"
+                            },
+                            {
+                                "name": "Synthetic organization C",
+                                "organizationNumber": "333333333",
                                 "type": "Organization",
                                 "unitType": "AS"
                             }
@@ -72,6 +124,34 @@
                             "outcome": "Decision",
                             "action": "Access",
                             "decision": "Permit"
+                        },
+                        {
+                            "organizationNumber": "222222222",
+                            "resource": "nav_arbeidsforhold_aa-registeret-sok-tilgang",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Deny"
+                        },
+                        {
+                            "organizationNumber": "222222222",
+                            "resource": "nav_arbeidsforhold_aa-registeret-brukerstotte",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Permit"
+                        },
+                        {
+                            "organizationNumber": "333333333",
+                            "resource": "nav_arbeidsforhold_aa-registeret-sok-tilgang",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Deny"
+                        },
+                        {
+                            "organizationNumber": "333333333",
+                            "resource": "nav_arbeidsforhold_aa-registeret-brukerstotte",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Permit"
                         }
                     ]
                 }
@@ -80,7 +160,7 @@
         {
             "name": "S03",
             "version": 1,
-            "description": "Synthetic organization A denies both resources. Use a clean user to observe no new shares; observe existing shares separately after Permit.",
+            "description": "Synthetic organizations A, B and C deny both resources. Use a clean user to observe no new shares; observe existing shares separately after Permit.",
             "classification": "ContractShape",
             "subjects": [
                 {
@@ -91,6 +171,18 @@
                             {
                                 "name": "Synthetic organization A",
                                 "organizationNumber": "111111111",
+                                "type": "Organization",
+                                "unitType": "AS"
+                            },
+                            {
+                                "name": "Synthetic organization B",
+                                "organizationNumber": "222222222",
+                                "type": "Organization",
+                                "unitType": "AS"
+                            },
+                            {
+                                "name": "Synthetic organization C",
+                                "organizationNumber": "333333333",
                                 "type": "Organization",
                                 "unitType": "AS"
                             }
@@ -106,6 +198,34 @@
                         },
                         {
                             "organizationNumber": "111111111",
+                            "resource": "nav_arbeidsforhold_aa-registeret-brukerstotte",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Deny"
+                        },
+                        {
+                            "organizationNumber": "222222222",
+                            "resource": "nav_arbeidsforhold_aa-registeret-sok-tilgang",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Deny"
+                        },
+                        {
+                            "organizationNumber": "222222222",
+                            "resource": "nav_arbeidsforhold_aa-registeret-brukerstotte",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Deny"
+                        },
+                        {
+                            "organizationNumber": "333333333",
+                            "resource": "nav_arbeidsforhold_aa-registeret-sok-tilgang",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Deny"
+                        },
+                        {
+                            "organizationNumber": "333333333",
                             "resource": "nav_arbeidsforhold_aa-registeret-brukerstotte",
                             "outcome": "Decision",
                             "action": "Access",
@@ -137,6 +257,12 @@
                                 "organizationNumber": "222222222",
                                 "type": "Organization",
                                 "unitType": "AS"
+                            },
+                            {
+                                "name": "Synthetic organization C",
+                                "organizationNumber": "333333333",
+                                "type": "Organization",
+                                "unitType": "AS"
                             }
                         ]
                     },
@@ -168,6 +294,20 @@
                             "outcome": "Decision",
                             "action": "Access",
                             "decision": "Permit"
+                        },
+                        {
+                            "organizationNumber": "333333333",
+                            "resource": "nav_arbeidsforhold_aa-registeret-sok-tilgang",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Permit"
+                        },
+                        {
+                            "organizationNumber": "333333333",
+                            "resource": "nav_arbeidsforhold_aa-registeret-brukerstotte",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Deny"
                         }
                     ]
                 }
@@ -176,7 +316,7 @@
         {
             "name": "S05",
             "version": 1,
-            "description": "A successful organization lookup returns an empty list. Observe the application's empty state without seeding any data.",
+            "description": "A successful organization lookup returns an empty list. Observe the application's empty state.",
             "classification": "ContractShape",
             "subjects": [
                 {
@@ -189,7 +329,7 @@
         {
             "name": "S06",
             "version": 1,
-            "description": "Return Organization entries with AS, ENK and BEDR forms plus a Person entry. Only the existing UI applies filtering.",
+            "description": "Return two AS organizations, ENK and BEDR organizations, plus a Person entry. Only the existing UI applies filtering.",
             "classification": "ContractShape",
             "subjects": [
                 {
@@ -214,6 +354,12 @@
                                 "organizationNumber": "333333333",
                                 "type": "Organization",
                                 "unitType": "BEDR"
+                            },
+                            {
+                                "name": "Synthetic organization D",
+                                "organizationNumber": "444444444",
+                                "type": "Organization",
+                                "unitType": "AS"
                             },
                             { "name": "Synthetic person entry", "type": "Person" }
                         ]
@@ -256,6 +402,20 @@
                         },
                         {
                             "organizationNumber": "333333333",
+                            "resource": "nav_arbeidsforhold_aa-registeret-brukerstotte",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Permit"
+                        },
+                        {
+                            "organizationNumber": "444444444",
+                            "resource": "nav_arbeidsforhold_aa-registeret-sok-tilgang",
+                            "outcome": "Decision",
+                            "action": "Access",
+                            "decision": "Permit"
+                        },
+                        {
+                            "organizationNumber": "444444444",
                             "resource": "nav_arbeidsforhold_aa-registeret-brukerstotte",
                             "outcome": "Decision",
                             "action": "Access",

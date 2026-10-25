@@ -45,6 +45,9 @@ Som systemeigar vil eg installere løysinga utan å opprette ein scenario-record
 Som testar vil eg velje namngitte scenario i Setup og bruke communityen som normalt.
 
 **Sjølvstendig test:** Bruk isolerte syntetiske brukarar og data for S01-S08.
+Scratch-oppsettet har dedikerte brukarar for S01-S04 og S06; S05/S07/S08 blir
+verifiserte som tom-, feil- og stale-selection-scenario i Apex-testane fordi
+scratch-org-en har ei avgrensa High Volume Customer Portal-lisenskvote.
 
 1. **Given** S01, **When** brukaren vel organisasjonen, **Then** blir
    søknadstilgang gitt gjennom ordinær applikasjonslogikk.
@@ -163,12 +166,12 @@ Som systemeigar vil eg hindre at testfunksjonar gir syntetiske rettar i produksj
 
 | ID | Innhald | Forventa applikasjonsutfall |
 | --- | --- | --- |
-| S01 | Organisasjon A, søknad Permit | Søknadstilgang; eksisterande delingsflyt blir brukt |
-| S02 | A, søknad Deny, brukerstøtte Permit | Berre brukerstøttetilgang |
-| S03 | A, begge ressursar Deny | Ingen tilgang eller nye delingar for rein brukar |
-| S04 | A og B med ulike rettar | Organisasjonsbyte nyttar rett svar per organisasjon |
+| S01 | A, B og C, alle med søknad Permit | Søknadstilgang; eksisterande delingsflyt blir brukt |
+| S02 | A, B og C med søknad Deny og brukerstøtte Permit | Berre brukerstøttetilgang |
+| S03 | A, B og C med begge ressursar Deny | Ingen tilgang eller nye delingar for rein brukar |
+| S04 | A, B og C med ulik rettsmatrise | Organisasjonsbyte nyttar rett svar per organisasjon |
 | S05 | Vellukka tom organisasjonsliste | Ingen tilgjengeleg organisasjon; observer forståeleg tomtilstand |
-| S06 | Blanda typar og organisasjonsformer | Dagens filtrering utført av UI, ikkje provider |
+| S06 | To AS, ENK, BEDR og ein Person | Dagens filtrering utført av UI, ikkje provider |
 | S07 | Kontrollert feil ved organisasjons-/rettsoppslag | Ingen tilgang gitt; relevant feilmelding/feilgrense |
 | S08 | Tidlegare valt organisasjon manglar | Registrer dagens åtferd; eventuell retting får eksplisitt godkjend slice |
 
@@ -178,7 +181,10 @@ realistiske. Vi utvidar ikkje integrasjonstesting for å gjere dette.
 
 ## Success Criteria
 
-- Alle åtte scenario har eit repeterbart testoppsett og eit registrert UI-utfall.
+- Alle åtte scenario har repeterbare Apex-testar; S01-S04 og S06 har i tillegg
+  eigne scratch-brukarar for nettlesartesting.
+- Scratch-seedet opprettar syntetiske Account-, Application- og Agreement-postar
+  for organisasjonane 111111111–444444444.
 - S01-S04 gir forventa tilgangsutfall utan eksternt Altinn-oppsett.
 - Ingen scenario kan gi syntetiske rettar i produksjon eller for uautorisert brukar.
 - Installasjon utan scenario-record krev null ekstra Setup-handlingar for normal drift.

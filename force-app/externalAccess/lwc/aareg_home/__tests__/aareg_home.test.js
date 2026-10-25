@@ -127,17 +127,43 @@ describe('c-aareg-home', () => {
         jest.spyOn(console, 'error').mockImplementation(() => {});
         getLastUsersLastUsedOrganization.mockResolvedValue('111111111');
         checkAndShareIfAuthorized.mockResolvedValue({ hasAccess: true, hasApplicationAccess: true });
-        refreshApex.mockRejectedValue(new Error('refresh failed'));
+        refreshApex.mockImplementation(async () => {
+            organizationsAdapter.error({ message: 'refresh failed' }, 500);
+        });
         const element = await initializeHome();
 
-        element.shadowRoot.querySelector('[data-id="refresh-organizations"]').dispatchEvent(new CustomEvent('click'));
+        const refreshButton = element.shadowRoot.querySelector('[data-id="refresh-organizations"]');
+        expect(refreshButton.variant).toBe('neutral');
+        expect(refreshButton.iconName).toBe('utility:refresh');
+        refreshButton.dispatchEvent(new CustomEvent('click'));
         await flushPromises();
         await flushPromises();
 
         expect(checkAndShareIfAuthorized).toHaveBeenCalledTimes(1);
         expect(element.shadowRoot.querySelector('.error-message')).not.toBeNull();
         expect(element.shadowRoot.querySelector('[data-id="refresh-organizations"]')).not.toBeNull();
+        expect(
+            Array.from(element.shadowRoot.querySelectorAll('.organization-select option')).some(
+                (option) => option.value === '111111111'
+            )
+        ).toBe(true);
         expect(element.shadowRoot.querySelector('c-aareg_missing-access')).not.toBeNull();
+    });
+
+    it('shows an explicit empty state when refresh succeeds without organizations', async () => {
+        getLastUsersLastUsedOrganization.mockResolvedValue('111111111');
+        checkAndShareIfAuthorized.mockResolvedValue({ hasAccess: true, hasApplicationAccess: true });
+        refreshApex.mockImplementation(async () => {
+            organizationsAdapter.emit({ ...initialOrganizations, organizations: [] });
+        });
+        const element = await initializeHome();
+
+        element.shadowRoot.querySelector('[data-id="refresh-organizations"]').dispatchEvent(new CustomEvent('click'));
+        await flushPromises();
+        await flushPromises();
+
+        expect(element.shadowRoot.querySelector('[data-id="organization-empty-state"]')).not.toBeNull();
+        expect(element.shadowRoot.querySelector('[data-id="refresh-organizations"]')).not.toBeNull();
     });
 
     it('does not start a second refresh while the first refresh is pending', async () => {

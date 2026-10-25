@@ -39,11 +39,20 @@ if (permissionsByName.size() != permissionNames.size()) {
     throw new IllegalArgumentException('Both Altinn scenario and community permission sets must be installed.');
 }
 
-Map<String, String> scenarioKeyByUsername = new Map<String, String>{
-    'aareg.altinn.permit.' + organizationSuffix + '@example.invalid' => 'permit',
-    'aareg.altinn.deny.' + organizationSuffix + '@example.invalid' => 'deny'
-};
-List<String> usernames = new List<String>(scenarioKeyByUsername.keySet());
+Map<String, String> scenarioByUsername = new Map<String, String>();
+for (String scenarioName : new List<String>{ 'S01', 'S02', 'S03', 'S04', 'S06' }) {
+    String scenarioKey;
+    if (scenarioName == 'S01') {
+        scenarioKey = 'permit';
+    } else if (scenarioName == 'S03') {
+        scenarioKey = 'deny';
+    } else {
+        scenarioKey = scenarioName.toLowerCase();
+    }
+    String username = 'aareg.altinn.' + scenarioKey + '.' + organizationSuffix + '@example.invalid';
+    scenarioByUsername.put(username, scenarioName);
+}
+List<String> usernames = new List<String>(scenarioByUsername.keySet());
 Map<String, String> emailByUsername = new Map<String, String>();
 for (String username : usernames) {
     emailByUsername.put(username, username);
@@ -75,7 +84,14 @@ for (String username : usernames) {
     if (contact == null) {
         throw new IllegalArgumentException('Synthetic Altinn accounts and contacts must be seeded before users.');
     }
-    String scenarioKey = scenarioKeyByUsername.get(username);
+    String scenarioName = scenarioByUsername.get(username);
+    String scenarioKey = scenarioName.toLowerCase();
+    String lastName = 'Scenario User';
+    if (scenarioName == 'S01') {
+        lastName = 'Permit Scenario User';
+    } else if (scenarioName == 'S03') {
+        lastName = 'Deny Scenario User';
+    }
     if (usersByUsername.containsKey(username)) {
         User existingUser = usersByUsername.get(username);
         if (
@@ -89,10 +105,10 @@ for (String username : usernames) {
         usersToInsert.add(
             new User(
                 FirstName = 'Synthetic',
-                LastName = scenarioKey == 'permit' ? 'Permit Scenario User' : 'Deny Scenario User',
+                LastName = lastName,
                 Email = emailByUsername.get(username),
                 Username = username,
-                Alias = scenarioKey == 'permit' ? 'alts01' : 'alts03',
+                Alias = 'alts' + scenarioName.right(2),
                 TimeZoneSidKey = 'Europe/Oslo',
                 LocaleSidKey = 'en_US',
                 LanguageLocaleKey = 'en_US',

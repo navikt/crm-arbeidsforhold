@@ -21,10 +21,11 @@
                     Min side - Brukerstøtte og søknad om tilgang til Aa-registeret
                 </h1>
             </div>
-            <div class="org_picker">
-                <template if:true={organizations}>
+            <div class="org_picker" aria-busy={isRefreshing}>
+                <template if:true={hasOrganizations}>
                     <select
                         class="organization-select"
+                        aria-label="Velg virksomhet"
                         aria-invalid="false"
                         disabled={isRefreshing}
                         onchange={handleOrganizationChange}
@@ -39,10 +40,18 @@
                         </template>
                     </select>
                 </template>
+                <template if:true={hasNoOrganizations}>
+                    <p class="organization-empty-state" data-id="organization-empty-state" role="status">
+                        Ingen organisasjoner er tilgjengelige.
+                    </p>
+                </template>
                 <div class="organization-actions">
                     <lightning-button
                         data-id="refresh-organizations"
                         label={labels.refreshOrganizations}
+                        variant="neutral"
+                        icon-name="utility:refresh"
+                        icon-position="left"
                         disabled={isRefreshing}
                         onclick={handleRefresh}
                     ></lightning-button>

@@ -50,7 +50,7 @@ private with sharing class AAREG_AltinnScenarioRepositoryTest {
             System.Assert.areEqual(8, scenarios.size(), 'Do not hide duplicate scenario identities.');
             System.Assert.areEqual('ContractShape', applicationScenario.classification);
             System.Assert.areEqual('Success', subject.organizations.outcome);
-            System.Assert.areEqual(1, subject.organizations.organizations.size());
+            System.Assert.areEqual(3, subject.organizations.organizations.size());
             System.Assert.areEqual('111111111', subject.organizations.organizations[0].organizationNumber);
             System.Assert.areEqual('Decision', applicationRight.outcome);
             System.Assert.areEqual('Access', applicationRight.action);
@@ -75,6 +75,8 @@ private with sharing class AAREG_AltinnScenarioRepositoryTest {
         assertDecision(repository, 'S02', '111111111', supportResource, 'Permit');
         assertDecision(repository, 'S03', '111111111', applicationResource, 'Deny');
         assertDecision(repository, 'S03', '111111111', supportResource, 'Deny');
+        System.Assert.areEqual(3, repository.getSubject('S02', 'subject-a').organizations.organizations.size());
+        System.Assert.areEqual(3, repository.getSubject('S03', 'subject-a').organizations.organizations.size());
         System.Test.stopTest();
     }
 
@@ -87,11 +89,13 @@ private with sharing class AAREG_AltinnScenarioRepositoryTest {
     static void shouldKeepOrganizationRightsIndependent() {
         System.Test.startTest();
         AAREG_AltinnScenarioRepository repository = new AAREG_AltinnScenarioRepository();
-        System.Assert.areEqual(2, repository.getSubject('S04', 'subject-a').organizations.organizations.size());
+        System.Assert.areEqual(3, repository.getSubject('S04', 'subject-a').organizations.organizations.size());
         assertDecision(repository, 'S04', '111111111', applicationResource, 'Permit');
         assertDecision(repository, 'S04', '111111111', supportResource, 'Deny');
         assertDecision(repository, 'S04', '222222222', applicationResource, 'Deny');
         assertDecision(repository, 'S04', '222222222', supportResource, 'Permit');
+        assertDecision(repository, 'S04', '333333333', applicationResource, 'Permit');
+        assertDecision(repository, 'S04', '333333333', supportResource, 'Deny');
         System.Test.stopTest();
     }
 
@@ -131,18 +135,20 @@ private with sharing class AAREG_AltinnScenarioRepositoryTest {
         List<AAREG_AltinnScenarioRepository.Organization> organizations = repository
             .getSubject('S06', 'subject-a')
             .organizations.organizations;
-        for (String organizationNumber : new List<String>{ '111111111', '222222222', '333333333' }) {
+        for (String organizationNumber : new List<String>{ '111111111', '222222222', '333333333', '444444444' }) {
             assertDecision(repository, 'S06', organizationNumber, applicationResource, 'Permit');
             assertDecision(repository, 'S06', organizationNumber, supportResource, 'Permit');
         }
         System.Test.stopTest();
 
-        System.Assert.areEqual(4, organizations.size(), 'Catalogue reading must not duplicate UI filtering.');
+        System.Assert.areEqual(5, organizations.size(), 'Catalogue reading must not duplicate UI filtering.');
         System.Assert.areEqual('AS', organizations[0].unitType);
         System.Assert.areEqual('ENK', organizations[1].unitType);
         System.Assert.areEqual('BEDR', organizations[2].unitType);
-        System.Assert.areEqual('Person', organizations[3].type);
-        System.Assert.isNull(organizations[3].organizationNumber, 'A Person fixture must not contain an identity.');
+        System.Assert.areEqual('AS', organizations[3].unitType);
+        System.Assert.areEqual('444444444', organizations[3].organizationNumber);
+        System.Assert.areEqual('Person', organizations[4].type);
+        System.Assert.isNull(organizations[4].organizationNumber, 'A Person fixture must not contain an identity.');
     }
 
     /**

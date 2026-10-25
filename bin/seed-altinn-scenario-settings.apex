@@ -4,10 +4,19 @@ if (!organization.IsSandbox) {
 }
 
 String organizationSuffix = UserInfo.getOrganizationId().right(8).toLowerCase();
-Map<String, String> scenarioByUsername = new Map<String, String>{
-    'aareg.altinn.permit.' + organizationSuffix + '@example.invalid' => 'S01',
-    'aareg.altinn.deny.' + organizationSuffix + '@example.invalid' => 'S03'
-};
+Map<String, String> scenarioByUsername = new Map<String, String>();
+for (String scenarioName : new List<String>{ 'S01', 'S02', 'S03', 'S04', 'S06' }) {
+    String scenarioKey;
+    if (scenarioName == 'S01') {
+        scenarioKey = 'permit';
+    } else if (scenarioName == 'S03') {
+        scenarioKey = 'deny';
+    } else {
+        scenarioKey = scenarioName.toLowerCase();
+    }
+    String username = 'aareg.altinn.' + scenarioKey + '.' + organizationSuffix + '@example.invalid';
+    scenarioByUsername.put(username, scenarioName);
+}
 List<String> usernames = new List<String>(scenarioByUsername.keySet());
 List<User> users = [
     SELECT Id, Username
@@ -15,7 +24,7 @@ List<User> users = [
     WHERE Username IN :usernames
 ];
 if (users.size() != scenarioByUsername.size()) {
-    throw new IllegalArgumentException('Both synthetic Altinn users must exist before scenario settings are seeded.');
+    throw new IllegalArgumentException('All seeded Altinn scenario users must exist before scenario settings are seeded.');
 }
 
 Set<Id> userIds = new Set<Id>();

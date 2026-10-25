@@ -47,13 +47,26 @@ private with sharing class AAREG_AltinnScenarioJourneyTest {
             AltinnCalloutService.AltinnOrganizationsResponse response = AAREG_HomeController.getOrganizationsWithRoles(
                 user.Id
             );
+            Set<String> organizationNumbers = new Set<String>();
+            for (AltinnCalloutService.Organization organization : response.organizations) {
+                organizationNumbers.add(organization.organizationNumber);
+            }
+            List<AAREG_HomeController.AccessResponse> accessResponses = new List<AAREG_HomeController.AccessResponse>();
+            for (String organizationNumber : new List<String>{ '111111111', '222222222', '333333333' }) {
+                accessResponses.add(AAREG_HomeController.checkAndShareIfAuthorized(user.Id, organizationNumber));
+            }
             Integer callouts = Limits.getCallouts();
             System.Test.stopTest();
 
             System.Assert.isTrue(response.success);
             System.Assert.areEqual('v3', response.altinnVersion);
-            System.Assert.areEqual(1, response.organizations.size());
+            System.Assert.areEqual(3, response.organizations.size());
             System.Assert.areEqual(organizationNumber, response.organizations[0].organizationNumber);
+            System.Assert.areEqual(new Set<String>{ '111111111', '222222222', '333333333' }, organizationNumbers);
+            for (AAREG_HomeController.AccessResponse accessResponse : accessResponses) {
+                System.Assert.isTrue(accessResponse.hasAccess);
+                System.Assert.isTrue(accessResponse.hasApplicationAccess);
+            }
             System.Assert.areEqual(0, callouts);
         }
     }

@@ -65,11 +65,11 @@ export default class Aareg_home extends LightningElement {
                 this.setOrganizations(result.data);
                 this.organizationError = null;
             } catch (error) {
-                this.organizations = [];
+                if (!this.isRefreshing) this.organizations = [];
                 this.organizationError = error;
             }
         } else if (result.error) {
-            this.organizations = [];
+            if (!this.isRefreshing) this.organizations = [];
             this.organizationError = result.error;
         } else {
             return;
@@ -82,16 +82,18 @@ export default class Aareg_home extends LightningElement {
     }
 
     setOrganizations(orgResult) {
-        this.organizations = undefined;
-        this.organizationVersion = orgResult.altinnVersion;
         if (!orgResult.success) {
             throw new Error(`Failed to get organizations ${orgResult.errorMessage}`);
         }
+
+        this.organizationVersion = orgResult.altinnVersion;
         if (orgResult.altinnVersion === 'v3') {
             const organizations = Array.isArray(orgResult.organizations) ? orgResult.organizations : [];
             this.organizations = organizations
                 .filter((organization) => this.onlyOrganizations.includes(organization.type))
                 .filter((organization) => !this.noAccessOrgForms.includes(organization.unitType));
+        } else {
+            this.organizations = undefined;
         }
     }
 
@@ -118,8 +120,6 @@ export default class Aareg_home extends LightningElement {
         this.isRefreshing = true;
         this.clearAccess();
         this.showError = false;
-        this.organizations = [];
-        this.lastUsedOrganization = null;
         this.organizationError = null;
 
         try {
@@ -133,8 +133,6 @@ export default class Aareg_home extends LightningElement {
             await this.checkSelectedOrganization();
         } catch (error) {
             console.error(error);
-            this.organizations = [];
-            this.lastUsedOrganization = null;
             this.clearAccess();
             this.showErrorMessage('Henting av organisasjoner feilet. Vennligst prøv igjen eller refresh siden.');
         } finally {
@@ -226,6 +224,19 @@ export default class Aareg_home extends LightningElement {
 
     get hasPreviouslySelectedOrganization() {
         return this.lastUsedOrganization;
+    }
+
+    get hasOrganizations() {
+        return Array.isArray(this.organizations) && this.organizations.length > 0;
+    }
+
+    get hasNoOrganizations() {
+        return (
+            Array.isArray(this.organizations) &&
+            this.organizations.length === 0 &&
+            !this.organizationError &&
+            !this.isRefreshing
+        );
     }
 
     closeErrorMessage() {
