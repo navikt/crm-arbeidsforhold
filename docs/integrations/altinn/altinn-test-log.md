@@ -253,6 +253,32 @@ lukka før ny stadfesta nettlesartest.
 
 ## Rettings- og oppsettsøkt 2026-10-25
 
+### S05/S08-regresjon av ikkje-cachebar oppdatering — 2026-10-26
+
+- Brukaren godkjende at assistenten gjennomførte og loggførde begge testane
+  i den delte community-fana i `nav-community-dev`. Dette er
+  assistent-observert nettlesarevidens, ikkje berre Jest-resultat.
+- **Grunnlinje: Bestått.** CLI viste éi aktiv setting med S01 / subject-a /
+  true. Nettlesaren viste A vald med søknadstilgang og utan feil.
+- **S05: Bestått.** To oppdateringsforsøk viste «Ingen virksomheter er
+  tilgjengelige», forklaring og neste handling. Begge gongene var veljar,
+  tilgangspanel, teknisk feil og Deny-panel fråverande.
+- **S05 → S01: Bestått utan reload.** Oppdateringsknappen gav A/B/C og A vald
+  med søknadstilgang. Tomtilstanden forsvann og ingen feil blei viste.
+- **S08 etter A: Bestått.** Etter oppdatering fanst berre B som organisasjon.
+  Plasshaldaren var vald, utan tilgangspanel, teknisk feil eller Deny-panel.
+- **Direkte B → plasshaldar → B: Bestått.** B gav brukerstøtte, men ingen
+  søknadstilgang, begge gongene. Plasshaldaren fjerna tilgangen utan feil
+  eller Deny-panel.
+- **S08 → S01: Bestått utan reload.** Etter tilbakeføring og oppdatering
+  blei A vald eksplisitt. A/B/C var tilgjengelege, søknad og brukerstøtte
+  fungerte, og tomtilstand/feil var borte.
+- **Sluttkontroll: Bestått.** CLI stadfesta nøyaktig éi aktiv setting:
+  S01 / subject-a / true. Den delte fana blei ståande med A vald og tilgang.
+- Ingen kodeendring, deploy, innsending av søknader eller redigering av avtalar
+  blei utført i denne runden. Testen gjeld UI/ferskhenting; tilbakekalling av
+  gamle record-delingsrettar er ikkje verifisert.
+
 ### Nettlesartest — S07 / subject-throws
 
 #### Endeleg deploy og faktisk gjenoppretting — Bestått
