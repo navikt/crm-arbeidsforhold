@@ -216,6 +216,7 @@ function Get-OperationLabel {
         '^data import tree' { return 'Importing configured data' }
         '^community publish' { return 'Publishing community' }
         '^apex run test' { return 'Running Apex tests' }
+        '^apex run' { return 'Seeding synthetic Altinn scenario users' }
         '^data query' { return 'Querying Salesforce data' }
         default { return "$Executable $command" }
     }
@@ -285,7 +286,7 @@ function Test-Configuration {
     }
     $steps = ConvertTo-StringArray (Get-ObjectProperty $Config 'postSteps' @('deploy'))
     $customSteps = Get-ObjectProperty $Config 'customPostSteps' @()
-    $knownSteps = @('deploy', 'permsets', 'data', 'community') + @($customSteps | ForEach-Object { $_.name })
+    $knownSteps = @('deploy', 'permsets', 'data', 'community', 'altinn-scenario-users') + @($customSteps | ForEach-Object { $_.name })
     foreach ($step in $steps) {
         if ($step -notin $knownSteps) { throw "Unknown post step '$step'." }
     }
@@ -303,7 +304,7 @@ function Test-Configuration {
     $customNames = @($customSteps | ForEach-Object { $_.name })
     if (@($customNames | Select-Object -Unique).Count -ne $customNames.Count) { throw 'customPostSteps names must be unique.' }
     foreach ($name in $customNames) {
-        if ($name -in @('deploy', 'permsets', 'data', 'community')) { throw "customPostSteps name '$name' conflicts with a built-in step." }
+        if ($name -in @('deploy', 'permsets', 'data', 'community', 'altinn-scenario-users')) { throw "customPostSteps name '$name' conflicts with a built-in step." }
     }
     foreach ($custom in $customSteps) {
         if (-not (Test-NonEmptyString $custom.name) -or -not (Test-NonEmptyString $custom.executable)) { throw 'customPostSteps entries require non-empty name and executable values.' }
@@ -694,6 +695,24 @@ function Invoke-PostStep {
             if (-not $script:Config.communityName) { Write-RunWarning 'No community configured; skipping.'; return $false }
             Invoke-Sf @('community', 'publish', '--target-org', $script:TargetOrg, '--name', $script:Config.communityName) -PlanOnly:$script:DryRun | Out-Null
         }
+        'altinn-scenario-users' {
+            if (-not $script:Config.communityName) { Write-RunWarning 'No community configured; skipping Altinn scenario user seed.'; return $false }
+            $apexFiles = @(
+                'bin/seed-altinn-scenario-owner.apex',
+                'bin/seed-altinn-scenario-accounts.apex',
+                'bin/seed-altinn-scenario-users.apex',
+                'bin/seed-altinn-scenario-settings.apex'
+            )
+            foreach ($apexFile in $apexFiles) {
+                $absoluteApexFile = Join-Path $script:ProjectRoot $apexFile
+                if (-not $script:DryRun -and -not (Test-Path -LiteralPath $absoluteApexFile -PathType Leaf)) {
+                    throw "Altinn scenario seed file not found: $absoluteApexFile"
+                }
+            }
+            foreach ($apexFile in $apexFiles) {
+                Invoke-Sf @('apex', 'run', '--target-org', $script:TargetOrg, '--file', $apexFile) -PlanOnly:$script:DryRun | Out-Null
+            }
+        }
         default {
             $custom = @($script:Config.customPostSteps | Where-Object { $_.name -eq $Step }) | Select-Object -First 1
             if ($null -eq $custom) { throw "Unknown post-step '$Step'." }
@@ -786,7 +805,7 @@ function Invoke-DummyUsers {
 function Get-SelectedPostSteps {
     if ($script:BoundParameters.ContainsKey('PostSteps')) { $requested = @($PostSteps | ForEach-Object { $_ -split ',' } | Where-Object { $_ }) }
     else { $requested = @($script:Config.postSteps) }
-    $canonicalSteps = @('deploy', 'permsets', 'data', 'community') + @($script:Config.customPostSteps | ForEach-Object { $_.name })
+    $canonicalSteps = @('deploy', 'permsets', 'data', 'community', 'altinn-scenario-users') + @($script:Config.customPostSteps | ForEach-Object { $_.name })
     if ($requested.Count -eq 1 -and $requested[0] -eq 'all') { return $canonicalSteps }
     if ($requested.Count -eq 1 -and $requested[0] -eq 'none') { return @() }
     foreach ($step in $requested) { if ($step -notin $canonicalSteps) { throw "Unknown post-step '$step'." } }
@@ -1171,7 +1190,7 @@ jq for dependency cleanup, and Salesforce CLI (sf). It does not require sf-proje
         $installPackages = -not $SkipPackages -and -not $PostStepsOnly -and -not $specialMode
         if ($installPackages -or $UpdatePackages) { Invoke-DependencyCheck -ForInstallation }
         $script:PhaseTotal = [int]$setupOrg + [int]($installPackages -or $UpdatePackages) + [int]($steps.Count -gt 0) + [int][bool]$CoverageCheck + [int][bool]$RefreshDependencySources
-        $allSteps = @('deploy', 'permsets', 'data', 'community') + @($script:Config.customPostSteps | ForEach-Object { $_.name })
+        $allSteps = @('deploy', 'permsets', 'data', 'community', 'altinn-scenario-users') + @($script:Config.customPostSteps | ForEach-Object { $_.name })
         $script:SkippedSteps = @($allSteps | Where-Object { $_ -notin $steps })
         Write-RunValue 'Selected post-steps' ($steps -join ', ')
         Write-RunValue 'Not selected' ($script:SkippedSteps -join ', ')

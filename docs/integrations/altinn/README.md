@@ -33,7 +33,12 @@ Han opprettar ikkje ein provider, gjer ingen callouts og skriv ingen data.
   `AAREG_UseAltinnScenario`, same målbrukar som innlogga brukar, namn/alias og
   samsvarande ikkje-tom identitet frå brukarens kontakt-/kontokjede.
 - `AAREG_AltinnScenarioUser` gir berre custom permission, ikkje Setup- eller
-  skriverettar. Setting-records blir ikkje leverte eller automatisk oppretta.
+  skriverettar. Scratch-oppsettet køyrer eit eige seed-steg etter publisering av
+  nettstaden; det opprettar syntetiske scenario-brukarar og brukarsettingar utan
+  å setje passord. Steget brukar ein eksisterande intern scratch-testbrukar som
+  kontoeigar og gir brukaren lågaste tilgjengelege rolle dersom det trengst;
+  dette endrar rollehierarkiet sin delingsåtferd og er avgrensa til scratch.
+  Dette er ikkje del av policy/provider-runtime.
 - Policy og privat plattformlesar brukar `with sharing`. To eksplisitte
   `WITH SYSTEM_MODE`-oppslag les berre `Organization.IsSandbox` og den innlogga
   brukarens tilknytte identitet. Dette er den menneskeleg godkjende,
@@ -140,8 +145,9 @@ Kvart alias har eitt organisasjonsutfall og ei liste med rettsutfall:
 | S08      | `subject-a`                    | Berre B med søknad Deny/støtte Permit. Start seinare med A valt gjennom S01 og observer at A manglar; katalogen endrar ikkje lagra organisasjonsval. |
 
 Ingen av UI-utfalla i tabellen er verifiserte enno. Katalogen opprettar ikkje
-produktdata eller fjernar delingar. Administrator må framleis sikre syntetiske
-brukarar, produktdata og andre utgåande kanalar før ende-til-ende-testing.
+produktdata eller fjernar delingar. Scratch-seedet opprettar S01- og S03-brukarar,
+men autentisering i nettlesar, produktdata og andre utgåande kanalar må framleis
+avklarast før ende-til-ende-testing.
 
 Provider-mapping er implementert i T010–T011: organisasjonssvar blir merkte `v3`, og
 dagens rettssemantikk må bevarast. Referansekoden returnerer Permit med
@@ -287,7 +293,7 @@ verifiserer ordinær bane og eksisterande delingslogikk.
 Raud køyring før wiring gav fire feil fordi standard Altinn 3 vart vald utan
 integrasjonsoppsett. Etter wiring var dei fem journey-testane grøne. Den første
 focused dry-run vart likevel avvist av 75 %-dekningsgaten fordi han berre køyrde
-journey-klassa. Samla dry-run `0AfJW00000nmT6j0AE` gav **80/80 testar,
+journey-klassa. Samla dry-run `0AfJW00000nmxsn0AA` gav **80/80 testar,
 checkOnly=true, utan feil eller dekningsvarsel**. Dekning: HomeController
 106/106, CommunityUtils 10/10, provider 54/54, factory 7/7, policy 34/34 og
 repository 116/117 køyrbare linjer.
@@ -302,10 +308,11 @@ hevdar full community-delingsjourney.
 
 D01 er valt som A: dynamisk oppfrisking. Den lokale UI-endringa og Jest-
 verifikasjonen er dokumenterte i neste avsnitt; dette Apex-dry-run-beviset er
-ikkje ein ende-til-ende nettlesartest. Ingen permanent deploy eller
-scenarioaktivering er utført.
+ikkje ein ende-til-ende nettlesartest. Regresjonen vart køyrd på nytt etter
+UI-arbeidet: `0AfJW00000nmxsn0AA`, 80/80 testar og null feil. Ingen permanent
+deploy eller scenarioaktivering er utført.
 
-Eksakt samla kommando, siste validering `0AfJW00000nmT6j0AE`:
+Eksakt samla kommando, siste validering `0AfJW00000nmxsn0AA`:
 
 ```sh
 sf project deploy start --dry-run \
@@ -506,8 +513,17 @@ force-app/externalAccess/lwc/aareg_home/__tests__/aareg_home.test.js` gav
 `npm run test:unit -- -- --runInBand` gav 6/6 suites og 15/15 testar.
 `sf project deploy preview --source-dir force-app --target-org crm-arbeidsforhold`
 melde ingen konfliktar og at 497 metadatafiler ville bli med i ein deploy;
-ingen deploy vart utført. Ende-til-ende nettlesartest og positiv
-delingsverifikasjon for High Volume Customer Portal-lisensen står framleis att.
+det var berre ein preview. Etter eksplisitt godkjenning vart dei avgrensa
+Altinn-/LWC-endringane deployerte til scratch-org `crm-arbeidsforhold`:
+`0AfJW00000nmyDl0AI`, `Succeeded`, 60 komponentar og 80/80 Apex-testar.
+Dette var ikkje produksjon eller ein varig deploy.
+
+Eit målretta oppslag fann ingen eksisterande syntetisk community-testbrukar.
+Scenario er derfor ikkje aktivert, og ende-til-ende nettlesar-/delingsreise er
+ikkje utført. Ho krev ein syntetisk ekstern brukar som kan autentiserast i
+nettlesaren; ingen innloggingsopplysningar er oppretta, etterspurde eller
+handterte her. Positiv delingsverifikasjon for High Volume Customer Portal-
+lisensen står òg att.
 
 ## D01: To cache-alternativ, ikkje eit skjult val
 

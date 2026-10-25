@@ -256,6 +256,29 @@ try {
     Assert-True ($Calls.Count -eq 2 -and $Calls[0].arguments[1] -eq 'deploy') 'deploy precedes tracking reset'
 
     Reset-Scenario
+    $Config.communityName = 'Aa-registret'
+    $Config.postSteps = @('community', 'altinn-scenario-users')
+    New-Item -ItemType Directory -Path (Join-Path $ProjectDirectory 'bin') | Out-Null
+    foreach ($seedFile in @(
+        'seed-altinn-scenario-owner.apex',
+        'seed-altinn-scenario-accounts.apex',
+        'seed-altinn-scenario-users.apex',
+        'seed-altinn-scenario-settings.apex'
+    )) {
+        Set-Content -LiteralPath (Join-Path $ProjectDirectory "bin/$seedFile") -Value 'System.debug("seed");'
+    }
+    Add-Rule sf @('community', 'publish')
+    Add-Rule sf @('apex', 'run')
+    $result = Invoke-Scenario -Options @('-PostStepsOnly')
+    Assert-Exit $result 0 'Altinn scenario users seed succeeds after community publish'
+    $seedFiles = @($Calls | Select-Object -Skip 1 | ForEach-Object { $_.arguments[5] })
+    Assert-True (
+        $Calls.Count -eq 5 -and
+        $Calls[0].arguments[0] -eq 'community' -and
+        ($seedFiles -join ',') -eq 'bin/seed-altinn-scenario-owner.apex,bin/seed-altinn-scenario-accounts.apex,bin/seed-altinn-scenario-users.apex,bin/seed-altinn-scenario-settings.apex'
+    ) 'community is published before the ordered synthetic Altinn setup transactions'
+
+    Reset-Scenario
     Add-Rule sf @('project', 'deploy', 'start') '' 9 'offline deployment failed'
     $result = Invoke-Scenario -Options @('-PostStepsOnly', '-PostSteps', 'deploy')
     Assert-Exit $result 1 'deploy failure propagates'

@@ -1,10 +1,15 @@
 # Implementation Plan: Konsumentstyrte Altinn-scenario
 
 **Dato:** 2026-10-20  
-**Status:** T005–T013 er utførte etter klarsignal og dry-run-verifiserte.
-D01 er valt A, og T014–T016 er gjennomførte med fokuserte LWC Jest-testar.
-Samla validering, nettlesarverifikasjon og andre opne gater står att; dette
-dokumentet gir ikkje løyve til varig deploy eller andre org-endringar.
+**Status:** T005–T013 er dry-run-verifiserte. D01 er valt A, og T014–T016 er
+gjennomførte. Fokusert Apex-regresjon gav 80/80 grøne testar
+(`0AfJW00000nmxsn0AA`), og LWC-suiten gav 15/15 grøne testar.
+Etter eksplisitt godkjenning er Altinn-/LWC-endringane deployerte til
+`crm-arbeidsforhold` scratch-org (`0AfJW00000nmyDl0AI`, 80/80 testar).
+Syntetiske S01/S03-community-brukarar, kontoar, kontaktar, permission assignments
+og scenarioinnstillingar er seed-a og rerun-verifiserte i same scratch-org.
+Nettlesarautentisering, ende-til-ende verifikasjon og andre opne gater står att.
+Dette dokumentet gir ikkje løyve til varig deploy eller andre org-endringar.
 
 ## Summary
 
@@ -163,7 +168,7 @@ REQ-023, REQ-024.
 - [x] T012 [US1] [US2] [Plan:4.1] Skriv fokuserte scenario-regresjonstestar i `force-app/tests/classes/externalAccess/AAREG_AltinnScenarioJourneyTest.cls` ved dei offentlege controller-/utils-metodane. Bruk eksisterande testfactory og relevante minimumstilgangs-/community-brukarar. Test søknad Permit, ekte ressursavhengig brukerstøtte-fallback, rein Deny utan nye delingar og feil.
 - [x] T013 [US1] [US2] [Plan:4.1] Byt dei to direkte fasadeopprettingane i `force-app/externalAccess/classes/AAREG_HomeController.cls` og `AAREG_CommunityUtils.cls` til felles factory. Køyr T012 grøn og eksisterande `AAREG_HomeControllerTest`/`AAREG_CommunityUtilsTest`; bevar legacy-testane utan unødig flytting.
 
-Verifisert 2026-10-25 i dry-run `0AfJW00000nmT6j0AE`: 80/80 testar grøne
+Verifisert 2026-10-25 i dry-run `0AfJW00000nmxsn0AA`: 80/80 testar grøne
 med Altinn-, journey-, controller- og utility-testar samla. Testane brukar
 syntetisk community-identitet frå den faktiske konto-kjeda. Scratch-en har berre
 High Volume Customer Portal-profilar, så positive `Agreement__Share`-rader for
@@ -214,8 +219,8 @@ gjeldande for denne leveransen, ikkje merkt som implementert.
 **Input:** Vald og verifisert cache-grein.  
 **Avhengigheit:** T013 og anten T016 eller T017, ikkje begge.
 
-- [ ] T018 [Plan:6.1] Køyr fokusert samla Apex-regresjon og relevant Jest. Kontroller S01-S08, normal modus, default-off, sperrer, feil, calloutfråvær og delingar i godkjend scratch; før kommandoar/resultat og brukarrapporterte UI-funn i `docs/operations/scratch-testlogg-2026-10-15.md`.
-- [ ] T019 [Plan:6.1] Oppdater `docs/integrations/altinn/README.md` og specs med faktisk implementasjon/evidens. Køyr toakse-review og relevant security-review før commit/push/PR. Få menneskeleg godkjenning; pakkeutgiving, deploy og integrasjonssandbox-testing krev eigne eksplisitte godkjenningar.
+- [ ] T018 [Plan:6.1] Fokusert Apex-regresjon er køyrd i godkjend scratch (`0AfJW00000nmxsn0AA`, 80/80 grøne), deploy er godkjend og fullført (`0AfJW00000nmyDl0AI`, 80/80), og LWC-suiten er grøn (15/15). Synthetic S01/S03-brukarar og scenarioinnstillingar er seed-a og verifiserte i `crm-arbeidsforhold`; dei har ikkje passord og nettlesarautentisering er ikkje sett opp. Før seed-kommando/resultat og brukarrapporterte nettlesarfunn i `docs/operations/scratch-testlogg-2026-10-15.md`; ende-til-ende UI og positiv delingsverifikasjon står att før oppgåva kan lukkast.
+- [ ] T019 [Plan:6.1] README-en er oppdatert med seed-kontrakt og scratch-evidens. Oppdater framleis specs ved behov; køyr toakse-review og relevant security-review før commit/push/PR. Få menneskeleg godkjenning; pakkeutgiving, deploy og integrasjonssandbox-testing krev eigne eksplisitte godkjenningar.
 
 ## Project Structure
 

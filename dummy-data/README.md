@@ -137,4 +137,28 @@ To run just this step against an already-existing org, without recreating the or
 ./bin/create-scratch-org.sh --alias <alias> --post-steps-only --post-steps data
 ```
 
+## Altinn community scenario users
+
+The default `postSteps` also runs `altinn-scenario-users` after publishing the
+configured community. This creates two synthetic external users for S01 (Permit)
+and S03 (Deny), their linked accounts and contacts, community memberships,
+scenario permission assignments, and per-user scenario settings. The seed uses
+org-specific usernames and synthetic identities, is safe to rerun, and does not
+set passwords or make the users browser-authenticatable by itself.
+
+Salesforce requires each portal user's Account owner to have a role. The seed
+therefore assigns the lowest available role to the existing `Standard User`
+scratch test user `persaksbehandler1@nav.no` when needed; it does not consume
+another internal user license. This changes that scratch test user's role
+hierarchy access and must not be run against a shared or production org.
+
+To run only this seed against an existing scratch org, after deploying the Altinn
+metadata and publishing the configured community:
+
+```bash
+./bin/create-scratch-org.sh --alias <alias> --post-steps-only --post-steps altinn-scenario-users
+```
+
+The seed is scratch setup data; do not use it against shared or production orgs.
+
 `--post-steps-only` is a shortcut for `--skip-org --skip-packages` that runs only the requested post steps (`deploy`, `permsets`, `data`, `community`).
