@@ -1,8 +1,8 @@
 import { LightningElement, track, wire } from 'lwc';
 import Id from '@salesforce/user/Id';
-import { refreshApex } from '@salesforce/apex';
 import getLastUsersLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganization';
 import getOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.getOrganizationsWithRoles';
+import refreshOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.refreshOrganizationsWithRoles';
 import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.updateLastUsedOrganization';
 import checkAndShareIfAuthorized from '@salesforce/apex/AAREG_HomeController.checkAndShareIfAuthorized';
 import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreads';
@@ -16,7 +16,7 @@ export default class Aareg_home extends LightningElement {
     isLoaded = false;
     isRefreshing = false;
     unreadThreadCount = 0;
-    organizationsWireResult;
+    hasRequestedOrganizationRefresh = false;
     organizationVersion;
     organizationError;
     accessCheckFailed = false;
@@ -68,7 +68,7 @@ export default class Aareg_home extends LightningElement {
 
     @wire(getOrganizationsWithRoles, { userId: '$currentUser' })
     wiredOrganizations(result) {
-        this.organizationsWireResult = result;
+        if (this.hasRequestedOrganizationRefresh) return;
         if (result.data) {
             try {
                 this.setOrganizations(result.data);
@@ -124,18 +124,18 @@ export default class Aareg_home extends LightningElement {
     }
 
     async handleRefresh() {
-        if (this.isRefreshing || !this.organizationsWireResult) return;
+        if (this.isRefreshing) return;
 
         this.isRefreshing = true;
+        this.hasRequestedOrganizationRefresh = true;
         this.clearAccess();
         this.showError = false;
         this.accessCheckFailed = false;
 
         try {
-            await refreshApex(this.organizationsWireResult);
-            if (this.organizationError) {
-                throw this.organizationError;
-            }
+            const organizations = await refreshOrganizationsWithRoles({ userId: this.currentUser });
+            this.setOrganizations(organizations);
+            this.organizationError = null;
 
             this.lastUsedOrganization = await getLastUsersLastUsedOrganization({ userId: this.currentUser });
             this.sortOrganizations();

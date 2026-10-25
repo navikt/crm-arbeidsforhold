@@ -5,10 +5,17 @@
 prøvde i nettlesaren. Rettingane etter S05/S07/S08 er òg deploya etter
 godkjenning, med 20/20 LWC-testar og 19/19 Apex-testar grøne.
 Nettlesarretest av S05/S07/S08, sortering og S01-gjenoppretting er no bestått.
-Siste LWC-suite: 22/22. S05 har no forklaring og neste handling i ei
+Siste LWC-suite: 24/24; siste controller-deploy: 23/23 Apex-testar.
+S05 har no forklaring og neste handling i ei
 sentrert tomtilstand med same utforming som meldinga om manglande tilgang.
 Endringa er deploya og godkjend i nettlesaren, inkludert S01-gjenoppretting.
 Éin generisk Community Plus-testbrukar er sett opp.
+
+**Lukka oppfølging:** S07/subject-throws avdekte at gjenoppretting via knappen
+kunne bli verande i gammal wire-exception etter at S01 var sett tilbake.
+Eksplisitt ikkje-cachebar oppdatering er implementert, deploya og verifisert
+i den delte nettlesarfana utan reload mellom feil og gjenoppretting.
+Sjå testloggen for før-/etter-evidens.
 
 Dette dokumentet gjeld konsumenten si teststøtte, ikkje simulering eller testing
 av Altinn-integrasjonen. Spesifikasjonane er
@@ -22,6 +29,27 @@ For arbeid i integrasjonspakka: ta med
 [sjølvstendig overlevering til pakkeagenten](package-agent-handoff.md).
 
 ## Gjeldande testoppsett — 2026-10-25
+
+### Oppdateringskontrakt etter exception-diagnose
+
+Første sidelasting bruker framleis cachebar `getOrganizationsWithRoles` via
+wire. Knappen bruker no `refreshOrganizationsWithRoles` imperativt, utan
+`cacheable=true`, og legg det faktiske svaret inn i same filtrerings-/val-
+og rettssjekkflyt. Etter eit eksplisitt oppdateringsforsøk er denne flyten
+autoritativ; seine emisjonar frå den opphavlege wiren blir ignorerte.
+
+Den nye controller-metoden tillèt berre innlogga brukar som mål. Han gjenbruker
+eksisterande lookup og scenario-policy, returnerer response-level feil utan
+success-fallback, og logger ei statisk melding før kasta feil blir omsette til
+`AuraHandledException`. Raw organisasjonsrespons blir ikkje lenger debug-logga
+i det felles oppslaget.
+
+Tradeoff: eit eksplisitt klikk gir alltid eit serveroppslag, i byte mot påliteleg
+gjenoppretting utan kunstige cacheparameter eller full sidereload. Det
+cachebare offentlege API-et er bevart for andre kallarar. Ingen ny factory
+eller adapter er nødvendig; same providergrense blir brukt. Dei historiske
+`refreshApex`-avsnitta nedanfor skildrar første implementasjon, ikkje den nye
+knappeflyten.
 
 Bruk **Synthetic Community Test User** for alle scenario og andre community-
 testar som krev Plus-lisens. Den eksisterande Permit-brukaren og kontakten er
@@ -397,8 +425,8 @@ Lesne lokale kjelder:
 - [AAREG_CommunityUtils](../../../force-app/externalAccess/classes/AAREG_CommunityUtils.cls)
   opprettar fasaden ved rettsoppslag.
 - [aareg_home](../../../force-app/externalAccess/lwc/aareg_home/aareg_home.js)
-  hentar organisasjonar med `@wire`/`refreshApex` og sjekkar rettar i separate
-  kall.
+  hentar første organisasjonsliste med `@wire`, bruker eit eksplisitt
+  ikkje-cachebart oppdateringskall og sjekkar rettar i separate kall.
 
 Dette er observasjonar i referansekjelda, ikkje bevis på deploya revisjon.
 Pakkeeigar må stadfeste kontrakten i autoritativt repository. Arkitekturretninga

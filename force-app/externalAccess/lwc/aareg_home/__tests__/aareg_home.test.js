@@ -1,6 +1,7 @@
 import { createElement } from 'lwc';
 import Aareg_home from 'c/aareg_home';
 import getOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.getOrganizationsWithRoles';
+import refreshOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController.refreshOrganizationsWithRoles';
 import getLastUsersLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.getLastUsersLastUsedOrganization';
 import checkAndShareIfAuthorized from '@salesforce/apex/AAREG_HomeController.checkAndShareIfAuthorized';
 import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.updateLastUsedOrganization';
@@ -8,6 +9,9 @@ import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsers
 import { refreshApex } from '@salesforce/apex';
 
 jest.mock('@salesforce/user/Id', () => ({ default: 'test-user' }), { virtual: true });
+jest.mock('@salesforce/apex/AAREG_HomeController.refreshOrganizationsWithRoles', () => ({ default: jest.fn() }), {
+    virtual: true
+});
 jest.mock(
     '@salesforce/label/c.AAREG_No_Organizations_Title',
     () => ({ default: 'Ingen virksomheter er tilgjengelige' }),
@@ -149,7 +153,7 @@ describe('c-aareg-home', () => {
             }
 
             getLastUsersLastUsedOrganization.mockResolvedValue('333333333');
-            refreshApex.mockImplementationOnce(async () => organizationsAdapter.emit(organizations));
+            refreshOrganizationsWithRoles.mockResolvedValueOnce(organizations);
             element.shadowRoot.querySelector('[data-id="refresh-organizations"]').click();
             await flushPromises();
             await flushPromises();
@@ -163,9 +167,7 @@ describe('c-aareg-home', () => {
         checkAndShareIfAuthorized
             .mockResolvedValueOnce({ hasAccess: true, hasApplicationAccess: true })
             .mockResolvedValueOnce({ hasAccess: false, hasApplicationAccess: false });
-        refreshApex.mockImplementation(async () => {
-            organizationsAdapter.emit(refreshedOrganizations);
-        });
+        refreshOrganizationsWithRoles.mockResolvedValue(refreshedOrganizations);
         const element = await initializeHome();
 
         const refreshButton = element.shadowRoot.querySelector('[data-id="refresh-organizations"]');
@@ -178,7 +180,9 @@ describe('c-aareg-home', () => {
         await flushPromises();
         await flushPromises();
 
-        expect(refreshApex).toHaveBeenCalledTimes(1);
+        expect(refreshOrganizationsWithRoles).toHaveBeenCalledTimes(1);
+        expect(refreshOrganizationsWithRoles).toHaveBeenCalledWith({ userId: 'test-user' });
+        expect(refreshApex).not.toHaveBeenCalled();
         expect(getLastUsersLastUsedOrganization).toHaveBeenCalledTimes(2);
         expect(checkAndShareIfAuthorized).toHaveBeenCalledTimes(2);
         expect(
@@ -192,11 +196,9 @@ describe('c-aareg-home', () => {
     it('clears access and does not recheck when the selected organization is no longer available', async () => {
         getLastUsersLastUsedOrganization.mockResolvedValue('111111111');
         checkAndShareIfAuthorized.mockResolvedValue({ hasAccess: true, hasApplicationAccess: true });
-        refreshApex.mockImplementation(async () => {
-            organizationsAdapter.emit({
-                ...initialOrganizations,
-                organizations: [{ ...initialOrganizations.organizations[0], unitType: 'BEDR' }]
-            });
+        refreshOrganizationsWithRoles.mockResolvedValue({
+            ...initialOrganizations,
+            organizations: [{ ...initialOrganizations.organizations[0], unitType: 'BEDR' }]
         });
         const element = await initializeHome();
 
@@ -212,9 +214,7 @@ describe('c-aareg-home', () => {
         jest.spyOn(console, 'error').mockImplementation(() => {});
         getLastUsersLastUsedOrganization.mockResolvedValue('111111111');
         checkAndShareIfAuthorized.mockResolvedValue({ hasAccess: true, hasApplicationAccess: true });
-        refreshApex.mockImplementation(async () => {
-            organizationsAdapter.error({ message: 'refresh failed' }, 500);
-        });
+        refreshOrganizationsWithRoles.mockRejectedValue(new Error('refresh failed'));
         const element = await initializeHome();
 
         const refreshButton = element.shadowRoot.querySelector('[data-id="refresh-organizations"]');
@@ -234,9 +234,7 @@ describe('c-aareg-home', () => {
     it('shows an explicit empty state when refresh succeeds without organizations', async () => {
         getLastUsersLastUsedOrganization.mockResolvedValue('111111111');
         checkAndShareIfAuthorized.mockResolvedValue({ hasAccess: true, hasApplicationAccess: true });
-        refreshApex.mockImplementation(async () => {
-            organizationsAdapter.emit({ ...initialOrganizations, organizations: [] });
-        });
+        refreshOrganizationsWithRoles.mockResolvedValue({ ...initialOrganizations, organizations: [] });
         const element = await initializeHome();
 
         element.shadowRoot.querySelector('[data-id="refresh-organizations"]').dispatchEvent(new CustomEvent('click'));
@@ -259,7 +257,7 @@ describe('c-aareg-home', () => {
         expect(element.shadowRoot.querySelector('[data-id="refresh-organizations"]')).not.toBeNull();
         expect(element.shadowRoot.querySelector('c-aareg_missing-access')).toBeNull();
 
-        refreshApex.mockImplementationOnce(async () => organizationsAdapter.emit(initialOrganizations));
+        refreshOrganizationsWithRoles.mockResolvedValueOnce(initialOrganizations);
         element.shadowRoot.querySelector('[data-id="refresh-organizations"]').click();
         await flushPromises();
         await flushPromises();
@@ -274,11 +272,9 @@ describe('c-aareg-home', () => {
             .mockResolvedValueOnce({ hasAccess: true, hasApplicationAccess: true })
             .mockResolvedValueOnce({ hasAccess: true, hasApplicationAccess: false });
         updateLastUsedOrganization.mockResolvedValue();
-        refreshApex.mockImplementation(async () => {
-            organizationsAdapter.emit({
-                ...initialOrganizations,
-                organizations: [refreshedOrganizations.organizations[1]]
-            });
+        refreshOrganizationsWithRoles.mockResolvedValue({
+            ...initialOrganizations,
+            organizations: [refreshedOrganizations.organizations[1]]
         });
         const element = await initializeHome();
         element.shadowRoot.querySelector('[data-id="refresh-organizations"]').click();
@@ -308,18 +304,19 @@ describe('c-aareg-home', () => {
         expect(panels.some((panel) => panel.title === 'Ny søknad')).toBe(false);
     });
 
-    it('keeps a response-level organization error visible on repeated refresh without a new wire emission', async () => {
+    it('keeps response-level refresh failures visible until a fresh request succeeds', async () => {
         jest.spyOn(console, 'error').mockImplementation(() => {});
         getLastUsersLastUsedOrganization.mockResolvedValue('111111111');
         checkAndShareIfAuthorized.mockResolvedValue({ hasAccess: true, hasApplicationAccess: true });
         const element = await initializeHome();
-        refreshApex.mockImplementationOnce(async () => {
-            organizationsAdapter.emit({ success: false, altinnVersion: 'v3', errorMessage: 'Synthetic failure' });
+        refreshOrganizationsWithRoles.mockResolvedValue({
+            success: false,
+            altinnVersion: 'v3',
+            errorMessage: 'Synthetic failure'
         });
         element.shadowRoot.querySelector('[data-id="refresh-organizations"]').click();
         await flushPromises();
         await flushPromises();
-        refreshApex.mockResolvedValueOnce();
         element.shadowRoot.querySelector('[data-id="refresh-organizations"]').click();
         await flushPromises();
         await flushPromises();
@@ -329,10 +326,70 @@ describe('c-aareg-home', () => {
         expect(element.shadowRoot.querySelector('c-aareg_missing-access')).toBeNull();
         expect(checkAndShareIfAuthorized).toHaveBeenCalledTimes(1);
 
-        refreshApex.mockImplementationOnce(async () => organizationsAdapter.emit(initialOrganizations));
+        refreshOrganizationsWithRoles.mockResolvedValueOnce(initialOrganizations);
         element.shadowRoot.querySelector('[data-id="refresh-organizations"]').click();
         await flushPromises();
         await flushPromises();
+        expect(element.shadowRoot.querySelector('.error-message')).toBeNull();
+        expect(element.shadowRoot.querySelector('.organization-select').value).toBe('111111111');
+        expect(element.shadowRoot.querySelector('.inner-container')).not.toBeNull();
+    });
+
+    it('recovers from repeated refresh exceptions when a fresh request returns the original organizations', async () => {
+        jest.spyOn(console, 'error').mockImplementation(() => {});
+        getLastUsersLastUsedOrganization.mockResolvedValue('111111111');
+        checkAndShareIfAuthorized.mockResolvedValue({ hasAccess: true, hasApplicationAccess: true });
+        const element = await initializeHome();
+        refreshOrganizationsWithRoles.mockRejectedValue(new Error('Synthetic refresh rejection'));
+        element.shadowRoot.querySelector('[data-id="refresh-organizations"]').click();
+        await flushPromises();
+        await flushPromises();
+        expect(element.shadowRoot.querySelector('.error-message')).not.toBeNull();
+        expect(element.shadowRoot.querySelector('.organization-select')).toBeNull();
+        expect(element.shadowRoot.querySelector('[data-id="organization-empty-state"]')).toBeNull();
+        expect(element.shadowRoot.querySelector('c-aareg_missing-access')).toBeNull();
+
+        element.shadowRoot.querySelector('[data-id="refresh-organizations"]').click();
+        await flushPromises();
+        await flushPromises();
+        expect(element.shadowRoot.querySelector('.error-message')).not.toBeNull();
+        expect(element.shadowRoot.querySelector('.organization-select')).toBeNull();
+        expect(checkAndShareIfAuthorized).toHaveBeenCalledTimes(1);
+
+        refreshOrganizationsWithRoles.mockResolvedValueOnce(initialOrganizations);
+        element.shadowRoot.querySelector('[data-id="refresh-organizations"]').click();
+        await flushPromises();
+        await flushPromises();
+        expect(element.shadowRoot.querySelector('.error-message')).toBeNull();
+        expect(element.shadowRoot.querySelector('.organization-select').value).toBe('111111111');
+        expect(element.shadowRoot.querySelector('.inner-container')).not.toBeNull();
+        organizationsAdapter.error({ message: 'Late cached wire exception' }, 500);
+        await flushPromises();
+        expect(element.shadowRoot.querySelector('.organization-select').value).toBe('111111111');
+        expect(element.shadowRoot.querySelector('.error-message')).toBeNull();
+        expect(checkAndShareIfAuthorized).toHaveBeenLastCalledWith({
+            userId: 'test-user',
+            orgNumber: '111111111'
+        });
+    });
+
+    it('requests fresh organizations after an initial wire exception without refreshing the failed wire', async () => {
+        jest.spyOn(console, 'error').mockImplementation(() => {});
+        getLastUsersLastUsedOrganization.mockResolvedValue('111111111');
+        checkAndShareIfAuthorized.mockResolvedValue({ hasAccess: true, hasApplicationAccess: true });
+        refreshApex.mockRejectedValueOnce(new Error('Cached wire exception'));
+        refreshOrganizationsWithRoles.mockResolvedValueOnce(refreshedOrganizations);
+        const element = await createHome();
+        organizationsAdapter.error({ message: 'Synthetic organization exception' }, 500);
+        await flushPromises();
+        await flushPromises();
+        expect(element.shadowRoot.querySelector('.organization-select')).toBeNull();
+
+        element.shadowRoot.querySelector('[data-id="refresh-organizations"]').click();
+        await flushPromises();
+        await flushPromises();
+        expect(refreshOrganizationsWithRoles).toHaveBeenCalledWith({ userId: 'test-user' });
+        expect(refreshApex).not.toHaveBeenCalled();
         expect(element.shadowRoot.querySelector('.error-message')).toBeNull();
         expect(element.shadowRoot.querySelector('.organization-select').value).toBe('111111111');
         expect(element.shadowRoot.querySelector('.inner-container')).not.toBeNull();
@@ -384,7 +441,7 @@ describe('c-aareg-home', () => {
         getLastUsersLastUsedOrganization.mockResolvedValue('111111111');
         checkAndShareIfAuthorized.mockResolvedValue({ hasAccess: true, hasApplicationAccess: true });
         let completeRefresh;
-        refreshApex.mockImplementation(
+        refreshOrganizationsWithRoles.mockImplementation(
             () =>
                 new Promise((resolve) => {
                     completeRefresh = resolve;
@@ -395,9 +452,9 @@ describe('c-aareg-home', () => {
 
         refreshButton.dispatchEvent(new CustomEvent('click'));
         refreshButton.dispatchEvent(new CustomEvent('click'));
-        expect(refreshApex).toHaveBeenCalledTimes(1);
+        expect(refreshOrganizationsWithRoles).toHaveBeenCalledTimes(1);
 
-        completeRefresh();
+        completeRefresh(initialOrganizations);
         await flushPromises();
         await flushPromises();
 

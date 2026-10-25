@@ -253,6 +253,112 @@ lukka før ny stadfesta nettlesartest.
 
 ## Rettings- og oppsettsøkt 2026-10-25
 
+### Nettlesartest — S07 / subject-throws
+
+#### Endeleg deploy og faktisk gjenoppretting — Bestått
+
+- Brukaren godkjende målretta deploy og nettlesarretest i den delte fana.
+  Faktisk deploykommando:
+
+    ```bash
+    rtk sf project deploy start \
+      --source-dir force-app/externalAccess/classes/AAREG_HomeController.cls \
+      --source-dir force-app/tests/classes/externalAccess/AAREG_AltinnScenarioJourneyTest.cls \
+      --source-dir force-app/externalAccess/lwc/aareg_home \
+      --target-org nav-community-dev --test-level RunSpecifiedTests \
+      --tests AAREG_AltinnScenarioJourneyTest --tests AAREG_HomeControllerTest \
+      --wait 10 --json
+    ```
+
+- **Deploy: Bestått.** `0AfJW00000nnWov0AE`, `checkOnly=false`,
+  `success=true`, tre komponentar, 23/23 Apex-testar og ingen dekningsvarsel.
+  Lokal full LWC-suite bestod med 24/24 testar.
+- **Før test:** Assistenten lasta fana på nytt for å hente den nye koden.
+  S01, A vald og søknadstilgang blei kontrollerte.
+- **Exception under oppfrisking: Bestått.** Etter S07/subject-throws blei
+  oppdatering køyrd tre gonger. Alle tre gav teknisk feil, ingen veljar,
+  søknadstilgang, tomtilstand eller Deny-panel.
+- **Gjenoppretting i same sideøkt: Bestått.** Etter tilbakeføring til
+  S01/subject-a gav eitt klikk A/B/C, A vald, søknads- og brukerstøttetilgang,
+  og null feilvarsel. Ingen reload blei gjort mellom exception og gjenoppretting.
+- **Initial wire-exception: Bestått.** I ein andre variant blei sida lasta
+  med S07/subject-throws, slik at sjølve første wire-oppslaget kasta exception.
+  Teknisk feil blei observert utan veljar/tilgang. Deretter blei S01/subject-a
+  sett tilbake; eitt klikk gav A/B/C, A vald og begge tilgangstypane, utan
+  feilvarsel eller reload mellom feil og gjenoppretting.
+- Dette er **assistent-observert nettlesarevidens** frå den delte fana, ikkje
+  ei ny manuell stadfesting frå testpersonen eller berre mock-resultat.
+- **Sluttstatus:** CLI viste nøyaktig éi aktiv scenarioinnstilling,
+  S01 / subject-a / true. Den delte fana stod med A vald og fungerande tilgang.
+  Det observerte gjenopprettingsavviket er lukka; eldre opne statuser nedanfor
+  skildrar tidlegare fasar. Ingen søknader/avtalar blei endra i nettlesartesten.
+
+#### Diagnose og ny eksplisitt oppdateringsbane
+
+- Testpersonen delte den eksisterande community-fana i VS Code og godkjende
+  ein ny S07/subject-throws → S01/subject-a-runde styrt av assistenten.
+- **Reprodusert i ekte nettlesar:** S07 gav ein 500-feil med sanitert tekst
+  «Synthetic organization exception.». Etter tilbakeføring til S01 fekk
+  gjentekne oppdateringsforsøk framleis same exception, utan veljar.
+  Diagnosen las berre kort feiltekst/status og kallmetadata; ingen credentials
+  eller raw request-/responseinnhald er lagra her.
+- S01 blei gjenoppretta som lagra innstilling. Reload i den delte fana gav
+  A vald og søknadstilgang igjen. Reload er mellombels gjenoppretting, ikkje
+  løysing på knappeavviket.
+- Brukaren godkjende ny ikkje-cachebar `refreshOrganizationsWithRoles` på
+  HomeController, med same lookup/scenario-policy som eksisterande lesing.
+  Første sidelasting held fram med cachebar wire. Knappen bruker det nye
+  kallet; sein gammal wire-tilstand får ikkje overskrive oppdateringsresultatet.
+- Den nye metoden avviser null/annan målbrukar og logger berre statisk feiltekst
+  ved exception. Response-level feil blir returnerte utan å bli tom suksess.
+  Eksisterande debug av heile organisasjonsresponsen er fjerna frå felles
+  lookup. Ingen scenario-sperrer, avtalereglar eller pakkeavhengigheiter er endra.
+- **Jest raud:** Testen for ferskt oppslag etter initial wire-exception feila
+  fordi det nye endpointet ikkje blei kalla. **Grøn:** 14/14 fokuserte testar.
+  Dei eksisterande refresh-testane er flytta til det nye offentlege kallet,
+  med same UI-forventningar for tom liste, feil, filtrering, val, tilgang og
+  sperring av overlappande klikk.
+- **Apex raud:** Dry-run feila med fire manglande-metode-kompileringsfeil før
+  implementasjon. **Grøn:** 23/23 testar i samla Home-/journey-dry-run,
+  `checkOnly=true`, utan testfeil eller dekningsvarsel. Nye testar dekkjer
+  S01-suksess, response-level feil, exception og avvising av annan målbrukar.
+- **Breiare Jest:** `rtk npm run test:unit -- -- --runInBand`: 6 suiter /
+  24/24 grøne. Produksjonsendringane er enno ikkje deploya.
+
+- Brukaren stadfesta A vald med søknadstilgang under S01 og godkjende
+  mellombels S07 / subject-throws på den generiske brukaren i
+  `nav-community-dev`. CLI kontrollerte innstillinga før testen.
+- **Exception-bana ved organisasjonsoppslag: Bestått.** Testpersonen
+  stadfesta stabil teknisk feil gjennom gjenteken oppfrisking, ingen gamle
+  organisasjonsval eller tilgang, og verken S05-tomtilstand eller Deny-panel.
+- Synleg feiltekst: «Henting av organisasjoner feilet. Vennligst prøv igjen
+  eller refresh siden.»
+- Testen gjeld organisasjonsoppslaget. Direkte rights-exception er ikkje
+  nettlesarverifisert gjennom denne flyten, sidan organisasjonsfeilen sperrar
+  vidare val.
+- **CLI-tilbakeføring: Bestått.** Både scenario og alias er gjenoppretta:
+  S01 / subject-a / true. Query stadfesta verdiane.
+  Nettlesargjenoppretting ventar på testpersonen.
+
+- **Nettlesargjenoppretting etter subject-throws: Avvik.** Testpersonen
+  melde «Ingen velger og fortsatt feiltekst» etter oppdatering under
+  gjenoppretta S01. Ny CLI-kontroll stadfesta framleis S01 / subject-a / true.
+  Exception-testen er ikkje avslutta som bestått ende-til-ende; årsaka til
+  manglande gjenoppretting er under undersøking.
+- **Diagnostisk hard oppfrisking: Bestått.** Testpersonen stadfesta at A/B/C
+  kom tilbake ved hard oppfrisking. Etterpå fungerte oppdateringsknappen og
+  søknadstilgang for A. Dette er ei mellombels gjenoppretting, ikkje lukking
+  av avviket ved oppfrisking i same sideøkt.
+- Ny lokal DOM-test simulerer wire-exception og avvist refresh-promise,
+  gjenteken feil og deretter ny wire-emisjon med det opphavlege S01-svaret.
+  Fokusert Jest: **13/13 grøne utan produksjonsendring**. Komponenten
+  gjenopprettar når mock-adapteren faktisk leverer suksess. Testen reproduserer
+  derfor ikkje det observerte runtime-avviket og beviser ikkje at
+  Salesforce sin wire/cache-bane fungerer etter exception.
+- Ingen ny produksjonsretting eller deploy er gjort for dette avviket.
+  Vidare diagnose treng skilje mellom avvist refresh, manglande ny wire-
+  emisjon og ny serverfeil i den faktiske nettlesarøkta.
+
 ### S05 — utvida forklaring og neste handling
 
 - Etter godkjend teknisk regresjonsrunde bad brukaren om neste steg:

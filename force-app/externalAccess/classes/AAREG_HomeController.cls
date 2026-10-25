@@ -70,8 +70,8 @@ public without sharing class AAREG_HomeController {
 
     /**
      * Retrieves the Altinn organizations and roles for the given community user.
-     * Result is cacheable (`cacheable=true`); the calling LWC must invoke `refreshApex()`
-     * to force a refresh after the underlying data changes.
+     * Result is cacheable (`cacheable=true`) for initial wire loading.
+     * The home page uses refreshOrganizationsWithRoles for explicit, uncached refreshes.
      *
      * @param userId Id of the community User record.
      * @return The Altinn organizations and roles response for the user's linked person.
@@ -91,8 +91,32 @@ public without sharing class AAREG_HomeController {
             currentUser.Contact.Account.INT_PersonIdent__c
         );
 
-        System.debug('getOrganizationsWithRoles - Response from Altinn: ' + JSON.serializePretty(response));
         return response;
+    }
+
+    /**
+     * Retrieves fresh organizations for the signed-in user without using the client wire cache.
+     * Uses the same scenario policy and privileged identity lookup as the initial cached read.
+     * Performs no application or agreement writes; the selected-organization access check remains separate.
+     *
+     * @param userId Id of the signed-in community User record.
+     * @return The current Altinn organizations response, including explicit response-level failures.
+     * @throws AuraHandledException If another user is requested or the organization lookup throws.
+     * @since 2026-10-25
+     */
+    @AuraEnabled
+    public static AltinnCalloutService.AltinnOrganizationsResponse refreshOrganizationsWithRoles(Id userId) {
+        if (userId == null || userId != UserInfo.getUserId()) {
+            throw new AuraHandledException('Invalid user for organization refresh.');
+        }
+        try {
+            return getOrganizationsWithRoles(userId);
+        } catch (Exception error) {
+            LoggerUtility logger = new LoggerUtility();
+            logger.error('Altinn organization refresh failed.', null);
+            logger.publish();
+            throw new AuraHandledException('Henting av organisasjoner feilet. Vennligst prøv igjen.');
+        }
     }
 
     /**

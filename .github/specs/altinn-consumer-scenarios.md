@@ -199,8 +199,13 @@ realistiske. Vi utvidar ikkje integrasjonstesting for å gjere dette.
 - Eigen permission fungerer som eksplisitt godkjenning av den syntetiske brukaren.
   Administrator har ansvar for syntetisk identitet og isolerte testdata.
 - **D01 - Avklart: A, dynamisk oppfrisking.** Brukaren valde dette alternativet
-  etter omfangsgjennomgang; T015–T016 implementerer oppfrisking med `@wire` og
-  `refreshApex`. REQ-016 gjeld. Alternativ B er ikkje valt.
+  etter omfangsgjennomgang; T015–T016 implementerte først oppfrisking med `@wire`
+  og `refreshApex`. Etter nettlesartest av S07/subject-throws godkjende brukaren
+  ei eksplisitt ikkje-cachebar oppdateringshandling: første sidelasting bruker
+  framleis cachebar wire, medan knappen kallar `refreshOrganizationsWithRoles`
+  imperativt. Same policy, filtrering og rettssjekk gjeld. Dette unngår at ein
+  exception i den gamle wiren blokkerer nye forsøk i same sideøkt.
+  REQ-016 gjeld framleis. Alternativ B er ikkje valt.
 
 Sjå [design og kritiske spørsmål](../../docs/integrations/altinn/README.md),
 [grill-runden](../../docs/integrations/altinn/grill.md) og

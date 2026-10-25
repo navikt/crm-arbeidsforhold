@@ -8,7 +8,12 @@
 er stadfesta i nettlesaren. S05 si utvida forklaring med same sentrerte
 utforming som Deny-meldinga er deploya og visuelt godkjend. Gjenoppretting til
 S01 etter UX-testen er òg stadfesta.
-Siste LWC-suite: 22/22 grøne; controller-deploy: 19/19 Apex.
+Siste LWC-suite: 24/24 grøne; siste controller-deploy: 23/23 Apex.
+
+**S07-gjenoppretting:** Avviket etter `subject-throws` er retta med ei
+eksplisitt ikkje-cachebar oppdatering. Rettinga er deploya og kontrollert i den
+delte nettlesarfana: både exception under oppfrisking og ved første wire-lasting
+kan no gjenopprettast med knappen utan reload mellom feil og gjenoppretting.
 
 ## 1. Kva testen beviser
 
@@ -245,7 +250,9 @@ Etter **kvart** scenariobyte:
 5. Ved manglande gyldig val: vel organisasjon manuelt og vent på ny kontroll.
 
 Ein vanleg reload åleine er ikkje bevis på at nye scenarioverdiar er henta:
-organisasjonsoppslaget er cacheable. Ikkje slå av scenario-provideren for å
+første organisasjonsoppslag er cacheable. Den nye oppdateringshandlinga bruker
+eit eige ikkje-cachebart serverkall, ikkje `refreshApex` på den gamle wiren.
+Ikkje slå av scenario-provideren for å
 «rette» ein test; det ville velje ordinær integrasjon i staden.
 
 ## 5. Scenario og testrekkjefølgje
@@ -358,7 +365,10 @@ skal seksjonen forsvinne, og A/B/C og tilgang fungere igjen.
 
 **Ekstra exception-test:** Set S07 og **Subject Alias** til `subject-throws`
 i same brukarsetting. Oppfrisk, kontroller teknisk feil/ingen tilgang, og
-gjenopprett både S01 **og** `subject-a` etterpå. I CLI kan du bruke:
+gjenopprett både S01 **og** `subject-a` etterpå. Trykk oppdater i **same
+sideøkt**, utan reload, og kontroller at lista/tilgang kjem tilbake og feilen
+forsvinn. Dersom hard oppfrisking er nødvendig, er gjenoppretting via knappen
+ikkje bestått. I CLI kan du bruke:
 
 ```bash
 rtk sf data update record --target-org nav-community-dev \

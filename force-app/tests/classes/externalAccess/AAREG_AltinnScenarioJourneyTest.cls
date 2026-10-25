@@ -10,6 +10,91 @@ private with sharing class AAREG_AltinnScenarioJourneyTest {
     private static final String organizationNumber = '111111111';
 
     /**
+     * Returns fresh organizations for the signed-in scenario user without live callouts.
+     *
+     * @since 2026-10-25
+     */
+    @IsTest
+    static void shouldRefreshAssignedOrganizations() {
+        User user = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S01', 'subject-a');
+        System.runAs(user) {
+            System.Test.startTest();
+            AltinnCalloutService.AltinnOrganizationsResponse response = AAREG_HomeController.refreshOrganizationsWithRoles(
+                user.Id
+            );
+            Integer callouts = Limits.getCallouts();
+            System.Test.stopTest();
+            System.Assert.isTrue(response.success);
+            System.Assert.areEqual(3, response.organizations.size());
+            System.Assert.areEqual('v3', response.altinnVersion);
+            System.Assert.areEqual(0, callouts);
+        }
+    }
+
+    /**
+     * Preserves a response-level organization failure without substituting empty success.
+     *
+     * @since 2026-10-25
+     */
+    @IsTest
+    static void shouldPreserveRefreshResponseErrors() {
+        User user = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S07', 'subject-a');
+        System.runAs(user) {
+            System.Test.startTest();
+            AltinnCalloutService.AltinnOrganizationsResponse response = AAREG_HomeController.refreshOrganizationsWithRoles(
+                user.Id
+            );
+            System.Test.stopTest();
+            System.Assert.isFalse(response.success);
+            System.Assert.isNotNull(response.errorMessage);
+            System.Assert.areEqual(0, Limits.getCallouts());
+        }
+    }
+
+    /**
+     * Surfaces an organization exception as a handled refresh failure.
+     *
+     * @since 2026-10-25
+     */
+    @IsTest
+    static void shouldSurfaceRefreshExceptions() {
+        User user = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S07', 'subject-throws');
+        System.runAs(user) {
+            System.Test.startTest();
+            Boolean failed = false;
+            try {
+                AAREG_HomeController.refreshOrganizationsWithRoles(user.Id);
+            } catch (AuraHandledException error) {
+                failed = true;
+            }
+            System.Test.stopTest();
+            System.Assert.isTrue(failed, 'An exception must not become an empty organization list.');
+        }
+    }
+
+    /**
+     * Rejects refresh requests for a user other than the signed-in user.
+     *
+     * @since 2026-10-25
+     */
+    @IsTest
+    static void shouldRejectRefreshForAnotherUser() {
+        Id differentUserId = UserInfo.getUserId();
+        User minimumAccessUser = AAREG_AltinnTestDataFactory.createScenarioUser(false);
+        System.runAs(minimumAccessUser) {
+            System.Test.startTest();
+            Boolean rejected = false;
+            try {
+                AAREG_HomeController.refreshOrganizationsWithRoles(differentUserId);
+            } catch (AuraHandledException error) {
+                rejected = true;
+            }
+            System.Test.stopTest();
+            System.Assert.isTrue(rejected, 'Only the signed-in user can refresh their organizations.');
+        }
+    }
+
+    /**
      * Gives the existing application path the configured Permit decision.
      *
      * @since 2026-10-25
