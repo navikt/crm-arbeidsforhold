@@ -174,23 +174,19 @@ export default class Aareg_home extends LightningElement {
     }
 
     sortOrganizations() {
-        if (!this.organizations || !this.lastUsedOrganization) return;
+        if (!this.organizations) return;
 
-        let foundIndex;
-        this.organizations.forEach((org, i) => {
-            if (org.type === 'Person') {
-                this.organizations.splice(i, 1);
+        this.organizations = [...this.organizations].sort((first, second) => {
+            const firstIsSelected = first.organizationNumber === this.lastUsedOrganization;
+            const secondIsSelected = second.organizationNumber === this.lastUsedOrganization;
+            if (firstIsSelected !== secondIsSelected) {
+                return firstIsSelected ? -1 : 1;
             }
-            if (org.organizationNumber === this.lastUsedOrganization) {
-                foundIndex = i;
-            }
+            return (
+                first.name.localeCompare(second.name, 'nb') ||
+                first.organizationNumber.localeCompare(second.organizationNumber)
+            );
         });
-
-        if (typeof foundIndex !== 'undefined' && foundIndex !== 0) {
-            const placeholder = this.organizations[0];
-            this.organizations[0] = this.organizations[foundIndex];
-            this.organizations[foundIndex] = placeholder;
-        }
     }
 
     async checkSelectedOrganization() {

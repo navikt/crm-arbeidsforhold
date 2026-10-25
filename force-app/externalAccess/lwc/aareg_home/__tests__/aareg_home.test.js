@@ -75,6 +75,68 @@ describe('c-aareg-home', () => {
         jest.restoreAllMocks();
     });
 
+    it.each(['111111111', '222222222'])(
+        'keeps the selected organization first and the rest alphabetical after changing from %s',
+        async (savedOrganization) => {
+            getLastUsersLastUsedOrganization.mockResolvedValue(savedOrganization);
+            updateLastUsedOrganization.mockResolvedValue();
+            checkAndShareIfAuthorized.mockResolvedValue({ hasAccess: true, hasApplicationAccess: true });
+            const organizations = {
+                ...initialOrganizations,
+                organizations: [
+                    {
+                        type: 'Organization',
+                        unitType: 'AS',
+                        organizationNumber: '333333333',
+                        name: 'Organization C'
+                    },
+                    ...refreshedOrganizations.organizations.slice().reverse()
+                ]
+            };
+            const element = await createHome();
+            organizationsAdapter.emit(organizations);
+            await flushPromises();
+            await flushPromises();
+
+            const optionValues = () =>
+                Array.from(element.shadowRoot.querySelectorAll('.organization-select option')).map(
+                    (option) => option.value
+                );
+            expect(optionValues()).toEqual([
+                '',
+                savedOrganization,
+                ...['111111111', '222222222', '333333333'].filter((value) => value !== savedOrganization)
+            ]);
+
+            for (const selectedOrganization of ['333333333', '111111111', '222222222', '333333333']) {
+                const select = element.shadowRoot.querySelector('.organization-select');
+                select.value = selectedOrganization;
+                select.dispatchEvent(new CustomEvent('change'));
+                await flushPromises();
+                await flushPromises();
+
+                expect(optionValues()).toEqual([
+                    '',
+                    selectedOrganization,
+                    ...['111111111', '222222222', '333333333'].filter((value) => value !== selectedOrganization)
+                ]);
+                expect(element.shadowRoot.querySelector('.organization-select').value).toBe(selectedOrganization);
+                expect(checkAndShareIfAuthorized).toHaveBeenLastCalledWith({
+                    userId: 'test-user',
+                    orgNumber: selectedOrganization
+                });
+            }
+
+            getLastUsersLastUsedOrganization.mockResolvedValue('333333333');
+            refreshApex.mockImplementationOnce(async () => organizationsAdapter.emit(organizations));
+            element.shadowRoot.querySelector('[data-id="refresh-organizations"]').click();
+            await flushPromises();
+            await flushPromises();
+            expect(optionValues()).toEqual(['', '333333333', '111111111', '222222222']);
+            expect(element.shadowRoot.querySelector('.organization-select').value).toBe('333333333');
+        }
+    );
+
     it('refreshes organizations and rechecks the selected organization', async () => {
         getLastUsersLastUsedOrganization.mockResolvedValue('111111111');
         checkAndShareIfAuthorized

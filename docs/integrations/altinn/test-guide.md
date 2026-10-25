@@ -3,9 +3,10 @@
 **Målorg:** `nav-community-dev`, aldri produksjon, SIT2 eller DevHub  
 **Testbrukar/kontakt:** `Synthetic Community Test User`  
 **Testlogg:** [altinn-test-log.md](./altinn-test-log.md)  
-**Status:** Brukarmigrering og godkjend deploy av UI-/Apex-rettingane er
-gjennomførte i `nav-community-dev`. 20/20 LWC-testar og 19/19 Apex-testar er
-grøne. Nettlesarretest av rettingane står att.
+**Status:** Brukarmigrering og godkjende deployar er gjennomførte i
+`nav-community-dev`. S05/S07/S08-regresjonane, sortering og S01-gjenoppretting
+er stadfesta i nettlesaren. S05 treng framleis betre forklaring/neste handling
+i tomtilstanden. Siste LWC-suite: 22/22 grøne; controller-deploy: 19/19 Apex.
 
 ## 1. Kva testen beviser
 
@@ -276,6 +277,13 @@ tilgangsstyrt UI, ikkje påstand om tilbakekalling av gamle record-delingsrettar
 8. Forventa: A/B/C finst framleis, C er faktisk vald og tilgang blir
    kontrollert på nytt. Ingen tomtilstand eller feil skal bli ståande.
 9. Loggfør resultata for kvar organisasjon og avtale, ikkje berre S01 samla.
+
+**Sorteringsregresjon:** Vald organisasjon skal stå først, resten alfabetisk
+etter namn, uavhengig av tidlegare val. Vel A → C og kontroller C/A/B.
+Vel deretter B → C og kontroller same C/A/B. Plasshaldaren skal framleis vere
+tilgjengeleg øvst i menyen. Trykk oppdater med C vald og kontroller at både
+valet og rekkjefølgja blir bevarte. Sorteringsrettinga er Jest-verifisert,
+deploya og stadfesta i nettlesaren i `nav-community-dev`.
 
 ### 5.2 S04 – ulik tilgang ved organisasjonsbyte
 

@@ -4,7 +4,10 @@
 **Status:** Grunnoppsettet er deploya til `nav-community-dev`, og S01–S08 er
 prøvde i nettlesaren. Rettingane etter S05/S07/S08 er òg deploya etter
 godkjenning, med 20/20 LWC-testar og 19/19 Apex-testar grøne.
-Nettlesarretest står att. Éin generisk Community Plus-testbrukar er sett opp.
+Nettlesarretest av S05/S07/S08, sortering og S01-gjenoppretting er no bestått.
+Siste LWC-suite etter sorteringsretting: 22/22. Ei betre forklaring/neste
+handling i S05-tomtilstanden er open UX-oppfølging.
+Éin generisk Community Plus-testbrukar er sett opp.
 
 Dette dokumentet gjeld konsumenten si teststøtte, ikkje simulering eller testing
 av Altinn-integrasjonen. Spesifikasjonane er
@@ -43,7 +46,8 @@ Rett etter den manuelle testøkta blei desse regresjonane retta og deploya:
   blir ikkje brukt som ein skjult tilgangsavgjerd.
 
 Jest stadfestar DOM, brukartilhendingar, feil og gjenoppretting; Apex-dry-run
-stadfestar controllerkontrakten. Nettlesarretest står att. Gamle
+stadfestar controllerkontrakten. Nettlesarretesten er bestått; S05 si
+forklaring/neste handling treng framleis UX-oppfølging. Gamle
 avtaledelingar blir ikkje tilbakekalla ved scenariobyte, så gjenbruk av same
 brukar beviser ikkje record-nivå-Deny. Eldre avsnitt nedanfor dokumenterer
 historiske køyringar og lisensoppsett, ikkje dagens brukarfordeling.

@@ -253,6 +253,99 @@ lukka før ny stadfesta nettlesartest.
 
 ## Rettings- og oppsettsøkt 2026-10-25
 
+### Nettlesarretest etter deploy — S01-grunnlinje, 2026-10-25
+
+- **Innlogging med generisk kontakt: Bestått.** Testpersonen stadfesta
+  innlogging som den generiske testbrukaren.
+- **S01-grunnlinje: Bestått.** Etter oppfrisking stadfesta testpersonen A/B/C
+  i lista og søknadstilgang for A utan teknisk feil.
+- Testpersonen såg òg plasshaldaren «-- Velg virksomheit --» i lista.
+  Dette er tilsikta: eit eksplisitt tomt val skal vere tilgjengeleg, særleg
+  når ein tidlegare vald organisasjon fell bort.
+- CLI-kontroll før steget viste nøyaktig éi aktiv innstilling:
+  S01 / subject-a / true. S05/S07/S08 er ikkje retesta i denne økta enno.
+
+### Nettlesarretest etter deploy — S05, 2026-10-25
+
+- Brukaren godkjende byte frå S01 med A vald til S05 på den generiske
+  brukaren. CLI stadfesta S05 / subject-a / true før nettlesarsteget.
+- **Teknisk S05-regresjon: Bestått.** Testpersonen stadfesta stabil
+  tomtilstand, ingen veljar/tilgang og inga misvisande rettleiing.
+  Synleg tekst: «Ingen organisasjoner er tilgjengelige.»
+- **UX-oppfølging: Open.** Testpersonen opplevde resten av sida som heilt
+  tom og venta ei tydelegare forklaring på manglande organisasjonar/tilgang.
+  Det gamle misvisande panelet er borte, men tomtilstanden treng vurdering av
+  forklaring og neste handling. Eit vellukka tomt organisasjonssvar beviser
+  ikkje teknisk feil eller manglande Altinn-rettar; teksten må ikkje påstå det.
+- **CLI-tilbakeføring: Bestått.** S01 / subject-a / true er gjenoppretta og
+  kontrollert. Nettlesargjenoppretting ventar på testpersonen.
+- **Nettlesargjenoppretting: Bestått.** Testpersonen stadfesta A/B/C tilbake
+  og søknadstilgang for A utan feil.
+- **Nytt avvik — historikkavhengig rekkjefølgje:** Ved val av C etter A hamnar
+  A nedst, medan val av C etter B gir C/A/B. Koden byter vald organisasjon
+  med elementet på første plass i den allereie omordna lista. Dermed kan
+  A/B/C → C/B/A, medan B/A/C → C/A/B. Dette samsvarer med observasjonen;
+  dette forklarte avviket før sorteringsrettinga nedanfor.
+- Brukaren valde regelen **vald organisasjon først, resten alfabetisk og
+  uavhengig av tidlegare val**.
+- **Lokal raud–grøn:** To DOM-regresjonar med høvesvis A og B som lagra val
+  feila før rettinga (2 feil / 10 grøne). Etter rettinga bestod 12/12.
+  Testane brukar usortert kjeldeliste og kontrollerer første vising,
+  gjentekne val, faktisk selected-verdi, rettssjekk på rett organisasjon og
+  oppfrisking med C vald.
+- Sorteringa byter ikkje lenger element i den historiske lista. Ho sorterer
+  ei ny liste med vald organisasjon først, deretter norsk namnesortering og
+  organisasjonsnummer som sekundærnøkkel ved like namn.
+  Filtreringa av Person/organisasjonsformer ligg framleis i `setOrganizations`;
+  tilgangsreglar og lagring er uendra.
+- **Breiare lokal validering: Bestått.**
+  `rtk npm run test:unit -- -- --runInBand` gav 6 suiter / 22 grøne testar.
+  Prettier-kontroll av endra JS-/test-/guide-/loggfiler bestod.
+- Brukaren godkjende deploy av berre `aareg_home` til `nav-community-dev`.
+  `rtk sf project deploy start --source-dir force-app/externalAccess/lwc/aareg_home --target-org nav-community-dev --wait 10 --json`
+  gav **Succeeded**, `checkOnly=false`, éin komponent og null komponentfeil,
+  deploy `0AfJW00000nnSyD0AU`. Ingen Apex-testar blei køyrde i denne reine
+  LWC-deployen. CLI gav registry-varselet
+  «Unable to find type GenOpAgentConfig in registry»; deployen fullførte.
+- Sorteringsrettinga blei deploya før nettlesarretesten nedanfor.
+- **Nettlesarretest av sortering: Bestått.** Testpersonen stadfesta C/A/B
+  både ved A → C og B → C, og etter oppfrisking med C vald. C gav
+  søknadstilgang utan feil. Sorteringsavviket er dermed lukka i denne økta.
+
+### Nettlesarretest etter deploy — S07, 2026-10-25
+
+- Brukaren godkjende mellombels S07 på den generiske brukaren i
+  `nav-community-dev`, med gyldig S01-val som utgangspunkt.
+- CLI stadfesta S07 / subject-a / true før testen.
+- **S07-regresjon: Bestått.** Testpersonen stadfesta at teknisk feil blei
+  ståande gjennom gjenteken oppfrisking, utan gamle val eller tilgang.
+  Ingen avvik blei meldt. Dette stadfestar response-error-flyten, ikkje
+  den separate `subject-throws`-varianten eller direkte rights-oppslag.
+- **CLI-tilbakeføring: Bestått.** S01 / subject-a / true er gjenoppretta
+  og kontrollert. Nettlesargjenoppretting ventar på testpersonen.
+- **Nettlesargjenoppretting etter S07: Bestått.** Testpersonen stadfesta at
+  feilen forsvann, A/B/C kom tilbake og A gav søknadstilgang.
+
+### Nettlesarretest etter deploy — S08, 2026-10-25
+
+- Brukaren godkjende mellombels byte til S08 etter å ha stadfesta A vald
+  med søknadstilgang under S01. CLI stadfesta S08 / subject-a / true.
+- **Bortfall av A: Bestått.** Testpersonen stadfesta berre B tilgjengeleg,
+  plasshaldar som synleg val og ingen tilgang før eksplisitt organisasjonsval.
+- **Direkte val av B: Bestått.** Berre brukerstøtte, ikkje søknadstilgang.
+  Det var ikkje nødvendig å velje plasshaldaren først.
+- **Plasshaldar og nytt val: Bestått.** Plasshaldaren fjerna tilgangen utan
+  feil, og nytt val av B gav berre brukerstøtte.
+- **CLI-tilbakeføring: Bestått.** S01 / subject-a / true er gjenoppretta og
+  kontrollert. Siste nettlesargjenoppretting ventar på testpersonen.
+- **Siste nettlesargjenoppretting: Bestått.** Testpersonen stadfesta A/B/C
+  tilbake og søknadstilgang for A utan teknisk feil.
+- **Oppsummering av regresjonsrunden:** Generisk innlogging, S01-grunnlinje,
+  stabil sortering, teknisk S05-regresjon, S07/subject-a, S08 og
+  nettlesargjenoppretting etter kvart negativt scenario er bestått.
+  S05 si forklaring/neste handling er framleis open UX-oppfølging.
+  `subject-throws` er ikkje nettlesarretesta i denne runden.
+
 ### Éin generisk Community Plus-brukar
 
 - Brukaren godkjende konsolidering til éin generisk testbrukar.
@@ -328,7 +421,11 @@ rtk sf project deploy start --dry-run \
   --wait 10 --json
 ```
 
-### Attståande manuell verifikasjon
+### Manuell verifikasjon — status ved første deploy
+
+Tabellen viser status før den guida retestøkta ovanfor. Retestøkta stadfestar
+no innlogging, S05/S07/S08 og gjenoppretting; berre S05 si UX-oppfølging står
+open av dei observerte regresjonane.
 
 | Kontroll                                   | Status      | Forventa                                                                |
 | ------------------------------------------ | ----------- | ----------------------------------------------------------------------- |
@@ -376,5 +473,6 @@ Etter deploy:
   **Bestått**, utan dataendringar.
 - `rtk sf data query --target-org nav-community-dev --query "SELECT ScenarioName__c, SubjectAlias__c, UseScenarioProvider__c FROM AAREG_AltinnScenarioSetting__c WHERE UseScenarioProvider__c = true"`:
   **Bestått**, nøyaktig éi rad med S01 / subject-a / true.
-- Nettlesarinnlogging og S05/S07/S08-retest er **ikkje køyrde** etter deploy.
-  Brukaren må stadfeste desse før avvika kan lukkast.
+- Ved denne deploykontrollen var nettlesarinnlogging og S05/S07/S08-retest
+  enno ikkje køyrde. Dei seinare stadfesta resultata står i
+  nettlesarretestavsnitta ovanfor.
