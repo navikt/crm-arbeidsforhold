@@ -6,7 +6,8 @@ status: draft
 # Feature Specification: Konsumentstyrte Altinn-resultat i Arbeidsforhold
 
 **Dato:** 2026-10-20  
-**Status:** Diskusjonsklart utkast. Cache-alternativ er ikkje valt.  
+**Status:** Implementert og nettlesarverifisert; eksplisitt ikkje-cachebar oppdatering er valt.
+
 **Føringar:** [AGENTS](../../AGENTS.md), [CONTEXT](../../CONTEXT.md) og lokal TDD-gate.
 
 ## Scope Baseline
@@ -21,7 +22,7 @@ scenarioa og runtime-reglane. Administrasjonsteneste, scenarioeditor og Admin-UI
 blir ikkje bygde no, etter avklaringa 2026-10-20.
 
 Utanfor scope: Altinn HTTP/auth/token-testing, mock-server, v2-utfasing,
-automatisk oppretting/sletting av produktdata, automatisk tilbakekalling av
+automatisk oppretting/sletting av produktdata i runtime, automatisk tilbakekalling av
 deling og testing med scenario i produksjon.
 
 ## User Scenarios & Testing
@@ -44,10 +45,14 @@ Som systemeigar vil eg installere løysinga utan å opprette ein scenario-record
 
 Som testar vil eg velje namngitte scenario i Setup og bruke communityen som normalt.
 
-**Sjølvstendig test:** Bruk isolerte syntetiske brukarar og data for S01-S08.
-Scratch-oppsettet har dedikerte brukarar for S01-S04 og S06; S05/S07/S08 blir
-verifiserte som tom-, feil- og stale-selection-scenario i Apex-testane fordi
-scratch-org-en har ei avgrensa High Volume Customer Portal-lisenskvote.
+**Sjølvstendig test:** Bruk éin generisk Customer Community Plus-brukar og
+éi eksplisitt brukarsetting for S01–S08. Byt scenario, ikkje brukar.
+Scratch-seedet opprettar/migrerer denne identiteten og fire A–D-datasett med
+organisasjon, søknad og aktiv avtale. Dei fire eldre scenario-brukarane blir
+haldne inaktive som historikk; innstillingane deira blir sletta.
+Isolerte Apex-fixtures er framleis nødvendige for å bevise delingsåtferd utan
+historiske Permit-delingar. Den gjenbrukte nettlesarbrukaren beviser ikkje
+record-nivå-Deny etter eit tidlegare Permit.
 
 1. **Given** S01, **When** brukaren vel organisasjonen, **Then** blir
    søknadstilgang gitt gjennom ordinær applikasjonslogikk.
@@ -164,16 +169,16 @@ Som systemeigar vil eg hindre at testfunksjonar gir syntetiske rettar i produksj
 
 ## Scenario Catalogue
 
-| ID | Innhald | Forventa applikasjonsutfall |
-| --- | --- | --- |
-| S01 | A, B og C, alle med søknad Permit | Søknadstilgang; eksisterande delingsflyt blir brukt |
-| S02 | A, B og C med søknad Deny og brukerstøtte Permit | Berre brukerstøttetilgang |
-| S03 | A, B og C med begge ressursar Deny | Ingen tilgang eller nye delingar for rein brukar |
-| S04 | A, B og C med ulik rettsmatrise | Organisasjonsbyte nyttar rett svar per organisasjon |
-| S05 | Vellukka tom organisasjonsliste | Ingen tilgjengeleg organisasjon; observer forståeleg tomtilstand |
-| S06 | To AS, ENK, BEDR og ein Person | Dagens filtrering utført av UI, ikkje provider |
-| S07 | Kontrollert feil ved organisasjons-/rettsoppslag | Ingen tilgang gitt; relevant feilmelding/feilgrense |
-| S08 | Tidlegare valt organisasjon manglar | Registrer dagens åtferd; eventuell retting får eksplisitt godkjend slice |
+| ID  | Innhald                                          | Forventa applikasjonsutfall                                              |
+| --- | ------------------------------------------------ | ------------------------------------------------------------------------ |
+| S01 | A, B og C, alle med søknad Permit                | Søknadstilgang; eksisterande delingsflyt blir brukt                      |
+| S02 | A, B og C med søknad Deny og brukerstøtte Permit | Berre brukerstøttetilgang                                                |
+| S03 | A, B og C med begge ressursar Deny               | Ingen tilgang eller nye delingar for rein brukar                         |
+| S04 | A, B og C med ulik rettsmatrise                  | Organisasjonsbyte nyttar rett svar per organisasjon                      |
+| S05 | Vellukka tom organisasjonsliste                  | Ingen tilgjengeleg organisasjon; observer forståeleg tomtilstand         |
+| S06 | To AS, ENK, BEDR og ein Person                   | Dagens filtrering utført av UI, ikkje provider                           |
+| S07 | Kontrollert feil ved organisasjons-/rettsoppslag | Ingen tilgang gitt; relevant feilmelding/feilgrense                      |
+| S08 | Tidlegare valt organisasjon manglar              | Registrer dagens åtferd; eventuell retting får eksplisitt godkjend slice |
 
 S07 skil responsfeil frå kasta exception. Kva variantar live-klienten faktisk
 leverer skal dokumenterast frå dagens kontrakt før scenarioa blir merkte som

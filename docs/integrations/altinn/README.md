@@ -5,7 +5,7 @@
 prøvde i nettlesaren. Rettingane etter S05/S07/S08 er òg deploya etter
 godkjenning, med 20/20 LWC-testar og 19/19 Apex-testar grøne.
 Nettlesarretest av S05/S07/S08, sortering og S01-gjenoppretting er no bestått.
-Siste LWC-suite: 24/24; siste controller-deploy: 23/23 Apex-testar.
+Siste LWC-suite: 24/24; siste tilgangsdeploy: 27/27 Apex-testar.
 S05 har no forklaring og neste handling i ei
 sentrert tomtilstand med same utforming som meldinga om manglande tilgang.
 Endringa er deploya og godkjend i nettlesaren, inkludert S01-gjenoppretting.
@@ -53,14 +53,19 @@ knappeflyten.
 
 Bruk **Synthetic Community Test User** for alle scenario og andre community-
 testar som krev Plus-lisens. Den eksisterande Permit-brukaren og kontakten er
-migrerte med same identitet og historikk. Dei fire andre seed-brukarane og
-scenarioinnstillingane deira er deaktiverte, ikkje sletta. Lisenskontrollen i
+migrerte med same identitet og historikk. Dei fire andre seed-brukarane er
+inaktive historiske postar; scenarioinnstillingane deira er sletta.
+Settingtypen og dei tre felta blir bevarte for scenariobyte. Ingen andre Custom
+Settings eller historiske Users, Contacts og Accounts er sletta. Lisenskontrollen i
 `nav-community-dev` viser Plus 1/1 i bruk og High Volume 0/5 i bruk.
 
 `altinn-scenario-users`-poststeget opprettar/migrerer no berre denne generiske
 brukaren og éi aktiv brukarsetting, med S01 og `subject-a`. Køyringa er
 idempotent og gjenopprettar S01; vanleg scenariobyte skal derfor gjerast ved å
 redigere brukarsettinga, ikkje ved å køyre seedet på nytt.
+Identitetsseedet bruker no éin Account og Contact direkte, ikkje kart og løkker
+for ei liste med éin identitet. A–D-produktdata og isolerte Apex-fixtures er
+bevarte.
 Sjå [den sjølvbetente GUI-/CLI-guiden](./test-guide.md) for oppsett,
 kontrollskript, innlogging, alle scenario og gjenoppretting.
 
@@ -80,6 +85,26 @@ UX-oppfølging er bestått. Gamle
 avtaledelingar blir ikkje tilbakekalla ved scenariobyte, så gjenbruk av same
 brukar beviser ikkje record-nivå-Deny. Eldre avsnitt nedanfor dokumenterer
 historiske køyringar og lisensoppsett, ikkje dagens brukarfordeling.
+
+### Tilgangsretting etter review — deploya og kontrollert
+
+Dei separat kallbare endepunkta `getOrganizationsWithRoles` og `getUserRights`
+avviser no tom målbrukar og andre brukarar enn den innlogga, før SOQL,
+provider-val og callout. Dette lukkar den eldre cross-user-eksponeringa også
+når scenario er av. Signaturar og ordinær same-user-flyt blir bevarte;
+klasse-sharing blir ikkje endra som ein snarveg.
+
+Dei positive live-testane bruker no same-user `runAs` og eksplisitt Altinn
+3-fixture der dei testar v3, ikkje miljøets permission-styrte feature-val.
+V2-organisasjonstesten bruker innlogga intern brukar med tilgang til live
+metadata. Negative testar bruker minimumstilgang utan aktivt scenario og
+krev null SOQL/callouts ved avvising.
+
+Dry-run `0AfJW00000nnYYz0AM` og godkjend deploy `0AfJW00000nnYcD0AU`:
+27/27 testar, ingen coverage warnings. I den delte community-fana bestod
+sidelasting, eksplisitt oppdatering og A→B→A med søknads- og brukerstøttetilgang.
+Sluttstatus er S01/subject-a/true og A valt. Cross-user-avvising er
+Apex-verifisert, ikkje forsøkt mot andre brukarar i nettlesaren.
 
 ## Implementert policygrunnlag — 2026-10-25
 

@@ -17,106 +17,53 @@ if (accountOwner.UserRoleId == null) {
 }
 
 String identityAccountName = 'Synthetic Community Test ' + organizationSuffix;
-Map<String, String> identityByAccountName = new Map<String, String>{
-    identityAccountName => 'AP' + organizationSuffix
-};
-Map<String, String> emailByAccountName = new Map<String, String>{
-    identityAccountName => 'aareg.community.test.' + organizationSuffix + '@example.invalid'
-};
-
-List<String> accountNames = new List<String>(identityByAccountName.keySet());
-Map<String, Account> accountsByName = new Map<String, Account>();
-for (Account account : [
+String identity = 'AP' + organizationSuffix;
+String contactEmail = 'aareg.community.test.' + organizationSuffix + '@example.invalid';
+List<Account> identityAccounts = [
     SELECT Id, Name, OwnerId, INT_PersonIdent__c
     FROM Account
-    WHERE Name IN :accountNames OR Name = :('Synthetic Altinn S01 ' + organizationSuffix)
-]) {
-    String expectedName = accountNames[0];
-    if (accountsByName.containsKey(expectedName)) {
-        throw new IllegalArgumentException('Duplicate synthetic community identity accounts were found.');
+    WHERE Name = :identityAccountName OR Name = :('Synthetic Altinn S01 ' + organizationSuffix)
+];
+if (identityAccounts.size() > 1) {
+    throw new IllegalArgumentException('Duplicate synthetic community identity accounts were found.');
+}
+Account identityAccount;
+if (identityAccounts.isEmpty()) {
+    identityAccount = new Account(
+        Name = identityAccountName,
+        OwnerId = accountOwner.Id,
+        INT_PersonIdent__c = identity
+    );
+    insert identityAccount;
+} else {
+    identityAccount = identityAccounts[0];
+    if (identityAccount.INT_PersonIdent__c != identity || identityAccount.OwnerId != accountOwner.Id) {
+        throw new IllegalArgumentException('An existing synthetic Altinn account does not match its seed.');
     }
-    accountsByName.put(expectedName, account);
-}
-
-List<Account> accountsToInsert = new List<Account>();
-List<Account> accountsToUpdate = new List<Account>();
-for (String accountName : accountNames) {
-    if (accountsByName.containsKey(accountName)) {
-        Account existingAccount = accountsByName.get(accountName);
-        if (
-            existingAccount.INT_PersonIdent__c != identityByAccountName.get(accountName) ||
-            existingAccount.OwnerId != accountOwner.Id
-        ) {
-            throw new IllegalArgumentException('An existing synthetic Altinn account does not match its seed.');
-        }
-        if (existingAccount.Name != accountName) {
-            existingAccount.Name = accountName;
-            accountsToUpdate.add(existingAccount);
-        }
-    } else {
-        accountsToInsert.add(
-            new Account(
-                Name = accountName,
-                OwnerId = accountOwner.Id,
-                INT_PersonIdent__c = identityByAccountName.get(accountName)
-            )
-        );
-    }
-}
-if (!accountsToUpdate.isEmpty()) {
-    update accountsToUpdate;
-}
-if (!accountsToInsert.isEmpty()) {
-    insert accountsToInsert;
-    for (Account account : accountsToInsert) {
-        accountsByName.put(account.Name, account);
+    if (identityAccount.Name != identityAccountName) {
+        identityAccount.Name = identityAccountName;
+        update identityAccount;
     }
 }
 
-List<String> contactEmails = new List<String>(emailByAccountName.values());
-Map<String, Contact> contactsByEmail = new Map<String, Contact>();
-for (Contact contact : [
+List<Contact> identityContacts = [
     SELECT Id, AccountId, Email
     FROM Contact
-    WHERE Email IN :contactEmails OR Email = :('aareg.altinn.permit.' + organizationSuffix + '@example.invalid')
-]) {
-    if (contactsByEmail.containsKey(contactEmails[0])) {
-        throw new IllegalArgumentException('Duplicate synthetic community contacts were found.');
-    }
-    contactsByEmail.put(contactEmails[0], contact);
+    WHERE Email = :contactEmail OR Email = :('aareg.altinn.permit.' + organizationSuffix + '@example.invalid')
+];
+if (identityContacts.size() > 1) {
+    throw new IllegalArgumentException('Duplicate synthetic community contacts were found.');
 }
-
-List<Contact> contactsToInsert = new List<Contact>();
-List<Contact> contactsToUpdate = new List<Contact>();
-for (String accountName : accountNames) {
-    String email = emailByAccountName.get(accountName);
-    Account account = accountsByName.get(accountName);
-    if (contactsByEmail.containsKey(email)) {
-        if (contactsByEmail.get(email).AccountId != account.Id) {
-            throw new IllegalArgumentException('An existing synthetic Altinn contact is linked to an unexpected account.');
-        }
-        Contact existingContact = contactsByEmail.get(email);
-        existingContact.FirstName = 'Synthetic';
-        existingContact.LastName = 'Community Test User';
-        existingContact.Email = email;
-        contactsToUpdate.add(existingContact);
-    } else {
-        contactsToInsert.add(
-            new Contact(
-                FirstName = 'Synthetic',
-                LastName = 'Community Test User',
-                Email = email,
-                AccountId = account.Id
-            )
-        );
-    }
-    if (!contactsToUpdate.isEmpty()) {
-        update contactsToUpdate;
-    }
+Contact identityContact = identityContacts.isEmpty()
+    ? new Contact(AccountId = identityAccount.Id)
+    : identityContacts[0];
+if (identityContact.AccountId != identityAccount.Id) {
+    throw new IllegalArgumentException('An existing synthetic Altinn contact is linked to an unexpected account.');
 }
-if (!contactsToInsert.isEmpty()) {
-    insert contactsToInsert;
-}
+identityContact.FirstName = 'Synthetic';
+identityContact.LastName = 'Community Test User';
+identityContact.Email = contactEmail;
+upsert identityContact;
 
 Map<String, String> organizationNameByNumber = new Map<String, String>{
     '111111111' => 'Synthetic Altinn Organization A ' + organizationSuffix,

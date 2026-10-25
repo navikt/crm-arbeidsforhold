@@ -75,9 +75,13 @@ public without sharing class AAREG_HomeController {
      *
      * @param userId Id of the community User record.
      * @return The Altinn organizations and roles response for the user's linked person.
+     * @throws AuraHandledException If the requested user is not the signed-in user.
      */
     @AuraEnabled(cacheable=true)
     public static AltinnCalloutService.AltinnOrganizationsResponse getOrganizationsWithRoles(String userId) {
+        if (String.isBlank(userId) || userId != UserInfo.getUserId()) {
+            throw new AuraHandledException('Invalid user for organization lookup.');
+        }
         User currentUser = [
             SELECT Id, LastUsedOrganization__c, Contact.Account.INT_PersonIdent__c
             FROM User

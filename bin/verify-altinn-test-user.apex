@@ -42,6 +42,7 @@ System.Assert.areEqual(
 );
 AAREG_AltinnScenarioSetting__c setting = AAREG_AltinnScenarioSetting__c.getValues(testUserId);
 System.Assert.isNotNull(setting, 'An explicit user scenario setting is required.');
+System.Assert.isNotNull(setting.Id, 'The scenario setting must be stored on the user, not inherited.');
 System.Assert.isTrue(setting.UseScenarioProvider__c);
 System.Assert.areEqual('subject-a', setting.SubjectAlias__c);
 System.Assert.isTrue(
@@ -53,8 +54,8 @@ System.Assert.areEqual(
     [
         SELECT COUNT()
         FROM AAREG_AltinnScenarioSetting__c
-        WHERE SetupOwnerId IN :retiredUserIds AND UseScenarioProvider__c = true
+        WHERE SetupOwnerId IN :retiredUserIds
     ],
-    'Retired scenario users must not have enabled scenario settings.'
+    'Retired scenario users must not retain scenario settings.'
 );
 System.debug(LoggingLevel.INFO, 'Generic community test user verification passed.');

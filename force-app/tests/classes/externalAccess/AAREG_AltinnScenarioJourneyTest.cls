@@ -10,6 +10,62 @@ private with sharing class AAREG_AltinnScenarioJourneyTest {
     private static final String organizationNumber = '111111111';
 
     /**
+     * Rejects another user's organization lookup before selecting a live or scenario provider.
+     *
+     * @since 2026-10-26
+     */
+    @IsTest
+    static void shouldRejectOrganizationLookupForAnotherUser() {
+        Id differentUserId = UserInfo.getUserId();
+        User minimumAccessUser = AAREG_AltinnTestDataFactory.createScenarioUser(false);
+        System.runAs(minimumAccessUser) {
+            System.Test.startTest();
+            Boolean rejected = false;
+            try {
+                AAREG_HomeController.getOrganizationsWithRoles(differentUserId);
+            } catch (AuraHandledException error) {
+                rejected = true;
+            }
+            Integer callouts = Limits.getCallouts();
+            Integer queries = Limits.getQueries();
+            System.Test.stopTest();
+            System.Assert.isTrue(rejected, 'Organization lookups must only target the signed-in user.');
+            System.Assert.areEqual(0, callouts);
+            System.Assert.areEqual(0, queries, 'Reject before reading another user record.');
+        }
+    }
+
+    /**
+     * Rejects another user's rights lookup before selecting a live or scenario provider.
+     *
+     * @since 2026-10-26
+     */
+    @IsTest
+    static void shouldRejectRightsLookupForAnotherUser() {
+        Id differentUserId = UserInfo.getUserId();
+        User minimumAccessUser = AAREG_AltinnTestDataFactory.createScenarioUser(false);
+        System.runAs(minimumAccessUser) {
+            System.Test.startTest();
+            Boolean rejected = false;
+            try {
+                AAREG_CommunityUtils.getUserRights(
+                    differentUserId,
+                    organizationNumber,
+                    'nav_arbeidsforhold_aa-registeret-sok-tilgang'
+                );
+            } catch (AuraHandledException error) {
+                rejected = true;
+            }
+            Integer callouts = Limits.getCallouts();
+            Integer queries = Limits.getQueries();
+            System.Test.stopTest();
+            System.Assert.isTrue(rejected, 'Rights lookups must only target the signed-in user.');
+            System.Assert.areEqual(0, callouts);
+            System.Assert.areEqual(0, queries, 'Reject before reading another user record.');
+        }
+    }
+
+    /**
      * Returns fresh organizations for the signed-in scenario user without live callouts.
      *
      * @since 2026-10-25

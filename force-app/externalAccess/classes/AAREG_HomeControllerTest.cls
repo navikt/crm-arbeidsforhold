@@ -66,13 +66,14 @@ public with sharing class AAREG_HomeControllerTest {
         );
         CustomMetadataDAO.customMetadataRecordsMap.put(FeatureToggleBase.METADATA_QUERY, featureFlags);
 
-        User user = [SELECT Id FROM USER WHERE Username = 'John.Doe@nav.no' LIMIT 1];
+        User user = new User(Id = UserInfo.getUserId());
         ApiMock.setTestMock('GET_ALTINN_ORGANIZATIONS', 200, 'OK');
 
         System.Test.startTest();
-        AltinnCalloutService.AltinnOrganizationsResponse response = AAREG_HomeController.getOrganizationsWithRoles(
-            user.Id
-        );
+        AltinnCalloutService.AltinnOrganizationsResponse response;
+        System.runAs(user) {
+            response = AAREG_HomeController.getOrganizationsWithRoles(user.Id);
+        }
         System.Test.stopTest();
 
         System.assertEquals(true, response.success, 'Expect success');
@@ -197,6 +198,7 @@ public with sharing class AAREG_HomeControllerTest {
      */
     @IsTest
     private static void shouldGrantAccessAndShareAgreement() {
+        AAREG_AltinnTestDataFactory.setAltinnVersion3(true);
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
         Account acct = AAREG_TestDataFactory.getAccountCounty();
         insert acct;
@@ -213,10 +215,10 @@ public with sharing class AAREG_HomeControllerTest {
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', body, new Map<String, String>());
         System.Test.setMock(HttpCalloutMock.class, mock);
         System.Test.startTest();
-        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
-            user.Id,
-            '929882989'
-        );
+        AAREG_HomeController.AccessResponse response;
+        System.runAs(user) {
+            response = AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '929882989');
+        }
         System.Test.stopTest();
 
         System.assertEquals(true, response.hasAccess, 'User should have access with Access action and Permit decision');
@@ -237,6 +239,7 @@ public with sharing class AAREG_HomeControllerTest {
      */
     @IsTest
     private static void shouldDenyAccessWithoutSharing() {
+        AAREG_AltinnTestDataFactory.setAltinnVersion3(true);
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
 
         // Mock response with Deny decision
@@ -246,10 +249,10 @@ public with sharing class AAREG_HomeControllerTest {
         System.Test.setMock(HttpCalloutMock.class, mock);
 
         System.Test.startTest();
-        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
-            user.Id,
-            '123456789'
-        );
+        AAREG_HomeController.AccessResponse response;
+        System.runAs(user) {
+            response = AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
+        }
         System.Test.stopTest();
 
         System.assertEquals(false, response.hasAccess, 'User should not have access with Deny decision');
@@ -388,6 +391,7 @@ public with sharing class AAREG_HomeControllerTest {
      */
     @IsTest
     private static void shouldSurfaceFailureWhenRightsResponseIsEmpty() {
+        AAREG_AltinnTestDataFactory.setAltinnVersion3(true);
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
 
         String bodyNullRights = '{"response":[]}';
@@ -396,10 +400,12 @@ public with sharing class AAREG_HomeControllerTest {
 
         System.Test.startTest();
         Boolean lookupFailed = false;
-        try {
-            AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
-        } catch (AuraHandledException error) {
-            lookupFailed = true;
+        System.runAs(user) {
+            try {
+                AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '123456789');
+            } catch (AuraHandledException error) {
+                lookupFailed = true;
+            }
         }
         System.Test.stopTest();
 
@@ -413,6 +419,7 @@ public with sharing class AAREG_HomeControllerTest {
      */
     @IsTest
     private static void shouldGrantSupportAccessFallback() {
+        AAREG_AltinnTestDataFactory.setAltinnVersion3(true);
         User user = [SELECT Id FROM User WHERE Username = 'John.Doe@nav.no'];
 
         String bodyDeny = '{"response":[{"decision":"Deny","action":"Access","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
@@ -421,10 +428,10 @@ public with sharing class AAREG_HomeControllerTest {
 
         System.Test.startTest();
         AAREG_HomeController.forceSupportAccessPermitInTest = true;
-        AAREG_HomeController.AccessResponse response = AAREG_HomeController.checkAndShareIfAuthorized(
-            user.Id,
-            '929882989'
-        );
+        AAREG_HomeController.AccessResponse response;
+        System.runAs(user) {
+            response = AAREG_HomeController.checkAndShareIfAuthorized(user.Id, '929882989');
+        }
         AAREG_HomeController.forceSupportAccessPermitInTest = false;
         System.Test.stopTest();
 

@@ -7,6 +7,72 @@ frå `crm-arbeidsforhold`
 resultat blir stadfesta av testpersonen; CLI/Apex-resultat blir stadfesta av
 køyringa.
 
+## Review og opprydding — 2026-10-26
+
+Brukaren godkjende forenkling av seed og sletting av berre dei fire gamle
+inaktive scenario-brukarsettingane i `nav-community-dev`, og retting av
+sikkerheitsfunnet om cross-user-oppslag.
+
+| Kontroll                                         | Resultat          | Evidens                                                                                                                                 |
+| ------------------------------------------------ | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Strengare verifier før opprydding                | Raud som venta    | Venta 0 gamle settingar; fann 4.                                                                                                        |
+| Settings-seed                                    | Bestått to gonger | Fire gamle settingar sletta ved første køyring; berre generisk S01/subject-a/true står att.                                             |
+| Forenkla Account/Contact-seed                    | Bestått to gonger | Kompilert og køyrd; same identitet, inga ny brukaroppretting.                                                                           |
+| Verifier etter opprydding                        | Bestått           | Éin aktiv generisk Plus-brukar, to permissions og eksplisitt brukarsetting; ingen gamle settingar.                                      |
+| Produktdata etter andre seed                     | Bestått           | Nøyaktig éin Account, søknad og aktiv avtale per A–D. Éin scenario-record totalt.                                                       |
+| Negative tilgangstestar før retting              | Raude             | Begge gamle endepunkt gjekk vidare til live-bana for ein annan målbrukar og feila på utilgjengeleg live-metadata i staden for å avvise. |
+| Same-user kontrakt etter retting                 | Bestått dry-run   | `0AfJW00000nnYYz0AM`: 27/27 Apex, ingen coverage warnings. Negative testar krev avvising før SOQL/callout når scenario er av.           |
+| Vedvarande deploy / nettlesar av tilgangsretting | Bestått           | Brukaren godkjende deploy og nettlesarkontroll. `0AfJW00000nnYcD0AU`: success, checkOnly=false, 27/27 Apex, ingen coverage warnings.    |
+
+Kommandoar for dataopprydding og verifikasjon, alle med godkjent målorg:
+
+```bash
+rtk sf apex run --target-org nav-community-dev --file bin/seed-altinn-scenario-settings.apex
+rtk sf apex run --target-org nav-community-dev --file bin/seed-altinn-scenario-accounts.apex
+rtk sf apex run --target-org nav-community-dev --file bin/verify-altinn-test-user.apex
+```
+
+Alle tre fullførte. Ingen andre Custom Settings, historiske Users, Contacts
+eller Accounts blei sletta. Seedet er ikkje ein generell oppryddingsjobb.
+
+Eksakt tilgangsvalidering (**Bestått**, dry-run, ingen metadata lagra):
+
+```bash
+rtk sf project deploy start --dry-run \
+  --source-dir force-app/externalAccess/classes/AAREG_HomeController.cls \
+  --source-dir force-app/externalAccess/classes/AAREG_CommunityUtils.cls \
+  --source-dir force-app/externalAccess/classes/AAREG_HomeControllerTest.cls \
+  --source-dir force-app/externalAccess/classes/AAREG_CommunityUtilsTest.cls \
+  --source-dir force-app/tests/classes/externalAccess/AAREG_AltinnScenarioJourneyTest.cls \
+  --target-org nav-community-dev --test-level RunSpecifiedTests \
+  --tests AAREG_AltinnScenarioJourneyTest --tests AAREG_HomeControllerTest \
+  --tests AAREG_CommunityUtilsTest --wait 10 --json
+```
+
+Før grøn køyring avdekte `runAs` at eldre positive testar valde Altinn 2 via
+feature-permission i staden for den tilsikta v3-fixturen. Testane fekk
+eksplisitt versjonsval; ingen test-bypass eller avhengigheitspakke blei endra.
+
+Lokal regresjon: `rtk npm run test:unit -- -- --runInBand` bestod med
+6/6 suiter og 24/24 testar. Prettier-kontroll av endra støtta Apex- og
+dokumentasjonsfiler bestod; `.apex`-seedskripta blei verifiserte ved kompilering
+og køyring i org-en, ikkje ved Prettier. Lisenskontrollen viste Plus 1/1 og
+High Volume 0/5 i bruk.
+
+Etter eksplisitt godkjenning blei same fem klassar deploya med kommandoen
+ovanfor utan `--dry-run`: **Bestått**, `0AfJW00000nnYcD0AU`, 27/27 Apex.
+Ingen andre orgar eller avhengigheitspakkar blei endra.
+
+Assistent-observert nettlesarkontroll etter denne deployen, i eksisterande delt
+fane som den generiske brukaren:
+
+- Reload og «Oppdater organisasjoner»: A/B/C, A valt, søknads- og
+  brukerstøttetilgang, ingen teknisk feilmelding.
+- Val A→B→A: begge tilgangane synlege etter kvart val; A gjenoppretta utan feil.
+- Sluttstatus: S01/subject-a/true og A valt. Ingen søknader eller avtalar blei
+  redigerte. Cross-user-sikkerheit blei testa med isolerte Apex-fixtures, ikkje
+  ved oppslag mot andre vedvarande brukarar i nettlesaren.
+
 ## Testøkt 2026-10-25
 
 | Steg        | Kontroll                          | Resultat                    | Evidens / merknad                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |

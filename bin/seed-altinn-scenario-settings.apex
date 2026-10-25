@@ -27,15 +27,11 @@ for (String legacyKey : new List<String>{ 's02', 'deny', 's04', 's06' }) {
     legacyUsernames.add('aareg.altinn.' + legacyKey + '.' + organizationSuffix + '@example.invalid');
 }
 List<AAREG_AltinnScenarioSetting__c> retiredSettings = [
-    SELECT Id, UseScenarioProvider__c
+    SELECT Id
     FROM AAREG_AltinnScenarioSetting__c
     WHERE SetupOwnerId IN (SELECT Id FROM User WHERE Username IN :legacyUsernames AND IsActive = false)
-        AND UseScenarioProvider__c = true
 ];
-for (AAREG_AltinnScenarioSetting__c retiredSetting : retiredSettings) {
-    retiredSetting.UseScenarioProvider__c = false;
-}
 if (!retiredSettings.isEmpty()) {
-    update retiredSettings;
+    delete retiredSettings;
 }
-System.debug(LoggingLevel.INFO, 'The generic community test user is assigned S01; retired scenario settings are disabled.');
+System.debug(LoggingLevel.INFO, 'The generic community test user is assigned S01; retired scenario settings are removed.');

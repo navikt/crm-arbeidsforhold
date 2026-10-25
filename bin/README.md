@@ -4,8 +4,12 @@
 
 The `altinn-scenario-users` post-step now seeds or migrates one
 **Synthetic Community Test User**, not one user per scenario. It preserves the
-former Permit user's identity/history, deactivates legacy scenario users and
-their settings, and restores the generic user's setting to S01/subject-a.
+former Permit user's identity/history, deactivates legacy scenario users,
+deletes settings belonging to the four exact inactive legacy seed users, and
+restores the generic user's setting to S01/subject-a.
+Historical users, contacts and accounts are retained; unrelated settings are
+not changed. The scenario setting type and its three fields remain necessary
+for switching scenarios.
 It changes data; do not run it during an ongoing scenario test.
 
 For the approved `nav-community-dev` scratch org, see the

@@ -8,7 +8,7 @@
 er stadfesta i nettlesaren. S05 si utvida forklaring med same sentrerte
 utforming som Deny-meldinga er deploya og visuelt godkjend. Gjenoppretting til
 S01 etter UX-testen er òg stadfesta.
-Siste LWC-suite: 24/24 grøne; siste controller-deploy: 23/23 Apex.
+Siste LWC-suite: 24/24 grøne; siste tilgangsdeploy: 27/27 Apex.
 
 **S07-gjenoppretting:** Avviket etter `subject-throws` er retta med ei
 eksplisitt ikkje-cachebar oppdatering. Rettinga er deploya og kontrollert i den
@@ -27,6 +27,10 @@ community-testar som krev vanleg Salesforce-deling. Byt scenario, ikkje brukar.
 Dei fire gamle scenario-brukarane er inaktive historiske postar; dei er ikkje
 sletta. Den tidlegare Permit-brukaren og kontakten er omnamna, ikkje erstatta.
 Eksisterande historikk, identitet og delingar er bevarte.
+Dei fire gamle brukarsettingane er sletta. Vi beheld éi aktiv scenario-setting
+for den generiske brukaren, ikkje ein setting per scenario. Settingtypen og dei
+tre felta er nødvendige for å bytte scenario; andre Custom Settings skal ikkje
+ryddast som del av dette oppsettet.
 
 **Viktig tilgangsgrense:** Scenariobyte trekkjer ikkje tilbake tidlegare
 `Agreement__Share`-postar. Ein nettlesartest med denne gjenbrukte brukaren
@@ -92,7 +96,9 @@ rtk bash bin/create-scratch-org.sh --alias nav-community-dev \
 
 Dette seedet er idempotent, men er **ikkje read-only**: det oppdaterer
 syntetiske data, migrerer/aktiverer den generiske brukaren, deaktiverer gamle
-seed-brukarar og set den aktive brukarinnstillinga tilbake til S01.
+seed-brukarar, slettar settingane for dei fire eksakte inaktive legacy-
+seed-brukarane og set den aktive brukarinnstillinga tilbake til S01.
+Historiske Users, Contacts og Accounts blir ikkje sletta.
 Avslutt pågåande testar før du køyrer det. Ikkje bruk seedet for vanlege
 scenariobyte.
 
@@ -118,6 +124,7 @@ Forventa:
 - Dei to permission sets `AAREG_CommunityPermission` og
   `AAREG_AltinnScenarioUser` er tildelte, og den eksplisitte brukarsettinga
   er aktiv med eit kjent scenario og `subject-a`.
+- Dei gamle seed-brukarane har ingen scenario-settingar.
 - I den noverande org-en: Plus `TotalLicenses=1`, `UsedLicenses=1`;
   High Volume `UsedLicenses=0`.
 
