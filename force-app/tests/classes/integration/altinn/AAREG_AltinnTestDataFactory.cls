@@ -47,6 +47,8 @@ public with sharing class AAREG_AltinnTestDataFactory {
 
     /**
      * Creates a synthetic community user linked to an account identity for public journey tests.
+     * User creation explicitly uses system-mode DML so fixture setup does not depend on the runner's field permissions.
+     * Operations under test still execute as the community user without elevated runtime access.
      *
      * @param scenarioName The assigned scenario identity.
      * @param subjectAlias The assigned logical subject alias.
@@ -119,7 +121,7 @@ public with sharing class AAREG_AltinnTestDataFactory {
             LastUsedOrganization__c = '111111111'
         );
         System.runAs(new User(Id = administratorId)) {
-            insert user;
+            insert as system user;
             PermissionSet permissionSet = [
                 SELECT Id
                 FROM PermissionSet

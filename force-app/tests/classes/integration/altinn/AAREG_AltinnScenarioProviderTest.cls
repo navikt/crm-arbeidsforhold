@@ -30,9 +30,11 @@ private with sharing class AAREG_AltinnScenarioProviderTest {
 
             System.Assert.isTrue(response.success);
             System.Assert.areEqual('v3', response.altinnVersion);
-            System.Assert.areEqual(1, response.organizations.size());
+            System.Assert.areEqual(3, response.organizations.size());
             System.Assert.areEqual('Synthetic organization A', response.organizations[0].name);
             System.Assert.areEqual('111111111', response.organizations[0].organizationNumber);
+            System.Assert.areEqual('222222222', response.organizations[1].organizationNumber);
+            System.Assert.areEqual('333333333', response.organizations[2].organizationNumber);
             System.Assert.areEqual('Organization', response.organizations[0].type);
             System.Assert.areEqual('AS', response.organizations[0].unitType);
             System.Assert.isNull(response.errorMessage);
@@ -90,11 +92,13 @@ private with sharing class AAREG_AltinnScenarioProviderTest {
         System.runAs(user) {
             System.Test.startTest();
             AAREG_AltinnScenarioProvider provider = new AAREG_AltinnScenarioProvider(user.Id);
-            System.Assert.areEqual(2, provider.getOrganizations('synthetic-subject').organizations.size());
+            System.Assert.areEqual(3, provider.getOrganizations('synthetic-subject').organizations.size());
             assertDecision(provider, '111111111', applicationResource, 'Permit');
             assertDecision(provider, '111111111', supportResource, 'Deny');
             assertDecision(provider, '222222222', applicationResource, 'Deny');
             assertDecision(provider, '222222222', supportResource, 'Permit');
+            assertDecision(provider, '333333333', applicationResource, 'Permit');
+            assertDecision(provider, '333333333', supportResource, 'Deny');
             System.Assert.areEqual(0, Limits.getCallouts());
             System.Test.stopTest();
         }
@@ -137,13 +141,15 @@ private with sharing class AAREG_AltinnScenarioProviderTest {
 
             System.Assert.isTrue(response.success);
             System.Assert.areEqual('v3', response.altinnVersion);
-            System.Assert.areEqual(4, response.organizations.size());
+            System.Assert.areEqual(5, response.organizations.size());
             System.Assert.areEqual('AS', response.organizations[0].unitType);
             System.Assert.areEqual('ENK', response.organizations[1].unitType);
             System.Assert.areEqual('BEDR', response.organizations[2].unitType);
-            System.Assert.areEqual('Person', response.organizations[3].type);
-            System.Assert.isNull(response.organizations[3].personId);
-            System.Assert.isNull(response.organizations[3].organizationNumber);
+            System.Assert.areEqual('444444444', response.organizations[3].organizationNumber);
+            System.Assert.areEqual('AS', response.organizations[3].unitType);
+            System.Assert.areEqual('Person', response.organizations[4].type);
+            System.Assert.isNull(response.organizations[4].personId);
+            System.Assert.isNull(response.organizations[4].organizationNumber);
         }
     }
 
@@ -408,7 +414,10 @@ private with sharing class AAREG_AltinnScenarioProviderTest {
             System.Test.stopTest();
 
             System.Assert.isFalse(first === second);
-            System.Assert.areEqual(1, second.organizations.size());
+            System.Assert.areEqual(3, second.organizations.size());
+            System.Assert.areEqual('111111111', second.organizations[0].organizationNumber);
+            System.Assert.areEqual('222222222', second.organizations[1].organizationNumber);
+            System.Assert.areEqual('333333333', second.organizations[2].organizationNumber);
         }
     }
 

@@ -7,6 +7,55 @@ frå `crm-arbeidsforhold`
 resultat blir stadfesta av testpersonen; CLI/Apex-resultat blir stadfesta av
 køyringa.
 
+## PR-CI: utdaterte provider-forventningar og testbrukaroppretting — 2026-10-26
+
+CI på PR #1162 køyrde 455 testar og rapporterte 12 feil:
+
+- Fire provider-testar venta organisasjonstala frå før utvidinga av katalogen:
+  S01/S04 har no A/B/C, og S06 har A/B/C/D pluss Person.
+- Åtte journey-testar stoppa i testfactory ved `insert User` med melding om
+  utilgjengelege User-felt. Dei kom ikkje fram til åtferda dei skulle teste.
+- Metadata-kompilering bestod. Dei etterfølgjande samlegatane feila fordi
+  testjobben feila; coverage-jobben blei ikkje køyrd.
+
+Den første lokale dry-run-køyringa av provider og journey reproduserte dei
+fire utdaterte assertionane, medan journey-testane bestod i `nav-community-dev`.
+CI sin felttilgangsfeil er derfor ikkje lokalt reprodusert.
+
+Rettinga er avgrensa til testkode:
+
+- Provider-forventningane er oppdaterte med eksplisitte B/C- og D-kontrollar,
+  inkludert C sine ressursrettar. Ingen assertions er fjerna eller svekte til
+  berre å krevje eit ikkje-tomt svar.
+- Berre community-brukarinnsettinga i `@IsTest`-factory bruker no eksplisitt
+  `insert as system`. Dette fjernar avhengigheita til testkøyraren sine
+  felt-skriverettar ved fixture-oppretting. Sjølve journey-operasjonane køyrer
+  framleis med `System.runAs` som community-brukaren, med uendra runtime-vern.
+  Ingen profiler, permission sets eller produksjonsklassar er endra.
+- Den tidlegare sluttkontrollen før PR dekte ikkje heile provider-suita.
+  Den utvida kontrollen nedanfor omfattar alle fire scenario-/factory-testklassar
+  og dei tre relaterte controller-/journey-testklassane.
+
+```bash
+rtk sf project deploy start --dry-run \
+  --source-dir force-app/tests/classes/integration/altinn \
+  --source-dir force-app/tests/classes/externalAccess/AAREG_AltinnScenarioJourneyTest.cls \
+  --target-org nav-community-dev --test-level RunSpecifiedTests \
+  --tests AAREG_AltinnScenarioProviderTest --tests AAREG_AltinnScenarioJourneyTest \
+  --tests AAREG_AltinnScenarioPolicyTest --tests AAREG_AltinnScenarioRepositoryTest \
+  --tests AAREG_AltinnServiceFactoryTest --tests AAREG_HomeControllerTest \
+  --tests AAREG_CommunityUtilsTest --wait 10 --json
+```
+
+**Bestått lokalt mot godkjend org:** dry-run `0AfJW00000nnghp0AA`,
+86/86 testar, ingen coverage warnings. Ingen vedvarande deploy eller endring
+av nettlesartestdata. Prettier-kontroll av dei to endra Apex-filene og
+`git diff --check` av lokale endringar bestod.
+
+**Open verifikasjon:** Ny CI-køyring må stadfeste at User-innsettinga fungerer
+med CI-køyraren sine tilgangar, og at heile 455-testarsuita og coverage-gaten
+består. Lokal 86/86 erstattar ikkje dette.
+
 ## Review og opprydding — 2026-10-26
 
 Brukaren godkjende forenkling av seed og sletting av berre dei fire gamle
