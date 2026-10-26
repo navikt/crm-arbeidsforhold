@@ -34,10 +34,12 @@ test('direct dev deployment is manual and reuses the tested dependency installer
     assert.match(source, /node-version: '22'/);
 });
 
-test('credential-bearing dev deployment only runs for main', () => {
-    const source = readWorkflow('push_deploy-to-dev1.yml');
-    assert.match(source, /deploy-metadata:\n\s+if: github\.ref == 'refs\/heads\/main'\n/);
-});
+for (const lineEnding of ['\n', '\r\n']) {
+    test(`credential-bearing dev deployment only runs for main with ${JSON.stringify(lineEnding)} line endings`, () => {
+        const source = readWorkflow('push_deploy-to-dev1.yml').replace(/\r?\n/g, lineEnding);
+        assert.match(source, /deploy-metadata:\r?\n\s+if: github\.ref == 'refs\/heads\/main'\r?\n/);
+    });
+}
 
 for (const name of ['pull_request-validation1.yml', 'pull_request-lwc-validation.yml']) {
     test(`${name} validates PRs targeting nested branch names too`, () => {
