@@ -8,7 +8,9 @@ on:
             - ready_for_review
             - converted_to_draft
         branches:
-            - '*'
+            - '**'
+permissions:
+    contents: read
 jobs:
     run-pr-validation:
         name: Validate PR

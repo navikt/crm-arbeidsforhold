@@ -2,7 +2,10 @@ name: '[PR] LWC tests and formatting'
 on:
     pull_request:
         branches:
-            - '*'
+            - '**'
+
+permissions:
+    contents: read
 
 jobs:
     lwc-validation:

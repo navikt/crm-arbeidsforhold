@@ -4,22 +4,22 @@ on:
     pull_request:
         paths:
             - 'bin/**'
-            - 'scripts/pre-commit.cjs'
-            - 'scripts/tests/pre-commit.test.cjs'
+            - 'scripts/*.cjs'
+            - 'scripts/tests/**'
             - 'package.json'
             - 'sfdx-project.json'
             - 'sf-project.config.json'
-            - '.github/workflows/scratch-org-offline.yml'
+            - '.github/workflows/**'
     push:
         branches: [main]
         paths:
             - 'bin/**'
-            - 'scripts/pre-commit.cjs'
-            - 'scripts/tests/pre-commit.test.cjs'
+            - 'scripts/*.cjs'
+            - 'scripts/tests/**'
             - 'package.json'
             - 'sfdx-project.json'
             - 'sf-project.config.json'
-            - '.github/workflows/scratch-org-offline.yml'
+            - '.github/workflows/**'
     workflow_dispatch:
 
 permissions:

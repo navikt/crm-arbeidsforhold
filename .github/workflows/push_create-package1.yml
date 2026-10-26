@@ -3,9 +3,13 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - main
     paths:
       - "force-app/**"
+      - "sfdx-project.json"
+      - ".forceignore"
+permissions:
+  contents: read
 jobs:
   create-package:
     name: Run Package Creation

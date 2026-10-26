@@ -54,6 +54,52 @@ Se [endringsfilteret og eksemplene](scripts/README.md#behovsstyrte-ci-sjekkar)
 for regler, sikkerhetsgrenser og lokal kontroll. Endringer i workflows krever
 særskilt menneskelig gjennomgang.
 
+### Workflowar og merge til main
+
+| Workflow                        | Utløysar og ansvar                                                                                                                                                                              |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `[PUSH] Create Package`         | Push til `main` som endrar `force-app/**`, `sfdx-project.json` eller `.forceignore`, og manuell start. Opprettar pakke, validerer installasjon i SIT og lagar release via den delte workflowen. |
+| `[PUSH] Deploy to Dev`          | Berre manuell kjeldedeploy til dev, med oppdatering av avhengigheiter og `RunLocalTests`. Namnet er bevart for eksisterande referansar.                                                         |
+| `[PR] Validate`                 | Ikkje-utkast-PR-ar til alle branchar, også namn med `/`. Brukar behovsstyrt Salesforce-validering.                                                                                              |
+| `[PR] LWC tests and formatting` | Alle PR-ar. Køyrer Node-/rapporttestar, relevante LWC-testar og formateringskontroll av endra filer.                                                                                            |
+| `Salesforce validation`         | Lokal gjenbrukbar workflow kalla av PR-valideringa. Bevarer påkrevde sjekknamn og krev at den delte valideringa lukkast når ho er relevant.                                                     |
+| `Scratch org offline`           | Relevante PR-ar og push til `main`, eller manuell start. Testar lokale skript på Windows, Linux og macOS utan Salesforce-org. Inkluderer workflow-kontraktane.                                  |
+| `Copilot Setup Steps`           | Copilot-oppsett, manuell start og endringar i sjølve workflowfila. Installerer Node og npm-avhengigheiter.                                                                                      |
+| `[HELPER] Create Scratch Org`   | Manuell, men blokkert av feil i den delte implementasjonen; sjå nedanfor.                                                                                                                       |
+| `[HELPER] Quick Package Create` | Manuell rask pakkeoppretting via delt workflow.                                                                                                                                                 |
+| `[HELPER] Promote Package`      | Manuell promotering, versjonsoppdatering og release via delt workflow.                                                                                                                          |
+| `[HELPER] Deployment`           | Manuell pakkeinstallasjon i valt sandboxmiljø via delt workflow.                                                                                                                                |
+| `[HELPER] Deploy to Production` | Manuell pakkeinstallasjon i produksjon via delt workflow.                                                                                                                                       |
+
+Push-utløysaren gjeld òg direkte push, ikkje berre PR-merge. Rene dokumentasjonsendringar
+lagar ikkje pakke. Direkte dev-deploy køyrer ikkje parallelt automatisk ved merge.
+Workflowane er ikkje køyrde mot Salesforce som del av lokal validering.
+
+**Ekstern eigar og avgrensingar:** `navikt/crm-workflows-base` eig Salesforce-workflowane,
+og er festa til commit `aad6b4f48e419d71490db436da697cd7581a2c6a`.
+Eigaren har ansvar for org-oppsett, Apex-/dekningsvalidering, pakkeoperasjonar og opprydding.
+Lokal SHA-pinning låser ikkje transitive action-referansar: den delte implementasjonen
+brukar framleis fleire muterbare tags og `@master`/`@main`. Desse er eksterne referansar,
+ikkje lokale branch-utløysarar, og må rettast hos eigaren.
+
+Gjennomgangen fann desse oppfølgingspunkta før org-operasjonar:
+
+- Den delte `createScratchOrg.yml` brukar utgåtte `actions/upload-artifact@v2` og
+  `actions/download-artifact@v2`, og skriv til `GITHUB_OUTPUT` utan `$`.
+  Ikkje bruk helperen før eigaren har retta dette. Bruk den dokumenterte lokale
+  [scratch-org-flyten](bin/README.md) med eksplisitt godkjenning i mellomtida.
+- Berre GitHub-miljøet `copilot` fanst ved gjennomgangen; det hadde ingen godkjenningsreglar.
+  Dei delte org-jobbane brukar ikkje beskytta GitHub environments. Manuell start er
+  ikkje eit separat godkjenningssteg. Miljøvern og godkjennarar må avklarast og koplast
+  til dei faktiske org-jobbane hos eigaren før deploy-/releaseflyten kan reknast som godkjenningsverna.
+- Pakkeoppretting installerer òg i SIT. Dette er eksisterande delt åtferd som blir
+  aktivert att av `main`-utløysaren; det er ikkje berre ein lokal byggjobb.
+
+Lokale regresjonstestar: `node --test scripts/tests/ci-workflows.test.cjs`
+(inngår òg i `npm run test:node`). Dei sjekkar triggarar, CLI-kontrakt, eksplisitte
+tokenrettar, direkte shell-interpolering og lokale SHA-referansar, utan nye avhengigheiter.
+Dei verifiserer ikkje eksterne workflowar, secrets, GitHub-miljøvern eller org-tilstand.
+
 ### Pre-commit på Windows, Linux og macOS
 
 Husky installeres ved `npm install` eller `npm ci`. Git og Node må være i PATH,

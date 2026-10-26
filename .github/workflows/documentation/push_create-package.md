@@ -7,14 +7,16 @@
 
 # Intro
 
-This workflows is automatically executed whenever a PR is merged into master (or main branch). It does the following:
+This workflow runs on pushes to `main` that change `force-app/**`,
+`sfdx-project.json` or `.forceignore`, including PR merges. It can also be started
+manually. Documentation-only changes do not create packages. It does the following
+through the pinned `navikt/crm-workflows-base` implementation:
 
 - Create an unlocked package
-- Installs the new package into dev environments
 - Create a GitHub release
 - Verifies the package in SIT sandbox
 
-## Jobs
+## Jobs in the pinned shared workflow
 
 - Create Package (`create-package`)
     - The following folders are deleted to avoid packaging unpackagable metadata
@@ -25,33 +27,28 @@ This workflows is automatically executed whenever a PR is merged into master (or
 - Validate install in SIT Sandbox (`validate-in-sit`)
     - The package is installed in the SIT sandbox
     - This is an integration sandbox to test that all of NAV's Salesforce packages can be installed in the same production org
-- Report install in SIT Sandbox (`report-sit-status`)
-    - If the install in the previous step failed, it is reported here
-    - It is reported in a separate steps so that a GitHub release can still be made, despite the installation failing
-- Check Deployment Secrets (`check-deployment-secrets`)
-    - Pre-deploy job needed to find which environments to install the package afterwards
-- Deploy Package to Sandboxes (`deploy-package-to-sandboxes`)
-    - If the repo is setup to automatically install the new package in dev environments, it will happen here. See `Environments` below for more details.
 - Create release (`create-release`)
     - Create a GitHub Release denoted a "Pre-release" until the package is promoted for full release
+    - Requires successful package creation and SIT validation
 
 ## Secrets
 
 - Environment secrets
     - `secrets.CRM_PROD_SFDX_URL`
-    - `secrets.CRM_INTEGRATION_SANDBOX_SFDX_URL`
-    - `secrets.CRM_UAT_SFDX_URL`
-    - `secrets.DEV_SFDX_URL`
+    - `secrets.CRM_SIT_SFDX_URL`
     - `secrets.CRM_PACKAGE_KEY`
         - Needed to install dependant packages
-- Setting secrets
-    - `secrets.DEPLOY_TO_DEV_AFTER_PACKAGE_CREATION`
-        - Should be 1 or 0
-    - `secrets.DEPLOY_TO_UAT_AFTER_PACKAGE_CREATION`
-        - Should be 1 or 0
 
 ## Environments
 
-Every repo must have `CRM_PROD_SFDX_URL`, `CRM_PREPROD_SFDX_URL` & `CRM_SIT_SFDX_URL` secrets to work. However, for this workflow, `DEV_SFDX_URL` & `CRM_UAT_SFDX_URL` are voluntary secrets that can be changed for each repository. This way, you can have separate dev environments for team or repo and deploy to them manually. A repo does not explicitly need them, though.
+This workflow requires Dev Hub and SIT authentication. It does not deploy to
+production or preprod.
 
-If you set either `secrets.DEPLOY_TO_DEV_AFTER_PACKAGE_CREATION` or `secrets.DEPLOY_TO_UAT_AFTER_PACKAGE_CREATION` to 1, that would cause the workflow to automaticall install the new package into their respective dev environment. This is useful if you'd like a separate dev environment from preprod.
+The pinned workflow creates the package, validates installation in SIT and creates
+a release. It does not contain the previously documented automatic dev/UAT
+deployment jobs or their deployment-toggle checks.
+
+Direct source deployment to dev is a separate, manual workflow. See the
+[workflow overview](../../../README.md#workflowar-og-merge-til-main) for external
+ownership and approval limitations. Local checks do not execute package creation,
+SIT installation or release creation.

@@ -7,6 +7,12 @@
 
 # Intro
 
+**Blocked:** the pinned shared implementation uses retired artifact v2 actions
+and writes a branch output to `GITHUB_OUTPUT` instead of `$GITHUB_OUTPUT`.
+The shared owner must repair it before use. Use the documented
+[local scratch-org setup](../../../bin/README.md) with explicit approval instead.
+The description below documents the legacy flow, not verified working behaviour.
+
 This workflows does the following: 
 
 - Create a scratch org directly from Github

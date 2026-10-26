@@ -8,15 +8,20 @@ on:
       comment:
         description: "Release Comment"
         required: true
+permissions:
+  contents: read
 jobs:
   debug:
     name: Debug Information
     runs-on: ubuntu-latest
     steps:
       - name: Print input values
+        env:
+          PACKAGE_ID: ${{ inputs.packageId }}
+          INITIATOR: ${{ github.actor }}
         run: |
-          echo "Promoting Package ID: ${{ github.event.inputs.packageId }}"
-          echo "Initiator: ${{ github.actor }}"
+          echo "Promoting Package ID: $PACKAGE_ID"
+          echo "Initiator: $INITIATOR"
 
   run-package-promotion:
     name: Promote Package

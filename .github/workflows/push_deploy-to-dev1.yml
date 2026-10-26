@@ -1,26 +1,30 @@
 name: "[PUSH] Deploy to Dev"
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - dev
-    paths:
-      - "force-app/**"
+permissions:
+  contents: read
+concurrency:
+  group: deploy-source-dev
+  cancel-in-progress: false
 jobs:
   deploy-metadata:
-    name: Create new package
+    name: Deploy metadata to Dev
     runs-on: ubuntu-latest
+    timeout-minutes: 180
     steps:
-      # Checkout source code
       - name: Checkout source code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
-      # Install SFDX
-      - name: Install SFDX
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+
+      - name: Install Salesforce CLI
         uses: navikt/crm-workflows-base/.github/actions/installSF@aad6b4f48e419d71490db436da697cd7581a2c6a
 
-      # Authenticate prod
-      - name: Authenticate prod
+      - name: Authenticate Dev Hub
         uses: navikt/crm-workflows-base/.github/actions/authenticateOrg@aad6b4f48e419d71490db436da697cd7581a2c6a
         with:
           auth-url: ${{ secrets.CRM_PROD_SFDX_URL }}
@@ -28,7 +32,6 @@ jobs:
           setDefaultUsername: false
           setDefaultDevhubUsername: true
 
-      # Authenticate dev sandbox
       - name: Authenticate dev sandbox
         uses: navikt/crm-workflows-base/.github/actions/authenticateOrg@aad6b4f48e419d71490db436da697cd7581a2c6a
         with:
@@ -37,28 +40,10 @@ jobs:
           setDefaultUsername: true
           setDefaultDevhubUsername: false
 
-      # Install sfpowerkit plugin used to install multiple packages only by version number
-      - name: Install sfpowerkit plugin
-        run: echo y | sfdx plugins:install sfpowerkit@2.0.1
+      - name: Install missing or outdated dependencies
+        env:
+          PACKAGE_INSTALL_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
+        run: bash bin/create-scratch-org.sh --no-config --alias dev --update-packages --skip-version-check
 
-      # Get package keys
-      - name: Get package keys
-        id: install-keys
-        run: |
-          keys=""
-          for p in $(jq '.result | .[].Name' -r <<< "$(sfdx force:package:list --json)"); do
-              keys+=$p":${{ secrets.CRM_PACKAGE_KEY }} "
-          done
-
-          echo "name=keys$(echo $keys)" >> GITHUB_OUTPUT
-
-      # Install packages this repo is dependant on
-      - name: Install dependant packages
-        run: sfdx sfpowerkit:package:dependencies:install -u dev -r -a -w 60 -k '${{ steps.install-keys.outputs.keys }}'
-
-      # Install new package version into dev sandbox
-      - name: Install new package version into dev sandbox
-        if: success()
-        id: dev-installation
-        run: |
-          sfdx force:source:deploy -p force-app -u dev -l RunLocalTests
+      - name: Deploy metadata and run local Apex tests
+        run: sf project deploy start --source-dir force-app --target-org dev --test-level RunLocalTests --wait 60
