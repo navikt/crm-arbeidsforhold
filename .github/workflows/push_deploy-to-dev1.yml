@@ -8,6 +8,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy-metadata:
+    if: github.ref == 'refs/heads/main'
     name: Deploy metadata to Dev
     runs-on: ubuntu-latest
     timeout-minutes: 180

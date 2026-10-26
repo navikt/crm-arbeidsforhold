@@ -34,6 +34,11 @@ test('direct dev deployment is manual and reuses the tested dependency installer
     assert.match(source, /node-version: '22'/);
 });
 
+test('credential-bearing dev deployment only runs for main', () => {
+    const source = readWorkflow('push_deploy-to-dev1.yml');
+    assert.match(source, /deploy-metadata:\n\s+if: github\.ref == 'refs\/heads\/main'\n/);
+});
+
 for (const name of ['pull_request-validation1.yml', 'pull_request-lwc-validation.yml']) {
     test(`${name} validates PRs targeting nested branch names too`, () => {
         assert.match(readWorkflow(name), /branches:\s*\n\s*- '\*\*'/);

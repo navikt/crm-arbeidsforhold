@@ -73,13 +73,13 @@ pool, nøkler og feilsøking. Alle flagg og flere eksempler finnes i
 
 Kjør fra prosjektroten etter `npm ci`. Velg den minste kontrollen som dekker endringen:
 
-| Kommando                           | Hva den kontrollerer                                                                     |
-| ---------------------------------- | ---------------------------------------------------------------------------------------- |
-| `npm run test:node`                | Lokale utviklerverktøy, hooks, endringsfilter og workflowkontrakter                      |
-| `npm run test:unit -- --runInBand` | LWC Jest-tester                                                                          |
-| `npm test -- --runInBand`          | Node-testene, deretter LWC Jest-testene                                                  |
-| `npm run test:dependency-report`   | Egne Jest/jsdom-tester for den interaktive avhengighetsrapporten; ikke del av `npm test` |
-| `npm run prettier:check`           | Formatering av filer som dekkes av prosjektets Prettier-oppsett                          |
+| Kommando                              | Hva den kontrollerer                                                                     |
+| ------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `npm run test:node`                   | Lokale utviklerverktøy, hooks, endringsfilter og workflowkontrakter                      |
+| `npm run test:unit -- -- --runInBand` | LWC Jest-tester                                                                          |
+| `npm test -- -- --runInBand`          | Node-testene, deretter LWC Jest-testene                                                  |
+| `npm run test:dependency-report`      | Egne Jest/jsdom-tester for den interaktive avhengighetsrapporten; ikke del av `npm test` |
+| `npm run prettier:check`              | Formatering av filer som dekkes av prosjektets Prettier-oppsett                          |
 
 Dette er lokale kontroller. Apex-kompilering, Apex-tester og metadata mot
 org-tilstand krever Salesforce-tilgang. Se [plattformspesifikke tester og feilsøking](docs/kom-i-gang.md#5-hvis-noe-stopper).
@@ -93,7 +93,7 @@ Se [reglene for endringsfilteret](scripts/README.md#behovsstyrte-ci-sjekkar).
 ### Workflowar og merge til main
 
 Relevante push til `main` starter pakkeoppretting **og installasjonsvalidering i SIT**.
-Direkte kildedeploy til dev er bare manuell.
+Direkte kildedeploy til dev er bare manuell, fra `main`.
 Den delte scratch-org-helperen er blokkert av kjente feil; bruk den dokumenterte
 lokale flyten etter godkjenning. Se [hele workflowoversikten](docs/operations/workflows.md)
 for triggere, ansvar og manglende godkjenningsvern.

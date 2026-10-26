@@ -7,8 +7,9 @@
 
 # Intro
 
-This workflow runs only through `workflow_dispatch`, using the branch selected in
-GitHub. It does not run automatically on `main` or `dev`.
+This workflow runs only through `workflow_dispatch` with `main` selected in
+GitHub. Dispatches on other branches skip the deployment job before checkout or
+authentication. It does not run automatically on `main` or `dev`.
 
 It authenticates the existing Dev Hub and dev sandbox, then reuses
 `bin/create-scratch-org.sh --no-config --alias dev --update-packages --skip-version-check`
