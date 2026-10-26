@@ -8,6 +8,7 @@ Dokumentasjonen er organisert etter dokumenttype og ansvar. Start i området som
 
 | Område               | Innhald                                                                                         | Inngang                                                                            |
 | -------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Kom i gang           | Første lokale oppsett, Mac/Linux/Windows, scratch-org og første PR                              | [Utviklerguide](kom-i-gang.md)                                                     |
 | Arkitektur           | Overordna arkitektur, lagdeling, repositorystruktur og tekniske designval                       | [Arkitektur og design](architecture/README.md)                                     |
 | Pakkeavhengigheiter  | Pakkene vi byggjer på, roller, versjonar og avhengigheitsdiagram                                | [Pakkeavhengigheiter](architecture/pakkeavhengigheiter.md)                         |
 | ADR                  | Architecture Decision Records med kontekst, vurderte alternativ og konsekvensar                 | [ADR-register](adr/README.md)                                                      |
@@ -15,6 +16,7 @@ Dokumentasjonen er organisert etter dokumenttype og ansvar. Start i området som
 | Domene               | Domenemodell, forretningsomgrep og domenereglar                                                 | [Domenedokumentasjon](domain/README.md)                                            |
 | Brukarflater         | Dokumentasjon for Experience Cloud, interne flater og andre brukarflater                        | [Brukarflater](surfaces/README.md)                                                 |
 | Drift                | Tekniske sjekklister for metadataopprydding og kontrollert org-endring                          | [Salesforce metadataopprydding](operations/salesforce-metadata-cleanup-runbook.md) |
+| CI og leveranse      | Workflowar, triggarar, eksternt ansvar og kjende avgrensingar                                   | [Workflowoversikt](operations/workflows.md)                                        |
 | Kontekst             | Spegla Jira-/Confluence-kontekst og prosjektspesifikke arbeidsnotat                             | [P360-kontekst](context/p360/jira/README.md)                                       |
 | Utviklingsstandardar | Repo-eigd oversikt over standardar, skills og lenker til operativ fasit                         | [Utviklingsstandardar](utviklingsstandarder.md)                                    |
 | Arbeidsflyt          | Integrasjonsflyt, user stories, dokumentasjonsansvar og oppdateringsreglar                      | [Arbeidsflyt og dokumentasjon](arbeidsflyt-og-dokumentasjon.md)                    |

@@ -30,5 +30,5 @@ No org operation is performed by the local workflow regression tests.
         - Needed to install dependant packages
 
 The Dev Hub authentication is for dependency resolution, not a production deployment.
-See the [workflow overview](../../../README.md#workflowar-og-merge-til-main) for
+See the [workflow overview](../../../docs/operations/workflows.md) for
 external ownership, approval limitations and remaining shared-workflow issues.

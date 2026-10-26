@@ -49,6 +49,6 @@ a release. It does not contain the previously documented automatic dev/UAT
 deployment jobs or their deployment-toggle checks.
 
 Direct source deployment to dev is a separate, manual workflow. See the
-[workflow overview](../../../README.md#workflowar-og-merge-til-main) for external
+[workflow overview](../../../docs/operations/workflows.md) for external
 ownership and approval limitations. Local checks do not execute package creation,
 SIT installation or release creation.
