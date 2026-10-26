@@ -7,6 +7,38 @@ frå `crm-arbeidsforhold`
 resultat blir stadfesta av testpersonen; CLI/Apex-resultat blir stadfesta av
 køyringa.
 
+## PR-CI: produkt-fixture krev eksplisitt system-mode — 2026-10-26
+
+Andre CI-køyring (`40273878530`) bestod provider-testane og community-
+brukaropprettinga etter førre retting. Av 455 testar feila no berre
+`shouldNotShareAgreementForCleanDenyScenario` og
+`shouldSurfaceScenarioRightsResponseErrors`. Begge stoppa ved oppretting av
+`Application__c` i `insertAgreementForOrganization`, med utilgjengelege felt,
+før operasjonen under test blei køyrd.
+
+Førre retting var for smal: ho gjorde berre User-fixturen uavhengig av
+testkøyraren sine felttilgangar, ikkje dei kopla produkt-fixturane.
+
+Ny regresjon `shouldPrepareAgreementWithoutRunnerFieldAccess` køyrer same
+Account/Application/Agreement-oppsett som ein minimumstilgangsbrukar og
+kontrollerer at den lagra avtalen er kopla til rett søknad og organisasjon.
+Raud dry-run i `nav-community-dev` reproduserte tilgangsavhengigheita ved
+første innsetting: `Access to entity 'Account' denied`.
+
+Alle tre innsettingane i den private fixture-hjelparen bruker no eksplisitt
+`insert as system`. Dette er berre syntetisk testoppsett i ei `@IsTest`-klasse.
+Deny-/feilkalla køyrer framleis som community-brukaren, og assertionane om
+ingen nye delingar er bevarte. Ingen produksjonskode, profiler, permission
+sets eller CI-konfigurasjon er endra.
+
+Utvida dry-run med same sju testklassar og same source-dir-val som i førre
+seksjon bestod: **87/87 testar**, ingen coverage warnings. Den nye
+minimumstilgangsregresjonen inngår. Prettier og `git diff --check` bestod.
+Avgrensa sikkerheitsreview av fixture-endringa fann ingen sårbarheiter.
+Ingen vedvarande deploy eller endring av nettlesartestdata er utført.
+Ny full CI må framleis stadfeste 455 eksisterande testar pluss regresjonen
+og coverage-gaten.
+
 ## PR-CI: utdaterte provider-forventningar og testbrukaroppretting — 2026-10-26
 
 CI på PR #1162 køyrde 455 testar og rapporterte 12 feil:

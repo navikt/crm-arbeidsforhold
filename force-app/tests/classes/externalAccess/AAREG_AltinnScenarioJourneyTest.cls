@@ -291,19 +291,45 @@ private with sharing class AAREG_AltinnScenarioJourneyTest {
         System.Assert.areEqual(0, [SELECT COUNT() FROM Agreement__Share WHERE UserOrGroupId = :user.Id]);
     }
 
+    /**
+     * Builds linked agreement fixtures independently of the test runner's product-field permissions.
+     *
+     * @since 2026-10-26
+     */
+    @IsTest
+    static void shouldPrepareAgreementWithoutRunnerFieldAccess() {
+        User minimumAccessUser = AAREG_AltinnTestDataFactory.createScenarioUser(false);
+        System.runAs(minimumAccessUser) {
+            System.Test.startTest();
+            insertAgreementForOrganization(organizationNumber);
+            System.Test.stopTest();
+        }
+        List<Agreement__c> agreements = [
+            SELECT Account__c, Application__r.Account__c, Account__r.INT_OrganizationNumber__c
+            FROM Agreement__c
+            WITH SYSTEM_MODE
+        ];
+        System.Assert.areEqual(1, agreements.size());
+        System.Assert.areEqual(agreements[0].Account__c, agreements[0].Application__r.Account__c);
+        System.Assert.areEqual(organizationNumber, agreements[0].Account__r.INT_OrganizationNumber__c);
+    }
+
+    /**
+     * Inserts only synthetic fixture records in system mode; runtime access checks remain in community runAs blocks.
+     */
     private static void insertAgreementForOrganization(String targetOrganizationNumber) {
         Account account = new Account(
             Name = 'Synthetic Altinn Agreement Account',
             INT_OrganizationNumber__c = targetOrganizationNumber,
             INT_OrganizationalStructure__c = 'ORGL'
         );
-        insert account;
+        insert as system account;
 
         Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
-        insert application;
+        insert as system application;
 
         Agreement__c agreement = AAREG_TestDataFactory.getAgreement(account.Id);
         agreement.Application__c = application.Id;
-        insert agreement;
+        insert as system agreement;
     }
 }
