@@ -16,16 +16,22 @@ on:
         - crm-uat
         - uat
         - dev
+permissions:
+  contents: read
 jobs:
   debug:
     name: Debug Information
     runs-on: ubuntu-latest
     steps:
       - name: Print input values
+        env:
+          TARGET_ORG: ${{ inputs.org }}
+          PACKAGE_ID: ${{ inputs.packageId }}
+          INITIATOR: ${{ github.actor }}
         run: |
-          echo "Org: ${{ inputs.org }}"
-          echo "Package ID: ${{ inputs.packageId }}"
-          echo "Initiator: ${{ github.actor }}"
+          echo "Org: $TARGET_ORG"
+          echo "Package ID: $PACKAGE_ID"
+          echo "Initiator: $INITIATOR"
 
   deploy-package:
     name: Deploy Package

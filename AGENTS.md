@@ -4,6 +4,8 @@
 
 This repository is a Salesforce DX project for Aa-registeret. It contains the `crm-arbeidsforhold` Unlocked Package and references several separately owned Unlocked Package dependencies.
 
+Team Arbeidsforhold owns this repository and product. The GitHub team `@navikt/crm-arbeidsforhold` represents repository contributors and reviewers; see `CODEOWNERS`. Team Platforce provides platform guidance and performs production verification and deletion.
+
 The main application source is under `force-app/`. The package directories listed in `sfdx-project.json` are dependencies or package-owned reference content. Read them for context, but do not modify them unless the user explicitly approves the change.
 
 Detailed Apex and LWC rules for the main package are in `force-app/main/default/AGENTS.md`.
@@ -40,10 +42,12 @@ When standards conflict, preserve deployed public contracts and record the devia
 
 ### Org safety
 
-- Use only the default `crm-arbeidsforhold` scratch org for authenticated Salesforce commands unless the user explicitly approves another org.
-- Never use SIT2, production, DevHub, or any other org merely because an authenticated alias is available. Authentication is not permission.
-- Ask the user first and explain the technical reason before using another org, deploying to any org, or running Apex tests against another org.
-- A deployment preview is read-only, but it still must target `crm-arbeidsforhold` unless the user explicitly approves a different target.
+- Before every agent command accessing a Salesforce org, ask the user to confirm the exact target and action, including the default `crm-arbeidsforhold` scratch org. This covers authentication, Dev Hub access, reads, Apex tests, deployment previews, retrievals, deployments, and scripts contacting an org.
+- Prefer the `crm-arbeidsforhold` scratch org. Explain the technical reason and obtain explicit approval before using any other non-production org, including SIT2 or a Dev Hub.
+- Authentication, default aliases, scripts, and previous approvals are not permission for another operation.
+- Agents must never access production, even on request or with approval. Do not authenticate, query, retrieve, test, deploy, or access a production-backed Dev Hub. Arrange human execution instead.
+- Human changes to production metadata require explicit Team Platforce approval. Team Platforce performs production verification and deletion; approval for human execution does not permit agent access.
+- For metadata deletion or renaming, require a runbook listing all affected API names, old and new names, approvals, scripts, rollback, and verification evidence. Verify deletion in SIT2 after explicit target/action approval; Team Platforce verifies production. Never report these steps complete without evidence.
 
 - Preserve Salesforce metadata XML and source format. Do not rename metadata only to make it look cleaner.
 - Apex must follow `force-app/main/default/AGENTS.md`: use `with sharing` by default, bulkify SOQL/DML, avoid hardcoded IDs and URLs, and use the established error-logging pattern.
@@ -76,8 +80,8 @@ Run the narrowest relevant check first:
 - `npm test -- --runInBand` for LWC Jest tests.
 - `npm run prettier:check` for formatting.
 - `npm run prettier:write` only when formatting changes are intended.
-- `sf project deploy preview --source-dir force-app` to inspect a metadata deployment without changing an org.
-- `sf project deploy start --source-dir force-app --target-org <alias> --test-level RunLocalTests` only when the user has named the target org and requested deployment.
+- `sf project deploy preview --source-dir force-app --target-org <approved-non-production-alias>` only after confirmation of the exact target and read-only preview action.
+- `sf project deploy start --source-dir force-app --target-org <approved-non-production-alias> --test-level RunLocalTests` only after confirmation of the exact non-production target and deployment action.
 - Use `bin/create-scratch-org.sh` for the documented scratch-org setup flow; inspect its options before running it.
 
 A change is not complete until the relevant local checks pass or any environmental limitation is reported clearly.
@@ -90,4 +94,4 @@ A change is not complete until the relevant local checks pass or any environment
 4. Validate with the narrowest executable check available.
 5. Summarize changed files, validation performed, and any checks that could not run.
 
-Ask for explicit confirmation before modifying read-only package directories, deploying to a shared or production org, creating/releasing a package version, or changing CI/CD and authentication configuration.
+Ask for explicit confirmation before modifying read-only package directories, every org-access command, creating/releasing a package version, or changing CI/CD and authentication configuration. Production access is prohibited for agents regardless of approval. Keep operations traceable through Issue/PR records and approved operational records; activity may be checked against audit logs.

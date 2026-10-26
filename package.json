@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "scripts": {
         "test": "npm run test:node && npm run test:unit --",
-        "test:node": "node --test bin/tests/create-scratch-org-launcher.test.js bin/tests/check-sfdx-versions.test.js bin/tests/package-dependencies.test.js scripts/tests/pre-commit.test.cjs scripts/tests/ci-changes.test.cjs scripts/tests/prettier-staged.test.cjs",
+        "test:node": "node --test bin/tests/create-scratch-org-launcher.test.js bin/tests/check-sfdx-versions.test.js bin/tests/package-dependencies.test.js scripts/tests/pre-commit.test.cjs scripts/tests/ci-changes.test.cjs scripts/tests/ci-workflows.test.cjs scripts/tests/prettier-staged.test.cjs",
         "test:scratch-org:powershell": "pwsh -NoLogo -NoProfile -File bin/tests/create-scratch-org.Tests.ps1 && pwsh -NoLogo -NoProfile -File bin/tests/post-package-coverage-check.Tests.ps1",
         "test:dependency-report": "jest --config bin/tests/package-dependency-report.jest.config.cjs --runInBand",
         "test:unit": "sfdx-lwc-jest",

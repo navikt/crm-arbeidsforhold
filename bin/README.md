@@ -1,5 +1,9 @@
 # Scratch-org and utility scripts
 
+**New to the project?** Start with [developer onboarding](../docs/kom-i-gang.md)
+for tools and separate Mac, Linux, Windows PowerShell and CMD instructions.
+This page is the detailed script guide.
+
 ## Generic Community Plus test user
 
 The `altinn-scenario-users` post-step now seeds or migrates one

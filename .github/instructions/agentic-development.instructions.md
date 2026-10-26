@@ -46,6 +46,20 @@ Etter endring:
 
 Org-oppretting, pakkeinstallasjon, deploy, pakkeoppretting, pakke-promotering og endring av CI/auth krev eksplisitt godkjenning frå brukaren. Agenten skal ikkje finne på org-alias, Salesforce-ID-ar, installasjonsnøklar eller avhengigheitsversjonar.
 
+Før kvar agentkommando som aksesserer eit org, skal brukaren stadfeste eksakt
+ikkje-produksjonsmål og handling på nytt, også for standard-scratch-orget,
+lesing, preview, testar, retrieval, innlogging og skript. Tidlegare godkjenning
+eller autentisering gir ikkje løyve til neste operasjon.
+Agentar skal aldri aksessere produksjon, heller ikkje ein produksjonstilknytt
+Dev Hub eller etter godkjenning. Avtal menneskeleg utføring i staden.
+Team Platforce må godkjenne menneskelege produksjonsmetadataendringar og utfører
+produksjonsverifikasjon og sletting.
+
+Team Arbeidsforhold eig repoet og produktet; `@navikt/crm-arbeidsforhold` er
+GitHub-teamet for bidragsytarar og review. Manuelle endringssteg krev runbook
+med ansvar, revisjon, godkjenning og evidens. Metadataopprydding skal verifiserast
+i SIT2 etter godkjenning. Følg dei fullstendige org-reglane i `AGENTS.md`.
+
 ## Nav AI-policy
 
 - Bruk berre GitHub Copilot Business gjennom Nav-organisasjonen til Nav-arbeid. Private Copilot-abonnement og frittståande AI-kodeverktøy er ikkje tillatne.

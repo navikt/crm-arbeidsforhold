@@ -7,12 +7,20 @@
 
 # Intro
 
+**Blocked:** the pinned shared implementation uses retired artifact v2 actions
+and writes a branch output to `GITHUB_OUTPUT` instead of `$GITHUB_OUTPUT`.
+The shared owner must repair it before use. Use the documented
+[local scratch-org setup](../../../bin/README.md) with explicit approval instead.
+The description below documents the legacy flow, not verified working behaviour.
+See the [workflow overview](../../../docs/operations/workflows.md) for shared ownership
+and approval limitations.
+
 This workflows does the following: 
 
 - Create a scratch org directly from Github
     - Installs dependant packages
     - Deploys metadata
-    - Assign Permission Sets defined in [ssdx-config.json](config/ssdx-config.json)
+    - Assign Permission Sets defined in [ssdx-config.json](../../../config/ssdx-config.json)
 - Pulls metadata from the scratch org every minute
     - Pushes the metadata to a branch chosen in the input parameter
     - Is active for 5.5 hours until the scratch org is deleted (the branch remains)
@@ -34,7 +42,7 @@ A branch with metadata that has been automatically pulled after changes in a scr
     - Creates a scratch org directly from the repo.
     - Installs all dependant packages.
     - Pushes all metadata.
-    - Assign permsets defined in [ssdx-config.json](config/ssdx-config.json).
+    - Assign permsets defined in [ssdx-config.json](../../../config/ssdx-config.json).
     - The scratch org login information is saved using [actions/upload-artifact](https://github.com/actions/upload-artifact), so that the scratch org is available in the next steps which needs to login, pull metadata and lastly, delete the scratch org.
 - Click Here to Login (`login`)
     - Prints an instant login URL to the scratch org (only works for 1 hour), but it also inlcudes a username and password.
