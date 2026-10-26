@@ -8,15 +8,20 @@ Dokumentasjonen er organisert etter dokumenttype og ansvar. Start i området som
 
 | Område               | Innhald                                                                                         | Inngang                                                                            |
 | -------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Kom i gang           | Første lokale oppsett, Mac/Linux/Windows, scratch-org og første PR                              | [Utviklerguide](kom-i-gang.md)                                                     |
 | Arkitektur           | Overordna arkitektur, lagdeling, repositorystruktur og tekniske designval                       | [Arkitektur og design](architecture/README.md)                                     |
+| Pakkeavhengigheiter  | Pakkene vi byggjer på, roller, versjonar og avhengigheitsdiagram                                | [Pakkeavhengigheiter](architecture/pakkeavhengigheiter.md)                         |
 | ADR                  | Architecture Decision Records med kontekst, vurderte alternativ og konsekvensar                 | [ADR-register](adr/README.md)                                                      |
 | Integrasjonar        | Adapterar, klientar, DTO-ar, mapping, auth, retry, logging og integrasjonsspesifikke kontraktar | [Integrasjonar](integrations/README.md)                                            |
 | Domene               | Domenemodell, forretningsomgrep og domenereglar                                                 | [Domenedokumentasjon](domain/README.md)                                            |
 | Brukarflater         | Dokumentasjon for Experience Cloud, interne flater og andre brukarflater                        | [Brukarflater](surfaces/README.md)                                                 |
 | Drift                | Tekniske sjekklister for metadataopprydding og kontrollert org-endring                          | [Salesforce metadataopprydding](operations/salesforce-metadata-cleanup-runbook.md) |
+| CI og leveranse      | Workflowar, triggarar, eksternt ansvar og kjende avgrensingar                                   | [Workflowoversikt](operations/workflows.md)                                        |
 | Kontekst             | Spegla Jira-/Confluence-kontekst og prosjektspesifikke arbeidsnotat                             | [P360-kontekst](context/p360/jira/README.md)                                       |
-| Utviklingsstandardar | Spegla oversikt over standardar og lenker til operativ fasit                                    | [Utviklingsstandardar](utviklingsstandarder.md)                                    |
+| Utviklingsstandardar | Repo-eigd oversikt over standardar, skills og lenker til operativ fasit                         | [Utviklingsstandardar](utviklingsstandarder.md)                                    |
 | Arbeidsflyt          | Integrasjonsflyt, user stories, dokumentasjonsansvar og oppdateringsreglar                      | [Arbeidsflyt og dokumentasjon](arbeidsflyt-og-dokumentasjon.md)                    |
+| Lokalt oppsett       | Scratch-org, avhengigheitskrav, preflight, autofiks, pool, coverage og plattformar              | [Skriptguide](../bin/README.md) og [kommandoreferanse](../bin/COMMANDS.md)         |
+| Utviklarverktøy      | Hooks, staged formatering, behovsstyrt CI og P360-røykprøver                                    | [Støtteskript](../scripts/README.md)                                               |
 
 ## P360
 
@@ -33,25 +38,42 @@ P360-dokumentasjonen ligg under [integrations/p360](integrations/p360/README.md)
 - [P360 SIF API-kontraktar](integrations/p360/sif-api-kontrakter.md)
 - [Lokal implementasjonsstatus mot Jira](context/p360/lokal-implementasjonsstatus.md)
 
+## Altinn-scenario for applikasjonstesting
+
+Planlagt konsumentstyrt teststøtte, ikkje testing av Altinn-integrasjonen:
+
+- [Design, miljøpolicy og cache-alternativ](integrations/altinn/README.md)
+- [Kritisk avklaringsrunde](integrations/altinn/grill.md)
+- [Gjennomføringsplan med krav og oppgåver](integrations/altinn/implementation-plan.md)
+- [Spec: provider-injeksjon i integrasjonspakka](../.github/specs/altinn-provider-injection.md)
+- [Spec: scenario i crm-arbeidsforhold](../.github/specs/altinn-consumer-scenarios.md)
+
+Admin-app og administrasjonsteneste er utsette. Cache-valet og ekstern
+pakkeleveranse er opne gater; dokumenta er ikkje implementasjonsevidens.
+
 ## Diagramregister
 
 Alle Mermaid-diagram er lagra som sjølvstendige `.mmd`-kjelder. Diagram som også er viste inne i eit Markdown-dokument, har i tillegg ei lokal kjeldelenkje ved diagrammet.
 
-| Diagram                                 | Kjelde                                                                                                            |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| AAREG e-postflyt                        | [AAREG_emailFlow.mmd](AAREG_emailFlow.mmd)                                                                        |
-| AAREG kodebaseflyt                      | [AAREG_codebaseFlowchart.mmd](AAREG_codebaseFlowchart.mmd)                                                        |
-| Application-datamodell                  | [AAREGerDiagramApplication.mmd](AAREGerDiagramApplication.mmd)                                                    |
-| Ny Application-datamodell               | [AAREGerDiagramApplicationNew.mmd](AAREGerDiagramApplicationNew.mmd)                                              |
-| P360 component architecture             | [p360-component-diagram.mmd](architecture/p360-component-diagram.mmd)                                             |
-| P360 implementation class diagram       | [p360-class-diagram.mmd](architecture/p360-class-diagram.mmd)                                                     |
-| P360 archive contract-boundary sequence | [p360-archive-sequence.mmd](architecture/p360-archive-sequence.mmd)                                               |
-| P360 data model relationships           | [p360-data-model-relationships.mmd](architecture/p360-data-model-relationships.mmd)                               |
-| P360 noverande arkitektur               | [p360-current-architecture.mmd](integrations/p360/diagrams/p360-current-architecture.mmd)                         |
-| P360 frigivingssekvens                  | [p360-decision-release-sequence.mmd](integrations/p360/diagrams/p360-decision-release-sequence.mmd)               |
-| P360 idempotent jobboppretting          | [p360-idempotent-job-creation-sequence.mmd](integrations/p360/diagrams/p360-idempotent-job-creation-sequence.mmd) |
-| P360 jobbstatus                         | [p360-archive-job-state.mmd](integrations/p360/diagrams/p360-archive-job-state.mmd)                               |
-| P360 Jira-avhengigheiter                | [p360-jira-dependencies.mmd](context/p360/diagrams/p360-jira-dependencies.mmd)                                    |
+| Diagram                                         | Kjelde                                                                                                            |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| AAREG e-postflyt                                | [AAREG_emailFlow.mmd](AAREG_emailFlow.mmd)                                                                        |
+| AAREG kodebaseflyt                              | [AAREG_codebaseFlowchart.mmd](AAREG_codebaseFlowchart.mmd)                                                        |
+| Alle direkte pakkeavhengigheiter                | [Pakkeoversikt](architecture/pakkeoversikt.mmd)                                                                   |
+| Sentrale samband og minimumskrav mellom pakkane | [Avhengigheitskjerne](architecture/pakkeavhengigheiter-kjerne.mmd)                                                |
+| Versjonskontroll og godkjend autofiks           | [Preflight-flyt](architecture/pakkeversjon-preflight.mmd)                                                         |
+| Application-datamodell                          | [AAREGerDiagramApplication.mmd](AAREGerDiagramApplication.mmd)                                                    |
+| Ny Application-datamodell                       | [AAREGerDiagramApplicationNew.mmd](AAREGerDiagramApplicationNew.mmd)                                              |
+| P360 component architecture                     | [p360-component-diagram.mmd](architecture/p360-component-diagram.mmd)                                             |
+| P360 implementation class diagram               | [p360-class-diagram.mmd](architecture/p360-class-diagram.mmd)                                                     |
+| P360 archive contract-boundary sequence         | [p360-archive-sequence.mmd](architecture/p360-archive-sequence.mmd)                                               |
+| P360 data model relationships                   | [p360-data-model-relationships.mmd](architecture/p360-data-model-relationships.mmd)                               |
+| P360 noverande arkitektur                       | [p360-current-architecture.mmd](integrations/p360/diagrams/p360-current-architecture.mmd)                         |
+| P360 frigivingssekvens                          | [p360-decision-release-sequence.mmd](integrations/p360/diagrams/p360-decision-release-sequence.mmd)               |
+| P360 idempotent jobboppretting                  | [p360-idempotent-job-creation-sequence.mmd](integrations/p360/diagrams/p360-idempotent-job-creation-sequence.mmd) |
+| P360 jobbstatus                                 | [p360-archive-job-state.mmd](integrations/p360/diagrams/p360-archive-job-state.mmd)                               |
+| P360 Jira-avhengigheiter                        | [p360-jira-dependencies.mmd](context/p360/diagrams/p360-jira-dependencies.mmd)                                    |
+| Altinn konsumentstyrte scenario                 | [consumer-scenarios.mmd](integrations/altinn/diagrams/consumer-scenarios.mmd)                                     |
 
 ## Kjeldehierarki
 

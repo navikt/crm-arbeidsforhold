@@ -1,99 +1,135 @@
 # crm-arbeidsforhold
 
-Denne pakken inneholder Salesforce metadata som støtter arbeidet NAV gjør rundt Aa-registeret. Løsningen omfatter blant annet Experience Cloud, dialog, support, saksbehandling, søknader og avtaler.
+Salesforce-løsningen for søknader, avtaler og tilgang til Aa-registerets arbeidsforholdsdata.
 
-## Avhengigheter
+Løsningen bruker Apex, Lightning Web Components og Experience Cloud for eksterne
+virksomheter og interne saksbehandlere. Den leveres som en Salesforce Unlocked Package.
 
-Pakken har flere avhengigheter. Se [sfdx-project.json](https://github.com/navikt/crm-arbeidsforhold/blob/main/sfdx-project.json) for oversikten over pakker og versjoner.
+## Kom i gang
 
-## Komme i gang
+**Ny i prosjektet?** Følg [utviklerguiden](docs/kom-i-gang.md) fra installasjon av
+verktøy til første endring. Den har separate valg for **Mac, Linux og Windows**.
 
-Installer følgende verktøy:
+Har du Git, Node.js og npm på plass, kan du starte lokalt:
 
-- [Salesforce CLI (`sf`)](https://developer.salesforce.com/tools/sfdxcli)
-- [Salesforce Extension Pack](https://marketplace.visualstudio.com/items?itemName=salesforce.salesforcedx-vscode)
-- [Visual Studio Code](https://code.visualstudio.com)
-- [Eclipse Temurin JDK 11](https://adoptium.net/temurin/releases/), som er repoets dokumenterte Java-anbefaling for Salesforce-utvikling
+```text
+git clone https://github.com/navikt/crm-arbeidsforhold.git
+cd crm-arbeidsforhold
+npm ci
+npm run test:node
+```
 
-Klon repoet og kjør kommandoene fra prosjektroten.
+Bruk Node.js 22 LTS, minst **22.22.1**, for prosjektets npm-avhengigheter.
+`npm ci` installerer utviklerverktøy og pre-commit-hooken, ikke Salesforce-pakker
+eller et utviklingsorg. Kommandoene over krever ikke Salesforce-tilgang.
 
-## Scratch org
+## Utviklingsstandarder
 
-Scratch-org-flyten og avhengighetsinstallasjon er dokumentert i [bin/README.md](bin/README.md). Der finner du blant annet:
+Les **[Utviklingsstandarder](docs/utviklingsstandarder.md)** før du begynner å
+endre løsningen. Dokumentet samler gjeldende Nav-/Platforce-føringer, kode- og
+testprinsipper, teamansvar og krav til dokumentasjon, runbooks og org-sikkerhet.
+Det lenker videre til detaljreglene for Apex, LWC og metadata.
 
-- opprettelse med `bin/create-scratch-org.sh`
-- Windows-flyt med `bin/create-scratch-org.bat` (PowerShell engine, no `sf-project` dependency)
-- henting fra scratch-org-pool
-- pakkeoppløsning og nødvendige Dev Hub-forutsetninger
+## Scratch-org
 
-En typisk CLI-flyt starter med at du logger inn mot en Dev Hub med `sf org login web`, og deretter bruker den dokumenterte scratch-org-flyten. Installasjonsnøkler skal aldri legges i README, kildekode eller shell-historikk.
+Bruk `npm run scratch-org` fra prosjektroten for å hente eller opprette et
+scratch-org, installere pakkeavhengigheter og kjøre konfigurerte post-steg.
+Du trenger Salesforce CLI, godkjent Dev Hub-tilgang og sikker tilgang til
+installasjonsnøkkelen. Mac/Linux krever Bash og `jq`; Windows krever PowerShell 7 LTS.
+Repoet har pool aktivert, som også krever `sfp`.
 
-På Windows er `bin/create-scratch-org.bat` den anbefalte CMD-inngangen.
+**Start med hjelp.** Avhengighetskontroll og dry-run kan kontakte Salesforce.
+Fullt oppsett kan erstatte eksisterende scratch-org og endre metadata, data og
+tilgang. Avklar mål og få godkjenning før disse operasjonene.
+
+| Plattform / terminal   | Hjelp (offline)                  | Avhengighetskontroll (etter godkjenning)      |
+| ---------------------- | -------------------------------- | --------------------------------------------- |
+| Mac (macOS) – Bash     | `npm run scratch-org -- --help`  | `npm run scratch-org -- --check-dependencies` |
+| Linux – Bash           | `npm run scratch-org -- --help`  | `npm run scratch-org -- --check-dependencies` |
+| Windows – PowerShell 7 | `npm run scratch-org '--' -Help` | `npm run scratch-org '--' -CheckDependencies` |
+| Windows – CMD          | `npm run scratch-org -- -Help`   | `npm run scratch-org -- -CheckDependencies`   |
+
+Etter godkjenning starter **`npm run scratch-org`** fullt oppsett på alle tre
+operativsystemene. npm velger Bash på Mac/Linux og PowerShell på Windows;
+flaggene følger derfor plattformen.
+
+Se **[scratch-org-guiden](bin/README.md)** for første oppsett, konfigurasjon,
+pool, nøkler og feilsøking. Alle flagg og flere eksempler finnes i
+[kommandoreferansen](bin/COMMANDS.md).
+
+## Finn frem
+
+| Jeg vil …                                                     | Start her                                                                                                                 |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Sette opp PC/Mac og gjøre min første endring                  | [Kom i gang](docs/kom-i-gang.md)                                                                                          |
+| Forstå løsningen og hvor koden ligger                         | [Arkitekturoversikt](docs/architecture/hele-loysinga.md) og [repositorystruktur](docs/architecture/repositorystruktur.md) |
+| Sette opp scratch-org eller oppdatere pakker                  | [Skriptguide](bin/README.md), [kommandoer](bin/COMMANDS.md) og [plattformstøtte](bin/COMPATIBILITY.md)                    |
+| Følge utviklings- og teststandardene                          | [Utviklingsstandarder](docs/utviklingsstandarder.md)                                                                      |
+| Forstå PR-sjekker, pakkeoppretting og deploy                  | [Workflowoversikt og kjente begrensninger](docs/operations/workflows.md)                                                  |
+| Finne dokumentasjon om P360, Altinn eller andre integrasjoner | [Integrasjoner](docs/integrations/README.md)                                                                              |
+| Finne domene, brukerflater og tekniske beslutninger           | [Dokumentasjonskart](docs/README.md) og [ADR-er](docs/adr/README.md)                                                      |
 
 ## Lokal validering
 
-```bash
-npm install
-npm test
-npm run prettier:check
-```
+Kjør fra prosjektroten etter `npm ci`. Velg den minste kontrollen som dekker endringen:
 
-`npm test` kjører LWC Jest-testene. Apex-kompilering og Apex-tester er org-avhengige og må kjøres mot en autentisert Salesforce-org.
+| Kommando                              | Hva den kontrollerer                                                                     |
+| ------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `npm run test:node`                   | Lokale utviklerverktøy, hooks, endringsfilter og workflowkontrakter                      |
+| `npm run test:unit -- -- --runInBand` | LWC Jest-tester                                                                          |
+| `npm test -- -- --runInBand`          | Node-testene, deretter LWC Jest-testene                                                  |
+| `npm run test:dependency-report`      | Egne Jest/jsdom-tester for den interaktive avhengighetsrapporten; ikke del av `npm test` |
+| `npm run prettier:check`              | Formatering av filer som dekkes av prosjektets Prettier-oppsett                          |
 
-## Salesforce Project CLI
+Dette er lokale kontroller. Apex-kompilering, Apex-tester og metadata mot
+org-tilstand krever Salesforce-tilgang. Se [plattformspesifikke tester og feilsøking](docs/kom-i-gang.md#5-hvis-noe-stopper).
 
-CLI-en er ein sjølvstendig lokal pakke i [tools/salesforce-project-cli](tools/salesforce-project-cli). Root-prosjektet har ingen npm-script eller dependency som startar verktøyet automatisk.
+### Behovsstyrte PR-sjekkar
 
-Installer verktøyet frå tool-mappa. Denne eine kommandoen installerer avhengigheiter, byggjer CLI-en, opprettar prosjektkonfigurasjonen og lenkjer `sf-project` lokalt:
+PR-sjekkene velger Salesforce-/LWC-validering ut fra endringene. Rene
+dokumentasjons- og verktøyendringer trenger normalt ikke org-validering.
+Se [reglene for endringsfilteret](scripts/README.md#behovsstyrte-ci-sjekkar).
 
-```bash
-cd tools/salesforce-project-cli
-npm run setup
-```
+### Workflowar og merge til main
 
-Setup opprettar eller gjennomgår `sf-project.config.json` ved sida av `sfdx-project.json`. Kvar innstilling viser eksisterande verdi og defaultverdi. Trykk Enter for å bevare eksisterande verdi; dersom innstillinga manglar, brukar Enter defaultverdien.
+Relevante push til `main` starter pakkeoppretting **og installasjonsvalidering i SIT**.
+Direkte kildedeploy til dev er bare manuell, fra `main`.
+Den delte scratch-org-helperen er blokkert av kjente feil; bruk den dokumenterte
+lokale flyten etter godkjenning. Se [hele workflowoversikten](docs/operations/workflows.md)
+for triggere, ansvar og manglende godkjenningsvern.
 
-Gå så tilbake til repo-rota:
+## Kode, avhengigheter og bidrag
 
-```bash
-cd ../..
-```
+- Produktkoden ligger i [force-app/](force-app/). Apex-tester og testverktøy ligger
+  i [force-app/tests/classes/](force-app/tests/classes/).
+- [sfdx-project.json](sfdx-project.json) beskriver pakker og versjoner.
+  Pakkeeide referansemapper er ikke vanlige produktmapper.
+- Lag en egen branch, gjør en avgrenset endring og oppgi kontroller og resultater
+  i PR-en. Se [arbeidsflyten](docs/arbeidsflyt-og-dokumentasjon.md).
+- Pre-commit beskytter pakkeeide mapper og formaterer staged filer.
+  Se [hook-guiden](scripts/README.md#pre-commit-og-formatering).
+- [AGENTS.md](AGENTS.md) og [CONTEXT.md](CONTEXT.md) beskriver repoets grenser
+  og kontekst for agentassistert arbeid.
 
-Køyr deretter kommandoane frå repo-rota:
+Org-oppretting, pakkeinstallasjon og deploy krever eksplisitt godkjenning.
+Autentisering eller et eksisterende alias er ikke i seg selv en tillatelse.
+Agentassistert org-tilgang krever ny bekreftelse av mål og handling før hver
+kommando. Agenter skal aldri aksessere produksjon, heller ikke via Dev Hub.
+Se [miljøreglene](docs/utviklingsstandarder.md#org--og-miljøsikkerhet).
+Testtilgang, innloggingsdetaljer, nøkler og personopplysninger hører ikke hjemme i repoet.
 
-```bash
-sf-project doctor
-sf-project org list
-sf-project packages plan
-sf-project web start
-```
+Den valgfrie [Salesforce Project CLI-en](tools/salesforce-project-cli/README.md)
+har egen installasjon og webflate. Den kreves ikke for vanlig utvikling eller scratch-org-skriptene.
 
-Utan global lenking kan du køyre CLI-en direkte frå tool-mappa:
+## Eierskap og ansvar
 
-```bash
-cd tools/salesforce-project-cli
-npx sf-project doctor --project-dir ../..
-```
+| Ansvar                                                                        | Team                                                                                        | Lenker                                                                                               |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Produkt og repository                                                         | [Team Arbeidsforhold](https://teamkatalog.nav.no/team/29d44f3f-ff09-477c-b26a-83cd0aa66116) | [NAIS Console](https://console.nav.cloud.nais.io/team/crm-arbeidsforhold)                            |
+| Tilgang, bidrag og kodegjennomgang                                            | `@navikt/crm-arbeidsforhold`                                                                | [CODEOWNERS](CODEOWNERS) · [NAIS Console](https://console.nav.cloud.nais.io/team/crm-arbeidsforhold) |
+| Plattformføringer og godkjenning av menneskelige produksjonsmetadataendringer | [Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f)      | [NAIS Console](https://console.nav.cloud.nais.io/team/platforce)                                     |
+| Verifikasjon og sletting i produksjon                                         | [Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f)      | [NAIS Console](https://console.nav.cloud.nais.io/team/platforce)                                     |
 
-Konfigurasjonen inneheld ikkje installasjonsnøklar. Nøkkelen må ligge i miljøvariabelen som står i `packageInstallKeyEnvironmentVariable`. På macOS kan ein lagre ein nøkkel i Keychain og berre eksportere han for éi køyring:
+Se [utviklingsstandardene](docs/utviklingsstandarder.md#eierskap-og-ansvar) for detaljer om ansvarsdelingen.
 
-```bash
-security add-generic-password -a "$USER" -s PACKAGE_INSTALL_KEY -w
-PACKAGE_INSTALL_KEY="$(security find-generic-password -a "$USER" -s PACKAGE_INSTALL_KEY -w)" sf-project packages install --target-org my-org
-```
-
-Nøklar, tokens og credentials skal ikkje skrivast til `sf-project.config.json`, shell-script eller README.
-
-## Dokumentasjon og agentregler
-
-- [AGENTS.md](AGENTS.md) — repositoryregler og kildegrenser
-- [CONTEXT.md](CONTEXT.md) — domeneord, arkitekturgrenser og verifikasjonsvokabular
-- [.github/copilot-instructions.md](.github/copilot-instructions.md) — Copilot-arbeidsflyt og sikkerhetsregler
-- [docs/adr/](docs/adr/) — Architecture Decision Records
-- [docs/architecture/](docs/architecture/) — tverrgående arkitektur og kildeoppdeling
-- [docs/domain/](docs/domain/) — domenedokumentasjon
-- [docs/surfaces/](docs/surfaces/) — brukerflate-dokumentasjon
-- [docs/integrations/](docs/integrations/) — integrasjonsspesifikk teknisk dokumentasjon
-- [docs/utviklingsstandarder.md](docs/utviklingsstandarder.md) — speilet oversikt over utviklingsstandarder
-
-Testtilgang, testbrukere, tokens, credentials og miljøspesifikke URL-er skal håndteres i godkjent, ikke-offentlig dokumentasjon.
+Lisens: [MIT](LICENSE).

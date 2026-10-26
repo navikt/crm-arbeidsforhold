@@ -1,9 +1,19 @@
 ---
 slug: cross-platform-scratch-org-scripts
-status: in-progress
+status: implemented-local-validation
 ---
 
 # Cross-platform standalone scratch-org setup scripts
+
+## Reading this historical baseline
+
+The problem statement and desired outcome below record the original migration,
+not today's runtime or file inventory. Later approved work requires PowerShell 7
+only and adds a shared Node dependency preflight. `newScratchOrg.bat` is not
+present in the current checkout. Use the maintained
+[command reference](../../bin/COMMANDS.md) and
+[compatibility/evidence matrices](../../bin/COMPATIBILITY.md) for actual entry
+points, Node requirements, known parity differences and verification limits.
 
 ## Problem
 
@@ -41,4 +51,12 @@ Age alone is not sufficient evidence for deletion. Keep scripts with documented 
 
 ## Current implementation status
 
-The Windows PowerShell script, CMD launcher, compatibility launcher, offline Windows test harness, and updated documentation are present. The four unreferenced legacy helpers named by REQ-305 were removed after code-reference searches. Bash syntax and offline regression tests pass (281 assertions); Markdown formatting passes. This macOS host has no PowerShell runtime, so the PowerShell parser and test harness still require execution on a Windows machine before the work is considered fully verified. No successful Salesforce mutation was run.
+The Windows PowerShell engine, CMD/npm launchers and portable offline harness
+are implemented. The legacy compatibility launcher is no longer present.
+PowerShell 7 tests now run locally on macOS, and this repository has a green
+Windows offline run at SHA `1979ef2c15529652cdd26cdff8ccd80f8155935b`
+([run 40043090089](https://github.com/navikt/crm-arbeidsforhold/actions/runs/40043090089)).
+That run predates later local reporting changes. Exact evidence and remaining
+gaps are tracked in [the matrices](../../bin/COMPATIBILITY.md), not by the old
+assertion count in this baseline. No live Salesforce installation or deployment
+is certified by offline tests.

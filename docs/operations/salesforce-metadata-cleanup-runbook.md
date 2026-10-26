@@ -4,6 +4,13 @@ Status: vedteken teknisk sjekkliste for denne oppryddinga. Org-gjennomforing er 
 
 Operativ godkjenning, eigar og endringsvindu skal registrerast i Confluence og GitHub Issue/PR for kvar org. Dette dokumentet skal ikkje innehalde org-ID-ar, credentials, secrets eller persondata.
 
+[Team Arbeidsforhold](https://teamkatalog.nav.no/team/29d44f3f-ff09-477c-b26a-83cd0aa66116) eig produktet og repoet; `@navikt/crm-arbeidsforhold` er
+GitHub-teamet for bidragsytarar og review. Sletting skal verifiserast i SIT2.
+[Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f) skal godkjenne menneskelege produksjonsmetadataendringar og
+utføre produksjonsverifikasjon og sletting. Agentar skal aldri aksessere
+produksjon, heller ikkje etter godkjenning. Før kvar agentkommando mot eit
+ikkje-produksjonsorg krevst ny stadfesting av eksakt mål og handling.
+
 ## Formal
 
 Denne runbooken skal brukast nar metadata er fjerna frå repoet, men framleis kan liggje i ein eller fleire Salesforce-orgar. Ei vanleg source deploy slettar ikkje automatisk metadata som ikkje lenger finst i source tree. Sletting i org krev ein eksplisitt destructive deployment og kontrollert verifikasjon.
@@ -24,7 +31,7 @@ Den bevarte testen er `AAREG_checkObjectTypeNamecheTest.cls`. Produksjonsklassen
     - metadata som skal slettast;
     - grunn og avhengigheitskontroll;
     - godkjenningar, endringsvindu og rollback-eigar.
-2. Få eksplisitt godkjenning for kvar org. Produksjon krev separat godkjenning frå deployment-/driftseigar.
+2. Få eksplisitt godkjenning for kvar org og handling. Produksjon krev separat godkjenning frå [Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f) og menneskeleg utføring; agentar har ikkje tilgang.
 3. Verifiser at `AAREG_CheckObjectTypeNamingTest` ikkje er referert frå Flow, Apex, permission sets, package manifest eller CI-konfigurasjon.
 4. Verifiser at produksjonsklassen `AAREG_checkObjectTypeNameche` framleis er referert der han skal vere, mellom anna frå:
     - `AAREG_getObjectTypeName.flow-meta.xml`;
@@ -32,6 +39,11 @@ Den bevarte testen er `AAREG_checkObjectTypeNamecheTest.cls`. Produksjonsklassen
     - `AAREG_CommunityPermission.permissionset-meta.xml`.
 5. Hent metadata frå målorgen eller bruk Salesforce Setup/Metadata API til å kontrollere at `AAREG_CheckObjectTypeNamingTest` faktisk finst der. Ikkje anta at repo-statusen er lik org-statusen.
 6. Ta vare på deploy-resultat og relevant metadata-/dependency-inventar i Issue/PR. Ikkje lagre credentials eller persondata.
+7. List alle relevante metadata-API-namn, inkludert gammalt og nytt namn ved
+   omdøyping. Avklar avhengigheiter, stoppkriterium og rollback.
+8. Skript som [Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f) skal køyre, skal vere sjekka inn, gjennomgått,
+   testa, verifiserte og godkjende før køyring. Registrer revisjon,
+   føresetnader, ansvarleg utførar, godkjenning og forventa resultat.
 
 ## Destructive deployment
 
@@ -60,7 +72,10 @@ sf project deploy start \
   --dry-run
 ```
 
-Etter godkjend preview kan same pakke deployast til sandbox med `--target-org <approved-sandbox-alias>`. Produksjon krev ny eksplisitt godkjenning og eksplisitt produksjonsalias; ikkje gjenbruk sandbox-kommandoen utan ny kontroll.
+Etter separat godkjenning av deploy kan same pakke deployast til godkjend sandbox
+med eksplisitt mål. Verifiser slettinga i SIT2 og registrer evidens.
+Produksjon krev separat godkjenning og utføring frå [Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f); agenten skal
+ikkje køyre produksjonskommandoar. Ikkje gjenbruk sandbox-kommandoen mot produksjon.
 
 ## Verifikasjon etter deploy
 
@@ -69,8 +84,11 @@ Etter godkjend preview kan same pakke deployast til sandbox med `--target-org <a
 3. Kontroller at `AAREG_checkObjectTypeNameche` framleis finst og er aktiv.
 4. Kontroller at Flow `AAREG_getObjectTypeName` framleis kan referere til invocable actionen.
 5. Kontroller at begge relevante permission sets framleis kan referere til produksjonsklassen.
-6. Køyr den bevarte Apex-testen `AAREG_checkObjectTypeNamecheTest` i ein godkjend ikkje-produksjonsorg. For produksjon skal verifikasjonen følgje teamet si godkjende release- og smoke-testprosess.
+6. Køyr den bevarte Apex-testen `AAREG_checkObjectTypeNamecheTest` i ein godkjend ikkje-produksjonsorg. [Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f) utfører produksjonsverifikasjon etter godkjend release- og smoke-testprosess.
 7. Dokumenter resultatet separat for kvar org: målorg, tidspunkt, deploy-ID, status, testar og eventuelle avvik.
+8. Registrer eksplisitt verifikasjon av sletting i SIT2 og referanse til Team
+   Platforce si godkjenning og evidens for produksjonsverifikasjon og sletting.
+   Ikkje marker stega fullførte utan dokumenterte resultat.
 
 ## Feil og rollback
 

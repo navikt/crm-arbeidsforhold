@@ -1,7 +1,8 @@
 ---
-description: Review a Salesforce change against Nav, Platforce, Salesforce Well-Architected, and the originating specification.
+name: review-salesforce-change
+description: "Review a Salesforce change against Nav, Platforce, Salesforce Well-Architected, and the originating specification."
+disable-model-invocation: true
 ---
-
 Use `.github/skills/code-review-two-axis/SKILL.md`, `AGENTS.md`, `CONTEXT.md`, and the applicable files in `.github/instructions/`.
 
 Before reviewing:
