@@ -29,7 +29,7 @@
             }
         ]
     },
-    "postSteps": ["deploy", "permsets", "data", "community"],
+    "postSteps": ["deploy", "permsets", "data", "community", "altinn-scenario-users"],
     "pool": {
         "use": true,
         "tag": "dev",

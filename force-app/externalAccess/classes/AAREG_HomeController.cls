@@ -70,26 +70,57 @@ public without sharing class AAREG_HomeController {
 
     /**
      * Retrieves the Altinn organizations and roles for the given community user.
-     * Result is cacheable (`cacheable=true`); the calling LWC must invoke `refreshApex()`
-     * to force a refresh after the underlying data changes.
+     * Result is cacheable (`cacheable=true`) for initial wire loading.
+     * The home page uses refreshOrganizationsWithRoles for explicit, uncached refreshes.
      *
      * @param userId Id of the community User record.
      * @return The Altinn organizations and roles response for the user's linked person.
+     * @throws AuraHandledException If the requested user is not the signed-in user.
      */
     @AuraEnabled(cacheable=true)
     public static AltinnCalloutService.AltinnOrganizationsResponse getOrganizationsWithRoles(String userId) {
+        if (String.isBlank(userId) || userId != UserInfo.getUserId()) {
+            throw new AuraHandledException('Invalid user for organization lookup.');
+        }
         User currentUser = [
             SELECT Id, LastUsedOrganization__c, Contact.Account.INT_PersonIdent__c
             FROM User
             WHERE Id = :userId
         ];
-        AltinnCalloutService altinn = new AltinnCalloutService();
+        AltinnCalloutService altinn = AAREG_AltinnServiceFactory.createService(
+            currentUser.Id,
+            currentUser.Contact.Account.INT_PersonIdent__c
+        );
         AltinnCalloutService.AltinnOrganizationsResponse response = altinn.getOrganizations(
             currentUser.Contact.Account.INT_PersonIdent__c
         );
 
-        System.debug('getOrganizationsWithRoles - Response from Altinn: ' + JSON.serializePretty(response));
         return response;
+    }
+
+    /**
+     * Retrieves fresh organizations for the signed-in user without using the client wire cache.
+     * Uses the same scenario policy and privileged identity lookup as the initial cached read.
+     * Performs no application or agreement writes; the selected-organization access check remains separate.
+     *
+     * @param userId Id of the signed-in community User record.
+     * @return The current Altinn organizations response, including explicit response-level failures.
+     * @throws AuraHandledException If another user is requested or the organization lookup throws.
+     * @since 2026-10-25
+     */
+    @AuraEnabled
+    public static AltinnCalloutService.AltinnOrganizationsResponse refreshOrganizationsWithRoles(Id userId) {
+        if (userId == null || userId != UserInfo.getUserId()) {
+            throw new AuraHandledException('Invalid user for organization refresh.');
+        }
+        try {
+            return getOrganizationsWithRoles(userId);
+        } catch (Exception error) {
+            LoggerUtility logger = new LoggerUtility();
+            logger.error('Altinn organization refresh failed.', null);
+            logger.publish();
+            throw new AuraHandledException('Henting av organisasjoner feilet. Vennligst prøv igjen.');
+        }
     }
 
     /**
@@ -135,7 +166,7 @@ public without sharing class AAREG_HomeController {
      * @param userId Id of the community User record.
      * @param orgNumber The organization number to check access for.
      * @return An AccessResponse describing the access and application-access outcome.
-     * @throws AuraHandledException If userId or orgNumber is blank.
+     * @throws AuraHandledException If userId or orgNumber is blank or Altinn reports a technical rights lookup error.
      * @since May 2025
      */
     @AuraEnabled
@@ -152,6 +183,7 @@ public without sharing class AAREG_HomeController {
             orgNumber,
             'nav_arbeidsforhold_aa-registeret-sok-tilgang'
         );
+        requireSuccessfulRightsLookup(rightsResp);
 
         if (rightsResp?.rights != null) {
             for (AltinnCalloutService.Right right : rightsResp.rights) {
@@ -169,6 +201,7 @@ public without sharing class AAREG_HomeController {
                 orgNumber,
                 'nav_arbeidsforhold_aa-registeret-brukerstotte'
             );
+            requireSuccessfulRightsLookup(rightsResp);
 
             if (rightsResp?.rights != null) {
                 for (AltinnCalloutService.Right right : rightsResp.rights) {
@@ -190,6 +223,19 @@ public without sharing class AAREG_HomeController {
         return new AccessResponse(hasAccess, hasApplicationAccess);
     }
 
+    private static void requireSuccessfulRightsLookup(AltinnCalloutService.AltinnRightsResponse response) {
+        if (
+            response?.success == false &&
+            !String.isBlank(response.errorMessage) &&
+            (response.rights == null || response.rights.isEmpty())
+        ) {
+            LoggerUtility logger = new LoggerUtility();
+            logger.error('Altinn rights lookup returned a technical error without a rights decision.', null);
+            logger.publish();
+            throw new AuraHandledException('Henting av brukerrettigheter fra Altinn feilet. Vennligst prøv igjen.');
+        }
+    }
+
     /**
      * Shares active agreements for the user's last-used organization with the user,
      * then shares the related contacts on those agreements. Sharing failures are
@@ -202,9 +248,6 @@ public without sharing class AAREG_HomeController {
     @AuraEnabled
     public static void shareAgreementsWithUser(String userId) {
         String lastUsedOrganization = getLastUsersLastUsedOrganization(userId);
-        if (Test.isRunningTest()) {
-            lastUsedOrganization = DEFAULT_ORGANIZATION_NUMBER;
-        }
         List<Agreement__c> agreements = [
             SELECT Id, OwnerId
             FROM Agreement__c

@@ -518,6 +518,24 @@ test_default_post_steps_match_sf_project() {
     assert_not_contains "community publish"
 }
 
+test_configured_altinn_scenario_seed_runs_after_community() {
+    local before_community before_apex
+    new_project altinn-scenario-seed
+    write_config '{"defaultOrgAlias":"cfg-org","communityName":"Aa-registret","postSteps":["community","altinn-scenario-users"]}'
+    script --post-steps-only --dry-run
+    assert_exit 0
+    assert_contains "sf community publish --target-org cfg-org --name Aa-registret"
+    assert_contains "sf apex run --target-org cfg-org --file bin/seed-altinn-scenario-users.apex"
+    before_community="${OUTPUT%%community publish*}"
+    before_apex="${OUTPUT%%apex run*}"
+    if [[ "$before_community" != "$OUTPUT" && "$before_apex" != "$OUTPUT" ]] &&
+        (( ${#before_community} < ${#before_apex} )); then
+        pass
+    else
+        fail "Altinn community users must be seeded after the community is published"
+    fi
+}
+
 test_empty_post_steps_array_means_none() {
     new_project empty-post-steps
     write_config '{"defaultOrgAlias":"cfg-org","postSteps":[]}'
@@ -1137,6 +1155,37 @@ test_custom_post_step_without_arguments() {
     assert_exit 0
 }
 
+test_altinn_scenario_seed_step_runs_after_community() {
+    local before_community before_owner before_accounts before_users before_settings
+    new_project altinn-scenario-seed
+    write_config '{"defaultOrgAlias":"cfg-org","communityName":"Aa-registret","postSteps":["community","altinn-scenario-users"]}'
+    script --post-steps-only --dry-run
+    assert_exit 0
+    assert_contains "sf community publish --target-org cfg-org --name Aa-registret"
+    assert_contains "sf apex run --target-org cfg-org --file bin/seed-altinn-scenario-owner.apex"
+    assert_contains "sf apex run --target-org cfg-org --file bin/seed-altinn-scenario-accounts.apex"
+    assert_contains "sf apex run --target-org cfg-org --file bin/seed-altinn-scenario-users.apex"
+    assert_contains "sf apex run --target-org cfg-org --file bin/seed-altinn-scenario-settings.apex"
+    before_community="${OUTPUT%%community publish*}"
+    before_owner="${OUTPUT%%seed-altinn-scenario-owner.apex*}"
+    before_accounts="${OUTPUT%%seed-altinn-scenario-accounts.apex*}"
+    before_users="${OUTPUT%%seed-altinn-scenario-users.apex*}"
+    before_settings="${OUTPUT%%seed-altinn-scenario-settings.apex*}"
+    if [[ "$before_community" != "$OUTPUT" &&
+        "$before_owner" != "$OUTPUT" &&
+        "$before_accounts" != "$OUTPUT" &&
+        "$before_users" != "$OUTPUT" &&
+        "$before_settings" != "$OUTPUT" ]] &&
+        (( ${#before_community} < ${#before_owner} &&
+            ${#before_owner} < ${#before_accounts} &&
+            ${#before_accounts} < ${#before_users} &&
+            ${#before_users} < ${#before_settings} )); then
+        pass
+    else
+        fail "Altinn community users must be seeded after the community is published"
+    fi
+}
+
 test_spaces_and_non_ascii_are_preserved_in_paths_and_arguments() {
     new_project 'project ø with spaces'
     mkdir -p "$PROJECT/config ø" "$PROJECT/data ø" "$PROJECT/bin ø"
@@ -1160,7 +1209,7 @@ EOF_CAPTURE
 
 test_builtin_post_step_failures_propagate() {
     local step command
-    for step in deploy permsets data community; do
+    for step in deploy permsets data community altinn-scenario-users; do
         new_project "post-failure-$step"
         mkdir -p "$PROJECT/data"
         echo '[]' > "$PROJECT/data/plan.json"
@@ -1170,6 +1219,11 @@ test_builtin_post_step_failures_propagate() {
             permsets) command='org assign permset' ;;
             data) command='data import tree' ;;
             community) command='community publish' ;;
+            altinn-scenario-users)
+                command='apex run'
+                mkdir -p "$PROJECT/bin"
+                cp "$(dirname "$SCRIPT")"/seed-altinn-scenario-*.apex "$PROJECT/bin/"
+                ;;
         esac
         run_script env SF_FAIL_COMMAND="$command" bash "$SCRIPT" --post-steps-only --post-steps "$step" --alias offline-org
         assert_exit 23

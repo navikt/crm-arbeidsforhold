@@ -35,6 +35,19 @@ P360-dokumentasjonen ligg under [integrations/p360](integrations/p360/README.md)
 - [P360 SIF API-kontraktar](integrations/p360/sif-api-kontrakter.md)
 - [Lokal implementasjonsstatus mot Jira](context/p360/lokal-implementasjonsstatus.md)
 
+## Altinn-scenario for applikasjonstesting
+
+Planlagt konsumentstyrt teststøtte, ikkje testing av Altinn-integrasjonen:
+
+- [Design, miljøpolicy og cache-alternativ](integrations/altinn/README.md)
+- [Kritisk avklaringsrunde](integrations/altinn/grill.md)
+- [Gjennomføringsplan med krav og oppgåver](integrations/altinn/implementation-plan.md)
+- [Spec: provider-injeksjon i integrasjonspakka](../.github/specs/altinn-provider-injection.md)
+- [Spec: scenario i crm-arbeidsforhold](../.github/specs/altinn-consumer-scenarios.md)
+
+Admin-app og administrasjonsteneste er utsette. Cache-valet og ekstern
+pakkeleveranse er opne gater; dokumenta er ikkje implementasjonsevidens.
+
 ## Diagramregister
 
 Alle Mermaid-diagram er lagra som sjølvstendige `.mmd`-kjelder. Diagram som også er viste inne i eit Markdown-dokument, har i tillegg ei lokal kjeldelenkje ved diagrammet.
@@ -57,6 +70,7 @@ Alle Mermaid-diagram er lagra som sjølvstendige `.mmd`-kjelder. Diagram som ogs
 | P360 idempotent jobboppretting                  | [p360-idempotent-job-creation-sequence.mmd](integrations/p360/diagrams/p360-idempotent-job-creation-sequence.mmd) |
 | P360 jobbstatus                                 | [p360-archive-job-state.mmd](integrations/p360/diagrams/p360-archive-job-state.mmd)                               |
 | P360 Jira-avhengigheiter                        | [p360-jira-dependencies.mmd](context/p360/diagrams/p360-jira-dependencies.mmd)                                    |
+| Altinn konsumentstyrte scenario                 | [consumer-scenarios.mmd](integrations/altinn/diagrams/consumer-scenarios.mmd)                                     |
 
 ## Kjeldehierarki
 

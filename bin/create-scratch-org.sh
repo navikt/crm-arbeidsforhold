@@ -19,7 +19,7 @@ DEFAULT_POOL_TAG="dev"
 DEFAULT_DUMMY_USER_PROFILE_NAME="Standard User"
 DEFAULT_PACKAGE_INSTALL_KEY_ENV_VAR="PACKAGE_INSTALL_KEY"
 DEFAULT_PRESERVE_ROOT_FILES="README.md"
-BUILTIN_POST_STEPS="deploy permsets data community"
+BUILTIN_POST_STEPS="deploy permsets data community altinn-scenario-users"
 CONFIG_FILE_NAME="sf-project.config.json"
 # jq helper that quotes a value as a SOQL string literal, escaping backslashes and single quotes.
 SOQL_STRING_JQ='def soql_string: "\u0027" + (gsub("\\\\"; "\\\\") | gsub("\u0027"; "\\\u0027")) + "\u0027";'
@@ -499,7 +499,7 @@ create-scratch-org.sh - create and configure a Salesforce scratch org for this p
 
 A full run: delete the old org with the same alias, create a new one, install the
 package dependencies from sfdx-project.json, then run the post-steps
-(deploy, permsets, data, community, custom steps).
+(deploy, permsets, data, community, altinn-scenario-users, custom steps).
 
 Usage:
   ./bin/create-scratch-org.sh [options]
@@ -528,7 +528,7 @@ Target and scratch org:
 What to run:
   --post-steps-only               Use an existing org: skip org create and package install.
   -s, --post-steps <steps>        Comma-separated post-steps. Config: postSteps. Default: deploy
-                                  Values: deploy, permsets, data, community, custom step names, all, none.
+                                  Values: deploy, permsets, data, community, altinn-scenario-users, custom step names, all, none.
   --redeploy                      Shortcut for --post-steps-only --post-steps deploy --full-deploy.
   --full-deploy                   The deploy step deletes local source tracking first, so all local
                                   source is deployed, not only tracked changes. Org data is untouched.
@@ -2605,6 +2605,32 @@ publish_community() {
     add_action "Published community $COMMUNITY_NAME"
 }
 
+seed_altinn_scenario_users() {
+    local apex_file
+    local -a apex_files=(
+        "bin/seed-altinn-scenario-owner.apex"
+        "bin/seed-altinn-scenario-accounts.apex"
+        "bin/seed-altinn-scenario-users.apex"
+        "bin/seed-altinn-scenario-settings.apex"
+    )
+
+    step "Seeding synthetic Altinn scenario users..."
+
+    for apex_file in "${apex_files[@]}"; do
+        if [[ "$DRY_RUN" != "true" && ! -f "$apex_file" ]]; then
+            error 1 "Altinn scenario seed file not found: $apex_file"
+        fi
+    done
+    for apex_file in "${apex_files[@]}"; do
+        run_cmd sf apex run \
+            --target-org "$TARGET_ORG" \
+            --file "$apex_file" \
+            || error $? "\"sf apex run\" command failed for synthetic Altinn seed: $apex_file"
+    done
+
+    add_action "Seeded synthetic Altinn scenario users"
+}
+
 run_custom_post_step() {
     local step_name="$1"
     local executable=""
@@ -2632,6 +2658,7 @@ run_post_step() {
         permsets) [[ -z "$PERMISSION_SETS" ]] && missing_setting="No permission sets configured (permissionSets / PERMISSION_SETS / --permission-sets)." ;;
         data) [[ -z "$DUMMY_DATA_PLAN" ]] && missing_setting="No dummy data plan configured (dummyDataPlan / DUMMY_DATA_PLAN / --dummy-data-plan)." ;;
         community) [[ -z "$COMMUNITY_NAME" ]] && missing_setting="No community name configured (communityName / COMMUNITY_NAME / --community-name)." ;;
+        altinn-scenario-users) [[ -z "$COMMUNITY_NAME" ]] && missing_setting="No community name configured (communityName / COMMUNITY_NAME / --community-name)." ;;
     esac
 
     if [[ -n "$missing_setting" ]]; then
@@ -2645,6 +2672,7 @@ run_post_step() {
         permsets) assign_permission_sets ;;
         data) import_dummy_data ;;
         community) publish_community ;;
+        altinn-scenario-users) seed_altinn_scenario_users ;;
         *) run_custom_post_step "$step" ;;
     esac
 

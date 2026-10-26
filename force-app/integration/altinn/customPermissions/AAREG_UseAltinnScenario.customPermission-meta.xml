@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Allows an explicitly assigned synthetic test user to use Altinn scenarios in a verified non-production environment. Does not permit configuration changes.</description>
+    <isLicensed>false</isLicensed>
+    <label>Use Altinn Scenario</label>
+</CustomPermission>

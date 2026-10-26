@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>User-specific Altinn scenario assignment. Only explicit user activation is supported, and runtime use is forbidden in production. Manage assignments in Setup using synthetic test users only.</description>
+    <enableFeeds>false</enableFeeds>
+    <label>Altinn Scenario Setting</label>
+    <visibility>Protected</visibility>
+</CustomObject>
