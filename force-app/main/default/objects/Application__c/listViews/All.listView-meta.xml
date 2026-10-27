@@ -8,5 +8,10 @@
     <columns>AccountName__c</columns>
     <columns>applicationOwner__c</columns>
     <filterScope>Everything</filterScope>
+    <filters>
+        <field>Status__c</field>
+        <operation>notEqual</operation>
+        <value>Draft</value>
+    </filters>
     <label>All</label>
 </ListView>
