@@ -98,9 +98,9 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
                     'Venter på svar',
                     'Utkast',
                     'Innvilget',
-                    'Delvis Innvilget',
+                    'Delvis innvilget',
                     'Avslag',
-                    'Under Behandling',
+                    'Under behandling',
                     'Ny',
                     'Henlagt'
                 ].includes(application.Status__c)
