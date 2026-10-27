@@ -135,12 +135,13 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
 
         this.agreements = rows.map((row) => ({
             ...row,
-            disableEndAgreement: row.status === 'Avsluttet',
+            disableEndAgreement: (row.status ?? '').trim() === 'Avsluttet',
             disableDownloadDecision: true
         }));
 
         const agreementsWithPdfStatus = await Promise.all(
             rows.map(async (row) => {
+                const normalizedStatus = (row.status ?? '').trim();
                 let hasPdf = false;
                 try {
                     const pdfUrl = await getDecisionPDF({ agreementId: row.avtaleId });
@@ -151,8 +152,8 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
                 }
                 return {
                     ...row,
-                    disableEndAgreement: row.status === 'Avsluttet',
-                    disableDownloadDecision: !hasPdf || row.status === 'Avsluttet'
+                    disableEndAgreement: normalizedStatus === 'Avsluttet',
+                    disableDownloadDecision: !hasPdf || normalizedStatus === 'Avsluttet'
                 };
             })
         );
