@@ -60,7 +60,7 @@ export default class Aareg_myAgreements extends NavigationMixin(LightningElement
     columns = COLUMNS;
     currentUser = Id;
     error;
-    selectedStatusFilter = 'Aktiv';
+    selectedStatusFilter = 'ALL';
     statusFilterOptions = [{ label: 'Alle statuser', value: 'ALL' }];
     wiredResult; // holder hele wire-resultatet for refreshApex
     selectedAgreement = {}; // raden modalene jobber mot
