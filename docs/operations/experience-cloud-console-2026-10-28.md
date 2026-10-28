@@ -1,9 +1,9 @@
 # Experience Cloud: console-feil og oppfølging
 
-**Dato:** 2026-10-28  
-**Miljø:** SIT2  
-**Flater:** Framsida og Ny søknad  
-**Status:** Diagnose og tiltak; ingen rettingar eller deploy er utførte som del av denne kartlegginga.
+- **Dato:** 2026-10-28
+- **Miljø:** SIT2
+- **Flater:** Framsida og Ny søknad
+- **Status:** Diagnose og tiltak; ingen rettingar eller deploy er utførte som del av denne kartlegginga.
 
 ## Grunnlag og avgrensing
 
