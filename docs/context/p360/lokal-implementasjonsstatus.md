@@ -8,6 +8,18 @@ Dette dokumentet er repo-eigd teknisk evidens og ikkje ei speilkopi av Jira. Den
 
 Jira-historia og deloppgåvene 144–154 står no som **Ferdig**, med løysing **Utført**. Repoet inneheld 13 Custom Metadata-postfiler for standardprofilen. Endelege domenespesifikke feltmappingar står framleis att etter [#1016](https://github.com/navikt/crm-arbeidsforhold/issues/1016). Typebeskrivinga er retta slik at ho skil mellom standardpostane som finst og uavklarte mappingar. Ingen Salesforce-org er kontakta i denne oppdateringa.
 
+## CRMAAREG-155 / K2 — kontrollert 2026-11-04
+
+Jira-historia og deloppgåvene 156–162 står no som **Ferdig**, med løysing **Utført**. `P360_ICodeTableService` og `P360_CodeTableMetadataService` gjer generiske oppslag på aktiv metadata etter tabellnamn og Salesforce-nøkkel, med cache per transaksjon og `P360_MissingCodeTableMappingException` når ei mapping manglar. Testklassen dekkjer både treff på `DefaultValueSet` og manglande mapping; tidlegare scratch-verifisering er oppsummert i statusrada nedanfor. Metadata har `CaseStatus` og `DocumentCategory`, men inga eiga `DocumentStatus`-rad; `JournalStatus`-verdien blir brukt for det obligatoriske P360 `CreateDocument.Status`-feltet. Konkrete domenemappingar og kodeverdiar skal avklarast i [#1016](https://github.com/navikt/crm-arbeidsforhold/issues/1016), ikkje gjettast inn i tenesta. Ingen Salesforce-org er kontakta i denne oppdateringa.
+
+## CRMAAREG-163 / K3 — kontrollert 2026-11-04
+
+Jira-parenten står framleis i **Under arbeid**. GitHub [#996](https://github.com/navikt/crm-arbeidsforhold/issues/996) er lukka med avgjerda om `P360_AdapterFactory` som composition root og constructor injection, utan service locator. Eksisterande Jira-kommentarar dokumenterer at `P360ServiceLocator` ikkje skal byggjast. `P360_AdapterFactory` og eksempelfake-testen finst; deloppgåvene 165 og 168 står **Ferdig**, medan 164, 166 og 167 står i **Backlog**. Case- og dokumentmapperane som finst brukar `P360_ICodeTableService`, men Jira-deloppgåvene 166/167 viser framleis til dei fråverande klassane `P360CaseMapper` og `P360JournalpostMapper`. K3 kan ikkje ryddast som ferdig før desse deloppgåvene er flytta/avgrensa eller akseptansekriteria er oppdaterte. #994 er framleis open for namneavviket i K2. Ingen Salesforce-org er kontakta i denne oppdateringa.
+
+## CRMAAREG-169 / K4 — kontrollert 2026-11-04
+
+Jira-parenten er **Under arbeid**; deloppgåvene 170–172 er **Ferdig** / **Utført**, og 173–174 står i **Backlog**. Metadata har `CaseStatus` / `Default` = `B` (Under behandling), `JournalStatus` / `Default` = `J` (Journalført), og `DocumentCategory` / `Outgoing` = `Dokument ut`. `JournalStatus` er verdien mapperane sender i det obligatoriske P360 `CreateDocument.Status`-feltet; tabellen heiter ikkje `DocumentStatus`. Metadata-README-en seier at standardverdiane kjem frå P360-avklaringa og er godkjende, men identifiserer ikkje presis kjelde og eigar per verdi. Han skisserer omsyn ved endringar, men ikkje ein full godkjennings- og endringsprosess. Difor står opphav/eigarskap og prosess (173–174) att, og K4 er ikkje ferdig. GitHub [#1016](https://github.com/navikt/crm-arbeidsforhold/issues/1016) er framleis open for full Salesforce-til-SIF-mapping. Ingen Salesforce-org er kontakta i denne oppdateringa.
+
 ## CRMAAREG-105: filgrunnlag — gjennomgang 2026-11-02
 
 Jira stod i **Backlog** ved lesing av saka. Statusen er behalden; detaljane nedanfor gjeld lokal `main` ved `1e46e002`, ikkje ein ny org-verifikasjon. Resten av historietabellen nedanfor er frå den eldre gjennomgangen.
