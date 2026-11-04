@@ -50,6 +50,14 @@ Feil i konfigurasjon, Named Credential, External Credential, endpoint eller milj
 
 Feil i mapping mellom intern modell og P360-kontrakt.
 
+## Bruksmønster
+
+Kast den mest presise exception-typen ved feilkjelda. Bruk `P360_ContractException` for brot på request-/response-kontrakten, `P360_MappingException` for mappingfeil og `P360_MissingCodeTableMappingException` når ei aktiv kodeverk-mapping manglar. Retrybarheit er ei avgjerd for kallaren: `isRetryable` er `false` som standard, og kan setjast med `withRetryable(Boolean)` når utfallet trygt kan prøvast på nytt. `P360_RetryableException` er ein snarveg som set verdien til `true`.
+
+Fest ein kjent correlation ID med `withCorrelationId(String)` når exception blir kasta eller ført vidare. I dagens worker kjem correlation ID for feil-loggen frå jobbrada (`Correlation_Id__c`); workeren les ikkje `error.correlationId`. Dette er ikkje ende-til-ende-korrelasjon gjennom transporten.
+
+Sjå [P360-flyten steg for steg](../../../../../docs/integrations/p360/steg-for-steg-gjennomgang.md#bruk-av-exceptions) for korleis workeren brukar klassifiseringa.
+
 ## Skal ikkje
 
 Exception-klasser skal ikkje:

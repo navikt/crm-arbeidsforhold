@@ -173,6 +173,23 @@ sequenceDiagram
 - Backoff-tidspunkta er ei fast liste, `[1, 5, 15, 60, 360]` minutt, indeksert på forsøksnummer. Etter 5 forsøk (eller om feilen ikkje er retrybar i det heile) går jobben til `Manual Review` i staden for å prøve i det uendelege.
 - Alle jobbane i batchen blir oppdatert i **éin** samla `update`-setning til slutt, for å halde seg bulk-safe sjølv om ein worker handterer fleire jobbar samtidig.
 
+### Bruk av exceptions
+
+Kast den mest presise underklassen der feilen oppstår. `P360_ContractException` viser brot på request-/response-kontrakten; `P360_MissingCodeTableMappingException` viser at kodeverk-oppslaget ikkje fann ei aktiv mapping. Begge arvar frå `P360_IntegrationException`, som workeren fangar.
+
+Når kallaren kjenner retry-avgjerda og correlation ID, kan begge verdiane festast før exception blir kasta:
+
+```apex
+P360_IntegrationException error = new P360_TransportException('P360 transport failed.')
+    .withCorrelationId(correlationId)
+    .withRetryable(isRetryable);
+throw error;
+```
+
+`withRetryable(Boolean)` skal berre setjast etter vurdering av om operasjonen trygt kan gjentakast; exception-typen åleine avgjer det ikkje. Workeren brukar `isRetryable` og forsøksteljaren til å planleggje retry eller setje jobben til `Manual Review`. Standardverdien er `false`; `P360_RetryableException` er snarvegen som set han til `true`.
+
+`withCorrelationId(String)` bevarer ID-en på exception-objektet, men dagens worker-logg hentar ID frå jobb-rada og les ikkje `error.correlationId`. Ende-til-ende-propagering av exception-ID gjennom transport/logging er derfor ikkje dokumentert som levert.
+
 ```mermaid
 stateDiagram-v2
     [*] --> Pending: Jobbservice oppretter idempotent jobb

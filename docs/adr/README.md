@@ -48,10 +48,11 @@ ADR-er navngis med løpenummer og kort tittel.
 | [ADR-0002](0002-accountcontactrelation-for-personkontoer.md)      | AccountContactRelation objekt brukes for kontakter tilknyttet Personkontoer                        | Foreslått        | 2026-08-26 |
 | [ADR-0003](0003-e-post-for-personkonto-via-aareg-og-krr.md)       | Håndtering av e-postadresse for personkonto via AAREG og KRR                                       | Foreslått        | 2026-08-27 |
 | [ADR-0004](0004-p360-composition-root-og-kontraktsgrense.md)      | P360 composition root og kontraktsgrense                                                           | Foreslått        | 2026-09-10 |
+| [ADR-0005](0005-repositorystruktur-ny-kode-og-legacy.md)          | Avgrense repositorystrukturen til ny kode                                                          | Foreslått        | 2026-10-04 |
 
 ## Repo-lokal konvensjon
 
-ADR-er bruker én felles, løpende nummerserie på tvers av beslutningsområder. Nummeret beskriver dokumentrekkefølge, ikke et eget faglig spor. Nye ADR-er får neste ledige nummer; neste nummer er `ADR-0004`.
+ADR-er bruker én felles, løpende nummerserie på tvers av beslutningsområder. Nummeret beskriver dokumentrekkefølge, ikke et eget faglig spor. Nye ADR-er får neste ledige nummer; per 2026-10-04 er neste nummer `ADR-0006`.
 
 Gyldige statusverdier for nye ADR-er er:
 
@@ -70,6 +71,6 @@ Malens seksjoner (`Status`, `Dato`, `Kontekst`, `Beslutning`, `Alternativer vurd
 
 **To ulike ADR-spor.** ADR-0002 og ADR-0003 handler om personkonto, kontaktrelasjoner og e-post — ikke om integrasjonsarkitektur. ADR-0001 handler om lagdeling og navnestandard. Det ser ut til å være to uavhengige beslutningsspor i samme nummerserie.
 
-**Konsekvens:** neste ledige nummer er ADR-0004. Se sak #975 i GitHub.
+**Konsekvens:** ADR-0005 dokumenterer forslaget til repositorystruktur. Neste ledige nummer er ADR-0006. Sak #988 følgjer opp attståande spørsmål om nummerserie, statusvokabular og malbruk.
 
 **Statusvokabularet varierer:** «UNDER BEHANDLING» i ADR-0001, «Foreslått» i ADR-0002 og ADR-0003. Bør normaliseres.

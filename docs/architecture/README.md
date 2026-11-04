@@ -80,3 +80,4 @@ Full oversikt og navngivingsregler: [docs/adr/README.md](../adr/README.md).
 | [ADR-0002](../adr/0002-accountcontactrelation-for-personkontoer.md)      | AccountContactRelation objekt brukes for kontakter tilknyttet Personkontoer                        | Foreslått        | 2026-08-26 |
 | [ADR-0003](../adr/0003-e-post-for-personkonto-via-aareg-og-krr.md)       | Håndtering av e-postadresse for personkonto via AAREG og KRR                                       | Foreslått        | 2026-08-27 |
 | [ADR-0004](../adr/0004-p360-composition-root-og-kontraktsgrense.md)      | P360 composition root og kontraktsgrense                                                           | Foreslått        | 2026-09-10 |
+| [ADR-0005](../adr/0005-repositorystruktur-ny-kode-og-legacy.md)          | Avgrense repositorystrukturen til ny kode                                                          | Foreslått        | 2026-10-04 |
