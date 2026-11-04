@@ -20,6 +20,10 @@ Jira-parenten står framleis i **Under arbeid**. GitHub [#996](https://github.co
 
 Jira-parenten er **Under arbeid**; deloppgåvene 170–172 er **Ferdig** / **Utført**, og 173–174 står i **Backlog**. Metadata har `CaseStatus` / `Default` = `B` (Under behandling), `JournalStatus` / `Default` = `J` (Journalført), og `DocumentCategory` / `Outgoing` = `Dokument ut`. `JournalStatus` er verdien mapperane sender i det obligatoriske P360 `CreateDocument.Status`-feltet; tabellen heiter ikkje `DocumentStatus`. Metadata-README-en seier at standardverdiane kjem frå P360-avklaringa og er godkjende, men identifiserer ikkje presis kjelde og eigar per verdi. Han skisserer omsyn ved endringar, men ikkje ein full godkjennings- og endringsprosess. Difor står opphav/eigarskap og prosess (173–174) att, og K4 er ikkje ferdig. GitHub [#1016](https://github.com/navikt/crm-arbeidsforhold/issues/1016) er framleis open for full Salesforce-til-SIF-mapping. Ingen Salesforce-org er kontakta i denne oppdateringa.
 
+## CRMAAREG-181 / S1 — kontrollert 2026-11-04
+
+Jira-parenten står i **Backlog**; deloppgåve 186 er **Under arbeid**, medan 182–185 og 187 står i **Backlog**. `P360_Integration_Setting__c` er ein Hierarchy Custom Setting for miljøstyrt Named Credential-namn og mock-transport, ikkje ei faktisk Credential- eller endpoint-konfigurasjon. `P360_AuthenticationException` finst, men `P360_RpcClient.send()` er framleis ein stub som kastar `P360_TransportException`; autentisering, auth-feilhandtering og transportlogging er ikkje implementerte i RPC-klienten. GitHub [#1017](https://github.com/navikt/crm-arbeidsforhold/issues/1017) står open for eksterne endpoint-, header- og auth-avklaringar. Ingen Salesforce-org er kontakta i denne oppdateringa.
+
 ## CRMAAREG-105: filgrunnlag — gjennomgang 2026-11-02
 
 Jira stod i **Backlog** ved lesing av saka. Statusen er behalden; detaljane nedanfor gjeld lokal `main` ved `1e46e002`, ikkje ein ny org-verifikasjon. Resten av historietabellen nedanfor er frå den eldre gjennomgangen.
