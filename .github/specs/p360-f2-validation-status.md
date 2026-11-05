@@ -15,7 +15,7 @@ The P360 F2 skeleton boundaries are implemented and focused-test validated. The 
 
 ## Verified boundaries
 
-- Application and Agreement domain services stop at the typed-context F3 boundary.
+- Application and Agreement domain services return the bounded typed ID contexts described below; full archive-field loading remains outside this slice.
 - Archive orchestrator validates required Application context and supports a mock-compatible injected-adapter path.
 - Application domain service returns a typed internal context containing the verified `Application__c.Id`.
 - Agreement domain service returns a typed internal context containing the verified `Agreement__c.Id`.
@@ -34,6 +34,8 @@ The P360 F2 skeleton boundaries are implemented and focused-test validated. The 
 - Result: 22 passed, 0 failed
 
 This run is the historical completion evidence for the F2 boundary. Newer P360 tests are maintained through the `P360` Apex test suite and have separate run evidence.
+
+Source and live Jira reconciliation on 2026-11-05 confirmed F2 and all twelve subtasks remain complete for this bounded scope. Class names match the implementation. No org was accessed or new Apex test run during this reconciliation; the historical 22/22 result is not fresh validation.
 
 ## Remaining implementation blockers
 

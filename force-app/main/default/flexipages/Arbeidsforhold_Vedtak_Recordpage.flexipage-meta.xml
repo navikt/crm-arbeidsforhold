@@ -178,16 +178,6 @@
                 <identifier>RecordDecision_description__cField</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Data_elements__c</fieldItem>
-                <identifier>RecordData_elements__cField</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-a18398b4-7c0d-4f3b-8601-81762f358c8b</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -324,7 +314,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Sjekkliste&lt;/strong&gt;&lt;/p&gt;&lt;ol&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Sjekk behandlingsgrunnlaget - innvilge eller avslå pr behandlingsgrunnlag.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Dataelementer - &lt;/span&gt;&lt;span style=&quot;font-size: 16px; color: rgb(68, 68, 68);&quot;&gt;husk å fjerne avhuking, &lt;/span&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;hvis ikke alle dataelementer er godkjent. Dette vil gi status delvis innvilget.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Skriv en utfyllende begrunnelse&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Sjekk at vedtaks status viser riktig status.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Knappen ferdigbehandle vedtak, oppretter vedtaksfil, oppretter avtale når vedtaket ikke er avslått og setter alle status på vedtak og søknad korrekt.&lt;/span&gt;&lt;/li&gt;&lt;/ol&gt;</value>
+                    <value>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Sjekkliste&lt;/strong&gt;&lt;/p&gt;&lt;ol&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Sjekk behandlingsgrunnlaget - innvilge eller avslå pr behandlingsgrunnlag.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Skriv en utfyllende begrunnelse&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Sjekk at vedtaks status viser riktig status.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Knappen ferdigbehandle vedtak, oppretter vedtaksfil, oppretter avtale når vedtaket ikke er avslått og setter alle status på vedtak og søknad korrekt.&lt;/span&gt;&lt;/li&gt;&lt;/ol&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
                 <identifier>flexipage_richText</identifier>

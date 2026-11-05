@@ -10,6 +10,12 @@ github-issue: 1003
 
 # P360 domain service boundaries
 
+## Status reconciliation — 2026-11-05
+
+The scope below records the original completed boundary slice, not the current valid-input behaviour. The services now query their respective Salesforce records and return typed `AAREG_ApplicationArchiveContext` / `AAREG_AgreementArchiveContext` values containing the record ID. Missing IDs or records raise `P360_ContractException`. Full archive-field mapping and P360 transport remain outside these services.
+
+The current Application test asserts a returned context despite its historical `archiveContextStopsAtF3Boundary` method name. Read assertions and implementation, not that name, as evidence. This reconciliation is source inspection only; no new Apex tests or org checks were run.
+
 ## Problem statement
 
 The Application and Agreement domain-service skeletons need explicit tests proving that unfinished typed domain contexts do not silently return placeholders or cross into P360 transport.

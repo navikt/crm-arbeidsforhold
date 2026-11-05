@@ -14,9 +14,8 @@
         <apex:panelGrid columns="1" width="100%" id="letterhead">
             <apex:outputText value="{!applicationRecord.KonsumentNavn}"></apex:outputText>
             <apex:outputText value="{!applicationRecord.KonsumentAdresse}"></apex:outputText>
-            <apex:outputText
-                value="{!applicationRecord.KonsumentPostnummer} {!applicationRecord.KonsumentPoststed}"
-            ></apex:outputText>
+            <apex:outputText value="{!applicationRecord.KonsumentPostnummer} {!applicationRecord.KonsumentPoststed}">
+            </apex:outputText>
             <apex:outputText value="{!applicationRecord.KonsumentOrganisasjonsnummer}"></apex:outputText>
         </apex:panelGrid>
 
@@ -65,14 +64,10 @@
                         <tr>
                             <th style="vertical-align: top; width: 30%">Innvilget tilgang av typen:</th>
                             <td>
-                                <apex:outputText
-                                    rendered="{!detail.APITilgang}"
-                                    value="API tilgang, "
-                                ></apex:outputText>
-                                <apex:outputText
-                                    rendered="{!detail.WebTilgang}"
-                                    value="Web oppslag, "
-                                ></apex:outputText>
+                                <apex:outputText rendered="{!detail.APITilgang}" value="API tilgang, ">
+                                </apex:outputText>
+                                <apex:outputText rendered="{!detail.WebTilgang}" value="Web oppslag, ">
+                                </apex:outputText>
                                 <apex:outputText rendered="{!detail.Uttrekk}" value="Uttrekk "></apex:outputText>
                             </td>
                         </tr>
@@ -121,10 +116,12 @@
             <apex:outputText value="{!currentRecord.Vedtaksbegrunnelse}" escape="false"></apex:outputText>
         </div>
 
-        <h3>{!$Label.AAREG_terms_section}</h3>
-        <div>
-            <apex:outputText value="{!currentRecord.Vilkaartekst}" escape="false"></apex:outputText>
-        </div>
+        <apex:outputPanel rendered="{!LOWER(currentRecord.Status) != 'avslått'}">
+            <h3>{!$Label.AAREG_terms_section}</h3>
+            <div>
+                <apex:outputText value="{!currentRecord.Vilkaartekst}" escape="false"></apex:outputText>
+            </div>
+        </apex:outputPanel>
 
         <h3>{!$Label.AAREG_complaint_section}</h3>
         <div>

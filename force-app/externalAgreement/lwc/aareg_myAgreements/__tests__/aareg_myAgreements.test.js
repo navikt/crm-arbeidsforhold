@@ -39,7 +39,7 @@ describe('c-aareg-my-agreements', () => {
         jest.clearAllMocks();
     });
 
-    it('keeps download disabled when PDF is missing or lookup fails, and for ended agreements', async () => {
+    it('keeps download disabled when PDF is missing or lookup fails, and for ended agreements, but allows under-revision agreements with a PDF', async () => {
         getDecisionPDF.mockImplementation(({ agreementId }) => {
             if (agreementId === 'missingPdf') {
                 return Promise.resolve(null);
@@ -60,12 +60,14 @@ describe('c-aareg-my-agreements', () => {
         await Aareg_myAgreements.prototype.processAgreements.call(context, [
             { avtaleId: 'missingPdf', avtaleNummer: 'A1', status: 'Aktiv' },
             { avtaleId: 'pdfLookupFails', avtaleNummer: 'A2', status: 'Aktiv' },
-            { avtaleId: 'endedWithPdf', avtaleNummer: 'A3', status: 'Avsluttet' }
+            { avtaleId: 'endedWithPdf', avtaleNummer: 'A3', status: 'Avsluttet' },
+            { avtaleId: 'underRevisionWithPdf', avtaleNummer: 'A4', status: 'Avtalepartner er under revisjon' }
         ]);
 
         const agreementById = new Map(context.agreements.map((agreement) => [agreement.avtaleId, agreement]));
         expect(agreementById.get('missingPdf').disableDownloadDecision).toBe(true);
         expect(agreementById.get('pdfLookupFails').disableDownloadDecision).toBe(true);
         expect(agreementById.get('endedWithPdf').disableDownloadDecision).toBe(true);
+        expect(agreementById.get('underRevisionWithPdf').disableDownloadDecision).toBe(false);
     });
 });

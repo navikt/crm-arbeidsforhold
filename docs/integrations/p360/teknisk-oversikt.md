@@ -1,6 +1,6 @@
 # P360 teknisk oversikt
 
-Status per 2026-10-04. P360 runtime-koden er i `main` etter PR #1094; den avgrensa felles loggeren kom inn med PR #1097, og worker-feilkoplinga kom med PR #1102. Produksjonsbehandling er framleis av som standard, og ekte SIF-transport er ikkje ferdig.
+Dokumentgjennomgang per 2026-11-05. P360 runtime-koden er i `main` etter PR #1094; den avgrensa felles loggeren kom inn med PR #1097, og worker-feilkoplinga kom med PR #1102. Prosesseringsflagget er av som metadata-standard, og ekte SIF-transport er ikkje ferdig. Org- og testresultata nedanfor er historisk evidens; ingen ny org-status er kontrollert i denne gjennomgangen.
 
 ## Statusnøklar
 
@@ -74,7 +74,9 @@ Før produksjon må målarkitekturen også ha avtalt retry/duplicate-kontrakt, e
 
 ## Logging og neste kopling
 
-PR #1097 har mergea `IntegrationLogger.logFailure(IntegrationLogContext)` til `main`, og #1096 er lukka. Helperen persisterer berre system, operasjon, status og ein validert opaque correlation-ID gjennom `LoggerUtility`. PR #1102 koplar workeren sitt kontrollerte exception-path til loggeren med faste labels (`P360`, `ArchiveJob`, `Failed`) og jobbens correlation-ID. Kallet er best-effort; exception-melding og request-/response-payload blir ikkje sende til loggeren. Dette stadfestar ikkje live transportkorrelasjon eller komplett ende-til-ende-logging.
+PR #1097 har mergea `IntegrationLogger.logFailure(IntegrationLogContext)` til `main`, og #1096 er lukka. Helperen persisterer berre `systemName`, `operationName`, `status` og `correlationId` gjennom `LoggerUtility`. Worker-feilkoplinga etter PR #1102 brukar `P360` som system, jobbens `Archive_Event_Type__c` som operasjon og `RetryScheduled` eller `ManualReview` som status. Jobbens correlation-ID blir sendt med, men berre 32 heksadesimale teikn blir lagra uendra; andre verdiar blir `[REDACTED]`. Loggfelta er tekniske labels, ikkje fritekst eller forretningsdata.
+
+Kallet er best-effort; exception-melding og request-/response-payload blir ikkje sende til loggeren. Helperen normaliserer sjølv dei fire felta og kallar ikkje `IntegrationLogRedactor`; redactor-testar åleine er derfor ikkje evidens for heile loggkjeda. Worker-requesten får i dag berre den interne jobbnøkkelen som `externalId`, ikkje jobbens correlation-ID. Dette stadfestar ikkje live transportkorrelasjon, start-/sluttlogging eller komplett ende-til-ende-logging. Sjå [O1–O2-gjennomgangen](../../context/p360/lokal-implementasjonsstatus.md#crmaareg-284--o1--oppdatert-og-kontrollert-2026-11-05) for status og attståande verifisering.
 
 ## Trygg aktiveringsrekkjefølgje
 

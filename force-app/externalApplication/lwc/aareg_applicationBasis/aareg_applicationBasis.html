@@ -159,7 +159,7 @@
                                 id="tilgang-api"
                                 data-id="API_Access__c"
                                 data-group="accessType"
-                                disabled={isReadOnly}
+                                disabled={readOnly}
                                 checked={apiAccessValue}
                                 onchange={handleCheckboxChange}
                             />
@@ -179,7 +179,7 @@
                                 id="tilgang-online"
                                 data-id="Online_Access__c"
                                 data-group="accessType"
-                                disabled={isReadOnly}
+                                disabled={readOnly}
                                 checked={onlineAccessValue}
                                 onchange={handleCheckboxChange}
                             />
@@ -199,7 +199,7 @@
                                 id="tilgang-uttrekk"
                                 data-id="Extraction_Access__c"
                                 data-group="accessType"
-                                disabled={isReadOnly}
+                                disabled={readOnly}
                                 checked={extractAccessValue}
                                 onchange={handleCheckboxChange}
                             />

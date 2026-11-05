@@ -28,7 +28,7 @@ Still to verify or complete:
 - The bounded shared logger from #1096 is merged by PR #1097 and has one P360 caller: controlled worker failures are logged by `P360_ArchiveJobWorker` after PR #1102. The caller sends only fixed technical context; live transport correlation and end-to-end logging remain unverified.
 - Replace the current unresolved SIF transport boundary with an approved live contract only after external decisions are recorded.
 - Complete the agreed Salesforce-to-SIF mappings, file strategy, duplicate/recovery semantics, operations ownership, and end-to-end evidence.
-- Refresh repo-owned technical status documents and prepare Jira updates. Jira remains the authority for Jira status; mirrored Jira/Confluence exports must not be edited as substitutes for the source.
+- Continue maintaining repo-owned technical status documents and the partially applied Jira synchronization. Jira remains the authority for Jira status; mirrored Jira/Confluence exports must not be edited as substitutes for the source.
 
 ## Target architecture
 
@@ -95,7 +95,11 @@ After the relevant decisions are accepted:
 
 ## Jira synchronization
 
-Use `docs/context/p360/jira-oppdateringsoversikt.md` for the current proposed Jira changes. Jira has not been updated from this roadmap. Do not manually edit files marked `speilkopi: ja`; obtain a new Jira/Confluence export after source updates.
+The first stepwise status review covers all 34 P360 stories as of 2026-11-05. Follow-up name/scope checks and consolidated issue-body reconciliation are recorded in [the update overview](../../docs/context/p360/jira-oppdateringsoversikt.md), with code/test evidence in [the implementation review](../../docs/context/p360/lokal-implementasjonsstatus.md). This does not mean every dependency, naming discrepancy, approval or historical export has been reconciled. F3 context/file models, F7 fake/base-test scope, K3 code-table acceptance and the common exception hierarchy remain open. A fresh Jira CSV is mirrored in [the dated status snapshot](../../docs/context/p360/jira-status-2026-11-05.md); older narrative mirrors remain historical.
+
+The review confirms a default-off/mock foundation, not completed live archive flows. Mapping and event decisions (#1016), transport/auth (#1017), file strategy (#1018), external identity/recovery (#1015), and operational ownership (#997) remain open. Unit/contract-test completion (T1), live integration testing (T2), and operational handover (D2) are separate deliverables.
+
+No new org operations or Apex tests were run during this status synchronization. Existing test runs and the flag reset are historical evidence, not a current org-state check. Production readiness remains separately tracked in #1093. Do not manually edit files marked `speilkopi: ja`; obtain a new Jira/Confluence export after source updates.
 
 ## Acceptance criteria
 
