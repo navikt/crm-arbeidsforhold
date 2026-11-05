@@ -31,7 +31,7 @@
     },
     "postSteps": ["deploy", "permsets", "data", "community", "altinn-scenario-users"],
     "pool": {
-        "use": true,
+        "use": false,
         "tag": "dev",
         "fallbackToCreate": true
     },

@@ -23,11 +23,12 @@ sequenceDiagram
         alt Explicit mock mode
             Adapter-->>Orchestrator: controlled success response
         else Live transport boundary
-            Adapter->>Client: archive RPC request
-            Client-->>Adapter: pending live response contract
-            Adapter-->>Orchestrator: response or classified exception
+            Adapter-->>Orchestrator: P360_ContractException (not implemented)
+            Orchestrator-->>Caller: exception propagates; no RPC call
         end
-        Orchestrator-->>Caller: AAREG_ArchiveApplicationResult
+        opt Explicit mock mode returned success
+            Orchestrator-->>Caller: AAREG_ArchiveApplicationResult
+        end
     end
 
-    Note over Client,Boundary: Live endpoint, authentication, payload and response mapping remain externally blocked
+    Note over Adapter,Boundary: Adapter stops before Client; Client.send also throws if called directly. Live SIF contract remains unresolved.

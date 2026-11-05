@@ -26,6 +26,15 @@ Case and Document operation DTOs can represent registered contact references wit
 - Document dispatch channel
 - JSON round-trip test coverage
 
+## Completion boundary
+
+The completed status applies only to the shared registered contact parameter DTO.
+The linked Jira subtasks identify related context and mapping work; they are not
+completed by this DTO delivery. In particular, CRMAAREG-104
+(`SalesforceJournalpostUpdateContext`) remains separate work. GitHub issue #1011
+was closed for the shared DTO slices, not Salesforce context classes, mapping or
+authorization rules.
+
 ## Acceptance criteria
 
 - Contact fields survive JSON serialization/deserialization.
