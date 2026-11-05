@@ -33,13 +33,14 @@ Dette gir:
 
 ### `P360_AdapterFactory`
 
-Factoryen kan senere brukes i composition root når produksjonskoden trenger å velge mellom for eksempel:
+Factoryen brukes nå av workeren når ingen adapter er injisert. Standardkonstruktøren velger:
 
-- metadata-basert adapter
-- RPC-basert adapter
-- stub-adapter i lokal utvikling eller testnære scenarioer
+- `P360_StubArchiveAdapter` når org-default `Use_Mock_Transport__c=true`
+- `P360_ArchiveAdapter(new P360_RpcClient())` ellers
 
-Factoryen skal returnere et interface og skal ikke flytte forretningslogikk eller mapping inn i valget.
+Den returnerer `P360_IArchiveAdapter` gjennom `createArchiveAdapter()`. Valget flytter ikke forretningslogikk eller mapping inn i factoryen. Den reelle adapteren stopper fortsatt med en kontrollert exception før RPC-kall; dette er wiring, ikke ferdig transport. `P360_Archive_Processing` er en separat prosesseringsgate og er av som standard.
+
+En senere kodeverkadapter for K5 er et separat valg, ikke en implementert gren i denne factoryen.
 
 ### Service locator
 
@@ -63,7 +64,7 @@ orchestrator -> P360_IArchiveAdapter -> P360_IRpcClient
       mapper / domain context
 ```
 
-Produksjonsklasser skal avhenge av interfacene. `P360_StubArchiveAdapter` skal bare brukes som eksplisitt injisert implementasjon i test eller lokal utvikling.
+Produksjonsklasser skal avhenge av interfacene. `P360_StubArchiveAdapter` brukes bare ved eksplisitt injeksjon eller eksplisitt valgt mock-setting i godkjent ikke-produksjonsvalidering, aldri som fallback ved transportfeil.
 
 ## Navne- og plasseringregel
 

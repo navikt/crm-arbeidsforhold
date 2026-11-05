@@ -170,7 +170,7 @@ sequenceDiagram
 
 - Workeren hentar adapteren gjennom `P360_AdapterFactory` **berre dersom han ikkje alt er sett** (`if (adapter == null)`). Dette er dependency injection via eit `@TestVisible`-felt: i produksjon lagar factoryen ekte kopling, i testar kan ein test-double injiserast direkte utan å gå via factory-logikken.
 - Feilklassifisering skjer **hos kallaren** (workeren), ikkje inne i exception-typen. `P360_IntegrationException.isRetryable` er ein enkel `Boolean` sett med `withRetryable(Boolean)`. Dette var ei medviten arkitekturavgjerd (sjå `#993` i teknisk-oversikt.md): retrybarheit avheng ofte av _situasjonen_ (t.d. HTTP 503 vs. 400), ikkje berre av kva exception-klasse som blei kasta, så det å hardkode det i typehierarkiet ville vore for rigid. `P360_RetryableException` finst framleis som ein bekvem snarveg som automatisk set `isRetryable = true`.
-- Backoff-tidspunkta er ei fast liste, `[1, 5, 15, 60, 360]` minutt, indeksert på forsøksnummer. Etter 5 forsøk (eller om feilen ikkje er retrybar i det heile) går jobben til `Manual Review` i staden for å prøve i det uendelege.
+- Backoff-lista i kode er `[1, 5, 15, 60, 360]` minutt, men berre 1, 5, 15 og 60 minutt blir brukte i normal automatisk flyt. Ved femte forsøk (eller ikkje-retrybar feil) går jobben direkte frå `In Progress` til `Manual Review`; 360-minuttssteget blir ikkje nådd. Claim-tenesta tek forfalne `Failed`-jobbar direkte til `In Progress`, ikkje via `Pending`. Dette handhevar ikkje målmodellens 24-timarsvindauge eller recovery av utløpt lease.
 - Alle jobbane i batchen blir oppdatert i **éin** samla `update`-setning til slutt, for å halde seg bulk-safe sjølv om ein worker handterer fleire jobbar samtidig.
 
 ### Bruk av exceptions
@@ -193,12 +193,20 @@ throw error;
 ```mermaid
 stateDiagram-v2
     [*] --> Pending: Jobbservice oppretter idempotent jobb
-    Pending --> InProgress: Claim service tek lease
+    Pending --> InProgress: Gate på - claim set 10 min lease
     InProgress --> Succeeded: Worker får suksess frå adapter
-    InProgress --> Failed: Worker får retrybar feil
-    Failed --> Pending: Due etter 1m / 5m / 15m / 1t / 6t (plukka opp igjen av claim service)
-    Failed --> ManualReview: Ikkje retrybar, eller maks 5 forsøk nådd
-    ManualReview --> Pending: Manuell frigiving (framtidig arbeid)
+    InProgress --> Failed: Retrybar feil og færre enn 5 forsøk
+    Failed --> InProgress: Gate på - nytt claim etter 1m / 5m / 15m / 1t
+    InProgress --> ManualReview: Ikkje retrybar eller maks 5 forsøk
+    InProgress --> Pending: Worker ser gate av - claim og forsøk tilbakeført
+    note right of ManualReview
+        Manuell frigiving til Pending er målmodell,
+        ikkje implementert handling.
+    end note
+    note right of InProgress
+        Ingen recovery av utløpt lease
+        eller atomisk reservasjon er implementert.
+    end note
     Succeeded --> [*]
 ```
 

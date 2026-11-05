@@ -90,6 +90,7 @@ yarn-error.log*
 
 # Dependency directories
 node_modules/
+/temp/
 
 # Eslint cache
 .eslintcache

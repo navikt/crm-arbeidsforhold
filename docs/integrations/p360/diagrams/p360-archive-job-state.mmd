@@ -3,10 +3,18 @@ title: P360 archive job state model
 ---
 stateDiagram-v2
     [*] --> Pending: Job service oppretter idempotent jobb
-    Pending --> InProgress: Claim service tek lease
+    Pending --> InProgress: Gate på - claim set 10 min lease
     InProgress --> Succeeded: Worker får suksess frå adapter
-    InProgress --> Failed: Worker får retrybar feil
-    Failed --> Pending: Due etter 1m / 5m / 15m / 1t / 6t
-    Failed --> ManualReview: Ikkje retrybar eller maks 5 forsøk
-    ManualReview --> Pending: Manuell frigiving
+    InProgress --> Failed: Retrybar feil og færre enn 5 forsøk
+    Failed --> InProgress: Gate på - nytt claim etter 1m / 5m / 15m / 1t
+    InProgress --> ManualReview: Ikkje retrybar eller maks 5 forsøk
+    InProgress --> Pending: Worker ser gate av - claim og forsøk tilbakeført
+    note right of ManualReview
+        Manuell frigiving til Pending er målmodell,
+        ikkje implementert handling.
+    end note
+    note right of InProgress
+        Ingen recovery av utløpt lease
+        eller atomisk reservasjon er implementert.
+    end note
     Succeeded --> [*]
