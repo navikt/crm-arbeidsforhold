@@ -2,6 +2,21 @@
 
 Denne runbooken testar den interne P360-flyten utan live P360-kall. Han skal køyrast berre mot default scratch org `crm-arbeidsforhold`.
 
+## Slik brukar vi guiden saman
+
+Guiden er referanse for føresetnader, forventningar og tekniske detaljar. Han er ikkje ein automatisk wizard eller ei full klikk-for-klikk-skildring av Salesforce UI.
+
+I ei menneskestyrt gjennomgang:
+
+1. Assistenten gir eitt avgrensa steg og seier kva du skal sjå etter.
+2. Du utfører steget i Salesforce UI eller lokalt og svarer med resultatet.
+3. Assistenten registrerer status og evidens i [P360 testlogg](test-log.md), forklarer avvik og gir først deretter neste steg.
+4. Assistenten skal ikkje utføre org-handlingar på dine vegner. Org-lesing, testar, deploy, tilgangsendringar og dataoppretting krev eiga, konkret godkjenning før kvar handling.
+
+Svaralternativa for kvart steg skal vere: **Utført**, **Blokkert**, **Uventa resultat**, **Treng hjelp**, eller **Hopp over**. Eit steg utan stadfesta resultat er ikkje bestått.
+
+Testloggen skil mellom automatiserte testar og manuelle UI-scenario. Han skal føre dato, miljø, steg-ID, forventa og faktisk resultat, status, evidens, avvik og opprydding. Ikkje legg secrets, org-URL-ar eller ekte persondata i loggen.
+
 Mock-flyten verifiserer:
 
 - at `P360_AdapterFactory` vel `P360_StubArchiveAdapter`;
