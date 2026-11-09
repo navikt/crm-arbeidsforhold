@@ -34,9 +34,21 @@ Han verifiserer ikkje P360 endpoint, OAuth, Named Credential, wire-format, ekte 
 
 - Målorg er `crm-arbeidsforhold`.
 - Koden og P360-metadata er deploya til scratch orgen.
-- Test-/integrasjonsbrukaren har `P360_Integration_User` eller minst `P360_Archive_Job_Processing`.
+- For UI-only statusinnsyn skal menneskeleg testoperatør ha `P360_Archive_Job_Viewer`.
+- For `npm run test:p360:mock` må køyrande teknisk brukar ha `P360_Integration_User` eller minst `P360_Archive_Job_Processing`. Ikkje tildel processing-set-et til ein menneskeleg UI-brukar berre for å vise fana; Salesforce-rettar er additive, så Create/Edit blir verande dersom brukaren også har det settet.
 - Det finst ikkje secrets, tokens, cookies eller ekte persondata i testen.
 - Bruk aldri `SIT2`, produksjon, DevHub eller annan org i denne runbooken utan eksplisitt godkjenning.
+
+### P360 Archive Jobs-listevisingar
+
+Metadataen definerer desse delte listevisingane:
+
+- **All Archive Jobs** – alle jobbar brukaren elles har tilgang til.
+- **Pending Archive Jobs** og **In Progress Archive Jobs** – aktive køstatusar.
+- **Needs Attention**, **Failed Archive Jobs** og **Manual Review Archive Jobs** – feil og jobbar som krev manuell oppfølging.
+- **Succeeded Archive Jobs** – fullførte jobbar.
+
+Visingane blir delte med interne brukarar, men gir ikkje i seg sjølve objekt- eller posttilgang og omgår ikkje delingsreglane. Dei må vere deploya til orgen før dei blir synlege. Testoperatøren treng `P360_Archive_Job_Viewer` for fana og lesetilgang; ei eventuell tildeling er ei eiga godkjend org-handling. `P360_Archive_Job_Processing` gir framleis Create/Edit dersom det også er tildelt.
 
 Kontroller målorg før kommandoar:
 
@@ -260,3 +272,9 @@ Ikkje legg secrets eller miljøspesifikke verdiar i scriptet eller Git.
 | Testklassen blir ikkje funnen             | Koden/testen er ikkje deploya til `crm-arbeidsforhold` enno. Køyr deploy-preview først, og få eksplisitt godkjenning før faktisk deployment.                    |
 
 Denne runbooken beviser intern mock-flyt og jobbstatus. Han beviser ikkje ekte P360 endpoint, auth, wire-format, upload eller eksterne feilkodar.
+
+## Record-detaljar: Processing Timeline
+
+Etter deploy av `P360 Archive Job Layout` skal Details på ein arkivjobb vise seksjonen **Processing Timeline** med Queued Date, Started Date, Last Attempt Date, Lease Expires Date og Next Attempt Date. Felta er skriveverna i layoutet; eksisterande feltrettar gjeld framleis.
+
+Kontroller at alle fem feltnamna er synlege, også når verdiar er tomme. Tomme lease-/retryfelt kan vere normalt på fullførte jobbar; synlegheit og innhald er to ulike kontrollar. Created/Last Modified erstattar ikkje desse behandlingsfelta.
