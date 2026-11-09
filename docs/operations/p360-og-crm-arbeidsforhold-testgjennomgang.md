@@ -37,7 +37,7 @@ Grunnlag:
 - [Worker](../../force-app/integration/p360/classes/job/P360_ArchiveJobWorker.cls)
 - [Claim-service](../../force-app/integration/p360/classes/job/P360_ArchiveJobClaimService.cls)
 
-**Merk:** Den eksisterande [mock-testguiden](../integrations/p360/user-testing-guide.md) omtalar reclaim etter utgått lease. Dette samsvarer ikkje med utvalet i dagens claim-kode. Bruk ikkje den formuleringa som akseptansekriterium for implementert recovery.
+**Merk:** Dagens claim-service reclaim-ar ikkje automatisk `In Progress`-jobbar når lease går ut. [Mock-testguiden](../integrations/p360/user-testing-guide.md) er retta til å seie dette; bruk ikkje automatisk reclaim som akseptansekriterium.
 
 ## 2. Testprotokoll
 

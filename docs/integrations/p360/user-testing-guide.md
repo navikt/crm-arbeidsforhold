@@ -2,9 +2,12 @@
 
 Denne runbooken testar den interne P360-flyten utan live P360-kall. Han skal køyrast berre mot default scratch org `crm-arbeidsforhold`.
 
+> Kommandoane under er menneskestyrte instruksjonar, ikkje løyve til å køyre dei. Før kvar Salesforce-kommando må målorg og handling stadfestast på nytt. Assistenten køyrer ikkje org-kommandoar utan ei eiga, konkret godkjenning.
+
 ## Slik brukar vi guiden saman
 
 Guiden er referanse for føresetnader, forventningar og tekniske detaljar. Han er ikkje ein automatisk wizard eller ei full klikk-for-klikk-skildring av Salesforce UI.
+For ei forklaring av kallkjeda, metadata, testar og kjende kodegrenser, sjå [P360-kodegjennomgangen](kodegjennomgang.md).
 
 I ei menneskestyrt gjennomgang:
 
@@ -223,7 +226,7 @@ Forventa resultat er ingen rader.
 
 - Retrybar feil før maks forsøk: `Failed` med `Next_Attempt_Date__c` og backoff.
 - Ikkje-retrybar feil eller maks forsøk: `Manual Review` med feilkode og melding.
-- Ny claim etter forfallen lease: jobb kan takast opp att av claim-service.
+- Ein `In Progress`-jobb blir ikkje automatisk claima på nytt berre fordi lease går ut. Dagens claim-service vel `Pending` og tidsmodne `Failed`-jobbar; trygg automatisk recovery av utgått lease er ikkje implementert.
 
 Query feilstiar:
 
@@ -246,14 +249,14 @@ Ikkje legg secrets eller miljøspesifikke verdiar i scriptet eller Git.
 
 ## Feilsøking
 
-| Symptom                                   | Sjekk                                                                                                                                                |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `P360_Archive_Job__c` blir ikkje oppretta | Sjekk at Application har `Access_Request__c`, og at ContentVersion er publisert direkte på Application.                                              |
-| Jobb står `Pending`                       | Scheduler/claim er ikkje køyrd, eller brukaren manglar `P360_Archive_Job_Processing`.                                                                |
-| Jobb står `In Progress`                   | Worker køyrer asynkront, eller lease må bli forfallen før reclaim.                                                                                   |
-| Jobb blir `Manual Review`                 | Sjå `Last_Error_Code__c` og `Last_Error_Message__c`.                                                                                                 |
-| `P360_MissingCodeTableMappingException`   | Sjekk at P360-kodeverkmetadata er deploya og aktiv.                                                                                                  |
-| Ekte callout blir forsøkt                 | Kontroller `P360_Integration_Setting__c.Use_Mock_Transport__c = true` og at testen bruker factory/orchestrator, ikkje `P360_ArchiveAdapter` direkte. |
-| Testklassen blir ikkje funnen             | Koden/testen er ikkje deploya til `crm-arbeidsforhold` enno. Køyr deploy-preview først, og få eksplisitt godkjenning før faktisk deployment.         |
+| Symptom                                   | Sjekk                                                                                                                                                           |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `P360_Archive_Job__c` blir ikkje oppretta | Sjekk at Application har `Access_Request__c`, og at ContentVersion er publisert direkte på Application.                                                         |
+| Jobb står `Pending`                       | Scheduler/claim er ikkje køyrd, eller brukaren manglar `P360_Archive_Job_Processing`.                                                                           |
+| Jobb står `In Progress`                   | Worker kan framleis køyre. Utgått lease fører ikkje automatisk til ny claim i dagens kode; stopp og avklar recovery i staden for å vente på automatisk reclaim. |
+| Jobb blir `Manual Review`                 | Sjå `Last_Error_Code__c` og `Last_Error_Message__c`.                                                                                                            |
+| `P360_MissingCodeTableMappingException`   | Sjekk at P360-kodeverkmetadata er deploya og aktiv.                                                                                                             |
+| Ekte callout blir forsøkt                 | Kontroller `P360_Integration_Setting__c.Use_Mock_Transport__c = true` og at testen bruker factory/orchestrator, ikkje `P360_ArchiveAdapter` direkte.            |
+| Testklassen blir ikkje funnen             | Koden/testen er ikkje deploya til `crm-arbeidsforhold` enno. Køyr deploy-preview først, og få eksplisitt godkjenning før faktisk deployment.                    |
 
 Denne runbooken beviser intern mock-flyt og jobbstatus. Han beviser ikkje ekte P360 endpoint, auth, wire-format, upload eller eksterne feilkodar.

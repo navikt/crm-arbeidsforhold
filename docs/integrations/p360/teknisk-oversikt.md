@@ -69,7 +69,7 @@ Før produksjon må målarkitekturen også ha avtalt retry/duplicate-kontrakt, e
 - Logger, context og redactor etter loggerendringen: 6/6 bestod (test run `707QI00001IdNeK`).
 - PR #1102: worker-testklassen bestod 6/6 i godkjent scratch-org (test run `707QI00001IeSQt`); Jest/Prettier, metadata compile, Apex tests, coverage, setup og cleanup bestod i CI.
 - Post-merge mock smoke `npm run test:p360:mock` bestod: to jobbar (`ApplicationDocument`, `ApplicationAttachment`) vart `Succeeded` med eitt forsøk, worker vart `Completed` utan feil, ingen duplikatnøklar og ingen live-callout. Evidensen står i #1092.
-- Etter testen er `P360_Archive_Processing=false`, `Use_Mock_Transport__c`-org-default og mellombels permission assignment fjerna, og smoke-data kontrollert sletta.
+- Ei seinare loggført smoke-runde fekk exit-kode 1 medan worker framleis var `Queued`; etterkontroll viste at worker seinare fullførte utan feil. I den runden vart feature-flagget stadfesta som `false`, men mock-settinga vart ikkje lesen tilbake, og smoke-data og mellombelse permission set-tilordningar vart ikkje rydda. Sjå [siste testlogg](test-log.md); ikkje legg den tidlegare cleanup-rapporten til grunn som noverande org-status.
 - Den tidlegare full-deploy-kommandoen med `--ignore-errors` tel ikkje som komponentvis deploy-evidens.
 
 ## Logging og neste kopling
