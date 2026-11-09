@@ -136,3 +136,11 @@ Kopier ei rad per utført steg. Ta berre med syntetiske data og evidensreferansa
 - **Status:** PASS MED MERKNAD — observasjonen samsvarer med undersøkt service-/claim-/worker-kode. Last Attempt Date blir ikkje sett av desse kodestiane og gir dermed ikkje operatøren tidspunktet for siste forsøk.
 - **Avgrensing:** Lease blir ståande etter suksess i dagens worker; verdien betyr ikkje at jobben framleis er aktiv. Ingen nøyaktige tidspunkt eller kronologisk rekkjefølgje er verifiserte. Tom Next Attempt Date samsvarer med første-forsøk-suksess utan planlagt retry.
 - **Oppfølging:** Registrer manglande oppdatering av Last Attempt Date som eit funksjonelt observabilitetsgap; synlegheitsrettinga fyller ikkje feltet bakover i tid. Ingen jobbdata er endra.
+
+### P1.26a — Lokal undersøking av Last Attempt Date, 2026-11-09
+
+- **Hypotesar:** Manglande skriving i Apex, utfylling via deklarativ automasjon, eller manglande tilgang/vising. Synlegheita er allereie stadfesta i P1.25c.
+- **Funn:** Søk etter `Last_Attempt_Date__c` i Apex, triggers og XML under `force-app` fann berre feltdefinisjon, Viewer-tilgang, layout og listekolonnar. Ingen direkte skriving eller testassert for feltet vart funnen. Feltet er eit valfritt DateTime-felt utan standardverdi.
+- **Kodegjennomgang:** Claim-service set Started Date, Lease Expires Date og aukar Attempt Count. Worker set sluttstatus eller feil-/retrydata, men ingen av desse kodestiane set Last Attempt Date. Claim-testane kontrollerer start/lease/forsøkstal; ingen Apex-test under `force-app` refererer til Last Attempt Date.
+- **Konklusjon:** Manglande utfylling er stadfesta i lokal kjeldekode og samsvarer med UI-observasjonen. Dette er ikkje berre ein visingsfeil. Eventuell automasjon som berre finst i orgen er ikkje undersøkt.
+- **Status:** FAIL for utfylling av Last Attempt Date. Ingen produksjonskode, jobbdata eller tilgangar er endra i denne undersøkinga. Ingen org-kommando eller Apex-test er køyrd.
