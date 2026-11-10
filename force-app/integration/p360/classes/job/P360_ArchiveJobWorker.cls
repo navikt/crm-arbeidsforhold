@@ -26,6 +26,8 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
 
     /**
      * Processes each claimed job and updates it to Succeeded, Failed (with a scheduled retry), or Manual Review.
+     * Records the adapter attempt start time with the persisted outcome, without DML before callouts.
+     * Disabled processing restores claims without changing the last actual attempt timestamp.
      *
      * @param context Queueable context supplied by the platform.
      * @since 2026-10
@@ -48,7 +50,10 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
 
         List<P360_Archive_Job__c> toUpdate = new List<P360_Archive_Job__c>();
         for (P360_Archive_Job__c job : jobs) {
-            toUpdate.add(processJob(job));
+            DateTime attemptedAt = System.now();
+            P360_Archive_Job__c outcome = processJob(job);
+            outcome.Last_Attempt_Date__c = attemptedAt;
+            toUpdate.add(outcome);
         }
         update toUpdate;
     }

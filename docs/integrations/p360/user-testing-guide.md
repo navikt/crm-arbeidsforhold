@@ -278,3 +278,9 @@ Denne runbooken beviser intern mock-flyt og jobbstatus. Han beviser ikkje ekte P
 Etter deploy av `P360 Archive Job Layout` skal Details på ein arkivjobb vise seksjonen **Processing Timeline** med Queued Date, Started Date, Last Attempt Date, Lease Expires Date og Next Attempt Date. Felta er skriveverna i layoutet; eksisterande feltrettar gjeld framleis.
 
 Kontroller at alle fem feltnamna er synlege, også når verdiar er tomme. Tomme lease-/retryfelt kan vere normalt på fullførte jobbar; synlegheit og innhald er to ulike kontrollar. Created/Last Modified erstattar ikkje desse behandlingsfelta.
+
+### Last Attempt Date: kontrakt etter rettinga
+
+Worker-rettinga registrerer tidspunktet når eit faktisk adapterforsøk startar, og lagrar det med Succeeded-, Failed- eller Manual Review-utfallet. Feltet blir oppdatert ved nye forsøk, men ikkje ved claim åleine eller når feature-flagget avbryt worker før adapterkallet. Uventa feil som rullar tilbake worker-transaksjonen kan også rulle tilbake tidsstempelet; feltet er ikkje ei separat callout-auditløysing.
+
+Etter godkjend deploy skal ein ny mock-jobb som er ferdigbehandla ha Last Attempt Date. Dette må kontrollerast med ein ny jobb; rettinga fyller ikkje inn historiske verdiar. Sjå [testloggen](test-log.md) for gjeldande deploy- og verifikasjonsstatus.

@@ -144,3 +144,94 @@ Kopier ei rad per utført steg. Ta berre med syntetiske data og evidensreferansa
 - **Kodegjennomgang:** Claim-service set Started Date, Lease Expires Date og aukar Attempt Count. Worker set sluttstatus eller feil-/retrydata, men ingen av desse kodestiane set Last Attempt Date. Claim-testane kontrollerer start/lease/forsøkstal; ingen Apex-test under `force-app` refererer til Last Attempt Date.
 - **Konklusjon:** Manglande utfylling er stadfesta i lokal kjeldekode og samsvarer med UI-observasjonen. Dette er ikkje berre ein visingsfeil. Eventuell automasjon som berre finst i orgen er ikkje undersøkt.
 - **Status:** FAIL for utfylling av Last Attempt Date. Ingen produksjonskode, jobbdata eller tilgangar er endra i denne undersøkinga. Ingen org-kommando eller Apex-test er køyrd.
+
+## Etterkontroll av leveransen — 2026-11-09
+
+### Omfang og grunnlag
+
+Etter brukarens krav om etterkontroll er P360-dokumentasjon, specs, git-historikk, relevante GitHub Issues og worker-/claim-/scheduler-kjeda med testar gjennomgått. Branchgrunnlaget er `P360Test`, med merge-base `b8a4909f` mot lokal `origin/main`. Kontrollpunkt for tidlegare UI-arbeid er `80097a50`; `edb6e0d3` inneheld den etterfølgjande undersøkinga av Last Attempt Date. Ingen fetch eller GitHub-endring er utført.
+
+Dette er ein avgrensa etterkontroll av jobbstatus og leveranseevidens, ikkje ein full gjennomgang av alle P360-DTO-ar, mappingar, transportimplementasjonar eller alle historiske samtalar.
+
+### Funn: standardar og implementasjon
+
+1. **Stadfesta feil: Last Attempt Date vart aldri sett.** Feltet fanst frå `bd4fe435`, medan worker-grunnlaget vart lagt til i `49668b16`. Testane kontrollerte sluttstatus, men ikkje tidspunktet. Eit grønt historisk testresultat var derfor ikkje bevis på komplett statusinnsyn.
+2. **Stadfesta kopla tilgangsfeil:** Processing-settet mangla Read/Edit for dette feltet. Reelle minimum-access-testar feila på feltlesing/-skriving. Viewer-settet hjelpte den menneskelege operatøren, men var ikkje ei løysing for den tekniske brukaren.
+3. **Tidlegare UI-mangel:** Fane, listevisingar og tidsfelt i sidelayout mangla. Desse vart retta og brukarstadfesta i P1.16 og P1.25c; dette er ikkje lenger eit ope synlegheitsavvik.
+4. **Evidensavgrensing:** Tomme feil-/kølister i P1.18–P1.23 stadfestar at visingane kan opnast og er tomme med desse dataa. Dei beviser ikkje at alle statusfilter inkluderer riktige postar ved reelle feil eller købehandling. Ingen nye feiljobbar vart oppretta i UI-testen.
+
+### Funn: spesifikasjon og leveransestatus
+
+- [Jobbopprettingsspecen](../../../.github/specs/p360-archive-job-creation.md) krev Pending-jobb, køtid og idempotens, men avgrensar eksplisitt bort worker, lease og retry. Last Attempt Date er ikkje eit eksplisitt akseptansekriterium der. Feilen over er stadfesta som ein implementasjons-/observabilitetsmangel, ikkje som eit sitert brot på eit kriterium som ikkje finst.
+- Same spec omtalar application-document-hendinga som fullført, medan [kodegjennomgangen](kodegjennomgang.md) og [datamodelldokumentasjonen](../../architecture/p360-data-model-og-arkiveringsjob.md) seier at automatisk ApplicationDocument-trigger ikkje er avklart. Service-/smoke-oppretting må ikkje presenterast som ferdig automatisk produksjonsflyt. Hendingsval krev produkteigaravklaring, ikkje ein spekulativ ny trigger.
+- Live lesing av [mapping-oppgåva](https://github.com/navikt/crm-arbeidsforhold/issues/1016) viser at ho er open og gjeld mapping, ikkje Last Attempt Date eller worker-retry. Ho er ikkje bevis for at jobbruntime er ferdig.
+- [Completion-roadmap](../../../.github/specs/p360-completion-roadmap.md) skil runtime-grunnlag frå gjenståande scheduler-/overlapp-, lease-, recovery- og operasjonell validering. Live transport, mapping, filstrategi og ekstern idempotens/recovery er eksplisitte opne grenser, med opne oppgåver [idempotens/recovery](https://github.com/navikt/crm-arbeidsforhold/issues/1015), [mapping](https://github.com/navikt/crm-arbeidsforhold/issues/1016), [integrasjonsavklaring](https://github.com/navikt/crm-arbeidsforhold/issues/1017), [filhandtering](https://github.com/navikt/crm-arbeidsforhold/issues/1018) og [vidare ferdigstilling](https://github.com/navikt/crm-arbeidsforhold/issues/1093). Dei er ikkje rapporterte som nye regresjonar i denne etterkontrollen.
+- [Rollout-oppgåva](https://github.com/navikt/crm-arbeidsforhold/issues/1092) er lukka og har oppryddingsevidens frå ein tidlegare oktoberrunde. Det opphevar ikkje uteståande opprydding frå den seinare november-smoken. Historiske køyringar må haldast frå kvarandre.
+
+### Retting og kontrakt for Last Attempt Date
+
+- Worker registrerer no starttidspunktet for kvart faktisk adapterforsøk, og lagrar det saman med utfallet ved Succeeded, Failed eller Manual Review.
+- Claim åleine endrar ikkje feltet. Når feature-flagget stoppar worker før adapterkallet, blir eventuell førre verdi bevart og ingen ny forsøksdato oppretta.
+- Read/Edit er lagt til berre for Last Attempt Date i det tekniske Processing-settet. Viewer, objektrettar, sharing og permission-set-tildelingar er uendra.
+- Tidspunktet blir persistert med worker-transaksjonen. Uventa transaksjonsfeil kan framleis rulle tilbake både status og tidsstempel; dette er ikkje ei separat, garantert callout-auditløysing.
+- Ingen historiske tidspunkt blir rekonstruerte. Gamle Succeeded-jobbar kan framleis ha tom Last Attempt Date.
+
+### Raud–grøn-validering
+
+Kvar Salesforce-operasjon under vart godkjend separat for scratch-orgen `crm-arbeidsforhold`. Alle er dry-run utan varig deploy eller live P360-kall.
+
+Første kommando:
+
+```bash
+sf project deploy start --dry-run --source-dir force-app/tests/classes/integration/p360/job/P360_ArchiveJobWorkerTest.cls --test-level RunSpecifiedTests --tests P360_ArchiveJobWorkerTest --target-org crm-arbeidsforhold --json
+```
+
+Resultat: 11 testar køyrde, seks feila på feltlesing/-skriving. Ingen komponentfeil. Dette avdekte Processing-tilgangen, ikkje ein rein tidsstempelassert.
+
+Andre kommando, etter tilgangsretting og eksplisitt tilgangstest:
+
+```bash
+sf project deploy start --dry-run --source-dir force-app/tests/classes/integration/p360/job/P360_ArchiveJobWorkerTest.cls --source-dir force-app/integration/p360/permissionsets/P360_Archive_Job_Processing.permissionset-meta.xml --test-level RunSpecifiedTests --tests P360_ArchiveJobWorkerTest --target-org crm-arbeidsforhold --json
+```
+
+Resultat: 12 testar køyrde, fire feila presist på manglande/ikkje oppdatert tidsstempel. Ingen komponentfeil.
+
+Fokusert kommando med rettinga:
+
+```bash
+sf project deploy start --dry-run --source-dir force-app/integration/p360/classes/job/P360_ArchiveJobWorker.cls --source-dir force-app/tests/classes/integration/p360/job/P360_ArchiveJobWorkerTest.cls --source-dir force-app/integration/p360/permissionsets/P360_Archive_Job_Processing.permissionset-meta.xml --test-level RunSpecifiedTests --tests P360_ArchiveJobWorkerTest --target-org crm-arbeidsforhold --json
+```
+
+Første køyring fylte feltet, men fire tidsvindaugsassertar feila på DateTime-presisjon. Testgrensa vart normalisert til heile sekund, utan å fjerne nullkontroll, øvre grense eller retry-kravet. Ny godkjend køyring bestod: **12/12**, null feil, worker-dekning 77/79 linjer.
+
+Breiare regresjon:
+
+```bash
+sf project deploy start --dry-run --source-dir force-app/integration/p360/classes/job/P360_ArchiveJobWorker.cls --source-dir force-app/tests/classes/integration/p360/job/P360_ArchiveJobWorkerTest.cls --source-dir force-app/integration/p360/permissionsets/P360_Archive_Job_Processing.permissionset-meta.xml --test-level RunSpecifiedTests --tests P360_ArchiveJobWorkerTest --tests P360_ArchiveJobClaimServiceTest --tests P360_ArchiveJobSchedulerTest --tests P360_ArchiveJobServiceTest --tests P360_ArchiveJobMetadataTest --target-org crm-arbeidsforhold --json
+```
+
+Resultat: **25/25 PASS**, null komponent-/testfeil eller dekningsåtvaringar. Dette verifiserer jobbkjeda som isolerte Apex-testar, ikkje ein ny menneskestyrt ende-til-ende-test eller ekte P360-arkivering.
+
+**Status:** Rett kode og tilgang er lokalt implementerte og org-validerte med dry-run. Varig deploy og UI-observasjon av ein ny jobb står att. Ingen eksisterande jobbpostar er endra.
+
+### Godkjend varig deploy av rettinga — 2026-11-09
+
+Etter eiga godkjenning vart den breiare regresjonskommandoen over køyrd utan `--dry-run`, framleis berre mot `crm-arbeidsforhold` og med dei same tre kjeldefilene og fem testklassane.
+
+- **Deploy:** `Succeeded`, `checkOnly = false`; worker, worker-test og Processing permission set vart oppdaterte. Tre komponentar, null komponentfeil.
+- **Testar:** **25/25 PASS**, null testfeil og ingen dekningsåtvaringar.
+- **Status:** Last Attempt Date-rettinga er no varig deploya til scratch-orgen. UI-observasjon av ein ny mock-jobb står att; gamle jobbar er ikkje utfylte bakover i tid.
+- **Avgrensing:** Ingen ny ende-til-ende-smoke, live P360-kall eller produksjonstilgang er utført. Ingen permission-set-tildelingar eller eksisterande jobbpostar er endra.
+
+## Runde 2026-11-10 — ny mock-jobb etter rettinga
+
+**Miljø:** Scratch-org `crm-arbeidsforhold`; menneskestyrt køyring av godkjend repo-smoke. Berre syntetiske testdata.
+
+| Steg  | Handling / forventa resultat                                                                                                                                                                                      | Faktisk resultat                                                                                                          | Status | Evidens / avgrensing                                                                                                                                                                                  |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1.27 | Før aktivering, sjå etter andre kvalifiserte jobbar.                                                                                                                                                              | Brukaren stadfestar Pending Archive Jobs og Needs Attention tomme, og prosesseringsflagget `false`.                       | PASS   | UI-stadfesting frå brukaren; ingen IDs eller feildetaljar loggførte.                                                                                                                                  |
+| P1.28 | Køyr `npm run test:p360:mock` med mock-transport og syntetiske testdata. Forventa: worker Completed utan feil; ApplicationDocument og ApplicationAttachment Succeeded med eitt forsøk kvar; ingen duplikatnøklar. | Brukaren rapporterer `Result PASS`, worker `Completed` med 0 feil, og begge eventtypane `Succeeded` med eitt forsøk kvar. | PASS   | Brukaren utførte runneren etter eiga godkjenning. Runneren opprettar syntetisk Access Request, Application, ContentVersion og to jobbpostar; data blir ikkje automatisk sletta. Ingen live P360-kall. |
+| P1.29 | Set prosesseringsflagget tilbake til `false` etter smoke.                                                                                                                                                         | Brukaren stadfestar flagget er sett tilbake til `false`.                                                                  | PASS   | Brukarstadfesting; ingen ekstra org-lesing utført.                                                                                                                                                    |
+| P1.30 | Kontroller Last Attempt Date på dei to nye jobbane i Salesforce UI. Forventa: begge har verdi.                                                                                                                    | Brukaren stadfestar begge har verdi; jobbstatusane var Succeeded med eitt forsøk kvar.                                    | PASS   | Brukarstadfesting frå UI; tidspunkt og record-ID-ar er ikkje kopierte. Dette stadfestar intern mock-worker, ikkje ekstern P360-arkivering.                                                            |
+
+**Attståande etter denne runden:** Ekstern portalopplasting (`P02`) er ikkje testa. Cleanup av dei syntetiske smoke-postane er ikkje utført; følg godkjend oppryddingsprosedyre før eventuell sletting. Live P360-transport er framleis utanfor denne mock-testen.
