@@ -2,7 +2,15 @@
 
 ## 1. Hvilke brukergrupper skal faktisk støttes i første leveranse?
 
-Det er nødvendig å avklare om første versjon skal støtte kun arbeidsgiver og samarbeidspartner, eller også privatperson. Dette påvirker både URL-mønsteret og tilgangsmodellen.
+Ja, første versjon skal støtte privatpersoner i tillegg til arbeidsgiver og samarbeidspartnere.
+
+Dette betyr at første leveranse skal dekke tre brukergrupper:
+
+- arbeidsgiver,
+- samarbeidspartner,
+- privatperson.
+
+Dette påvirker både URL-mønsteret, tilgangsmodellen og hvordan personbasert kontekst skal velges og valideres i UI og serverlogikk.
 
 ## 2. Skal brukergruppe være definert i en egen Apex-kontekstmodell?
 
@@ -10,15 +18,44 @@ Det anbefales ja, men dette må besluttes eksplisitt. En enkel modell er bedre e
 
 ## 3. Skal meldingsvisning være personbasert eller organisasjonsbasert per gruppe?
 
-Dette er et sentralt beslutningspunkt. Det må fastsettes før kodeimplementasjon.
+Beslutning: dagens meldingsvisning for virksomhetsrepresentanter og for brukere som allerede har tilgang til brukerstøtte skal fungere nøyaktig som i dag og skal ikke endres.
+
+For de nye representasjonsrollene som gjelder personer som representerer arbeidsgivere, samarbeidspartnere og seg selv, skal meldingsvisning være personbasert som hovedmodell. Organisasjon brukes da som kontekst eller filter, men ikke som det eneste eller primære kriteriet for hvilke meldinger som skal vises.
+
+Det betyr at:
+
+- dagens organisasjonsbaserte flyt beholdes uendret for eksisterende brukere,
+- den nye personbaserte modellen brukes kun for de nye representasjonsrollene,
+- en persons aktive ACR-relasjoner til arbeidsgiver eller samarbeidspartner skal kunne hente riktig meldingskontekst,
+- organisasjonsvalg kan brukes for å avgrense eller sette kontekst, men ikke som eneste kriterium for hvem som skal se hvilke meldinger,
+- personens identitet og relasjon er den bærende faktoren for tilgang til meldinger og e-post i den nye brukergruppen.
+
+Dette gjør at vi unngår regressjon i dagens løsning samtidig som vi får støtte for de nye representasjonsmønstrene.
 
 ## 4. Er det nødvendig å støtte flere organisasjonsvalg per bruker?
 
-Dagens modell er basert på `LastUsedOrganization__c`, som er enkel og praktisk for virksomhetsrepresentanter. For andre grupper må det avklares om samme mønster skal brukes, eller om personbasert kontekst er bedre.
+Nei. `LastUsedOrganization__c` skal bare brukes for virksomhetsrepresentanter.
+
+For de andre brukergruppene skal vi bruke personbasert kontekst, og samtidig støtte valgt organisasjonsnummer som arbeidskontekst for den aktuelle oppgaven. Det betyr at hver bruker kun skal kunne ha ett aktivt organisasjonsvalg i en gitt arbeidsflyt, ikke flere samtidige organisasjonsvalg som er aktive i samme kontekst.
+
+Kort sagt:
+
+- virksomhetsrepresentanter: eksisterende modell med `LastUsedOrganization__c` som hovedkontekst,
+- arbeidsgiver, samarbeidspartner og privatperson: personbasert kontekst + ett valgt organisasjonsnummer som arbeidskontekst,
+- ingen støtte for flere samtidige aktive organisasjonsvalg for disse gruppene.
+
+Dette er forståelig og gjør at vi unngår dobbelt kontekstmodell i samme flyt.
 
 ## 5. Hva er ønsket oppførsel for brukere uten organisasjonskontekst?
 
-For arbeidsgiver og privatperson må det bestemmes om de skal få tilgang til en egen "min side" uten organisasjonsvalg, eller om de skal få prompt om å velge personlig kontekst.
+For privatpersoner som representerer seg selv, trenger de ikke å komme inn med et organisasjonsnummer og heller ikke å velge en organisasjon. De skal kunne gå inn i sin personlige kontekst direkte.
+
+For arbeidsgivere og samarbeidspartnere er det viktig at de enten:
+
+- kommer inn med et organisasjonsnummer, eller
+- må velge en organisasjon på homepage før de kan fortsette i arbeidsflyten.
+
+Det vil si at disse brukerne må ha en gyldig organisasjonskontekst, mens privatpersoner ikke trenger det.
 
 ## 6. Er det behov for nye Custom Metadata eller permission set for ny brukergruppe?
 
@@ -26,11 +63,30 @@ Dette må avklares før implementasjon, fordi noen tilganger kan være mer natur
 
 ## 7. Skal dette ligge i samme LWC-komponent eller i flere delte komponenter?
 
-Det anbefales å begrense antallet nye komponenter, og bruke eksisterende `aareg_home` som grunnlag. Men beslutningen om komponentstruktur må tas før kodestart.
+Ja, vi bør begrense antallet nye komponenter. Jeg mener det er bedre å bruke dagens `aareg_home` som dagens organisasjonsbaserte inngang, og så lage en liten ny inngangsside for de nye brukergruppene som skal kunne velge bruker type og organisasjon.
+
+Dette bør fungere som en sammenhengende struktur:
+
+- dagens `aareg_home` beholdes som den eksisterende organisasjonsbaserte siden,
+- den nye siden brukes for nye brukergrupper når de må velge bruker type og/eller organisasjonskontekst,
+- etter at konteksten er valgt, kan de gå videre inn i den samme eksisterende funksjonaliteten som dagens flyt,
+- vi unngår å bygge en helt ny parallelle app fra bunnen av og holder løsningen liten og forståelig.
+
+Kort sagt: jeg vil ikke lage en helt ny "aareg_home" fra scratch som erstatter dagens side, men heller en liten, tydelig ny inngang som peker bakover til dagens `aareg_home`-flyt når det er nødvendig.
 
 ## 8. Hvilke funksjoner som er "sinne" og hvilke som er "ikke tillatte"?
 
-Dette bør dokumenteres som en matrise for hver brukergruppe. Det vil redusere risiko for feil i navigasjon og tilgang.
+Ja, dette bør dokumenteres som en matrise for hver brukergruppe. Her er en fersk, redigerbar matrise som kan brukes som utgangspunkt før implementasjon:
+
+| Brukergruppe                              | Kode / rolle                     | Må ha organisasjonskontekst | Må velge organisasjon                            | Personbasert kontekst     | Tillatte funksjoner                                                                    | Ikke tillatte funksjoner                                |
+| ----------------------------------------- | -------------------------------- | --------------------------- | ------------------------------------------------ | ------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Virksomhetsrepresentant                   | Eksisterende organisasjonsbruker | Ja                          | Ja, via dagens flyt                              | Nei                       | Alle dagens organisasjonsbaserte funksjoner                                            | Nye personbaserte funksjoner uten organisasjonskontekst |
+| Arbeidsgiver                              | Ny brukergruppe                  | Ja                          | Ja, enten via organisasjonsnummer eller homepage | Ja                        | Funksjoner knyttet til valgt arbeidsgiverorganisasjon og egen personlige kontekst      | Flere samtidige organisasjonsvalg i samme flyt          |
+| Samarbeidspartner                         | Ny brukergruppe                  | Ja                          | Ja, enten via organisasjonsnummer eller homepage | Ja                        | Funksjoner knyttet til valgt samarbeidspartnerorganisasjon og egen personlige kontekst | Flere samtidige organisasjonsvalg i samme flyt          |
+| Privatperson                              | Ny brukergruppe                  | Nei                         | Nei                                              | Ja                        | Personlige oppgaver og personlige meldinger uten organisasjonskrav                     | Obligatorisk organisasjonsvalg                          |
+| Brukerstøtte / eksisterende supportbruker | Eksisterende support             | Ja/avhengig av dagens flyt  | Som i dag                                        | Avhengig av dagens modell | Nåværende supportflyt uten endring                                                     | Regresjon i dagens oppførsel                            |
+
+Dette er et godt utgangspunkt for å få ned de viktigste beslutningene i en enkel tabell. Dere kan redigere den etter hva som faktisk er tillatt for hver funksjon i den endelige leveransen.
 
 ## 9. Hva er ønsket nivå for audit / tracking i dette første steget?
 

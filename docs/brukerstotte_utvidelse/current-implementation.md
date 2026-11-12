@@ -4,7 +4,12 @@
 
 Hjemmesiden for den eksterne brukerflaten er implementert i LWC-en [force-app/externalAccess/lwc/aareg_home/aareg_home.js](../force-app/externalAccess/lwc/aareg_home/aareg_home.js) og serverkontrolleren [force-app/externalAccess/classes/AAREG_HomeController.cls](../force-app/externalAccess/classes/AAREG_HomeController.cls).
 
-Dagens modell er hentet fra Altinn-organisasjoner og brukerens sist brukte organisasjonsnummer:
+Dagens modell er hentet fra Altinn-organisasjoner og brukerens sist brukte organisasjonsnummer. Dette er en solid modell for virksomhetsrepresentanter, men den er ikke den riktige policy for de nye brukergruppene:
+
+- `LastUsedOrganization__c` skal kun brukes for virksomhetsrepresentanter,
+- arbeidsgiver, samarbeidspartner og privatperson bruker personbasert kontekst i tillegg til eventuelt valgt organisasjonsnummer,
+- privatpersoner trenger ikke organisasjonsnummer,
+- de andre gruppene skal ha én aktiv organisasjonskontekst per flyt og ikke flere samtidige aktive organisasjonsvalg.
 
 - `AAREG_HomeController.getOrganizationsWithRoles()` henter organisasjoner for innlogget bruker.
 - `AAREG_HomeController.getLastUsersLastUsedOrganization()` leser `User.LastUsedOrganization__c`.

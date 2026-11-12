@@ -2,21 +2,23 @@
 
 ## 1. Felles startside for brukergruppevalg
 
-Det anbefales å utvikle en felles startside som i første omgang er ansvarlig for å:
+Det anbefales å utvikle en liten ny inngangsside som i første omgang er ansvarlig for å:
 
 - vise valgt brukergruppe,
 - samle inn organisasjonsnummer når det er relevant,
 - navigere brukeren videre til riktig del av applikasjonen,
 - validere input før videre navigasjon.
 
-Dagens hjemmeside i [force-app/externalAccess/lwc/aareg_home/aareg_home.js](../force-app/externalAccess/lwc/aareg_home/aareg_home.js) kan gjenbrukes som basis. Den har allerede logikk for:
-
-- hent organisasjoner,
-- håndter valgt organisasjon,
-- oppdatere `LastUsedOrganization__c`,
-- validere tilgang.
+Dagens hjemmeside i [force-app/externalAccess/lwc/aareg_home/aareg_home.js](../force-app/externalAccess/lwc/aareg_home/aareg_home.js) skal beholdes som eksisterende organisasjonsbaserte flyt. Den nye inngangen skal være et tynt lag på toppen av dagens modell, ikke en helt ny app fra bunnen av.
 
 For den nye startside bør dette utvides med en brukergruppe-selection layer som velger hvilket funksjonsområde brukeren skal åpne. Dette skal ikke gi tilgang i seg selv; det skal kun velge hvilken kontekst som skal brukes videre.
+
+Det viktigste er at:
+
+- virksomhetsrepresentanter går inn via dagens `aareg_home`-flyt,
+- arbeidsgiver og samarbeidspartner må enten ha organisasjonsnummer eller velge organisasjon på homepage,
+- privatpersoner går direkte inn i personbasert kontekst uten organisasjonsvalg,
+- vi begrenser antall nye komponenter og holder eksisterende flyt intakt.
 
 ## 2. Skille brukergruppe, representasjonskontekst og tilgang
 
@@ -33,6 +35,13 @@ Det anbefales ikke å bruke én enkelt variabel for alle disse konseptene. I ste
 - `effectiveAccess` / `canAccessFeature`
 
 Dette bør håndteres i serverlogikken, ikke bare i UI-et.
+
+Samtidig er det viktig at:
+
+- `LastUsedOrganization__c` bare brukes for virksomhetsrepresentanter,
+- arbeidsgiver og samarbeidspartner bruker personbasert kontekst og ett valgt organisasjonsnummer i arbeidsflyten,
+- privatpersoner ikke trenger organisasjonsnummer eller valg,
+- vi ikke støtter flere samtidige aktive organisasjonsvalg i samme flyt for de nye brukergruppene.
 
 ## 3. Direkte URL-ingang
 
@@ -76,8 +85,9 @@ Dagens modell i `AAREG_MyThreadsController.getUsersThreads()` henter tråder ut 
 
 Anbefalt endring:
 
-- For virksomhetsrepresentanter: behold organisasjonsbasert visning.
-- For andre grupper: bruk personbasert filtrering, der meldinger hentes ut fra brukerens egen kontekst og ikke fra den sist valgte virksomheten.
+- For virksomhetsrepresentanter: behold organisasjonsbasert visning uten endring.
+- For arbeidsgiver og samarbeidspartner: bruk personbasert filtrering i tillegg til valgt organisasjonsnummer som arbeidskontekst. Organisasjonen brukes som filter, ikke som eneste identifikator.
+- For privatperson: bruk personbasert visning uten organisasjonsnummer.
 
 Dette bør implementeres både i LWC-visning og i Apex-koden. UI-skjuling alene er ikke nok.
 
