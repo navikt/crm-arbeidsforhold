@@ -55,6 +55,14 @@ Dev Hub eller etter godkjenning. Avtal menneskeleg utføring i staden.
 Team Platforce må godkjenne menneskelege produksjonsmetadataendringar og utfører
 produksjonsverifikasjon og sletting.
 
+For Salesforce-utvikling i dette repoet:
+
+- Bruk Salesforce CLI 2.158.7 installert på macOS-verten, og målrett som standard scratch-orgen `crm-arbeidsforhold`.
+- Køyr autentiserte Salesforce CLI-kommandoar i VS Code-verten gjennom den støtta, kommando-spesifikke godkjenningsflyten. Ikkje køyr dei i `cplt`, som ikkje har tilgang til vertens autentisering. Stopp dersom den godkjende verts-terminalen ikkje er tilgjengeleg.
+- Ikkje endre Salesforce-autentisering, krypteringsinnstillingar, Keychain-element eller credential-filer.
+- Etter endringar i Apex eller metadata skal relevante testar og valideringar køyrast. Faktisk metadata-deploy krev eksplisitt godkjenning for kvart deploy.
+- Bruk aldri produksjon. Bruk av andre orgar enn `crm-arbeidsforhold` krev eksplisitt godkjenning og må vere ikkje-produksjon.
+
 Team Arbeidsforhold eig repoet og produktet; `@navikt/crm-arbeidsforhold` er
 GitHub-teamet for bidragsytarar og review. Manuelle endringssteg krev runbook
 med ansvar, revisjon, godkjenning og evidens. Metadataopprydding skal verifiserast
@@ -64,7 +72,7 @@ i SIT2 etter godkjenning. Følg dei fullstendige org-reglane i `AGENTS.md`.
 
 - Bruk berre GitHub Copilot Business gjennom Nav-organisasjonen til Nav-arbeid. Private Copilot-abonnement og frittståande AI-kodeverktøy er ikkje tillatne.
 - Alle modellar som er tilgjengelege gjennom Copilot Business kan brukast, men utviklaren er ansvarleg for resultatet.
-- Agent mode og lokale agentar skal køyre isolert med `cplt` eller ei tilsvarande sandbox-løysing. Agentar med uavgrensa tilgang til Nav-utstyr er ikkje tillatne.
+- Agent mode og lokale agentar skal køyre isolert med `cplt` eller ei tilsvarande sandbox-løysing. For autentiserte Salesforce CLI-kommandoar gjeld repoets avgrensa unntak for VS Code-verten og kommando-spesifikk godkjenning; agentar med uavgrensa tilgang til Nav-utstyr er ikkje tillatne.
 - Bruk berre MCP-serverar som er godkjende i Nav sin verktøykatalog.
 - Coding agent kan berre brukast til avgrensa oppgåver og må alltid ende i menneskeleg gjennomgang og godkjenning av PR før merge.
 - Utviklaren skal forstå og kritisk vurdere generert kode, skrive testar, bruke code review og køyre relevante sikkerheitskontrollar.

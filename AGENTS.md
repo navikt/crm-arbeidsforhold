@@ -43,7 +43,12 @@ When standards conflict, preserve deployed public contracts and record the devia
 ### Org safety
 
 - Before every agent command accessing a Salesforce org, ask the user to confirm the exact target and action, including the default `crm-arbeidsforhold` scratch org. This covers authentication, Dev Hub access, reads, Apex tests, deployment previews, retrievals, deployments, and scripts contacting an org.
-- Prefer the `crm-arbeidsforhold` scratch org. Explain the technical reason and obtain explicit approval before using any other non-production org, including SIT2 or a Dev Hub.
+- Use Salesforce CLI 2.158.7 installed on the macOS host for this repository.
+- Target the `crm-arbeidsforhold` scratch org for Salesforce development operations unless the user explicitly authorizes another non-production org.
+- Execute authenticated Salesforce CLI commands through the VS Code host terminal using its supported, command-specific approval mechanism. Do not execute authenticated Salesforce CLI commands inside `cplt`, which cannot access the host authentication. If the approved host-terminal mechanism is unavailable, stop and ask for an approved alternative.
+- Never modify Salesforce authentication, encryption settings, Keychain entries, credential files, or CLI auth state.
+- Obtain explicit user approval before every metadata deployment; approval for a preview or test does not authorize a deployment.
+- Explain the technical reason and obtain explicit approval before using any other non-production org, including SIT2 or a Dev Hub.
 - Authentication, default aliases, scripts, and previous approvals are not permission for another operation.
 - Agents must never access production, even on request or with approval. Do not authenticate, query, retrieve, test, deploy, or access a production-backed Dev Hub. Arrange human execution instead.
 - Human changes to production metadata require explicit Team Platforce approval. Team Platforce performs production verification and deletion; approval for human execution does not permit agent access.
@@ -52,6 +57,7 @@ When standards conflict, preserve deployed public contracts and record the devia
 - Preserve Salesforce metadata XML and source format. Do not rename metadata only to make it look cleaner.
 - Apex must follow `force-app/main/default/AGENTS.md`: use `with sharing` by default, bulkify SOQL/DML, avoid hardcoded IDs and URLs, and use the established error-logging pattern.
 - Add or update focused Apex tests and LWC Jest tests when behavior changes.
+- After modifying Apex or Salesforce metadata, run the relevant focused tests and validation. Run org-dependent Apex tests only through the approved host-terminal workflow.
 - In Apex tests, always call the Salesforce framework with the fully qualified namespace: use `System.Assert.*` for assertions and `System.Test.*` for lifecycle APIs such as `System.Test.startTest()` and `System.Test.stopTest()`. Do not use bare `Assert` or unqualified `Test` calls.
 - Include at least one `System.runAs(minimumAccessUser)` in Apex test classes when the behaviour under test does not require elevated permissions. Use a user created from the minimum-access profile (`Profile.Name = 'Minimum Access - Salesforce'`) unless the scenario genuinely requires a stronger profile.
 - Keep package dependencies and package aliases consistent with `sfdx-project.json`.

@@ -21,6 +21,26 @@ For the approved `nav-community-dev` scratch org, see the
 The read-only `bin/verify-altinn-test-user.apex` script checks the resulting
 user, license, permission assignments and explicit scenario setting.
 
+If the legacy test-data owner does not exist, the owner seed creates an
+org-unique synthetic internal user with the Standard User profile, suppresses
+Salesforce's automatic user emails, and assigns an existing leaf role or
+creates a role when none exists. An active legacy owner with the Standard User
+profile is reused and assigned a role if needed. The seed stops if both owners
+exist or if the existing owner is inactive or has the wrong profile; it does not
+transfer existing account ownership.
+
+The post-step runs four separate Apex transactions. It can create or update
+synthetic accounts and contacts, up to four applications and four active
+agreements, the community user and its permission assignments. Existing flows
+can create additional records. A later failure does not roll back earlier transactions.
+Review the effects and obtain approval for the exact non-production org before
+running it.
+
+[`verify-altinn-test-owner.apex`](./verify-altinn-test-owner.apex) is a
+read-only check for exactly one eligible owner with a role. When the synthetic
+identity account exists, it also checks that the account retains that owner.
+Running the check against an org requires approval for that target and action.
+
 ## Documentation map
 
 - [Complete command reference](COMMANDS.md): every entry point and custom flag,
