@@ -111,10 +111,13 @@ for triggere, ansvar og manglende godkjenningsvern.
 - [AGENTS.md](AGENTS.md) og [CONTEXT.md](CONTEXT.md) beskriver repoets grenser
   og kontekst for agentassistert arbeid.
 
-Org-oppretting, pakkeinstallasjon og deploy krever eksplisitt godkjenning.
-Autentisering eller et eksisterende alias er ikke i seg selv en tillatelse.
-Agentassistert org-tilgang krever ny bekreftelse av mål og handling før hver
-kommando. Agenter skal aldri aksessere produksjon, heller ikke via Dev Hub.
+Arbeid i eksisterende `crm-arbeidsforhold` scratch-org krever ikke ny
+brukergodkjenning, heller ikke for pakkeinstallasjon, deploy eller endring/sletting.
+Verifiser eksplisitt mål og scratch-type før handling; alias alene er ikke bevis.
+Org-oppretting/-erstatting, pakkeoppretting/-promotering og CI/auth-endringer
+krever fortsatt godkjenning. Andre ikke-produksjonsorg krever ny bekreftelse av
+mål og handling før hver kommando. Agenter skal aldri aksessere produksjon,
+heller ikke via Dev Hub. Native verktøygodkjenninger gjelder fortsatt.
 Se [miljøreglene](docs/utviklingsstandarder.md#org--og-miljøsikkerhet).
 Testtilgang, innloggingsdetaljer, nøkler og personopplysninger hører ikke hjemme i repoet.
 

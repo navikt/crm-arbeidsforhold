@@ -2,14 +2,15 @@
 
 Status: vedteken teknisk sjekkliste for denne oppryddinga. Org-gjennomforing er ikkje utført som del av denne endringa.
 
-Operativ godkjenning, eigar og endringsvindu skal registrerast i Confluence og GitHub Issue/PR for kvar org. Dette dokumentet skal ikkje innehalde org-ID-ar, credentials, secrets eller persondata.
+Operativ godkjenning, eigar og endringsvindu skal registrerast i Confluence og GitHub Issue/PR for kvar org. For eksisterande `crm-arbeidsforhold` scratch-org gjeld autorisasjonen i `AGENTS.md` utan ny brukargodkjenning; runbook, dependency-kontroll, rollback og evidens gjeld framleis. Dette dokumentet skal ikkje innehalde org-ID-ar, credentials, secrets eller persondata.
 
 [Team Arbeidsforhold](https://teamkatalog.nav.no/team/29d44f3f-ff09-477c-b26a-83cd0aa66116) eig produktet og repoet; `@navikt/crm-arbeidsforhold` er
 GitHub-teamet for bidragsytarar og review. Sletting skal verifiserast i SIT2.
 [Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f) skal godkjenne menneskelege produksjonsmetadataendringar og
 utføre produksjonsverifikasjon og sletting. Agentar skal aldri aksessere
-produksjon, heller ikkje etter godkjenning. Før kvar agentkommando mot eit
-ikkje-produksjonsorg krevst ny stadfesting av eksakt mål og handling.
+produksjon, heller ikkje etter godkjenning. Verifiser eksplisitt mål og scratch-type
+før handling i `crm-arbeidsforhold`; ny brukargodkjenning trengst ikkje der.
+Før kvar agentkommando mot andre ikkje-produksjonsorg krevst ny stadfesting av eksakt mål og handling.
 
 ## Formal
 
@@ -31,7 +32,7 @@ Den bevarte testen er `AAREG_checkObjectTypeNamecheTest.cls`. Produksjonsklassen
     - metadata som skal slettast;
     - grunn og avhengigheitskontroll;
     - godkjenningar, endringsvindu og rollback-eigar.
-2. Få eksplisitt godkjenning for kvar org og handling. Produksjon krev separat godkjenning frå [Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f) og menneskeleg utføring; agentar har ikkje tilgang.
+2. Verifiser at eksplisitt mål er eksisterande `crm-arbeidsforhold` scratch-org; der trengst ikkje ny brukargodkjenning. Få fersk mål-/handlingsgodkjenning for andre ikkje-produksjonsorg. Produksjon krev separat godkjenning frå [Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f) og menneskeleg utføring; agentar har ikkje tilgang.
 3. Verifiser at `AAREG_CheckObjectTypeNamingTest` ikkje er referert frå Flow, Apex, permission sets, package manifest eller CI-konfigurasjon.
 4. Verifiser at produksjonsklassen `AAREG_checkObjectTypeNameche` framleis er referert der han skal vere, mellom anna frå:
     - `AAREG_getObjectTypeName.flow-meta.xml`;

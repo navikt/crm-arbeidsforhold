@@ -45,4 +45,4 @@ This handbook describes the current implementation of `@navikt/salesforce-projec
 
 ## Validation boundary
 
-Unit, contract, component, and browser tests use fake command responses or an in-memory service facade. They validate local contracts without contacting Salesforce. Real org creation, package installation, deployment, retrieval, or authenticated compatibility requires an explicitly selected org, human approval, and a separate Salesforce validation run.
+Unit, contract, component, and browser tests use fake command responses or an in-memory service facade. They validate local contracts without contacting Salesforce. Real Salesforce validation requires a separate run against an explicitly verified non-production target. Work in the existing `crm-arbeidsforhold` scratch org needs no renewed user approval under the repository's `AGENTS.md`; org creation/replacement, Dev Hub access, and each operation in any other non-production org still require approval. Native tool controls remain in force. Agents must never access production.

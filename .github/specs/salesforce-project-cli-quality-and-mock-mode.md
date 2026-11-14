@@ -70,5 +70,5 @@ The excluded test has a date-sensitive fixture (`expirationDate: 2026-09-20`) an
 ## Risks and review points
 
 - Mock data must never be mistaken for org state; this is a user-safety requirement.
-- Reinstall/uninstall and package mutation remain org-dependent and require explicit human approval.
+- Reinstall/uninstall and package mutation remain org-dependent. In the verified existing `crm-arbeidsforhold` scratch org they need no renewed user approval under `AGENTS.md`; other non-production orgs require fresh target/action approval. Native tool controls remain in force; agents must never access production.
 - SOLID refactoring must be incremental; broad rewrites risk changing Salesforce command ordering and retry semantics.

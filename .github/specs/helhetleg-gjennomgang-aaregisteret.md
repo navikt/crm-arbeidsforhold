@@ -29,7 +29,7 @@ Kartlegg alle direkte deklarerte pakkeavhengnader, relevante transitive samband,
 
 ### REQ-003 — Scratch-org-runtime-evidens
 
-Samanlikn kjelde og avgrensa runtime-tilstand i `crm-arbeidsforhold`, inkludert aktive Flow-versjonar, relevante feature flags, schedulering, dependency-installasjon og aggregerte tilgangs-/konfigurasjonstilstandar. Kvar org-kommando krev fersk stadfesting av eksakt mål og handling. Ingen produksjonsorg, credential-data, secrets eller unødvendige person-/forretningsrecordar skal lesast.
+Samanlikn kjelde og avgrensa runtime-tilstand i `crm-arbeidsforhold`, inkludert aktive Flow-versjonar, relevante feature flags, schedulering, dependency-installasjon og aggregerte tilgangs-/konfigurasjonstilstandar. Verifiser eksplisitt mål og scratch-type før handling; arbeid i eksisterande `crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning. Andre ikkje-produksjonsorg krev fersk mål-/handlingsgodkjenning etter `AGENTS.md`. Ingen produksjonsorg, credential-data, secrets eller unødvendige person-/forretningsrecordar skal lesast.
 
 ### REQ-004 — Ende-til-ende funksjonar og scenario
 
@@ -81,7 +81,7 @@ Lever ein navigerbar dokumentasjonspakke med tydelege evidensstatusar og relativ
 ## Avgrensingar og styring
 
 - Ingen produksjonstilgang eller produksjonsverifikasjon for agentar.
-- Ingen Salesforce-kommando før fersk stadfesting av eksakt ikkje-produksjonsmål og handling; standardmålet er `crm-arbeidsforhold`.
+- Verifiser at eksplisitt mål er eksisterande `crm-arbeidsforhold` scratch-org; der trengst ikkje ny brukargodkjenning. Andre ikkje-produksjonsorg krev fersk mål-/handlingsgodkjenning.
 - Ingen deploy, pakkeinstallasjon, autentiseringsendring, flaggaktivering eller live Altinn/P360-kall som del av denne kartlegginga.
 - Ingen endring i dependency-eigd mappe utan eksplisitt eigargodkjenning.
 - Eventuelle produktkodefiks blir separate Issues/PR-ar etter evidens, prioritering, menneskeleg review og relevante testar.

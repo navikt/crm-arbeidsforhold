@@ -172,7 +172,7 @@ Scenarioa under er forslag til målbar dekning. Nokre kan vere delvis dekte av e
 1. **Apex-einingstestar:** forretningsregel, validering, mapping og statusovergang med små fixture-grafar.
 2. **Apex-transaksjons-/integrasjonstestar:** DML, trigger/Flow-samspel, sharing, asynkron oppførsel og `HttpCalloutMock`.
 3. **LWC/Jest:** brukarhandlingar, valideringsvising, tom-/feiltilstandar og klientinteraksjonar. Bruk mocka Apex-/child-komponentar der dette er etablert mønster.
-4. **Scratch-org verifikasjon:** berre når ein test krev faktisk plattform-/metadataoppførsel; bruk godkjend ikkje-produksjonsmål og avklar org-handling på nytt etter repo-reglane.
+4. **Scratch-org verifikasjon:** berre når ein test krev faktisk plattform-/metadataoppførsel; verifiser eksisterande `crm-arbeidsforhold` scratch-org som eksplisitt mål utan ny brukargodkjenning. Andre ikkje-produksjonsmål krev fersk mål-/handlingsgodkjenning etter repo-reglane; produksjon er forbode.
 5. **Ekstern ende-til-ende:** eigne, eksplisitt godkjende ikkje-produksjonsintegrasjonstestar med syntetiske data. Ikkje bland desse med vanleg unit-test-suite.
 
 Køyr først den minste relevante testen. For Apex er org-køyring org-avhengig; rapporter kommando, mål og faktisk resultat. For P360 må resultatet skilje mellom mocka transport og verifisert ekstern arkivering.

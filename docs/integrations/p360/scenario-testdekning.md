@@ -8,9 +8,11 @@ ein påstand om at desse scenarioa er komplett testa.
 
 ## Felles rammer
 
-- **Mål:** scratch-org `crm-arbeidsforhold`. Før kvar org-kommando må brukar
-  stadfeste dette målet og den eksakte handlinga. Deploy, dataskriving,
-  flagg- og tilgangsendringar krev separat godkjenning.
+- **Mål:** eksisterande scratch-org `crm-arbeidsforhold`. Verifiser eksplisitt
+  mål og scratch-type før handling. Lesing, testar, deploy, dataskriving,
+  flagg- og tilgangsendringar krev ikkje ny brukargodkjenning der etter
+  `AGENTS.md`. Andre ikkje-produksjonsorg krev fersk mål-/handlingsgodkjenning;
+  produksjon er forbode. Respekter native verktøygodkjenningar.
 - **Testdata:** bruk isolerte, syntetiske data og eksisterande
   [P360_TestDataFactory](../../../force-app/tests/classes/integration/p360/test/P360_TestDataFactory.cls)
   og [AAREG_TestDataFactory](../../../force-app/utility/classes/AAREG_TestDataFactory.cls).

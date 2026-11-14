@@ -99,11 +99,14 @@ Ingen Salesforce-innlogging kreves for [de lokale kontrollene](../README.md#loka
 
 ## 3. Avklar Salesforce-miljø og scratch-org
 
-Avklar mål, tilgang og handlinger før org-oppsett. Før hver agentkommando som
-aksesserer et org, skal brukeren bekrefte eksakt ikke-produksjonsmål og handling
-på nytt, også for standard-scratch-orget `crm-arbeidsforhold` og lesekommandoer.
-Andre ikke-produksjonsorg krever også en teknisk begrunnelse.
-Et autentisert alias eller tidligere godkjenning er ikke tillatelse til neste operasjon.
+Avklar mål, tilgang og handlinger før org-oppsett. Arbeid i eksisterende
+`crm-arbeidsforhold` scratch-org krever ikke ny brukergodkjenning, inkludert
+lesing, tester, pakkeinstallasjon, deploy og endring/sletting. Verifiser eksplisitt
+mål og scratch-type før handling; alias alene er ikke bevis. Respekter native
+verktøygodkjenninger. Org-oppretting/-erstatting krever fortsatt godkjenning.
+Andre ikke-produksjonsorg krever teknisk begrunnelse og ny bekreftelse av eksakt
+mål og handling før hver kommando. Der er ikke autentisering eller tidligere
+godkjenning tillatelse til neste operasjon.
 Agenter skal aldri aksessere produksjon, heller ikke en produksjonstilknyttet
 Dev Hub. Avtal menneskelig utføring med [Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f) hvis dette er nødvendig.
 

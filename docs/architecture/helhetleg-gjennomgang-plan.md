@@ -24,7 +24,7 @@ Org-funn, tidlegare testresultat og issue/Jira-status er tidsavgrensa evidens. D
 ## Arbeidsprinsipp og stop gates
 
 1. **Evidens før konklusjon:** merk kvar opplysning som kjelde, køyrd test, org-observasjon, historisk evidens, inferens eller uavklart avgjerd.
-2. **Org-sikkerheit:** før kvar Salesforce-kommando skal brukar stadfeste eksakt mål og handling på nytt. Bruk Salesforce CLI 2.158.7 på macOS-hostterminalen mot `crm-arbeidsforhold` som standard. Ikkje køyr autentiserte kommandoar i `cplt`; ikkje bruk produksjon eller annan org.
+2. **Org-sikkerheit:** arbeid i eksisterande `crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning. Verifiser eksplisitt mål og scratch-type før handling og respekter native verktøygodkjenningar. Bruk Salesforce CLI 2.158.7 på macOS-hostterminalen. Ikkje køyr autentiserte kommandoar i `cplt`; ikkje bruk produksjon eller annan org i denne kartlegginga.
 3. **Least-data:** bruk aggregerte metadata/status-oppslag. Ikkje les tokens, secrets, Named Credential-innhald, reelle personopplysningar eller forretningsrecordar når teljing/metadata er nok.
 4. **Read-only fyrst:** gjennomgang og inventar endrar ikkje Salesforce-metadata, org-data, feature flags, pakker eller eksterne system.
 5. **Pakkeeigarskap:** les dependency-pakkar for kontrakt og bruk, men ikkje endre dei utan eksplisitt godkjenning frå eigar.
@@ -58,7 +58,7 @@ Avhengnad: Fase 0.
 Avhengnad: Fase 1. Kvar kommando krev fersk godkjenning av det eksakte målet `crm-arbeidsforhold` og handlinga.
 
 - [ ] T009 [Plan:2.1] Utarbeid minimal lesande query-matrise for org-versjon, installerte pakkar, aktive Flow-versjonar, relevante schedulers/jobs, flagg og aggregerte assignments.
-- [ ] T010 [Plan:2.2] Be om stadfesting før kvar konkret CLI-kommando; loggfør faktisk kommando/resultat og stoppeffekt ved avslag eller auth-blokkering.
+- [ ] T010 [Plan:2.2] Verifiser eksplisitt scratch-mål før CLI-køyring utan ny brukargodkjenning i `crm-arbeidsforhold`; loggfør faktisk kommando/resultat og stoppeffekt ved native verktøyavslag eller auth-blokkering.
 - [ ] T011 [Plan:2.3] Samanlikn org-tilstand med source metadata og deklarerte dependencies; dokumenter avvik og kva oppslaget ikkje kan bevise.
 - [ ] T012 [Plan:2.4] Ikkje utfør DML, testdataoppretting, deployment, package installation, flagg-/permission-endring eller eksterne kall i denne fasen.
 
@@ -176,8 +176,8 @@ Eksisterande [P360-roadmap #1095](https://github.com/navikt/crm-arbeidsforhold/i
 
 ## Føresetnader og kjende grenser
 
-- Gjeldande user instruction krev Salesforce CLI `2.158.7` frå hostterminalen; `crm-arbeidsforhold` er standardmål. Fresh approval krevst før kvar org-operasjon.
-- Org-funn frå 2026-11-13 er historiske, lesande observasjonar og må oppdaterast med ny godkjenning før dei blir brukte som dagens tilstand.
+- Bruk Salesforce CLI `2.158.7` frå hostterminalen; verifisert eksisterande `crm-arbeidsforhold` scratch-org er autorisert utan ny brukargodkjenning etter `AGENTS.md`.
+- Org-funn frå 2026-11-13 er historiske, lesande observasjonar og må oppdaterast med ferske oppslag før dei blir brukte som dagens tilstand.
 - P360-transport/mapping/recovery har framleis eigne opne avgjerder og er koordinert i #1095 og tilhøyrande Issues. Denne planlegginga skal ikkje opprette parallell P360-implementasjonsbacklogg.
 - P360 kontraktsdokumentasjon er open i #983. Eigar av operativ runbook er open i #997.
 - Review, doc-creation og lokale valideringar kan gjerast utan org-tilgang; org-runtime-bevis og org-avhengige testar blir BLOCKED til eksakt handling er stadfesta.

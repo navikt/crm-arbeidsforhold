@@ -150,13 +150,15 @@ gjenstår og forutsetningen for å kjøre den. Ikke rapporter den som bestått.
 
 ### Org- og miljøsikkerhet
 
-- Før **hver** agentkommando som aksesserer Salesforce, skal brukeren bekrefte
-  eksakt ikke-produksjonsmål og handling på nytt. Det gjelder også
-  standard-scratch-orget `crm-arbeidsforhold`, Dev Hub, innlogging, lesing,
-  Apex-tester, deploy preview, retrieval, deploy og skript som kontakter org.
+- Arbeid i eksisterende `crm-arbeidsforhold` scratch-org krever ikke ny
+  brukergodkjenning: lesing, Apex-tester/-skript, deploy preview, retrieval,
+  pakkeinstallasjon, deploy, publisering og endring/sletting av data eller metadata
+  er omfattet. Verifiser eksplisitt mål og scratch-type før handling; alias alene
+  er ikke bevis. Native verktøygodkjenninger skal fortsatt respekteres.
 - Forklar den tekniske grunnen før et annet ikke-produksjonsorg enn
-  standard-scratch-orget brukes. Autentisering, standardalias, tidligere
-  godkjenning eller et eksisterende skript er ikke tillatelse til neste operasjon.
+  standard-scratch-orget brukes. Før hver kommando mot andre ikke-produksjonsorg
+  kreves ny bekreftelse av eksakt mål og handling. Autentisering, standardalias,
+  tidligere godkjenning eller et eksisterende skript gir ikke tillatelse der.
 - **Agenter skal aldri aksessere produksjon**, heller ikke etter forespørsel
   eller godkjenning. Forbudet omfatter innlogging, spørringer, metadatahenting,
   tester, deploy og tilgang via en produksjonstilknyttet Dev Hub.
@@ -164,7 +166,8 @@ gjenstår og forutsetningen for å kjøre den. Ikke rapporter den som bestått.
 - Menneskelige endringer i produksjonsmetadata krever eksplisitt godkjenning
   fra [Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f). [Team Platforce](https://teamkatalog.nav.no/team/06a47c6b-557c-491e-b036-d6abbc77b04f) utfører produksjonsverifikasjon og sletting.
   Godkjenning av en menneskelig handling gir ikke agenten produksjonstilgang.
-- Org-oppretting, pakkeinstallasjon, deploy, pakkeoppretting og promotering
+- Org-oppretting/-erstatting, pakkeoppretting/-promotering, CI/auth-endringer,
+  live eksterne integrasjoner og operasjoner utenfor det autoriserte scratch-orget
   krever fortsatt eksplisitt godkjenning av handlingene.
 - Følg godkjente rutiner og registrer handlinger og resultater slik at de kan
   spores i Issue/PR og operasjonssak og kontrolleres mot auditlogger.

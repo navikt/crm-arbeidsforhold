@@ -20,7 +20,7 @@ Use this skill before a non-trivial feature, integration, data, access, or archi
 8. Finish with a concise decision summary, explicit exclusions, test seam, and any remaining blockers. Ask the user to confirm shared understanding. Silence is not approval; unresolved branches remain visible.
 9. After confirmation, hand the outcome to the user-invoked `to-spec` workflow. Do not automatically invoke another user-only skill or implement directly from the interview.
 
-Access, personal-data, authentication, callout, metadata-visibility, CI, deployment, and package decisions require explicit human approval. Agreement on a design does not authorize org operations, issue publication, or package release.
+Access, personal-data, authentication, callout, metadata-visibility, CI, deployment, and package design decisions require explicit human approval. Execution in the verified existing `crm-arbeidsforhold` scratch org needs no renewed user approval under `AGENTS.md`; this does not authorize live external integrations, org creation/replacement, other orgs, CI/auth changes, issue publication, or package creation/release. Production access remains prohibited.
 
 Do not invent domain terms, Salesforce IDs, external contracts, or policy requirements. Do not create a second glossary or a generic interview-notes document unless requested.
 

@@ -16,7 +16,7 @@ Gjennomfør tre rundar i denne rekkjefølgja:
 2. **Scratch-org, P360 på med mock:** jobbar, tilgang, låsing og prosessering.
 3. **Integrasjonssandbox, framleis mock:** dei same brukarreisene med realistiske roller, deling, community og automatisering.
 
-Org-oppretting, pakkeinstallasjon, deploy, konfigurasjonsendringar og bruk av ein annan org enn default scratch-org krev separat godkjenning. Kommandoane under er instruksjonar, ikkje handlingar som allereie er utførte.
+Arbeid i verifisert eksisterande `crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning, inkludert pakkeinstallasjon, deploy og data-/metadataendringar. Org-oppretting/-erstatting, CI/auth, live eksterne integrasjonar og kvar handling mot andre ikkje-produksjonsorg krev framleis eksplisitt godkjenning etter `AGENTS.md`; produksjon er forbode. Kommandoane under er instruksjonar, ikkje handlingar som allereie er utførte.
 
 ## 1. Viktige funn før testing
 
@@ -95,7 +95,7 @@ Les lagra resultat tilbake etter refresh eller ny innlogging. Ein grøn toast er
 
 - [ ] Undersøk [scratch-oppsettet](../../bin/README.md), installasjonsføresetnader og post-steg.
 - [ ] Kontroller hjelp og dry-run før faktisk oppretting.
-- [ ] Få godkjenning før org-oppretting, pakkeinstallasjon eller deploy.
+- [ ] Verifiser eksplisitt mål og scratch-type. Bruk eksisterande `crm-arbeidsforhold` utan ny brukargodkjenning; få godkjenning før org-oppretting/-erstatting og handlingar mot andre ikkje-produksjonsorg.
 - [ ] Kontroller hovudpakke og nødvendige avhengigheiter.
 - [ ] Kontroller testdata, brukarar og permission assignments.
 - [ ] Kontroller at community er tilgjengeleg for ekstern UI-testing.

@@ -2,7 +2,7 @@
 
 Denne runbooken testar den interne P360-flyten utan live P360-kall. Han skal køyrast berre mot default scratch org `crm-arbeidsforhold`.
 
-> Kommandoane under er menneskestyrte instruksjonar, ikkje løyve til å køyre dei. Før kvar Salesforce-kommando må målorg og handling stadfestast på nytt. Assistenten køyrer ikkje org-kommandoar utan ei eiga, konkret godkjenning.
+> Arbeid i eksisterande `crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning etter `AGENTS.md`. Verifiser eksplisitt mål og scratch-type før handling og respekter native verktøygodkjenningar. Andre ikkje-produksjonsorg krev fersk mål-/handlingsgodkjenning; produksjon er alltid forbode. Guiden dokumenterer instruksjonar, ikkje gjennomførte testar.
 
 ## Slik brukar vi guiden saman
 
@@ -14,7 +14,7 @@ I ei menneskestyrt gjennomgang:
 1. Assistenten gir eitt avgrensa steg og seier kva du skal sjå etter.
 2. Du utfører steget i Salesforce UI eller lokalt og svarer med resultatet.
 3. Assistenten registrerer status og evidens i [P360 testlogg](test-log.md), forklarer avvik og gir først deretter neste steg.
-4. Assistenten skal ikkje utføre org-handlingar på dine vegner. Org-lesing, testar, deploy, tilgangsendringar og dataoppretting krev eiga, konkret godkjenning før kvar handling.
+4. I denne menneskestyrte modusen utfører du stega sjølv. Ved agentstyrt køyring kan assistenten lese, teste, deploye og endre data/metadata i verifisert eksisterande `crm-arbeidsforhold` scratch-org utan ny brukargodkjenning; rapporter dette som agentutført, ikkje som eit manuelt UI-resultat.
 
 Svaralternativa for kvart steg skal vere: **Utført**, **Blokkert**, **Uventa resultat**, **Treng hjelp**, eller **Hopp over**. Eit steg utan stadfesta resultat er ikkje bestått.
 
@@ -37,7 +37,7 @@ Han verifiserer ikkje P360 endpoint, OAuth, Named Credential, wire-format, ekte 
 - For UI-only statusinnsyn skal menneskeleg testoperatør ha `P360_Archive_Job_Viewer`.
 - For `npm run test:p360:mock` må køyrande teknisk brukar ha `P360_Integration_User` eller minst `P360_Archive_Job_Processing`. Ikkje tildel processing-set-et til ein menneskeleg UI-brukar berre for å vise fana; Salesforce-rettar er additive, så Create/Edit blir verande dersom brukaren også har det settet.
 - Det finst ikkje secrets, tokens, cookies eller ekte persondata i testen.
-- Bruk aldri `SIT2`, produksjon, DevHub eller annan org i denne runbooken utan eksplisitt godkjenning.
+- Bruk aldri produksjon, heller ikkje ein produksjonstilknytt Dev Hub. Denne runbooken gjeld berre `crm-arbeidsforhold`; bruk av `SIT2`, ein annan ikkje-produksjonsorg eller ein ikkje-produksjons-Dev Hub krev fersk mål-/handlingsgodkjenning og ei eiga tilpassa testprosedyre.
 
 ### P360 Archive Jobs-listevisingar
 
@@ -269,7 +269,7 @@ Ikkje legg secrets eller miljøspesifikke verdiar i scriptet eller Git.
 | Jobb blir `Manual Review`                 | Sjå `Last_Error_Code__c` og `Last_Error_Message__c`.                                                                                                            |
 | `P360_MissingCodeTableMappingException`   | Sjekk at P360-kodeverkmetadata er deploya og aktiv.                                                                                                             |
 | Ekte callout blir forsøkt                 | Kontroller `P360_Integration_Setting__c.Use_Mock_Transport__c = true` og at testen bruker factory/orchestrator, ikkje `P360_ArchiveAdapter` direkte.            |
-| Testklassen blir ikkje funnen             | Koden/testen er ikkje deploya til `crm-arbeidsforhold` enno. Køyr deploy-preview først, og få eksplisitt godkjenning før faktisk deployment.                    |
+| Testklassen blir ikkje funnen             | Koden/testen er ikkje deploya til `crm-arbeidsforhold` enno. Verifiser scratch-målet og køyr deploy-preview før deploy; ny brukargodkjenning trengst ikkje der. |
 
 Denne runbooken beviser intern mock-flyt og jobbstatus. Han beviser ikkje ekte P360 endpoint, auth, wire-format, upload eller eksterne feilkodar.
 

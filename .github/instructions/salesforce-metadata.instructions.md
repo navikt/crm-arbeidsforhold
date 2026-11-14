@@ -13,6 +13,6 @@ For new or materially changed Salesforce metadata in the main package:
 - Prefer existing Custom Metadata, Custom Labels, permission sets, Named Credentials, and established package dependencies over hardcoded configuration.
 - For Flows and declarative automation, keep entry criteria explicit, avoid duplicated business rules, handle fault paths, and keep orchestration separate from reusable logic where practical.
 - Treat permission sets, sharing, field-level security, Experience Cloud access, and metadata visibility as security-sensitive. Require human review for access changes.
-- Before deployment-related actions, use a local deploy preview or the repository's validation workflow. Deployment, package creation, promotion, and org changes require explicit user approval.
+- Before deployment-related actions, use a deploy preview or the repository's validation workflow. Deployments and org changes in the verified existing `crm-arbeidsforhold` scratch org need no renewed user approval. Other non-production org operations and package creation/promotion still require explicit approval under `AGENTS.md`; production access is prohibited.
 - Review design changes against Salesforce Well-Architected: Trusted, Easy, and Adaptable. State important dependencies, failure behaviour, packageability, and rollback considerations.
 - Add or update focused tests for behaviour affected by metadata changes, and report when validation requires an authenticated Salesforce org.

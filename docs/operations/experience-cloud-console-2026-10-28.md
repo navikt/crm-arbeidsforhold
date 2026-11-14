@@ -75,7 +75,9 @@ Feilen kan påverke valde skjemaverdiar; lagring/innsending er ikkje verifisert.
 
 Skjemadata kan vere påverka. Bruk syntetiske fixtures og red-green-refactor
 med fokusert LWC Jest-test. Kontroller deretter organisasjonstypane som
-komponenten støttar i godkjent testmiljø. Org-kontroll krev eiga godkjenning.
+komponenten støttar i godkjent testmiljø. Kontroll i verifisert eksisterande
+`crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning; andre
+ikkje-produksjonsorg krev fersk mål-/handlingsgodkjenning etter `AGENTS.md`.
 
 ## EC-02: Avklar støtta Nav-øktvarsling frå Salesforce
 
@@ -159,7 +161,9 @@ verifisert med relevant samtykketilstand.
 
 Tredjepartsscript, samtykke og CSP krev menneskeleg gjennomgang.
 Kontroller Console og Network med godkjende samtykketilstandar.
-Publisering og org-endringar krev særskild godkjenning. Ikkje bruk fråvær
+Publisering og org-endringar i verifisert eksisterande `crm-arbeidsforhold`
+scratch-org krev ikkje ny brukargodkjenning; andre ikkje-produksjonsorg krev
+fersk mål-/handlingsgodkjenning. Ikkje bruk fråvær
 av feil utan aktivt samtykke som bevis på at scriptet fungerer.
 
 ## EC-04: Spor Aura-handler mot ukjend komponent
@@ -290,7 +294,10 @@ feilissue for den løyste hendinga.
 5. Prioriter cache og font etter faktisk funksjons- og ytelseskonsekvens.
 
 For lokale kodeendringar skal fokusert Jest og relevant formatering køyrast.
-Org-lesing, testar, publisering og deploy krev eigne mål-/handlingsgodkjenningar.
+Org-lesing, testar, publisering og deploy i verifisert eksisterande
+`crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning. Andre
+ikkje-produksjonsorg krev ferske mål-/handlingsgodkjenningar etter `AGENTS.md`;
+agentar skal aldri aksessere produksjon.
 Ingen av dei føreslåtte rettingane er testa eller erklærte grøne i denne rapporten.
 
 ## GitHub-oppfølging

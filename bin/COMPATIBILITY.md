@@ -195,7 +195,9 @@ npm run prettier:check
 
 Den siste kommandoen er repository-brei og kan finne uvedkomande gamle feil.
 Ved avgrensa dokumentasjonsendring kan du fyrst køyre Prettier berre på endra
-MD-/JS-/JSON-filer. Apex/live metadata/deploy krev eiga eksplisitt org-godkjenning.
+MD-/JS-/JSON-filer. Apex/live metadata/deploy i verifisert eksisterande
+`crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning etter `AGENTS.md`;
+andre ikkje-produksjonsorg krev fersk mål-/handlingsgodkjenning. Produksjon er forbode.
 Visuell testing av HTML var blokkert i agent-sandboxen; lokal preview-server
 og opning av tempfil blei avviste. Brukaren har valt å gjere visuell sjekk sjølv.
 

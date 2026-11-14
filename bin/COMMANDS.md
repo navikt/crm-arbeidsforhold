@@ -25,8 +25,11 @@ CMD nyttar backslash. Alle `sf`-kommandoar treng rett autentisering **og** lov t
 å bruke det aktuelle miljøet; autentisering er ikkje godkjenning.
 
 - Standard scratch-org i dette repoet er `crm-arbeidsforhold`.
-- Brukaren må godkjenne org-oppretting, installasjon, deploy, henting og sletting.
-  Eksempela nedanfor er ikkje løyve til å utføre dei.
+- Arbeid i verifisert eksisterande `crm-arbeidsforhold` scratch-org krev ikkje ny
+  brukargodkjenning, inkludert installasjon, deploy, henting og sletting av data/metadata.
+  Org-oppretting/-erstatting og handlingar mot andre ikkje-produksjonsorg, inkludert
+  Dev Hub, krev framleis eksplisitt godkjenning etter `AGENTS.md`. Agentar skal aldri
+  aksessere produksjon. Native verktøygodkjenningar gjeld framleis.
 - `--dry-run` / `-DryRun` er **ikkje offline**. Lesing av pakkar, org og pool
   kan kontakte Salesforce. Avhengigheitssjekken skriv lokale rapportar.
 - Standard oppsett kan **slette/erstatte eksisterande scratch-org**, hente frå
@@ -387,7 +390,9 @@ generelt `--yes`-flagg. Ikkje bruk `--skip-version-check` som bypass av prefligh
 
 ### Planlegg og utfør oppsett
 
-Berre etter org-/pakke-/deploy-godkjenning og secrets-oppsett:
+Berre etter nødvendige godkjenningar etter `AGENTS.md` og secrets-oppsett.
+Eksisterande `crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning,
+men oppretting/erstatting og eventuell Dev Hub-/pool-tilgang gjer det:
 
 ```bash
 bash bin/create-scratch-org.sh --alias crm-arbeidsforhold --dry-run
@@ -508,7 +513,9 @@ og maskerer `-InstallationKey` i kommandoutskrifta. Det er dekt av
 | `-TestRunAll`      | Alle Apex-testar, med async-fallback ved feil                                     |
 | `-TestClass`       | `AAREG_ApplicationDecisionControllerTest`                                         |
 
-Avgrensa legacy-eksempel, berre etter godkjenning av Apex-køyringa:
+Avgrensa legacy-eksempel: verifiser eksisterande `crm-arbeidsforhold` scratch-mål
+utan ny brukargodkjenning, eller få fersk mål-/handlingsgodkjenning for andre
+ikkje-produksjonsorg:
 
 ```powershell
 pwsh -NoProfile -File ./bin/post-package-coverage-check.ps1 -TargetOrg crm-arbeidsforhold -SkipInstall -SkipDeploy -MinCoverage 75

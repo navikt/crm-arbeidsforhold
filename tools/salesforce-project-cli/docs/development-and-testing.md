@@ -143,4 +143,4 @@ Use clear technical English and describe current behavior, not intended future b
 
 ## Authenticated validation
 
-Local fake-backed tests prove local behavior only. Real org creation, deletion, package installation, deployment, retrieval, or authenticated compatibility requires an explicitly selected non-production org and human approval. Record the exact target and completed command without recording credentials or org user data. Never describe a fake-backed test as Salesforce validation.
+Local fake-backed tests prove local behavior only. Real Salesforce validation requires an explicitly verified non-production target. Work in the existing `crm-arbeidsforhold` scratch org, including package installation, deployment, retrieval, and data/metadata deletion, needs no renewed user approval under the repository's `AGENTS.md`. Org creation/replacement, Dev Hub access, and each operation in other non-production orgs still require approval; agents must never access production. Native tool controls remain in force. Record the exact target and completed command without recording credentials or org user data. Never describe a fake-backed test as Salesforce validation.

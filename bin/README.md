@@ -33,13 +33,15 @@ The post-step runs four separate Apex transactions. It can create or update
 synthetic accounts and contacts, up to four applications and four active
 agreements, the community user and its permission assignments. Existing flows
 can create additional records. A later failure does not roll back earlier transactions.
-Review the effects and obtain approval for the exact non-production org before
-running it.
+Review the effects and verify the explicit target. Running in the existing
+`crm-arbeidsforhold` scratch org needs no renewed user approval under `AGENTS.md`;
+other non-production targets require fresh target/action approval. Never access production.
 
 [`verify-altinn-test-owner.apex`](./verify-altinn-test-owner.apex) is a
 read-only check for exactly one eligible owner with a role. When the synthetic
 identity account exists, it also checks that the account retains that owner.
-Running the check against an org requires approval for that target and action.
+Running the check in the verified existing `crm-arbeidsforhold` scratch org needs
+no renewed user approval; other non-production orgs require fresh target/action approval.
 
 ## Documentation map
 
@@ -97,8 +99,11 @@ The helper's Node 22+ requirement alone does not guarantee a supported npm insta
 ### First-run checklist
 
 1. Install the required runtime and Salesforce tools. Run from the repository root.
-2. Have the intended packaging Dev Hub and scratch-org actions approved. Authentication
-   does not itself grant permission to use another org. If login is needed, use your
+2. Have the intended non-production packaging Dev Hub and org creation/replacement approved.
+   Work in the verified existing `crm-arbeidsforhold` scratch org needs no renewed user
+   approval, including package installation and deployment. Authentication does not
+   itself grant permission to use another org. Never access production, including a
+   production-backed Dev Hub. If login is needed, use your
    approved interactive authentication flow; do not put tokens or auth URLs in commands.
 3. Review `sfdx-project.json` and `sf-project.config.json`. This repository enables
    pool use and multiple post-steps; generic script defaults are different.
@@ -174,7 +179,9 @@ For other options, use PowerShell parameter names on Windows; on macOS/Linux, us
 Parameters use PowerShell names such as `-OrgAlias`, `-DurationDays`, `-DefinitionFile`, `-PostSteps`, `-UsePool`, `-PackagePlan`, and `-RefreshDependencySources`. `-DryRun` plans mutations without running them. The old positional installation-key argument is no longer supported. Supply package keys through the environment variable named by `packageInstallKeyEnvironmentVariable`; never put a key in the config file or command history.
 
 Dry-run is not an offline test: package-version resolution and pool status can still
-contact Salesforce. Org/environment access requires the normal target/action approval.
+contact Salesforce. Verify every target: work in the existing `crm-arbeidsforhold`
+scratch org needs no renewed user approval, but Dev Hub access and other
+non-production targets require fresh target/action approval.
 
 ## macOS/Linux
 
@@ -582,8 +589,9 @@ This is not a retry policy for every metadata-read, deployment or validation
 failure. Do not wrap full setup in an unconditional retry loop: full setup can
 delete/replace the org, and post-steps may already have changed data.
 
-After reviewing the current state and obtaining approval for the remaining
-actions, choose an existing-org workflow rather than blindly repeating creation:
+After reviewing the current state and verifying the existing `crm-arbeidsforhold`
+scratch target, choose an existing-org workflow rather than blindly repeating creation.
+No renewed user approval is needed for these scratch-org actions:
 
 ```bash
 bash bin/create-scratch-org.sh --alias crm-arbeidsforhold --update-packages
@@ -592,7 +600,9 @@ bash bin/create-scratch-org.sh --alias crm-arbeidsforhold --post-steps-only --po
 
 PowerShell equivalents are `-OrgAlias crm-arbeidsforhold -UpdatePackages` and
 `-OrgAlias crm-arbeidsforhold -PostStepsOnly -PostSteps deploy`. They still
-perform the named org actions and require the normal approval. For all modes,
+perform the named org actions under the scratch-org authorization in `AGENTS.md`.
+Any additional Dev Hub access or other non-production org operation requires fresh
+target/action approval; never access production. For all modes,
 read nonzero exits and operation details rather than treating an old report,
 heartbeat, planned step or isolated success line as evidence that setup finished.
 

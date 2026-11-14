@@ -238,7 +238,9 @@ Anonymous Apex-fila set `Use_Mock_Transport__c` på org-standardinnstillinga til
 `true`. Ho har ingen opprydding eller automatisk tilbakestilling; mock-transport
 kan difor bli ståande aktiv etter både vellukka og mislukka køyring. Røykprøva
 hevdar at ingen live P360-callout blir utført, men ho endrar framleis org-en.
-Bruk berre etter godkjenning, i rett ikkje-produksjonsorg, og følg lokal
+Bruk i verifisert eksisterande `crm-arbeidsforhold` scratch-org utan ny
+brukargodkjenning, eller få fersk mål-/handlingsgodkjenning for andre
+ikkje-produksjonsorg etter `AGENTS.md`. Agentar skal aldri aksessere produksjon. Følg lokal
 framgangsmåte for kontroll/tilbakestilling av mock-innstillinga. Ikkje køyr dette
 som del av vanleg lokal validering.
 

@@ -52,15 +52,15 @@ Dette er designet planen konsumerer; planen introduserer ikkje ein eigen datamod
 Ingen separat constitution er funnen i dokumentasjonsgrunnlaget. Repositoryreglane
 er førande:
 
-| Føring                             | Planvurdering                                                                          |
-| ---------------------------------- | -------------------------------------------------------------------------------------- |
-| Hovudpakke og dependency-eigarskap | Separat leveranse frå pakkeeigar; referansemappa er ikkje implementasjonsmål           |
-| Bevar offentlege kontraktar        | Additiv konstruktør; inga endring av eksisterande interface/DTO                        |
-| TDD og minimumstilgang             | Fokuserte raud-grøn-sløyfer; `System.Assert`, `System.Test` og relevant `System.runAs` |
-| Raud sone                          | Menneskeleg gjennomgang av miljøvern, identitet, feil og deling før merge              |
-| Ingen implisitt org-handling       | Deploy/installasjon/pakkeutgiving er eigne godkjenningar                               |
-| Personvern og eksplisitte feil     | Ingen personident i fixtures/loggar; ingen fallback frå øydelagt mock til live         |
-| Framtidig Admin-app                | UI-uavhengig policy/katalog no; administrasjons-/skrivefunksjonar seinare              |
+| Føring                             | Planvurdering                                                                                                                                                                                                          |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hovudpakke og dependency-eigarskap | Separat leveranse frå pakkeeigar; referansemappa er ikkje implementasjonsmål                                                                                                                                           |
+| Bevar offentlege kontraktar        | Additiv konstruktør; inga endring av eksisterande interface/DTO                                                                                                                                                        |
+| TDD og minimumstilgang             | Fokuserte raud-grøn-sløyfer; `System.Assert`, `System.Test` og relevant `System.runAs`                                                                                                                                 |
+| Raud sone                          | Menneskeleg gjennomgang av miljøvern, identitet, feil og deling før merge                                                                                                                                              |
+| Org-autorisasjon                   | Deploy/installasjon i verifisert eksisterande `crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning; pakkeutgiving og andre ikkje-produksjonsorg krev godkjenning etter `AGENTS.md`. Produksjon er forbode. |
+| Personvern og eksplisitte feil     | Ingen personident i fixtures/loggar; ingen fallback frå øydelagt mock til live                                                                                                                                         |
+| Framtidig Admin-app                | UI-uavhengig policy/katalog no; administrasjons-/skrivefunksjonar seinare                                                                                                                                              |
 
 ## Applied Guidelines
 
@@ -220,7 +220,7 @@ gjeldande for denne leveransen, ikkje merkt som implementert.
 **Avhengigheit:** T013 og anten T016 eller T017, ikkje begge.
 
 - [ ] T018 [Plan:6.1] Fokusert Apex-regresjon er køyrd i godkjend scratch (`0AfJW00000nmxsn0AA`, 80/80 grøne), deploy er godkjend og fullført (`0AfJW00000nmyDl0AI`, 80/80), og LWC-suiten er grøn (15/15). Synthetic S01/S03-brukarar og scenarioinnstillingar er seed-a og verifiserte i `crm-arbeidsforhold`; dei har ikkje passord og nettlesarautentisering er ikkje sett opp. Før seed-kommando/resultat og brukarrapporterte nettlesarfunn i `docs/operations/scratch-testlogg-2026-10-15.md`; ende-til-ende UI og positiv delingsverifikasjon står att før oppgåva kan lukkast.
-- [ ] T019 [Plan:6.1] README-en er oppdatert med seed-kontrakt og scratch-evidens. Oppdater framleis specs ved behov; køyr toakse-review og relevant security-review før commit/push/PR. Få menneskeleg godkjenning; pakkeutgiving, deploy og integrasjonssandbox-testing krev eigne eksplisitte godkjenningar.
+- [ ] T019 [Plan:6.1] README-en er oppdatert med seed-kontrakt og scratch-evidens. Oppdater framleis specs ved behov; køyr toakse-review og relevant security-review før commit/push/PR. Få menneskeleg review; pakkeutgiving og integrasjonssandbox-testing krev eigne eksplisitte godkjenningar. Deploy til verifisert eksisterande `crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning etter `AGENTS.md`.
 
 ## Project Structure
 
@@ -262,8 +262,9 @@ force-app/externalAccess/                # eksisterande inngangar; inga flytting
   delingar ved Permit-til-Deny. Ingen automatisk reset eller tilgangsretting.
 - **Andre kanalar:** kontroller e-post og øvrige integrasjonar før UI-DML.
   Null Altinn-callouts er ikkje det same som null andre sideeffektar.
-- **Miljø:** berre default `crm-arbeidsforhold` er førehandsavtalt for autentiserte
-  kommandoar. Deploy krev likevel eigen godkjenning. Andre org-ar krev ny avtale.
+- **Miljø:** arbeid i verifisert eksisterande `crm-arbeidsforhold` scratch-org,
+  inkludert deploy og pakkeinstallasjon, krev ikkje ny brukargodkjenning etter
+  `AGENTS.md`. Andre ikkje-produksjonsorg krev fersk mål-/handlingsgodkjenning.
 - **Integrasjonssandbox:** separat godkjend oppfølging etter scratch; produksjon
   inngår ikkje i testplanen for scenario-runtime.
 
