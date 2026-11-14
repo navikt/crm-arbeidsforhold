@@ -60,15 +60,18 @@ array. Of these, 34 have an `ActiveVersionId` and 2 have a null
 `ActiveVersionId`. Version IDs are intentionally omitted.
 
 The local source inventory has 37 `.flow-meta.xml` files. Exact
-DeveloperName-to-filename comparison confirms that all 36 org definitions
+DeveloperName-to-filename comparison confirms that the 36 org definitions
 returned by this query match the 36 local Flow files whose names start with
-`AAREG`. Of these, 34 have active versions matching their latest versions; the
-two definitions without an active version are the local source files marked
-`Obsolete`: `AAREG_deactivateAccess` and `AAREG_getObjectTypeName`. The
-remaining local file, `updateApplicationStatusOnCasehandlerStatusAdditionalInformationRequired`,
-does not match the query filter and its org status is not established by this
-query. See the [Flow source-org reconciliation](./aareg-flow-org-source-reconciliation-2026-11-14.md)
-for the exact scope and remaining evidence gaps.
+`AAREG`. A separate approved query for the remaining local Flow,
+`updateApplicationStatusOnCasehandlerStatusAdditionalInformationRequired`,
+returned one matching org definition with `ActiveVersionId = LatestVersionId`.
+All 37 local Flow files therefore match an org definition by name. In total,
+35 definitions have active versions matching their latest versions; the other
+two, `AAREG_deactivateAccess` and `AAREG_getObjectTypeName`, have no active
+version and are marked `Obsolete` in local source. This does not verify Flow
+execution or compare active org metadata bodies with local source. See the
+[Flow source-org reconciliation](./aareg-flow-org-source-reconciliation-2026-11-14.md)
+for query scope and remaining evidence gaps.
 
 ## Scheduled jobs
 
@@ -97,12 +100,33 @@ The query completed with `totalSize: 1`, `done: true`, and an empty warnings
 array. `P360_Archive_Processing` has `Is_Enabled__c = false` and
 `Required_Custom_Permission__c = null` in this snapshot.
 
+## Selected permission-set assignment counts
+
+The following separately approved aggregate read was performed on
+`2026-11-14` against `crm-arbeidsforhold`:
+
+```text
+sf data query --target-org crm-arbeidsforhold --query "SELECT PermissionSet.Name, COUNT(Id) AssignmentCount FROM PermissionSetAssignment WHERE PermissionSet.Name IN ('P360_Archive_Job_Viewer','P360_Archive_Job_Processing','AAREG_AltinnScenarioUser') GROUP BY PermissionSet.Name" --json
+```
+
+The query completed with three rows, `done: true`, and an empty warnings array:
+
+| Permission set                | Assignment rows |
+| ----------------------------- | --------------- |
+| `AAREG_AltinnScenarioUser`    | 1               |
+| `P360_Archive_Job_Processing` | 1               |
+| `P360_Archive_Job_Viewer`     | 1               |
+
+These are assignment counts, not identities or proof of effective access.
+Profiles, permission-set groups, other assignments, sharing, and field-level
+security can affect actual access. No user names or IDs were queried.
+
 ## Still to verify
 
-- Reconcile the 37 local Flow files with the 36 org definitions by developer
-  name and explain the unmatched item.
-- Reconcile all installed package versions with the manifest and source
-  call-site inventory.
+- Compare active Flow metadata bodies with local source and verify runtime
+  behavior and UI bindings.
+- Complete the dependency call-site and package-ownership inventory; an
+  installed version alone does not establish product use.
 
 The command results and their evidence limits are also tracked in
 [issue 1182](https://github.com/navikt/crm-arbeidsforhold/issues/1182).

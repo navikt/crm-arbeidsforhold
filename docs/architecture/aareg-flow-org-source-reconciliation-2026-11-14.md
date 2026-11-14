@@ -1,17 +1,16 @@
 # Flow-kjelder mot scratch-org — teljingsavstemming
 
-**Status:** eksakt DeveloperName-avstemming fullført innanfor org-spørringa sitt
-filter.  
+**Status:** eksakt DeveloperName-avstemming fullført for alle lokale Flow-filer.  
 **Kontrollert:** 2026-11-14 mot lokal Flow-kjelde og eit godkjent, read-only
 oppslag mot scratch-orgen `crm-arbeidsforhold`.
 
 ## Resultat
 
 Det oppgitte avviket mellom 37 lokale Flow-filer og 36 Flow-definisjonar frå
-org-spørringa kjem av ulikt søkjeomfang. Namneavstemminga stadfestar at dei 36
-lokale `AAREG...`-filene svarar éin-til-éin til dei 36 org-radene:
+den første org-spørringa kjem av ulikt søkjeomfang. Ei andre, godkjend
+spørring på den eine fila utanfor mønsteret fullfører avstemminga:
 
-- Lokal katalog har 37 filer. 35 har `<status>Active</status>` og to har
+- Lokal katalog har 37 filer: 35 har `<status>Active</status>` og to har
   `<status>Obsolete</status>`.
 - 36 av filnamna startar med `AAREG`; den eine andre fila heiter
   `updateApplicationStatusOnCasehandlerStatusAdditionalInformationRequired`.
@@ -28,20 +27,30 @@ lokale `AAREG...`-filene svarar éin-til-éin til dei 36 org-radene:
 - Dei to org-radene utan `ActiveVersionId` er
   `AAREG_deactivateAccess` og `AAREG_getObjectTypeName`; begge lokale filer er
   merkte `Obsolete`, og org-radene har `LatestVersionId` sett.
+- Eit separat oppslag på eksakt `DeveloperName` for
+  `updateApplicationStatusOnCasehandlerStatusAdditionalInformationRequired`
+  returnerte éi org-rad med både `ActiveVersionId` og `LatestVersionId` sette
+  lik kvarandre. Ho matchar den siste lokale `Active`-fila.
+- Samla teljing er dermed 37 av 37 eksakte DeveloperName-treff, 35 aktive
+  versjonar der aktiv er siste, og to definisjonar utan aktiv versjon.
 
-Det lokale filnamnet utanfor filteret,
-`updateApplicationStatusOnCasehandlerStatusAdditionalInformationRequired`,
-er ikkje kontrollert mot org i dette oppslaget. Ikkje trekk slutning om
-org-tilstand eller aktiv status for denne fila frå resultatet over.
+Den ekstra queryen var:
+
+```text
+SELECT DeveloperName, ActiveVersionId, LatestVersionId
+FROM FlowDefinition
+WHERE DeveloperName = 'updateApplicationStatusOnCasehandlerStatusAdditionalInformationRequired'
+```
 
 ## Attståande evidensgap
 
 Følgjande står att før full Flow-runtime-verifikasjon:
 
-- Org-status for den eine lokale fila utanfor `AAREG_%`-filteret.
 - Om dei aktive versjonane oppfører seg som kjelda tilseier; dette oppslaget
   testa ikkje Flow-køyring.
 - Om skjermflytar er bundne til venta Lightning Actions/sider.
+- Om aktiv org-versjon har same metadata-body som lokal kjelde. Denne
+  avstemminga samanlikna namn og versjonspeikarar, ikkje kjeldeinnhald.
 
 Ingen av desse punkta kan konkluderast frå `FlowDefinition`-namn og
 versjonspeikarar åleine.
