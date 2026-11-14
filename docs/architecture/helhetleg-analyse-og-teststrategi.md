@@ -126,6 +126,8 @@ Dette stadfestar metadata-nærvær, ikkje aktive Flow-versjonar, brukartildeling
 
 Prioritet: **P1** = kritisk for korrekt tilgang eller hovudflyt, **P2** = viktige feilstiar og robustheit, **P3** = drift/administrasjon og ekstra kombinasjonar.
 
+Scenarioa under er forslag til målbar dekning. Nokre kan vere delvis dekte av eksisterande testar, men tabellen skal ikkje lesast som ei påstand om at alle er implementerte eller køyrde.
+
 | ID / prioritet | Domene            | Syntetisk oppsett og handling                                                                      | Forventa observasjon                                                                                                               |
 | -------------- | ----------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | APP-01 / P1    | Ekstern søknad    | Verksemd med godkjent tilgang opprettar og lagrar eit utkast.                                      | Rett eigar/verksemd, gyldig status og berre éi søknadseining etter gjenteken lagring.                                              |
@@ -136,7 +138,7 @@ Prioritet: **P1** = kritisk for korrekt tilgang eller hovudflyt, **P2** = viktig
 | ALT-01 / P1    | Altinn-tilgang    | Syntetisk brukar får Permit for søknadsressurs og vel ei godkjend verksemd.                        | Verksemda blir tilgjengeleg for den brukaren, utan å gje breiare tilgang enn regelen tilseier.                                     |
 | ALT-02 / P1    | Altinn-tilgang    | Brukar får eksplisitt Deny.                                                                        | Søknads-/delingshandling blir avvist; ingen ny tilgang blir oppretta.                                                              |
 | ALT-03 / P1    | Altinn-tilgang    | Brukar får Permit for støtte, men Deny for søknad, og motsett.                                     | Ressursane blir vurderte uavhengig; éin rett gir ikkje implisitt den andre.                                                        |
-| ALT-04 / P1    | Altinn-tilgang    | Brukar har fleire verksemder med ulike rettar og skiftar valt verksemd.                            | Rett matrise følgjer vald verksemd; ingen stale tilgang frå førre val blir brukt.                                                  |
+| ALT-04 / P1    | Altinn-tilgang    | Brukar har fleire verksemder med ulike rettar og skiftar valt verksemd.                            | Rett matrise følgjer vald verksemd; ingen forelda tilgang frå førre val blir brukt.                                                |
 | ALT-05 / P2    | Altinn-tilgang    | Vellukka tom organisasjonsliste.                                                                   | Tomtilstand blir vist/handtert; ikkje forveksla med transportfeil eller Permit.                                                    |
 | ALT-06 / P1    | Altinn-tilgang    | Manglande kontaktidentitet, manglande permission eller feil brukarsetting.                         | Eksplisitt avvising; ingen live-fallback og ingen tilgang på vegner av ein annan brukar.                                           |
 | ALT-07 / P2    | Altinn-tilgang    | Mock svarar med response error, exception, tomt svar eller ugyldig struktur.                       | Feil blir skild frå eksplisitt Deny; ingen feil blir normalisert til Permit.                                                       |
