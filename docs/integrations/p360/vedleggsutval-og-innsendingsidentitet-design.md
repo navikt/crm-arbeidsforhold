@@ -18,6 +18,10 @@ dokumentsett arkiverast. Brukaren stadfesta denne standarden for vedleggsutvalet
 - Vedlegg som var markerte som gjeldande, blir førte vidare.
 - Nye vedlegg blir markerte som gjeldande som standard.
 - Brukaren kan endre utvalet før innsending.
+- Endringar i filutvalet skal lagrast saman med utkastet og gjenopprettast ved
+  navigasjon eller oppfrisking.
+- For eldre søknader utan lagra utval blir alle eksisterande vedlegg
+  førehandsvalde; brukaren kan fjerne utdaterte filer.
 
 «Siste ContentVersion per valt ContentDocument ved innsending» er eit godt
 arbeidsutgangspunkt, men er ikkje stadfesta som endeleg P360-kontrakt.
@@ -54,9 +58,11 @@ org-konfigurasjon, P360-transport eller ekstern arkiveringsåtferd.
    dømes tillatne/obligatoriske dokumentkategoriar og standardval per
    søknadstype. Metadata skal ikkje lagre kva konkrete filer ein brukar har
    valt; det er runtime-data.
-2. **Vedvarande utvalsstatus.** Søknadsflata viser tidlegare vedlegg med status
-   for om dei er gjeldande. Førre gjeldande utval blir ført vidare, nye vedlegg
-   blir valde som gjeldande, og brukaren kan endre dette før innsending.
+2. **Utval før innsending.** Søknadsflata viser tidlegare vedlegg og førre
+   innsendte utval. Dette utvalet blir ført vidare, nye vedlegg blir valde som
+   gjeldande, og brukaren kan endre det før innsending. For eldre søknader utan
+   lagra utval er alle eksisterande vedlegg valde som standard. Endringane blir
+   lagra saman med utkastet og gjenoppretta ved navigasjon eller oppfrisking.
 3. **Frose innsendingssett.** Ved ei akseptert innsending blir eit nytt,
    uforanderleg innsendingssett oppretta. Det inneheld søknadsidentiteten og
    nøyaktig éin vald `ContentVersion` per valt `ContentDocument`. Endringar i
@@ -78,6 +84,8 @@ flowchart TD
     D["Nytt vedlegg"] --> E["Vel som gjeldande som standard"]
     C --> F["Brukar endrar utval"]
     E --> F
+    F --> M["Lagre utvalsstatus med utkast"]
+    M --> B
     F --> G["Innsending"]
     G --> H["Frys vald ContentVersion per fil"]
     H --> I["Opprett nytt innsendingssett"]
@@ -96,14 +104,60 @@ flowchart TD
   ein synleg feil; dei skal ikkje droppast stille.
 - Innsendingen må opprette eitt identitetsberande snapshot og arkivjobbar som
   peikar på det. Delvis feil må ikkje presenterast som samla arkivsuksess.
-- Utvalsstatus må overleve navigasjon og lagring av utkast. Konkret
-  Salesforce-recordmodell, CRUD/FLS, sharing og migrering av eksisterande
-  vedlegg er ikkje avgjort.
+- Uinnsendte endringar i filutvalet må overleve lagring av utkast, navigasjon og
+  oppfrisking. Konkret Salesforce-recordmodell, CRUD/FLS, sharing og migrering
+  av eksisterande vedlegg er ikkje avgjort.
 - Kvar unik innsending må kunne skiljast frå retry også etter timeout eller
   tapt svar. Nøyaktig request-token-/resume-mekanisme må avklarast og testast.
 - Gjeldande kode oppdaterer søknaden på staden. Om sjølve søknadsinnhaldet skal
   frysast som data, P360-dokumentmetadata eller ei anna representasjon, krev
   godkjend mapping og ligg utanfor denne avgjerda.
+- [AAREG_ApplicationController](../../../force-app/externalApplication/classes/AAREG_ApplicationController.cls)
+  er `without sharing`. Ein ny innsending må derfor validere søknadstilgang,
+  at kvar ContentDocument er lenka til rett søknad, og at brukaren kan endre
+  utvalet; validering av berre innsendte Salesforce-ID-ar er ikkje nok.
+
+## Kandidat for Salesforce-datamodell
+
+Dette er eit arkitekturforslag, ikkje godkjende API-namn eller metadata.
+`force-app` er eitt `crm-arbeidsforhold`-package. Søknadsutval og
+innsendingsidentitet høyrer til søknadsdomenet; `P360_Archive_Job__c` og
+integrasjonsspesifikke felt held fram under `integration/p360`.
+
+| Ansvar                             | Føreslått rekordrolle                                                                        | Livsløp                                                             |
+| ---------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Gjeldande filutval                 | Søknadsforankra filtilknyting med ei gjeldande-markering per ContentDocument                 | Endrast saman med utkast; eldre filer startar som valde             |
+| Innsendingsidentitet               | Éin innsendingsrekord per akseptert submit, med unik request-nøkkel                          | Opprettast ein gong; same nøkkel finn att same innsending ved retry |
+| Frose filsett og P360-prosessering | Eksisterande P360-jobbar utvida med innsendingstilknyting og eksakt ContentVersion-identitet | Kjeldefil/innsending er uendra; status, lease og retry kan endrast  |
+
+Dette held tre ulike ting skilde: redigerbart brukarval, uforanderleg
+innsendingsgrunnlag og muterbar teknisk jobblivssyklus. Jobbservicen kan då
+gruppere alle dokumenthendingane under innsendinga, medan idempotensnøklane
+bruker innsendinga i staden for berre søknads-ID-en. Den eksisterande
+`ApplicationDocument`-mappinga må framleis avklare korleis søknadsinnhaldet
+blir representert og frosen.
+
+Ei enklare løysing som berre legg eit nytt tidsstempel eller ein ny
+korrelasjons-ID i dagens jobbnøkkel er forkasta: ho grupperer ikkje eit komplett
+sett og tryggar ikkje retry etter tapt svar. Filtilknytinga må identifisere
+ContentDocument per søknad; eksakte Salesforce-felttypar og CRUD/FLS/sharing
+må verifiserast før metadata blir oppretta.
+
+## Eksisterande test-sømmer
+
+- [AAREG_ApplicationControllerTest](../../../force-app/externalApplication/classes/AAREG_ApplicationControllerTest.cls)
+  testar den offentlege Apex-grensa; `shouldLinkUploadedFileToApplicationAndAccessRequest`
+  kontrollerer dagens lenking av ei ny fil til søknad og tilgangsførespurnad.
+  Han testar ikkje vedleggsutval eller gjenoppretting av utkastval.
+- [P360_ContentVersionArchiveHandlerTest](../../../force-app/tests/classes/integration/p360/P360_ContentVersionArchiveHandlerTest.cls)
+  testar direktepublisering til søknad. Han testar ikkje portalens
+  controllerstyrte opplasting.
+- [P360_ArchiveJobServiceTest](../../../force-app/tests/classes/integration/p360/job/P360_ArchiveJobServiceTest.cls)
+  testar sekvensiell gjenbruk av same jobb. Han testar ikkje to innsendingar
+  med same filer eller timeout/retry av ei fullstendig innsending.
+- Ingen lokal Jest-testmappe vart funnen for `aareg_application`; ny
+  filutvalsflate treng ein fokusert LWC-test og ei Apex-test gjennom den
+  brukarvendte innsendinga.
 
 ## Designval
 
@@ -117,24 +171,28 @@ Faktisk filval høyrer til søknadsdata og det frosne innsendingssettet.
 
 ## Testkrav for ei seinare TDD-slice
 
-1. Lagre utkast med fleire vedlegg; kontroller at dei kan visast og at
-   gjeldande-status overlever navigasjon.
-2. Send inn; kontroller at kvar vald fil får gjeldande `ContentVersion` fryst,
+1. Opne ei eldre søknad utan lagra utval, med fleire vedlegg; kontroller at alle
+   eksisterande vedlegg blir førehandsvalde og kan veljast bort.
+2. Opne ei søknad med tidlegare innsendt utval og eit nytt vedlegg; kontroller at
+   førre utval blir førehandsvalt og det nye vedlegget blir valt som standard.
+3. Endre utvalet, lagre utkastet, naviger bort eller oppfrisk sida, og kontroller
+   at det endra utvalet blir gjenoppretta.
+4. Send inn; kontroller at kvar vald fil får gjeldande `ContentVersion` fryst,
    og at fråvalde filer ikkje er med.
-3. Opprett ein ny versjon av ei vald fil etter innsending; kontroller at det
+5. Opprett ein ny versjon av ei vald fil etter innsending; kontroller at det
    første settet framleis peikar på den opphavlege versjonen.
-4. Send inn etter krav om meir informasjon; kontroller at førre utval blir
+6. Send inn etter krav om meir informasjon; kontroller at førre utval blir
    vidareført, nye vedlegg er valde som standard, og brukarendringar blir tekne
    med i eit komplett nytt sett.
-5. Retry same innsending etter eit simulert timeout/ukjent svar; kontroller at
+7. Retry same innsending etter eit simulert timeout/ukjent svar; kontroller at
    same snapshot og jobbar blir gjenbrukte, utan eit tredje sett.
-6. Køyr ein ny innsending med same filer; kontroller at ho får ny identitet og
+8. Køyr ein ny innsending med same filer; kontroller at ho får ny identitet og
    ikkje blir forveksla med retry.
-7. Test ugyldig eller fråkopla fil, manglande `ContentVersion`, tomt utval når
+9. Test ugyldig eller fråkopla fil, manglande `ContentVersion`, tomt utval når
    policy krev vedlegg, delvis jobbfeil og manglande tilgang.
-8. Test servergrensa under ein minimumstilgangsbrukar når åtferda ikkje krev
-   privilegert tilgang. LWC-testen skal kontrollere at endringar i utval og
-   innsending blir sende gjennom same offentlege brukargrense.
+10. Test servergrensa under ein minimumstilgangsbrukar når åtferda ikkje krev
+    privilegert tilgang. LWC-testen skal kontrollere at endringar i utval og
+    innsending blir sende gjennom same offentlege brukargrense.
 
 Ingen av desse testane er køyrde for dette designnotatet.
 
@@ -142,6 +200,8 @@ Ingen av desse testane er køyrde for dette designnotatet.
 
 - Nøyaktig Salesforce-modell for gjeldande utval og immutable snapshot, og
   eigarskap mellom søknadsdomenet og P360-jobbmetadata.
+- Korleis vedvarande filutval blir lagra og kontrollert med CRUD/FLS, sharing og
+  eksisterande vedlegg.
 - Korleis same innsending blir funnen att ved retry etter timeout eller
   sideoppfrisking.
 - Kategoriar, filtypar, obligatoriske dokument og metadatareglar per
