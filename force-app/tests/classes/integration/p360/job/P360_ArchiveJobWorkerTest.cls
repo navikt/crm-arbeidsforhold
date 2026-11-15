@@ -30,8 +30,8 @@ private class P360_ArchiveJobWorkerTest {
     }
 
     /**
-     * Verifies that a non-retryable adapter failure (the current controlled "not implemented" contract
-     * error) moves the job straight to Manual Review, without waiting for retries.
+     * Verifies that a non-retryable failure (the default HTTP transport is not implemented yet)
+     * moves the job straight to Manual Review, without waiting for retries.
      *
      * @since 2026-09
      */
@@ -60,7 +60,7 @@ private class P360_ArchiveJobWorkerTest {
                 'Expected a non-retryable error to require manual review.'
             );
             System.Assert.areEqual(
-                'P360_ContractException',
+                'P360_TransportException',
                 job.Last_Error_Code__c,
                 'Expected the exception type name as the error code.'
             );
@@ -69,6 +69,74 @@ private class P360_ArchiveJobWorkerTest {
             System.Assert.isNotNull(job.Last_Attempt_Date__c, 'Expected the failed attempt timestamp to be recorded.');
             System.Assert.isTrue(job.Last_Attempt_Date__c >= beforeAttempt && job.Last_Attempt_Date__c <= afterAttempt);
         }
+    }
+
+    /**
+     * Verifies the runnable submission path: submitting an application queues one archive job, and the worker
+     * sends the generated application summary and the submitted attachment through the configured RPC client.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void submittedApplicationIsArchivedThroughConfiguredRpcClient() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+        insert new P360_Integration_Setting__c(
+            SetupOwnerId = UserInfo.getOrganizationId(),
+            Rpc_Client_Class__c = 'P360_CapturingRpcClient',
+            External_System__c = 'Scratch P360'
+        );
+        Account account = AAREG_TestDataFactory.getAccountCounty();
+        insert account;
+        String attachmentBase64 = EncodingUtil.base64Encode(Blob.valueOf('synthetic attachment'));
+
+        User processingUser = createProcessingUser();
+
+        System.Test.startTest();
+        Id applicationId = AAREG_ApplicationController.processApplication(
+            new Application__c(Account__c = account.Id, IsConfirmationEmailSent__c = true),
+            new List<ApplicationBasisCode__c>(),
+            new List<RelatedContact__c>(),
+            attachmentBase64,
+            'vedlegg.pdf'
+        );
+        List<Id> claimedIds;
+        System.runAs(processingUser) {
+            claimedIds = P360_ArchiveJobClaimService.claimNextBatch(10);
+            new P360_ArchiveJobWorker(new Set<Id>(claimedIds)).execute(null);
+        }
+        System.Test.stopTest();
+
+        P360_Archive_Job__c job = [
+            SELECT Status__c, Last_Error_Message__c, Access_Request__c
+            FROM P360_Archive_Job__c
+            WHERE Application__c = :applicationId AND Archive_Event_Type__c = 'ApplicationDocument'
+        ];
+        System.Assert.areEqual(1, claimedIds.size(), 'Submission must queue exactly one archive job.');
+        System.Assert.areEqual('Succeeded', job.Status__c, 'Archive job failed: ' + job.Last_Error_Message__c);
+        System.Assert.areEqual(2, P360_CapturingRpcClient.requests.size(), 'Expected CreateCase then CreateDocument.');
+
+        Map<String, Object> caseParameter = P360_CapturingRpcClient.parameter(0);
+        System.Assert.areEqual(
+            new Map<String, Object>{ 'Id' => 'ACCESS_REQUEST:' + job.Access_Request__c, 'Type' => 'Scratch P360' },
+            caseParameter.get('ExternalId')
+        );
+        Map<String, Object> documentParameter = P360_CapturingRpcClient.parameter(1);
+        System.Assert.areEqual(
+            new Map<String, Object>{ 'Id' => 'APPLICATION_DOCUMENT:' + applicationId, 'Type' => 'Scratch P360' },
+            documentParameter.get('ExternalId')
+        );
+        System.Assert.areEqual('26/00001', documentParameter.get('CaseNumber'));
+        List<Object> files = (List<Object>) documentParameter.get('Files');
+        System.Assert.areEqual(2, files.size(), 'Expected the application summary and the attachment.');
+        Map<String, Object> summary = (Map<String, Object>) files[0];
+        System.Assert.areEqual('txt', summary.get('Format'));
+        System.Assert.isTrue(
+            EncodingUtil.base64Decode((String) summary.get('Base64Data')).toString().contains(applicationId),
+            'The summary must identify the submitted application.'
+        );
+        Map<String, Object> attachment = (Map<String, Object>) files[1];
+        System.Assert.areEqual('vedlegg.pdf', attachment.get('Title'));
+        System.Assert.areEqual(attachmentBase64, attachment.get('Base64Data'));
     }
 
     /**
@@ -503,6 +571,7 @@ private class P360_ArchiveJobWorkerTest {
             userRecord = P360_TestDataFactory.createMinimumAccessUser();
             AAREG_TestDataFactory.assignPermissionSet(userRecord.Id, 'AAREG_Arbeidsforhold_Saksbehandling');
             AAREG_TestDataFactory.assignPermissionSet(userRecord.Id, 'P360_Archive_Job_Processing');
+            AAREG_TestDataFactory.assignPermissionSet(userRecord.Id, 'P360_Code_Table_Access');
         }
         return userRecord;
     }

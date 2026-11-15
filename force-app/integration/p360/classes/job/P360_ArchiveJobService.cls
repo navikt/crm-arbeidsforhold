@@ -207,6 +207,33 @@ public with sharing class P360_ArchiveJobService {
         }
     }
 
+    /**
+     * Queues the application document archive job when an application is submitted.
+     * Does nothing while P360 archive processing is disabled. Failures are logged without detail and never
+     * block the submission; a resubmission of the same application reuses the existing job.
+     *
+     * @param accessRequestId Related Access_Request__c identifier.
+     * @param applicationId Submitted Application__c identifier.
+     * @since 2026-11
+     */
+    public static void requestApplicationArchiveOnSubmit(Id accessRequestId, Id applicationId) {
+        String correlationId = APPLICATION_DOCUMENT_EVENT + ':' + applicationId;
+        try {
+            if (!P360_ArchiveProcessingGate.isEnabled()) {
+                return;
+            }
+            getOrCreateApplicationDocumentJob(accessRequestId, applicationId, correlationId);
+        } catch (Exception error) {
+            try {
+                IntegrationLogger.logFailure(
+                    new IntegrationLogContext('P360', APPLICATION_DOCUMENT_EVENT, 'EnqueueFailed')
+                        .withCorrelationId(correlationId)
+                );
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     private static P360_Archive_Job__c findByIdempotencyKey(String idempotencyKey) {
         List<P360_Archive_Job__c> jobs = [
             SELECT

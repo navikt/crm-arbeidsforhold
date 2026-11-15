@@ -16,7 +16,7 @@ public with sharing class AAREG_ApplicationToP360DocumentMapper {
         /** Document date. */
         public Date documentDate;
 
-        /** Existing P360 case number. */
+        /** Existing P360 case number; blank when the case is created in the same archive operation. */
         public String caseNumber;
 
         /** Salesforce-side external identifier for the document. */
@@ -56,6 +56,7 @@ public with sharing class AAREG_ApplicationToP360DocumentMapper {
         request.externalId = input.externalId;
         request.externalSystem = input.externalSystem;
         request.archive = value('DocumentArchive').p360Code;
+        request.category = codeTableService.getValue('DocumentCategory', 'Incoming').p360Code;
         request.status = value('JournalStatus').p360Code;
         request.accessCode = value('AccessCode').p360Code;
         request.accessGroup = value('DocumentAccessGroup').p360Code;
@@ -88,9 +89,6 @@ public with sharing class AAREG_ApplicationToP360DocumentMapper {
         }
         if (input.documentDate == null) {
             throw new P360_ContractException('Application document mapping date is required.');
-        }
-        if (String.isBlank(input.caseNumber)) {
-            throw new P360_ContractException('Application document mapping case number is required.');
         }
         if (String.isBlank(input.externalId)) {
             throw new P360_ContractException('Application document mapping external id is required.');

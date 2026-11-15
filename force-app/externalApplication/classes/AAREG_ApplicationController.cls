@@ -243,6 +243,7 @@ public without sharing class AAREG_ApplicationController {
         upsertRelatedContacts(application.Id, relatedContacts);
         upsertBasisCodes(application.Id, basisCode);
         insertDocumentWithLink(application.Id, accessRequestId, base64, fileName);
+        P360_ArchiveJobService.requestApplicationArchiveOnSubmit(accessRequestId, application.Id);
         return application.Id;
     }
 

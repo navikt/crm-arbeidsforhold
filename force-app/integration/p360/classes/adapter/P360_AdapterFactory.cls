@@ -21,7 +21,10 @@ public with sharing class P360_AdapterFactory {
     }
 
     /**
-     * Creates the default factory wiring using a standard RPC client.
+     * Creates the default factory wiring. Org defaults choose the mock adapter, a configured
+     * `Rpc_Client_Class__c`, or the standard HTTP RPC client, in that order.
+     *
+     * @throws P360_ConfigException When the configured RPC client class is missing or has the wrong type.
      */
     public P360_AdapterFactory() {
         this(resolveDefaultAdapter());
@@ -46,6 +49,24 @@ public with sharing class P360_AdapterFactory {
         if (settings != null && settings.Use_Mock_Transport__c == true) {
             return new P360_StubArchiveAdapter();
         }
-        return new P360_ArchiveAdapter(new P360_RpcClient());
+        String configuredClass = settings == null ? null : settings.Rpc_Client_Class__c;
+        if (String.isBlank(configuredClass)) {
+            return new P360_ArchiveAdapter(new P360_RpcClient());
+        }
+        return new P360_ArchiveAdapter(instantiateRpcClient(configuredClass.trim()));
+    }
+
+    private static P360_IRpcClient instantiateRpcClient(String className) {
+        System.Type clientType = System.Type.forName(className);
+        Object instance;
+        try {
+            instance = clientType == null ? null : clientType.newInstance();
+        } catch (System.TypeException instantiationError) {
+            instance = null;
+        }
+        if (!(instance instanceof P360_IRpcClient)) {
+            throw new P360_ConfigException('Configured P360 RPC client class is not a P360_IRpcClient: ' + className);
+        }
+        return (P360_IRpcClient) instance;
     }
 }

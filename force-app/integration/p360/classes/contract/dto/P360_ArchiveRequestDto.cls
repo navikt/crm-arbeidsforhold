@@ -15,4 +15,10 @@ public class P360_ArchiveRequestDto {
 
     /** Temporary title field for F2 skeleton usage. */
     public String title;
+
+    /** CreateCase parameters; null when the document is filed on an existing case. */
+    public P360_CreateCaseRequestDto createCase;
+
+    /** CreateDocument parameters; the case number is filled from CreateCase when blank. */
+    public P360_CreateDocumentRequestDto createDocument;
 }

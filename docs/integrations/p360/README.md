@@ -8,6 +8,7 @@ Read [Code and test walkthrough](kodegjennomgang.md) first for a plain-language 
 
 ## Supporting documents
 
+- [Scratch user guide](scratch-brukarguide.md): plain-language, step-by-step guide to scratch-only P360 testing without a P360 server, access setup, package boundaries, and the reasoning behind the contract script.
 - [Code walkthrough](kodegjennomgang.md): explains the current trigger-to-worker implementation, metadata switches, tests, and remaining gaps.
 - [Technical overview](teknisk-oversikt.md): implemented behavior, remaining gaps, and target architecture.
 - [Mock test guide](user-testing-guide.md): approved default scratch-org validation. It is not evidence of live SIF interoperability.

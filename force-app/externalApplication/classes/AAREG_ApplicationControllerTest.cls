@@ -82,6 +82,65 @@ private class AAREG_ApplicationControllerTest {
     }
 
     /**
+     * Submitting an application queues exactly one P360 application document archive job when archiving is enabled.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    private static void submittedApplicationQueuesArchiveJobWhenArchivingIsEnabled() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+        Account account = [SELECT Id FROM Account LIMIT 1];
+
+        System.Test.startTest();
+        Id applicationId = AAREG_ApplicationController.processApplication(
+            new Application__c(Account__c = account.Id, IsConfirmationEmailSent__c = true),
+            new List<ApplicationBasisCode__c>(),
+            new List<RelatedContact__c>(),
+            null,
+            null
+        );
+        System.Test.stopTest();
+
+        List<P360_Archive_Job__c> jobs = [
+            SELECT Archive_Event_Type__c, Status__c, Idempotency_Key__c, Correlation_Id__c
+            FROM P360_Archive_Job__c
+            WHERE Application__c = :applicationId
+        ];
+        System.Assert.areEqual(1, jobs.size(), 'Submission must queue one archive job.');
+        System.Assert.areEqual('ApplicationDocument', jobs[0].Archive_Event_Type__c);
+        System.Assert.areEqual('Pending', jobs[0].Status__c);
+        System.Assert.areEqual('APPLICATION_DOCUMENT:' + applicationId, jobs[0].Idempotency_Key__c);
+        System.Assert.areEqual('ApplicationDocument:' + applicationId, jobs[0].Correlation_Id__c);
+    }
+
+    /**
+     * Submitting an application does not queue P360 archive work while archiving is disabled.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    private static void submittedApplicationIsNotQueuedWhileArchivingIsDisabled() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(false);
+        Account account = [SELECT Id FROM Account LIMIT 1];
+
+        System.Test.startTest();
+        Id applicationId = AAREG_ApplicationController.processApplication(
+            new Application__c(Account__c = account.Id, IsConfirmationEmailSent__c = true),
+            new List<ApplicationBasisCode__c>(),
+            new List<RelatedContact__c>(),
+            null,
+            null
+        );
+        System.Test.stopTest();
+
+        System.Assert.areEqual(
+            0,
+            [SELECT COUNT() FROM P360_Archive_Job__c WHERE Application__c = :applicationId],
+            'Disabled archiving must not queue jobs.'
+        );
+    }
+
+    /**
      * Resubmitting an application requiring additional information keeps it in progress.
      *
      * @since October 2026

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Scratch-only synthetic RPC receipt. Never evidence of delivery to Public 360.</description>
+    <fields>
+        <fullName>RequestKey__c</fullName>
+        <externalId>true</externalId>
+        <label>Request Key</label>
+        <length>64</length>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>Operation__c</fullName>
+        <label>Operation</label>
+        <length>80</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>RequestBody__c</fullName>
+        <label>Synthetic Request Body</label>
+        <length>131072</length>
+        <type>LongTextArea</type>
+        <visibleLines>10</visibleLines>
+    </fields>
+    <fields>
+        <fullName>ResponseBody__c</fullName>
+        <label>Simulated Response Body</label>
+        <length>131072</length>
+        <type>LongTextArea</type>
+        <visibleLines>6</visibleLines>
+    </fields>
+    <fields>
+        <fullName>PayloadHash__c</fullName>
+        <label>Payload SHA256</label>
+        <length>64</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Outcome__c</fullName>
+        <label>Simulated Outcome</label>
+        <length>40</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>Attempts__c</fullName>
+        <label>Attempts</label>
+        <precision>6</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <label>P360 Scratch Capture</label>
+    <nameField>
+        <displayFormat>SCRATCH-{000000}</displayFormat>
+        <label>Scratch Capture Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>P360 Scratch Captures</pluralLabel>
+    <sharingModel>Private</sharingModel>
+</CustomObject>
