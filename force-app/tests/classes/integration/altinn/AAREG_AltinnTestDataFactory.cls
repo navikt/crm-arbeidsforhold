@@ -55,16 +55,9 @@ public with sharing class AAREG_AltinnTestDataFactory {
      * @return The inserted community user with scenario permission and assignment.
      */
     public static User createCommunityAssignedUser(String scenarioName, String subjectAlias) {
-        List<UserRole> roles = [SELECT Id FROM UserRole WHERE PortalType = 'None' LIMIT 1];
-        if (roles.isEmpty()) {
-            UserRole role = new UserRole(
-                Name = 'Altinn Scenario Test Role',
-                DeveloperName = 'Altinn_Scenario_Test_Role'
-            );
-            System.runAs(new User(Id = administratorId)) {
-                insert role;
-            }
-            roles.add(role);
+        UserRole role = new UserRole(Name = 'Altinn Scenario Test Role', DeveloperName = 'Altinn_Scenario_Test_Role');
+        System.runAs(new User(Id = administratorId)) {
+            insert role;
         }
 
         Profile internalProfile = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
@@ -79,7 +72,7 @@ public with sharing class AAREG_AltinnTestDataFactory {
             TimeZoneSidKey = 'Europe/Oslo',
             EmailEncodingKey = 'UTF-8',
             ProfileId = internalProfile.Id,
-            UserRoleId = roles[0].Id
+            UserRoleId = role.Id
         );
         System.runAs(new User(Id = administratorId)) {
             insert accountOwner;

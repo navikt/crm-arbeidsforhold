@@ -493,7 +493,7 @@ private class AAREG_ApplicationControllerTest {
     private static void shouldSelectAllLegacyAttachmentsByDefault() {
         User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S01', 'subject-a');
         Account account = [
-            SELECT Id, INT_OrganizationNumber__c
+            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
             FROM Account
             WHERE INT_OrganizationNumber__c = '929882989'
             LIMIT 1
