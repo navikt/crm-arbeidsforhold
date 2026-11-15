@@ -1,5 +1,5 @@
 // Scratch-only end-to-end check of the runnable submission path. Uses synthetic data and the
-// P360_ScratchRpcClient receiver; it never calls Public 360. Run through scripts/p360-scratch-contract.sh e2e.
+// P360_ScratchRpcClient receiver; it never calls Public 360. Run through npm run p360:scratch -- e2e.
 System.Assert.isTrue(
     URL.getOrgDomainUrl().getHost().endsWith('.scratch.my.salesforce.com') &&
     [SELECT IsSandbox FROM Organization LIMIT 1].IsSandbox,

@@ -50,7 +50,7 @@
 **/__tests__/**
 **/jest-mocks/**
 
-# Unpackaged scratch-only P360 contract tests; deployed by p360-scratch-contract.sh
+# Unpackaged scratch-only P360 contract tests; deployed by p360-scratch-contract.cjs
 force-app/tests/classes/integration/p360/scratch/**
 
 # Salesforce-managed defaults retrieved into the ignored src-temp directory

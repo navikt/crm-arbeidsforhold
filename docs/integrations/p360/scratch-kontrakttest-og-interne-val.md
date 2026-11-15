@@ -72,7 +72,7 @@ Vald løysing er ein separat, unpackaged implementasjon av det eksisterande `P36
 
 - Runtime-metadata ligg i [scratch-bundelen](../../../scripts/scratch/p360/), utanfor alle produktpakker.
 - Testklassen ligg på den vanlege [Apex-teststaden](../../../force-app/tests/classes/integration/p360/scratch/P360_ScratchRpcClientTest.cls), men den konkrete scratch-testmappa er ekskludert i [.forceignore](../../../.forceignore). Ho krev scratch-skjema og skal ikkje kompilerast inn i produktpakkja.
-- [Køyreskriptet](../../../scripts/p360-scratch-contract.sh) set saman ein mellombels Metadata API-bundle med testen. Det endrar ikkje pakkedefinisjon, dependency-versjonar eller CI/auth.
+- [Køyreskriptet](../../../scripts/p360-scratch-contract.cjs) (Node.js, fungerer på macOS, Linux og Windows) set saman ein mellombels Metadata API-bundle med testen. Det endrar ikkje pakkedefinisjon, dependency-versjonar eller CI/auth.
 - `send` nyttar `with sharing` og user-mode SOQL/DML for kvitteringar. Berre kontrollen av `Organization.IsSandbox` les i system mode. Den dedikerte permission set-en gir ikkje tilgang til produktarkivering eller credentials.
 - Captures har privat deling. Lese-, opprette- og endretilgang er nødvendig for mottaket; sletting er ikkje gitt i permission set-en.
 - Ingen `Http`-klient finst i mottaket. Responsheaderen `X-P360-Simulation: scratch-only` skil simulering frå ekte transport. `Recno`, sak-/dokumentnummer og `Accepted` er berre lokale simuleringsverdiar.
@@ -138,7 +138,6 @@ Køyr autentiserte kommandoar i den støtta VS Code-verts-terminalen, med Salesf
 
 ```bash
 rtk proxy node --test scripts/tests/p360-scratch-contract.test.cjs
-rtk proxy bash -n scripts/p360-scratch-contract.sh
 ```
 
 Forventa: sju lokale testar består (`verify` og `e2e` mot tre ugyldige mål, pluss ukjend handling). Manglande scratch-mål, feil klassifisering og feil domene stoppar før org-query, deploy og Apex. Ukjend handling stoppar før nokon Salesforce-kommando.
@@ -146,7 +145,7 @@ Forventa: sju lokale testar består (`verify` og `e2e` mot tre ugyldige mål, pl
 ### 2. Deploy, fokuserte testar og vedvarande data
 
 ```bash
-rtk proxy bash scripts/p360-scratch-contract.sh verify
+npm run p360:scratch -- verify
 ```
 
 Dette gjer dry-run før deploy, køyrer den fokuserte Apex-klassen, gir den noverande CLI-brukaren den dedikerte scratch-permission-set-en og køyrer [syntetisk fixture](../../../scripts/apex/p360ScratchCapture.apex). Permission set-tilordning er ei eiga transaksjon før dataskriving. Ingen andre brukarar blir tildelte tilgang.
@@ -165,7 +164,7 @@ Dersom eksisterande setting ikkje er aktiv med `Success`, feilar fixturen tydele
 ### 3. Undersøk utan å skrive nye data
 
 ```bash
-rtk proxy bash scripts/p360-scratch-contract.sh inspect
+npm run p360:scratch -- inspect
 ```
 
 Forventa: same to vedvarande kvitteringar og verifiserte filer; ingen nye captures eller forsøk. Skriptet skriv ikkje filinnhald, org-ID, brukarnamn eller token til resultatet.
@@ -183,7 +182,7 @@ Dette er tillate berre for syntetiske data i scratch. Førespurnadskroppen inneh
 ### 4. Relevant regresjon
 
 ```bash
-rtk proxy bash scripts/p360-scratch-contract.sh regression
+npm run p360:scratch -- regression
 ```
 
 Dette køyrer scratch-testklassen saman med eksisterande factory-, filmapper- og dokumentmapper-testar. Forventa: CLI-summary er `Passed`. Det er ikkje ein full Salesforce- eller P360-integrasjonstest.
@@ -191,7 +190,7 @@ Dette køyrer scratch-testklassen saman med eksisterande factory-, filmapper- og
 ### 5. Ende-til-ende frå innsending til mottak
 
 ```bash
-rtk proxy bash scripts/p360-scratch-contract.sh e2e
+npm run p360:scratch -- e2e
 ```
 
 Skriptet verifiserer scratch-målet, gir CLI-brukaren `P360_Scratch_Capture_Access` og `P360_Code_Table_Access`, og slår feature-flagget mellombels på med ein mellombels metadata-bundle. Deretter køyrer [E2E-skriptet](../../../scripts/apex/p360ScratchSubmissionE2E.apex) i éin transaksjon:

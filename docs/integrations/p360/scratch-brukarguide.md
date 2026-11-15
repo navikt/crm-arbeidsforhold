@@ -17,7 +17,7 @@ Meir teknisk bakgrunn finn du i [scratch-kontrakttest-og-interne-val.md](scratch
 3. I eit ekte miljø skal førespurnaden gå til P360-serveren. Den delen er ikkje laga enno.
 4. I scratch sender vi førespurnaden til ein **liksom-P360** som heiter `P360_ScratchRpcClient`. Han sjekkar at førespurnaden ser rett ut og lagrar han som ein post i objektet `P360ScratchCapture__c`. Vi kallar posten ei **kvittering**.
 5. Kvitteringa er beviset vårt. Finst ho, og ser innhaldet rett ut, har heile vegen frå søknad til «P360» fungert.
-6. Alt dette blir styrt av eitt skript: `scripts/p360-scratch-contract.sh`. Du køyrer det med éin kommando.
+6. Alt dette blir styrt av eitt skript: `scripts/p360-scratch-contract.cjs`. Du køyrer det med éin kommando, `npm run p360:scratch -- <modus>`, på macOS, Linux og Windows.
 
 ## 2. Ord du treng
 
@@ -111,17 +111,36 @@ Alternativet var å gi den tekniske brukaren «View All» på søknader, tilgang
 
 > Dette er tilgangskode (raud sone). Ho må gjennomgåast av eit menneske og ha ein tryggleiksgjennomgang før commit eller PR.
 
-### 4.6 Kvifor ein `.sh`-fil?
+### 4.6 Kvifor eit skript, og kvifor i Node.js?
 
 Du kunne i prinsippet skrive alle kommandoane sjølv. Skriptet finst fordi det gjer fem ting som er lette å gløyme eller gjere feil:
 
 1. **Sjekkar målet.** Det godtek berre aliaset `crm-arbeidsforhold` når orga er registrert som scratch, har scratch-domene og svarar `IsSandbox = true`. Eit alias åleine er ikkje bevis, sidan alle kan kalle ei org kva som helst.
 2. **Set saman det som berre skal til scratch.** Liksom-P360 og testklassen hans ligg på to ulike stader og skal ikkje med i pakka. Skriptet kopierer dei til ei mellombels mappe og deployar berre dei.
 3. **Gjer ting Apex ikkje kan.** Deploy av metadata, tildeling av permission set og mellombels påslag av feature-flagget må gjerast med Salesforce CLI, ikkje frå Apex.
-4. **Ryddar opp sjølv om noko feilar.** `trap` i bash køyrer oppryddinga uansett korleis skriptet sluttar. I `e2e` blir feature-flagget sett tilbake til `false` frå kjelda, sjølv om testen krasjar.
-5. **Avgjer bestått eller ikkje.** Skriptet les svaret med `jq` og avsluttar med feil om noko ikkje stemmer, til dømes om det manglar kvitteringar. Du slepp å tolke lange loggar sjølv.
+4. **Ryddar opp sjølv om noko feilar.** I `e2e` blir feature-flagget sett tilbake til `false` frå kjelda i ein `finally`-blokk, sjølv om testen feilar eller du trykkjer Ctrl+C. Mellombelse filer blir sletta til slutt.
+5. **Avgjer bestått eller ikkje.** Skriptet les JSON-svaret frå `sf` og avsluttar med feil om noko ikkje stemmer, til dømes om det manglar kvitteringar. Du slepp å tolke lange loggar sjølv.
 
-Vi valde bash fordi repoet allereie har eit tilsvarande skript, `scripts/p360-mock-smoke.sh`. Salesforce CLI, `jq` og `shasum` finst allereie på macOS-maskinene våre. Skriptet har òg eigne testar i `scripts/tests/p360-scratch-contract.test.cjs`. Dei sjekkar at skriptet stoppar mot feil org, og blir køyrde med `npm run test:node`.
+**Kvifor Node.js og ikkje bash?** Den første versjonen var eit bash-skript (`.sh`). Det fungerer ikkje på Windows utan ekstra verktøy, og det trong `jq` og `shasum` i tillegg. Vi vurderte tre løysingar:
+
+| Løysing                                                | Fordel                                                                                                         | Ulempe                                                        |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Bash + PowerShell, som `bin/create-scratch-org`        | Kjent mønster i repoet                                                                                         | To skript som må haldast like. Lett at dei glir frå kvarandre |
+| Berre bash, Windows-brukarar bruker WSL eller Git Bash | Ingen ny kode                                                                                                  | Krev ekstra installasjon og `sf`-innlogging inne i WSL        |
+| **Eitt Node.js-skript (valt)**                         | Same kode på alle plattformer. Node trengst allereie for `npm`, Prettier og Jest, og `sf` køyrer sjølv på Node | Litt lengre kode enn bash                                     |
+
+Skriptet har ingen avhengnader utover Node og `sf`. Hashing, JSON-lesing og mellombelse mapper bruker Node sine innebygde modular.
+
+På Windows er `sf` installert som `sf.cmd`. Node kan berre starte slike filer gjennom `cmd.exe`, så skriptet set kvart argument i hermeteikn. Då blir SOQL og filnamn med mellomrom, som layout-fila, ikkje delte opp.
+
+Skriptet har eigne testar i `scripts/tests/p360-scratch-contract.test.cjs`. Dei bruker ein falsk `sf` og sjekkar:
+
+- at skriptet stoppar mot feil org utan å røre ho
+- at `e2e` feilar når jobben er grøn utan kvitteringar
+- at flagget alltid blir sett tilbake
+- at argumenta blir rett siterte på Windows.
+
+Testane blir køyrde med `npm run test:node`.
 
 ## 5. Kva er i pakka, og kva er berre i scratch?
 
@@ -144,7 +163,7 @@ flowchart LR
         S5["P360_ScratchRpcClientTest"]
     end
     subgraph Lokalt["Berre på maskina - aldri deployert"]
-        L1["p360-scratch-contract.sh"]
+        L1["p360-scratch-contract.cjs"]
         L2["Apex-skript i scripts/apex"]
         L3["Node-test for skriptet"]
     end
@@ -165,7 +184,7 @@ flowchart LR
 | Feature-flagg (`false`)                                                           | `force-app/integration/p360/customMetadata/Feature_Flag.P360_Archive_Processing.md-meta.xml` | Ja                            | Vanleg deploy. `e2e` slår det mellombels på                    |
 | P360-permission set og -gruppe                                                    | `force-app/integration/p360/permissionsets/` og `permissionsetgroups/`                       | Ja                            | Vanleg deploy. _Tildeling_ er data per org                     |
 | Testar for produktkoden, inkludert `P360_CapturingRpcClient`                      | `force-app/tests/classes/integration/p360/`                                                  | Ja, som testkode              | Vanleg deploy                                                  |
-| Liksom-P360 (`P360_ScratchRpcClient`)                                             | `scripts/scratch/p360/classes/`                                                              | Nei                           | `p360-scratch-contract.sh verify`                              |
+| Liksom-P360 (`P360_ScratchRpcClient`)                                             | `scripts/scratch/p360/classes/`                                                              | Nei                           | `npm run p360:scratch -- verify`                               |
 | Kvitterings- og innstillingsobjekta, fane, layout, `P360_Scratch_Capture_Access`  | `scripts/scratch/p360/`                                                                      | Nei                           | `verify`                                                       |
 | Testen for liksom-P360                                                            | `force-app/tests/classes/integration/p360/scratch/`                                          | Nei, stoppa av `.forceignore` | `verify`                                                       |
 | Apex-skript for smoke og e2e                                                      | `scripts/apex/`                                                                              | Nei                           | Blir køyrde som anonym Apex, ikkje lagra i orga                |
@@ -211,10 +230,10 @@ Verifisert i scratch 2026-11-15: CLI-brukaren i `crm-arbeidsforhold` har profile
 2. Kontroller at aliaset peikar på scratch-orga:
 
     ```bash
-    sf org display --target-org crm-arbeidsforhold --json | jq -r '.result.instanceUrl'
+    sf org display --target-org crm-arbeidsforhold
     ```
 
-    Svaret skal slutte på `.scratch.my.salesforce.com`. Gjer det ikkje det, stopp.
+    Linja **Instance Url** skal slutte på `.scratch.my.salesforce.com`. Gjer det ikkje det, stopp.
 
 3. Gi deg sjølv tilgangen:
 
@@ -254,7 +273,7 @@ Dette er ei manuell endring i scratch og blir ikkje lagra i repoet. Ho forsvinn 
 
 ### 7.1 Før du byrjar (ein gong)
 
-1. Du har Salesforce CLI 2.158.7, `jq` og `shasum`. Sjekk med `sf --version` og `jq --version`.
+1. Du har Salesforce CLI 2.158.7 og Node.js 20 eller nyare. Sjekk med `sf --version` og `node --version`. Køyr `npm install` éin gong i repoet. Alt fungerer i terminalen i VS Code på både macOS og Windows (PowerShell).
 2. Aliaset `crm-arbeidsforhold` er logga inn (sjå 6.3, punkt 2).
 3. Produktkoden er deployert til scratch:
 
@@ -267,7 +286,7 @@ Dette er ei manuell endring i scratch og blir ikkje lagra i repoet. Ho forsvinn 
 ### 7.2 Køyr `verify`
 
 ```bash
-scripts/p360-scratch-contract.sh verify
+npm run p360:scratch -- verify
 ```
 
 Dette skjer, i rekkjefølgje:
@@ -285,7 +304,7 @@ Forventa slutt: ei JSON-oppsummering med `persistentReceipts: 2`, og exit-kode 0
 ### 7.3 Køyr `e2e`
 
 ```bash
-scripts/p360-scratch-contract.sh e2e
+npm run p360:scratch -- e2e
 ```
 
 Dette er den ekte prøva frå innsending til «P360»:
@@ -319,7 +338,7 @@ Forventa resultat i JSON-utskrifta:
 
 Siste linje skal vere `Archive-processing flag restored from source (Is_Enabled__c=false).`
 
-Verifisert i scratch: `e2e` bestod med søknad `a0jPw00000rIk4HIAS`, kvitteringane `SCRATCH-000036` (CreateCase) og `SCRATCH-000037` (CreateDocument), `filesVerified = 2` og `callouts = 0`. Etterpå var mock på igjen, mottakarfelta tomme og flagget `false`.
+Verifisert i scratch: `e2e` bestod med søknad `a0jPw00000rIk4HIAS`, kvitteringane `SCRATCH-000036` (CreateCase) og `SCRATCH-000037` (CreateDocument), `filesVerified = 2` og `callouts = 0`. Etterpå var mock på igjen, mottakarfelta tomme og flagget `false`. Same resultat med Node-skriptet: søknad `a0jPw00000rIlTNIA0`, kvitteringane `SCRATCH-000044` og `SCRATCH-000045`, `filesVerified = 2`, `callouts = 0`, og innstillingane og flagget sette tilbake.
 
 ### 7.4 Dei andre modusane
 
@@ -342,28 +361,35 @@ Kjem same identitet tilbake med _anna_ innhald, avviser liksom-P360 førespurnad
 
 1. `sf org open --target-org crm-arbeidsforhold`
 2. App Launcher (rutenettet øvst til venstre) → søk etter **P360 Scratch Captures**.
-3. Opne nyaste post. `Operation` viser CreateCase eller CreateDocument, og `Simulated Outcome` skal vere `Accepted`.
-4. `Synthetic Request Body` er førespurnaden i SIF-format. Filene ligg som Base64 under `Files`.
-5. App Launcher → **P360 Archive Jobs** for å sjå jobben, status og eventuell feilmelding.
-6. Søknaden finn du via kontoen som heiter **Syntetisk P360 scratch-organisasjon** og eit tal.
+3. Vel ei listevising i nedtrekksmenyen øvst til venstre:
+
+    | Listevising          | Viser                                                    |
+    | -------------------- | -------------------------------------------------------- |
+    | All Scratch Captures | Alle kvitteringar                                        |
+    | Created Cases        | Berre `CaseService/CreateCase`                           |
+    | Created Documents    | Berre `DocumentService/CreateDocument`                   |
+    | Not Accepted         | Kvitteringar der `Simulated Outcome` ikkje er `Accepted` |
+
+    Alle listevisingane er synlege for alle interne brukarar i scratch. Dei ligg i `scripts/scratch/p360/objects/P360ScratchCapture__c.object` og blir deployerte av `verify`.
+
+4. Opne nyaste post. `Operation` viser CreateCase eller CreateDocument, og `Simulated Outcome` skal vere `Accepted`.
+5. `Synthetic Request Body` er førespurnaden i SIF-format. Filene ligg som Base64 under `Files`.
+6. App Launcher → **P360 Archive Jobs** for å sjå jobben, status og eventuell feilmelding.
+7. Søknaden finn du via kontoen som heiter **Syntetisk P360 scratch-organisasjon** og eit tal.
 
 ### 8.2 I terminalen
 
 ```bash
-sf data query --target-org crm-arbeidsforhold --query \
-  "SELECT Name, Operation__c, Outcome__c, Attempts__c FROM P360ScratchCapture__c ORDER BY Name DESC LIMIT 5"
+sf data query --target-org crm-arbeidsforhold --query "SELECT Name, Operation__c, Outcome__c, Attempts__c FROM P360ScratchCapture__c ORDER BY Name DESC LIMIT 5"
 
-sf data query --target-org crm-arbeidsforhold --query \
-  "SELECT Name, Status__c, Archive_Event_Type__c, Attempt_Count__c, Last_Error_Message__c FROM P360_Archive_Job__c ORDER BY CreatedDate DESC LIMIT 5"
+sf data query --target-org crm-arbeidsforhold --query "SELECT Name, Status__c, Archive_Event_Type__c, Attempt_Count__c, Last_Error_Message__c FROM P360_Archive_Job__c ORDER BY CreatedDate DESC LIMIT 5"
 
-sf data query --target-org crm-arbeidsforhold --query \
-  "SELECT Use_Mock_Transport__c, Rpc_Client_Class__c, External_System__c FROM P360_Integration_Setting__c"
+sf data query --target-org crm-arbeidsforhold --query "SELECT Use_Mock_Transport__c, Rpc_Client_Class__c, External_System__c FROM P360_Integration_Setting__c"
 
-sf data query --target-org crm-arbeidsforhold --query \
-  "SELECT Enabled__c, Scenario__c, MaxFileBytes__c FROM P360ScratchSetting__c"
+sf data query --target-org crm-arbeidsforhold --query "SELECT Enabled__c, Scenario__c, MaxFileBytes__c FROM P360ScratchSetting__c"
 ```
 
-Kontroller målet først, slik som i 6.3, punkt 2.
+Kommandoane står på éi linje kvar, så dei fungerer både i bash/zsh og i PowerShell. Kontroller målet først, slik som i 6.3, punkt 2.
 
 ## 9. Når noko går gale
 
@@ -375,6 +401,7 @@ Kontroller målet først, slik som i 6.3, punkt 2.
 | `The P360 archive-processing flag must be enabled in scratch.`       | Flagget blei ikkje slått på                                                                    | Køyr `e2e` via skriptet, ikkje Apex-skriptet åleine                                                                                                                    |
 | `FAIL: … could not be assigned …`                                    | Permission set-et finst ikkje i orga                                                           | Køyr `verify` (for scratch-settet) eller deploy `force-app`                                                                                                            |
 | `WARNING: restore the archive-processing flag manually …`            | Skriptet klarte ikkje å slå flagget av igjen                                                   | Køyr `sf project deploy start --source-dir force-app/integration/p360/customMetadata/Feature_Flag.P360_Archive_Processing.md-meta.xml --target-org crm-arbeidsforhold` |
+| Du trykte Ctrl+C under `e2e`                                         | Skriptet stoppar, men set flagget tilbake før det avsluttar                                    | Vent til `Archive-processing flag restored …` eller `WARNING …` blir skrive. Følg i så fall raden over                                                                 |
 | Jobb `Succeeded`, men ingen kvitteringar                             | Mocken var på og «vann»                                                                        | Bruk `e2e`, som slår mocken av. Stol aldri på jobbstatus åleine                                                                                                        |
 | `Application archive source is unavailable`                          | Workeren fann ikkje søknaden                                                                   | Sjå 4.5. Sjekk at `force-app` er deployert med den nye lesaren                                                                                                         |
 | Jobb `Manual Review`                                                 | Feilen kan ikkje rettast ved å prøve om att, t.d. fil utan filending, avvising eller tapt svar | Les `Last_Error_Code__c` og `Last_Error_Message__c` på jobben                                                                                                          |

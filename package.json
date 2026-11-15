@@ -17,7 +17,8 @@
         "prettier:check": "prettier --check --no-error-on-unmatched-pattern \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
         "prepare": "husky",
         "precommit": "lint-staged",
-        "lint-staged": "lint-staged"
+        "lint-staged": "lint-staged",
+        "p360:scratch": "node scripts/p360-scratch-contract.cjs"
     },
     "devDependencies": {
         "@prettier/plugin-xml": "^3.4.2",

@@ -50,6 +50,72 @@
         <type>Number</type>
     </fields>
     <label>P360 Scratch Capture</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>Operation__c</columns>
+        <columns>Outcome__c</columns>
+        <columns>Attempts__c</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>LAST_UPDATE</columns>
+        <filterScope>Everything</filterScope>
+        <label>All Scratch Captures</label>
+        <sharedTo>
+            <allInternalUsers></allInternalUsers>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Cases</fullName>
+        <columns>NAME</columns>
+        <columns>Outcome__c</columns>
+        <columns>Attempts__c</columns>
+        <columns>CREATED_DATE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Operation__c</field>
+            <operation>equals</operation>
+            <value>CaseService/CreateCase</value>
+        </filters>
+        <label>Created Cases</label>
+        <sharedTo>
+            <allInternalUsers></allInternalUsers>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Documents</fullName>
+        <columns>NAME</columns>
+        <columns>Outcome__c</columns>
+        <columns>Attempts__c</columns>
+        <columns>CREATED_DATE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Operation__c</field>
+            <operation>equals</operation>
+            <value>DocumentService/CreateDocument</value>
+        </filters>
+        <label>Created Documents</label>
+        <sharedTo>
+            <allInternalUsers></allInternalUsers>
+        </sharedTo>
+    </listViews>
+    <listViews>
+        <fullName>Needs_Attention</fullName>
+        <columns>NAME</columns>
+        <columns>Operation__c</columns>
+        <columns>Outcome__c</columns>
+        <columns>Attempts__c</columns>
+        <columns>LAST_UPDATE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Outcome__c</field>
+            <operation>notEqual</operation>
+            <value>Accepted</value>
+        </filters>
+        <label>Not Accepted</label>
+        <sharedTo>
+            <allInternalUsers></allInternalUsers>
+        </sharedTo>
+    </listViews>
     <nameField>
         <displayFormat>SCRATCH-{000000}</displayFormat>
         <label>Scratch Capture Number</label>
