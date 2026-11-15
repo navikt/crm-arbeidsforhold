@@ -77,13 +77,77 @@ public without sharing class AAREG_ApplicationController {
 
     /**
      * Returns the attachments associated with an application and their current selection state.
+     * Enforces user-mode access to the application and files and checks the signed-in user's Altinn rights.
      *
      * @param applicationId The application whose attachments are requested.
      * @return The application's current attachment selection.
+     * @throws AuraHandledException If access is denied or the Altinn decision cannot be verified.
      */
     @AuraEnabled
     public static List<AttachmentSelection> getApplicationAttachments(Id applicationId) {
-        return new List<AttachmentSelection>();
+        if (applicationId == null) {
+            throw new AuraHandledException('An application is required.');
+        }
+
+        List<Application__c> applications = [
+            SELECT OrganizationNumber__c
+            FROM Application__c
+            WHERE Id = :applicationId
+            WITH USER_MODE
+            LIMIT 1
+        ];
+        if (applications.isEmpty()) {
+            throw new AuraHandledException('Access to the application is denied.');
+        }
+
+        User currentUser = [
+            SELECT LastUsedOrganization__c
+            FROM User
+            WHERE Id = :UserInfo.getUserId()
+            LIMIT 1
+        ];
+        String organizationNumber = currentUser.LastUsedOrganization__c;
+        if (String.isBlank(organizationNumber) || organizationNumber != applications[0].OrganizationNumber__c) {
+            throw new AuraHandledException('Access to the application is denied.');
+        }
+
+        AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(
+            UserInfo.getUserId(),
+            organizationNumber,
+            'nav_arbeidsforhold_aa-registeret-sok-tilgang'
+        );
+        Boolean permitted = false;
+        Boolean denied = false;
+        if (response?.rights != null) {
+            for (AltinnCalloutService.Right right : response.rights) {
+                if (right.Action == 'Access' && right.Decision == 'Permit') {
+                    permitted = true;
+                } else if (right.Action == 'Access' && right.Decision == 'Deny') {
+                    denied = true;
+                }
+            }
+        }
+        if (denied) {
+            throw new AuraHandledException('Access to the application is denied.');
+        }
+        if (response?.success != true || !permitted) {
+            throw new AuraHandledException('Unable to verify application access.');
+        }
+
+        List<AttachmentSelection> attachments = new List<AttachmentSelection>();
+        for (ContentDocumentLink link : [
+            SELECT ContentDocumentId, ContentDocument.Title
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId = :applicationId
+            WITH USER_MODE
+        ]) {
+            AttachmentSelection attachment = new AttachmentSelection();
+            attachment.contentDocumentId = link.ContentDocumentId;
+            attachment.title = link.ContentDocument.Title;
+            attachment.selected = true;
+            attachments.add(attachment);
+        }
+        return attachments;
     }
 
     private static Access_Request__c getAccessRequest(Id applicationId) {

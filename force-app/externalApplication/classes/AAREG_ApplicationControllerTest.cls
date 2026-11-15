@@ -492,17 +492,11 @@ private class AAREG_ApplicationControllerTest {
     @IsTest
     private static void shouldSelectAllLegacyAttachmentsByDefault() {
         User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S01', 'subject-a');
-        Account account = [
-            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
-            FROM Account
-            WHERE INT_OrganizationNumber__c = '929882989'
-            LIMIT 1
-        ];
-        account.INT_OrganizationNumber__c = communityUser.LastUsedOrganization__c;
-        update account;
-
-        Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
-        insert application;
+        grantCommunityPermissions(communityUser);
+        Application__c application = createAttachmentTestApplication(
+            communityUser,
+            communityUser.LastUsedOrganization__c
+        );
 
         List<ContentVersion> versions = new List<ContentVersion>{
             new ContentVersion(
@@ -516,20 +510,30 @@ private class AAREG_ApplicationControllerTest {
                 VersionData = Blob.valueOf('second')
             )
         };
-        insert versions;
+        System.runAs(communityUser) {
+            insert versions;
+        }
 
         List<ContentVersion> insertedVersions = [
-            SELECT Id, ContentDocumentId
+            SELECT Id, ContentDocumentId, Title
             FROM ContentVersion
             WHERE Id IN :versions
         ];
         List<ContentDocumentLink> links = new List<ContentDocumentLink>();
+        Map<Id, String> expectedTitles = new Map<Id, String>();
         for (ContentVersion version : insertedVersions) {
             links.add(
-                new ContentDocumentLink(LinkedEntityId = application.Id, ContentDocumentId = version.ContentDocumentId)
+                new ContentDocumentLink(
+                    LinkedEntityId = application.Id,
+                    ContentDocumentId = version.ContentDocumentId,
+                    ShareType = 'I'
+                )
             );
+            expectedTitles.put(version.ContentDocumentId, version.Title);
         }
-        insert links;
+        System.runAs(communityUser) {
+            insert links;
+        }
 
         List<AAREG_ApplicationController.AttachmentSelection> attachments;
         Integer callouts;
@@ -541,9 +545,90 @@ private class AAREG_ApplicationControllerTest {
         System.Test.stopTest();
 
         System.Assert.areEqual(2, attachments.size(), 'All linked attachments should be returned.');
+        Map<Id, String> actualTitles = new Map<Id, String>();
         for (AAREG_ApplicationController.AttachmentSelection attachment : attachments) {
             System.Assert.isTrue(attachment.selected, 'Legacy attachments should be selected by default.');
+            actualTitles.put(attachment.contentDocumentId, attachment.title);
         }
+        System.Assert.areEqual(expectedTitles, actualTitles, 'Each linked document and its title should be returned.');
         System.Assert.areEqual(0, callouts, 'The assigned synthetic Altinn scenario must not call external services.');
+    }
+
+    /**
+     * Rejects attachment access when the application belongs to another organization.
+     *
+     * @since 2026-11-15
+     */
+    @IsTest
+    private static void shouldRejectAttachmentsForAnotherOrganization() {
+        User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S01', 'subject-a');
+        grantCommunityPermissions(communityUser);
+        Application__c application = createAttachmentTestApplication(communityUser, '929882989');
+
+        Boolean rejected = false;
+        System.Test.startTest();
+        System.runAs(communityUser) {
+            try {
+                AAREG_ApplicationController.getApplicationAttachments(application.Id);
+            } catch (AuraHandledException error) {
+                rejected = true;
+            }
+            System.Assert.areEqual(0, Limits.getCallouts());
+        }
+        System.Test.stopTest();
+
+        System.Assert.isTrue(rejected, 'A different organization must not be able to read attachments.');
+    }
+
+    /**
+     * Rejects attachment access when Altinn denies application rights.
+     *
+     * @since 2026-11-15
+     */
+    @IsTest
+    private static void shouldRejectAttachmentsWithoutApplicationRights() {
+        User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S03', 'subject-a');
+        grantCommunityPermissions(communityUser);
+        Application__c application = createAttachmentTestApplication(
+            communityUser,
+            communityUser.LastUsedOrganization__c
+        );
+
+        Boolean rejected = false;
+        System.Test.startTest();
+        System.runAs(communityUser) {
+            try {
+                AAREG_ApplicationController.getApplicationAttachments(application.Id);
+            } catch (AuraHandledException error) {
+                rejected = true;
+            }
+            System.Assert.areEqual(0, Limits.getCallouts());
+        }
+        System.Test.stopTest();
+
+        System.Assert.isTrue(rejected, 'Altinn denial must prevent access to attachments.');
+    }
+
+    private static void grantCommunityPermissions(User communityUser) {
+        PermissionSet permissionSet = [SELECT Id FROM PermissionSet WHERE Name = 'AAREG_CommunityPermission' LIMIT 1];
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            insert new PermissionSetAssignment(AssigneeId = communityUser.Id, PermissionSetId = permissionSet.Id);
+        }
+    }
+
+    private static Application__c createAttachmentTestApplication(User communityUser, String organizationNumber) {
+        Account account = [
+            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
+            FROM Account
+            WHERE INT_OrganizationNumber__c = '929882989'
+            LIMIT 1
+        ];
+        account.INT_OrganizationNumber__c = organizationNumber;
+        update account;
+
+        Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
+        application.OwnerId = communityUser.Id;
+        insert application;
+        return application;
     }
 }
