@@ -806,6 +806,16 @@ test_phases_are_numbered_for_phases_that_run() {
     assert_not_contains "[1/3]"
 }
 
+test_pool_fetch_continues_to_post_steps() {
+    new_project pool-post-steps
+    write_config '{"defaultOrgAlias":"pool-org","permissionSets":["PermA"],"postSteps":["permsets"],"pool":{"use":true,"tag":"dev","devHub":"fake-devhub"}}'
+    POOL_LIST_OUTPUT="Unused Scratch Orgs in the Pool : 1" script
+    assert_exit 0
+    grep -q '^sfp pool fetch ' "$SF_LOG" && pass || fail "scratch org was not fetched from pool"
+    grep -q '^org assign permset --target-org pool-org --name PermA' "$SF_LOG" && pass || fail "post-step did not run after pool fetch"
+    assert_contains "Ran:     permsets"
+}
+
 test_package_loop_shows_progress_counter() {
     new_project package-progress
     write_dependency_project pkg-a pkg-b

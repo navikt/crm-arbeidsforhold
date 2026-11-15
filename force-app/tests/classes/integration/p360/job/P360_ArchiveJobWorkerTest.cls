@@ -8,6 +8,28 @@
 @IsTest
 private class P360_ArchiveJobWorkerTest {
     /**
+     * Verifies that the processing user can persist the timestamp required by the worker.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void shouldAllowProcessingUserToRecordLastAttemptDate() {
+        User processingUser = createProcessingUser();
+
+        System.runAs(processingUser) {
+            Schema.DescribeFieldResult lastAttempt = P360_Archive_Job__c.Last_Attempt_Date__c.getDescribe();
+            System.Assert.isTrue(
+                lastAttempt.isAccessible(),
+                'The processing user must be able to read Last Attempt Date.'
+            );
+            System.Assert.isTrue(
+                lastAttempt.isUpdateable(),
+                'The processing user must be able to update Last Attempt Date.'
+            );
+        }
+    }
+
+    /**
      * Verifies that a non-retryable adapter failure (the current controlled "not implemented" contract
      * error) moves the job straight to Manual Review, without waiting for retries.
      *
@@ -22,11 +44,13 @@ private class P360_ArchiveJobWorkerTest {
             Id jobId = claimedJobId('correlation-worker-1');
 
             System.Test.startTest();
+            DateTime beforeAttempt = DateTime.newInstance((System.now().getTime() / 1000) * 1000);
             new P360_ArchiveJobWorker(new Set<Id>{ jobId }).execute(null);
+            DateTime afterAttempt = System.now();
             System.Test.stopTest();
 
             P360_Archive_Job__c job = [
-                SELECT Status__c, Last_Error_Code__c, Last_Error_Message__c, Next_Attempt_Date__c
+                SELECT Status__c, Last_Error_Code__c, Last_Error_Message__c, Next_Attempt_Date__c, Last_Attempt_Date__c
                 FROM P360_Archive_Job__c
                 WHERE Id = :jobId
             ];
@@ -42,6 +66,8 @@ private class P360_ArchiveJobWorkerTest {
             );
             System.Assert.isNotNull(job.Last_Error_Message__c, 'Expected the error message to be recorded.');
             System.Assert.isNull(job.Next_Attempt_Date__c, 'Manual review jobs are not automatically retried.');
+            System.Assert.isNotNull(job.Last_Attempt_Date__c, 'Expected the failed attempt timestamp to be recorded.');
+            System.Assert.isTrue(job.Last_Attempt_Date__c >= beforeAttempt && job.Last_Attempt_Date__c <= afterAttempt);
         }
     }
 
@@ -185,11 +211,13 @@ private class P360_ArchiveJobWorkerTest {
             worker.adapter = new P360_TestRetryableArchiveAdapter();
 
             System.Test.startTest();
+            DateTime beforeAttempt = DateTime.newInstance((System.now().getTime() / 1000) * 1000);
             worker.execute(null);
+            DateTime afterAttempt = System.now();
             System.Test.stopTest();
 
             P360_Archive_Job__c job = [
-                SELECT Status__c, Next_Attempt_Date__c, Last_Error_Code__c
+                SELECT Status__c, Next_Attempt_Date__c, Last_Error_Code__c, Last_Attempt_Date__c
                 FROM P360_Archive_Job__c
                 WHERE Id = :jobId
             ];
@@ -199,6 +227,11 @@ private class P360_ArchiveJobWorkerTest {
                 job.Next_Attempt_Date__c > System.now(),
                 'Expected the next attempt to be scheduled in the future.'
             );
+            System.Assert.isNotNull(
+                job.Last_Attempt_Date__c,
+                'Expected the retryable attempt timestamp to be recorded.'
+            );
+            System.Assert.isTrue(job.Last_Attempt_Date__c >= beforeAttempt && job.Last_Attempt_Date__c <= afterAttempt);
         }
     }
 
@@ -286,14 +319,77 @@ private class P360_ArchiveJobWorkerTest {
             worker.adapter = new P360_StubArchiveAdapter();
 
             System.Test.startTest();
+            DateTime beforeAttempt = DateTime.newInstance((System.now().getTime() / 1000) * 1000);
             worker.execute(null);
+            DateTime afterAttempt = System.now();
             System.Test.stopTest();
 
-            P360_Archive_Job__c job = [SELECT Status__c FROM P360_Archive_Job__c WHERE Id = :jobId];
+            P360_Archive_Job__c job = [
+                SELECT Status__c, Last_Attempt_Date__c
+                FROM P360_Archive_Job__c
+                WHERE Id = :jobId
+            ];
             System.Assert.areEqual(
                 'Succeeded',
                 job.Status__c,
                 'Expected a successful archive to mark the job Succeeded.'
+            );
+            System.Assert.isNotNull(
+                job.Last_Attempt_Date__c,
+                'Expected the successful attempt timestamp to be recorded.'
+            );
+            System.Assert.isTrue(job.Last_Attempt_Date__c >= beforeAttempt && job.Last_Attempt_Date__c <= afterAttempt);
+        }
+    }
+
+    /**
+     * Verifies that retry processing replaces the previous attempt timestamp, but claiming alone does not.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void shouldRefreshLastAttemptDateOnlyWhenRetryIsProcessed() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+        User processingUser = createProcessingUser();
+
+        System.runAs(processingUser) {
+            Id jobId = claimedJobId('correlation-worker-retry-date');
+            DateTime previousAttempt = System.now().addDays(-1);
+            update new P360_Archive_Job__c(
+                Id = jobId,
+                Status__c = 'Failed',
+                Last_Attempt_Date__c = previousAttempt,
+                Next_Attempt_Date__c = System.now().addMinutes(-1)
+            );
+
+            System.Test.startTest();
+            List<Id> claimedIds = P360_ArchiveJobClaimService.claimNextBatch(1);
+            System.Assert.areEqual(new List<Id>{ jobId }, claimedIds);
+            P360_Archive_Job__c claimed = [
+                SELECT Last_Attempt_Date__c
+                FROM P360_Archive_Job__c
+                WHERE Id = :jobId
+            ];
+            System.Assert.areEqual(previousAttempt, claimed.Last_Attempt_Date__c);
+
+            P360_ArchiveJobWorker worker = new P360_ArchiveJobWorker(new Set<Id>{ jobId });
+            worker.adapter = new P360_StubArchiveAdapter();
+            DateTime beforeAttempt = DateTime.newInstance((System.now().getTime() / 1000) * 1000);
+            worker.execute(null);
+            DateTime afterAttempt = System.now();
+            System.Test.stopTest();
+
+            P360_Archive_Job__c retried = [
+                SELECT Status__c, Attempt_Count__c, Last_Attempt_Date__c
+                FROM P360_Archive_Job__c
+                WHERE Id = :jobId
+            ];
+            System.Assert.areEqual('Succeeded', retried.Status__c);
+            System.Assert.areEqual(2, retried.Attempt_Count__c);
+            System.Assert.isNotNull(retried.Last_Attempt_Date__c);
+            System.Assert.isTrue(
+                retried.Last_Attempt_Date__c >= beforeAttempt && retried.Last_Attempt_Date__c <= afterAttempt,
+                'Expected the retry to replace the previous attempt timestamp.'
             );
         }
     }
@@ -323,7 +419,7 @@ private class P360_ArchiveJobWorkerTest {
             System.Test.stopTest();
 
             P360_Archive_Job__c job = [
-                SELECT Status__c, Attempt_Count__c, Started_Date__c, Lease_Expires_Date__c
+                SELECT Status__c, Attempt_Count__c, Started_Date__c, Lease_Expires_Date__c, Last_Attempt_Date__c
                 FROM P360_Archive_Job__c
                 WHERE Id = :jobId
                 LIMIT 1
@@ -332,6 +428,44 @@ private class P360_ArchiveJobWorkerTest {
             System.Assert.areEqual(0, job.Attempt_Count__c);
             System.Assert.isNull(job.Started_Date__c);
             System.Assert.isNull(job.Lease_Expires_Date__c);
+            System.Assert.isNull(job.Last_Attempt_Date__c, 'A cancelled claim must not record an archive attempt.');
+        }
+    }
+
+    /**
+     * Verifies that a disabled worker preserves a previous attempt timestamp without calling the adapter.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void shouldPreserveLastAttemptDateWhenRetryIsCancelled() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+        User processingUser = createProcessingUser();
+        DateTime previousAttempt = System.now().addDays(-1);
+        Id jobId;
+
+        System.runAs(processingUser) {
+            jobId = claimedJobId('correlation-worker-cancelled-retry');
+            update new P360_Archive_Job__c(Id = jobId, Attempt_Count__c = 2, Last_Attempt_Date__c = previousAttempt);
+        }
+
+        P360_TestDataFactory.setArchiveProcessingEnabled(false);
+        System.runAs(processingUser) {
+            P360_ArchiveJobWorker worker = new P360_ArchiveJobWorker(new Set<Id>{ jobId });
+            worker.adapter = new P360_StubArchiveAdapter();
+
+            System.Test.startTest();
+            worker.execute(null);
+            System.Test.stopTest();
+
+            P360_Archive_Job__c restored = [
+                SELECT Status__c, Attempt_Count__c, Last_Attempt_Date__c
+                FROM P360_Archive_Job__c
+                WHERE Id = :jobId
+            ];
+            System.Assert.areEqual('Pending', restored.Status__c);
+            System.Assert.areEqual(1, restored.Attempt_Count__c);
+            System.Assert.areEqual(previousAttempt, restored.Last_Attempt_Date__c);
         }
     }
 

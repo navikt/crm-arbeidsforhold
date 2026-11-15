@@ -1,0 +1,66 @@
+<template>
+    <lightning-card title="Aa-registeret: driftsoversikt" icon-name="standard:dashboard">
+        <lightning-button-icon
+            slot="actions"
+            icon-name="utility:refresh"
+            alternative-text="Oppdater"
+            onclick={handleRefresh}
+        ></lightning-button-icon>
+        <div class="slds-p-horizontal_medium">
+            <p class="slds-m-bottom_small">
+                Talet på kvar flis viser kor mange postar du sjølv har lov til å sjå. Vel «Vis postar» for å opne dei 50
+                sist endra. Ei grå flis betyr at du manglar tilgang, og teksten forklarar kvifor.
+            </p>
+            <template lwc:if={loading}>
+                <lightning-spinner alternative-text="Lastar"></lightning-spinner>
+            </template>
+            <template lwc:if={error}>
+                <div class="slds-text-color_error" role="alert">{error}</div>
+            </template>
+            <lightning-layout multiple-rows>
+                <template for:each={tiles} for:item="tile">
+                    <lightning-layout-item
+                        key={tile.key}
+                        size="12"
+                        medium-device-size="6"
+                        large-device-size="4"
+                        padding="around-small"
+                    >
+                        <article class="slds-box slds-theme_default" data-tile={tile.key}>
+                            <h3 class="slds-text-heading_small">{tile.label}</h3>
+                            <p class="slds-text-body_small slds-text-color_weak">{tile.description}</p>
+                            <template lwc:if={tile.available}>
+                                <p class="slds-text-heading_large slds-m-vertical_x-small">{tile.count}</p>
+                                <p class="slds-text-body_small">{tile.breakdownText}</p>
+                                <lightning-button
+                                    class="slds-m-top_x-small"
+                                    label="Vis postar"
+                                    data-key={tile.key}
+                                    onclick={handleShowRecords}
+                                ></lightning-button>
+                            </template>
+                            <template lwc:else>
+                                <p class="slds-text-color_weak slds-m-top_x-small">{tile.message}</p>
+                            </template>
+                        </article>
+                    </lightning-layout-item>
+                </template>
+            </lightning-layout>
+            <template lwc:if={selectedTile}>
+                <h3 class="slds-text-heading_small slds-m-top_medium">Postar: {selectedTile.label}</h3>
+                <template lwc:if={rowsError}>
+                    <div class="slds-text-color_error" role="alert">{rowsError}</div>
+                </template>
+                <lightning-datatable
+                    key-field="id"
+                    data={rows}
+                    columns={columns}
+                    hide-checkbox-column
+                ></lightning-datatable>
+                <template lwc:if={hasNoRows}>
+                    <p class="slds-text-color_weak">Ingen postar du har tilgang til.</p>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>
