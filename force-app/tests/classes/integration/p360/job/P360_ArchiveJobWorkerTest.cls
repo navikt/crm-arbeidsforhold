@@ -537,6 +537,60 @@ private class P360_ArchiveJobWorkerTest {
         }
     }
 
+    /**
+     * Verifies that application files over the inline limit are rejected from their stored size, before the
+     * worker reads and Base64-encodes their content.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void oversizedApplicationFilesMoveJobToManualReviewBeforeEncoding() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+        User processingUser = createProcessingUser();
+
+        System.runAs(processingUser) {
+            Access_Request__c accessRequest = new Access_Request__c();
+            insert accessRequest;
+            Application__c application = new Application__c(Access_Request__c = accessRequest.Id);
+            insert application;
+            for (Integer i = 0; i < 4; i++) {
+                insertAttachment(application.Id, 1500000);
+            }
+            Id jobId = P360_ArchiveJobService.getOrCreateApplicationDocumentJob(
+                    accessRequest.Id,
+                    application.Id,
+                    'correlation-worker-oversized'
+                )
+                .Id;
+            System.Assert.isTrue(
+                new Set<Id>(P360_ArchiveJobClaimService.claimNextBatch(10)).contains(jobId),
+                'The application document job must be claimed.'
+            );
+
+            System.Test.startTest();
+            new P360_ArchiveJobWorker(new Set<Id>{ jobId }).execute(null);
+            System.Test.stopTest();
+
+            P360_Archive_Job__c job = [
+                SELECT Status__c, Last_Error_Code__c, Last_Error_Message__c
+                FROM P360_Archive_Job__c
+                WHERE Id = :jobId
+            ];
+            System.Assert.areEqual('Manual Review', job.Status__c);
+            System.Assert.areEqual('P360_ContractException', job.Last_Error_Code__c);
+            System.Assert.areEqual('Application files exceed the inline P360 upload limit.', job.Last_Error_Message__c);
+        }
+    }
+
+    private static void insertAttachment(Id applicationId, Integer sizeInBytes) {
+        insert new ContentVersion(
+            Title = 'large attachment',
+            PathOnClient = 'large.pdf',
+            FirstPublishLocationId = applicationId,
+            VersionData = Blob.valueOf('a'.repeat(sizeInBytes))
+        );
+    }
+
     private static Id claimedJobId(String correlationId) {
         Access_Request__c accessRequest = new Access_Request__c();
         insert accessRequest;

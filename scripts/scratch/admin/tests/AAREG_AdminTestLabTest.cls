@@ -77,6 +77,56 @@ private class AAREG_AdminTestLabTest {
     }
 
     @IsTest
+    static void resetKeepsUnmarkedRecordsLinkedToMarkedRecords() {
+        Id withManualJob = (Id) AAREG_AdminTestLab.seed('p360-feila').get('applicationId');
+        Id plainMarked = (Id) AAREG_AdminTestLab.seed('soknad-ny').get('applicationId');
+        Map<Id, Application__c> seeded = new Map<Id, Application__c>(
+            [SELECT Account__c, Access_Request__c FROM Application__c WHERE Id IN (:withManualJob, :plainMarked)]
+        );
+        Account ordinaryAccount = new Account(Name = 'Ordinary employer');
+        insert ordinaryAccount;
+        Application__c sharingAccessRequest = new Application__c(
+            Account__c = ordinaryAccount.Id,
+            Access_Request__c = seeded.get(plainMarked).Access_Request__c
+        );
+        insert sharingAccessRequest;
+        P360_Archive_Job__c manualJob = new P360_Archive_Job__c(
+            Idempotency_Key__c = 'manual-not-testlab',
+            Correlation_Id__c = 'manual-not-testlab',
+            Status__c = 'Manual Review',
+            Archive_Event_Type__c = 'ApplicationDocument',
+            Application__c = withManualJob,
+            Access_Request__c = seeded.get(withManualJob).Access_Request__c
+        );
+        insert manualJob;
+
+        System.Test.startTest();
+        AAREG_AdminTestLab.reset();
+        System.Test.stopTest();
+
+        System.Assert.areEqual(
+            new Set<Id>{ withManualJob, sharingAccessRequest.Id },
+            new Map<Id, Application__c>([SELECT Id FROM Application__c]).keySet(),
+            'Applications outside the test lab and applications with unmarked jobs remain'
+        );
+        System.Assert.areEqual(
+            new Set<Id>{ manualJob.Id },
+            new Map<Id, P360_Archive_Job__c>([SELECT Id FROM P360_Archive_Job__c]).keySet(),
+            'Only marked jobs are deleted'
+        );
+        System.Assert.areEqual(
+            new Set<Id>{ seeded.get(withManualJob).Access_Request__c, seeded.get(plainMarked).Access_Request__c },
+            new Map<Id, Access_Request__c>([SELECT Id FROM Access_Request__c]).keySet(),
+            'Access requests still used by a remaining application are kept'
+        );
+        System.Assert.areEqual(
+            new Set<Id>{ seeded.get(withManualJob).Account__c, ordinaryAccount.Id },
+            new Map<Id, Account>([SELECT Id FROM Account]).keySet(),
+            'Only test lab accounts without remaining applications are deleted'
+        );
+    }
+
+    @IsTest
     static void unknownScenarioIsRejected() {
         Boolean rejected = false;
         try {

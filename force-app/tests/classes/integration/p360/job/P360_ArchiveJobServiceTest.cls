@@ -232,6 +232,108 @@ private class P360_ArchiveJobServiceTest {
         }
     }
 
+    /**
+     * Verifies that a resubmission after a completed archive queues a complete new application archive.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void shouldQueueNewApplicationArchiveWhenResubmittedAfterCompletedArchive() {
+        User processingUser = createProcessingUser();
+
+        System.runAs(processingUser) {
+            P360_TestDataFactory.setArchiveProcessingEnabled(true);
+            Access_Request__c accessRequest = new Access_Request__c();
+            insert accessRequest;
+            Application__c application = new Application__c();
+            insert application;
+
+            P360_ArchiveJobService.requestApplicationArchiveOnSubmit(accessRequest.Id, application.Id);
+            P360_Archive_Job__c firstJob = [
+                SELECT Id, Idempotency_Key__c
+                FROM P360_Archive_Job__c
+                WHERE Application__c = :application.Id
+            ];
+            update new P360_Archive_Job__c(Id = firstJob.Id, Status__c = 'Succeeded');
+
+            System.Test.startTest();
+            P360_ArchiveJobService.requestApplicationArchiveOnSubmit(accessRequest.Id, application.Id);
+            System.Test.stopTest();
+
+            List<P360_Archive_Job__c> jobs = [
+                SELECT Idempotency_Key__c, Correlation_Id__c, Status__c
+                FROM P360_Archive_Job__c
+                WHERE Application__c = :application.Id AND Id != :firstJob.Id
+            ];
+            System.Assert.areEqual(1, jobs.size(), 'A resubmission must queue a new application archive.');
+            System.Assert.areEqual('Pending', jobs[0].Status__c);
+            System.Assert.areEqual(
+                P360_IdempotencyKey.forApplicationDocument(application.Id),
+                firstJob.Idempotency_Key__c
+            );
+            System.Assert.areEqual(
+                P360_IdempotencyKey.forApplicationDocumentSubmission(application.Id, 2),
+                jobs[0].Idempotency_Key__c
+            );
+            System.Assert.areNotEqual(firstJob.Idempotency_Key__c, jobs[0].Idempotency_Key__c);
+        }
+    }
+
+    /**
+     * Verifies that a repeated submission while the archive is still open reuses the open job.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void shouldReuseOpenApplicationArchiveWhenSubmittedAgain() {
+        User processingUser = createProcessingUser();
+
+        System.runAs(processingUser) {
+            P360_TestDataFactory.setArchiveProcessingEnabled(true);
+            Access_Request__c accessRequest = new Access_Request__c();
+            insert accessRequest;
+            Application__c application = new Application__c();
+            insert application;
+
+            System.Test.startTest();
+            P360_ArchiveJobService.requestApplicationArchiveOnSubmit(accessRequest.Id, application.Id);
+            P360_Archive_Job__c firstJob = [SELECT Id FROM P360_Archive_Job__c WHERE Application__c = :application.Id];
+            update new P360_Archive_Job__c(Id = firstJob.Id, Status__c = 'Failed');
+            P360_ArchiveJobService.requestApplicationArchiveOnSubmit(accessRequest.Id, application.Id);
+            System.Test.stopTest();
+
+            System.Assert.areEqual(
+                1,
+                [SELECT COUNT() FROM P360_Archive_Job__c WHERE Application__c = :application.Id],
+                'An open archive job must be reused instead of duplicated.'
+            );
+        }
+    }
+
+    /**
+     * Verifies that submission does not queue archive work while P360 processing is disabled.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void shouldNotQueueApplicationArchiveWhenProcessingIsDisabled() {
+        User processingUser = createProcessingUser();
+
+        System.runAs(processingUser) {
+            P360_TestDataFactory.setArchiveProcessingEnabled(false);
+            Access_Request__c accessRequest = new Access_Request__c();
+            insert accessRequest;
+            Application__c application = new Application__c();
+            insert application;
+
+            System.Test.startTest();
+            P360_ArchiveJobService.requestApplicationArchiveOnSubmit(accessRequest.Id, application.Id);
+            System.Test.stopTest();
+
+            System.Assert.areEqual(0, [SELECT COUNT() FROM P360_Archive_Job__c WHERE Application__c = :application.Id]);
+        }
+    }
+
     private static User createProcessingUser() {
         User userRecord;
         User currentUser = [SELECT Id FROM User WHERE Id = :UserInfo.getUserId()];

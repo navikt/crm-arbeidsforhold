@@ -334,7 +334,7 @@ public with sharing class AAREG_AdminJourneyController {
         ) {
             return false;
         }
-        Boolean archived = false;
+        String latestApplicationDocumentStatus;
         for (P360_Archive_Job__c job : [
             SELECT
                 Id,
@@ -348,10 +348,12 @@ public with sharing class AAREG_AdminJourneyController {
             FROM P360_Archive_Job__c
             WHERE Application__c = :applicationId
             WITH USER_MODE
-            ORDER BY CreatedDate
+            ORDER BY CreatedDate, Id
             LIMIT :MAX_PER_SOURCE
         ]) {
-            archived = archived || job.Status__c == 'Succeeded';
+            if (job.Archive_Event_Type__c == 'ApplicationDocument') {
+                latestApplicationDocumentStatus = job.Status__c;
+            }
             String detail =
                 'Status: ' +
                 job.Status__c +
@@ -372,7 +374,7 @@ public with sharing class AAREG_AdminJourneyController {
                 )
             );
         }
-        return archived;
+        return latestApplicationDocumentStatus == 'Succeeded';
     }
 
     private static void addLogs(Journey journey, Id applicationId) {

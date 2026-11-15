@@ -16,8 +16,8 @@ const TESTLAB_BUNDLE = [
     ['scripts/scratch/admin/package.xml', 'package.xml'],
     ['scripts/scratch/admin/classes/AAREG_AdminTestLab.cls', 'classes'],
     ['scripts/scratch/admin/classes/AAREG_AdminTestLab.cls-meta.xml', 'classes'],
-    ['force-app/tests/classes/internalAdmin/scratch/AAREG_AdminTestLabTest.cls', 'classes'],
-    ['force-app/tests/classes/internalAdmin/scratch/AAREG_AdminTestLabTest.cls-meta.xml', 'classes']
+    ['scripts/scratch/admin/tests/AAREG_AdminTestLabTest.cls', 'classes'],
+    ['scripts/scratch/admin/tests/AAREG_AdminTestLabTest.cls-meta.xml', 'classes']
 ];
 const SCRATCH_URL = /^https:\/\/[a-zA-Z0-9.-]+\.scratch\.my\.salesforce\.com$/;
 const ADMIN_SOURCES = [

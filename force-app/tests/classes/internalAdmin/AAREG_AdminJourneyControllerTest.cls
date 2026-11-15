@@ -108,6 +108,61 @@ private with sharing class AAREG_AdminJourneyControllerTest {
     }
 
     @IsTest
+    static void onlySucceededApplicationDocumentJobCountsAsArchived() {
+        Application__c application = insertApplication(System.today());
+        insert new P360_Archive_Job__c(
+            Idempotency_Key__c = 'journey-attachment-only',
+            Status__c = 'Succeeded',
+            Archive_Event_Type__c = 'ApplicationAttachment',
+            Application__c = application.Id,
+            Access_Request__c = application.Access_Request__c,
+            Attempt_Count__c = 1,
+            Correlation_Id__c = 'corr-attachment'
+        );
+
+        System.Test.startTest();
+        AAREG_AdminJourneyController.Journey journey = AAREG_AdminJourneyController.getJourney(application.Id);
+        System.Test.stopTest();
+
+        System.Assert.isTrue(
+            journey.missingSteps.contains('Arkivert i P360'),
+            'An archived attachment alone does not mean the application is archived'
+        );
+    }
+
+    @IsTest
+    static void openResubmissionArchiveIsShownAsNotArchived() {
+        Application__c application = insertApplication(System.today());
+        insert new P360_Archive_Job__c(
+            Idempotency_Key__c = 'journey-first-submission',
+            Status__c = 'Succeeded',
+            Archive_Event_Type__c = 'ApplicationDocument',
+            Application__c = application.Id,
+            Access_Request__c = application.Access_Request__c,
+            Attempt_Count__c = 1,
+            Correlation_Id__c = 'corr-first'
+        );
+        insert new P360_Archive_Job__c(
+            Idempotency_Key__c = 'journey-second-submission',
+            Status__c = 'Pending',
+            Archive_Event_Type__c = 'ApplicationDocument',
+            Application__c = application.Id,
+            Access_Request__c = application.Access_Request__c,
+            Attempt_Count__c = 0,
+            Correlation_Id__c = 'corr-second'
+        );
+
+        System.Test.startTest();
+        AAREG_AdminJourneyController.Journey journey = AAREG_AdminJourneyController.getJourney(application.Id);
+        System.Test.stopTest();
+
+        System.Assert.isTrue(
+            journey.missingSteps.contains('Arkivert i P360'),
+            'The latest submission is not archived while its job is still open'
+        );
+    }
+
+    @IsTest
     static void userWithoutAccessGetsExplanation() {
         Application__c application = insertApplication(System.today());
         User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();

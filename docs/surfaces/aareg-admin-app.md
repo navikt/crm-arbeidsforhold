@@ -202,7 +202,7 @@ Køyr kommandoane i ein terminal i VS Code, eller vel **Terminal → Run Task** 
 Kvifor dette er trygt:
 
 - **Berre scratch.** Køyraren kontrollerer alias, scratch-domene og `IsSandbox=true` før han gjer noko. Apex-klassen kontrollerer det same éin gong til.
-- **Ikkje i pakka.** `AAREG_AdminTestLab` ligg i `scripts/scratch/admin/`, og testen ligg i `force-app/tests/classes/internalAdmin/scratch/`, som `.forceignore` held utanfor pakka. Køyraren deployar dei som upakka metadata.
+- **Ikkje i pakka.** `AAREG_AdminTestLab` ligg i `scripts/scratch/admin/classes/`, og testen ligg i `scripts/scratch/admin/tests/`. Ingen av dei ligg under `force-app/`. Køyraren deployar dei som upakka metadata.
 - **Ingen kall ut.** P360-jobbane blir berre laga med statusar som arkivarbeidaren aldri hentar (`Succeeded`, `Manual Review`, `In Progress`, og `Failed` utan neste forsøk). Ein Apex-test sjekkar dette. Køyraren stoppar om ein operasjon rapporterer eitt eller fleire kall.
 - **Merkte postar.** Kontoane heiter `AAREG TESTLAB <scenario> <tidsstempel>`, og jobbane har nøkkel `AAREG-TESTLAB-…`. `reset` slettar berre det som er merkt.
 - **Brukartilgang.** All lesing og skriving skjer i brukarmodus. Ein brukar utan tilgang til objekta får feil, ikkje data.

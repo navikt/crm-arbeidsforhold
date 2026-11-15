@@ -144,7 +144,7 @@ Testane blir køyrde med `npm run test:node`.
 
 ## 5. Kva er i pakka, og kva er berre i scratch?
 
-Regelen er enkel: **det som ligg under `force-app/`, er i pakka, med eitt unntak.** Unntaket er mappa `force-app/tests/classes/integration/p360/scratch/`, som `.forceignore` held utanfor.
+Regelen er enkel: **det som ligg under `force-app/`, er i pakka. Det som ligg under `scripts/scratch/`, er ikkje i pakka.** Også testane for scratch-verktøya ligg under `scripts/scratch/`. Grunnen er at CI finn og køyrer alle `@IsTest`-klassar under `force-app/`; ein test der som ikkje blir deploya, ville få CI-valideringa til å feile.
 
 ```mermaid
 flowchart LR
@@ -174,27 +174,27 @@ flowchart LR
 
 ### 5.1 Fullstendig liste
 
-| Del                                                                                              | Stad i repoet                                                                                | Med i pakka?                  | Korleis han kjem til scratch                                   |
-| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- | ----------------------------- | -------------------------------------------------------------- |
-| Worker, adapter, serializer, mapperar, builder                                                   | `force-app/integration/p360/classes/`                                                        | Ja                            | Vanleg deploy av `force-app`                                   |
-| Innsendingskroken                                                                                | `force-app/externalApplication/classes/AAREG_ApplicationController.cls`                      | Ja                            | Vanleg deploy                                                  |
-| Arkivjobb-objektet og P360-felta på søknad, tilgangsførespurnad, avtale og vedtak                | `force-app/integration/p360/objects/`                                                        | Ja                            | Vanleg deploy                                                  |
-| `P360_Integration_Setting__c` med `Rpc_Client_Class__c` og `External_System__c`                  | `force-app/integration/p360/objects/P360_Integration_Setting__c/`                            | Ja                            | Vanleg deploy. Sjølve _verdiane_ er data og må setjast per org |
-| Kodeverdiar (CMDT)                                                                               | `force-app/integration/p360/customMetadata/P360_Code_Table_Value.*`                          | Ja                            | Vanleg deploy                                                  |
-| Feature-flagg (`false`)                                                                          | `force-app/integration/p360/customMetadata/Feature_Flag.P360_Archive_Processing.md-meta.xml` | Ja                            | Vanleg deploy. `e2e` slår det mellombels på                    |
-| P360-permission set og -gruppe                                                                   | `force-app/integration/p360/permissionsets/` og `permissionsetgroups/`                       | Ja                            | Vanleg deploy. _Tildeling_ er data per org                     |
-| Testar for produktkoden, inkludert `P360_CapturingRpcClient`                                     | `force-app/tests/classes/integration/p360/`                                                  | Ja, som testkode              | Vanleg deploy                                                  |
-| Liksom-P360 (`P360_ScratchRpcClient`)                                                            | `scripts/scratch/p360/classes/`                                                              | Nei                           | `npm run p360:scratch -- verify`                               |
-| Kvitterings- og innstillingsobjekta, fane, layout, Lightning-side, `P360_Scratch_Capture_Access` | `scripts/scratch/p360/`                                                                      | Nei                           | `verify`                                                       |
-| Testen for liksom-P360                                                                           | `force-app/tests/classes/integration/p360/scratch/`                                          | Nei, stoppa av `.forceignore` | `verify`                                                       |
-| Apex-skript for smoke og e2e                                                                     | `scripts/apex/`                                                                              | Nei                           | Blir køyrde som anonym Apex, ikkje lagra i orga                |
-| Skriptet og testen hans                                                                          | `scripts/`                                                                                   | Nei                           | Køyrer berre lokalt                                            |
+| Del                                                                                              | Stad i repoet                                                                                | Med i pakka?     | Korleis han kjem til scratch                                   |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- | ---------------- | -------------------------------------------------------------- |
+| Worker, adapter, serializer, mapperar, builder                                                   | `force-app/integration/p360/classes/`                                                        | Ja               | Vanleg deploy av `force-app`                                   |
+| Innsendingskroken                                                                                | `force-app/externalApplication/classes/AAREG_ApplicationController.cls`                      | Ja               | Vanleg deploy                                                  |
+| Arkivjobb-objektet og P360-felta på søknad, tilgangsførespurnad, avtale og vedtak                | `force-app/integration/p360/objects/`                                                        | Ja               | Vanleg deploy                                                  |
+| `P360_Integration_Setting__c` med `Rpc_Client_Class__c` og `External_System__c`                  | `force-app/integration/p360/objects/P360_Integration_Setting__c/`                            | Ja               | Vanleg deploy. Sjølve _verdiane_ er data og må setjast per org |
+| Kodeverdiar (CMDT)                                                                               | `force-app/integration/p360/customMetadata/P360_Code_Table_Value.*`                          | Ja               | Vanleg deploy                                                  |
+| Feature-flagg (`false`)                                                                          | `force-app/integration/p360/customMetadata/Feature_Flag.P360_Archive_Processing.md-meta.xml` | Ja               | Vanleg deploy. `e2e` slår det mellombels på                    |
+| P360-permission set og -gruppe                                                                   | `force-app/integration/p360/permissionsets/` og `permissionsetgroups/`                       | Ja               | Vanleg deploy. _Tildeling_ er data per org                     |
+| Testar for produktkoden, inkludert `P360_CapturingRpcClient`                                     | `force-app/tests/classes/integration/p360/`                                                  | Ja, som testkode | Vanleg deploy                                                  |
+| Liksom-P360 (`P360_ScratchRpcClient`)                                                            | `scripts/scratch/p360/classes/`                                                              | Nei              | `npm run p360:scratch -- verify`                               |
+| Kvitterings- og innstillingsobjekta, fane, layout, Lightning-side, `P360_Scratch_Capture_Access` | `scripts/scratch/p360/`                                                                      | Nei              | `verify`                                                       |
+| Testen for liksom-P360                                                                           | `scripts/scratch/p360/tests/`                                                                | Nei              | `verify`                                                       |
+| Apex-skript for smoke og e2e                                                                     | `scripts/apex/`                                                                              | Nei              | Blir køyrde som anonym Apex, ikkje lagra i orga                |
+| Skriptet og testen hans                                                                          | `scripts/`                                                                                   | Nei              | Køyrer berre lokalt                                            |
 
-### 5.2 Kvifor er testen for liksom-P360 under `force-app/tests/`?
+### 5.2 Kvifor ligg testen for liksom-P360 under `scripts/scratch/`?
 
 Repoet har ein regel om at Apex-testar skal ligge under `force-app/tests/classes/`. Men testen viser til `P360_ScratchRpcClient`, som ikkje finst i pakka. Om han kom med i pakka, ville pakkebygginga feile.
 
-Difor står han der regelen seier, men er stengd ute med `.forceignore`. Skriptet hentar han derifrå.
+Ei tidlegare løysing la testen under `force-app/tests/` og stengde han ute med `.forceignore`. Det gjekk ikkje: CI-valideringa finn alle `@IsTest`-klassar under `force-app/` med `grep` og ber orga køyre dei, også dei som aldri blir deploya. Testen ligg derfor ved sida av klassen han testar, i `scripts/scratch/p360/tests/`. Skriptet hentar han derifrå.
 
 > Ope: ein vanleg `sf project deploy start --source-dir force-app` tek ikkje med liksom-P360. Det er meininga. Køyr alltid `verify` etter at scratch-orga er ny eller oppretta på nytt.
 

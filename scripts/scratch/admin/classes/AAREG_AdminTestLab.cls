@@ -99,9 +99,11 @@ public with sharing class AAREG_AdminTestLab {
     }
 
     /**
-     * Deletes marked synthetic records only: jobs, applications, access requests and accounts.
+     * Deletes marked synthetic records only. Jobs are deleted only when their idempotency key has the test lab
+     * prefix. An application on a test lab account is kept when it still has an unmarked job. Access requests and
+     * accounts are kept while any remaining application uses them.
      *
-     * @return the number of deleted records per object and the number of callouts made
+     * @return the number of deleted and kept records per object and the number of callouts made
      */
     public static Map<String, Object> reset() {
         requireScratch();
@@ -110,40 +112,73 @@ public with sharing class AAREG_AdminTestLab {
         Map<Id, Account> accounts = new Map<Id, Account>(
             [SELECT Id FROM Account WHERE Name LIKE :accountPattern WITH USER_MODE]
         );
-        List<Application__c> applications = [
-            SELECT Id, Access_Request__c
-            FROM Application__c
-            WHERE Account__c IN :accounts.keySet()
-            WITH USER_MODE
-        ];
+        Map<Id, Application__c> applications = new Map<Id, Application__c>(
+            [
+                SELECT Id, Access_Request__c
+                FROM Application__c
+                WHERE Account__c IN :accounts.keySet()
+                WITH USER_MODE
+            ]
+        );
         List<P360_Archive_Job__c> jobs = [
-            SELECT Id, Access_Request__c
+            SELECT Id
             FROM P360_Archive_Job__c
-            WHERE Idempotency_Key__c LIKE :jobPattern OR Application__c IN :applications
+            WHERE Idempotency_Key__c LIKE :jobPattern
             WITH USER_MODE
         ];
+        for (P360_Archive_Job__c unmarkedJob : [
+            SELECT Application__c
+            FROM P360_Archive_Job__c
+            WHERE Application__c IN :applications.keySet() AND (NOT Idempotency_Key__c LIKE :jobPattern)
+            WITH USER_MODE
+        ]) {
+            applications.remove(unmarkedJob.Application__c);
+        }
+
         Set<Id> accessRequestIds = new Set<Id>();
-        for (Application__c application : applications) {
+        for (Application__c application : applications.values()) {
             accessRequestIds.add(application.Access_Request__c);
         }
         accessRequestIds.remove(null);
+        Set<Id> keptAccountIds = new Set<Id>();
+        for (Application__c remaining : [
+            SELECT Account__c, Access_Request__c
+            FROM Application__c
+            WHERE
+                Id NOT IN :applications.keySet()
+                AND (Account__c IN :accounts.keySet()
+                OR Access_Request__c IN :accessRequestIds)
+            WITH USER_MODE
+        ]) {
+            keptAccountIds.add(remaining.Account__c);
+            accessRequestIds.remove(remaining.Access_Request__c);
+        }
+        keptAccountIds.retainAll(accounts.keySet());
         List<Access_Request__c> accessRequests = [
             SELECT Id
             FROM Access_Request__c
             WHERE Id IN :accessRequestIds
             WITH USER_MODE
         ];
+        List<Account> deletableAccounts = new List<Account>();
+        for (Account account : accounts.values()) {
+            if (!keptAccountIds.contains(account.Id)) {
+                deletableAccounts.add(account);
+            }
+        }
+
         delete as user jobs;
-        delete as user applications;
+        delete as user applications.values();
         delete as user accessRequests;
-        delete as user accounts.values();
+        delete as user deletableAccounts;
         return new Map<String, Object>{
             'deleted' => new Map<String, Integer>{
                 'P360_Archive_Job__c' => jobs.size(),
                 'Application__c' => applications.size(),
                 'Access_Request__c' => accessRequests.size(),
-                'Account' => accounts.size()
+                'Account' => deletableAccounts.size()
             },
+            'keptAccounts' => keptAccountIds.size(),
             'callouts' => Limits.getCallouts()
         };
     }

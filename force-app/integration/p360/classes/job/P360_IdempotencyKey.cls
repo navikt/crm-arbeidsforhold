@@ -23,6 +23,24 @@ public with sharing class P360_IdempotencyKey {
     }
 
     /**
+     * Builds the key for the application document archive of one submission.
+     * The first submission keeps the original application document key so existing jobs stay valid.
+     *
+     * @param applicationId Source Application__c identifier.
+     * @param submissionNumber One-based submission sequence for the application.
+     * @return Stable idempotency key for that submission.
+     * @throws P360_ContractException When the identifier or sequence is missing or invalid.
+     * @since 2026-11
+     */
+    public static String forApplicationDocumentSubmission(Id applicationId, Integer submissionNumber) {
+        if (submissionNumber == null || submissionNumber < 1) {
+            throw new P360_ContractException('Submission number must be one or greater for an idempotency key.');
+        }
+        String firstSubmissionKey = forApplicationDocument(applicationId);
+        return submissionNumber == 1 ? firstSubmissionKey : firstSubmissionKey + ':SUBMISSION:' + submissionNumber;
+    }
+
+    /**
      * Builds the key for an application attachment archive event.
      *
      * @param applicationId Source Application__c identifier.
