@@ -55,7 +55,7 @@ public with sharing class AAREG_AltinnTestDataFactory {
      * @return The inserted community user with scenario permission and assignment.
      */
     public static User createCommunityAssignedUser(String scenarioName, String subjectAlias) {
-        List<UserRole> roles = [SELECT Id FROM UserRole LIMIT 1];
+        List<UserRole> roles = [SELECT Id FROM UserRole WHERE PortalType = 'None' LIMIT 1];
         if (roles.isEmpty()) {
             UserRole role = new UserRole(
                 Name = 'Altinn Scenario Test Role',

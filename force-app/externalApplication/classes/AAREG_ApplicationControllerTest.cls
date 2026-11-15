@@ -483,4 +483,67 @@ private class AAREG_ApplicationControllerTest {
             'When forced branch is enabled, populated fields should be skipped.'
         );
     }
+
+    /**
+     * Existing application attachments should be selected by default when no selection state exists.
+     *
+     * @since 2026-11-15
+     */
+    @IsTest
+    private static void shouldSelectAllLegacyAttachmentsByDefault() {
+        User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S01', 'subject-a');
+        Account account = [
+            SELECT Id, INT_OrganizationNumber__c
+            FROM Account
+            WHERE INT_OrganizationNumber__c = '929882989'
+            LIMIT 1
+        ];
+        account.INT_OrganizationNumber__c = communityUser.LastUsedOrganization__c;
+        update account;
+
+        Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
+        insert application;
+
+        List<ContentVersion> versions = new List<ContentVersion>{
+            new ContentVersion(
+                Title = 'First attachment',
+                PathOnClient = 'first-attachment.txt',
+                VersionData = Blob.valueOf('first')
+            ),
+            new ContentVersion(
+                Title = 'Second attachment',
+                PathOnClient = 'second-attachment.txt',
+                VersionData = Blob.valueOf('second')
+            )
+        };
+        insert versions;
+
+        List<ContentVersion> insertedVersions = [
+            SELECT Id, ContentDocumentId
+            FROM ContentVersion
+            WHERE Id IN :versions
+        ];
+        List<ContentDocumentLink> links = new List<ContentDocumentLink>();
+        for (ContentVersion version : insertedVersions) {
+            links.add(
+                new ContentDocumentLink(LinkedEntityId = application.Id, ContentDocumentId = version.ContentDocumentId)
+            );
+        }
+        insert links;
+
+        List<AAREG_ApplicationController.AttachmentSelection> attachments;
+        Integer callouts;
+        System.Test.startTest();
+        System.runAs(communityUser) {
+            attachments = AAREG_ApplicationController.getApplicationAttachments(application.Id);
+            callouts = Limits.getCallouts();
+        }
+        System.Test.stopTest();
+
+        System.Assert.areEqual(2, attachments.size(), 'All linked attachments should be returned.');
+        for (AAREG_ApplicationController.AttachmentSelection attachment : attachments) {
+            System.Assert.isTrue(attachment.selected, 'Legacy attachments should be selected by default.');
+        }
+        System.Assert.areEqual(0, callouts, 'The assigned synthetic Altinn scenario must not call external services.');
+    }
 }

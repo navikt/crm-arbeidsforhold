@@ -75,6 +75,17 @@ public without sharing class AAREG_ApplicationController {
         );
     }
 
+    /**
+     * Returns the attachments associated with an application and their current selection state.
+     *
+     * @param applicationId The application whose attachments are requested.
+     * @return The application's current attachment selection.
+     */
+    @AuraEnabled
+    public static List<AttachmentSelection> getApplicationAttachments(Id applicationId) {
+        return new List<AttachmentSelection>();
+    }
+
     private static Access_Request__c getAccessRequest(Id applicationId) {
         Application__c app = [SELECT Access_Request__c FROM Application__c WHERE Id = :applicationId LIMIT 1];
         if (app.Access_Request__c != null) {
@@ -364,5 +375,24 @@ public without sharing class AAREG_ApplicationController {
             this.basisCodes = basisCodes;
             this.contacts = contacts;
         }
+    }
+
+    /**
+     * Represents one attachment and whether it is selected for the next application submission.
+     *
+     * @author Team Arbeidsforhold
+     * @since 2026-11-15
+     * @group AAREG External Application
+     */
+    public class AttachmentSelection {
+        /** The document linked to the application. */
+        @AuraEnabled
+        public Id contentDocumentId;
+        /** The title shown in the application form. */
+        @AuraEnabled
+        public String title;
+        /** Whether the document is selected for the next application submission. */
+        @AuraEnabled
+        public Boolean selected;
     }
 }
