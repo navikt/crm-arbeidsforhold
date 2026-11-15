@@ -21,6 +21,35 @@ private class AAREG_ApplicationControllerTest {
     }
 
     /**
+     * Creates a minimum-access user with the applicant permission set, so submission tests use the applicant's
+     * field and object access instead of the running administrator's.
+     */
+    private static User createApplicant() {
+        User applicant = new User(
+            FirstName = 'Applicant',
+            LastName = 'Tester',
+            Email = 'aareg.applicant@example.com',
+            Username = 'aareg.applicant.' + System.currentTimeMillis() + '@example.com',
+            Alias = 'aaregapp',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            TimeZoneSidKey = 'Europe/Oslo',
+            EmailEncodingKey = 'UTF-8',
+            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Minimum Access - Salesforce' LIMIT 1]
+            .Id
+        );
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            insert applicant;
+            insert new PermissionSetAssignment(
+                AssigneeId = applicant.Id,
+                PermissionSetId = [SELECT Id FROM PermissionSet WHERE Name = 'AAREG_CommunityPermission' LIMIT 1]
+                .Id
+            );
+        }
+        return applicant;
+    }
+
+    /**
      * getAccountNameByOrgNumber should return the account name for a known organization number.
      *
      * @since May 2021
@@ -90,15 +119,19 @@ private class AAREG_ApplicationControllerTest {
     private static void submittedApplicationQueuesArchiveJobWhenArchivingIsEnabled() {
         P360_TestDataFactory.setArchiveProcessingEnabled(true);
         Account account = [SELECT Id FROM Account LIMIT 1];
+        User applicant = createApplicant();
 
+        Id applicationId;
         System.Test.startTest();
-        Id applicationId = AAREG_ApplicationController.processApplication(
-            new Application__c(Account__c = account.Id, IsConfirmationEmailSent__c = true),
-            new List<ApplicationBasisCode__c>(),
-            new List<RelatedContact__c>(),
-            null,
-            null
-        );
+        System.runAs(applicant) {
+            applicationId = AAREG_ApplicationController.processApplication(
+                new Application__c(Account__c = account.Id, IsConfirmationEmailSent__c = true),
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>(),
+                null,
+                null
+            );
+        }
         System.Test.stopTest();
 
         List<P360_Archive_Job__c> jobs = [
@@ -193,8 +226,12 @@ private class AAREG_ApplicationControllerTest {
         String base64 = null;
         String fileName = null;
 
+        User applicant = createApplicant();
+        Id appId;
         System.Test.startTest();
-        Id appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
+        System.runAs(applicant) {
+            appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
+        }
         System.Test.stopTest();
 
         List<Application__c> result = [

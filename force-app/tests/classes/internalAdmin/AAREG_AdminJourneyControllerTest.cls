@@ -9,12 +9,12 @@
 private with sharing class AAREG_AdminJourneyControllerTest {
     private static Application__c insertApplication(Date submitted) {
         Access_Request__c accessRequest = new Access_Request__c();
-        insert accessRequest;
+        insert as system accessRequest;
         Application__c application = new Application__c(
             Access_Request__c = accessRequest.Id,
             ApplicationSubmittedDate__c = submitted
         );
-        insert application;
+        insert as system application;
         return application;
     }
 
@@ -28,9 +28,10 @@ private with sharing class AAREG_AdminJourneyControllerTest {
 
     @IsTest
     static void journeyCombinesRelatedRecordsInChronologicalOrder() {
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
         Application__c application = insertApplication(System.today());
-        insert new Application_Decision__c(Application__c = application.Id);
-        insert new P360_Archive_Job__c(
+        insert as system new Application_Decision__c(Application__c = application.Id);
+        insert as system new P360_Archive_Job__c(
             Idempotency_Key__c = 'journey-1',
             Status__c = 'Failed',
             Archive_Event_Type__c = 'ApplicationDocument',
@@ -41,9 +42,12 @@ private with sharing class AAREG_AdminJourneyControllerTest {
             Last_Error_Code__c = 'P360_TIMEOUT'
         );
 
-        System.Test.startTest();
-        AAREG_AdminJourneyController.Journey journey = AAREG_AdminJourneyController.getJourney(application.Id);
-        System.Test.stopTest();
+        AAREG_AdminJourneyController.Journey journey;
+        System.runAs(admin) {
+            System.Test.startTest();
+            journey = AAREG_AdminJourneyController.getJourney(application.Id);
+            System.Test.stopTest();
+        }
 
         Set<String> found = sources(journey);
         System.Assert.isTrue(found.contains('Application__c'), 'Application events are included');
@@ -64,11 +68,15 @@ private with sharing class AAREG_AdminJourneyControllerTest {
 
     @IsTest
     static void missingStepsAreShownAsNotRecorded() {
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
         Application__c application = insertApplication(null);
 
-        System.Test.startTest();
-        AAREG_AdminJourneyController.Journey journey = AAREG_AdminJourneyController.getJourney(application.Id);
-        System.Test.stopTest();
+        AAREG_AdminJourneyController.Journey journey;
+        System.runAs(admin) {
+            System.Test.startTest();
+            journey = AAREG_AdminJourneyController.getJourney(application.Id);
+            System.Test.stopTest();
+        }
 
         System.Assert.isTrue(journey.missingSteps.contains('Sendt inn'), 'Unsubmitted application shows missing step');
         System.Assert.isTrue(journey.missingSteps.contains('Vedtak'), 'Missing decision is shown');
@@ -77,8 +85,9 @@ private with sharing class AAREG_AdminJourneyControllerTest {
 
     @IsTest
     static void succeededArchiveJobCountsAsArchivedAndDateOnlyStepFollowsSameDayEvents() {
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
         Application__c application = insertApplication(System.today());
-        insert new P360_Archive_Job__c(
+        insert as system new P360_Archive_Job__c(
             Idempotency_Key__c = 'journey-archived',
             Status__c = 'Succeeded',
             Archive_Event_Type__c = 'ApplicationDocument',
@@ -88,9 +97,12 @@ private with sharing class AAREG_AdminJourneyControllerTest {
             Correlation_Id__c = 'corr-archived'
         );
 
-        System.Test.startTest();
-        AAREG_AdminJourneyController.Journey journey = AAREG_AdminJourneyController.getJourney(application.Id);
-        System.Test.stopTest();
+        AAREG_AdminJourneyController.Journey journey;
+        System.runAs(admin) {
+            System.Test.startTest();
+            journey = AAREG_AdminJourneyController.getJourney(application.Id);
+            System.Test.stopTest();
+        }
 
         System.Assert.isFalse(journey.missingSteps.contains('Arkivert i P360'), 'Succeeded job means archived');
         Integer createdIndex;
@@ -109,8 +121,9 @@ private with sharing class AAREG_AdminJourneyControllerTest {
 
     @IsTest
     static void onlySucceededApplicationDocumentJobCountsAsArchived() {
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
         Application__c application = insertApplication(System.today());
-        insert new P360_Archive_Job__c(
+        insert as system new P360_Archive_Job__c(
             Idempotency_Key__c = 'journey-attachment-only',
             Status__c = 'Succeeded',
             Archive_Event_Type__c = 'ApplicationAttachment',
@@ -120,9 +133,12 @@ private with sharing class AAREG_AdminJourneyControllerTest {
             Correlation_Id__c = 'corr-attachment'
         );
 
-        System.Test.startTest();
-        AAREG_AdminJourneyController.Journey journey = AAREG_AdminJourneyController.getJourney(application.Id);
-        System.Test.stopTest();
+        AAREG_AdminJourneyController.Journey journey;
+        System.runAs(admin) {
+            System.Test.startTest();
+            journey = AAREG_AdminJourneyController.getJourney(application.Id);
+            System.Test.stopTest();
+        }
 
         System.Assert.isTrue(
             journey.missingSteps.contains('Arkivert i P360'),
@@ -132,8 +148,9 @@ private with sharing class AAREG_AdminJourneyControllerTest {
 
     @IsTest
     static void openResubmissionArchiveIsShownAsNotArchived() {
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
         Application__c application = insertApplication(System.today());
-        insert new P360_Archive_Job__c(
+        insert as system new P360_Archive_Job__c(
             Idempotency_Key__c = 'journey-first-submission',
             Status__c = 'Succeeded',
             Archive_Event_Type__c = 'ApplicationDocument',
@@ -142,7 +159,7 @@ private with sharing class AAREG_AdminJourneyControllerTest {
             Attempt_Count__c = 1,
             Correlation_Id__c = 'corr-first'
         );
-        insert new P360_Archive_Job__c(
+        insert as system new P360_Archive_Job__c(
             Idempotency_Key__c = 'journey-second-submission',
             Status__c = 'Pending',
             Archive_Event_Type__c = 'ApplicationDocument',
@@ -152,9 +169,12 @@ private with sharing class AAREG_AdminJourneyControllerTest {
             Correlation_Id__c = 'corr-second'
         );
 
-        System.Test.startTest();
-        AAREG_AdminJourneyController.Journey journey = AAREG_AdminJourneyController.getJourney(application.Id);
-        System.Test.stopTest();
+        AAREG_AdminJourneyController.Journey journey;
+        System.runAs(admin) {
+            System.Test.startTest();
+            journey = AAREG_AdminJourneyController.getJourney(application.Id);
+            System.Test.stopTest();
+        }
 
         System.Assert.isTrue(
             journey.missingSteps.contains('Arkivert i P360'),

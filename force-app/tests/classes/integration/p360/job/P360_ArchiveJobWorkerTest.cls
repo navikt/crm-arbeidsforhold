@@ -53,6 +53,7 @@ private class P360_ArchiveJobWorkerTest {
                 SELECT Status__c, Last_Error_Code__c, Last_Error_Message__c, Next_Attempt_Date__c, Last_Attempt_Date__c
                 FROM P360_Archive_Job__c
                 WHERE Id = :jobId
+                WITH SYSTEM_MODE
             ];
             System.Assert.areEqual(
                 'Manual Review',
@@ -80,25 +81,29 @@ private class P360_ArchiveJobWorkerTest {
     @IsTest
     static void submittedApplicationIsArchivedThroughConfiguredRpcClient() {
         P360_TestDataFactory.setArchiveProcessingEnabled(true);
-        insert new P360_Integration_Setting__c(
+        insert as system new P360_Integration_Setting__c(
             SetupOwnerId = UserInfo.getOrganizationId(),
             Rpc_Client_Class__c = 'P360_CapturingRpcClient',
             External_System__c = 'Scratch P360'
         );
         Account account = AAREG_TestDataFactory.getAccountCounty();
-        insert account;
+        insert as system account;
         String attachmentBase64 = EncodingUtil.base64Encode(Blob.valueOf('synthetic attachment'));
 
         User processingUser = createProcessingUser();
+        User applicant = createUserWithPermissionSet('AAREG_CommunityPermission');
 
         System.Test.startTest();
-        Id applicationId = AAREG_ApplicationController.processApplication(
-            new Application__c(Account__c = account.Id, IsConfirmationEmailSent__c = true),
-            new List<ApplicationBasisCode__c>(),
-            new List<RelatedContact__c>(),
-            attachmentBase64,
-            'vedlegg.pdf'
-        );
+        Id applicationId;
+        System.runAs(applicant) {
+            applicationId = AAREG_ApplicationController.processApplication(
+                new Application__c(Account__c = account.Id, IsConfirmationEmailSent__c = true),
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>(),
+                attachmentBase64,
+                'vedlegg.pdf'
+            );
+        }
         List<Id> claimedIds;
         System.runAs(processingUser) {
             claimedIds = P360_ArchiveJobClaimService.claimNextBatch(10);
@@ -110,6 +115,7 @@ private class P360_ArchiveJobWorkerTest {
             SELECT Status__c, Last_Error_Message__c, Access_Request__c
             FROM P360_Archive_Job__c
             WHERE Application__c = :applicationId AND Archive_Event_Type__c = 'ApplicationDocument'
+            WITH SYSTEM_MODE
         ];
         System.Assert.areEqual(1, claimedIds.size(), 'Submission must queue exactly one archive job.');
         System.Assert.areEqual('Succeeded', job.Status__c, 'Archive job failed: ' + job.Last_Error_Message__c);
@@ -222,15 +228,15 @@ private class P360_ArchiveJobWorkerTest {
 
         System.runAs(processingUser) {
             Access_Request__c accessRequest = new Access_Request__c();
-            insert accessRequest;
+            insert as system accessRequest;
             Application__c application = new Application__c(Access_Request__c = accessRequest.Id);
-            insert application;
+            insert as system application;
             ContentVersion attachment = new ContentVersion(
                 Title = 'attachment',
                 PathOnClient = 'attachment.pdf',
                 VersionData = Blob.valueOf('attachment content')
             );
-            insert attachment;
+            insert as system attachment;
 
             P360_ArchiveJobService.getOrCreateApplicationAttachmentJob(
                 accessRequest.Id,
@@ -288,6 +294,7 @@ private class P360_ArchiveJobWorkerTest {
                 SELECT Status__c, Next_Attempt_Date__c, Last_Error_Code__c, Last_Attempt_Date__c
                 FROM P360_Archive_Job__c
                 WHERE Id = :jobId
+                WITH SYSTEM_MODE
             ];
             System.Assert.areEqual('Failed', job.Status__c, 'Expected a retryable error to leave the job Failed.');
             System.Assert.isNotNull(job.Next_Attempt_Date__c, 'Expected the next attempt to be scheduled.');
@@ -352,7 +359,7 @@ private class P360_ArchiveJobWorkerTest {
 
         System.runAs(processingUser) {
             Id jobId = claimedJobId('correlation-worker-3');
-            update new P360_Archive_Job__c(Id = jobId, Attempt_Count__c = P360_ArchiveJobWorker.MAX_ATTEMPTS);
+            update as system new P360_Archive_Job__c(Id = jobId, Attempt_Count__c = P360_ArchiveJobWorker.MAX_ATTEMPTS);
 
             P360_ArchiveJobWorker worker = new P360_ArchiveJobWorker(new Set<Id>{ jobId });
             worker.adapter = new P360_TestRetryableArchiveAdapter();
@@ -396,6 +403,7 @@ private class P360_ArchiveJobWorkerTest {
                 SELECT Status__c, Last_Attempt_Date__c
                 FROM P360_Archive_Job__c
                 WHERE Id = :jobId
+                WITH SYSTEM_MODE
             ];
             System.Assert.areEqual(
                 'Succeeded',
@@ -423,7 +431,7 @@ private class P360_ArchiveJobWorkerTest {
         System.runAs(processingUser) {
             Id jobId = claimedJobId('correlation-worker-retry-date');
             DateTime previousAttempt = System.now().addDays(-1);
-            update new P360_Archive_Job__c(
+            update as system new P360_Archive_Job__c(
                 Id = jobId,
                 Status__c = 'Failed',
                 Last_Attempt_Date__c = previousAttempt,
@@ -437,6 +445,7 @@ private class P360_ArchiveJobWorkerTest {
                 SELECT Last_Attempt_Date__c
                 FROM P360_Archive_Job__c
                 WHERE Id = :jobId
+                WITH SYSTEM_MODE
             ];
             System.Assert.areEqual(previousAttempt, claimed.Last_Attempt_Date__c);
 
@@ -451,6 +460,7 @@ private class P360_ArchiveJobWorkerTest {
                 SELECT Status__c, Attempt_Count__c, Last_Attempt_Date__c
                 FROM P360_Archive_Job__c
                 WHERE Id = :jobId
+                WITH SYSTEM_MODE
             ];
             System.Assert.areEqual('Succeeded', retried.Status__c);
             System.Assert.areEqual(2, retried.Attempt_Count__c);
@@ -514,7 +524,11 @@ private class P360_ArchiveJobWorkerTest {
 
         System.runAs(processingUser) {
             jobId = claimedJobId('correlation-worker-cancelled-retry');
-            update new P360_Archive_Job__c(Id = jobId, Attempt_Count__c = 2, Last_Attempt_Date__c = previousAttempt);
+            update as system new P360_Archive_Job__c(
+                Id = jobId,
+                Attempt_Count__c = 2,
+                Last_Attempt_Date__c = previousAttempt
+            );
         }
 
         P360_TestDataFactory.setArchiveProcessingEnabled(false);
@@ -530,6 +544,7 @@ private class P360_ArchiveJobWorkerTest {
                 SELECT Status__c, Attempt_Count__c, Last_Attempt_Date__c
                 FROM P360_Archive_Job__c
                 WHERE Id = :jobId
+                WITH SYSTEM_MODE
             ];
             System.Assert.areEqual('Pending', restored.Status__c);
             System.Assert.areEqual(1, restored.Attempt_Count__c);
@@ -550,9 +565,9 @@ private class P360_ArchiveJobWorkerTest {
 
         System.runAs(processingUser) {
             Access_Request__c accessRequest = new Access_Request__c();
-            insert accessRequest;
+            insert as system accessRequest;
             Application__c application = new Application__c(Access_Request__c = accessRequest.Id);
-            insert application;
+            insert as system application;
             for (Integer i = 0; i < 4; i++) {
                 insertAttachment(application.Id, 1500000);
             }
@@ -575,6 +590,7 @@ private class P360_ArchiveJobWorkerTest {
                 SELECT Status__c, Last_Error_Code__c, Last_Error_Message__c
                 FROM P360_Archive_Job__c
                 WHERE Id = :jobId
+                WITH SYSTEM_MODE
             ];
             System.Assert.areEqual('Manual Review', job.Status__c);
             System.Assert.areEqual('P360_ContractException', job.Last_Error_Code__c);
@@ -590,18 +606,18 @@ private class P360_ArchiveJobWorkerTest {
      */
     @IsTest
     static void createdCaseNumberIsReusedByNextApplicationOnSameAccessRequest() {
-        Access_Request__c accessRequest = capturingAccessRequest();
+        User processingUser = createProcessingUser();
+        Access_Request__c accessRequest = capturingAccessRequest(processingUser);
         Application__c first = new Application__c(Access_Request__c = accessRequest.Id);
         Application__c second = new Application__c(Access_Request__c = accessRequest.Id);
-        insert new List<Application__c>{ first, second };
-        User processingUser = createProcessingUser();
+        System.runAs(processingUser) {
+            insert as system new List<Application__c>{ first, second };
+        }
 
         System.Test.startTest();
-        Id firstJobId = P360_ArchiveJobService.getOrCreateApplicationDocumentJob(accessRequest.Id, first.Id, 'corr-1')
-            .Id;
+        Id firstJobId = queueJob(processingUser, accessRequest.Id, first.Id, 'corr-1');
         archiveClaimedJob(processingUser, firstJobId);
-        Id secondJobId = P360_ArchiveJobService.getOrCreateApplicationDocumentJob(accessRequest.Id, second.Id, 'corr-2')
-            .Id;
+        Id secondJobId = queueJob(processingUser, accessRequest.Id, second.Id, 'corr-2');
         archiveClaimedJob(processingUser, secondJobId);
         System.Test.stopTest();
 
@@ -626,10 +642,12 @@ private class P360_ArchiveJobWorkerTest {
      */
     @IsTest
     static void retryAfterDocumentFailureReusesCaseCreatedInFailedAttempt() {
-        Access_Request__c accessRequest = capturingAccessRequest();
-        Application__c application = new Application__c(Access_Request__c = accessRequest.Id);
-        insert application;
         User processingUser = createProcessingUser();
+        Access_Request__c accessRequest = capturingAccessRequest(processingUser);
+        Application__c application = new Application__c(Access_Request__c = accessRequest.Id);
+        System.runAs(processingUser) {
+            insert as system application;
+        }
         P360_CapturingRpcClient.queuedResponses.add(
             P360_CapturingRpcClient.response(
                 200,
@@ -639,19 +657,20 @@ private class P360_ArchiveJobWorkerTest {
         P360_CapturingRpcClient.queuedResponses.add(P360_CapturingRpcClient.response(503, ''));
 
         System.Test.startTest();
-        Id jobId = P360_ArchiveJobService.getOrCreateApplicationDocumentJob(
-                accessRequest.Id,
-                application.Id,
-                'corr-retry'
-            )
-            .Id;
+        Id jobId = queueJob(processingUser, accessRequest.Id, application.Id, 'corr-retry');
         archiveClaimedJob(processingUser, jobId);
-        System.Assert.areEqual('Failed', [SELECT Status__c FROM P360_Archive_Job__c WHERE Id = :jobId].Status__c);
-        update new P360_Archive_Job__c(Id = jobId, Next_Attempt_Date__c = System.now().addMinutes(-1));
+        System.Assert.areEqual(
+            'Failed',
+            [SELECT Status__c FROM P360_Archive_Job__c WHERE Id = :jobId WITH SYSTEM_MODE].Status__c
+        );
+        update as system new P360_Archive_Job__c(Id = jobId, Next_Attempt_Date__c = System.now().addMinutes(-1));
         archiveClaimedJob(processingUser, jobId);
         System.Test.stopTest();
 
-        System.Assert.areEqual('Succeeded', [SELECT Status__c FROM P360_Archive_Job__c WHERE Id = :jobId].Status__c);
+        System.Assert.areEqual(
+            'Succeeded',
+            [SELECT Status__c FROM P360_Archive_Job__c WHERE Id = :jobId WITH SYSTEM_MODE].Status__c
+        );
         System.Assert.areEqual(
             new List<String>{ 'CreateCase', 'CreateDocument', 'CreateDocument' },
             capturedOperations(),
@@ -667,16 +686,18 @@ private class P360_ArchiveJobWorkerTest {
      */
     @IsTest
     static void applicationsOnSameAccessRequestInOneBatchShareOneCase() {
-        Access_Request__c accessRequest = capturingAccessRequest();
+        User processingUser = createProcessingUser();
+        Access_Request__c accessRequest = capturingAccessRequest(processingUser);
         Application__c first = new Application__c(Access_Request__c = accessRequest.Id);
         Application__c second = new Application__c(Access_Request__c = accessRequest.Id);
-        insert new List<Application__c>{ first, second };
-        User processingUser = createProcessingUser();
+        System.runAs(processingUser) {
+            insert as system new List<Application__c>{ first, second };
+        }
 
         System.Test.startTest();
         Set<Id> jobIds = new Set<Id>{
-            P360_ArchiveJobService.getOrCreateApplicationDocumentJob(accessRequest.Id, first.Id, 'corr-1').Id,
-            P360_ArchiveJobService.getOrCreateApplicationDocumentJob(accessRequest.Id, second.Id, 'corr-2').Id
+            queueJob(processingUser, accessRequest.Id, first.Id, 'corr-1'),
+            queueJob(processingUser, accessRequest.Id, second.Id, 'corr-2')
         };
         System.runAs(processingUser) {
             System.Assert.isTrue(new Set<Id>(P360_ArchiveJobClaimService.claimNextBatch(10)).containsAll(jobIds));
@@ -697,15 +718,30 @@ private class P360_ArchiveJobWorkerTest {
         );
     }
 
-    private static Access_Request__c capturingAccessRequest() {
+    private static Access_Request__c capturingAccessRequest(User owner) {
         P360_TestDataFactory.setArchiveProcessingEnabled(true);
-        insert new P360_Integration_Setting__c(
+        insert as system new P360_Integration_Setting__c(
             SetupOwnerId = UserInfo.getOrganizationId(),
             Rpc_Client_Class__c = 'P360_CapturingRpcClient'
         );
         Access_Request__c accessRequest = new Access_Request__c();
-        insert accessRequest;
+        System.runAs(owner) {
+            insert as system accessRequest;
+        }
         return accessRequest;
+    }
+
+    private static Id queueJob(User processingUser, Id accessRequestId, Id applicationId, String correlationId) {
+        Id jobId;
+        System.runAs(processingUser) {
+            jobId = P360_ArchiveJobService.getOrCreateApplicationDocumentJob(
+                    accessRequestId,
+                    applicationId,
+                    correlationId
+                )
+                .Id;
+        }
+        return jobId;
     }
 
     private static void archiveClaimedJob(User processingUser, Id jobId) {
@@ -724,7 +760,7 @@ private class P360_ArchiveJobWorkerTest {
     }
 
     private static void insertAttachment(Id applicationId, Integer sizeInBytes) {
-        insert new ContentVersion(
+        insert as system new ContentVersion(
             Title = 'large attachment',
             PathOnClient = 'large.pdf',
             FirstPublishLocationId = applicationId,
@@ -734,9 +770,9 @@ private class P360_ArchiveJobWorkerTest {
 
     private static Id claimedJobId(String correlationId) {
         Access_Request__c accessRequest = new Access_Request__c();
-        insert accessRequest;
+        insert as system accessRequest;
         Application__c application = new Application__c(Access_Request__c = accessRequest.Id);
-        insert application;
+        insert as system application;
 
         P360_Archive_Job__c job = P360_ArchiveJobService.getOrCreateApplicationDocumentJob(
             accessRequest.Id,
@@ -757,6 +793,15 @@ private class P360_ArchiveJobWorkerTest {
             response.message = 'untrusted response detail';
             return response;
         }
+    }
+
+    private static User createUserWithPermissionSet(String permissionSetName) {
+        User userRecord;
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            userRecord = P360_TestDataFactory.createMinimumAccessUser();
+            AAREG_TestDataFactory.assignPermissionSet(userRecord.Id, permissionSetName);
+        }
+        return userRecord;
     }
 
     private static User createProcessingUser() {

@@ -12,7 +12,7 @@ private with sharing class AAREG_AdminMonitorControllerTest {
     private static P360_Archive_Job__c job(String key, String status) {
         if (accessRequestId == null) {
             Access_Request__c accessRequest = new Access_Request__c();
-            insert accessRequest;
+            insert as system accessRequest;
             accessRequestId = accessRequest.Id;
         }
         return new P360_Archive_Job__c(
@@ -37,16 +37,20 @@ private with sharing class AAREG_AdminMonitorControllerTest {
 
     @IsTest
     static void failedJobShowsAttemptsCorrelationAndTruncatedError() {
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
         P360_Archive_Job__c failed = job('monitor-failed', 'Failed');
         failed.Attempt_Count__c = 3;
         failed.Correlation_Id__c = 'corr-123';
         failed.Last_Error_Code__c = 'P360_TIMEOUT';
         failed.Last_Error_Message__c = 'x'.repeat(400);
-        insert failed;
+        insert as system failed;
 
-        System.Test.startTest();
-        AAREG_AdminMonitorController.Monitor monitor = AAREG_AdminMonitorController.getMonitor();
-        System.Test.stopTest();
+        AAREG_AdminMonitorController.Monitor monitor;
+        System.runAs(admin) {
+            System.Test.startTest();
+            monitor = AAREG_AdminMonitorController.getMonitor();
+            System.Test.stopTest();
+        }
 
         AAREG_AdminMonitorController.JobRow row = findJob(monitor, failed.Id);
         System.Assert.isTrue(monitor.jobsAvailable, 'Admin should read jobs');
@@ -58,15 +62,19 @@ private with sharing class AAREG_AdminMonitorControllerTest {
 
     @IsTest
     static void inProgressJobWithPastLeaseIsFlaggedAsExpired() {
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
         P360_Archive_Job__c stuck = job('monitor-stuck', 'In Progress');
         stuck.Lease_Expires_Date__c = System.now().addMinutes(-5);
         P360_Archive_Job__c running = job('monitor-running', 'In Progress');
         running.Lease_Expires_Date__c = System.now().addMinutes(30);
-        insert new List<P360_Archive_Job__c>{ stuck, running };
+        insert as system new List<P360_Archive_Job__c>{ stuck, running };
 
-        System.Test.startTest();
-        AAREG_AdminMonitorController.Monitor monitor = AAREG_AdminMonitorController.getMonitor();
-        System.Test.stopTest();
+        AAREG_AdminMonitorController.Monitor monitor;
+        System.runAs(admin) {
+            System.Test.startTest();
+            monitor = AAREG_AdminMonitorController.getMonitor();
+            System.Test.stopTest();
+        }
 
         System.Assert.isTrue(findJob(monitor, stuck.Id).leaseExpired, 'Past lease should be flagged');
         System.Assert.isFalse(findJob(monitor, running.Id).leaseExpired, 'Future lease is not expired');
@@ -74,7 +82,8 @@ private with sharing class AAREG_AdminMonitorControllerTest {
 
     @IsTest
     static void logSourcesAreSummarisedWithoutPayload() {
-        insert new List<Application_Log__c>{
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
+        insert as system new List<Application_Log__c>{
             new Application_Log__c(
                 Application_Domain__c = 'AAREG',
                 Source_Class__c = 'AAREG_AltinnService',
@@ -90,9 +99,12 @@ private with sharing class AAREG_AdminMonitorControllerTest {
             )
         };
 
-        System.Test.startTest();
-        AAREG_AdminMonitorController.Monitor monitor = AAREG_AdminMonitorController.getMonitor();
-        System.Test.stopTest();
+        AAREG_AdminMonitorController.Monitor monitor;
+        System.runAs(admin) {
+            System.Test.startTest();
+            monitor = AAREG_AdminMonitorController.getMonitor();
+            System.Test.stopTest();
+        }
 
         AAREG_AdminMonitorController.SourceSummary altinn;
         for (AAREG_AdminMonitorController.SourceSummary source : monitor.sources) {
@@ -109,7 +121,7 @@ private with sharing class AAREG_AdminMonitorControllerTest {
 
     @IsTest
     static void minimumAccessUserGetsExplanationInsteadOfData() {
-        insert job('monitor-private', 'Failed');
+        insert as system job('monitor-private', 'Failed');
         User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
         AAREG_AdminMonitorController.Monitor monitor;
 

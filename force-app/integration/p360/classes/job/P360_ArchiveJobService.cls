@@ -242,7 +242,8 @@ public with sharing class P360_ArchiveJobService {
     /**
      * Submissions run as the applicant, who cannot see archive jobs created for colleagues in the same
      * organisation. Job lookup therefore runs without sharing so that a resubmission never collides silently
-     * with an invisible existing job. Only server-derived identifiers are used and no job data is returned.
+     * with an invisible existing job. Applicants have no object or field access to archive jobs, so the lookup and
+     * insert run in system mode. Only server-derived identifiers are used and no job data is returned.
      */
     private without sharing class SubmissionJobQueue {
         void queue(Id accessRequestId, Id applicationId) {
@@ -250,6 +251,7 @@ public with sharing class P360_ArchiveJobService {
                 SELECT Id, Status__c
                 FROM P360_Archive_Job__c
                 WHERE Application__c = :applicationId AND Archive_Event_Type__c = :APPLICATION_DOCUMENT_EVENT
+                WITH SYSTEM_MODE
             ];
             for (P360_Archive_Job__c existingJob : existingJobs) {
                 if (OPEN_STATUSES.contains(existingJob.Status__c)) {
@@ -276,7 +278,7 @@ public with sharing class P360_ArchiveJobService {
                 Queued_Date__c = System.now(),
                 Status__c = PENDING_STATUS
             );
-            Database.SaveResult result = Database.insert(archiveJob, false);
+            Database.SaveResult result = Database.insert(archiveJob, false, AccessLevel.SYSTEM_MODE);
             if (!result.isSuccess() && !isDuplicate(result)) {
                 throw new P360_ContractException('Application archive job could not be queued.');
             }

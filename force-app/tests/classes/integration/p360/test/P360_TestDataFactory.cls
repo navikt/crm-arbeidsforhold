@@ -39,6 +39,34 @@ public with sharing class P360_TestDataFactory {
     }
 
     /**
+     * Assigns a permission set to the running user unless it is already assigned. API 67.0 code runs in user
+     * mode, so tests that exercise admin features need the same permission set an administrator would use.
+     *
+     * Permission changes take effect in a new runAs context, so callers must run the code under test as the
+     * returned user.
+     *
+     * @param permissionSetName API name of the permission set to assign.
+     * @return User The running user, for use in System.runAs.
+     * @since 2026-11
+     */
+    public static User grantPermissionSetToRunningUser(String permissionSetName) {
+        Id userId = UserInfo.getUserId();
+        PermissionSet permissionSet = [SELECT Id FROM PermissionSet WHERE Name = :permissionSetName LIMIT 1];
+        List<PermissionSetAssignment> existing = [
+            SELECT Id
+            FROM PermissionSetAssignment
+            WHERE AssigneeId = :userId AND PermissionSetId = :permissionSet.Id
+        ];
+        User runningUser = new User(Id = userId);
+        if (existing.isEmpty()) {
+            System.runAs(runningUser) {
+                insert new PermissionSetAssignment(AssigneeId = userId, PermissionSetId = permissionSet.Id);
+            }
+        }
+        return runningUser;
+    }
+
+    /**
      * Supplies an isolated P360 feature-flag record to tests.
      *
      * @param enabled Whether P360 archive processing should be enabled; null models an unset flag.

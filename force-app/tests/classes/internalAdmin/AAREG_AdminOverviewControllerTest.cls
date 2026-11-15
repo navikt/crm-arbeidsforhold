@@ -10,9 +10,9 @@ private with sharing class AAREG_AdminOverviewControllerTest {
     @TestSetup
     static void createData() {
         Account account = AAREG_TestDataFactory.getAccount();
-        insert account;
+        insert as system account;
         Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
-        insert application;
+        insert as system application;
     }
 
     private static AAREG_AdminOverviewController.Tile findTile(
@@ -30,9 +30,13 @@ private with sharing class AAREG_AdminOverviewControllerTest {
 
     @IsTest
     static void overviewCountsApplicationsByStatus() {
-        System.Test.startTest();
-        List<AAREG_AdminOverviewController.Tile> tiles = AAREG_AdminOverviewController.getOverview();
-        System.Test.stopTest();
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
+        List<AAREG_AdminOverviewController.Tile> tiles;
+        System.runAs(admin) {
+            System.Test.startTest();
+            tiles = AAREG_AdminOverviewController.getOverview();
+            System.Test.stopTest();
+        }
 
         AAREG_AdminOverviewController.Tile tile = findTile(tiles, 'applicationsByStatus');
         System.Assert.isTrue(tile.available, 'Admin should be able to read applications');
@@ -43,9 +47,13 @@ private with sharing class AAREG_AdminOverviewControllerTest {
 
     @IsTest
     static void recentlyChangedOpenApplicationIsNotStuck() {
-        System.Test.startTest();
-        List<AAREG_AdminOverviewController.Tile> tiles = AAREG_AdminOverviewController.getOverview();
-        System.Test.stopTest();
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
+        List<AAREG_AdminOverviewController.Tile> tiles;
+        System.runAs(admin) {
+            System.Test.startTest();
+            tiles = AAREG_AdminOverviewController.getOverview();
+            System.Test.stopTest();
+        }
 
         AAREG_AdminOverviewController.Tile tile = findTile(tiles, 'stuckApplications');
         System.Assert.areEqual(0, tile.count, 'An application changed today is not stuck');
@@ -54,11 +62,13 @@ private with sharing class AAREG_AdminOverviewControllerTest {
 
     @IsTest
     static void tileRecordsReturnRowsForDrillDown() {
-        System.Test.startTest();
-        List<AAREG_AdminOverviewController.RecordRow> rows = AAREG_AdminOverviewController.getTileRecords(
-            'applicationsByStatus'
-        );
-        System.Test.stopTest();
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
+        List<AAREG_AdminOverviewController.RecordRow> rows;
+        System.runAs(admin) {
+            System.Test.startTest();
+            rows = AAREG_AdminOverviewController.getTileRecords('applicationsByStatus');
+            System.Test.stopTest();
+        }
 
         System.Assert.areEqual(1, rows.size(), 'Drill-down should list the application');
         System.Assert.areEqual('New', rows[0].detail, 'Detail should show the status');
