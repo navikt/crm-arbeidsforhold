@@ -808,19 +808,10 @@ test_phases_are_numbered_for_phases_that_run() {
 
 test_pool_fetch_continues_to_post_steps() {
     new_project pool-post-steps
-    cat > "$FAKE_BIN/sfp" <<'EOF_SFP'
-#!/usr/bin/env bash
-echo "$*" >> "$SF_LOG"
-case "$1 $2" in
-    "pool list") echo "Unused Scratch Orgs in the Pool : 1" ;;
-    *) echo "Fetched from fake pool" ;;
-esac
-EOF_SFP
-    chmod +x "$FAKE_BIN/sfp"
     write_config '{"defaultOrgAlias":"pool-org","permissionSets":["PermA"],"postSteps":["permsets"],"pool":{"use":true,"tag":"dev","devHub":"fake-devhub"}}'
-    script
+    POOL_LIST_OUTPUT="Unused Scratch Orgs in the Pool : 1" script
     assert_exit 0
-    grep -q '^pool fetch ' "$SF_LOG" && pass || fail "scratch org was not fetched from pool"
+    grep -q '^sfp pool fetch ' "$SF_LOG" && pass || fail "scratch org was not fetched from pool"
     grep -q '^org assign permset --target-org pool-org --name PermA' "$SF_LOG" && pass || fail "post-step did not run after pool fetch"
     assert_contains "Ran:     permsets"
 }
