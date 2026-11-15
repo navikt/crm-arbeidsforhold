@@ -30,8 +30,10 @@ Pages-bygg har bare lesetilgang. Publiseringsjobben trenger `pages: write` for
 selve deployen, `id-token: write` for GitHub Pages sin identitetskontroll og
 `contents: read` for å kontrollere at committen fortsatt er siste `main`.
 Før deploy avvises en eldre kjøring hvis en nyere `main`-commit er synlig.
-Kjøringer kanselleres ikke automatisk; teamet må godkjenne deploy i
-`github-pages`.
+Publiseringsjobben kjører én om gangen. GitHub køer opptil 100 ventende
+deployjobber og kansellerer nye deployjobber hvis køen er full. Pågående
+deploy kanselleres ikke, og PR-bygg og validering kjører uavhengig av køen.
+Teamet må godkjenne deploy i `github-pages`.
 
 Workflowfilene ligger i [.github/workflows/](../../.github/workflows/).
 Se også [reglene for behovsstyrt PR-validering](../../scripts/README.md#behovsstyrte-ci-sjekkar).

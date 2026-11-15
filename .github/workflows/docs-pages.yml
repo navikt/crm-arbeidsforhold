@@ -45,13 +45,17 @@ jobs:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
+    concurrency:
+      group: crm-arbeidsforhold-docs-pages-deploy
+      queue: max
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     permissions:
-      contents: read
-      pages: write
-      id-token: write
+      contents: read # Read the current main ref before deployment.
+      pages: write # Publish the Pages artifact.
+      id-token: write # Authenticate the Pages deployment.
     steps:
       - name: Kontroller at dette er siste main-commit
         env:
