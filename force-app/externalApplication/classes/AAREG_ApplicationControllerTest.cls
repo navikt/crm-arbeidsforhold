@@ -82,18 +82,46 @@ private class AAREG_ApplicationControllerTest {
     }
 
     /**
-     * processApplication should upsert an application requiring additional information and reset status to New.
+     * Resubmitting an application requiring additional information keeps it in progress.
      *
-     * @since July 2026
+     * @since October 2026
      */
     @IsTest
-    private static void shouldResetAdditionalInformationApplicationToNew() {
+    private static void shouldKeepResubmittedApplicationInProgress() {
         Account account = [SELECT Id FROM Account LIMIT 1];
+
+        User casehandler;
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            casehandler = Integration_TestDataFactory.createMinimumAccessUser();
+        }
+
+        Access_Request__c accessRequest = new Access_Request__c();
+        insert accessRequest;
 
         Application__c application = new Application__c();
         application.Account__c = account.Id;
+        application.Access_Request__c = accessRequest.Id;
+        application.CasehandlerOwner__c = casehandler.Id;
         application.Status__c = 'Additional Information Required';
+        application.Casehandler_Status__c = 'Additional Information Required';
         application.IsConfirmationEmailSent__c = true;
+        insert application;
+
+        application = [
+            SELECT Id, Account__c, Access_Request__c, Status__c, Casehandler_Status__c
+            FROM Application__c
+            WHERE Id = :application.Id
+        ];
+        System.Assert.areEqual(
+            'Additional Information Required',
+            application.Status__c,
+            'Application awaits information'
+        );
+        System.Assert.areEqual(
+            'Additional Information Required',
+            application.Casehandler_Status__c,
+            'Case handler awaits information'
+        );
 
         List<RelatedContact__c> contacts = new List<RelatedContact__c>();
         contacts.add(new RelatedContact__c(name = 'Test Contact 1'));
@@ -110,13 +138,24 @@ private class AAREG_ApplicationControllerTest {
         Id appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
         System.Test.stopTest();
 
-        List<Application__c> result = [SELECT Id, Status__c FROM Application__c WHERE Id = :appId];
+        List<Application__c> result = [
+            SELECT Id, Access_Request__c, Status__c, Casehandler_Status__c
+            FROM Application__c
+            WHERE Id = :appId
+        ];
 
-        System.Assert.areEqual(1, result.size(), 'Application should be upserted');
+        System.Assert.areEqual(1, result.size(), 'Application should remain available');
+        System.Assert.areEqual(application.Id, appId, 'Resubmission should reuse the application');
         System.Assert.areEqual(
-            'New',
-            result[0].Status__c,
-            'Status should be New after processing Additional Information Required application'
+            accessRequest.Id,
+            result[0].Access_Request__c,
+            'Resubmission should reuse the access request'
+        );
+        System.Assert.areEqual('In Progress', result[0].Status__c, 'Application should be in progress');
+        System.Assert.areEqual(
+            'In Progress',
+            result[0].Casehandler_Status__c,
+            'Case handler status should be in progress'
         );
     }
 
