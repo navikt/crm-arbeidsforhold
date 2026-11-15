@@ -174,21 +174,21 @@ flowchart LR
 
 ### 5.1 Fullstendig liste
 
-| Del                                                                               | Stad i repoet                                                                                | Med i pakka?                  | Korleis han kjem til scratch                                   |
-| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------- | -------------------------------------------------------------- |
-| Worker, adapter, serializer, mapperar, builder                                    | `force-app/integration/p360/classes/`                                                        | Ja                            | Vanleg deploy av `force-app`                                   |
-| Innsendingskroken                                                                 | `force-app/externalApplication/classes/AAREG_ApplicationController.cls`                      | Ja                            | Vanleg deploy                                                  |
-| Arkivjobb-objektet og P360-felta på søknad, tilgangsførespurnad, avtale og vedtak | `force-app/integration/p360/objects/`                                                        | Ja                            | Vanleg deploy                                                  |
-| `P360_Integration_Setting__c` med `Rpc_Client_Class__c` og `External_System__c`   | `force-app/integration/p360/objects/P360_Integration_Setting__c/`                            | Ja                            | Vanleg deploy. Sjølve _verdiane_ er data og må setjast per org |
-| Kodeverdiar (CMDT)                                                                | `force-app/integration/p360/customMetadata/P360_Code_Table_Value.*`                          | Ja                            | Vanleg deploy                                                  |
-| Feature-flagg (`false`)                                                           | `force-app/integration/p360/customMetadata/Feature_Flag.P360_Archive_Processing.md-meta.xml` | Ja                            | Vanleg deploy. `e2e` slår det mellombels på                    |
-| P360-permission set og -gruppe                                                    | `force-app/integration/p360/permissionsets/` og `permissionsetgroups/`                       | Ja                            | Vanleg deploy. _Tildeling_ er data per org                     |
-| Testar for produktkoden, inkludert `P360_CapturingRpcClient`                      | `force-app/tests/classes/integration/p360/`                                                  | Ja, som testkode              | Vanleg deploy                                                  |
-| Liksom-P360 (`P360_ScratchRpcClient`)                                             | `scripts/scratch/p360/classes/`                                                              | Nei                           | `npm run p360:scratch -- verify`                               |
-| Kvitterings- og innstillingsobjekta, fane, layout, `P360_Scratch_Capture_Access`  | `scripts/scratch/p360/`                                                                      | Nei                           | `verify`                                                       |
-| Testen for liksom-P360                                                            | `force-app/tests/classes/integration/p360/scratch/`                                          | Nei, stoppa av `.forceignore` | `verify`                                                       |
-| Apex-skript for smoke og e2e                                                      | `scripts/apex/`                                                                              | Nei                           | Blir køyrde som anonym Apex, ikkje lagra i orga                |
-| Skriptet og testen hans                                                           | `scripts/`                                                                                   | Nei                           | Køyrer berre lokalt                                            |
+| Del                                                                                              | Stad i repoet                                                                                | Med i pakka?                  | Korleis han kjem til scratch                                   |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- | ----------------------------- | -------------------------------------------------------------- |
+| Worker, adapter, serializer, mapperar, builder                                                   | `force-app/integration/p360/classes/`                                                        | Ja                            | Vanleg deploy av `force-app`                                   |
+| Innsendingskroken                                                                                | `force-app/externalApplication/classes/AAREG_ApplicationController.cls`                      | Ja                            | Vanleg deploy                                                  |
+| Arkivjobb-objektet og P360-felta på søknad, tilgangsførespurnad, avtale og vedtak                | `force-app/integration/p360/objects/`                                                        | Ja                            | Vanleg deploy                                                  |
+| `P360_Integration_Setting__c` med `Rpc_Client_Class__c` og `External_System__c`                  | `force-app/integration/p360/objects/P360_Integration_Setting__c/`                            | Ja                            | Vanleg deploy. Sjølve _verdiane_ er data og må setjast per org |
+| Kodeverdiar (CMDT)                                                                               | `force-app/integration/p360/customMetadata/P360_Code_Table_Value.*`                          | Ja                            | Vanleg deploy                                                  |
+| Feature-flagg (`false`)                                                                          | `force-app/integration/p360/customMetadata/Feature_Flag.P360_Archive_Processing.md-meta.xml` | Ja                            | Vanleg deploy. `e2e` slår det mellombels på                    |
+| P360-permission set og -gruppe                                                                   | `force-app/integration/p360/permissionsets/` og `permissionsetgroups/`                       | Ja                            | Vanleg deploy. _Tildeling_ er data per org                     |
+| Testar for produktkoden, inkludert `P360_CapturingRpcClient`                                     | `force-app/tests/classes/integration/p360/`                                                  | Ja, som testkode              | Vanleg deploy                                                  |
+| Liksom-P360 (`P360_ScratchRpcClient`)                                                            | `scripts/scratch/p360/classes/`                                                              | Nei                           | `npm run p360:scratch -- verify`                               |
+| Kvitterings- og innstillingsobjekta, fane, layout, Lightning-side, `P360_Scratch_Capture_Access` | `scripts/scratch/p360/`                                                                      | Nei                           | `verify`                                                       |
+| Testen for liksom-P360                                                                           | `force-app/tests/classes/integration/p360/scratch/`                                          | Nei, stoppa av `.forceignore` | `verify`                                                       |
+| Apex-skript for smoke og e2e                                                                     | `scripts/apex/`                                                                              | Nei                           | Blir køyrde som anonym Apex, ikkje lagra i orga                |
+| Skriptet og testen hans                                                                          | `scripts/`                                                                                   | Nei                           | Køyrer berre lokalt                                            |
 
 ### 5.2 Kvifor er testen for liksom-P360 under `force-app/tests/`?
 
@@ -293,7 +293,7 @@ Dette skjer, i rekkjefølgje:
 
 1. Målet blir kontrollert (scratch, domene, `IsSandbox`).
 2. Liksom-P360 blir deployert, først som prøve (dry run), så på ekte.
-3. Testen til liksom-P360 blir køyrd. Han skal ha 8 av 8 grøne.
+3. Testen til liksom-P360 blir køyrd. Han skal ha 9 av 9 grøne.
 4. Du får `P360_Scratch_Capture_Access`.
 5. Første gong blir `P360ScratchSetting__c` laga med `Enabled = true`, `Scenario = Success` og `MaxFileBytes = 1024`.
 6. Eit lite smoke-skript sender éi syntetisk sak og eitt syntetisk dokument rett til liksom-P360.
@@ -373,7 +373,45 @@ Kjem same identitet tilbake med _anna_ innhald, avviser liksom-P360 førespurnad
     Alle listevisingane er synlege for alle interne brukarar i scratch. Dei ligg i `scripts/scratch/p360/objects/P360ScratchCapture__c.object` og blir deployerte av `verify`.
 
 4. Opne nyaste post. `Operation` viser CreateCase eller CreateDocument, og `Simulated Outcome` skal vere `Accepted`.
-5. `Synthetic Request Body` er førespurnaden i SIF-format. Filene ligg som Base64 under `Files`.
+5. Fana **Details** har seks seksjonar:
+
+    | Seksjon                  | Felt                                                                                                                 | Kva du ser                                                                                                                                 |
+    | ------------------------ | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+    | Summary                  | Operation, Title, Source Record, Simulated Outcome, Simulated P360 Number, Parent Case, Parent Case Number, Attempts | Kva som blei sendt, lenkje med tittel til søknaden eller tilgangsførespurnaden, nummeret liksom-P360 svarte med, og lenkje til saka        |
+    | Everything sent to P360  | Everything Sent to P360                                                                                              | **Kvart einaste felt** som blei sendt, éi linje kvar: arkivkode, tilgangskode, tilgangsgruppe, status, kategori, dato, filnamn og storleik |
+    | Files                    | File Count, File Details                                                                                             | Kvar fil med format og storleik. Tekstfiler er dekoda, så du kan lese innhaldet                                                            |
+    | Identity                 | External System, External Id, Source Record Id, Request Key, Payload SHA256                                          | Identiteten P360 skal kjenne att saka eller dokumentet på                                                                                  |
+    | Raw request and response | Synthetic Request Body, Simulated Response Body                                                                      | Rå SIF-JSON, med filene som Base64                                                                                                         |
+    | System Information       | Created By, Owner, Last Modified By                                                                                  | Standardfelt                                                                                                                               |
+
+    Øvst på Lightning-sida på datamaskin står ei forklaring som er tilpassa om du ser på ei sakskvittering eller ei dokumentkvittering.
+
+    **Slik heng det saman:**
+
+    ```text
+    Sakskvittering → dokumentkvittering → filer
+    ```
+
+    - **Sakskvitteringa** viser førespurnaden om å opprette ei liksom-sak og det simulerte svaret.
+    - **Dokumentkvitteringa** viser førespurnaden om å legge eit dokument i saka. Ho er ei kvittering, ikkje sjølve fila. Éi dokumentkvittering kan ha fleire filer.
+    - **Files** inneheld dei opnbare filene som høyrer til kvitteringa, til dømes søknadsdokumentet og vedlegga.
+
+    **Frå sak til fil:**
+
+    1. Opne ei sakskvittering frå listevisinga **Created Cases**.
+    2. Vel **Related** → **Document receipts in this case** og opne ei dokumentkvittering.
+    3. Vel **Related** → **Files**. Klikk på ei fil for å opne eller laste ho ned.
+
+    **Files (0)** på sakskvitteringa viser at du ikkje ser nokon filer festa direkte til saka. Dokumentkvitteringane kan likevel ha filer.
+
+    **Frå dokument til sak:** Opne dokumentkvitteringa, vel **Details**, og klikk på **Parent Case**. Dersom feltet er tomt, er kvitteringa ikkje knytt til ei lagra sakskvittering; samanlikn då med **Parent Case Number** og kontroller om saka finst.
+
+    På denne Lightning-sida blir dokumentlista berre vist på ei sakskvittering. Ho blir ikkje vist på dokumentkvitteringar, som ikkje er saker.
+
+    Kvitteringar laga før felta fanst, blir fylte ut frå rådataa sine når du køyrer `verify` eller `smoke`. Utfyllinga les berre det som allereie er lagra, og kontaktar ikkje P360.
+
+    > **Ser du ikkje dei nye seksjonane?** Lightning lagrar layouten i nettlesaren. Etter ein deploy kan sida difor vise den gamle layouten sjølv om du lastar ho på nytt. Logg ut og inn att (eller køyr `sf org open --target-org crm-arbeidsforhold` i eit nytt privat vindauge). Då hentar Lightning layouten på nytt.
+
 6. App Launcher → **P360 Archive Jobs** for å sjå jobben, status og eventuell feilmelding.
 7. Søknaden finn du via kontoen som heiter **Syntetisk P360 scratch-organisasjon** og eit tal.
 
@@ -418,7 +456,7 @@ Liksom-P360 har fire scenario i `P360ScratchSetting__c.Scenario__c`:
 | `PermanentFailure` | Avviser (`Rejected`, `Successful = false`)      | `Manual Review`                                                                  |
 | `UnknownOutcome`   | Godtek, men «mistar» svaret                     | `Manual Review`. Ny create med same identitet blir nekta til nokon har slått opp |
 
-Liksom-P360 i alle fire scenario er dekt av `P360_ScratchRpcClientTest` (kjelde, 8 av 8 grøne i scratch). Jobbstatusen i høgre kolonne kjem frå `classifyFailure` i `P360_ArchiveJobWorker` og er ikkje køyrd ende-til-ende i scratch for andre scenario enn `Success`.
+Liksom-P360 i alle fire scenario er dekt av `P360_ScratchRpcClientTest` (kjelde, 9 av 9 grøne i scratch). Jobbstatusen i høgre kolonne kjem frå `classifyFailure` i `P360_ArchiveJobWorker` og er ikkje køyrd ende-til-ende i scratch for andre scenario enn `Success`.
 
 `smoke` og `e2e` krev `Success`. Set scenariet tilbake til `Success` etter manuelle forsøk.
 

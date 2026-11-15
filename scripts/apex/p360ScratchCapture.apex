@@ -89,7 +89,9 @@ for (P360ScratchCapture__c receipt : receipts) {
 System.Assert.isTrue(filesVerified);
 System.Assert.areEqual(0, Limits.getCallouts());
 System.Assert.areEqual(productJobsBefore, [SELECT COUNT() FROM P360_Archive_Job__c]);
+Integer backfilledSummaries = P360_ScratchRpcClient.describeExisting();
 System.debug('P360_SCRATCH_RESULT=' + JSON.serialize(new Map<String, Object>{
+    'backfilledSummaries' => backfilledSummaries,
     'receipts' => receiptNames,
     'filesVerified' => 2,
     'callouts' => Limits.getCallouts(),

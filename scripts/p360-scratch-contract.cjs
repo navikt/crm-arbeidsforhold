@@ -27,7 +27,8 @@ const SCRATCH_BUNDLE = [
     ['scripts/scratch/p360/objects/P360ScratchSetting__c.object', 'objects'],
     ['scripts/scratch/p360/permissionsets/P360_Scratch_Capture_Access.permissionset', 'permissionsets'],
     ['scripts/scratch/p360/tabs/P360ScratchCapture__c.tab', 'tabs'],
-    ['scripts/scratch/p360/layouts/P360ScratchCapture__c-P360 Scratch Capture.layout', 'layouts']
+    ['scripts/scratch/p360/layouts/P360ScratchCapture__c-P360 Scratch Capture Layout.layout', 'layouts'],
+    ['scripts/scratch/p360/flexipages/P360_Scratch_Capture_Record_Page.flexipage', 'flexipages']
 ];
 const SMOKE_FILES = ['{"kind":"synthetic-application","submission":1}', 'Synthetic attachment without personal data.'];
 

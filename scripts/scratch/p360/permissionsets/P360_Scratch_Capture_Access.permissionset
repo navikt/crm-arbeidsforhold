@@ -12,6 +12,17 @@
     <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.PayloadHash__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.Outcome__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.Attempts__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.Title__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.ExternalSystem__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.ExternalId__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.SourceRecordId__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.P360Number__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.ParentCaseNumber__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.FileCount__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.FileDetails__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>P360ScratchCapture__c.SourceRecord__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.RequestFields__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>P360ScratchCapture__c.ParentCapture__c</field><readable>true</readable></fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>P360 Scratch Capture Access</label>
     <objectPermissions>

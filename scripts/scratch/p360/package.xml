@@ -15,8 +15,12 @@
         <name>PermissionSet</name>
     </types>
     <types>
-        <members>P360ScratchCapture__c-P360 Scratch Capture</members>
+        <members>P360ScratchCapture__c-P360 Scratch Capture Layout</members>
         <name>Layout</name>
+    </types>
+    <types>
+        <members>P360_Scratch_Capture_Record_Page</members>
+        <name>FlexiPage</name>
     </types>
     <types>
         <members>P360ScratchCapture__c</members>

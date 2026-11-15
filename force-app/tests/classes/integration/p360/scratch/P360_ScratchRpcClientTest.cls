@@ -78,6 +78,187 @@ private class P360_ScratchRpcClientTest {
     }
 
     /**
+     * Shows a reviewer what was sent and returned without reading raw JSON or Base64.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void shouldExposeReadableSummaryOfCapturedDocument() {
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+        insert new PermissionSetAssignment(
+            AssigneeId = minimumAccessUser.Id,
+            PermissionSetId = [SELECT Id FROM PermissionSet WHERE Name = 'P360_Scratch_Capture_Access']
+            .Id
+        );
+        String sourceRecordId = minimumAccessUser.Id;
+        System.runAs(minimumAccessUser) {
+            System.Test.startTest();
+            new P360_ScratchRpcClient()
+                .send(documentRequest('APPLICATION_DOCUMENT:' + sourceRecordId, 'synthetic attachment'));
+            System.Test.stopTest();
+
+            P360ScratchCapture__c receipt = [
+                SELECT
+                    Name,
+                    Title__c,
+                    ExternalSystem__c,
+                    ExternalId__c,
+                    SourceRecordId__c,
+                    P360Number__c,
+                    ParentCaseNumber__c,
+                    FileCount__c,
+                    FileDetails__c
+                FROM P360ScratchCapture__c
+                WITH USER_MODE
+            ];
+            System.Assert.areEqual('Synthetic scratch document', receipt.Title__c);
+            System.Assert.areEqual('Scratch P360', receipt.ExternalSystem__c);
+            System.Assert.areEqual('APPLICATION_DOCUMENT:' + sourceRecordId, receipt.ExternalId__c);
+            System.Assert.areEqual(sourceRecordId, receipt.SourceRecordId__c);
+            System.Assert.areEqual(receipt.Name, receipt.P360Number__c, 'The simulated document number is shown.');
+            System.Assert.areEqual('SCRATCH-CASE-1', receipt.ParentCaseNumber__c);
+            System.Assert.areEqual(1, receipt.FileCount__c);
+            System.Assert.isTrue(
+                receipt.FileDetails__c.contains('Synthetic attachment (txt, 20 bytes)'),
+                receipt.FileDetails__c
+            );
+            System.Assert.isTrue(
+                receipt.FileDetails__c.contains('synthetic attachment'),
+                'Text files are decoded for inspection.'
+            );
+        }
+    }
+
+    /**
+     * Lets a person in the browser see every value sent to P360, open the files and move between case and document.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void shouldShowEverythingSentToP360ForHumanReview() {
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+        insert new PermissionSetAssignment(
+            AssigneeId = minimumAccessUser.Id,
+            PermissionSetId = [SELECT Id FROM PermissionSet WHERE Name = 'P360_Scratch_Capture_Access']
+            .Id
+        );
+        String sourceRecordId = minimumAccessUser.Id;
+        System.runAs(minimumAccessUser) {
+            System.Test.startTest();
+            P360_ScratchRpcClient receiver = new P360_ScratchRpcClient();
+            Map<String, Object> created = (Map<String, Object>) JSON.deserializeUntyped(
+                receiver.send(caseRequest('ACCESS_REQUEST:' + sourceRecordId)).body
+            );
+            String caseNumber = (String) created.get('CaseNumber');
+            receiver.send(
+                documentRequest('APPLICATION_DOCUMENT:' + sourceRecordId, 'synthetic attachment', caseNumber)
+            );
+            System.Test.stopTest();
+
+            P360ScratchCapture__c caseCapture = [
+                SELECT Id, RequestFields__c
+                FROM P360ScratchCapture__c
+                WHERE Operation__c = 'CaseService/CreateCase'
+                WITH USER_MODE
+            ];
+            P360ScratchCapture__c documentCapture = [
+                SELECT Id, RequestFields__c, ParentCapture__c, SourceRecord__c
+                FROM P360ScratchCapture__c
+                WHERE Operation__c = 'DocumentService/CreateDocument'
+                WITH USER_MODE
+            ];
+            System.Assert.isTrue(
+                caseCapture.RequestFields__c.contains('ArchiveCodes[1].ArchiveCode: 359'),
+                caseCapture.RequestFields__c
+            );
+            System.Assert.isTrue(caseCapture.RequestFields__c.contains('AccessCode: U'), caseCapture.RequestFields__c);
+            System.Assert.isTrue(
+                documentCapture.RequestFields__c.contains('Category: Synthetic'),
+                documentCapture.RequestFields__c
+            );
+            System.Assert.isTrue(
+                documentCapture.RequestFields__c.contains('Files[1].Title: Synthetic attachment'),
+                documentCapture.RequestFields__c
+            );
+            System.Assert.isFalse(
+                documentCapture.RequestFields__c.contains(
+                    EncodingUtil.base64Encode(Blob.valueOf('synthetic attachment'))
+                ),
+                'Base64 file content is replaced by an openable file.'
+            );
+            System.Assert.areEqual(caseCapture.Id, documentCapture.ParentCapture__c, 'The document links to its case.');
+            System.Assert.isTrue(
+                documentCapture.SourceRecord__c.contains('Synthetic scratch document'),
+                'The source link shows the title, not only an Id.'
+            );
+            List<ContentDocumentLink> files = [
+                SELECT ContentDocument.Title
+                FROM ContentDocumentLink
+                WHERE LinkedEntityId = :documentCapture.Id
+            ];
+            System.Assert.areEqual(1, files.size(), 'Each sent file can be opened from the receipt.');
+            System.Assert.areEqual('Synthetic attachment', files[0].ContentDocument.Title);
+        }
+    }
+
+    /**
+     * Gives receipts captured before the readable fields existed the same summary from their stored raw data.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void shouldBackfillReadableSummaryOfEarlierCapture() {
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+        insert new PermissionSetAssignment(
+            AssigneeId = minimumAccessUser.Id,
+            PermissionSetId = [SELECT Id FROM PermissionSet WHERE Name = 'P360_Scratch_Capture_Access']
+            .Id
+        );
+        String sourceRecordId = minimumAccessUser.Id;
+        System.runAs(minimumAccessUser) {
+            P360ScratchCapture__c earlier = new P360ScratchCapture__c(
+                RequestKey__c = 'earlier-capture-key',
+                Operation__c = 'DocumentService/CreateDocument',
+                RequestBody__c = documentRequest('APPLICATION_DOCUMENT:' + sourceRecordId, 'synthetic attachment').body,
+                ResponseBody__c = JSON.serialize(
+                    new Map<String, Object>{ 'Successful' => true, 'DocumentNumber' => 'SCRATCH-000044' }
+                ),
+                PayloadHash__c = 'earlier-hash',
+                Outcome__c = 'Accepted',
+                Attempts__c = 0
+            );
+            insert as user earlier;
+
+            System.Test.startTest();
+            Integer described = P360_ScratchRpcClient.describeExisting();
+            System.Test.stopTest();
+
+            P360ScratchCapture__c receipt = [
+                SELECT
+                    Title__c,
+                    ExternalSystem__c,
+                    SourceRecordId__c,
+                    P360Number__c,
+                    ParentCaseNumber__c,
+                    FileCount__c,
+                    FileDetails__c
+                FROM P360ScratchCapture__c
+                WHERE Id = :earlier.Id
+                WITH USER_MODE
+            ];
+            System.Assert.areEqual(1, described, 'Only the receipt without a summary is described.');
+            System.Assert.areEqual('Synthetic scratch document', receipt.Title__c);
+            System.Assert.areEqual('Scratch P360', receipt.ExternalSystem__c);
+            System.Assert.areEqual(sourceRecordId, receipt.SourceRecordId__c);
+            System.Assert.areEqual('SCRATCH-000044', receipt.P360Number__c, 'The returned number is read back.');
+            System.Assert.areEqual('SCRATCH-CASE-1', receipt.ParentCaseNumber__c);
+            System.Assert.areEqual(1, receipt.FileCount__c);
+            System.Assert.isTrue(receipt.FileDetails__c.contains('synthetic attachment'), receipt.FileDetails__c);
+            System.Assert.areEqual(0, P360_ScratchRpcClient.describeExisting(), 'Backfill is idempotent.');
+        }
+    }
+
+    /**
      * Preserves an accepted but unacknowledged document for explicit recovery by external identity.
      *
      * @since 2026-11
@@ -296,7 +477,30 @@ private class P360_ScratchRpcClientTest {
         }
     }
 
+    private static P360_RpcRequest caseRequest(String externalId) {
+        P360_RpcRequest request = new P360_RpcRequest();
+        request.serviceName = 'CaseService';
+        request.operationName = 'CreateCase';
+        request.body = JSON.serialize(
+            new Map<String, Object>{
+                'parameter' => new Map<String, Object>{
+                    'Title' => 'Synthetic scratch case',
+                    'ExternalId' => new Map<String, Object>{ 'Id' => externalId, 'Type' => 'Scratch P360' },
+                    'AccessCode' => 'U',
+                    'ArchiveCodes' => new List<Object>{
+                        new Map<String, Object>{ 'ArchiveCode' => '359', 'ArchiveType' => 'Arkivnøkkel' }
+                    }
+                }
+            }
+        );
+        return request;
+    }
+
     private static P360_RpcRequest documentRequest(String externalId, String content) {
+        return documentRequest(externalId, content, 'SCRATCH-CASE-1');
+    }
+
+    private static P360_RpcRequest documentRequest(String externalId, String content, String caseNumber) {
         P360_RpcRequest request = new P360_RpcRequest();
         request.serviceName = 'DocumentService';
         request.operationName = 'CreateDocument';
@@ -306,7 +510,7 @@ private class P360_ScratchRpcClientTest {
                     'Title' => 'Synthetic scratch document',
                     'ExternalId' => new Map<String, Object>{ 'Id' => externalId, 'Type' => 'Scratch P360' },
                     'ADUserContext' => 'scratch-p360-user',
-                    'CaseNumber' => 'SCRATCH-CASE-1',
+                    'CaseNumber' => caseNumber,
                     'Category' => 'Synthetic',
                     'Status' => 'Synthetic',
                     'Files' => new List<Object>{

@@ -99,6 +99,36 @@ test('rejects unknown actions before accessing Salesforce', (t) => {
     assert.deepEqual(sf.calls, []);
 });
 
+test('verify includes and activates the scratch receipt guidance page', (t) => {
+    const sf = fakeSf({});
+    let deployment;
+    const captureDeployment = {
+        runSf(args) {
+            if (args[0] === 'project' && args[1] === 'deploy') {
+                const directory = args[args.indexOf('--metadata-dir') + 1];
+                const page = path.join(directory, 'flexipages', 'P360_Scratch_Capture_Record_Page.flexipage');
+                deployment = {
+                    manifest: fs.readFileSync(path.join(directory, 'package.xml'), 'utf8'),
+                    object: fs.readFileSync(path.join(directory, 'objects', 'P360ScratchCapture__c.object'), 'utf8'),
+                    hasPage: fs.existsSync(page)
+                };
+                return { status: 1, result: { success: false } };
+            }
+            return sf.runSf(args);
+        }
+    };
+
+    run(t, 'verify', captureDeployment);
+
+    assert.ok(deployment, 'verify must attempt the scratch metadata deployment');
+    assert.match(deployment.manifest, /<members>P360_Scratch_Capture_Record_Page<\/members>\s*<name>FlexiPage<\/name>/);
+    assert.match(
+        deployment.object,
+        /<actionName>View<\/actionName>\s*<content>P360_Scratch_Capture_Record_Page<\/content>\s*<formFactor>Large<\/formFactor>\s*<type>flexipage<\/type>/
+    );
+    assert.equal(deployment.hasPage, true, 'the page included in the manifest must be in the deployment bundle');
+});
+
 test('e2e passes only with two accepted receipts and restores the flag from source', (t) => {
     const sf = fakeSf({ e2eResult: ACCEPTED });
     const result = run(t, 'e2e', sf);

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>View</actionName>
+        <content>P360_Scratch_Capture_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <type>flexipage</type>
+    </actionOverrides>
     <deploymentStatus>Deployed</deploymentStatus>
     <description>Scratch-only synthetic RPC receipt. Never evidence of delivery to Public 360.</description>
     <fields>
@@ -49,11 +55,96 @@
         <scale>0</scale>
         <type>Number</type>
     </fields>
+    <fields>
+        <fullName>Title__c</fullName>
+        <inlineHelpText>Title sent in the synthetic SIF request.</inlineHelpText>
+        <label>Title</label>
+        <length>255</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>ExternalSystem__c</fullName>
+        <inlineHelpText>ExternalId.Type sent to P360, for example Scratch P360.</inlineHelpText>
+        <label>External System</label>
+        <length>100</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>ExternalId__c</fullName>
+        <inlineHelpText>ExternalId.Id sent to P360. Together with the system it identifies the case or document.</inlineHelpText>
+        <label>External Id</label>
+        <length>160</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>SourceRecordId__c</fullName>
+        <inlineHelpText>Salesforce record id taken from the external id, when it contains one.</inlineHelpText>
+        <label>Source Record Id</label>
+        <length>18</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>SourceRecord__c</fullName>
+        <formula>IF(ISBLANK(SourceRecordId__c), '', HYPERLINK('/' &amp; SourceRecordId__c, IF(ISBLANK(Title__c), SourceRecordId__c, Title__c), '_self'))</formula>
+        <inlineHelpText>Opens the access request or application that was archived.</inlineHelpText>
+        <label>Source Record</label>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>P360Number__c</fullName>
+        <inlineHelpText>Case or document number the fake P360 returned.</inlineHelpText>
+        <label>Simulated P360 Number</label>
+        <length>80</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>ParentCaseNumber__c</fullName>
+        <inlineHelpText>For documents: the P360 case the document was filed in.</inlineHelpText>
+        <label>Parent Case Number</label>
+        <length>80</length>
+        <type>Text</type>
+    </fields>
+    <fields>
+        <fullName>FileCount__c</fullName>
+        <inlineHelpText>Number of files in the document request.</inlineHelpText>
+        <label>File Count</label>
+        <precision>4</precision>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    <fields>
+        <fullName>FileDetails__c</fullName>
+        <inlineHelpText>Each file with format and size. Text files are decoded so you can read them.</inlineHelpText>
+        <label>File Details</label>
+        <length>131072</length>
+        <type>LongTextArea</type>
+        <visibleLines>15</visibleLines>
+    </fields>
+    <fields>
+        <fullName>RequestFields__c</fullName>
+        <inlineHelpText>Every value sent to P360, one per line. File content is not repeated here; open the files under Files.</inlineHelpText>
+        <label>Everything Sent to P360</label>
+        <length>131072</length>
+        <type>LongTextArea</type>
+        <visibleLines>30</visibleLines>
+    </fields>
+    <fields>
+        <fullName>ParentCapture__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <inlineHelpText>For documents: the captured case the document was filed in.</inlineHelpText>
+        <label>Parent Case</label>
+        <referenceTo>P360ScratchCapture__c</referenceTo>
+        <relationshipLabel>Documents in This Case</relationshipLabel>
+        <relationshipName>Documents</relationshipName>
+        <type>Lookup</type>
+    </fields>
     <label>P360 Scratch Capture</label>
     <listViews>
         <fullName>All</fullName>
         <columns>NAME</columns>
         <columns>Operation__c</columns>
+        <columns>Title__c</columns>
+        <columns>P360Number__c</columns>
         <columns>Outcome__c</columns>
         <columns>Attempts__c</columns>
         <columns>CREATED_DATE</columns>
@@ -67,6 +158,8 @@
     <listViews>
         <fullName>Cases</fullName>
         <columns>NAME</columns>
+        <columns>Title__c</columns>
+        <columns>P360Number__c</columns>
         <columns>Outcome__c</columns>
         <columns>Attempts__c</columns>
         <columns>CREATED_DATE</columns>
@@ -84,6 +177,10 @@
     <listViews>
         <fullName>Documents</fullName>
         <columns>NAME</columns>
+        <columns>Title__c</columns>
+        <columns>P360Number__c</columns>
+        <columns>ParentCaseNumber__c</columns>
+        <columns>FileCount__c</columns>
         <columns>Outcome__c</columns>
         <columns>Attempts__c</columns>
         <columns>CREATED_DATE</columns>
@@ -102,6 +199,8 @@
         <fullName>Needs_Attention</fullName>
         <columns>NAME</columns>
         <columns>Operation__c</columns>
+        <columns>Title__c</columns>
+        <columns>P360Number__c</columns>
         <columns>Outcome__c</columns>
         <columns>Attempts__c</columns>
         <columns>LAST_UPDATE</columns>
