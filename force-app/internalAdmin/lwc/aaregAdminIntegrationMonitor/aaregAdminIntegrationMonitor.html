@@ -1,0 +1,57 @@
+<template>
+    <lightning-card title="Integrasjonsmonitor" icon-name="standard:system_and_global_variable">
+        <lightning-button slot="actions" label="Oppdater" onclick={handleRefresh}></lightning-button>
+        <div class="slds-p-horizontal_medium">
+            <template lwc:if={loading}>
+                <lightning-spinner alternative-text="Lastar"></lightning-spinner>
+            </template>
+            <template lwc:if={error}>
+                <div class="slds-text-color_error" role="alert">{error}</div>
+            </template>
+
+            <h2 class="slds-text-heading_small slds-m-bottom_x-small">P360-arkivjobbar (siste 50)</h2>
+            <p class="slds-text-body_small slds-m-bottom_x-small">
+                Ein jobb sender eitt dokument til P360. «Utgått» lease betyr at jobben stod fast medan han vart
+                behandla. «Scratch-mottak» viser kor mange simulerte P360-mottak som høyrer til saka.
+            </p>
+            <template lwc:if={jobsUnavailable}>
+                <div class="slds-text-color_error" role="alert">{monitor.jobsMessage}</div>
+            </template>
+            <template lwc:if={noJobs}>
+                <p>Ingen P360-jobbar enno.</p>
+            </template>
+            <template lwc:if={showJobs}>
+                <lightning-datatable
+                    data-id="jobs"
+                    key-field="id"
+                    data={jobs}
+                    columns={jobColumns}
+                    hide-checkbox-column
+                ></lightning-datatable>
+            </template>
+
+            <h2 class="slds-text-heading_small slds-m-top_medium slds-m-bottom_x-small">
+                Andre integrasjonar: loggar siste 7 dagar
+            </h2>
+            <p class="slds-text-body_small slds-m-bottom_x-small">
+                Altinn, distribusjonstilgang, SMS og e-post loggar til Application_Log. Kvar rad er éi Apex-klasse.
+                Innhaldet i payload blir aldri vist.
+            </p>
+            <template lwc:if={logsUnavailable}>
+                <div class="slds-text-color_error" role="alert">{monitor.logsMessage}</div>
+            </template>
+            <template lwc:if={noSources}>
+                <p>Ingen loggar siste 7 dagar.</p>
+            </template>
+            <template lwc:if={showSources}>
+                <lightning-datatable
+                    data-id="sources"
+                    key-field="sourceClass"
+                    data={sources}
+                    columns={sourceColumns}
+                    hide-checkbox-column
+                ></lightning-datatable>
+            </template>
+        </div>
+    </lightning-card>
+</template>

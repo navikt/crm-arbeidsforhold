@@ -39,6 +39,30 @@ public with sharing class P360_TestDataFactory {
     }
 
     /**
+     * Grants a permission set to the running test user and returns a fresh runAs context.
+     *
+     * @param permissionSetName Developer name of the permission set to assign.
+     * @return User Running test user for a new System.runAs block.
+     * @since 2026-11
+     */
+    public static User grantPermissionSetToRunningUser(String permissionSetName) {
+        Id userId = UserInfo.getUserId();
+        PermissionSet permissionSet = [SELECT Id FROM PermissionSet WHERE Name = :permissionSetName LIMIT 1];
+        List<PermissionSetAssignment> existing = [
+            SELECT Id
+            FROM PermissionSetAssignment
+            WHERE AssigneeId = :userId AND PermissionSetId = :permissionSet.Id
+        ];
+        User runningUser = new User(Id = userId);
+        if (existing.isEmpty()) {
+            System.runAs(runningUser) {
+                insert new PermissionSetAssignment(AssigneeId = userId, PermissionSetId = permissionSet.Id);
+            }
+        }
+        return runningUser;
+    }
+
+    /**
      * Supplies an isolated P360 feature-flag record to tests.
      *
      * @param enabled Whether P360 archive processing should be enabled; null models an unset flag.

@@ -1,0 +1,50 @@
+<template>
+    <lightning-card title="Konfigurasjon" icon-name="standard:custom_notification">
+        <lightning-button slot="actions" label="Oppdater" onclick={handleRefresh}></lightning-button>
+        <div class="slds-p-horizontal_medium">
+            <p class="slds-text-body_small slds-m-bottom_small">
+                Berre lesing. Endringar gjer du i Setup via lenkja i kvar seksjon. Hemmelege verdiar, e-postadresser og
+                kontaktar blir berre viste som «Sett» eller «Ikkje sett».
+            </p>
+            <template lwc:if={loading}>
+                <lightning-spinner alternative-text="Lastar"></lightning-spinner>
+            </template>
+            <template lwc:if={error}>
+                <div class="slds-text-color_error" role="alert">{error}</div>
+            </template>
+            <template for:each={sections} for:item="section">
+                <section key={section.key} class="slds-m-bottom_medium">
+                    <h2 class="slds-text-heading_small slds-m-bottom_x-small">
+                        {section.title}
+                        <a
+                            class="slds-m-left_small slds-text-body_small"
+                            href={section.setupUrl}
+                            data-key={section.key}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >Opne i Setup</a
+                        >
+                    </h2>
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                        <thead>
+                            <tr>
+                                <th scope="col">Innstilling</th>
+                                <th scope="col">Verdi</th>
+                                <th scope="col">Kva betyr det?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={section.items} for:item="item">
+                                <tr key={item.key}>
+                                    <td class="slds-cell-wrap">{item.label}</td>
+                                    <td><span class={item.badgeClass} data-state={item.state}>{item.value}</span></td>
+                                    <td class="slds-cell-wrap">{item.explanation}</td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </section>
+            </template>
+        </div>
+    </lightning-card>
+</template>

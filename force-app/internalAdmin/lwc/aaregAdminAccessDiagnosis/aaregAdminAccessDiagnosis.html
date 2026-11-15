@@ -1,0 +1,74 @@
+<template>
+    <lightning-card title="Tilgangsdiagnose for deg" icon-name="standard:user_role">
+        <lightning-button slot="actions" label="Oppdater" onclick={handleRefresh}></lightning-button>
+        <div class="slds-p-horizontal_medium">
+            <p class="slds-text-body_small slds-m-bottom_small">
+                Viser kva du sjølv har tilgang til, og kvifor. Denne sida gir aldri tilgang. Manglar du noko, be ein
+                administrator om rett permission set.
+            </p>
+            <template lwc:if={loading}>
+                <lightning-spinner alternative-text="Lastar"></lightning-spinner>
+            </template>
+            <template lwc:if={error}>
+                <div class="slds-text-color_error" role="alert">{error}</div>
+            </template>
+            <template lwc:if={diagnosis}>
+                <dl class="slds-list_horizontal slds-wrap slds-m-bottom_medium">
+                    <dt class="slds-item_label slds-text-color_weak">Brukar</dt>
+                    <dd class="slds-item_detail">{diagnosis.userName}</dd>
+                    <dt class="slds-item_label slds-text-color_weak">Profil</dt>
+                    <dd class="slds-item_detail">{diagnosis.profileName}</dd>
+                    <dt class="slds-item_label slds-text-color_weak">Permission sets</dt>
+                    <dd class="slds-item_detail">{permissionSetText}</dd>
+                </dl>
+                <template lwc:if={diagnosis.note}>
+                    <p class="slds-text-color_weak slds-m-bottom_small">{diagnosis.note}</p>
+                </template>
+
+                <h2 class="slds-text-heading_small slds-m-bottom_x-small">Spesialløyve (custom permissions)</h2>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-m-bottom_medium">
+                    <thead>
+                        <tr>
+                            <th scope="col">Løyve</th>
+                            <th scope="col">Har du det?</th>
+                            <th scope="col">Kva betyr det?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={customPermissions} for:item="permission">
+                            <tr key={permission.apiName}>
+                                <td>{permission.apiName}</td>
+                                <td>{permission.grantedText}</td>
+                                <td class="slds-cell-wrap">{permission.explanation}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+
+                <h2 class="slds-text-heading_small slds-m-bottom_x-small">Objekt</h2>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                    <thead>
+                        <tr>
+                            <th scope="col">Objekt</th>
+                            <th scope="col">Lese</th>
+                            <th scope="col">Opprette</th>
+                            <th scope="col">Endre</th>
+                            <th scope="col">Forklaring</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={objects} for:item="access">
+                            <tr key={access.apiName} class={access.rowClass}>
+                                <td>{access.label} ({access.apiName})</td>
+                                <td>{access.readText}</td>
+                                <td>{access.createText}</td>
+                                <td>{access.editText}</td>
+                                <td class="slds-cell-wrap">{access.explanation}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </template>
+        </div>
+    </lightning-card>
+</template>

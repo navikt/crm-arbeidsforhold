@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Integration monitor for P360 jobs, logs and messages.</description>
+    <flexiPage>AAREG_Admin_Monitor</flexiPage>
+    <label>Integrasjonsmonitor</label>
+    <motif>Custom95: Stopwatch</motif>
+</CustomTab>

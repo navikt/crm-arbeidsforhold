@@ -32,6 +32,16 @@
     <tabs>standard-EmailTemplate</tabs>
     <tabs>standard-Dashboard</tabs>
     <tabs>standard-report</tabs>
+    <tabs>AAREG_Admin_Monitor</tabs>
+    <tabs>AAREG_Admin_Configuration</tabs>
+    <tabs>AAREG_Admin_Access</tabs>
+    <tabs>Application__c</tabs>
+    <tabs>Access_Request__c</tabs>
+    <tabs>Application_Decision__c</tabs>
+    <tabs>Agreement__c</tabs>
+    <tabs>Inquiry__c</tabs>
+    <tabs>P360_Archive_Job__c</tabs>
+    <tabs>Application_Log__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>Arbeidsforhold_Admin_UtilityBar</utilityBar>
 </CustomApplication>
