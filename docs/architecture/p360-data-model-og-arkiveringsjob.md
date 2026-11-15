@@ -6,7 +6,7 @@ dato: 2026-10-04
 
 # P360 datamodell og asynkron arkiveringsjobb
 
-**Beslutningsstatus:** Datamodell, fail-closed prosesseringsgate, frigivingsvern, idempotensnøklar, jobbservice, lease/claim, schedulable dispatch og worker-statusklassifisering er implementerte og testa. SIF-kontrakt, endeleg event-/mappingomfang, org-schedule og live transport står att.
+**Beslutningsstatus:** Datamodell, fail-closed prosesseringsgate, frigivingsvern, idempotensnøklar, jobbservice, lease/claim, schedulable dispatch og worker-statusklassifisering finst i undersøkt kjelde. Testevidens og installert versjon må kontrollerast separat. SIF-kontrakt, endeleg event-/mappingomfang, org-schedule og live transport står att.
 
 **Implementeringsføresetnad:** Vidare implementering startar før teamet har landa alle vala. Dette er ein medviten risiko fordi modellen kan måtte justerast etter teamavklaring. Større endringar skal handterast som ein eksplisitt endringsbeslutning med oppdatert dokumentasjon, migreringsvurdering og relevante regresjonstestar.
 
@@ -16,7 +16,9 @@ Dette dokumentet fastset datamodellen for P360-arkivering i Salesforce. Modellen
 
 ## Implementeringsstatus
 
-Implementert og CI-/scratch-verifisert:
+Tidlegare kjelde- og testobservasjonar for jobbgrunnlaget er lista under.
+Kontroller testdato, commit og installert versjon før dei blir brukte som
+evidens for eit miljø:
 
 - `P360_Archive_Job__c` med status-, korrelasjons-, idempotens-, retry- og leasefelt
 - P360 case-, dokument- og filreferansar på domeneobjekta
@@ -28,12 +30,13 @@ Implementert og CI-/scratch-verifisert:
 - automatisk `ContentVersion`-after-insert kopling til `ApplicationAttachment`-jobb for filer publiserte direkte på `Application__c`, når prosesseringsflagget er på
 - automatisk `DecisionDocument`-jobb etter autorisert frigiving av vedtak, når prosesseringsflagget er på
 - fail-closed `P360_Archive_Processing`-gate rundt P360-spesifikk DML, jobboppretting, claims, scheduler og worker; metadata-defaulten er av
-- schedulable dispatcher og worker som kan køyrast eksplisitt; det finst ikkje ein aktiv org-schedule
+- schedulable dispatcher og worker som kan køyrast eksplisitt; aktiv
+  org-schedule er ikkje stadfesta av kjelda
 
 Ikkje ferdig eller ikkje avgjort:
 
 - komplettheitsvalidering av vedtak før frigiving
-- godkjend forretningshending for automatisk `ApplicationDocument`-jobb
+- godkjend og fullt verifisert forretningsflyt for `ApplicationDocument`
 - om `AgreementDocument` høyrer til MVP, og eventuell automatisk utløyser
 - org-schedule, frekvens, overlapp og driftsansvar
 - ekstern duplicate-/idempotenskontrakt, permanent-feilklassifisering og endeleg recovery-prosess
@@ -280,7 +283,11 @@ Felta `Succeeded_Date__c` og `Failed_Date__c` er føreslegne, men ikkje oppretta
 
 ### Førebels MVP-retrypolicy
 
-Følgjande policy er vald som førebels MVP-standard. Ho skal justerast dersom P360-teamet stadfestar andre timeoutar, rate limits eller feilkodeklassifiseringar:
+Følgjande er eit tidlegare policyforslag, ikkje ein påstand om at alle
+grensene er implementerte. Dagens claim-service tek ikkje automatisk opp att
+utgåtte `In Progress`-jobbar; berre fire ventesteg kan brukast før femte og
+siste forsøk. Sjå [faktisk jobbstatus](../integrations/p360/teknisk-oversikt.md#jobbstatus-og-retry).
+Forslaget må justerast etter P360-teamet sine kontraktavklaringar:
 
 ```text
 Callout-timeout:       120 sekund
@@ -296,6 +303,9 @@ Når ein jobb går til `In Progress`, skal `Lease_Expires_Date__c` setjast. Ein 
 Retrybare feil er mellombelse timeoutar, nettverksfeil, rate limiting og mellombelse serverfeil. Ugyldige requestar, mappingfeil, autentiseringsfeil, fleire sakstreff og permanente P360-feil skal ikkje retryast automatisk; dei skal gå til `Manual Review` eller kontrollert `Failed` etter endeleg teamavklaring.
 
 ### Manuell frigiving
+
+Dette avsnittet er forslag til framtidig åtferd, ikkje ein implementert
+manuell frigivingsfunksjon.
 
 `Manual Review` kan berre frigivast eksplisitt av autoriserte interne roller:
 
@@ -317,7 +327,12 @@ Ved frigiving skal `Attempt_Count__c`, tidlegare feilkode og feilmelding bevaras
 
 ## Arkiveringsreglar
 
-Reglane nedanfor beskriv målsemantikken. Dei er ikkje alle implementerte eller godkjende. I dagens kode opprettar ContentVersion-inngangen `ApplicationAttachment`-jobb, og frigiving av vedtak opprettar `DecisionDocument`-jobb, begge berre når `P360_Archive_Processing` er på. `ApplicationDocument` og `AgreementDocument` har jobbservice, men manglar godkjende automatiske forretningsutløysarar.
+Reglane nedanfor beskriv målsemantikken. Dei er ikkje alle implementerte
+eller godkjende. På `P360Test` ber søknadsinnsending om ein
+`ApplicationDocument`-jobb, og direkte filpublisering og vedtaksfrigiving kan
+opprette jobbar når `P360_Archive_Processing` er på. Dette beviser ikkje eit
+komplett innsendingssett eller fungerande ekstern arkivering. Ein automatisk
+`AgreementDocument`-inngang er ikkje stadfesta.
 
 - Utkast skal ikkje opprette arkiveringsjobb.
 - Ved innsending kan ein jobb av typen `ApplicationDocument` opprettast når produkteigar har stadfesta nøyaktig innsendingstidspunkt og nødvendige data.

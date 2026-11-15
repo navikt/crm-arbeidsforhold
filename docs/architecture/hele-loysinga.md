@@ -313,7 +313,7 @@ flowchart LR
     Agreement --> Portal[Ekstern avtalevisning]
     Agreement --> Flow[Agreement Flow]
     Flow --> Controller[AAREG_distributionAccessController]
-    Controller --> Async[@future callout]
+    Controller --> Async["Asynkront kall"]
     Async --> Distribution[Distribusjonsteneste]
     Async --> Log[LoggerUtility / event logging]
 ```
@@ -375,70 +375,79 @@ Kanttilfelle som er synlege i koden:
 
 ## 8. Hovudflyt E: P360-arkivering
 
-P360 er den mest eksplisitt lagdelte delen av løysinga.
+P360 er den mest eksplisitt lagdelte delen av løysinga. Diagrammet viser
+kjelde på `P360Test`; søknadsinngangen og førespurnadsbygginga er ikkje
+automatisk tilgjengelege på `main` eller i eit org.
 
 ```mermaid
 flowchart LR
-    Event[Vedtak/file-hending]
-    Trigger[P360 trigger]
-    Guard[Archive guard]
-    JobService[ArchiveJobService]
-    Job[(P360_Archive_Job__c)]
-    Claim[Claim + lease]
-    Worker[Queueable worker]
-    Factory[AdapterFactory]
-    Adapter[Archive adapter]
-    Rpc[RPC client]
-    Public360[Public 360]
-
-    Event --> Trigger --> Guard --> JobService --> Job
-    Job --> Claim --> Worker --> Factory --> Adapter --> Rpc -.-> Public360
+    ArchSubmit["Send soknad"]
+    ArchFile["Direkte publisert fil"]
+    ArchDecision["Frigitt vedtak"]
+    ArchGuard["Vedtaksguard"]
+    ArchService["Jobbservice"]
+    ArchJob[("Arkivjobb")]
+    ArchClaim["Claim og worker"]
+    ArchBuild["Soknadsbyggjar"]
+    ArchFactory["Adapterval"]
+    ArchStub["Suksess-stub"]
+    ArchAdapter["Arkivadapter"]
+    ArchClient["RPC-klient"]
+    ArchExternal["Public 360"]
+    ArchSubmit --> ArchService
+    ArchFile --> ArchService
+    ArchDecision --> ArchGuard --> ArchService
+    ArchService --> ArchJob --> ArchClaim
+    ArchClaim -->|"soknadsjobb"| ArchBuild
+    ArchClaim --> ArchFactory
+    ArchBuild --> ArchAdapter
+    ArchFactory --> ArchStub
+    ArchFactory --> ArchAdapter --> ArchClient
+    ArchClient -.->|"ikkje implementert live"| ArchExternal
 ```
 
 ### 8.1 Steg for steg
 
-1. Eit vedtak eller ein filhending blir fanga av trigger/MyTriggers.
-2. Guarden kontrollerer einvegs frigiving og permission.
-3. Jobbservicen lagar ein idempotent `P360_Archive_Job__c`-rad.
-4. `P360_IdempotencyKey` sikrar stabil nøkkel for søknadsdokument, vedlegg, vedtaksdokument og avtaledokument.
-5. Claim-servicen tek ein lease og aukar forsøksteljaren.
-6. Queueable-workeren kallar adapteren.
-7. Factory vel stub eller reell adapter ut frå konfigurasjon.
-8. Adapteren isolerer P360-kontrakten frå resten av Salesforce.
-9. Feil blir klassifiserte som suksess, retrybar feil eller manuell oppfølging.
+1. På `P360Test` ber innsending om ein søknadsjobb. Direkte filpublisering og
+   frigiving av vedtak har eigne inngangar.
+2. Prosesseringsporten må vere open. Vedtaksfrigiving har i tillegg eige
+   vern og permission.
+3. Jobbservicen opprettar eller gjenbruker ei `P360_Archive_Job__c`-rad.
+4. Claim-servicen tek ein lease og aukar forsøksteljaren.
+5. Workeren byggjer ei førespurnad for søknadsdokument, og factory vel
+   suksess-stub eller arkivadapter med vald RPC-klient.
+6. Adapteren kan be om `CreateCase` og `CreateDocument`; standard
+   RPC-klient er ikkje implementert for ekte transport.
+7. Workeren klassifiserer resultat og kjende integrasjonsfeil.
 
 ### 8.2 Status og avgrensing
 
 ```mermaid
-stateDiagram-v2
-    [*] --> Pending
-    Pending --> InProgress: Claim + lease
-    InProgress --> Succeeded: Adapter svarer OK
-    InProgress --> Failed: Retrybar feil
-    Failed --> Pending: Backoff og nytt forsøk
-    Failed --> ManualReview: Ikkje retrybar eller maks forsøk
-    ManualReview --> Pending: Manuell frigiving
-    Succeeded --> [*]
+flowchart LR
+    JobPending["Pending"]
+    JobProgress["In Progress"]
+    JobSucceeded["Succeeded"]
+    JobFailed["Failed"]
+    JobManual["Manual Review"]
+    JobPending -->|"claim"| JobProgress
+    JobFailed -->|"claim nar retry forfell"| JobProgress
+    JobProgress -->|"adapter svarer OK"| JobSucceeded
+    JobProgress -->|"retrybar feil"| JobFailed
+    JobProgress -->|"ikkje retrybar eller maks forsok"| JobManual
+    JobProgress -->|"gate av ved workerstart"| JobPending
 ```
 
-Verifisert bygd:
+Forfallen `Failed` går direkte til `In Progress` ved nytt claim. Ein utgått
+`In Progress`-lease blir ikkje automatisk henta opp att, og manuell frigiving
+er ikkje ein ferdig standardfunksjon. Ein suksess-stub kan gi `Succeeded`
+utan at noko er sendt til P360.
 
-- DTO-ar, exceptions, mapperar, kodeverk, correlation ID og loggingredaksjonering;
-- release guard og låsing av vedtak;
-- idempotent jobboppretting;
-- claim/lease og retry-backoff;
-- teststub og constructor injection;
-- mock-kompatibel orchestratorflyt.
-
-Ikkje ferdig eller eksternt blokkert:
-
-- endeleg SIF RPC-endepunkt og authmodell;
-- endeleg Salesforce-til-P360-mapping og kodeverk;
-- filstrategi og live upload;
-- full kopling av automatisk jobbtriggering og scheduler;
-- integrasjonstest mot P360-miljø.
-
-Sjå [P360 teknisk oversikt](../integrations/p360/teknisk-oversikt.md) for den autoritative detaljstatusen.
+Workeren tek med eit tekstsamandrag og siste versjon av lenkja filer, ikkje
+eit frose brukarvalt innsendingssett. Andre jobbtypar har ikkje tilsvarande
+dokumentbygging. Endeleg mapping, filstrategi, autentisering, ekstern
+transport og godkjenning frå P360 står att. Sjå
+[P360 teknisk oversikt](../integrations/p360/teknisk-oversikt.md) for
+greinforskjellar, kjeldepeikarar og testgrenser.
 
 ## 9. Sikkerheit, tilgang og datagrense
 
@@ -594,7 +603,7 @@ Apex-testar som toler org-spesifikke exceptions kan gi robust CI, men kan også 
 
 ### Til slutt: verifisering
 
-- LWC: `npm test -- --runInBand`
+- LWC: `npm run test:unit -- -- --runInBand`
 - Formatering: `npm run prettier:check`
 - Salesforce: org-avhengig deploy preview, kompilering og fokuserte Apex-testar mot godkjend org
 - Dependencies: les `sfdx-project.json`, package READMEs og permission-/metadata-kontraktar før du endrar eigarskap eller API

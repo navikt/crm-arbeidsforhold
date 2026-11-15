@@ -10,20 +10,20 @@ status: open contract
 
 Dette dokumentet samler P360-operasjoner som er nevnt i Jira-materialet, og skiller mellom det som er relevant for første arkiveringsflyt og det som er fremtidig arbeid.
 
-Operasjonsnamn og felt er henta frå den tilgjengelege SIF PDF-en og representerte i interne DTO-ar. Dei er ikkje åleine tilstrekkelege som produksjonskontrakt: miljø, auth, RPC-envelope, mapping, feilkodar og timeout-/rate-limit-forventningar må stadfestast av P360-teamet.
+Operasjonsnamn og felt er henta frå den tilgjengelege SIF PDF-en og representerte i interne DTO-ar. På `P360Test` finst førebels bygging og serialisering for søknad; dei er ikkje ein stadfesta produksjonskontrakt. Miljø, auth, RPC-envelope, mapping, feilkodar og timeout-/rate-limit-forventningar må stadfestast av P360-teamet.
 
 ## Operasjonsinventar
 
-| Tjeneste          | Operasjon                | Kilde               | Fase         | Repo-status                                                 |
-| ----------------- | ------------------------ | ------------------- | ------------ | ----------------------------------------------------------- |
-| `CaseService`     | `CreateCase`             | CRMAAREG-200 / C2   | MVP-kandidat | PDF-avleidd DTO implementert; mapping og transport manglar. |
-| `CaseService`     | `UpdateCase`, `GetCases` | CRMAAREG-208 / X3   | Recovery     | PDF-avleidde DTO-ar implementerte; runtime manglar.         |
-| `DocumentService` | `CreateDocument`         | CRMAAREG-221 / J2   | MVP-kandidat | PDF-avleidd DTO implementert; mapping og transport manglar. |
-| `DocumentService` | `GetDocuments`           | CRMAAREG-229 / J3   | Recovery     | PDF-avleidd DTO implementert; runtime manglar.              |
-| `FileService`     | `Upload`                 | CRMAAREG-242 / FLS2 | MVP-kandidat | Filparameter er implementert; transport manglar.            |
-| `SupportService`  | `GetCodeTableRows`       | CRMAAREG-175 / K5   | Senere fase  | Kodeverkstyper og responsformat må avklares.                |
-| Ikke bekreftet    | `GetEntitiesExternalIds` | CRMAAREG-266 / X3   | Senere fase  | Tjeneste, request, response og recovery-strategi mangler.   |
-| Ikke bekreftet    | `UploadStream`           | CRMAAREG-250 / FLS3 | Senere fase  | Storfilstrategi og transportkontrakt mangler.               |
+| Tjeneste          | Operasjon                | Kilde               | Fase         | Repo-status                                                              |
+| ----------------- | ------------------------ | ------------------- | ------------ | ------------------------------------------------------------------------ |
+| `CaseService`     | `CreateCase`             | CRMAAREG-200 / C2   | MVP-kandidat | Førebels søknadsmapping på `P360Test`; live transport manglar.           |
+| `CaseService`     | `UpdateCase`, `GetCases` | CRMAAREG-208 / X3   | Recovery     | PDF-avleidde DTO-ar implementerte; runtime manglar.                      |
+| `DocumentService` | `CreateDocument`         | CRMAAREG-221 / J2   | MVP-kandidat | Førebels dokument-/filførespurnad på `P360Test`; live transport manglar. |
+| `DocumentService` | `GetDocuments`           | CRMAAREG-229 / J3   | Recovery     | PDF-avleidd DTO implementert; runtime manglar.                           |
+| `FileService`     | `Upload`                 | CRMAAREG-242 / FLS2 | MVP-kandidat | Filparameter er implementert; transport manglar.                         |
+| `SupportService`  | `GetCodeTableRows`       | CRMAAREG-175 / K5   | Senere fase  | Kodeverkstyper og responsformat må avklares.                             |
+| Ikke bekreftet    | `GetEntitiesExternalIds` | CRMAAREG-266 / X3   | Senere fase  | Tjeneste, request, response og recovery-strategi mangler.                |
+| Ikke bekreftet    | `UploadStream`           | CRMAAREG-250 / FLS3 | Senere fase  | Storfilstrategi og transportkontrakt mangler.                            |
 
 ## MVP-grense
 
@@ -35,7 +35,9 @@ Første implementasjonsløp bør begrenses til den operasjonen som trengs for jo
 - validering før callout
 - lagring av P360-referanse og arkivstatus etter vellykket respons
 
-Filoverføring, kodeverksoppslag og external-ID recovery skal ikke bygges inn i denne første transportkontrakten før de respektive strategiene er avklart.
+Små filer blir serialiserte inline i den lokale `P360Test`-skiva. Reell
+filoverføring, kodeverksoppslag og external-ID recovery må avklarast og
+verifiserast før dei blir ein godkjend ekstern transportkontrakt.
 
 ## Produksjonskontrakt som mangler
 

@@ -1,97 +1,71 @@
-# Dokumentasjon
+# Dokumentasjon for Arbeidsforhold og Aa-registeret
 
-Denne mappa inneheld teknisk dokumentasjon for `crm-arbeidsforhold` og Aa-registeret Salesforce-løysinga.
+Start i [handboka](architecture/aaregisteret-handbok.md) for å forstå
+produktet, brukarvegane og korleis delane heng saman. Bruk kartet nedanfor
+når du har eit konkret spørsmål.
 
-Dokumentasjonen er organisert etter dokumenttype og ansvar. Start i området som passar spørsmålet ditt, og følg lenkene vidare til detaljdokumentasjonen.
+## Finn fram etter behov
 
-## Dokumentasjonskart
-
-| Område               | Innhald                                                                                         | Inngang                                                                            |
-| -------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Kom i gang           | Første lokale oppsett, Mac/Linux/Windows, scratch-org og første PR                              | [Utviklerguide](kom-i-gang.md)                                                     |
-| Arkitektur           | Overordna arkitektur, lagdeling, repositorystruktur og tekniske designval                       | [Arkitektur og design](architecture/README.md)                                     |
-| Pakkeavhengigheiter  | Pakkene vi byggjer på, roller, versjonar og avhengigheitsdiagram                                | [Pakkeavhengigheiter](architecture/pakkeavhengigheiter.md)                         |
-| ADR                  | Architecture Decision Records med kontekst, vurderte alternativ og konsekvensar                 | [ADR-register](adr/README.md)                                                      |
-| Integrasjonar        | Adapterar, klientar, DTO-ar, mapping, auth, retry, logging og integrasjonsspesifikke kontraktar | [Integrasjonar](integrations/README.md)                                            |
-| Domene               | Domenemodell, forretningsomgrep og domenereglar                                                 | [Domenedokumentasjon](domain/README.md)                                            |
-| Brukarflater         | Dokumentasjon for Experience Cloud, interne flater og andre brukarflater                        | [Brukarflater](surfaces/README.md)                                                 |
-| Drift                | Tekniske sjekklister for metadataopprydding og kontrollert org-endring                          | [Salesforce metadataopprydding](operations/salesforce-metadata-cleanup-runbook.md) |
-| CI og leveranse      | Workflowar, triggarar, eksternt ansvar og kjende avgrensingar                                   | [Workflowoversikt](operations/workflows.md)                                        |
-| Kontekst             | Spegla Jira-/Confluence-kontekst og prosjektspesifikke arbeidsnotat                             | [P360-kontekst](context/p360/jira/README.md)                                       |
-| Utviklingsstandardar | Repo-eigd oversikt over standardar, skills og lenker til operativ fasit                         | [Utviklingsstandardar](utviklingsstandarder.md)                                    |
-| Arbeidsflyt          | Integrasjonsflyt, user stories, dokumentasjonsansvar og oppdateringsreglar                      | [Arbeidsflyt og dokumentasjon](arbeidsflyt-og-dokumentasjon.md)                    |
-| Lokalt oppsett       | Scratch-org, avhengigheitskrav, preflight, autofiks, pool, coverage og plattformar              | [Skriptguide](../bin/README.md) og [kommandoreferanse](../bin/COMMANDS.md)         |
-| Utviklarverktøy      | Hooks, staged formatering, behovsstyrt CI og P360-røykprøver                                    | [Støtteskript](../scripts/README.md)                                               |
-
-## P360
-
-For ei samla forklaring av heile løysinga, sjå [Heile løysinga: arkitektur og flyt](architecture/hele-loysinga.md).
-For prioriterte tekniske forbetringar og målmodell, sjå [Forbetringsforslag og målmodell](architecture/forbetringsforslag-og-malmodell.md).
-
-P360-dokumentasjonen ligg under [integrations/p360](integrations/p360/README.md). Viktige repo-eigde dokument er:
-
-- [P360 teknisk oversikt](integrations/p360/teknisk-oversikt.md)
-- [P360 dependency injection og adapterval](integrations/p360/di-og-adapterval.md)
-- [P360 datamodell og asynkron arkiveringsjobb](architecture/p360-data-model-og-arkiveringsjob.md)
-- [P360 SIF RPC-operasjonar og kontraktsstatus](integrations/p360/sif-rpc-operasjonar.md)
-- [P360 SIF API-kontraktar](integrations/p360/sif-api-kontrakter.md)
-- [Lokal implementasjonsstatus mot Jira](context/p360/lokal-implementasjonsstatus.md)
-
-## Altinn-scenario for applikasjonstesting
-
-Planlagt konsumentstyrt teststøtte, ikkje testing av Altinn-integrasjonen:
-
-- [Design, miljøpolicy og cache-alternativ](integrations/altinn/README.md)
-- [Kritisk avklaringsrunde](integrations/altinn/grill.md)
-- [Gjennomføringsplan med krav og oppgåver](integrations/altinn/implementation-plan.md)
-- [Spec: provider-injeksjon i integrasjonspakka](../.github/specs/altinn-provider-injection.md)
-- [Spec: scenario i crm-arbeidsforhold](../.github/specs/altinn-consumer-scenarios.md)
-
-Admin-app og administrasjonsteneste er utsette. Cache-valet og ekstern
-pakkeleveranse er opne gater; dokumenta er ikkje implementasjonsevidens.
+| Eg vil                                   | Start her                                                                                                                                              |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Forstå produktet og arkitekturen         | [Handboka](architecture/aaregisteret-handbok.md), [heile løysinga](architecture/hele-loysinga.md), [domene](domain/README.md)                          |
+| Sjå kva kvar Flow gjer                   | [Flow-katalog](architecture/aareg-flow-katalog.md) og [Flow-diagram](architecture/aareg-flow-diagrammer.md)                                            |
+| Forstå P360 og dei opne kontraktane      | [P360](integrations/p360/README.md) og [datamodell](architecture/p360-data-model-og-arkiveringsjob.md)                                                 |
+| Forstå Altinn og tilgang                 | [Altinn](integrations/altinn/README.md) og [tilgangskjeda](integrations/altinn/tilgangskjede-og-scenario.md)                                           |
+| Finne andre integrasjonar                | [Integrasjonar](integrations/README.md)                                                                                                                |
+| Kartleggje avhengnader                   | [Pakkar](architecture/pakkeavhengigheiter.md) og [kallstader](architecture/aaregisteret-pakkekallsite-matrise.md)                                      |
+| Planleggje testar og syntetiske data     | [Scenario-testplan](testing/aaregisteret-scenario-testplan.md) og [testdatastrategi](testing/aaregisteret-testdata-strategi.md)                        |
+| Finne interne og eksterne flater         | [Brukarflater](surfaces/README.md) og [Admin-app: plan og status](surfaces/aareg-admin-app.md)                                                         |
+| Setje opp utviklingsmiljø                | [Utviklarguide](kom-i-gang.md), [skriptguide](../bin/README.md) og [kommandoreferanse](../bin/COMMANDS.md)                                             |
+| Finne drift og leveranse                 | [Metadataopprydding](operations/salesforce-metadata-cleanup-runbook.md), [workflowar](operations/workflows.md) og [støtteskript](../scripts/README.md) |
+| Lese tekniske val og forslag             | [ADR-register](adr/README.md) og [forbetringsforslag](architecture/forbetringsforslag-og-malmodell.md)                                                 |
+| Finne eldre analysar og testresultat     | [Dokumentasjonsarkivet](archive/README.md)                                                                                                             |
+| Finne standardar og dokumentasjonsansvar | [Utviklingsstandardar](utviklingsstandarder.md) og [arbeidsflyt](arbeidsflyt-og-dokumentasjon.md)                                                      |
 
 ## Diagramregister
 
-Alle Mermaid-diagram er lagra som sjølvstendige `.mmd`-kjelder. Diagram som også er viste inne i eit Markdown-dokument, har i tillegg ei lokal kjeldelenkje ved diagrammet.
+Diagram finst både direkte i Markdown og som eigne Mermaid-kjelder. Start med
+[produktbiletet](architecture/aaregisteret-handbok.md#det-store-biletet),
+[grupperte Flow-diagram](architecture/aareg-flow-diagrammer.md) eller
+[P360-flyten](integrations/p360/kodegjennomgang.md#ein-søknad-på-p360test).
 
-| Diagram                                         | Kjelde                                                                                                            |
-| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| AAREG e-postflyt                                | [AAREG_emailFlow.mmd](AAREG_emailFlow.mmd)                                                                        |
-| AAREG kodebaseflyt                              | [AAREG_codebaseFlowchart.mmd](AAREG_codebaseFlowchart.mmd)                                                        |
-| Alle direkte pakkeavhengigheiter                | [Pakkeoversikt](architecture/pakkeoversikt.mmd)                                                                   |
-| Sentrale samband og minimumskrav mellom pakkane | [Avhengigheitskjerne](architecture/pakkeavhengigheiter-kjerne.mmd)                                                |
-| Versjonskontroll og godkjend autofiks           | [Preflight-flyt](architecture/pakkeversjon-preflight.mmd)                                                         |
-| Application-datamodell                          | [AAREGerDiagramApplication.mmd](AAREGerDiagramApplication.mmd)                                                    |
-| Ny Application-datamodell                       | [AAREGerDiagramApplicationNew.mmd](AAREGerDiagramApplicationNew.mmd)                                              |
-| P360 component architecture                     | [p360-component-diagram.mmd](architecture/p360-component-diagram.mmd)                                             |
-| P360 implementation class diagram               | [p360-class-diagram.mmd](architecture/p360-class-diagram.mmd)                                                     |
-| P360 archive contract-boundary sequence         | [p360-archive-sequence.mmd](architecture/p360-archive-sequence.mmd)                                               |
-| P360 data model relationships                   | [p360-data-model-relationships.mmd](architecture/p360-data-model-relationships.mmd)                               |
-| P360 noverande arkitektur                       | [p360-current-architecture.mmd](integrations/p360/diagrams/p360-current-architecture.mmd)                         |
-| P360 frigivingssekvens                          | [p360-decision-release-sequence.mmd](integrations/p360/diagrams/p360-decision-release-sequence.mmd)               |
-| P360 idempotent jobboppretting                  | [p360-idempotent-job-creation-sequence.mmd](integrations/p360/diagrams/p360-idempotent-job-creation-sequence.mmd) |
-| P360 jobbstatus                                 | [p360-archive-job-state.mmd](integrations/p360/diagrams/p360-archive-job-state.mmd)                               |
-| P360 Jira-avhengigheiter                        | [p360-jira-dependencies.mmd](context/p360/diagrams/p360-jira-dependencies.mmd)                                    |
-| Altinn konsumentstyrte scenario                 | [consumer-scenarios.mmd](integrations/altinn/diagrams/consumer-scenarios.mmd)                                     |
+| Område          | Sjølvstendige diagramkjelder                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Generell flyt   | [E-postflyt](AAREG_emailFlow.mmd), [kodebaseflyt](AAREG_codebaseFlowchart.mmd)                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Data            | [Application-modell](AAREGerDiagramApplication.mmd), [ny Application-modell](AAREGerDiagramApplicationNew.mmd)                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Pakkar          | [Pakkeoversikt](architecture/pakkeoversikt.mmd), [avhengigheitskjerne](architecture/pakkeavhengigheiter-kjerne.mmd), [preflight](architecture/pakkeversjon-preflight.mmd)                                                                                                                                                                                                                                                                                                                                                                            |
+| P360            | [Komponentar](architecture/p360-component-diagram.mmd), [klassar](architecture/p360-class-diagram.mmd), [arkivsekvens](architecture/p360-archive-sequence.mmd), [datamodell](architecture/p360-data-model-relationships.mmd), [arkitekturgrenser](integrations/p360/diagrams/p360-current-architecture.mmd), [frigiving](integrations/p360/diagrams/p360-decision-release-sequence.mmd), [jobboppretting](integrations/p360/diagrams/p360-idempotent-job-creation-sequence.mmd), [jobbstatus](integrations/p360/diagrams/p360-archive-job-state.mmd) |
+| Arbeidskontekst | [P360 Jira-avhengnader](context/p360/diagrams/p360-jira-dependencies.mmd), [Altinn-scenario](integrations/altinn/diagrams/consumer-scenarios.mmd)                                                                                                                                                                                                                                                                                                                                                                                                    |
 
-## Kjeldehierarki
+## Kva er kjelde, forslag og evidens?
 
-- ADR-ar er repoet si normative kjelde for arkitekturbeslutningar.
-- Tekniske arkitektur- og integrasjonsdokument utan `speilkopi: ja` er repo-eigde.
-- Dokument med `speilkopi: ja` er kopierte frå Confluence og skal ikkje endrast her utan at kjelda blir oppdatert.
-- Jira- og Confluence-speil er arbeidskontekst, ikkje ein erstatning for godkjende tekniske beslutningar.
-- GitHub Issues er kjelde for arbeidsoppgåver og opne avklaringar.
+- Kode og metadata viser kva som finst i den **undersøkte greina**. Dei beviser
+  ikkje kva som er installert eller aktivt i eit org.
+- Ein lokal test eller mock beviser berre det den konkrete testen kontrollerer.
+  Ekstern arkivering eller sending krev separat mottaksevidens.
+- Orgobservasjonar og testloggar gjeld den registrerte datoen, versjonen og
+  handlinga. Eldre rapportar ligg i [arkivet](archive/README.md).
+- ADR-ar viser arkitekturval og tilhøyrande beslutningsstatus. Planar og
+  forslag er ikkje det same som levert eller godkjend funksjonalitet.
+- Dokument merkte `speilkopi: ja` er kopierte frå Confluence og skal ikkje
+  endrast her utan at kjelda blir oppdatert. Jira-/Confluence-spegel er
+  kontekst; Issues viser arbeidsoppgåver og opne avklaringar.
 
-Sjå [Arbeidsflyt og dokumentasjon](arbeidsflyt-og-dokumentasjon.md) for korleis desse kjeldene blir brukte saman i ei endring.
+Oppbevar aldri secrets, credentials eller persondata i dokumentasjonen.
+[Repo-README](../README.md) er inngang til oppsett og bidrag.
 
-## Dokumentasjonsprinsipp
+## Bygg nettsida lokalt
 
-Dokumentasjonen skal:
+Frå reporota, med Python 3.11:
 
-- skilje mellom vedtekne val, foreslåtte retningar og opne spørsmål;
-- vise kva som er verifisert i kode eller Salesforce-org;
-- unngå credentials, tokens, cookies, persondata og miljøspesifikke hemmelegheiter;
-- lenke til næraste detaljdokument i staden for å kopiere same innhald fleire stader;
-- beskrive avgrensingar og framtidig migrering når eksisterande kontraktar blir vidareførte.
+```shell
+python3 -m venv .venv-docs
+.venv-docs/bin/python -m pip install --require-hashes --only-binary=:all: -r requirements-docs.txt
+.venv-docs/bin/python -m unittest discover -s docs-site/tests
+.venv-docs/bin/python docs-site/build_docs.py
+.venv-docs/bin/python docs-site/check_site.py site
+```
 
-Sjå også [README.md i repo-roten](../README.md) for oppsett, lokal validering og overordna prosjektinformasjon.
+Bygget ligg i `site/`. Mermaid blir lasta ned under bygging, kontrollert mot
+ein fast hash og servert lokalt saman med lisensen. GitHub Pages blir først
+oppdatert når deploy frå `main` er godkjend og fullført.
