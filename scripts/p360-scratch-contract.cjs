@@ -42,18 +42,26 @@ class ContractFailure extends Error {
  * Builds the platform-specific Salesforce CLI invocation. Windows installs sf as sf.cmd, which Node can only
  * start through cmd.exe, so every argument is quoted to keep spaces and SOQL intact.
  */
-function sfInvocation(platform, args) {
-    if (platform !== 'win32') {
-        return { command: 'sf', args, shell: false };
+function sfInvocation(platform, args, target, environment = process.env) {
+    if (platform === 'win32' && args.some((arg) => /[%!"\r\n]/.test(String(arg)))) {
+        throw new ScratchTargetError('STOP: Unsafe Windows Salesforce CLI argument.');
     }
-    return { command: 'sf', args: args.map((arg) => `"${String(arg).replace(/"/g, '""')}"`), shell: true };
+    const invocation =
+        platform !== 'win32'
+            ? { command: 'sf', args, shell: false }
+            : { command: 'sf', args: args.map((arg) => `"${String(arg).replace(/"/g, '""')}"`), shell: true };
+    if (target) {
+        invocation.env = { ...environment, SF_TARGET_ORG: target, SFDX_DEFAULTUSERNAME: target };
+    }
+    return invocation;
 }
 
-function runSfProcess(args) {
-    const invocation = sfInvocation(process.platform, args);
+function runSfProcess(args, { target } = {}) {
+    const invocation = sfInvocation(process.platform, args, target);
     const result = spawnSync(invocation.command, invocation.args, {
         encoding: 'utf8',
         shell: invocation.shell,
+        env: invocation.env,
         maxBuffer: 64 * 1024 * 1024
     });
     if (result.error) {
@@ -106,11 +114,12 @@ function readDebugResult(result, marker) {
     return JSON.parse(line.split(marker)[1]);
 }
 
-function createContract({ runSf, log, workDirectory }) {
+function createContract({ runSf, log, workDirectory, expectedOrgId }) {
     let target;
+    let runOnTarget;
 
     function deploy(args, description) {
-        const result = runSf([
+        const result = runOnTarget([
             'project',
             'deploy',
             'start',
@@ -145,7 +154,7 @@ function createContract({ runSf, log, workDirectory }) {
 
     function runTests(classNames) {
         // The CLI only allows --synchronous for a single test class.
-        const result = runSf([
+        const result = runOnTarget([
             'apex',
             'run',
             'test',
@@ -164,7 +173,7 @@ function createContract({ runSf, log, workDirectory }) {
     }
 
     function assignPermissionSet(name) {
-        const result = runSf(['org', 'assign', 'permset', '--target-org', target, '--name', name, '--json']);
+        const result = runOnTarget(['org', 'assign', 'permset', '--target-org', target, '--name', name, '--json']);
         const successes = result.result?.successes ?? [];
         const failures = result.result?.failures ?? [];
         const accepted =
@@ -176,7 +185,7 @@ function createContract({ runSf, log, workDirectory }) {
     }
 
     function runApexScript(relativePath, marker) {
-        const result = runSf([
+        const result = runOnTarget([
             'apex',
             'run',
             '--target-org',
@@ -222,7 +231,7 @@ function createContract({ runSf, log, workDirectory }) {
     function inspect() {
         const caseKey = sha256('CaseService/CreateCase\nScratch P360\nscratch-p360-smoke-case-v1');
         const documentKey = sha256('DocumentService/CreateDocument\nScratch P360\nscratch-p360-smoke-document-v1');
-        const result = runSf([
+        const result = runOnTarget([
             'data',
             'query',
             '--target-org',
@@ -289,6 +298,7 @@ function createContract({ runSf, log, workDirectory }) {
             path.join(flagDirectory, 'customMetadata', 'Feature_Flag.P360_Archive_Processing.md'),
             source.replace(FLAG_DISABLED, FLAG_ENABLED)
         );
+        let operationFailure;
         try {
             deploy(['--metadata-dir', flagDirectory], 'The temporary archive-processing flag');
             log('Archive-processing flag temporarily enabled in the scratch org.');
@@ -308,19 +318,31 @@ function createContract({ runSf, log, workDirectory }) {
                     'FAIL: The submission did not produce two accepted receipts in the scratch receiver.'
                 );
             }
+        } catch (error) {
+            operationFailure =
+                error instanceof ContractFailure || error instanceof ScratchTargetError
+                    ? error.message
+                    : error instanceof Error
+                      ? (error.stack ?? error.message)
+                      : String(error);
+            throw error;
         } finally {
             try {
                 deploy(['--source-dir', FLAG_SOURCE], 'The archive-processing flag from source');
                 log('Archive-processing flag restored from source (Is_Enabled__c=false).');
-            } catch {
+            } catch (error) {
                 log(`WARNING: restore the archive-processing flag manually from ${FLAG_SOURCE}.`);
+                if (operationFailure !== undefined) log(`E2E operation also failed: ${operationFailure}`);
+                throw error;
             }
         }
     }
 
     return {
         run(mode) {
-            target = verifyScratchTarget(runSf, log);
+            const verified = verifyScratchTarget(runSf, log, expectedOrgId);
+            target = verified.target;
+            runOnTarget = verified.runSf;
             if (mode === 'verify') deployScratchBundle();
             if (mode === 'verify' || mode === 'test') runTests(['P360_ScratchRpcClientTest']);
             if (mode === 'regression') {
@@ -346,6 +368,7 @@ function createContract({ runSf, log, workDirectory }) {
 function main({
     mode = process.argv[2] ?? 'verify',
     runSf = runSfProcess,
+    expectedOrgId = process.env.AAREG_SCRATCH_ORG_ID,
     log = console.log,
     logError = console.error,
     tempRoot = os.tmpdir()
@@ -356,7 +379,7 @@ function main({
     }
     const workDirectory = fs.mkdtempSync(path.join(tempRoot, 'p360-contract-'));
     try {
-        createContract({ runSf, log, workDirectory }).run(mode);
+        createContract({ runSf, log, workDirectory, expectedOrgId }).run(mode);
         return 0;
     } catch (error) {
         logError(error instanceof ContractFailure || error instanceof ScratchTargetError ? error.message : error.stack);

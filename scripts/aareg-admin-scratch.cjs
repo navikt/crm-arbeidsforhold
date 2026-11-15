@@ -47,11 +47,12 @@ class RunnerFailure extends Error {
     }
 }
 
-function runSfProcess(args) {
-    const invocation = sfInvocation(process.platform, args);
+function runSfProcess(args, { target } = {}) {
+    const invocation = sfInvocation(process.platform, args, target);
     const result = spawnSync(invocation.command, invocation.args, {
         encoding: 'utf8',
         shell: invocation.shell,
+        env: invocation.env,
         maxBuffer: 64 * 1024 * 1024
     });
     if (result.error) {
@@ -83,11 +84,12 @@ function summarize(result) {
     };
 }
 
-function createRunner({ runSf, log, workDirectory }) {
+function createRunner({ runSf, log, workDirectory, expectedOrgId }) {
     let target;
+    let runOnTarget;
 
     function deploy(extra, description) {
-        const result = runSf([
+        const result = runOnTarget([
             'project',
             'deploy',
             'start',
@@ -109,7 +111,7 @@ function createRunner({ runSf, log, workDirectory }) {
 
     function assignPermissionSets() {
         for (const name of PERMISSION_SETS) {
-            const result = runSf(['org', 'assign', 'permset', '--target-org', target, '--name', name, '--json']);
+            const result = runOnTarget(['org', 'assign', 'permset', '--target-org', target, '--name', name, '--json']);
             const failures = result.result?.failures ?? [];
             const accepted =
                 (result.result?.successes ?? []).length + failures.length > 0 &&
@@ -132,7 +134,7 @@ function createRunner({ runSf, log, workDirectory }) {
             [['--dry-run'], 'Test lab deploy preview'],
             [[], 'Test lab deploy']
         ]) {
-            const result = runSf([
+            const result = runOnTarget([
                 'project',
                 'deploy',
                 'start',
@@ -158,7 +160,7 @@ function createRunner({ runSf, log, workDirectory }) {
             file,
             `System.debug(LoggingLevel.INFO, '${TESTLAB_MARKER}' + JSON.serialize(AAREG_AdminTestLab.${call}));\n`
         );
-        const result = runSf(['apex', 'run', '--target-org', target, '--file', file, '--json']);
+        const result = runOnTarget(['apex', 'run', '--target-org', target, '--file', file, '--json']);
         if (result.status !== 0 || result.result?.compiled !== true || result.result?.success !== true) {
             log(
                 JSON.stringify(
@@ -188,7 +190,7 @@ function createRunner({ runSf, log, workDirectory }) {
     }
 
     function runTests(classNames = ADMIN_TESTS) {
-        const result = runSf([
+        const result = runOnTarget([
             'apex',
             'run',
             'test',
@@ -208,7 +210,9 @@ function createRunner({ runSf, log, workDirectory }) {
 
     return {
         run(mode, scenario) {
-            target = verifyScratchTarget(runSf, log);
+            const verified = verifyScratchTarget(runSf, log, expectedOrgId);
+            target = verified.target;
+            runOnTarget = verified.runSf;
             if (mode === 'seed') {
                 deployTestLab();
                 runTests(['AAREG_AdminTestLabTest']);
@@ -239,6 +243,7 @@ function main({
     mode = process.argv[2] ?? 'verify',
     scenario = process.argv[3],
     runSf = runSfProcess,
+    expectedOrgId = process.env.AAREG_SCRATCH_ORG_ID,
     log = console.log,
     logError = console.error
 } = {}) {
@@ -252,7 +257,7 @@ function main({
     }
     const workDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'aareg-admin-'));
     try {
-        createRunner({ runSf, log, workDirectory }).run(mode, scenario);
+        createRunner({ runSf, log, workDirectory, expectedOrgId }).run(mode, scenario);
         return 0;
     } catch (error) {
         logError(error instanceof RunnerFailure || error instanceof ScratchTargetError ? error.message : error.stack);

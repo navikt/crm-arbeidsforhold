@@ -8,17 +8,29 @@ const SCRATCH = {
     isDevHub: false,
     isExpired: false,
     instanceUrl: 'https://example-1.scratch.my.salesforce.com',
-    username: 'scratch@example.com'
+    username: 'scratch@example.com',
+    orgId: 'synthetic-scratch-identity'
 };
 
-function fakeSf({ scratchOrgs = [SCRATCH], isSandbox = true, testsPass = true, apexResult } = {}) {
+function fakeSf({
+    scratchOrgs = [SCRATCH],
+    aliases = [{ alias: SCRATCH.alias, value: SCRATCH.username }],
+    isSandbox = true,
+    testsPass = true,
+    apexResult
+} = {}) {
     const calls = [];
+    const options = [];
     const scripts = [];
-    const runSf = (args) => {
+    const runSf = (args, invocationOptions) => {
         calls.push(args);
+        options.push(invocationOptions);
         const command = args.slice(0, 3).join(' ');
+        if (args[0] === 'alias' && args[1] === 'list') return { status: 0, result: aliases };
         if (command === 'org list auth') return { status: 0, result: scratchOrgs };
-        if (command.startsWith('data query')) return { status: 0, result: { records: [{ IsSandbox: isSandbox }] } };
+        if (command.startsWith('data query')) {
+            return { status: 0, result: { records: [{ Id: SCRATCH.orgId, IsSandbox: isSandbox }] } };
+        }
         if (command === 'org assign permset') return { status: 0, result: { successes: [{}], failures: [] } };
         if (command === 'project deploy start') return { status: 0, result: { success: true } };
         if (command === 'apex run test') {
@@ -33,7 +45,7 @@ function fakeSf({ scratchOrgs = [SCRATCH], isSandbox = true, testsPass = true, a
         }
         throw new Error(`Unexpected sf call: ${args.join(' ')}`);
     };
-    return { calls, scripts, runSf };
+    return { calls, options, scripts, runSf };
 }
 
 function apexOk(result) {
@@ -47,12 +59,13 @@ function apexOk(result) {
     };
 }
 
-function run(mode, sf, scenario) {
+function run(mode, sf, scenario, expectedOrgId = SCRATCH.orgId) {
     const output = [];
     const code = main({
         mode,
         scenario,
         runSf: sf.runSf,
+        expectedOrgId,
         log: (line) => output.push(line),
         logError: (line) => output.push(line)
     });
@@ -64,7 +77,10 @@ test('verify identifies the scratch target from local authorizations without lis
     const { code, output } = run('verify', sf);
 
     assert.equal(code, 0, output);
-    assert.deepEqual(sf.calls[0], ['org', 'list', 'auth', '--json']);
+    assert.deepEqual(sf.calls.slice(0, 2), [
+        ['alias', 'list', '--json'],
+        ['org', 'list', 'auth', '--json']
+    ]);
     assert.ok(!sf.calls.some((args) => args.slice(0, 3).join(' ') === 'org list --skip-connection-status'));
 });
 
@@ -75,7 +91,19 @@ test('refuses an org that is not the identified crm-arbeidsforhold scratch org',
 
     assert.equal(code, 1);
     assert.match(output, /STOP/);
-    assert.equal(sf.calls.length, 1, 'nothing may run after a refused target');
+    assert.equal(sf.calls.length, 2, 'nothing may run after a refused target');
+});
+
+test('refuses a colliding username alias before the admin runner contacts an org', () => {
+    const sf = fakeSf({
+        aliases: [
+            { alias: SCRATCH.alias, value: SCRATCH.username },
+            { alias: SCRATCH.username, value: 'another-org@example.com' }
+        ]
+    });
+
+    assert.equal(run('verify', sf).code, 1);
+    assert.ok(!sf.calls.some((args) => args[0] === 'data' || args[0] === 'project'));
 });
 
 test('refuses an org that does not confirm IsSandbox', () => {
@@ -101,6 +129,9 @@ test('verify previews before deploying, assigns the viewer, then runs the admin 
     for (const args of [...deploys, ...sf.calls.filter((a) => a[0] === 'apex' || a[1] === 'assign')]) {
         assert.equal(args[args.indexOf('--target-org') + 1], SCRATCH.username, 'always targets the verified username');
     }
+    sf.calls.forEach((args, index) => {
+        if (args.includes('--target-org')) assert.equal(sf.options[index]?.target, SCRATCH.username);
+    });
     const permsets = sf.calls.filter((args) => args[1] === 'assign').map((args) => args[args.indexOf('--name') + 1]);
     assert.deepEqual(permsets, ['AAREG_Admin_Viewer']);
     const testRun = sf.calls.find((args) => args.slice(0, 3).join(' ') === 'apex run test');
