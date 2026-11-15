@@ -4,7 +4,7 @@
     <deprecated>false</deprecated>
     <label>Process status</label>
     <required>false</required>
-    <trackHistory>false</trackHistory>
+    <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>

@@ -1,6 +1,6 @@
 ---
 slug: aareg-admin-app
-status: proposed
+status: approved
 ---
 
 # Aa-register Admin app
@@ -93,14 +93,20 @@ An internal Lightning app gives Team Arbeidsforhold one place to see the current
 - Security review covers sharing, USER_MODE, payload exposure, and permission sets before PR.
 - SIT2 deployment happens only after explicit target/action approval; production requires Team Platforce approval and human execution.
 
-## Open decisions
+## Decisions (F0, 2026-11-15)
 
-1. App label change to "Aa-register Admin".
-2. Who gets `AAREG_Admin_Viewer`, and whether it grants `View All` on main objects.
-3. Fields to set `trackHistory=true` on (proposal: status, owner, deadline, decision outcome; max 20 per object).
-4. Whether log payloads may be displayed.
-5. Whether access diagnosis may inspect other users.
-6. Whether the app is rolled out to production or kept to scratch and SIT2.
+Decided by the implementing agent on the product owner's instruction to resolve questions it can answer itself. Each choice is the most conservative option that still delivers the outcome; any of them can be widened later by a human decision.
+
+1. **App label:** keep `Arbeidsforhold Admin`. The existing label is user-visible text; changing it is not needed for the outcome.
+2. **`AAREG_Admin_Viewer`:** read-only object and field access, no `View All`, no `Modify All`. Record visibility still follows sharing. Assign it to developers and testers in scratch; assignment in SIT2/prod is a human access decision.
+3. **Field history:** track `Application__c.Status__c`, `Casehandler_Status__c`, `CasehandlerOwner__c`, `ApplicationDeadlineForReply__c`, `Application_Decision__c.Process_status__c`, and `Inquiry__c.Status__c`. They are status, owner, and deadline fields without personal content, well below the 20-field limit.
+4. **Log payloads:** never shown. `Pay_Load__c` is not queried. `Log_Message__c` is shown truncated to 255 characters and only through user-mode FLS.
+5. **Access diagnosis:** current user only.
+6. **Rollout:** scratch and SIT2. Production only after Team Platforce approval and human execution.
+
+Placement: packaged admin source lives in `force-app/internalAdmin/`; scratch-only test lab in `scripts/scratch/admin/`.
+
+Test lab safety: seeded data must not start external side effects. Agreements are created with `Status__c = 'Under review'` (an `Active` insert starts the distribution-access callout), applications are inserted, never updated (a `Casehandler_Status__c` update sends email), and inquiries never use the security-breach or solution-error types (they send SMS).
 
 ## Out of scope
 

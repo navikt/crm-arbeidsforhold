@@ -1,0 +1,19 @@
+<template>
+    <div class="slds-p-around_small">
+        <ul class="slds-has-dividers_bottom-space">
+            <template for:each={links} for:item="link">
+                <li key={link.key} class="slds-item">
+                    <a href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>
+                    <p class="slds-text-body_small slds-text-color_weak">{link.description}</p>
+                </li>
+            </template>
+        </ul>
+        <div class="slds-m-top_medium">
+            <p class="slds-text-title_bold">Testlab (berre scratch)</p>
+            <p class="slds-text-body_small">Køyr i VS Code-terminalen:</p>
+            <p class="slds-text-body_small"><code>npm run admin:scratch -- seed p360-feila</code></p>
+            <p class="slds-text-body_small"><code>npm run admin:scratch -- inspect</code></p>
+            <p class="slds-text-body_small"><code>npm run admin:scratch -- reset</code></p>
+        </div>
+    </div>
+</template>

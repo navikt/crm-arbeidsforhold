@@ -1,6 +1,6 @@
 # Aa-register Admin: plan
 
-Status: forslag til vedtak. Spec: [.github/specs/aareg-admin-app.md](../../.github/specs/aareg-admin-app.md).
+Status: vedteke 2026-11-15, under arbeid. Spec: [.github/specs/aareg-admin-app.md](../../.github/specs/aareg-admin-app.md).
 
 ## 1. Kva er problemet?
 
@@ -180,9 +180,36 @@ Svaret er ei forklaring, ikkje ei tildeling. Tildeling skjer framleis i Setup. D
 
 Testlaben skal kontrollere at målet er ein scratch-org (`Organization.IsSandbox=true` og scratch-domene) før han endrar noko.
 
+#### Slik brukar du testlaben
+
+Køyr kommandoane i ein terminal i VS Code, eller vel **Terminal → Run Task** og ei av oppgåvene som byrjar med «Admin test lab». Kommandoane er like på macOS, Linux og Windows.
+
+| Steg | Kommando                                   | Kva skjer                                                                                     |
+| ---- | ------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| 1    | `npm run admin:scratch -- seed p360-feila` | Lagar eitt scenario. Byt ut `p360-feila` med eit anna namn frå tabellen under.                |
+| 2    | `npm run admin:scratch -- inspect`         | Viser alle testlab-søknader med søknadsnummer, status og P360-jobbstatus.                     |
+| 3    | Opne appen **Arbeidsforhold Admin**        | Sjå scenarioet på heimesida, i Integrasjonsmonitoren og i Saksreisa (søk på søknadsnummeret). |
+| 4    | `npm run admin:scratch -- reset`           | Slettar berre testlab-postar. Anna data blir ikkje rørt.                                      |
+
+| Scenario            | Kva du får                                                         | Kvar du ser det                                                |
+| ------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------- |
+| `soknad-ny`         | Ny søknad som ikkje er sendt inn og ikkje har P360-jobb            | Heimesida («Søknader per status»), Saksreisa                   |
+| `p360-arkivert`     | Innsend søknad med vellukka P360-jobb                              | Monitoren (`Succeeded`), Saksreisa utan «Arkivert» som manglar |
+| `p360-feila`        | Innsend søknad der P360-jobben har feila og ikkje blir prøvd igjen | Monitoren (`Failed`, feilkode `TESTLAB_SYNTHETIC_FAILURE`)     |
+| `p360-manuell`      | Innsend søknad der P360-jobben ventar på manuell vurdering         | Monitoren (`Manual Review`)                                    |
+| `p360-utgatt-lease` | Innsend søknad der P360-jobben står fast med utgått lease          | Heimesida («P360-jobbar med utgått lease»), Monitoren          |
+
+Kvifor dette er trygt:
+
+- **Berre scratch.** Køyraren kontrollerer alias, scratch-domene og `IsSandbox=true` før han gjer noko. Apex-klassen kontrollerer det same éin gong til.
+- **Ikkje i pakka.** `AAREG_AdminTestLab` ligg i `scripts/scratch/admin/`, og testen ligg i `force-app/tests/classes/internalAdmin/scratch/`, som `.forceignore` held utanfor pakka. Køyraren deployar dei som upakka metadata.
+- **Ingen kall ut.** P360-jobbane blir berre laga med statusar som arkivarbeidaren aldri hentar (`Succeeded`, `Manual Review`, `In Progress`, og `Failed` utan neste forsøk). Ein Apex-test sjekkar dette. Køyraren stoppar om ein operasjon rapporterer eitt eller fleire kall.
+- **Merkte postar.** Kontoane heiter `AAREG TESTLAB <scenario> <tidsstempel>`, og jobbane har nøkkel `AAREG-TESTLAB-…`. `reset` slettar berre det som er merkt.
+- **Brukartilgang.** All lesing og skriving skjer i brukarmodus. Ein brukar utan tilgang til objekta får feil, ikkje data.
+
 ### 5.8 Hjelp
 
-Kvar side har ein kort tekst øvst om kva ho viser og kva som er normalt. Verktøylinja har lenkjer til [heile løysinga](../architecture/hele-loysinga.md), [Flow-katalogen](../architecture/aareg-flow-katalog.md), [P360 scratch-guiden](../integrations/p360/scratch-brukarguide.md) og [testplanen](../testing/aaregisteret-scenario-testplan.md).
+Kvar side har ein kort tekst øvst om kva ho viser og kva som er normalt. Verktøylinja nedst i appen har knappen **Help**, som opnar komponenten `aaregAdminHelp`. Han har lenkjer til denne guiden, [heile løysinga](../architecture/hele-loysinga.md), [Flow-katalogen](../architecture/aareg-flow-katalog.md), [P360 scratch-guiden](../integrations/p360/scratch-brukarguide.md) og [testplanen](../testing/aaregisteret-scenario-testplan.md), og han viser testlab-kommandoane. Lenkjene peikar til `main` på GitHub og verkar først når dokumenta er merga.
 
 ## 6. Fasar
 
@@ -213,16 +240,20 @@ flowchart LR
 | F7   | Tilgangsdiagnose                                 | F1, tilgangsvedtak  | Diagnosen stemmer med faktiske tilgangar for tre testbrukarar |
 | F8   | Hjelp, security-review, dokumentasjon, utrulling | F5, F6, F7          | Review er gjennomført; SIT2 er verifisert etter godkjenning   |
 
-## 7. Opne vedtak
+## 7. Vedtak (F0, 2026-11-15)
 
-| Vedtak                                                                                    | Kvifor det trengst                                                            | Kven                     |
-| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------ |
-| Skal etiketten på `Arbeidsforhold_Admin` endrast til «Aa-register Admin»?                 | Endrar eksisterande tekst brukarane ser                                       | Produkteigar             |
-| Kven skal ha `AAREG_Admin_Viewer`, og skal han gje `View All` på hovudobjekta?            | Persondata og private objekt; raud sone                                       | Produkteigar, sikkerheit |
-| Kva felt skal ha `trackHistory=true`? Status, eigar, frist og vedtaksutfall er forslaget. | Saksreisa kan ikkje vise endringar utan sporing; grense på 20 felt per objekt | Produkteigar             |
-| Skal monitoren vise payloadar frå `Application_Log__c`?                                   | Kan innehalde persondata                                                      | Sikkerheit               |
-| Skal tilgangsdiagnose kunne sjå andre brukarar enn ein sjølv?                             | Krev lesing av andre sine tilgangar                                           | Sikkerheit               |
-| Skal appen rullast ut til produksjon, eller berre scratch og SIT2?                        | Produksjonsmetadata krev Team Platforce-godkjenning                           | Team Platforce           |
+Produkteigar bad agenten avgjere spørsmåla han kunne svare på sjølv. Alle vala er dei mest forsiktige som framleis gir det appen skal levere. Kvart val kan utvidast seinare med ei menneskeleg avgjerd.
+
+| Spørsmål                            | Vedtak                                                                                                                                                      | Kvifor                                                            |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Ny etikett «Aa-register Admin»?     | Nei, `Arbeidsforhold Admin` blir ståande                                                                                                                    | Eksisterande tekst; ikkje nødvendig for målet                     |
+| `AAREG_Admin_Viewer` og `View All`? | Berre lesing, ingen `View All` eller `Modify All`                                                                                                           | Sharing gjeld framleis; private objekt blir ikkje opna            |
+| Kva felt blir sporte?               | Søknad: `Status__c`, `Casehandler_Status__c`, `CasehandlerOwner__c`, `ApplicationDeadlineForReply__c`. Vedtak: `Process_status__c`. Henvending: `Status__c` | Status, eigar og frist, utan persondata; langt under grensa på 20 |
+| Payloadar frå loggen?               | Aldri. Loggmeldinga blir vist avkorta med FLS                                                                                                               | Payloadar kan innehalde persondata                                |
+| Diagnose av andre brukarar?         | Nei, berre eigen brukar                                                                                                                                     | Krev lesing av andre sine tilgangar                               |
+| Produksjon?                         | Scratch og SIT2. Produksjon berre etter Team Platforce-godkjenning og menneskeleg utføring                                                                  | Org-reglane                                                       |
+
+**Testlaben startar ingen eksterne kall.** Avtalar blir oppretta med status `Under review`, fordi `Active` ved oppretting startar callout til distribusjonstilgang. Søknader blir berre sette inn, aldri oppdaterte, fordi endring av saksbehandlarstatus sender e-post. Henvendingar brukar aldri typane «Sikkerhetsbrudd» eller «Feil i løsningen», fordi dei sender SMS.
 
 ## 8. Teststrategi
 
@@ -251,3 +282,20 @@ Epic: [#1186](https://github.com/navikt/crm-arbeidsforhold/issues/1186).
 | F6   | [#1193](https://github.com/navikt/crm-arbeidsforhold/issues/1193) Saksreise                          |
 | F7   | [#1194](https://github.com/navikt/crm-arbeidsforhold/issues/1194) Tilgangsdiagnose                   |
 | F8   | [#1195](https://github.com/navikt/crm-arbeidsforhold/issues/1195) Hjelp, review og utrulling         |
+
+## 10. Status (15.11.2026)
+
+Alt under er verifisert i scratch-orgen `crm-arbeidsforhold`. Koden ligg berre i den lokale arbeidskopien og er ikkje committa. Issuane står opne til endringa er merga via PR.
+
+| Fase | Status               | Evidens                                                                                                 |
+| ---- | -------------------- | ------------------------------------------------------------------------------------------------------- |
+| F1   | Verifisert i scratch | Appen med 15 faner, `AAREG_Admin_Viewer` tildelt                                                        |
+| F2   | Verifisert i GUI     | Fliser og «Vis postar» stemmer med testlab-data                                                         |
+| F3   | Verifisert i GUI     | Konfigurasjonssida viser flagg, mock-transport og triggerar                                             |
+| F4   | Verifisert i GUI     | Monitoren viser `Failed`, `Manual Review` og utgått lease frå testlaben                                 |
+| F5   | Verifisert i scratch | Fem scenario laga, inspisert og nullstilte. 0 kall ut. 5 av 5 Apex-testar og 10 av 10 Node-testar grøne |
+| F6   | Verifisert i GUI     | Saksreisa for S-000721: datofelt utan klokkeslett, P360-jobb tel som arkivert                           |
+| F7   | Verifisert i GUI     | Profil, permission set og forklaring per objekt                                                         |
+| F8   | Delvis               | Help-panelet er verifisert i GUI. Security-review utan funn. PR og SIT2 står att                        |
+
+Apex for admin-appen: 23 av 23 grøne. LWC Jest: 16 av 16 grøne.

@@ -52,6 +52,8 @@
 
 # Unpackaged scratch-only P360 contract tests; deployed by p360-scratch-contract.cjs
 force-app/tests/classes/integration/p360/scratch/**
+# Unpackaged scratch-only Arbeidsforhold Admin test lab tests; deployed by aareg-admin-scratch.cjs
+force-app/tests/classes/internalAdmin/scratch/**
 
 # Salesforce-managed defaults retrieved into the ignored src-temp directory
 **/settings/RealTimeEvent.settings-meta.xml
