@@ -521,7 +521,12 @@ private class AAREG_ApplicationControllerTest {
         Map<Id, String> expectedTitles = new Map<Id, String>();
         for (ContentVersion version : insertedVersions) {
             links.add(
-                new ContentDocumentLink(LinkedEntityId = application.Id, ContentDocumentId = version.ContentDocumentId)
+                new ContentDocumentLink(
+                    LinkedEntityId = application.Id,
+                    ContentDocumentId = version.ContentDocumentId,
+                    ShareType = 'I',
+                    Visibility = 'AllUsers'
+                )
             );
             expectedTitles.put(version.ContentDocumentId, version.Title);
         }
@@ -557,19 +562,15 @@ private class AAREG_ApplicationControllerTest {
         grantCommunityPermissions(communityUser);
         Application__c application = createAttachmentTestApplication(communityUser, '929882989');
 
-        Boolean rejected = false;
         System.Test.startTest();
-        System.runAs(communityUser) {
-            try {
-                AAREG_ApplicationController.getApplicationAttachments(application.Id);
-            } catch (AuraHandledException error) {
-                rejected = true;
-            }
-            System.Assert.areEqual(0, Limits.getCallouts());
-        }
+        String error = readAttachmentAccessError(communityUser, application.Id);
         System.Test.stopTest();
 
-        System.Assert.isTrue(rejected, 'A different organization must not be able to read attachments.');
+        System.Assert.areEqual(
+            AAREG_ApplicationController.ATTACHMENT_ACCESS_DENIED,
+            error,
+            'A different organization must not be able to read attachments.'
+        );
     }
 
     /**
@@ -586,19 +587,94 @@ private class AAREG_ApplicationControllerTest {
             communityUser.LastUsedOrganization__c
         );
 
-        Boolean rejected = false;
+        System.Test.startTest();
+        String error = readAttachmentAccessError(communityUser, application.Id);
+        System.Test.stopTest();
+
+        System.Assert.areEqual(
+            AAREG_ApplicationController.ATTACHMENT_ACCESS_DENIED,
+            error,
+            'Altinn denial must prevent access to attachments.'
+        );
+    }
+
+    /**
+     * Rejects attachment access when the Altinn decision cannot be verified.
+     *
+     * @since 2026-11-15
+     */
+    @IsTest
+    private static void shouldRejectAttachmentsWhenRightsCannotBeVerified() {
+        User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S07', 'subject-a');
+        grantCommunityPermissions(communityUser);
+        Application__c application = createAttachmentTestApplication(
+            communityUser,
+            communityUser.LastUsedOrganization__c
+        );
+
+        System.Test.startTest();
+        String error = readAttachmentAccessError(communityUser, application.Id);
+        System.Test.stopTest();
+
+        System.Assert.areEqual(
+            AAREG_ApplicationController.ATTACHMENT_ACCESS_UNVERIFIED,
+            error,
+            'An unverifiable Altinn decision must not grant access to attachments.'
+        );
+    }
+
+    /**
+     * Does not return files that are shared with internal users only.
+     *
+     * @since 2026-11-15
+     */
+    @IsTest
+    private static void shouldNotReturnInternalOnlyAttachments() {
+        User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S01', 'subject-a');
+        grantCommunityPermissions(communityUser);
+        Application__c application = createAttachmentTestApplication(
+            communityUser,
+            communityUser.LastUsedOrganization__c
+        );
+        ContentVersion version = new ContentVersion(
+            Title = 'Internal note',
+            PathOnClient = 'internal-note.txt',
+            VersionData = Blob.valueOf('internal')
+        );
+        insert version;
+        version = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :version.Id];
+        insert new ContentDocumentLink(
+            LinkedEntityId = application.Id,
+            ContentDocumentId = version.ContentDocumentId,
+            ShareType = 'I',
+            Visibility = 'InternalUsers'
+        );
+
+        List<AAREG_ApplicationController.AttachmentSelection> attachments;
         System.Test.startTest();
         System.runAs(communityUser) {
-            try {
-                AAREG_ApplicationController.getApplicationAttachments(application.Id);
-            } catch (AuraHandledException error) {
-                rejected = true;
-            }
-            System.Assert.areEqual(0, Limits.getCallouts());
+            attachments = AAREG_ApplicationController.getApplicationAttachments(application.Id);
         }
         System.Test.stopTest();
 
-        System.Assert.isTrue(rejected, 'Altinn denial must prevent access to attachments.');
+        System.Assert.isTrue(attachments.isEmpty(), 'Internal-only files must not be exposed to portal users.');
+    }
+
+    private static String readAttachmentAccessError(User communityUser, Id applicationId) {
+        String message;
+        System.runAs(communityUser) {
+            try {
+                AAREG_ApplicationController.getApplicationAttachments(applicationId);
+            } catch (AuraHandledException error) {
+                message = error.getMessage();
+            }
+            System.Assert.areEqual(
+                0,
+                Limits.getCallouts(),
+                'Synthetic Altinn scenarios must not call external services.'
+            );
+        }
+        return message;
     }
 
     private static void grantCommunityPermissions(User communityUser) {

@@ -8,6 +8,10 @@ public without sharing class AAREG_ApplicationController {
     private static final String DRAFT_APPLICATION = 'Draft';
     private static final String NEW_APPLICATION = 'New';
     private static final String IN_PROGRESS = 'In Progress';
+    @TestVisible
+    private static final String ATTACHMENT_ACCESS_DENIED = 'Access to the application is denied.';
+    @TestVisible
+    private static final String ATTACHMENT_ACCESS_UNVERIFIED = 'Unable to verify application access.';
     private static Datetime dt = System.now();
     @TestVisible
     private static Boolean forceSanitizeAllowedBranch = false;
@@ -86,7 +90,7 @@ public without sharing class AAREG_ApplicationController {
     @AuraEnabled
     public static List<AttachmentSelection> getApplicationAttachments(Id applicationId) {
         if (applicationId == null) {
-            throw new AuraHandledException('An application is required.');
+            throw attachmentAccessError('An application is required.');
         }
 
         List<Application__c> applications = [
@@ -97,7 +101,7 @@ public without sharing class AAREG_ApplicationController {
             LIMIT 1
         ];
         if (applications.isEmpty()) {
-            throw new AuraHandledException('Access to the application is denied.');
+            throw attachmentAccessError(ATTACHMENT_ACCESS_DENIED);
         }
 
         User currentUser = [
@@ -108,7 +112,7 @@ public without sharing class AAREG_ApplicationController {
         ];
         String organizationNumber = currentUser.LastUsedOrganization__c;
         if (String.isBlank(organizationNumber) || organizationNumber != applications[0].OrganizationNumber__c) {
-            throw new AuraHandledException('Access to the application is denied.');
+            throw attachmentAccessError(ATTACHMENT_ACCESS_DENIED);
         }
 
         AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(
@@ -128,10 +132,10 @@ public without sharing class AAREG_ApplicationController {
             }
         }
         if (denied) {
-            throw new AuraHandledException('Access to the application is denied.');
+            throw attachmentAccessError(ATTACHMENT_ACCESS_DENIED);
         }
         if (response?.success != true || !permitted) {
-            throw new AuraHandledException('Unable to verify application access.');
+            throw attachmentAccessError(ATTACHMENT_ACCESS_UNVERIFIED);
         }
 
         List<AttachmentSelection> attachments = new List<AttachmentSelection>();
@@ -148,6 +152,12 @@ public without sharing class AAREG_ApplicationController {
             attachments.add(attachment);
         }
         return attachments;
+    }
+
+    private static AuraHandledException attachmentAccessError(String message) {
+        AuraHandledException error = new AuraHandledException(message);
+        error.setMessage(message);
+        return error;
     }
 
     private static Access_Request__c getAccessRequest(Id applicationId) {
