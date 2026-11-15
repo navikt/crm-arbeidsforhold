@@ -6,6 +6,9 @@ til konkrete testar og historisk evidens. Det er eit arbeidsgrunnlag for
 [testplanen](https://github.com/navikt/crm-arbeidsforhold/issues/1181), ikkje
 ein påstand om at desse scenarioa er komplett testa.
 
+Kjeldelenkjene viser til den undersøkte `P360Test`-versjonen, ikkje
+nødvendigvis til koden på `main`.
+
 ## Felles rammer
 
 - **Mål:** eksisterande scratch-org `crm-arbeidsforhold`. Verifiser eksplisitt
@@ -14,8 +17,8 @@ ein påstand om at desse scenarioa er komplett testa.
   `AGENTS.md`. Andre ikkje-produksjonsorg krev fersk mål-/handlingsgodkjenning;
   produksjon er forbode. Respekter native verktøygodkjenningar.
 - **Testdata:** bruk isolerte, syntetiske data og eksisterande
-  [P360_TestDataFactory](../../../force-app/tests/classes/integration/p360/test/P360_TestDataFactory.cls)
-  og [AAREG_TestDataFactory](../../../force-app/utility/classes/AAREG_TestDataFactory.cls).
+  [P360_TestDataFactory](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/test/P360_TestDataFactory.cls)
+  og [AAREG_TestDataFactory](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/utility/classes/AAREG_TestDataFactory.cls).
   Ikkje bruk faktiske dokument, identitetar eller kontaktopplysningar.
 - **Aktør:** testane nedanfor brukar mellom anna ein minimumstilgangsbrukar
   med dei eksplisitte permission-seta som den enkelte testklassen tildeler.
@@ -41,7 +44,7 @@ jobbar. **Testseam:** Apex-service, ikkje samtidig scheduler-køyring.
 4. Gjenta med ulike avgjerds- og avtalehendingar etter behov; ein annan
    filversjon er ein annan identitet og skal ikkje forvekslast med retry.
 
-**Kjelde:** [service-testen](../../../force-app/tests/classes/integration/p360/job/P360_ArchiveJobServiceTest.cls)
+**Kjelde:** [service-testen](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/job/P360_ArchiveJobServiceTest.cls)
 har separate testar for ApplicationDocument, ApplicationAttachment,
 DecisionDocument og AgreementDocument. Dei to første kontrollerer òg
 databaseradeteljing per nøkkel.
@@ -68,14 +71,14 @@ ikkje-retrybar feil eller oppbrukt forsøksgrense går til manuell vurdering.
    kontroller `Manual Review`; kontroller separat at ikkje-retrybar feil
    ikkje får automatisk retry.
 
-**Kjelder:** [worker-testen](../../../force-app/tests/classes/integration/p360/job/P360_ArchiveJobWorkerTest.cls#L203)
-og [claim-testen](../../../force-app/tests/classes/integration/p360/job/P360_ArchiveJobClaimServiceTest.cls#L75).
+**Kjelder:** [worker-testen](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/job/P360_ArchiveJobWorkerTest.cls#L203)
+og [claim-testen](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/job/P360_ArchiveJobClaimServiceTest.cls#L75).
 Worker-testen kontrollerer framtidig retry-tid, men ikkje alle eksakte
 backoff-intervall. Den set maksimalgrensa direkte i fixture i staden for å
 simulere alle forsøk ende-til-ende.
 
 **Avgrensing:** ein utgått `In Progress`-lease blir ikkje automatisk henta
-opp att av [dagens claim-query](../../../force-app/integration/p360/classes/job/P360_ArchiveJobClaimService.cls#L29).
+opp att av [dagens claim-query](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/integration/p360/classes/job/P360_ArchiveJobClaimService.cls#L29).
 Timeout mot ekte P360, nøyaktig tidsplan og full recovery er ikkje bevist av
 desse testane. Sjå [retry- og recoveryarbeidet](https://github.com/navikt/crm-arbeidsforhold/issues/1015).
 
@@ -94,10 +97,10 @@ desse testane. Sjå [retry- og recoveryarbeidet](https://github.com/navikt/crm-a
 4. For ein allereie claima jobb, slå flagget av før worker og kontroller at
    jobben blir tilbakeført og ikkje registrerer nytt adapterforsøk.
 
-**Kjelder:** [ContentVersion-testen](../../../force-app/tests/classes/integration/p360/P360_ContentVersionArchiveHandlerTest.cls#L55),
-[scheduler-testen](../../../force-app/tests/classes/integration/p360/job/P360_ArchiveJobSchedulerTest.cls#L53)
-og [worker-testen](../../../force-app/tests/classes/integration/p360/job/P360_ArchiveJobWorkerTest.cls#L403).
-[Gate-koden](../../../force-app/integration/p360/classes/P360_ArchiveProcessingGate.cls#L23)
+**Kjelder:** [ContentVersion-testen](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/P360_ContentVersionArchiveHandlerTest.cls#L55),
+[scheduler-testen](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/job/P360_ArchiveJobSchedulerTest.cls#L53)
+og [worker-testen](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/job/P360_ArchiveJobWorkerTest.cls#L403).
+[Gate-koden](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/integration/p360/classes/P360_ArchiveProcessingGate.cls#L23)
 fangar `FeatureToggleException` og returnerer `false`.
 
 **Attstår:** ein eksplisitt test som injiserer denne lesefeilen og observerer
@@ -115,10 +118,10 @@ catch-grein er ikkje i seg sjølv eit testresultat.
 3. Køyr ein claima jobb med injisert stub og kontroller `Succeeded` og
    `Last_Attempt_Date__c`.
 
-**Kjelder:** [factory-test](../../../force-app/tests/classes/integration/p360/adapter/P360_AdapterFactoryTest.cls#L68),
-[stub-test](../../../force-app/tests/classes/integration/p360/adapter/P360_StubArchiveAdapterTest.cls#L16)
-og [worker-test](../../../force-app/tests/classes/integration/p360/job/P360_ArchiveJobWorkerTest.cls#L311).
-Den historiske [mock-smoke-loggen](test-log.md#runde-2026-11-05--automatisk-preflight-og-mock-smoke)
+**Kjelder:** [factory-test](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/adapter/P360_AdapterFactoryTest.cls#L68),
+[stub-test](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/adapter/P360_StubArchiveAdapterTest.cls#L16)
+og [worker-test](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/job/P360_ArchiveJobWorkerTest.cls#L311).
+Den historiske [mock-smoke-loggen](../../archive/p360/test-logg-2026-11.md#runde-2026-11-05--automatisk-preflight-og-mock-smoke)
 rapporterer to vellykka mock-jobbar etter etterkontroll, medan runneren sjølv
 returnerte exitkode 1. Det er ikkje eit nytt testresultat.
 
@@ -141,7 +144,7 @@ eigne godkjenningar; det er ikkje del av mock-testen.
    opp etter godkjend plan.
 
 **Status: BLOCKED — testharness og trygg parallellkøyring er ikkje avklarte.**
-[Scheduler-testen](../../../force-app/tests/classes/integration/p360/job/P360_ArchiveJobSchedulerTest.cls#L16)
+[Scheduler-testen](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/job/P360_ArchiveJobSchedulerTest.cls#L16)
 kontrollerer éi køyring, ikkje konkurranse. Claim-queryen bruker ikkje
 `FOR UPDATE`; det er ein identifisert konkurranserisiko, ikkje bevis på
 korleis ei konkret parallellkøyring fall ut.
@@ -150,7 +153,7 @@ omfattar atomisk claim og recovery.
 
 ## P02 — innsending med eksisterande vedlegg
 
-[P02-loggen](test-log.md#p02-ny-lesekontroll-av-innstillingar--2026-11-12)
+[P02-loggen](../../archive/p360/test-logg-2026-11.md#p02-ny-lesekontroll-av-innstillingar--2026-11-12)
 registrerer at brukaren 2026-11-12 sende inn søknaden og rapporterte
 kvittering, synleg testfil og ingen P360-jobb ved undersøking av både søknad
 og tilgangsforespurnad. Dette er **brukarrapportert observasjon**, ikkje

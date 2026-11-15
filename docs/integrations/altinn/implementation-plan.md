@@ -1,5 +1,9 @@
 # Implementation Plan: Konsumentstyrte Altinn-scenario
 
+> **Historisk plan frå 2026-10-20:** Statusane og testresultata under gjeld
+> arbeidet som vart omtalt då, ikkje automatisk dagens kode eller org.
+> Start i [Altinn-oversikta](README.md) for gjeldande inngang.
+
 **Dato:** 2026-10-20  
 **Status:** T005–T013 er dry-run-verifiserte. D01 er valt A, og T014–T016 er
 gjennomførte. Fokusert Apex-regresjon gav 80/80 grøne testar
@@ -101,7 +105,7 @@ Installert 0.177.0.4 er verifisert med godkjend pakkeinspeksjon og ein grøn
 konsumentgrensetest i dry-run `0AfJW00000nmREb0AM`. Brukaren godkjende deretter
 eksakt manifestversjon. Ingen installasjon eller publisering er utført her;
 T003–T004 og pakkeeigarens review/release blir ikkje markerte ferdige på dette
-grunnlaget. Sjå [pakke- og providerbevis](README.md#implementert-provider-og-factory).
+grunnlaget. Sjå [historisk pakke- og providerbevis](../../archive/altinn/altinn-scenario-gjennomgang-2026-10.md#implementert-provider-og-factory).
 
 Lokale referansefiler er berre kjeldegrunnlag. Test/deploy i pakkeeigarens miljø krev
 eiga godkjenning, ikkje bruk av andre autentiserte org-ar her.
@@ -120,7 +124,7 @@ Rå `getValues`-semantikk og faktisk `Organization.IsSandbox` er verifiserte.
 Checkbox kan ikkje lagre eksplisitt null; utelaten aktivering blir testa som
 default false. Privilegert plattformlesing er avgrensa til to eksplisitte
 system-mode-oppslag, godkjende av brukaren. Kommando, resultat, testavgrensingar
-og gjenståande arbeid står i [implementasjonsstatusen](README.md#implementert-policygrunnlag--2026-10-25).
+og gjenståande arbeid står i den [historiske implementasjonsstatusen](../../archive/altinn/altinn-scenario-gjennomgang-2026-10.md#implementert-policygrunnlag--2026-10-25).
 
 Policy får ein smal testbar miljølesing, ikkje eit offentleg produksjons-override.
 Testpermission skal ikkje leggjast til det generelle community-settet.
@@ -138,7 +142,7 @@ Utført 2026-10-25: schema- og definisjonsversjon 1, alle S01–S08, eksplisitt
 rettsmatrise og separate S07-alias for responsfeil/exception. Eitt avgrensa
 systemoppslag les berre den namngitte ressursen, godkjent av brukaren. Samla dry-run
 gav 31/31 grøne testar (16 katalog, 15 policy), med 116/117 repositorylinjer og
-34/34 policylinjer dekte. Sjå [katalogstatus og testbevis](README.md#implementert-scenariokatalog--2026-10-25).
+34/34 policylinjer dekte. Sjå [historisk katalogstatus og testbevis](../../archive/altinn/altinn-scenario-gjennomgang-2026-10.md#implementert-scenariokatalog--2026-10-25).
 Dette verifiserer definisjonane, ikkje faktisk provider-mapping eller UI-utfall.
 
 ### 3.3 - Provider og eksplisitt factory
@@ -156,7 +160,7 @@ factory 7/7 linjer dekte. Kvar operasjon revaliderer tildeling og sperrer;
 berre katalogen blir halde per instans. Feil blir vidareførte utan fallback.
 Standard v2-transport blir testa som scratch-administrator fordi dependencyens
 metadataoppslag feila med minimumsprofilen; scenario/sperrer blir testa med
-minimumstilgang. Sjå [kontrakt og valideringsavgrensingar](README.md#provider-factoryverifikasjon).
+minimumstilgang. Sjå [historisk kontrakt og valideringsavgrensingar](../../archive/altinn/altinn-scenario-gjennomgang-2026-10.md#provider-factoryverifikasjon).
 
 ### 4.1 - Kople på dei faktiske applikasjonsinngangane
 
@@ -176,7 +180,7 @@ den eksterne lisensen er ikkje verifiserte; ordinær delingsregresjon er grøn.
 Testspesifikk overstyring av organisasjonsvalet vart testa raud (14 testar, éin
 feil) og fjerna; same fokuserte køyring vart grøn (14/14). Ho maskerte
 scenarioorganisasjonen. Ingen permanent deploy eller scenarioaktivering.
-Sjå [journey-evidens og avgrensingar](README.md#controllerkopling-og-apex-journey--2026-10-25).
+Sjå [historisk journey-evidens og avgrensingar](../../archive/altinn/altinn-scenario-gjennomgang-2026-10.md#controllerkopling-og-apex-journey--2026-10-25).
 
 Journey-testen brukar scenarioets syntetiske organisasjonsnummer. Positiv
 delingsverifikasjon for community-lisensen står att, fordi scratch-org-en berre
@@ -272,7 +276,7 @@ Føreslåtte kommandoar ved implementering, ikkje køyrde som del av denne plane
 
 ```bash
 rtk proxy sf apex run test --target-org crm-arbeidsforhold --tests AAREG_AltinnScenarioPolicyTest --result-format human --wait 10
-rtk proxy npm test -- --runInBand force-app/externalAccess/lwc/aareg_home/__tests__/aareg_home.test.js
+rtk proxy npm run test:unit -- -- --runInBand force-app/externalAccess/lwc/aareg_home/__tests__/aareg_home.test.js
 ```
 
 Første kommando køyrer berre den første policy-slicen; eskaler til andre nye

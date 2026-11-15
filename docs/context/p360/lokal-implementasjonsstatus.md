@@ -1,5 +1,11 @@
 # Lokal implementasjonsstatus mot Jira
 
+> **Historisk gjennomgang:** Observasjonane i denne fila gjeld dei oppgitte
+> datoane, sist 2026-11-05. Dei er ikkje ein status for dagens kode eller org.
+> Start i [P360-guiden](../../integrations/p360/README.md) for nyare kjeldegrenser.
+> Relative kodereferansar viser gjeldande `main`, ikkje nødvendigvis
+> kodeversjonen som vart undersøkt då; bruk git-historikken ved behov.
+
 Oppdatert 2026-11-05 frå lokal kode, dokumentasjon og direkte Jira-kontroll.
 
 Den nye [status-speilinga frå 2026-11-05](jira-status-2026-11-05.md) inneheld alle 239 eksporterte P360-saker med titlar, statusar, løysingar og overordna saksnøklar. Ho erstattar dei eldre eksporttala for desse felta, ikkje tekniske vurderingar eller historiske beskrivingar. Eksporten viser 6 ferdige historier, 18 under arbeid og 10 i backlog; deloppgåvene er fordelte på 80 ferdige, 29 under arbeid og 85 i backlog. «Ferdig / Ikke relevant» må skiljast frå levert implementasjon.

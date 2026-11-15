@@ -1,5 +1,7 @@
 # Aa-registeret scratch-org snapshot — 2026-11-14
 
+> **Arkivert observasjon:** Tilstanden og kommandoane nedanfor er historiske.
+
 This is a dated, partial snapshot of read-only checks against the non-production
 scratch org `crm-arbeidsforhold`. It records only the observations below; it is
 not a complete org inventory or a sign-off.
@@ -34,8 +36,8 @@ The CLI returned 19 installed-package rows:
 
 The tabular output did not expose a warnings array. Package IDs, version IDs,
 and user fields are intentionally omitted. Compare this list with the 19 direct
-dependencies declared in [`sfdx-project.json`](../../sfdx-project.json) and the
-dated analysis in [`pakkeavhengigheiter.md`](./pakkeavhengigheiter.md); do not
+dependencies declared in [`sfdx-project.json`](../../../sfdx-project.json) and the
+dated analysis in [`pakkeavhengigheiter.md`](../../architecture/pakkeavhengigheiter.md); do not
 treat a matching count alone as proof that package ownership or API use has
 been verified.
 

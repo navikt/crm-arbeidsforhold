@@ -47,7 +47,8 @@ ikkje bevis på at målkomponenten eller ein servermetode gir record-tilgang.
 | B                  | Deny              | Permit                       | `hasAccess=true`, `hasApplicationAccess=false`                                  | Avtalar og støtte/meldingar; ikkje søknadspanela |
 | C                  | Permit            | Deny                         | Same aggregering som A                                                          | Same panel som A                                 |
 
-Testguiden si S04-rad «brukerstøttetilgang ja, alle» kan difor lesast som
+Den [arkiverte testguiden](../../archive/altinn/test-guide-community-plus-2026-10.md)
+si S04-rad «brukerstøttetilgang ja, alle» kan difor lesast som
 **synleg produktnavigasjon**, ikkje som rå Permit på støtteressursen for
 alle tre verksemder. Det er ikkje grunnlag for å kalle guide/katalog feil
 berre fordi dei beskriv ulike lag.

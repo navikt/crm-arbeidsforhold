@@ -1,6 +1,10 @@
 # Aa-register Admin: plan
 
-Status: vedteke 2026-11-15, under arbeid. Spec: [.github/specs/aareg-admin-app.md](../../.github/specs/aareg-admin-app.md).
+Status: vedteke 2026-11-15, under arbeid. Spec:
+[Aa-register Admin på `P360Test`](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/.github/specs/aareg-admin-app.md).
+
+Denne planen omtalar både funksjonar på `main` og vidare arbeid på
+`P360Test`. Scratch-testlaben og saksreisa er ikkje del av `main`.
 
 ## 1. Kva er problemet?
 
@@ -134,7 +138,10 @@ Ein LWC på søknadssida og i appen syner ei tidslinje for éin søknad:
 
 Kvart steg viser kjelde, tidspunkt og lenkje til posten. Steg som manglar data blir merkte som «ikkje registrert», ikkje gøymde.
 
-**Blokkar:** Historikksporing er slått på for objekta, men ingen felt er markerte med `trackHistory`. Statusendringar kan derfor ikkje visast før eit vedtak avgjer kva felt som skal sporast. Sjå [opne vedtak](#7-opne-vedtak).
+**Kjeldestatus:** Dei valde søknads-, vedtaks- og henvendingsfelta har no
+`trackHistory` i kjelda. Dette beviser ikkje at same metadata er installert,
+eller at historikk er registrert og synleg i eit org. Sjå
+[vedtaket](#7-vedtak-f0-2026-11-15).
 
 ### 5.4 Integrasjonsmonitor
 
@@ -260,7 +267,7 @@ Produkteigar bad agenten avgjere spørsmåla han kunne svare på sjølv. Alle va
 | Lag           | Kva                                                                | Kommando eller stad                           |
 | ------------- | ------------------------------------------------------------------ | --------------------------------------------- |
 | Apex          | Lese-servicar: aggregering, sharing, USER_MODE, minimumstilgang    | `force-app/tests/classes/internalAdmin/`      |
-| LWC Jest      | Fliser, tidslinje, tomme og feilande tilstandar                    | `npm test -- --runInBand`                     |
+| LWC Jest      | Fliser, tidslinje, tomme og feilande tilstandar                    | `npm run test:unit -- -- --runInBand`         |
 | Node          | Testlab-køyrar, scratch-målkontroll, nullstilling                  | `npm run test:node`                           |
 | GUI i scratch | Stegvise kontrollar med skjermbilete som evidens                   | Scenario-testplanen                           |
 | Tilgang       | Minimumsbrukar ser ingenting; viewer ser berre det vedtaket tillèt | `System.runAs` i Apex og manuell GUI-kontroll |

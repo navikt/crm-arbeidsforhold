@@ -1,5 +1,7 @@
 # Funn og tiltak for Arbeidsforhold / Aa-registeret
 
+> **Arkivert arbeidsregister:** Nokre funn er følgde opp etter denne kartlegginga. Sjekk tilhøyrande Issues og gjeldande kjelde.
+
 **Status:** kjeldebasert arbeidsregister, 2026-11-14. Dette er ikkje
 produksjonsklar risikovurdering eller sign-off. Prioritet er rekkjefølgje for
 avklaring og verifikasjon, ikkje ein stadfesta feilgrad.
@@ -28,7 +30,7 @@ er ikkje endra som del av registeret.
   og `ContentDocumentLink` i eigne steg; P360-handleren krev direkte
   `FirstPublishLocationId`, og controlleren har ikkje ei funnen automatisk
   `ApplicationDocument`-jobbtilknyting. Sjå
-  [inngangs- og verifikasjonsplanen](../integrations/p360/inngangar-og-verifikasjonsplan.md).
+  [inngangs- og verifikasjonsplanen](../p360/inngangar-og-verifikasjonsplan-2026-11-14.md).
 - **Påverknad:** synleg fil eller portal-kvittering beviser ikkje at ein
   P360-jobb vart oppretta, og utkastvedlegg kan falle utanfor den undersøkte
   handlerinngangen.
@@ -48,7 +50,7 @@ er ikkje endra som del av registeret.
   vedleggsnøkkel på søknads-ID + `ContentVersion`-ID. Same søknad og
   uendra filversjon får same nøkkel ved ei ny innsending; jobbservicen
   gjenbrukar då eksisterande jobb. Detaljar og kjeldepeikarar står i
-  [P360-verifikasjonsplanen](../integrations/p360/inngangar-og-verifikasjonsplan.md).
+  [P360-verifikasjonsplanen](../p360/inngangar-og-verifikasjonsplan-2026-11-14.md).
 - **Påverknad:** dagens nøkkelmodell skil ikkje i seg sjølv retry av same
   innsending frå eit nytt komplett dokumentsett.
 - **Neste steg / avgjerd:** avklar stabil innsendingsidentitet,
@@ -68,7 +70,7 @@ er ikkje endra som del av registeret.
   transport. Worker sender idempotensnøkkel som ekstern ID, men den
   undersøkte banen lagrar ikkje returnerte P360-saks-, dokument- og
   filreferansar på domenerecordane. Sjå
-  [P360-kartlegginga](../integrations/p360/inngangar-og-verifikasjonsplan.md)
+  [P360-kartlegginga](../p360/inngangar-og-verifikasjonsplan-2026-11-14.md)
   og [P360-roadmapen](https://github.com/navikt/crm-arbeidsforhold/issues/1095).
 - **Påverknad:** DTO- og mock-testar beviser ikkje ekstern arkivering,
   responslagring eller recovery etter timeout.
@@ -103,7 +105,7 @@ er ikkje endra som del av registeret.
 - **Prioritet / status:** P1 testmål; kjeldeverifisert sideeffekt, omfanget
   for delte filer må verifiserast.
 - **Evidens:** planlagd
-  [`AAREG_deleteDraftInquiriesANDrelatedDocuments`](../../force-app/main/default/flows/AAREG_deleteDraftInquiriesANDrelatedDocuments.flow-meta.xml)
+  [`AAREG_deleteDraftInquiriesANDrelatedDocuments`](../../../force-app/main/default/flows/AAREG_deleteDraftInquiriesANDrelatedDocuments.flow-meta.xml)
   les `ContentDocumentLink` for utkastet, samlar `ContentDocumentId` og
   slettar recordar av typen `ContentDocument` før utkastet blir sletta.
   Den undersøkte Flow-en kontrollerer ikkje om dokumentet har andre
@@ -114,7 +116,7 @@ er ikkje endra som del av registeret.
 - **Neste steg / verifikasjon:** isolert test med eige dokument og kontroll
   med delt dokument, ny Draft og innsendt Inquiry; stadfest alders-/status-
   vilkår, slettingsutfall og rollback før eventuell org-test.
-- **Sporing:** [FLOW-03 i scenario-testplanen](../testing/aaregisteret-scenario-testplan.md),
+- **Sporing:** [FLOW-03 i scenario-testplanen](../../testing/aaregisteret-scenario-testplan.md),
   [#1180](https://github.com/navikt/crm-arbeidsforhold/issues/1180),
   [#1181](https://github.com/navikt/crm-arbeidsforhold/issues/1181).
 
@@ -134,7 +136,7 @@ er ikkje endra som del av registeret.
 - **Neste steg / avgjerd:** test ei felles søknads-/avtalekopling gjennom
   den faktiske Flow-utløysaren; avgjer om sletting er tilsikta eller om
   berre avtaletilknytinga skal fjernast før eventuell kode-/metadatafiks.
-- **Sporing:** [AGR-04 og FLOW-02/03 i scenario-testplanen](../testing/aaregisteret-scenario-testplan.md),
+- **Sporing:** [AGR-04 og FLOW-02/03 i scenario-testplanen](../../testing/aaregisteret-scenario-testplan.md),
   [#1180](https://github.com/navikt/crm-arbeidsforhold/issues/1180),
   [#1181](https://github.com/navikt/crm-arbeidsforhold/issues/1181).
 
@@ -195,8 +197,8 @@ er ikkje endra som del av registeret.
 - **Prioritet / status:** P2 verifikasjon; lokal dokumentasjonsdekning
   kontrollert 37/37, funksjonell testdekning NOT RUN.
 - **Evidens:** 37 lokale Flow-definisjonar har 37 unike lenkjer i
-  [Flow-katalogen](aareg-flow-katalog.md), og alle 37 API-namna finst i
-  [Flow-diagramma](aareg-flow-diagrammer.md). Tidlegare datert org-oppslag
+  [Flow-katalogen](../../architecture/aareg-flow-katalog.md), og alle 37 API-namna finst i
+  [Flow-diagramma](../../architecture/aareg-flow-diagrammer.md). Tidlegare datert org-oppslag
   fann 35 aktive og to utan aktiv versjon; det er ikkje ei ny runtime-
   sjekk eller test av Flow-utfall.
 - **Påverknad:** UI-bindingar, feilhandsaming, aktiv body og faktisk
@@ -210,13 +212,13 @@ er ikkje endra som del av registeret.
 
 ## Trygg dokumentasjons- og metadataopprydding
 
-| Kandidat / område                 | Klassifisering og evidens                                                                                                                                                                      | Tiltak no                                                                            | Stoppvilkår / sporing                                                                                              |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `force-app/.DS_Store`             | Lokal inventory rapporterte éi OS-fil; Git viser ho som ignored og ikkje tracked.                                                                                                              | Ikkje nødvendig med repository-sletting; ikkje rør lokale arbeidskopifiler.          | Vurder på nytt berre dersom fila er tracked eller inngår i ein build.                                              |
-| Confluence-spegelkopiar           | [`docs/architecture/README.md`](README.md) er merkt `speilkopi: delvis`; `repositorystruktur.md` og `arkitekturprinsipp-lagdeling-og-namnestandard.md` er merkte `speilkopi: ja`.              | Behald original og kjeldepeikar; ingen edit, flytting eller arkivering anbefalt her. | Confluence-eigar må stadfeste kjeldeendring før speilkopi blir redigert.                                           |
-| `AAREG_CheckObjectTypeNamingTest` | Fjerna frå repo i tidlegare endring; eksisterande [metadata-oppryddingsrunbook](../operations/salesforce-metadata-cleanup-runbook.md) dokumenterer API-namn, avhengnader og verifikasjonssteg. | Ikkje gjenta eller utvid sletting. Runbooken beviser ikkje org-sletting.             | Behald org-verifikasjon som OPEN til dokumentert resultat finst; metadataendringar krev separat godkjend scope.    |
-| `docs/archive/`                   | Ingen repo-eigde arkivkandidat er stadfesta av dette kjeldekartet.                                                                                                                             | Ikkje opprett mappe og ikkje flytt dokument.                                         | Før framtidig arkivering: klassifisering, eigar, originalkopi, proveniens, lenkekontroll, rollback og godkjenning. |
-| Navigasjon frå handboka           | [Handboka](aaregisteret-handbok.md) har ikkje lenkje til det nyare tilgangskartet og pakkeavstemminga. Dette er navigasjonsgjeld, ikkje tap av innhald.                                        | Ingen endring i eksisterande tekst gjort.                                            | Be om eksplisitt løyve før eksisterande handboktekst blir oppdatert; ta kopi av originalinnhaldet først.           |
+| Kandidat / område                 | Klassifisering og evidens                                                                                                                                                                            | Tiltak no                                                                            | Stoppvilkår / sporing                                                                                              |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `force-app/.DS_Store`             | Lokal inventory rapporterte éi OS-fil; Git viser ho som ignored og ikkje tracked.                                                                                                                    | Ikkje nødvendig med repository-sletting; ikkje rør lokale arbeidskopifiler.          | Vurder på nytt berre dersom fila er tracked eller inngår i ein build.                                              |
+| Confluence-spegelkopiar           | [`docs/architecture/README.md`](../../architecture/README.md) er merkt `speilkopi: delvis`; `repositorystruktur.md` og `arkitekturprinsipp-lagdeling-og-namnestandard.md` er merkte `speilkopi: ja`. | Behald original og kjeldepeikar; ingen edit, flytting eller arkivering anbefalt her. | Confluence-eigar må stadfeste kjeldeendring før speilkopi blir redigert.                                           |
+| `AAREG_CheckObjectTypeNamingTest` | Fjerna frå repo i tidlegare endring; eksisterande [metadata-oppryddingsrunbook](../../operations/salesforce-metadata-cleanup-runbook.md) dokumenterer API-namn, avhengnader og verifikasjonssteg.    | Ikkje gjenta eller utvid sletting. Runbooken beviser ikkje org-sletting.             | Behald org-verifikasjon som OPEN til dokumentert resultat finst; metadataendringar krev separat godkjend scope.    |
+| `docs/archive/`                   | Ingen repo-eigde arkivkandidat er stadfesta av dette kjeldekartet.                                                                                                                                   | Ikkje opprett mappe og ikkje flytt dokument.                                         | Før framtidig arkivering: klassifisering, eigar, originalkopi, proveniens, lenkekontroll, rollback og godkjenning. |
+| Navigasjon frå handboka           | [Handboka](aaregisteret-handbok-2026-11-14.md) har ikkje lenkje til det nyare tilgangskartet og pakkeavstemminga. Dette er navigasjonsgjeld, ikkje tap av innhald.                                   | Ingen endring i eksisterande tekst gjort.                                            | Be om eksplisitt løyve før eksisterande handboktekst blir oppdatert; ta kopi av originalinnhaldet først.           |
 
 ## Opne kontrollar
 

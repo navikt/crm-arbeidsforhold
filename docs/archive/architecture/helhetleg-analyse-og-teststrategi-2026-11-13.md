@@ -1,8 +1,10 @@
 # Helhetleg analyse av Arbeidsforhold og Aa-registeret
 
+> **Arkivert analyse:** Org-observasjonar og kjeldestatus gjeld undersøkinga frå 2026-11-13.
+
 ## Føremål og evidensgrenser
 
-Dette dokumentet samlar den noverande forståinga av produktflytane, Salesforce-pakkane, metadataoversikta frå scratch-org-en og ein praktisk strategi for syntetiske testdata og scenario. Det er eit tillegg til, ikkje ei omskriving av, [oversikta over heile løysinga](./hele-loysinga.md), [pakkeoversikta](./pakkeavhengigheiter.md) og dei meir detaljerte [P360-flytdokumenta](../integrations/p360/kartlegging-av-dagens-flytar.md).
+Dette dokumentet samlar den noverande forståinga av produktflytane, Salesforce-pakkane, metadataoversikta frå scratch-org-en og ein praktisk strategi for syntetiske testdata og scenario. Det er eit tillegg til, ikkje ei omskriving av, [oversikta over heile løysinga](../../architecture/hele-loysinga.md), [pakkeoversikta](../../architecture/pakkeavhengigheiter.md) og dei meir detaljerte [P360-flytdokumenta](../p360/kartlegging-av-flytar-2026-11-13.md).
 
 **Evidensdato:** 2026-11-13. Org-observasjonane kjem frå lesande metadata- og pakkeinventering av den godkjende scratch-org-en. Ingen forretningsrecordar, autentiseringsdata eller hemmelege verdiar vart lesne. Ingen deploy eller live-kall mot Altinn eller P360 vart utførte.
 
@@ -47,7 +49,7 @@ Metadata-listing viser at komponentar finst, ikkje at ein Flow-versjon er aktiv,
 | Integrasjon og arkivering    | Altinn-integrasjon, P360-arkiveringsjobbar, kodeverk og innstillingar                | Hentar autorisasjonsgrunnlag eller sender dokument vidare på ein kontrollert måte.      |
 | Referanse- og driftsdata     | Custom Metadata, Custom Permission, feature toggle og konfigurasjon                  | Styrer kodeverk, avgrensa funksjonar og tilgang til særskilde handlingar.               |
 
-Objektnamna over er identifikatorar, ikkje ei full datamodell. For relasjonar, eigarskap og prosessdetaljar, sjå [arkitekturoversikta](./hele-loysinga.md). Verifiser alltid relasjonar mot metadata før dei blir brukte i ein ny test eller migrering.
+Objektnamna over er identifikatorar, ikkje ei full datamodell. For relasjonar, eigarskap og prosessdetaljar, sjå [arkitekturoversikta](../../architecture/hele-loysinga.md). Verifiser alltid relasjonar mot metadata før dei blir brukte i ein ny test eller migrering.
 
 ### Samla forretningsflyt
 
@@ -58,7 +60,7 @@ Objektnamna over er identifikatorar, ikkje ei full datamodell. For relasjonar, e
 5. Når avgjerda krev det, blir avtale- og distribusjonstilgang oppretta eller endra.
 6. Dialog, varsling og dokumenthandtering følgjer prosessen. P360 er ei eiga arkivgrense og må verifiserast separat frå lokal Salesforce-status.
 
-Dette er ein konseptuell samanheng, ikkje ei påstand om at alle steg alltid er synkrone eller at kvar statusovergang er ende-til-ende-verifisert. Den meir detaljerte arbeidsflyt- og sekvensoversikta ligg i [business-workflows.md](../../.github/modernize/assessment/engines/facts/business-workflows.md).
+Dette er ein konseptuell samanheng, ikkje ei påstand om at alle steg alltid er synkrone eller at kvar statusovergang er ende-til-ende-verifisert. Den meir detaljerte arbeidsflyt- og sekvensoversikta ligg i [business-workflows.md](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/.github/modernize/assessment/engines/facts/business-workflows.md).
 
 ## Hovudpakke og avhengnader
 
@@ -102,12 +104,12 @@ Dette stadfestar metadata-nærvær, ikkje aktive Flow-versjonar, brukartildeling
 
 ## Teststatus og evidens
 
-| Område                           | Kjent testbevis                                                                                                                                                                                                                                                                                                                                                                          | Avgrensing                                                                                                                              |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| P360                             | Den namngjevne `P360` Apex-testserien rapporterte 98 beståtte, 0 feila og 0 hoppa over. Serien er definert i [P360.testSuite-meta.xml](../../force-app/tests/testSuites/P360.testSuite-meta.xml).                                                                                                                                                                                        | Testane nyttar testgrenser/mocks. Resultatet beviser ikkje P360-oppretting av sak eller dokument i ei ekstern teneste.                  |
-| Altinn-scenariopolicy og katalog | [Altinn-dokumentasjonen](../integrations/altinn/README.md) skildrar test av syntetiske scenario, avgrensa tilgang og feilstiar. Ho dokumenterer ei tidlegare 15/15-validering med 34/34 køyrbare policylinjer dekte.                                                                                                                                                                     | Historisk dokumentert validering, ikkje køyrd på nytt som del av denne analysen. Scenario er ikkje live Altinn-kontraktstest.           |
-| Testdatafabrikkar                | Eksisterande byggesteinar omfattar [AAREG_AltinnTestDataFactory.cls](../../force-app/tests/classes/integration/altinn/AAREG_AltinnTestDataFactory.cls), [Integration_TestDataFactory.cls](../../force-app/tests/classes/integration/common/Integration_TestDataFactory.cls) og [P360_TestDataFactory.cls](../../force-app/tests/classes/integration/p360/test/P360_TestDataFactory.cls). | Fabrikkane dekkjer ikkje åleine alle domene, tilgangskombinasjonar eller integrasjonsfeil.                                              |
-| LWC/Jest                         | Repoet har lokal Jest-validering for LWC.                                                                                                                                                                                                                                                                                                                                                | Ingen LWC-test blei køyrd i denne analyseoppgåva. Lokal Node-versjon observert var 22.20.0; repoet krev minst 22.22.1 for npm-verktøya. |
+| Område                           | Kjent testbevis                                                                                                                                                                                                                                                                                                                                                                                   | Avgrensing                                                                                                                              |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| P360                             | Den namngjevne `P360` Apex-testserien rapporterte 98 beståtte, 0 feila og 0 hoppa over. Serien er definert i [P360.testSuite-meta.xml](../../../force-app/tests/testSuites/P360.testSuite-meta.xml).                                                                                                                                                                                              | Testane nyttar testgrenser/mocks. Resultatet beviser ikkje P360-oppretting av sak eller dokument i ei ekstern teneste.                  |
+| Altinn-scenariopolicy og katalog | [Altinn-dokumentasjonen](../altinn/altinn-scenario-gjennomgang-2026-10.md) skildrar test av syntetiske scenario, avgrensa tilgang og feilstiar. Ho dokumenterer ei tidlegare 15/15-validering med 34/34 køyrbare policylinjer dekte.                                                                                                                                                              | Historisk dokumentert validering, ikkje køyrd på nytt som del av denne analysen. Scenario er ikkje live Altinn-kontraktstest.           |
+| Testdatafabrikkar                | Eksisterande byggesteinar omfattar [AAREG_AltinnTestDataFactory.cls](../../../force-app/tests/classes/integration/altinn/AAREG_AltinnTestDataFactory.cls), [Integration_TestDataFactory.cls](../../../force-app/tests/classes/integration/common/Integration_TestDataFactory.cls) og [P360_TestDataFactory.cls](../../../force-app/tests/classes/integration/p360/test/P360_TestDataFactory.cls). | Fabrikkane dekkjer ikkje åleine alle domene, tilgangskombinasjonar eller integrasjonsfeil.                                              |
+| LWC/Jest                         | Repoet har lokal Jest-validering for LWC.                                                                                                                                                                                                                                                                                                                                                         | Ingen LWC-test blei køyrd i denne analyseoppgåva. Lokal Node-versjon observert var 22.20.0; repoet krev minst 22.22.1 for npm-verktøya. |
 
 ## Testdataprinsipp
 
@@ -189,12 +191,12 @@ Køyr først den minste relevante testen. For Apex er org-køyring org-avhengig;
 
 ## Relaterte kjelder
 
-- [Heile løysinga](./hele-loysinga.md)
-- [Pakkeavhengnader](./pakkeavhengigheiter.md)
-- [Dagens P360-flytar](../integrations/p360/kartlegging-av-dagens-flytar.md)
-- [P360 historisk testlogg](../integrations/p360/test-log.md)
-- [Altinn-integrasjon og scenariokatalog](../integrations/altinn/README.md)
-- [Hovudpakke og avhengnader](../../sfdx-project.json)
-- [Altinn testdatafabrikk](../../force-app/tests/classes/integration/altinn/AAREG_AltinnTestDataFactory.cls)
-- [Felles integrasjonstestdatafabrikk](../../force-app/tests/classes/integration/common/Integration_TestDataFactory.cls)
-- [P360 testdatafabrikk](../../force-app/tests/classes/integration/p360/test/P360_TestDataFactory.cls)
+- [Heile løysinga](../../architecture/hele-loysinga.md)
+- [Pakkeavhengnader](../../architecture/pakkeavhengigheiter.md)
+- [Dagens P360-flytar](../p360/kartlegging-av-flytar-2026-11-13.md)
+- [P360 historisk testlogg](../../integrations/p360/test-log.md)
+- [Altinn-integrasjon og scenariokatalog](../altinn/altinn-scenario-gjennomgang-2026-10.md)
+- [Hovudpakke og avhengnader](../../../sfdx-project.json)
+- [Altinn testdatafabrikk](../../../force-app/tests/classes/integration/altinn/AAREG_AltinnTestDataFactory.cls)
+- [Felles integrasjonstestdatafabrikk](../../../force-app/tests/classes/integration/common/Integration_TestDataFactory.cls)
+- [P360 testdatafabrikk](../../../force-app/tests/classes/integration/p360/test/P360_TestDataFactory.cls)

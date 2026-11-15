@@ -1,6 +1,6 @@
 # Kjeldekart og teststrategi for Arbeidsforhold / Aa-registeret
 
-Dette dokumentet supplerer [den eksisterande heilskaplege analysen](./helhetleg-analyse-og-teststrategi.md). Det legg til kjeldesporing og konkrete testscenario utan å endre den eksisterande teksten.
+Dette dokumentet supplerer [den eksisterande heilskaplege analysen](../archive/architecture/helhetleg-analyse-og-teststrategi-2026-11-13.md). Det legg til kjeldesporing og konkrete testscenario utan å endre den eksisterande teksten.
 
 ## Evidens og avgrensing
 
@@ -41,7 +41,7 @@ Flow definerer mykje av status-, oppgåve- og varslingsarbeidet rundt saksbehand
 
 ### 4. Avtale og distribusjonstilgang
 
-Avgjerd kan føre til `Agreement__c`, som er knytt til søknad, tilgangsførespurnad og verksemd. Eksterne brukarar ser avtalar via [aareg_myAgreements](../../force-app/externalAgreement/lwc/aareg_myAgreements/aareg_myAgreements.js) og kan opne avtaledetaljar i [aareg_agreement](../../force-app/externalAgreement/lwc/aareg_agreement/aareg_agreement.js). Controllerane er [AAREG_MyAgreementsController](../../force-app/externalAgreement/classes/AAREG_MyAgreementsController.cls) og [AAREG_AgreementController](../../force-app/externalAgreement/classes/AAREG_AgreementController.cls).
+Avgjerd kan føre til `Agreement__c`, som er knytt til søknad, tilgangsførespurnad og verksemd. Eksterne brukarar ser avtalar via [aareg_myAgreements](../../force-app/externalAgreement/lwc/aareg_myAgreements/aareg_myAgreements.js) og kan opne avtaledetaljar i [aareg_agreement](../../force-app/externalAgreement/lwc/aareg_agreement/aareg_agreement.js). Controllerane er [AAREG_MyAgreementsController](../../force-app/externalAgreement/classes/AAREG_MyAgreementsController.cls) og [AAREG_AgreementController](../../force-app/internalApplicationAgreement/classes/AAREG_AgreementController.cls).
 
 Avtalen kan ha fleire relaterte kontaktar med ulike varslingsval. Avslutting er ein status-/deaktiveringshandling, ikkje sletting. `AAREG_Agreement_create_distribution_access` opprettar tilgang etter avtalehending, medan `AAREG_removeAccessToDistribution` trekkjer tilgang tilbake. Flowane kallar [AAREG_distributionAccessController](../../force-app/integration/distributionAccess/classes/AAREG_distributionAccessController.cls), som startar eit asynkront PUT/DELETE-kall via [AAREG_distributionAccessRequest](../../force-app/integration/distributionAccess/classes/AAREG_distributionAccessRequest.cls). Lokalt Flow-/Apex-resultat åleine stadfestar ikkje at den eksterne tenesta fullførte handlinga.
 
@@ -53,9 +53,9 @@ Skjemaet kan lage utkast før filopplasting, oppdatere utkast, fullføre henvend
 
 ### 6. P360-arkivering
 
-P360 har ein intern jobbmodell med idempotens, lease/claim, retry/backoff og batchkøyring. Vedlegg kan opprette arkiveringsjobb via [P360_ContentVersionArchiveHandler](../../force-app/integration/p360/classes/P360_ContentVersionArchiveHandler.cls); avgjerdsdokument går gjennom guard/trigger-bana i [P360_ArchiveGuardHandler](../../force-app/integration/p360/classes/P360_ArchiveGuardHandler.cls). [P360_ArchiveJobScheduler](../../force-app/integration/p360/classes/job/P360_ArchiveJobScheduler.cls) hentar jobbar og køyrer [P360_ArchiveJobWorker](../../force-app/integration/p360/classes/job/P360_ArchiveJobWorker.cls).
+P360 har ein intern jobbmodell med idempotens, lease/claim, retry/backoff og batchkøyring. Kjeldelenkjene i dette avsnittet viser den undersøkte `P360Test`-versjonen, ikkje nødvendigvis `main`. Vedlegg kan opprette arkiveringsjobb via [P360_ContentVersionArchiveHandler](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/integration/p360/classes/P360_ContentVersionArchiveHandler.cls); avgjerdsdokument går gjennom guard/trigger-bana i [P360_ArchiveGuardHandler](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/integration/p360/classes/P360_ArchiveGuardHandler.cls). [P360_ArchiveJobScheduler](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/integration/p360/classes/job/P360_ArchiveJobScheduler.cls) hentar jobbar og køyrer [P360_ArchiveJobWorker](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/integration/p360/classes/job/P360_ArchiveJobWorker.cls).
 
-**Kritisk skilje mellom lokal og ekstern åtferd:** kjeldegjennomgangen fann at den reelle [P360_ArchiveAdapter](../../force-app/integration/p360/classes/adapter/P360_ArchiveAdapter.cls) og [P360_RpcClient](../../force-app/integration/p360/classes/client/P360_RpcClient.cls) ikkje utfører implementert transport. Stub-adapteren kan rapportere kontrollert suksess utan callout. Dei tidlegare dokumenterte 98 beståtte P360-testane dokumenterer dermed ikkje at eit dokument vart oppretta i P360. Ingen live P360-verifikasjon er gjort her.
+**Kritisk skilje mellom lokal og ekstern åtferd:** den undersøkte [P360_ArchiveAdapter](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/integration/p360/classes/adapter/P360_ArchiveAdapter.cls) byggjer førespurnader, men standard [P360_RpcClient](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/integration/p360/classes/client/P360_RpcClient.cls) har ikkje implementert transport. Stub-adapteren kan rapportere kontrollert suksess utan callout. Dei tidlegare dokumenterte 98 beståtte P360-testane dokumenterer dermed ikkje at eit dokument vart oppretta i P360. Ingen live P360-verifikasjon er gjort her.
 
 ### 7. Experience Cloud-ruter
 

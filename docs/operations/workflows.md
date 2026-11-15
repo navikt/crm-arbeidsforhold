@@ -15,6 +15,7 @@ av den lokale valideringen.
 | `Salesforce validation`         | Lokal gjenbrukbar workflow kalt av PR-valideringen. Bevarer påkrevde sjekknavn og krever vellykket delt validering når den er relevant.                                                  |
 | `Scratch org offline`           | Relevante PR-er og push til `main`, eller manuell start. Tester lokale skript på Windows, Linux og Mac uten Salesforce-org, inkludert workflowkontraktene.                               |
 | `Copilot Setup Steps`           | Copilot-oppsett, manuell start og endringer i selve workflowfilen. Installerer Node og npm-avhengigheter.                                                                                |
+| `Dokumentasjon og GitHub Pages` | PR-er bygger og kontrollerer dokumentasjonen med leserettigheter. Push til `main` eller manuell start fra `main` kan publisere etter godkjenning i `github-pages`-miljøet.               |
 | `[HELPER] Create Scratch Org`   | Manuell, men blokkert av feil i den delte implementasjonen; se nedenfor.                                                                                                                 |
 | `[HELPER] Quick Package Create` | Manuell rask pakkeoppretting via delt workflow.                                                                                                                                          |
 | `[HELPER] Promote Package`      | Manuell promotering, versjonsoppdatering og release via delt workflow.                                                                                                                   |
@@ -24,6 +25,13 @@ av den lokale valideringen.
 Push-utløseren gjelder også direkte push, ikke bare PR-merge.
 Rene dokumentasjonsendringer lager ikke pakke. Direkte dev-deploy kjører ikke
 automatisk parallelt ved merge.
+
+Pages-bygg har bare lesetilgang. Publiseringsjobben trenger `pages: write` for
+selve deployen, `id-token: write` for GitHub Pages sin identitetskontroll og
+`contents: read` for å kontrollere at committen fortsatt er siste `main`.
+Før deploy avvises en eldre kjøring hvis en nyere `main`-commit er synlig.
+Kjøringer kanselleres ikke automatisk; teamet må godkjenne deploy i
+`github-pages`.
 
 Workflowfilene ligger i [.github/workflows/](../../.github/workflows/).
 Se også [reglene for behovsstyrt PR-validering](../../scripts/README.md#behovsstyrte-ci-sjekkar).

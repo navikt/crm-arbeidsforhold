@@ -7,6 +7,11 @@ hentet: 2026-09-12
 
 # P360 SIF RPC kontraktsoppslag
 
+> **Kontraktgrunnlag, ikkje driftsevidens:** Dokumentet omtalar planlagd
+> kommunikasjon og interne kontraktar. Det beviser ikkje at Salesforce har
+> kommunisert med P360. Sjå [P360-guiden](README.md) for aktuell greinsstatus
+> og opne miljøavklaringar.
+
 Dette dokumentet er et samlet oppslag for hva repoet faktisk vet om P360/SIF RPC, og hva som fortsatt må bekreftes av P360-teamet. Operasjons- og feltkontraktene er nå hentet fra `docs/integrations/p360/source/sif-api.pdf`; miljø-, auth-, mapping- og retrydetaljer er fortsatt separate avklaringer.
 
 ## Bekreftet i repoet

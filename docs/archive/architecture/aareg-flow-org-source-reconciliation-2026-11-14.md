@@ -1,5 +1,7 @@
 # Flow-kjelder mot scratch-org — teljingsavstemming
 
+> **Arkivert observasjon:** Denne avstemminga er eit datert bilete, ikkje ei ny org-verifikasjon.
+
 **Status:** eksakt DeveloperName-avstemming fullført for alle lokale Flow-filer.  
 **Kontrollert:** 2026-11-14 mot lokal Flow-kjelde og eit godkjent, read-only
 oppslag mot scratch-orgen `crm-arbeidsforhold`.
@@ -57,11 +59,11 @@ versjonspeikarar åleine.
 
 ## Kjelder
 
-- [Flow-katalog](./aareg-flow-katalog.md): tidlegare breiare org-kontroll
+- [Flow-katalog](../../architecture/aareg-flow-katalog.md): tidlegare breiare org-kontroll
   2026-11-13, dokumentert som 37 definisjonar med 35 aktive og to inaktive.
 - [Scratch-org-snapshot 2026-11-14](./aaregisteret-scratch-org-snapshot-2026-11-14.md):
   avgrensa spørring på `AAREG_%`, 36 rader, 34 aktive versjonar og to null.
-- [Flow-diagram](./aareg-flow-diagrammer.md): eksisterande prosessdiagram og
+- [Flow-diagram](../../architecture/aareg-flow-diagrammer.md): eksisterande prosessdiagram og
   avgrensingar.
 - [GitHub Issue #1182](https://github.com/navikt/crm-arbeidsforhold/issues/1182):
   oppfølging av org-observasjonar og evidensgrenser.

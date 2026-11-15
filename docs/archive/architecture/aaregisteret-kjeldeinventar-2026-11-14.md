@@ -1,5 +1,7 @@
 # Kjeldeinventar for Arbeidsforhold / Aa-registeret
 
+> **Arkivert inventar:** Fil- og pakketeljingane gjeld arbeidskopien frå 2026-11-14.
+
 **Status:** pågåande arbeid under [GitHub Issue #1185](https://github.com/navikt/crm-arbeidsforhold/issues/1185).  
 **Inventert:** 2026-11-14 frå lokal arbeidskopi.  
 **Avgrensing:** statisk kjeldestruktur og deklarerte dependencies; ikkje fersk Salesforce-org-tilstand eller full funksjonsdekning.
@@ -32,7 +34,7 @@
 | `crm-platform-oppgave`          | `0.84.0.LATEST`   | Finst               |
 | `crm-henvendelse`               | `0.209.0.LATEST`  | Finst               |
 
-Dette er manifestversjonar, ikkje installerte org-versjonar. [Pakkeoversikta](pakkeavhengigheiter.md) dokumenterer ei tidlegare løysing frå 2026-10-24; til dømes er manifestet no `crm-platform-integration 0.177.0.LATEST`, medan den daterte rapporten viser `0.176.0.1`. Behald dette som skilnad mellom dagens manifest og historisk rapport til godkjend runtime-oppslag stadfestar installert versjon.
+Dette er manifestversjonar, ikkje installerte org-versjonar. [Pakkeoversikta](../../architecture/pakkeavhengigheiter.md) dokumenterer ei tidlegare løysing frå 2026-10-24; til dømes er manifestet no `crm-platform-integration 0.177.0.LATEST`, medan den daterte rapporten viser `0.176.0.1`. Behald dette som skilnad mellom dagens manifest og historisk rapport til godkjend runtime-oppslag stadfestar installert versjon.
 
 ## Strukturelt inventar av `force-app/`
 
@@ -85,7 +87,7 @@ Dette er ei første gruppering frå eksisterande kjeldekart og mappestruktur; ha
 | P360                                      | `integration/p360/` og P360-spesifikasjonar/Issues                                       | Skil implementert jobbinfrastruktur frå godkjende forretningshendingar og reell ekstern transport. Arbeid held fram i #1095 og tilhøyrande Issues. |
 | Delte plattformfunksjonar                 | `utility/`, `main/default/`, 19 dependencies                                             | Knyt kvar brukt pakke-API/metadata til konkret call-site og test; ikkje utlei bruk frå pakke-README åleine.                                        |
 
-Eksisterande [heile-løysinga-kart](hele-loysinga.md), [kjeldekart/teststrategi](arbeidsforhold-kjeldekart-og-teststrategi.md), [Flow-katalog](aareg-flow-katalog.md) og [Flow-diagram](aareg-flow-diagrammer.md) er viktige kjelder. Dei erstattar ikkje kontroll av kvar call-site, test eller org-tilstand.
+Eksisterande [heile-løysinga-kart](../../architecture/hele-loysinga.md), [kjeldekart/teststrategi](../../architecture/arbeidsforhold-kjeldekart-og-teststrategi.md), [Flow-katalog](../../architecture/aareg-flow-katalog.md) og [Flow-diagram](../../architecture/aareg-flow-diagrammer.md) er viktige kjelder. Dei erstattar ikkje kontroll av kvar call-site, test eller org-tilstand.
 
 ## Evidens og uavklarte punkt
 

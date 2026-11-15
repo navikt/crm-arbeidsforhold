@@ -1,5 +1,7 @@
 # Flow org observation — 2026-11-15
 
+> **Arkivert observasjon:** Gjeld berre den dokumenterte kontrollen, ikkje noverande org-tilstand.
+
 This is a dated, read-only observation of `crm-arbeidsforhold`. It supplements
 the [2026-11-14 source reconciliation](./aareg-flow-org-source-reconciliation-2026-11-14.md);
 it does not replace it or establish that both observations came from the same

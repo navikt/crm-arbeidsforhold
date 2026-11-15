@@ -11,7 +11,7 @@ brukte i dette dokumentet.
 | UI/unit            | LWC Jest med mocka Apex/wires                                     | Komponenttilstand, handterar, synlege panel, feilmeldingar og parameter som blir sende                       | Apex-policy, Salesforce sharing/FLS, aktiv Flow eller ekstern respons             |
 | Apex unit          | `System.Test`, testdatafabrikk, `System.runAs`, `HttpCalloutMock` | Logikk i Apex, CRUD-/sharing-søm der testen faktisk set opp relevant brukar, serialisering og mocka feilsvar | Live Altinn/distribusjon/P360, org-spesifikk aktivering eller manuell portalreise |
 | Metadata/source    | Lokal inspeksjon, Prettier og lenkekontroll                       | At kjelde/metadata er til stades og korrekt forma                                                            | Deploya versjon eller runtime-åtferd                                              |
-| Salesforce Flow/UI | Avgrensa, godkjend test i `crm-arbeidsforhold`                    | Konkret org-/UI-resultat for oppgitt rolle, versjon og tidspunkt                                             | Produksjonsåtferd eller ekstern leveranse utan motpartsevidens                    |
+| Salesforce Flow/UI | Avgrensa test i verifisert `crm-arbeidsforhold`                   | Konkret org-/UI-resultat for oppgitt rolle, versjon og tidspunkt                                             | Produksjonsåtferd eller ekstern leveranse utan motpartsevidens                    |
 | Ekstern kontrakt   | Kontrollert test mot godkjend ikkje-produksjonsendepunkt          | Faktisk transport/kontrakt mot dette testmiljøet                                                             | Produksjon eller utesta scenario                                                  |
 
 Dette prosjektet er Salesforce-/Experience Cloud-kode, ikkje ein sjølvstendig
@@ -36,12 +36,16 @@ Salesforce-integrasjonstest.
   er ikkje ein erstatning for denne testgrensa. Når org-basert Apex/Flow-test
   ikkje kan køyrast, er lokal source/Jest berre delvis evidens, ikkje ein
   godkjend fallback som kan merkast PASS.
-- **Browser-akse:** Playwright er ikkje konfigurert i repoet eller installert
-  lokalt. UI-åtferd kan testast komponentvis med Jest; faktisk Experience
-  Cloud-rendering krev godkjend browser-/scratch-org-test. Jest er ikkje ein
+- **Browser-akse:** Det er ikkje påvist ein konfigurert Playwright-suite for
+  Experience Cloud-reisene. Den separate [Salesforce Project CLI-en](../../tools/salesforce-project-cli/web/playwright.config.ts)
+  har Playwright-testar for si eiga webflate, ikkje for Salesforce-portalen.
+  UI-åtferd kan testast komponentvis med Jest; faktisk Experience
+  Cloud-rendering krev browser-/scratch-org-test. Jest er ikkje ein
   browser-E2E-fallback.
-- **Miljø:** repoets CI nyttar Node.js 22 for testjobbar. Salesforce-testar
-  krev eksplisitt godkjent ikkje-produksjonsmål før kvar org-handling.
+- **Miljø:** repoets CI nyttar Node.js 22 for testjobbar. Verifiser alltid
+  mål og scratch-type. Arbeid i den eksisterande `crm-arbeidsforhold`
+  scratch-orgen krev ikkje ny brukargodkjenning; kvar handling mot andre
+  ikkje-produksjonsorg krev fersk mål- og handlingsgodkjenning.
   Ingen lokal DB/container trengst for LWC Jest.
 - **Akseptanse:** kvar reise må ha positivt resultat, minst éin relevant
   avvisings-/feilvariant, read-back av muterte data og sanert evidens. For
@@ -54,11 +58,11 @@ Salesforce-integrasjonstest.
   relevant. Nye testskjelett skal leggjast ved feature-eigd testområde.
 - **Kommando:** CI køyrer `npm run test:unit`; fokuserte lokale Jest-testar kan
   avgrensast med
-  `npm run test:unit -- --runInBand <sti-til-testfil>`. Apex-kommandolinjekøyring
+  `npm run test:unit -- -- --runInBand <sti-til-testfil>`. Apex-kommandolinjekøyring
   krev eige godkjent mål og blir ikkje erstatta av npm-testen.
-- **Kjent dekningsgap:** ingen konfigurert browser-E2E, ingen lokal Apex/Flow
-  runtime og ingen bevis på effektiv org-sharing eller ekstern aksept frå
-  Jest-/mock-testar.
+- **Kjent dekningsgap:** ingen påvist browser-E2E for Experience Cloud, ingen
+  lokal Apex/Flow-runtime og ingen bevis på effektiv org-sharing eller
+  ekstern aksept frå Jest-/mock-testar.
 
 ## 2. Isolert fixture-graf
 
@@ -70,7 +74,7 @@ flowchart TD
     U["Ekstern brukar A"] --> C1["Verksemd A"]
     V["Ekstern brukar B"] --> C2["Verksemd B"]
     C1 --> R["Tilgangsforespurnad"]
-    R --> A["Soknad"]
+    R --> A["Søknad"]
     A --> BC["Grunnlagskodar"]
     A --> RC["Relaterte kontaktar"]
     A --> F["Salesforce Files og versjonar"]
@@ -78,7 +82,7 @@ flowchart TD
     D --> G["Avtale"]
     G --> GC["Avtalekontaktar"]
     A --> I["Henvending"]
-    I --> T["Trad"]
+    I --> T["Tråd"]
     T --> M["Meldingar og filer"]
     A -.-> J["P360-arkivjobb"]
     D -.-> J
@@ -119,8 +123,9 @@ Sjå [P360-verifikasjonsplanen](../integrations/p360/inngangar-og-verifikasjonsp
   for det avgrensa katalogscenarioet S01–S08. Den eksplisitte provider-policyen
   skal hindre at scenariofeil stille vel vanleg Altinn-integrasjon.
 - Bruk [P360_TestDataFactory](../../force-app/tests/classes/integration/p360/test/P360_TestDataFactory.cls)
-  for testflagg, release-/processing-brukarar og isolerte P360-jobbar. Ei
-  test-fixture-endring av metadata er ikkje ei endring i org-konfigurasjon.
+  for testflagg, minimumstilgangsbrukarar, permission-set-tildelingar og
+  request-/response-byggjarar. Opprett sjølve jobbane i den aktuelle testen.
+  Ei test-fixture-endring av metadata er ikkje ei endring i org-konfigurasjon.
 - Fabrikkfunksjonar kan setje opp privilegert data. Køyr sjølve handlinga som
   aktøren scenarioet testar; bruk `System.runAs(minimumAccessUser)` når
   åtferda ikkje krev høgare rettar. Setup-admin og aktør skal ikkje blandast.

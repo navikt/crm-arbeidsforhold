@@ -91,6 +91,9 @@ yarn-error.log*
 # Dependency directories
 node_modules/
 /temp/
+/site/
+/.venv-docs/
+docs-site/**/__pycache__/
 
 # Eslint cache
 .eslintcache

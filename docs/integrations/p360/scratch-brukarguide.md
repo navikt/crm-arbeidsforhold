@@ -2,6 +2,11 @@
 
 Denne guiden forklarer korleis vi testar P360-arkivering utan P360-server, korleis du får tilgang til å sjå dataa, kva som er ein del av pakka og kva som berre finst i scratch, og kvifor ting er laga slik dei er.
 
+Guiden viser verktøy og produktkode på `P360Test`. Han er ikkje bevis for at
+dei same delane finst på `main` eller er installerte i den aktuelle orgen.
+Kommandoane som nyttar scratch-verktøya krev ei arbeidskopi av `P360Test`;
+dei kan ikkje køyrast direkte frå `main`.
+
 Guiden skil mellom tre typar påstandar:
 
 - **Kjelde:** står i koden eller metadataen i repoet.
@@ -12,30 +17,32 @@ Meir teknisk bakgrunn finn du i [scratch-kontrakttest-og-interne-val.md](scratch
 
 ## 1. Kort fortalt
 
-1. Når ein arbeidsgivar sender inn ein søknad, lagar Salesforce ein **arkivjobb**. Jobben er ein post som seier «denne søknaden skal arkiverast i P360».
+1. Når ein arbeidsgivar sender inn ein søknad på denne greina, ber Salesforce om ein **arkivjobb** dersom prosesseringsporten er open. Jobboppretting kan feile utan at innsendinga blir stoppa.
 2. Ein **worker** (eit Apex-program som køyrer i bakgrunnen) tek jobben, byggjer ein førespurnad i P360-formatet (SIF) og sender han vidare.
 3. I eit ekte miljø skal førespurnaden gå til P360-serveren. Den delen er ikkje laga enno.
 4. I scratch sender vi førespurnaden til ein **liksom-P360** som heiter `P360_ScratchRpcClient`. Han sjekkar at førespurnaden ser rett ut og lagrar han som ein post i objektet `P360ScratchCapture__c`. Vi kallar posten ei **kvittering**.
-5. Kvitteringa er beviset vårt. Finst ho, og ser innhaldet rett ut, har heile vegen frå søknad til «P360» fungert.
+5. Ei kontrollert kvittering viser kva testmottaket fekk i den konkrete
+   køyringa. Ho viser ikkje at ein ekte P360-server har motteke noko, eller at
+   alle scenario og alle søknadsfelt er dekte.
 6. Alt dette blir styrt av eitt skript: `scripts/p360-scratch-contract.cjs`. Du køyrer det med éin kommando, `npm run p360:scratch -- <modus>`, på macOS, Linux og Windows.
 
 ## 2. Ord du treng
 
-| Ord                     | Enkel forklaring                                                                                                          |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Scratch-org             | Ei mellombels Salesforce-org berre for utvikling. Vår heiter `crm-arbeidsforhold`. Ho har aldri ekte persondata.          |
-| Pakke                   | `crm-arbeidsforhold` er ei «unlocked package». Alt under `force-app/` blir med i pakka og kan hamne i SIT2 og produksjon. |
-| Deploy                  | Å sende metadata (kode, felt, oppsett) frå maskina di til ei org.                                                         |
-| Permission set          | Ein «tilgangspakke» du kan gi til ein brukar. Han seier kva objekt, felt, faner og klassar brukaren får bruke.            |
-| FLS (feltnivåtryggleik) | Tilgang til eitt felt. Sjølv ein administrator ser ikkje eit felt utan FLS.                                               |
-| Sharing                 | Kva _postar_ (rader) du får sjå. Det er noko anna enn felttilgang.                                                        |
-| Custom setting          | Ein innstillingstabell i orga. Vi bruker han for å slå mock av og på og velje mottakar.                                   |
-| Custom metadata (CMDT)  | Konfigurasjon som blir deployert som metadata. Vi bruker han til P360-kodeverdiar og feature-flagg.                       |
-| Feature-flagg           | Ein av/på-brytar. `P360_Archive_Processing` må vere på for at arkivjobbar skal bli laga.                                  |
-| Mock / stub             | Ein falsk mottakar som alltid svarar «OK». Han lagrar ingenting.                                                          |
-| RPC-klient              | Den delen av koden som faktisk sender førespurnaden. Vi kan byte han ut via konfigurasjon.                                |
-| SIF                     | Formatet P360 bruker. Det er beskrive i SIF-API-dokumentet frå P360-teamet.                                               |
-| Kvittering              | Ein `P360ScratchCapture__c`-post som viser kva liksom-P360 tok imot.                                                      |
+| Ord                     | Enkel forklaring                                                                                                                          |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Scratch-org             | Ei mellombels Salesforce-org for utvikling. Målet her er `crm-arbeidsforhold`; bruk berre syntetiske testdata.                            |
+| Pakke                   | `crm-arbeidsforhold` er ei «unlocked package» med kjelde under `force-app/`. Pakkekonfigurasjon og ignore-reglar avgjer kva som blir med. |
+| Deploy                  | Å sende metadata (kode, felt, oppsett) frå maskina di til ei org.                                                                         |
+| Permission set          | Ein «tilgangspakke» du kan gi til ein brukar. Han seier kva objekt, felt, faner og klassar brukaren får bruke.                            |
+| FLS (feltnivåtryggleik) | Tilgang til eitt felt. Effektiv handheving avheng av brukartilgang og korleis koden les eller skriv feltet.                               |
+| Sharing                 | Kva _postar_ (rader) du får sjå. Det er noko anna enn felttilgang.                                                                        |
+| Custom setting          | Ein innstillingstabell i orga. Vi bruker han for å slå mock av og på og velje mottakar.                                                   |
+| Custom metadata (CMDT)  | Konfigurasjon som blir deployert som metadata. Vi bruker han til P360-kodeverdiar og feature-flagg.                                       |
+| Feature-flagg           | Ein av/på-brytar. `P360_Archive_Processing` må vere på for at arkivjobbar skal bli laga.                                                  |
+| Mock / stub             | Ein falsk mottakar som alltid svarar «OK». Han lagrar ingenting.                                                                          |
+| RPC-klient              | Den delen av koden som faktisk sender førespurnaden. Vi kan byte han ut via konfigurasjon.                                                |
+| SIF                     | Formatet P360 bruker. Det er beskrive i SIF-API-dokumentet frå P360-teamet.                                                               |
+| Kvittering              | Ein `P360ScratchCapture__c`-post som viser kva liksom-P360 tok imot.                                                                      |
 
 ## 3. Det store bildet
 
@@ -55,7 +62,9 @@ flowchart TD
     J --> L["Jobb Succeeded med bevis"]
 ```
 
-Det viktige er at **alt over mottakaren er ekte produktkode**. Det er berre det siste leddet vi byter ut. Difor beviser ein grøn test i scratch at vår eigen kode fungerer, sjølv om P360 ikkje er med.
+Testen bruker produktkoden som er installert i det aktuelle scratch-orget,
+men byter ut siste mottakarledd. Ei grøn køyring beviser berre dei konkrete
+stega og det innhaldet som faktisk er kontrollerte i den køyringa.
 
 ## 4. Kvifor vi valde slik
 
@@ -70,7 +79,10 @@ Dette skjedde faktisk: det første ende-til-ende-forsøket gav jobbstatus `Succe
 
 ### 4.2 Kvifor byte ut nettopp RPC-klienten?
 
-RPC-klienten er det siste steget før nettverket. Alt som skjer før, blir då testa på ekte: innsending, jobb, worker, oppbygging av SIF-førespurnad og vedlegg.
+RPC-klienten er det siste steget før nettverket. Testen kan dermed følgje
+innsending, jobb, worker og oppbygging av SIF-førespurnaden. Kontroller
+evidensen for kva dokumentinnhald og vedlegg det enkelte scenarioet faktisk
+dekkjer.
 
 Mottakaren er vald med eit tekstfelt, `Rpc_Client_Class__c`. Då kan vi byte mottakar utan å endre kode. Når ekte HTTP-transport er laga, peikar vi berre feltet dit.
 
@@ -464,26 +476,28 @@ Liksom-P360 i alle fire scenario er dekt av `P360_ScratchRpcClientTest` (kjelde,
 
 ## 11. Opprydding
 
-- Syntetiske postar (kontoar som heiter «Syntetisk P360 scratch-organisasjon …», søknadene deira, jobbar og kvitteringar) blir liggjande i scratch. Dei har ingen persondata. Du kan slette dei i scratch om du vil starte reint.
+- Syntetiske postar, søknader, jobbar og kvitteringar kan bli liggjande i
+  scratch. Identifiser dei eksakte testdataa og kontroller avhengnader før
+  eventuell sletting; testdata skal ikkje innehalde persondata.
 - Ikkje slett `P360ScratchSetting__c` om du ikkje vil at `verify` skal lage han på nytt med standardverdiar.
 - Skriptet slettar sine eigne mellombelse filer sjølv.
 - Når scratch-orga blir oppretta på nytt, forsvinn alt dette. Køyr då 7.1 og 7.2 på nytt.
 
 ## 12. Kva som er ferdig, og kva som manglar
 
-| Område                                                        | Status                                         |
-| ------------------------------------------------------------- | ---------------------------------------------- |
-| Innsending lagar arkivjobb                                    | Kjelde og verifisert i scratch                 |
-| Worker byggjer komplett SIF-førespurnad med søknad og vedlegg | Kjelde og verifisert i scratch                 |
-| Liksom-P360 som tek imot og lagrar kvitteringar               | Kjelde og verifisert i scratch                 |
-| Konfigurerbare kodeverdiar og mottakar                        | Kjelde                                         |
-| Tilbakeskriving av saks- og dokumentnummer                    | Ope, ikkje laga                                |
-| Oppslag etter tapt svar                                       | Ope, ikkje laga i produktkoden                 |
-| Eigen identitet og heilt nytt dokumentsett ved ny innsending  | Ope, ikkje laga                                |
-| Lagra vedleggsutval i utkastet                                | Ope, ikkje laga. I dag blir alle vedlegg sende |
-| Innsending som ekte community-brukar                          | Ope, ikkje verifisert                          |
-| Ekte HTTP-transport mot P360                                  | Ope, ikkje laga                                |
-| Felttilgang til saks- og dokumentnummer                       | Ope, sjå 6.4                                   |
+| Område                                                       | Status                                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------------- |
+| Innsending ber om arkivjobb                                  | Kjelde; avgrensa historisk scratch-test                             |
+| Worker byggjer tekstsamandrag og lenkja filer                | Kjelde; avgrensa historisk scratch-test                             |
+| Liksom-P360 som tek imot og lagrar kvitteringar              | Kjelde; avgrensa historisk scratch-test                             |
+| Konfigurerbare kodeverdiar og mottakar                       | Kjelde                                                              |
+| Tilbakeskriving av saks- og dokumentnummer                   | Saksnummer blir lagra; dokumentnummer står att                      |
+| Oppslag etter tapt svar                                      | Ope, ikkje laga i produktkoden                                      |
+| Eigen identitet og heilt nytt dokumentsett ved ny innsending | Delvis jobbnøkkel; frose sett og komplett flyt står att             |
+| Lagra vedleggsutval i utkastet                               | Ope, ikkje laga. I dag blir alle vedlegg sende                      |
+| Innsending som community-brukar                              | Eit avgrensa historisk scratch-probe; breiare verifikasjon står att |
+| Ekte HTTP-transport mot P360                                 | Ope, ikkje laga                                                     |
+| Felttilgang til saks- og dokumentnummer                      | Ope, sjå 6.4                                                        |
 
 Sjå [#1015](https://github.com/navikt/crm-arbeidsforhold/issues/1015) og [#1018](https://github.com/navikt/crm-arbeidsforhold/issues/1018) for issue-status.
 

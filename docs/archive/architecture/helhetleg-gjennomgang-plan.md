@@ -1,7 +1,9 @@
 # Plan: heilskapleg gjennomgang av Arbeidsforhold / Aa-registeret
 
+> **Arkivert plan:** Sjekklister og arbeidskopistatus er ikkje ein oppdatert framdriftsrapport.
+
 **Status:** planlagd, ikkje gjennomført
-**Spec:** [helhetleg-gjennomgang-aaregisteret.md](../../.github/specs/helhetleg-gjennomgang-aaregisteret.md)
+**Spec:** [helhetleg-gjennomgang-aaregisteret.md](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/.github/specs/helhetleg-gjennomgang-aaregisteret.md)
 **Arbeidsmodell:** GitHub Issues er system of record for deloppgåver og akseptanse.
 
 ## Mål
@@ -12,11 +14,11 @@ Byggje ei komplett, samanhengande og kjelde-/evidensforankra oversikt over produ
 
 Følgjande eksisterande arbeid er inngangsmateriale, ikkje fullført verifikasjon:
 
-- [Kjeldekart og teststrategi](arbeidsforhold-kjeldekart-og-teststrategi.md) med kjedekart, datarelasjonar, tidlegare org-funn og scenarioforslag.
-- [Eksisterande heilskapleg analyse](helhetleg-analyse-og-teststrategi.md) ligg allereie endra i arbeidskopien; les og samanlikn han før vidare dokumentarbeid, men ikkje overskriv eller rydd han i denne planen utan særskild avklaring.
-- [Heile løysinga: arkitektur og flyt](hele-loysinga.md) og [pakkeavhengigheiter](pakkeavhengigheiter.md), inkludert 19 direkte dependency-pakkar.
-- [Flow-katalog](aareg-flow-katalog.md) og [grupperte Flow-diagram](aareg-flow-diagrammer.md) med 37 Flow-definisjonar.
-- [P360-kartlegging](../integrations/p360/kartlegging-av-dagens-flytar.md), P360-spesifikasjonar og aktiv [Issue #1095](https://github.com/navikt/crm-arbeidsforhold/issues/1095).
+- [Kjeldekart og teststrategi](../../architecture/arbeidsforhold-kjeldekart-og-teststrategi.md) med kjedekart, datarelasjonar, tidlegare org-funn og scenarioforslag.
+- [Eksisterande heilskapleg analyse](helhetleg-analyse-og-teststrategi-2026-11-13.md) ligg allereie endra i arbeidskopien; les og samanlikn han før vidare dokumentarbeid, men ikkje overskriv eller rydd han i denne planen utan særskild avklaring.
+- [Heile løysinga: arkitektur og flyt](../../architecture/hele-loysinga.md) og [pakkeavhengigheiter](../../architecture/pakkeavhengigheiter.md), inkludert 19 direkte dependency-pakkar.
+- [Flow-katalog](../../architecture/aareg-flow-katalog.md) og [grupperte Flow-diagram](../../architecture/aareg-flow-diagrammer.md) med 37 Flow-definisjonar.
+- [P360-kartlegging](../p360/kartlegging-av-flytar-2026-11-13.md), P360-spesifikasjonar og aktiv [Issue #1095](https://github.com/navikt/crm-arbeidsforhold/issues/1095).
 - Aktiv P360-dokumentasjons-Issue [#983](https://github.com/navikt/crm-arbeidsforhold/issues/983), runbook-eigar-Issue [#997](https://github.com/navikt/crm-arbeidsforhold/issues/997), og tidlegare, historisk scratch-verifikasjon [#1092](https://github.com/navikt/crm-arbeidsforhold/issues/1092).
 
 Org-funn, tidlegare testresultat og issue/Jira-status er tidsavgrensa evidens. Dei må ikkje presenterast som ferske runtime- eller integrasjonsresultat.
@@ -119,7 +121,7 @@ Nye målbaner som skal vurderast i fase 6; ikkje alle filer skal opprettast ders
 
 - `docs/architecture/aaregisteret-handbok.md` — inngang, systemkart, eigarskap og lenkjer.
 - `docs/architecture/aaregisteret-funksjonsoversikt.md` — funksjonar etter brukar/arbeidsprosess, kjelde og verifikasjonsstatus.
-- Eksisterande [Flow-katalog](aareg-flow-katalog.md), [Flow-diagram](aareg-flow-diagrammer.md) og [kjeldekart/teststrategi](arbeidsforhold-kjeldekart-og-teststrategi.md) — fullførast eller lenkjast; ikkje kopier same detaljar.
+- Eksisterande [Flow-katalog](../../architecture/aareg-flow-katalog.md), [Flow-diagram](../../architecture/aareg-flow-diagrammer.md) og [kjeldekart/teststrategi](../../architecture/arbeidsforhold-kjeldekart-og-teststrategi.md) — fullførast eller lenkjast; ikkje kopier same detaljar.
 - `docs/testing/aaregisteret-testdata-strategi.md` — fixtures, roller, isolasjon, syntetiske data og cleanup.
 - `docs/testing/aaregisteret-scenario-testplan.md` — alle scenariosteg, forventningar og testbevis.
 - `docs/architecture/aaregisteret-funn-og-tiltak.md` — prioriterte gap og godkjende oppfølgings-Issues.

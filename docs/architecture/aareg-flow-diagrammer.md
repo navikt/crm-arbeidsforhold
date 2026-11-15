@@ -103,8 +103,6 @@ flowchart TD
 
 Sekvensen viser hovudbana frå innsending til avgjerd. P360-arkivering er ikkje del av denne Flow-bana; sjå den separate [P360-kartlegginga](../integrations/p360/kartlegging-av-dagens-flytar.md).
 
-<!-- mermaid-checked: every participant uses `participant Id as "Label"`, no \n in aliases/messages/notes, every alt/opt/loop closed by end, no `:` inside any alias -->
-
 ```mermaid
 sequenceDiagram
     participant Representative as "Ekstern representant"
@@ -148,4 +146,4 @@ sequenceDiagram
 - Skjermflytane sine konkrete Lightning Action-/sidebindingar må verifiserast separat.
 - Varsling som blir kølagd er ikkje det same som levert e-post eller SMS.
 - Fullført Flow/Apex-handling er ikkje bevis på at distribusjonstilgang vart oppretta eller fjerna eksternt.
-- Den godkjende org-inventeringa fann 35 aktive og to inaktive Flow-definisjonar. Ingen Flow vart køyrd funksjonelt i denne diagramgjennomgangen.
+- [Org-inventeringa 2026-11-14](../archive/architecture/aareg-flow-org-source-reconciliation-2026-11-14.md) fann 35 aktive og to inaktive Flow-definisjonar. Ingen Flow vart køyrd funksjonelt i denne diagramgjennomgangen.

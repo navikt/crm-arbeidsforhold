@@ -1,5 +1,7 @@
 # Aa-registeret scratch-org snapshot — 2026-11-15
 
+> **Arkivert observasjon:** Tilstanden og testresultata nedanfor er historiske.
+
 This is a dated, partial snapshot of read-only checks and test runs against
 the non-production scratch org `crm-arbeidsforhold`. It records only the
 observations below; it is not a complete org inventory or a sign-off.
@@ -20,7 +22,7 @@ instance.
 Command: `sf package installed list --target-org crm-arbeidsforhold`
 
 The CLI returned 19 installed-package rows. Their package names match the 19
-direct Salesforce dependencies declared in [`sfdx-project.json`](../../sfdx-project.json).
+direct Salesforce dependencies declared in [`sfdx-project.json`](../../../sfdx-project.json).
 
 | Package                         | Installed version |
 | ------------------------------- | ----------------- |

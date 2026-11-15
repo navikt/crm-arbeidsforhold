@@ -10,6 +10,9 @@ Modell, Salesforce-kontrakt og ekstern P360-representasjon er framleis forslag
 og må godkjennast før implementering. Dokumentet viser kjeldeanalyse, ikkje
 org-verifisert åtferd.
 
+Kjeldelenkjene i analysen viser til den undersøkte `P360Test`-versjonen.
+Ho er ikkje nødvendigvis lik `main`.
+
 ## Avklart produktåtferd
 
 Ved ny innsending etter krav om meir informasjon skal eit komplett nytt
@@ -28,26 +31,27 @@ arbeidsutgangspunkt, men er ikkje stadfesta som endeleg P360-kontrakt.
 
 ## Kjeldeåtferd i repoet
 
-- [Søknadsskjemaet](../../../force-app/externalApplication/lwc/aareg_application/aareg_application.js)
+- [Søknadsskjemaet](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/externalApplication/lwc/aareg_application/aareg_application.js)
   les éi ny fil inn i `fileData` og sender berre denne fila til
   `saveAsDraft` eller `processApplication`.
-- [Skjemamarkupen](../../../force-app/externalApplication/lwc/aareg_application/aareg_application.html)
+- [Skjemamarkupen](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/externalApplication/lwc/aareg_application/aareg_application.html)
   viser tidlegare vedlegg gjennom `c-record-files-with-sharing` med
   `is-get-all="true"` og `is-delete-option="false"`. Forelderen får ikkje eit
   filutval frå denne komponenten. Ingen lokal komponentimplementasjon vart
   funnen i repoet.
-- [AAREG_ApplicationController](../../../force-app/externalApplication/classes/AAREG_ApplicationController.cls)
+- [AAREG_ApplicationController](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/externalApplication/classes/AAREG_ApplicationController.cls)
   opprettar `ContentVersion` utan eksplisitt `FirstPublishLocationId`, og
   opprettar `ContentDocumentLink` etterpå. Innsending utan nye fildata
   opprettar ikkje ein ny filversjon i denne controlleren.
-- [P360_ContentVersionArchiveHandler](../../../force-app/integration/p360/classes/P360_ContentVersionArchiveHandler.cls)
+- [P360_ContentVersionArchiveHandler](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/integration/p360/classes/P360_ContentVersionArchiveHandler.cls)
   opprettar vedleggsjobb berre når ein ny `ContentVersion` blir sett inn med
   `FirstPublishLocationId` direkte på `Application__c` og prosesseringsporten er
   open. Dette er ikkje same inngang som portalopplastinga.
-- [P360_ArchiveJobService](../../../force-app/integration/p360/classes/job/P360_ArchiveJobService.cls)
-  og [P360_IdempotencyKey](../../../force-app/integration/p360/classes/job/P360_IdempotencyKey.cls)
-  identifiserer søknadsdokument per søknad og vedlegg per søknad og
-  ContentVersion. Dei skil ikkje same filsett i to ulike innsendingar.
+- [P360_ArchiveJobService](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/integration/p360/classes/job/P360_ArchiveJobService.cls)
+  og [P360_IdempotencyKey](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/integration/p360/classes/job/P360_IdempotencyKey.cls)
+  gjenbruker ein open søknadsjobb, men kan lage ein ny innsendingsnøkkel etter
+  at førre jobb har fått terminal status. Vedleggsnøkkelen er per søknad og
+  ContentVersion. Koden lagrar ikkje eit frose filsett for kvar innsending.
 
 Desse funna er statisk kjeldeanalyse. Dei dokumenterer ikkje effektiv
 org-konfigurasjon, P360-transport eller ekstern arkiveringsåtferd.
@@ -112,7 +116,7 @@ flowchart TD
 - Gjeldande kode oppdaterer søknaden på staden. Om sjølve søknadsinnhaldet skal
   frysast som data, P360-dokumentmetadata eller ei anna representasjon, krev
   godkjend mapping og ligg utanfor denne avgjerda.
-- [AAREG_ApplicationController](../../../force-app/externalApplication/classes/AAREG_ApplicationController.cls)
+- [AAREG_ApplicationController](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/externalApplication/classes/AAREG_ApplicationController.cls)
   er `without sharing`. Ein ny innsending må derfor validere søknadstilgang,
   at kvar ContentDocument er lenka til rett søknad, og at brukaren kan endre
   utvalet; validering av berre innsendte Salesforce-ID-ar er ikkje nok.
@@ -145,16 +149,17 @@ må verifiserast før metadata blir oppretta.
 
 ## Eksisterande test-sømmer
 
-- [AAREG_ApplicationControllerTest](../../../force-app/externalApplication/classes/AAREG_ApplicationControllerTest.cls)
+- [AAREG_ApplicationControllerTest](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/externalApplication/classes/AAREG_ApplicationControllerTest.cls)
   testar den offentlege Apex-grensa; `shouldLinkUploadedFileToApplicationAndAccessRequest`
   kontrollerer dagens lenking av ei ny fil til søknad og tilgangsførespurnad.
   Han testar ikkje vedleggsutval eller gjenoppretting av utkastval.
-- [P360_ContentVersionArchiveHandlerTest](../../../force-app/tests/classes/integration/p360/P360_ContentVersionArchiveHandlerTest.cls)
+- [P360_ContentVersionArchiveHandlerTest](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/P360_ContentVersionArchiveHandlerTest.cls)
   testar direktepublisering til søknad. Han testar ikkje portalens
   controllerstyrte opplasting.
-- [P360_ArchiveJobServiceTest](../../../force-app/tests/classes/integration/p360/job/P360_ArchiveJobServiceTest.cls)
-  testar sekvensiell gjenbruk av same jobb. Han testar ikkje to innsendingar
-  med same filer eller timeout/retry av ei fullstendig innsending.
+- [P360_ArchiveJobServiceTest](https://github.com/navikt/crm-arbeidsforhold/blob/807fdcf12f3f281beb780173d0db427cf7fa0142/force-app/tests/classes/integration/p360/job/P360_ArchiveJobServiceTest.cls)
+  testar jobboppretting og gjenbruk. Testar av jobbnøkkel er ikkje i seg sjølve
+  bevis på at eit komplett, uforanderleg filsett er arkivert for kvar
+  innsending eller at timeout/retry er trygg mot P360.
 - Ingen lokal Jest-testmappe vart funnen for `aareg_application`; ny
   filutvalsflate treng ein fokusert LWC-test og ei Apex-test gjennom den
   brukarvendte innsendinga.
