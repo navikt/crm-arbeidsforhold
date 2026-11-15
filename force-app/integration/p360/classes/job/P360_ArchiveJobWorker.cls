@@ -35,6 +35,7 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
      * only their identity and are rejected by the adapter until their document content is implemented.
      * A P360 case created for an access request is saved on that access request after all callouts, also when the
      * document step then fails, so the next submission or retry reuses the case instead of creating a duplicate.
+     * Jobs for the same access request later in the same batch reuse that case as well.
      *
      * @param context Queueable context supplied by the platform.
      * @since 2026-10
@@ -107,6 +108,7 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
                 adapter = new P360_AdapterFactory().createArchiveAdapter();
             }
             request = buildRequest(job);
+            reuseCaseCreatedInBatch(job, request);
             P360_ArchiveResponseDto response = adapter.archive(request);
             if (response == null || response.success != true) {
                 throw new P360_ContractException('P360 adapter did not confirm a successful archive.');
@@ -119,6 +121,15 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
             return failure;
         } finally {
             rememberCreatedCase(job, request);
+        }
+    }
+
+    // The access request is read before this batch saves its case number, so reuse a case created earlier in the batch.
+    private void reuseCaseCreatedInBatch(P360_Archive_Job__c job, P360_ArchiveRequestDto request) {
+        String caseNumber = createdCaseNumbers.get(job.Access_Request__c);
+        if (caseNumber != null && request.createCase != null && request.createDocument != null) {
+            request.createCase = null;
+            request.createDocument.caseNumber = caseNumber;
         }
     }
 

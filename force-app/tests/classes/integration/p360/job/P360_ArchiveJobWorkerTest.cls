@@ -660,6 +660,43 @@ private class P360_ArchiveJobWorkerTest {
         System.Assert.areEqual('26/00009', P360_CapturingRpcClient.parameter(2).get('CaseNumber'));
     }
 
+    /**
+     * Verifies that two applications on the same access request archived in one batch share one P360 case.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void applicationsOnSameAccessRequestInOneBatchShareOneCase() {
+        Access_Request__c accessRequest = capturingAccessRequest();
+        Application__c first = new Application__c(Access_Request__c = accessRequest.Id);
+        Application__c second = new Application__c(Access_Request__c = accessRequest.Id);
+        insert new List<Application__c>{ first, second };
+        User processingUser = createProcessingUser();
+
+        System.Test.startTest();
+        Set<Id> jobIds = new Set<Id>{
+            P360_ArchiveJobService.getOrCreateApplicationDocumentJob(accessRequest.Id, first.Id, 'corr-1').Id,
+            P360_ArchiveJobService.getOrCreateApplicationDocumentJob(accessRequest.Id, second.Id, 'corr-2').Id
+        };
+        System.runAs(processingUser) {
+            System.Assert.isTrue(new Set<Id>(P360_ArchiveJobClaimService.claimNextBatch(10)).containsAll(jobIds));
+            new P360_ArchiveJobWorker(jobIds).execute(null);
+        }
+        System.Test.stopTest();
+
+        System.Assert.areEqual(
+            new List<String>{ 'CreateCase', 'CreateDocument', 'CreateDocument' },
+            capturedOperations(),
+            'Both applications must be archived in one case.'
+        );
+        System.Assert.areEqual('26/00001', P360_CapturingRpcClient.parameter(2).get('CaseNumber'));
+        System.Assert.areEqual(
+            '26/00001',
+            [SELECT P360_Case_Number__c FROM Access_Request__c WHERE Id = :accessRequest.Id WITH SYSTEM_MODE]
+            .P360_Case_Number__c
+        );
+    }
+
     private static Access_Request__c capturingAccessRequest() {
         P360_TestDataFactory.setArchiveProcessingEnabled(true);
         insert new P360_Integration_Setting__c(
