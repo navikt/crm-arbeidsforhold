@@ -6,8 +6,8 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { sfInvocation } = require('./p360-scratch-contract.cjs');
+const { ScratchTargetError, verifyScratchTarget } = require('./scratch-target.cjs');
 
-const ORG = 'crm-arbeidsforhold';
 const ROOT = path.resolve(__dirname, '..');
 const MODES = ['verify', 'test', 'seed', 'reset', 'inspect'];
 const TESTLAB_SCENARIOS = ['soknad-ny', 'p360-arkivert', 'p360-feila', 'p360-manuell', 'p360-utgatt-lease'];
@@ -19,7 +19,6 @@ const TESTLAB_BUNDLE = [
     ['scripts/scratch/admin/tests/AAREG_AdminTestLabTest.cls', 'classes'],
     ['scripts/scratch/admin/tests/AAREG_AdminTestLabTest.cls-meta.xml', 'classes']
 ];
-const SCRATCH_URL = /^https:\/\/[a-zA-Z0-9.-]+\.scratch\.my\.salesforce\.com$/;
 const ADMIN_SOURCES = [
     'force-app/internalAdmin',
     'force-app/tests/classes/internalAdmin',
@@ -86,30 +85,6 @@ function summarize(result) {
 
 function createRunner({ runSf, log, workDirectory }) {
     let target;
-
-    function verifyTarget() {
-        const orgs = runSf(['org', 'list', '--skip-connection-status', '--json']);
-        const matches = (orgs.result?.scratchOrgs ?? []).filter(
-            (org) => org.alias === ORG && org.isScratch === true && SCRATCH_URL.test(org.instanceUrl ?? '')
-        );
-        if (matches.length !== 1 || typeof matches[0].username !== 'string' || !matches[0].username) {
-            throw new RunnerFailure('STOP: The explicit target is not a locally identified scratch org.');
-        }
-        target = matches[0].username;
-        const check = runSf([
-            'data',
-            'query',
-            '--target-org',
-            target,
-            '--query',
-            'SELECT IsSandbox FROM Organization',
-            '--json'
-        ]);
-        if (check.status !== 0 || check.result?.records?.[0]?.IsSandbox !== true) {
-            throw new RunnerFailure('STOP: The target org did not confirm IsSandbox=true.');
-        }
-        log('Target verified: crm-arbeidsforhold, scratch domain and IsSandbox=true.');
-    }
 
     function deploy(extra, description) {
         const result = runSf([
@@ -233,7 +208,7 @@ function createRunner({ runSf, log, workDirectory }) {
 
     return {
         run(mode, scenario) {
-            verifyTarget();
+            target = verifyScratchTarget(runSf, log);
             if (mode === 'seed') {
                 deployTestLab();
                 runTests(['AAREG_AdminTestLabTest']);
@@ -280,7 +255,7 @@ function main({
         createRunner({ runSf, log, workDirectory }).run(mode, scenario);
         return 0;
     } catch (error) {
-        logError(error instanceof RunnerFailure ? error.message : error.stack);
+        logError(error instanceof RunnerFailure || error instanceof ScratchTargetError ? error.message : error.stack);
         return error.exitCode ?? 1;
     } finally {
         fs.rmSync(workDirectory, { recursive: true, force: true });

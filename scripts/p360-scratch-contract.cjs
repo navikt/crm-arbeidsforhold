@@ -6,11 +6,10 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { ScratchTargetError, verifyScratchTarget } = require('./scratch-target.cjs');
 
 const ROOT = path.resolve(__dirname, '..');
-const ORG = 'crm-arbeidsforhold';
 const MODES = ['verify', 'test', 'regression', 'smoke', 'inspect', 'e2e'];
-const SCRATCH_URL = /^https:\/\/[a-zA-Z0-9.-]+\.scratch\.my\.salesforce\.com$/;
 const FLAG_SOURCE = path.join(
     ROOT,
     'force-app/integration/p360/customMetadata/Feature_Flag.P360_Archive_Processing.md-meta.xml'
@@ -109,30 +108,6 @@ function readDebugResult(result, marker) {
 
 function createContract({ runSf, log, workDirectory }) {
     let target;
-
-    function verifyTarget() {
-        const orgs = runSf(['org', 'list', '--skip-connection-status', '--json']);
-        const matches = (orgs.result?.scratchOrgs ?? []).filter(
-            (org) => org.alias === ORG && org.isScratch === true && SCRATCH_URL.test(org.instanceUrl ?? '')
-        );
-        if (matches.length !== 1 || typeof matches[0].username !== 'string' || !matches[0].username) {
-            throw new ContractFailure('STOP: The explicit target is not a locally identified scratch org.');
-        }
-        target = matches[0].username;
-        const check = runSf([
-            'data',
-            'query',
-            '--target-org',
-            target,
-            '--query',
-            'SELECT IsSandbox FROM Organization',
-            '--json'
-        ]);
-        if (check.status !== 0 || check.result?.records?.[0]?.IsSandbox !== true) {
-            throw new ContractFailure('STOP: The target org did not confirm IsSandbox=true.');
-        }
-        log('Target verified: crm-arbeidsforhold, scratch domain and IsSandbox=true.');
-    }
 
     function deploy(args, description) {
         const result = runSf([
@@ -345,7 +320,7 @@ function createContract({ runSf, log, workDirectory }) {
 
     return {
         run(mode) {
-            verifyTarget();
+            target = verifyScratchTarget(runSf, log);
             if (mode === 'verify') deployScratchBundle();
             if (mode === 'verify' || mode === 'test') runTests(['P360_ScratchRpcClientTest']);
             if (mode === 'regression') {
@@ -384,7 +359,7 @@ function main({
         createContract({ runSf, log, workDirectory }).run(mode);
         return 0;
     } catch (error) {
-        logError(error instanceof ContractFailure ? error.message : error.stack);
+        logError(error instanceof ContractFailure || error instanceof ScratchTargetError ? error.message : error.stack);
         return error.exitCode ?? 1;
     } finally {
         fs.rmSync(workDirectory, { recursive: true, force: true });

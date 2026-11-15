@@ -7,12 +7,14 @@ const { FLAG_SOURCE, main, sfInvocation } = require('../p360-scratch-contract.cj
 
 const SCRATCH = {
     alias: 'crm-arbeidsforhold',
-    isScratch: true,
+    isScratchOrg: true,
+    isDevHub: false,
+    isExpired: false,
     instanceUrl: 'https://example-1.scratch.my.salesforce.com',
     username: 'scratch@example.com'
 };
 
-function fakeSf({ scratchOrgs = [SCRATCH], e2eResult, apexFails = false }) {
+function fakeSf({ scratchOrgs = [SCRATCH], authStatus = 0, isSandbox = true, e2eResult, apexFails = false }) {
     const calls = [];
     const runSf = (args) => {
         const command = args.slice(0, 3).join(' ');
@@ -28,8 +30,8 @@ function fakeSf({ scratchOrgs = [SCRATCH], e2eResult, apexFails = false }) {
                     )
                     .includes('<value xsi:type="xsd:boolean">true</value>')
         });
-        if (command === 'org list --skip-connection-status') return { status: 0, result: { scratchOrgs } };
-        if (command.startsWith('data query')) return { status: 0, result: { records: [{ IsSandbox: true }] } };
+        if (command === 'org list auth') return { status: authStatus, result: scratchOrgs };
+        if (command.startsWith('data query')) return { status: 0, result: { records: [{ IsSandbox: isSandbox }] } };
         if (command === 'org assign permset') return { status: 0, result: { successes: [{}], failures: [] } };
         if (command === 'project deploy start') return { status: 0, result: { success: true } };
         if (command.startsWith('apex run --target-org')) {
@@ -71,13 +73,27 @@ const ACCEPTED = {
     receipts: [{ outcome: 'Accepted' }, { outcome: 'Accepted' }]
 };
 
+test('e2e identifies the scratch target from local authorizations without listing Dev Hubs', (t) => {
+    const sf = fakeSf({ e2eResult: ACCEPTED });
+    const result = run(t, 'e2e', sf);
+
+    assert.equal(result.exitCode, 0, result.output);
+    assert.deepEqual(sf.calls[0].args, ['org', 'list', 'auth', '--json']);
+    assert.ok(!sf.calls.some((call) => call.args.slice(0, 3).join(' ') === 'org list --skip-connection-status'));
+});
+
 for (const [name, scratchOrgs] of [
     ['missing scratch target', []],
-    ['non-scratch target with the expected alias', [{ ...SCRATCH, isScratch: false }]],
+    ['non-scratch target with the expected alias', [{ ...SCRATCH, isScratchOrg: false }]],
     [
         'untrusted instance domain despite scratch classification',
         [{ ...SCRATCH, instanceUrl: 'https://example.invalid' }]
-    ]
+    ],
+    ['a Dev Hub using the expected alias', [{ ...SCRATCH, isDevHub: true }]],
+    ['an expired scratch target', [{ ...SCRATCH, isExpired: true }]],
+    ['an authorization with a local error', [{ ...SCRATCH, error: 'unreadable authorization' }]],
+    ['a target with no username', [{ ...SCRATCH, username: '' }]],
+    ['ambiguous authorizations for the expected alias', [SCRATCH, { ...SCRATCH }]]
 ]) {
     for (const mode of ['verify', 'e2e']) {
         test(`${mode} refuses ${name} without querying, deploying or running Apex`, (t) => {
@@ -87,11 +103,37 @@ for (const [name, scratchOrgs] of [
             assert.match(result.output, /STOP: The explicit target is not a locally identified scratch org/);
             assert.deepEqual(
                 sf.calls.map((call) => call.args.join(' ')),
-                ['org list --skip-connection-status --json']
+                ['org list auth --json']
             );
         });
     }
 }
+
+test('e2e accepts the expected alias alongside other aliases on the same local authorization', (t) => {
+    const sf = fakeSf({ scratchOrgs: [{ ...SCRATCH, alias: `another,${SCRATCH.alias}` }], e2eResult: ACCEPTED });
+
+    assert.equal(run(t, 'e2e', sf).exitCode, 0);
+    const query = sf.calls.find((call) => call.args.slice(0, 2).join(' ') === 'data query');
+    assert.equal(query.args[query.args.indexOf('--target-org') + 1], SCRATCH.username);
+});
+
+test('e2e stops when the local authorization listing fails', (t) => {
+    const sf = fakeSf({ authStatus: 1 });
+    const result = run(t, 'e2e', sf);
+
+    assert.equal(result.exitCode, 1);
+    assert.match(result.output, /Unable to inspect locally cached Salesforce authorizations/);
+    assert.equal(sf.calls.length, 1);
+});
+
+test('e2e stops if the verified scratch target does not confirm IsSandbox', (t) => {
+    const sf = fakeSf({ isSandbox: false });
+    const result = run(t, 'e2e', sf);
+
+    assert.equal(result.exitCode, 1);
+    assert.match(result.output, /did not confirm IsSandbox=true/);
+    assert.ok(!sf.calls.some((call) => call.args[0] === 'project' || call.args[0] === 'apex'));
+});
 
 test('rejects unknown actions before accessing Salesforce', (t) => {
     const sf = fakeSf({});

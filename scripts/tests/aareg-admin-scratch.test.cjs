@@ -4,7 +4,9 @@ const { ADMIN_SOURCES, ADMIN_TESTS, TESTLAB_SCENARIOS, main } = require('../aare
 
 const SCRATCH = {
     alias: 'crm-arbeidsforhold',
-    isScratch: true,
+    isScratchOrg: true,
+    isDevHub: false,
+    isExpired: false,
     instanceUrl: 'https://example-1.scratch.my.salesforce.com',
     username: 'scratch@example.com'
 };
@@ -15,7 +17,7 @@ function fakeSf({ scratchOrgs = [SCRATCH], isSandbox = true, testsPass = true, a
     const runSf = (args) => {
         calls.push(args);
         const command = args.slice(0, 3).join(' ');
-        if (command === 'org list --skip-connection-status') return { status: 0, result: { scratchOrgs } };
+        if (command === 'org list auth') return { status: 0, result: scratchOrgs };
         if (command.startsWith('data query')) return { status: 0, result: { records: [{ IsSandbox: isSandbox }] } };
         if (command === 'org assign permset') return { status: 0, result: { successes: [{}], failures: [] } };
         if (command === 'project deploy start') return { status: 0, result: { success: true } };
@@ -56,6 +58,15 @@ function run(mode, sf, scenario) {
     });
     return { code, output: output.join('\n') };
 }
+
+test('verify identifies the scratch target from local authorizations without listing Dev Hubs', () => {
+    const sf = fakeSf();
+    const { code, output } = run('verify', sf);
+
+    assert.equal(code, 0, output);
+    assert.deepEqual(sf.calls[0], ['org', 'list', 'auth', '--json']);
+    assert.ok(!sf.calls.some((args) => args.slice(0, 3).join(' ') === 'org list --skip-connection-status'));
+});
 
 test('refuses an org that is not the identified crm-arbeidsforhold scratch org', () => {
     const sf = fakeSf({ scratchOrgs: [{ ...SCRATCH, instanceUrl: 'https://nav.my.salesforce.com' }] });
