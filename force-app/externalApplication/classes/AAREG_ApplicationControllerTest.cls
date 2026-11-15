@@ -510,9 +510,7 @@ private class AAREG_ApplicationControllerTest {
                 VersionData = Blob.valueOf('second')
             )
         };
-        System.runAs(communityUser) {
-            insert versions;
-        }
+        insert versions;
 
         List<ContentVersion> insertedVersions = [
             SELECT Id, ContentDocumentId, Title
@@ -523,17 +521,11 @@ private class AAREG_ApplicationControllerTest {
         Map<Id, String> expectedTitles = new Map<Id, String>();
         for (ContentVersion version : insertedVersions) {
             links.add(
-                new ContentDocumentLink(
-                    LinkedEntityId = application.Id,
-                    ContentDocumentId = version.ContentDocumentId,
-                    ShareType = 'I'
-                )
+                new ContentDocumentLink(LinkedEntityId = application.Id, ContentDocumentId = version.ContentDocumentId)
             );
             expectedTitles.put(version.ContentDocumentId, version.Title);
         }
-        System.runAs(communityUser) {
-            insert links;
-        }
+        insert links;
 
         List<AAREG_ApplicationController.AttachmentSelection> attachments;
         Integer callouts;
