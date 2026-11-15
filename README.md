@@ -59,15 +59,17 @@ pool, nøkler og feilsøking. Alle flagg og flere eksempler finnes i
 
 ## Finn frem
 
-| Jeg vil …                                                     | Start her                                                                                                                 |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Sette opp PC/Mac og gjøre min første endring                  | [Kom i gang](docs/kom-i-gang.md)                                                                                          |
-| Forstå løsningen og hvor koden ligger                         | [Arkitekturoversikt](docs/architecture/hele-loysinga.md) og [repositorystruktur](docs/architecture/repositorystruktur.md) |
-| Sette opp scratch-org eller oppdatere pakker                  | [Skriptguide](bin/README.md), [kommandoer](bin/COMMANDS.md) og [plattformstøtte](bin/COMPATIBILITY.md)                    |
-| Følge utviklings- og teststandardene                          | [Utviklingsstandarder](docs/utviklingsstandarder.md)                                                                      |
-| Forstå PR-sjekker, pakkeoppretting og deploy                  | [Workflowoversikt og kjente begrensninger](docs/operations/workflows.md)                                                  |
-| Finne dokumentasjon om P360, Altinn eller andre integrasjoner | [Integrasjoner](docs/integrations/README.md)                                                                              |
-| Finne domene, brukerflater og tekniske beslutninger           | [Dokumentasjonskart](docs/README.md) og [ADR-er](docs/adr/README.md)                                                      |
+| Jeg vil …                                                     | Start her                                                                                                                      |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Sette opp PC/Mac og gjøre min første endring                  | [Kom i gang](docs/kom-i-gang.md)                                                                                               |
+| Forstå løsningen og hvor koden ligger                         | [Handboka](docs/architecture/aaregisteret-handbok.md) og [arkitekturoversikten](docs/architecture/hele-loysinga.md)            |
+| Finne Flow-er, scenariotester og testdata                     | [Flow-katalog](docs/architecture/aareg-flow-katalog.md) og [scenario-testplan](docs/testing/aaregisteret-scenario-testplan.md) |
+| Sette opp scratch-org eller oppdatere pakker                  | [Skriptguide](bin/README.md), [kommandoer](bin/COMMANDS.md) og [plattformstøtte](bin/COMPATIBILITY.md)                         |
+| Følge utviklings- og teststandardene                          | [Utviklingsstandarder](docs/utviklingsstandarder.md)                                                                           |
+| Forstå PR-sjekker, pakkeoppretting og deploy                  | [Workflowoversikt og kjente begrensninger](docs/operations/workflows.md)                                                       |
+| Finne dokumentasjon om P360, Altinn eller andre integrasjoner | [Integrasjoner](docs/integrations/README.md)                                                                                   |
+| Finne domene, brukerflater og tekniske beslutninger           | [Dokumentasjonskart](docs/README.md) og [ADR-er](docs/adr/README.md)                                                           |
+| Finne eldre analyser og testresultater                        | [Dokumentasjonsarkivet](docs/archive/README.md)                                                                                |
 
 ## Lokal validering
 

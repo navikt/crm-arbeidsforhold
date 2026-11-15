@@ -1,35 +1,29 @@
 ---
-title: P360 idempotent archive job creation
+title: P360Test submission and archive job keys
 ---
 sequenceDiagram
-    participant Caller
+    participant Caller as Application caller
     participant Service as P360_ArchiveJobService
-    participant Key as P360_IdempotencyKey
     participant Store as P360_Archive_Job__c
+    participant Key as P360_IdempotencyKey
 
-    alt Application document
-        Caller->>Service: getOrCreateApplicationDocumentJob(accessRequestId, applicationId, correlationId)
-        Service->>Service: validate required context
-        Service->>Key: forApplicationDocument(applicationId)
-        Key-->>Service: APPLICATION_DOCUMENT:{id}
-    else Application attachment
-        Caller->>Service: getOrCreateApplicationAttachmentJob(accessRequestId, applicationId, contentVersionId, correlationId)
-        Service->>Service: validate required context
-        Service->>Key: forApplicationAttachment(applicationId, contentVersionId)
-        Key-->>Service: APPLICATION_ATTACHMENT:{applicationId}:{contentVersionId}
-    end
-    Service->>Store: query unique Idempotency_Key__c
-    alt Existing job
-        Store-->>Service: existing job
-        Service-->>Caller: same job, unchanged
-    else No job
-        Service->>Store: insert Pending job
-        alt Insert succeeds
-            Store-->>Service: new job
-            Service-->>Caller: new job
-        else DUPLICATE_VALUE race
-            Service->>Store: query same key again
-            Store-->>Service: winning job
-            Service-->>Caller: existing job
+    Caller->>Service: requestApplicationArchiveOnSubmit
+    alt Processing gate disabled
+        Service-->>Caller: return without a job
+    else Processing gate enabled
+        Service->>Store: find application document jobs
+        alt Pending, In Progress or Failed job exists
+            Service-->>Caller: reuse open job without creating another
+        else No open job
+            Service->>Key: key for number of existing jobs plus one
+            Key-->>Service: first key or numbered submission key
+            Service->>Store: insert Pending job
+            alt Insert succeeds or duplicate key
+                Service-->>Caller: return without blocking submission
+            else Other enqueue failure
+                Service->>Service: attempt bounded failure logging
+                Service-->>Caller: return without blocking submission
+            end
         end
     end
+    Note over Service,Store: This key is not a frozen document set. Other getOrCreate methods use their own event keys.

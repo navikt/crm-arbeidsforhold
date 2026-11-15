@@ -1,5 +1,5 @@
 ---
-title: P360 archive contract-boundary sequence
+title: P360Test orchestration and contract boundary
 ---
 sequenceDiagram
     participant Caller as Use case caller
@@ -7,28 +7,28 @@ sequenceDiagram
     participant Orchestrator as AAREG_ArchiveApplicationOrchestrator
     participant Adapter as P360_IArchiveAdapter
     participant Client as P360_IRpcClient
-    participant Boundary as Live SIF RPC boundary
-
     Caller->>Factory: Resolve adapter from org setting
     alt Use_Mock_Transport__c = true
         Factory-->>Caller: P360_StubArchiveAdapter
-    else Mock mode disabled
+    else Configured RPC client class
+        Factory-->>Caller: P360_ArchiveAdapter with configured client
+    else No configured client
         Factory-->>Caller: P360_ArchiveAdapter(P360_RpcClient)
     end
     Caller->>Orchestrator: archive(command)
     alt command is null or required values missing
         Orchestrator-->>Caller: P360_ContractException
     else command is valid
-        Orchestrator->>Adapter: archive(request)
+        Orchestrator->>Adapter: archive(identity-only request)
         alt Explicit mock mode
             Adapter-->>Orchestrator: controlled success response
-        else Live transport boundary
-            Adapter-->>Orchestrator: P360_ContractException (not implemented)
-            Orchestrator-->>Caller: exception propagates; no RPC call
+        else Standard archive adapter
+            Adapter-->>Orchestrator: P360_ContractException (CreateDocument missing)
+            Orchestrator-->>Caller: exception propagates, no RPC call
         end
         opt Explicit mock mode returned success
             Orchestrator-->>Caller: AAREG_ArchiveApplicationResult
         end
     end
 
-    Note over Adapter,Boundary: Adapter stops before Client; Client.send also throws if called directly. Live SIF contract remains unresolved.
+    Note over Adapter,Client: The worker builds ApplicationDocument requests. An injected client can receive them, but the default RPC client is not implemented.

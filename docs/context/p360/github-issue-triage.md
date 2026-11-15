@@ -7,6 +7,10 @@ status: oppdatert
 
 # P360 GitHub issue-triage og handlingsstatus
 
+> **Historisk triage:** Vurderingane nedanfor er daterte og er ikkje fasit
+> for dagens issue-status eller kode. Bruk GitHub Issues og
+> [P360-guiden](../../integrations/p360/README.md) for vidare arbeid.
+
 ## Mål
 
 Dette dokumentet skiller mellom:

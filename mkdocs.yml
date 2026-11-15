@@ -1,0 +1,66 @@
+site_name: Arbeidsforhold og Aa-registeret
+site_url: https://navikt.github.io/crm-arbeidsforhold/
+repo_url: https://github.com/navikt/crm-arbeidsforhold
+repo_name: navikt/crm-arbeidsforhold
+edit_uri: blob/main/docs/
+docs_dir: docs
+site_dir: site
+theme:
+    name: material
+    language: nn
+    font: false
+    custom_dir: docs-site/overrides
+    features:
+        - navigation.tabs
+        - navigation.sections
+        - navigation.top
+        - search.suggest
+        - search.highlight
+        - content.code.copy
+nav:
+    - Start: README.md
+    - Produkt og arkitektur:
+          - Handbok: architecture/aaregisteret-handbok.md
+          - Heile løysinga: architecture/hele-loysinga.md
+          - Kjeldekart og teststrategi: architecture/arbeidsforhold-kjeldekart-og-teststrategi.md
+          - Flow-katalog: architecture/aareg-flow-katalog.md
+          - Flow-diagram: architecture/aareg-flow-diagrammer.md
+          - Datamodell og arkiveringsjobbar: architecture/p360-data-model-og-arkiveringsjob.md
+          - Pakkar og avhengnader: architecture/pakkeavhengigheiter.md
+          - Domene: domain/README.md
+    - Integrasjonar:
+          - Oversikt: integrations/README.md
+          - P360: integrations/p360/README.md
+          - Altinn: integrations/altinn/README.md
+    - Brukarflater: surfaces/README.md
+    - Testing:
+          - Scenario og testplan: testing/aaregisteret-scenario-testplan.md
+          - Testdata: testing/aaregisteret-testdata-strategi.md
+    - Utvikling og drift:
+          - Kom i gang: kom-i-gang.md
+          - Utviklingsstandardar: utviklingsstandarder.md
+          - Workflowar: operations/workflows.md
+          - Metadataopprydding: operations/salesforce-metadata-cleanup-runbook.md
+    - Arkiv: archive/README.md
+hooks:
+    - docs-site/hooks.py
+validation:
+    nav:
+        omitted_files: ignore
+    links:
+        unrecognized_links: warn
+        anchors: warn
+markdown_extensions:
+    - tables
+    - toc:
+          permalink: true
+          slugify: !!python/object/apply:pymdownx.slugs.slugify
+              kwds:
+                  case: lower
+    - pymdownx.tasklist:
+          custom_checkbox: true
+    - pymdownx.superfences:
+          custom_fences:
+              - name: mermaid
+                class: mermaid
+                format: !!python/name:pymdownx.superfences.fence_code_format

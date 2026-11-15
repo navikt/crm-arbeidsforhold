@@ -6,6 +6,11 @@ status: partially-applied
 
 # Jira update proposal for P360
 
+> **Historical update proposal:** The observations and issue states below
+> describe the dated checks, not the current Jira or code state. Start with
+> the [P360 guide](../../integrations/p360/README.md) and check Jira directly
+> before applying or reporting further changes.
+
 ## Fresh source export — 2026-11-05
 
 The new Jira CSV export has been checked and mirrored through an explicit field allowlist in [the dated status snapshot](jira-status-2026-11-05.md): 239 unique issues, comprising 11 epics, 34 stories and 194 subtasks. Story statuses are 6 complete, 18 in progress and 10 backlog; subtask statuses are 80 complete, 29 in progress and 85 backlog. CRMAAREG-164 is complete with resolution `Ikke relevant`, not delivered implementation.

@@ -36,9 +36,16 @@ Dette gir:
 Factoryen brukes nå av workeren når ingen adapter er injisert. Standardkonstruktøren velger:
 
 - `P360_StubArchiveAdapter` når org-default `Use_Mock_Transport__c=true`
-- `P360_ArchiveAdapter(new P360_RpcClient())` ellers
+- `P360_ArchiveAdapter` med ein konfigurert `Rpc_Client_Class__c` når mock er
+  av og ein gyldig klientklasse er oppgitt på `P360Test`
+- `P360_ArchiveAdapter(new P360_RpcClient())` elles
 
-Den returnerer `P360_IArchiveAdapter` gjennom `createArchiveAdapter()`. Valget flytter ikke forretningslogikk eller mapping inn i factoryen. Den reelle adapteren stopper fortsatt med en kontrollert exception før RPC-kall; dette er wiring, ikke ferdig transport. `P360_Archive_Processing` er en separat prosesseringsgate og er av som standard.
+Den returnerer `P360_IArchiveAdapter` gjennom `createArchiveAdapter()`.
+Valget flytter ikke forretningslogikk eller mapping inn i factoryen.
+Adapteren på `P360Test` kan kalle ein injisert klient, men standard
+`P360_RpcClient` kastar framleis ein kontrollert exception. Dette er ikkje
+ferdig live-transport. `P360_Archive_Processing` er ein separat
+prosesseringsgate og er av i kjeldemetadata.
 
 En senere kodeverkadapter for K5 er et separat valg, ikke en implementert gren i denne factoryen.
 
