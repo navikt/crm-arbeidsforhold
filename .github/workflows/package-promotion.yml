@@ -1,0 +1,281 @@
+name: Promote Package
+
+on:
+    workflow_call:
+        inputs:
+            packageId:
+                description: Package ID
+                required: true
+                type: string
+            comment:
+                description: Release comment
+                required: true
+                type: string
+        secrets:
+            CRM_PROD_SFDX_URL:
+                required: true
+            CRM_PREPROD_SFDX_URL:
+                required: true
+            CRM_UAT_SFDX_URL:
+                required: true
+            CRM_PACKAGE_KEY:
+                required: true
+
+permissions:
+    contents: read
+
+jobs:
+    validate-inputs:
+        name: Validate promotion inputs
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - name: Validate package ID format
+              env:
+                  PACKAGE_ID: ${{ inputs.packageId }}
+              run: |
+                  if [[ ! "$PACKAGE_ID" =~ ^([A-Za-z0-9]{15}|[A-Za-z0-9]{18})$ ]]; then
+                    echo "Package ID must be a 15- or 18-character Salesforce ID." >&2
+                    exit 1
+                  fi
+
+    debug:
+        name: Debug Information
+        needs: [validate-inputs]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Print promotion inputs
+              env:
+                  PACKAGE_ID: ${{ inputs.packageId }}
+                  INITIATOR: ${{ github.actor }}
+              run: |
+                  echo "Promoting Package ID: $PACKAGE_ID"
+                  echo "Initiator: $INITIATOR"
+
+    install-package-preprod:
+        name: Validate install in PREPROD
+        needs: [validate-inputs]
+        uses: ./.github/workflows/package-install.yml
+        with:
+            packageId: ${{ inputs.packageId }}
+            org: preprod
+        secrets:
+            CRM_PREPROD_SFDX_URL: ${{ secrets.CRM_PREPROD_SFDX_URL }}
+            CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
+
+    install-package-uat:
+        name: Install package in UAT
+        needs: [validate-inputs]
+        uses: ./.github/workflows/package-install.yml
+        with:
+            packageId: ${{ inputs.packageId }}
+            org: crm-uat
+        secrets:
+            CRM_UAT_SFDX_URL: ${{ secrets.CRM_UAT_SFDX_URL }}
+            CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
+
+    promote-package:
+        name: Promote Package
+        environment: production
+        needs: [validate-inputs, install-package-preprod]
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+              with:
+                  node-version: 24.16.0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  persist-credentials: false
+                  fetch-depth: 0
+            - name: Install Salesforce CLI
+              uses: navikt/crm-workflows-base/.github/actions/installSF@aad6b4f48e419d71490db436da697cd7581a2c6a
+            - name: Authorize production
+              uses: navikt/sf-gha-authenticateOrg@51993aeaadd4958c9becf88c8e73a4a4111396af
+              with:
+                  auth-url: ${{ secrets.CRM_PROD_SFDX_URL }}
+                  alias: prod
+                  set-default-username: true
+                  set-default-devhub-username: true
+            - name: Promote package
+              env:
+                  PACKAGE_ID: ${{ inputs.packageId }}
+              run: sf package version promote --package "$PACKAGE_ID" --no-prompt
+
+    push-new-version-number:
+        name: Create version update pull request
+        needs: [validate-inputs, promote-package]
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pull-requests: write
+            actions: write
+        timeout-minutes: 360
+        outputs:
+            pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  persist-credentials: false
+                  fetch-depth: 0
+            - name: Update package minor version
+              uses: navikt/crm-workflows-base/.github/actions/packageMinorVersionUpdater@aad6b4f48e419d71490db436da697cd7581a2c6a
+            - name: Build commit message
+              id: commit-message
+              run: |
+                  version=$(jq -er '.packageDirectories[] | select(.package == "crm-arbeidsforhold" and .path == "force-app") | .versionNumber' sfdx-project.json)
+                  case "$version" in
+                    *.*.*.NEXT) ;;
+                    *) echo "Expected a package version ending in .NEXT."; exit 1 ;;
+                  esac
+                  echo "message=(CI) Updated to new version number ${version%.NEXT}" >> "$GITHUB_OUTPUT"
+            - name: Create pull request
+              id: cpr
+              uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676
+              with:
+                  title: Added new package version ID
+                  commit-message: ${{ steps.commit-message.outputs.message }}
+                  branch: auto/package-version-update
+                  base: main
+                  token: ${{ github.token }}
+            - name: Enable auto-merge after required reviews and checks
+              if: steps.cpr.outputs.pull-request-number != ''
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+                  EXPECTED_HEAD: ${{ steps.cpr.outputs.pull-request-head-sha }}
+              run: gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --squash --auto --match-head-commit "$EXPECTED_HEAD"
+            - name: Wait for version-update PR to merge
+              id: wait-for-merge
+              if: steps.cpr.outputs.pull-request-number != ''
+              env:
+                GH_TOKEN: ${{ github.token }}
+                PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+                EXPECTED_HEAD: ${{ steps.cpr.outputs.pull-request-head-sha }}
+              run: |
+                for attempt in $(seq 1 350); do
+                  pull_request=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state,mergedAt,headRefOid,mergedBy,mergeCommit)
+                  state=$(jq -r '.state' <<< "$pull_request")
+                  merged_at=$(jq -r '.mergedAt // empty' <<< "$pull_request")
+                  if [[ -n "$merged_at" ]]; then
+                    merged_head=$(jq -r '.headRefOid' <<< "$pull_request")
+                    merged_by=$(jq -r '.mergedBy.login // empty' <<< "$pull_request")
+                    merge_sha=$(jq -r '.mergeCommit.oid // empty' <<< "$pull_request")
+                    if [[ "$merged_head" != "$EXPECTED_HEAD" ]]; then
+                      echo "Merged version-update PR head does not match the expected commit." >&2
+                      exit 1
+                    fi
+                    if [[ -z "$merged_by" || -z "$merge_sha" ]]; then
+                      echo "Could not identify the version-update PR merger and merge commit." >&2
+                      exit 1
+                    fi
+                    break
+                  fi
+                  if [[ "$state" != "OPEN" ]]; then
+                    echo "Version-update PR closed without being merged." >&2
+                    exit 1
+                  fi
+                  if [[ "$attempt" -lt 350 ]]; then
+                    sleep 60
+                  fi
+                done
+                if [[ -z "$merged_at" ]]; then
+                  echo "Timed out waiting for the version-update PR to merge." >&2
+                  exit 1
+                fi
+                if [[ "$merged_by" != "app/github-actions" && "$merged_by" != "github-actions[bot]" ]]; then
+                  echo "Version-update PR was merged by a person; its push event will start package creation."
+                  exit 0
+                fi
+                echo "bot-merge-sha=$merge_sha" >> "$GITHUB_OUTPUT"
+                existing_runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/push_create-package1.yml/runs?head_sha=$merge_sha&per_page=100" --jq '[.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch")] | length')
+                if [[ "$existing_runs" -gt 0 ]]; then
+                  echo "Package creation already started for this merge commit; skipping duplicate dispatch."
+                  exit 0
+                fi
+                dispatch_ref="package-create-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+                cleanup_dispatch_tag() {
+                  dispatch_status=$?
+                  if ! gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/tags/$dispatch_ref" >/dev/null; then
+                    echo "Failed to clean up temporary package-creation tag $dispatch_ref." >&2
+                    exit 1
+                  fi
+                  exit "$dispatch_status"
+                }
+                gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$dispatch_ref" -f sha="$merge_sha" >/dev/null
+                trap cleanup_dispatch_tag EXIT
+                gh workflow run push_create-package1.yml --ref "$dispatch_ref" --repo "$GITHUB_REPOSITORY"
+            - name: Dispatch review audit for bot-merged PR
+              if: always() && steps.wait-for-merge.outputs.bot-merge-sha != ''
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  MERGE_SHA: ${{ steps.wait-for-merge.outputs.bot-merge-sha }}
+              run: gh workflow run post-merge-review-audit.yml --ref main --repo "$GITHUB_REPOSITORY" -f sha="$MERGE_SHA"
+
+    create-release:
+        name: Create GitHub Release
+        environment: production
+        needs: [validate-inputs, promote-package]
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+              with:
+                  node-version: 24.16.0
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  persist-credentials: false
+                  fetch-depth: 0
+            - name: Install Salesforce CLI
+              uses: navikt/crm-workflows-base/.github/actions/installSF@aad6b4f48e419d71490db436da697cd7581a2c6a
+            - name: Authorize production
+              uses: navikt/sf-gha-authenticateOrg@51993aeaadd4958c9becf88c8e73a4a4111396af
+              with:
+                  auth-url: ${{ secrets.CRM_PROD_SFDX_URL }}
+                  alias: prod
+                  set-default-username: true
+                  set-default-devhub-username: true
+            - name: Set release fields
+              id: release-fields
+              env:
+                  PACKAGE_ID: ${{ inputs.packageId }}
+              run: |
+                  version=$(jq -er '.packageDirectories[] | select(.package == "crm-arbeidsforhold" and .path == "force-app") | .versionNumber' sfdx-project.json)
+                  case "$version" in
+                    *.*.*.NEXT) ;;
+                    *) echo "Expected a package version ending in .NEXT."; exit 1 ;;
+                  esac
+                  release_version=${version%.NEXT}
+                  code_coverage=$(sf package version report --package "$PACKAGE_ID" --json | jq -er '.result.CodeCoverage.apexCodeCoveragePercentage')
+                  echo "tag_name=v$release_version" >> "$GITHUB_OUTPUT"
+                  echo "release_name=$release_version" >> "$GITHUB_OUTPUT"
+                  echo "body_version=$release_version" >> "$GITHUB_OUTPUT"
+                  echo "code_coverage=$code_coverage" >> "$GITHUB_OUTPUT"
+            - name: Generate changelog
+              id: changelog
+              uses: metcalfc/changelog-generator@bb7a08e07e326061351dab6ce89c72f13797043c
+              with:
+                  mytoken: ${{ github.token }}
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3
+              with:
+                  token: ${{ github.token }}
+                  tag_name: ${{ steps.release-fields.outputs.tag_name }}
+                  target_commitish: ${{ github.sha }}
+                  name: ${{ steps.release-fields.outputs.release_name }}
+                  body: |
+                      **Version**: ${{ steps.release-fields.outputs.body_version }}
+                      **Package ID**: ${{ inputs.packageId }}
+                      **Code Coverage**: ${{ steps.release-fields.outputs.code_coverage }}%
+
+                      **Author**: ${{ github.actor }}
+                      **Comment**: ${{ inputs.comment }}
+
+                      ## Changelog
+
+                      ${{ steps.changelog.outputs.changelog }}
+                  draft: false
+                  prerelease: false
