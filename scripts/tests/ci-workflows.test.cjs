@@ -54,20 +54,37 @@ test('offline CI covers the workflow contracts and Node tooling on PRs and main'
     }
 });
 
-test('promotion auto-merge trusts only base code and preserves review and status requirements', () => {
-    const source = readWorkflow('promotion-auto-merge.yml');
-    assert.match(source, /workflow_run:\s*\n\s+workflows: \['\[HELPER\] Promote Package'\]/);
-    assert.match(source, /types: \[completed\]\s*\n\s+branches:\s*\n\s+- main\b/);
-    assert.match(source, /github\.event\.workflow_run\.event == 'workflow_dispatch'/);
-    assert.match(source, /github\.event\.workflow_run\.head_repository\.full_name == github\.repository/);
-    assert.match(source, /--state open --base main/);
-    assert.match(source, /--head auto\/package-version-update/);
-    assert.match(source, /select\(\.isCrossRepository == false and \.isDraft == false\)/);
-    assert.match(source, /ref: \$\{\{ steps\.promotion\.outputs\.base \}\}/);
-    assert.match(source, /persist-credentials: false/);
-    assert.match(source, /if: steps\.changes\.outputs\.package_version_only == 'true'/);
-    assert.match(source, /gh pr merge .*--auto .*--match-head-commit "\$HEAD_SHA"/);
-    assert.doesNotMatch(source, /--admin|secrets: inherit|CRM_DEPLOYMENT_PAT|npm ci/);
+test('promotion helper uses the local reusable workflow', () => {
+    const caller = readWorkflow('helper_promotion1.yml');
+    assert.match(caller, /uses: \.\/\.github\/workflows\/package-promotion\.yml/);
+    assert.match(caller, /packageId: \$\{\{ inputs\.packageId \}\}/);
+    assert.match(caller, /comment: \$\{\{ inputs\.comment \}\}/);
+    assert.match(caller, /if: github\.ref == 'refs\/heads\/main'/);
+    assert.match(caller, /CRM_PROD_SFDX_URL: \$\{\{ secrets\.CRM_PROD_SFDX_URL \}\}/);
+    assert.match(caller, /CRM_PREPROD_SFDX_URL: \$\{\{ secrets\.CRM_PREPROD_SFDX_URL \}\}/);
+    assert.match(caller, /CRM_UAT_SFDX_URL: \$\{\{ secrets\.CRM_UAT_SFDX_URL \}\}/);
+    assert.match(caller, /CRM_PACKAGE_KEY: \$\{\{ secrets\.CRM_PACKAGE_KEY \}\}/);
+    assert.doesNotMatch(caller, /secrets: inherit|CRM_DEPLOYMENT_PAT/);
+    assert.doesNotMatch(caller, /crm-workflows-base\/\.github\/workflows\/packagePromotion\.yml/);
+
+    const promotion = readWorkflow('package-promotion.yml');
+    assert.match(promotion, /workflow_call:/);
+    assert.match(promotion, /validate-inputs:[\s\S]*?PACKAGE_ID: \$\{\{ inputs\.packageId \}\}/);
+    assert.match(promotion, /\[\[ ! "\$PACKAGE_ID" =~ \^\(\[A-Za-z0-9\]\{15\}\|\[A-Za-z0-9\]\{18\}\)\$ \]\]/);
+    assert.match(promotion, /install-package-preprod:[\s\S]*?needs: \[validate-inputs\][\s\S]*?deployPackage\.yml@/);
+    assert.match(promotion, /install-package-uat:[\s\S]*?needs: \[validate-inputs\][\s\S]*?deployPackage\.yml@/);
+    assert.match(promotion, /promote-package:[\s\S]*?needs: \[validate-inputs, install-package-preprod\]/);
+    assert.match(promotion, /sf package version promote/);
+    assert.match(promotion, /packageMinorVersionUpdater@/);
+    assert.match(promotion, /create-pull-request@/);
+    assert.match(promotion, /gh pr merge .*--auto .*--match-head-commit/);
+    assert.match(promotion, /create-release:[\s\S]*?softprops\/action-gh-release@/);
+    assert.doesNotMatch(promotion, /CRM_DEPLOYMENT_PAT|merge-pull-request-action|--admin/);
+    assert.doesNotMatch(
+        promotion,
+        /navikt\/crm-workflows-base\/.*(?:@master|@main)|(?:actions|peter-evans|metcalfc|softprops)\/.*@(?![a-f0-9]{40}\b)[^\s]+/
+    );
+    assert.equal(fs.existsSync(path.join(directory, 'promotion-auto-merge.yml')), false);
 });
 
 for (const name of fs.readdirSync(directory).filter((name) => name.endsWith('.yml'))) {

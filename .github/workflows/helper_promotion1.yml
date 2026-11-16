@@ -25,11 +25,16 @@ jobs:
 
   run-package-promotion:
     name: Promote Package
-    uses: navikt/crm-workflows-base/.github/workflows/packagePromotion.yml@aad6b4f48e419d71490db436da697cd7581a2c6a
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/package-promotion.yml
     permissions:
       contents: write
       pull-requests: write
     with:
       packageId: ${{ inputs.packageId }}
       comment: ${{ inputs.comment }}
-    secrets: inherit
+    secrets:
+      CRM_PROD_SFDX_URL: ${{ secrets.CRM_PROD_SFDX_URL }}
+      CRM_PREPROD_SFDX_URL: ${{ secrets.CRM_PREPROD_SFDX_URL }}
+      CRM_UAT_SFDX_URL: ${{ secrets.CRM_UAT_SFDX_URL }}
+      CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
