@@ -77,6 +77,7 @@ jobs:
 
     promote-package:
         name: Promote Package
+        environment: production
         needs: [validate-inputs, install-package-preprod]
         runs-on: ubuntu-latest
         permissions:
@@ -147,6 +148,7 @@ jobs:
 
     create-release:
         name: Create GitHub Release
+        environment: production
         needs: [validate-inputs, promote-package]
         runs-on: ubuntu-latest
         permissions:

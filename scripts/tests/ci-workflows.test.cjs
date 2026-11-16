@@ -80,6 +80,8 @@ test('promotion helper uses the local reusable workflow', () => {
         /install-package-uat:[\s\S]*?needs: \[validate-inputs\][\s\S]*?uses: \.\/\.github\/workflows\/package-install\.yml/
     );
     assert.match(promotion, /promote-package:[\s\S]*?needs: \[validate-inputs, install-package-preprod\]/);
+    assert.match(promotion, /promote-package:\n\s+name: [^\n]+\n\s+environment: production\n/);
+    assert.match(promotion, /create-release:\n\s+name: [^\n]+\n\s+environment: production\n/);
     assert.match(promotion, /sf package version promote/);
     assert.match(promotion, /packageMinorVersionUpdater@/);
     assert.match(promotion, /create-pull-request@/);
