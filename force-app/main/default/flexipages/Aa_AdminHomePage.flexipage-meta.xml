@@ -3,6 +3,12 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>aaregAdminOverview</componentName>
+                <identifier>c_aaregAdminOverview</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>dashboardName</name>
                     <value>ZQCrjooiTzlUAAYJyxboIDkUaswcMq</value>
