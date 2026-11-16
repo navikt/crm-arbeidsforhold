@@ -61,7 +61,7 @@ test('rejects invalid package configuration instead of skipping validation', () 
     assert.throws(() => classifyChanges([], [{}]), /package directory/);
 });
 
-function fixture(t) {
+function fixture(t, project = { packageDirectories }) {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-changes-'));
     t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
     const git = (...args) =>
@@ -84,7 +84,7 @@ function fixture(t) {
         fs.writeFileSync(target, content);
     };
     git('init', '--quiet');
-    write('sfdx-project.json', JSON.stringify({ packageDirectories }));
+    write('sfdx-project.json', JSON.stringify(project));
     write('force-app/deleted.cls');
     write('force-app/renamed.cls');
     write('bin/source.cls');
@@ -104,6 +104,27 @@ function fixture(t) {
     };
     return { directory, git, write, output, run, commit, base };
 }
+
+test('CLI skips Salesforce for a promotion version bump while retaining LWC validation', (t) => {
+    const project = {
+        packageDirectories: [
+            {
+                path: 'force-app',
+                package: 'crm-arbeidsforhold',
+                versionNumber: '0.316.0.NEXT',
+                dependencies: [{ package: 'reference-package', versionNumber: '1.0.0.LATEST' }]
+            }
+        ],
+        sourceApiVersion: '67.0'
+    };
+    const f = fixture(t, project);
+    project.packageDirectories[0].versionNumber = '0.317.0.NEXT';
+    f.write('sfdx-project.json', JSON.stringify(project));
+    f.commit();
+    const result = f.run();
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=false\nlwc=true\npackage_version_only=true\n');
+});
 
 for (const workflow of ['salesforce-validation.yml', 'pull_request-lwc-validation.yml']) {
     for (const trustedFilter of [false, true]) {
@@ -140,7 +161,10 @@ for (const workflow of ['salesforce-validation.yml', 'pull_request-lwc-validatio
                     }
                 });
                 assert.equal(result.status, 0, result.stderr);
-                assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=true\nlwc=true\n');
+                assert.equal(
+                    fs.readFileSync(f.output, 'utf8'),
+                    `salesforce=true\nlwc=true\n${trustedFilter ? 'package_version_only=false\n' : ''}`
+                );
             }
         );
     }
@@ -152,7 +176,7 @@ test('CLI reports no Salesforce or LWC work for a tooling-only diff', (t) => {
     f.commit();
     const result = f.run();
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=false\nlwc=false\n');
+    assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=false\nlwc=false\npackage_version_only=false\n');
 });
 
 test('CLI uses trusted base configuration even when the PR corrupts the project file', (t) => {
@@ -161,8 +185,56 @@ test('CLI uses trusted base configuration even when the PR corrupts the project 
     f.commit();
     const result = f.run();
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=true\nlwc=true\n');
+    assert.match(result.stderr, /Invalid head sfdx-project.json/);
+    assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=true\nlwc=true\npackage_version_only=false\n');
 });
+
+for (const scenario of [
+    'dependency',
+    'api-version',
+    'metadata',
+    'invalid-version',
+    'invalid-version-type',
+    'removed-version',
+    'format-only'
+]) {
+    test(`CLI does not exempt a promotion with ${scenario} changes`, (t) => {
+        const project = {
+            packageDirectories: [
+                {
+                    path: 'force-app',
+                    package: 'crm-arbeidsforhold',
+                    versionNumber: '0.316.0.NEXT',
+                    dependencies: [{ package: 'reference-package', versionNumber: '1.0.0.LATEST' }]
+                }
+            ],
+            sourceApiVersion: '67.0'
+        };
+        const f = fixture(t, project);
+        const directory = project.packageDirectories[0];
+        directory.versionNumber = '0.317.0.NEXT';
+        if (scenario === 'dependency') {
+            directory.dependencies[0].versionNumber = '2.0.0.LATEST';
+        } else if (scenario === 'api-version') {
+            project.sourceApiVersion = '68.0';
+        } else if (scenario === 'metadata') {
+            f.write('force-app/changed.cls');
+        } else if (scenario === 'invalid-version') {
+            directory.versionNumber = 'not-a-version';
+        } else if (scenario === 'invalid-version-type') {
+            directory.versionNumber = ['0.317.0.NEXT'];
+        } else if (scenario === 'removed-version') {
+            delete directory.versionNumber;
+        } else {
+            directory.versionNumber = '0.316.0.NEXT';
+        }
+        f.write('sfdx-project.json', JSON.stringify(project, null, 2));
+        f.commit();
+        const result = f.run();
+        assert.equal(result.status, 0, result.stderr);
+        assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=true\nlwc=true\npackage_version_only=false\n');
+    });
+}
 
 for (const operation of ['delete', 'rename-out', 'rename-in', 'large-diff']) {
     test(`CLI detects relevant paths in ${operation} diffs`, (t) => {
@@ -182,7 +254,7 @@ for (const operation of ['delete', 'rename-out', 'rename-in', 'large-diff']) {
         f.commit();
         const result = f.run();
         assert.equal(result.status, 0, result.stderr);
-        assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=true\nlwc=true\n');
+        assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=true\nlwc=true\npackage_version_only=false\n');
     });
 }
 
@@ -192,7 +264,7 @@ test('CLI preserves filenames containing newlines', { skip: process.platform ===
     f.commit();
     const result = f.run();
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=true\nlwc=true\n');
+    assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=true\nlwc=true\npackage_version_only=false\n');
 });
 
 test('CLI fails without producing success-shaped outputs when Git cannot resolve the base', (t) => {
