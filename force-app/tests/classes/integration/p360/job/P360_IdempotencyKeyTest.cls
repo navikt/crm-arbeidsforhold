@@ -63,6 +63,63 @@ private class P360_IdempotencyKeyTest {
         }
     }
 
+    /**
+     * Keeps existing first-submission keys and produces stable distinct keys for later submissions.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void submissionKeysPreserveLegacyIdentityAndDistinguishLaterSubmissions() {
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+
+        System.runAs(minimumAccessUser) {
+            System.Test.startTest();
+            String legacyKey = P360_IdempotencyKey.forApplicationDocument(minimumAccessUser.Id);
+            String firstKey = P360_IdempotencyKey.forApplicationDocumentSubmission(minimumAccessUser.Id, 1);
+            String secondKey = P360_IdempotencyKey.forApplicationDocumentSubmission(minimumAccessUser.Id, 2);
+            String repeatedKey = P360_IdempotencyKey.forApplicationDocumentSubmission(minimumAccessUser.Id, 2);
+            String thirdKey = P360_IdempotencyKey.forApplicationDocumentSubmission(minimumAccessUser.Id, 3);
+            System.Test.stopTest();
+
+            System.Assert.areEqual(legacyKey, firstKey);
+            System.Assert.areEqual(legacyKey + ':SUBMISSION:2', secondKey);
+            System.Assert.areEqual(secondKey, repeatedKey);
+            System.Assert.areNotEqual(secondKey, thirdKey);
+        }
+    }
+
+    /**
+     * Rejects missing identifiers and non-positive or missing submission sequences.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void missingSourceOrInvalidSubmissionSequenceIsRejected() {
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+
+        System.runAs(minimumAccessUser) {
+            System.Test.startTest();
+            for (Integer submissionNumber : new List<Integer>{ null, 0, -1 }) {
+                try {
+                    P360_IdempotencyKey.forApplicationDocumentSubmission(minimumAccessUser.Id, submissionNumber);
+                    System.Assert.fail('Invalid submission sequence must be rejected.');
+                } catch (P360_ContractException error) {
+                    System.Assert.areEqual(
+                        'Submission number must be one or greater for an idempotency key.',
+                        error.getMessage()
+                    );
+                }
+            }
+            try {
+                P360_IdempotencyKey.forApplicationDocumentSubmission(null, 1);
+                System.Assert.fail('A missing source must be rejected.');
+            } catch (P360_ContractException error) {
+                System.Assert.isTrue(error.getMessage().contains('Application id'));
+            }
+            System.Test.stopTest();
+        }
+    }
+
     private static void assertContractErrorForApplicationAttachment(Id applicationId, Id contentVersionId) {
         try {
             P360_IdempotencyKey.forApplicationAttachment(applicationId, contentVersionId);
