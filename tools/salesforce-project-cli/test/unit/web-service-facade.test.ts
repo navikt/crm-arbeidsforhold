@@ -1,5 +1,9 @@
+import { mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { createWebServiceFacade } from '../../src/application/web-service-facade.js';
+import type { CommandRunner } from '../../src/application/refresh-dependencies.js';
 import type { ProjectConfiguration } from '../../src/domain/config.js';
 import { EXIT_CODES } from '../../src/domain/events.js';
 
@@ -23,6 +27,60 @@ const configuration: ProjectConfiguration = {
 };
 
 describe('web service facade', () => {
+    it('reads project Git information through the injected command runner', async () => {
+        const projectDirectory = await mkdtemp(path.join(tmpdir(), 'sf-project-git-info-'));
+        try {
+            await mkdir(path.join(projectDirectory, '.git'));
+            const result = {
+                executable: 'git',
+                arguments: [],
+                exitCode: 0,
+                failed: false,
+                timedOut: false,
+                canceled: false,
+                attempts: 1,
+                stdout: '',
+                stderr: '',
+                durationMs: 0
+            };
+            const runCommand = vi
+                .fn<CommandRunner>()
+                .mockResolvedValueOnce({ ...result, stdout: 'feature/project-info\n' })
+                .mockResolvedValueOnce({ ...result, stdout: ' M README.md\n' })
+                .mockResolvedValueOnce({ ...result, stdout: 'https://example.test/team/fixture.git\n' });
+            const facade = createWebServiceFacade({ projectDirectory, runCommand });
+
+            await expect(facade.getProjectInfo()).resolves.toEqual({
+                projectDirectory,
+                repositoryName: 'fixture',
+                repositoryUrl: 'https://example.test/team/fixture.git',
+                branch: 'feature/project-info',
+                status: 'dirty',
+                statusSummary: 'Endringer i arbeidskatalogen',
+                isGitRepository: true
+            });
+            expect(runCommand.mock.calls.map(([request]) => request)).toEqual([
+                expect.objectContaining({
+                    executable: 'git',
+                    arguments: ['rev-parse', '--abbrev-ref', 'HEAD'],
+                    cwd: projectDirectory
+                }),
+                expect.objectContaining({
+                    executable: 'git',
+                    arguments: ['status', '--short'],
+                    cwd: projectDirectory
+                }),
+                expect.objectContaining({
+                    executable: 'git',
+                    arguments: ['remote', 'get-url', 'origin'],
+                    cwd: projectDirectory
+                })
+            ]);
+        } finally {
+            await rm(projectDirectory, { recursive: true, force: true });
+        }
+    });
+
     it('dispatches every allowlisted command to application services without spawning the CLI', async () => {
         const services = {
             clearDependencySources: vi.fn(async () => undefined),

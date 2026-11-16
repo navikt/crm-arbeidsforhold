@@ -15,7 +15,7 @@ import { createMockCommandRunner, type MockScenario } from '../infrastructure/mo
 import type { ProjectInfo, WebOperationRequest, WebServiceFacade } from '../web/server.js';
 import { existsSync, readFileSync } from 'node:fs';
 
-async function getGitProjectInfo(projectDirectory: string): Promise<ProjectInfo> {
+async function getGitProjectInfo(projectDirectory: string, runCommand: CommandRunner): Promise<ProjectInfo> {
     const gitDir = `${projectDirectory}/.git`;
     if (!existsSync(gitDir)) {
         return {
@@ -29,19 +29,19 @@ async function getGitProjectInfo(projectDirectory: string): Promise<ProjectInfo>
         };
     }
 
-    const branchResult = await defaultRunCommand({
+    const branchResult = await runCommand({
         executable: 'git',
         arguments: ['rev-parse', '--abbrev-ref', 'HEAD'],
         cwd: projectDirectory,
         retry: { maxAttempts: 1 }
     });
-    const statusResult = await defaultRunCommand({
+    const statusResult = await runCommand({
         executable: 'git',
         arguments: ['status', '--short'],
         cwd: projectDirectory,
         retry: { maxAttempts: 1 }
     });
-    const remoteResult = await defaultRunCommand({
+    const remoteResult = await runCommand({
         executable: 'git',
         arguments: ['remote', 'get-url', 'origin'],
         cwd: projectDirectory,
@@ -207,7 +207,7 @@ export function createWebServiceFacade(options: CreateWebServiceFacadeOptions): 
     const environment = options.environment ?? process.env;
 
     return {
-        getProjectInfo: async () => getGitProjectInfo(options.projectDirectory),
+        getProjectInfo: async () => getGitProjectInfo(options.projectDirectory, readCommandRunner),
         listOrgs: () =>
             services.listOrgs({
                 projectDirectory: options.projectDirectory,
