@@ -321,10 +321,10 @@ private with sharing class AAREG_AltinnScenarioJourneyTest {
      */
     @IsTest
     static void shouldUseAnIsolatedRoleForTheCommunityAccountOwner() {
+        String roleSuffix = EncodingUtil.convertToHex(Crypto.generateAesKey(128)).substring(0, 12);
         UserRole existingRole = new UserRole(
-            Name = 'Existing Altinn Test Role',
-            DeveloperName = 'Existing_Altinn_Test_' +
-                EncodingUtil.convertToHex(Crypto.generateAesKey(128)).substring(0, 12)
+            Name = 'Existing Altinn Test ' + roleSuffix,
+            DeveloperName = 'Existing_Altinn_Test_' + roleSuffix
         );
         System.runAs(new User(Id = UserInfo.getUserId())) {
             insert as system existingRole;
