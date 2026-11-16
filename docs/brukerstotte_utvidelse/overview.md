@@ -1,57 +1,57 @@
-# Oversikt over AAREG-ekstern brukerflateutvidelse
+# Overview of the AAREG external user experience extension
 
-## Formål
+## Purpose
 
-Dette dokumentet beskriver analyse og spesifikasjon for utvidelse av dagens eksterne brukerflate i crm-arbeidsforhold. Målet er å støtte nye brukergrupper uten å endre dagens oppførsel for eksisterende virksomhetsrepresentanter eller brukerstøttebrukere i større grad enn nødvendig.
+This document describes the analysis and specification for extending the current external user experience in crm-arbeidsforhold. The goal is to support new user groups without changing the current behavior for existing company representatives or support users more than necessary.
 
-## Bakgrunn
+## Background
 
-Dagens løsning er bygd rundt egen organisasjonskontekst og eksisterende tilgangsmodell for virksomhetsrepresentanter. Hjemmesiden og navigasjonen i AAREG er i stor grad basert på siste valgte organisasjonsnummer, og tilgang til applikasjonsdata og meldinger er i dag knyttet til dette valg.
+The current solution is built around a company-specific context and the existing access model for company representatives. The home page and navigation in AAREG are largely based on the last selected organization number, and access to application data and messages is currently tied to that selection.
 
-Den nye løsningen skal utvide dette til også å støtte:
+The new solution should expand this to also support:
 
-- arbeidsgivere,
-- samarbeidspartnere / fullmektiger,
-- privatpersoner / arbeidstakere.
+- employers,
+- partners / authorized representatives,
+- private individuals / employees.
 
-## Beslutninger som ligger til grunn
+## Decisions that form the basis
 
-1. Første versjon støtter privatpersoner, arbeidsgivere og samarbeidspartnere.
-2. Dagens løsning for virksomhetsrepresentanter og dagens brukerstøtteflyt skal fungere som i dag uten regressjon.
-3. `LastUsedOrganization__c` brukes kun for virksomhetsrepresentanter.
-4. For arbeidsgiver, samarbeidspartner og privatperson brukes personbasert kontekst som hovedmodell, mens organisasjon brukes som arbeidskontekst eller filter.
-5. Privatpersoner trenger ikke organisasjonsnummer eller organisasjonsvalg.
-6. Arbeidsgiver og samarbeidspartner må enten ha organisasjonsnummer eller velge organisasjon på homepage før de fortsetter.
-7. Vi skal begrense antallet nye komponenter og bygge en liten ny inngangsside på toppen av dagens `aareg_home`-modell.
+1. The first version supports private individuals, employers, and partners.
+2. The current solution for company representatives and the current support flow should work as today without regression.
+3. `LastUsedOrganization__c` is used only for company representatives.
+4. For employers, partners, and private individuals, person-based context is the primary model, while the organization is used as a work context or filter.
+5. Private individuals do not need an organization number or organization selection.
+6. Employers and partners must either have an organization number or choose an organization on the homepage before continuing.
+7. We will limit the number of new components and build a small new entry page on top of the current `aareg_home` model.
 
-## Kjerneprinsipp
+## Core principles
 
-1. Behold dagens løsning for virksomhetsrepresentanter.
-2. Gjenbruk eksisterende LWC-komponenter, Apex-klasser og datamodeller der dette er naturlig.
-3. Sørg for tydelig skille mellom brukergruppe, representasjonskontekst og faktisk tilgang.
-4. Kontroller alle autorisasjonsavhengigheter på serversiden.
-5. Unngå ny og generisk arkitektur uten konkret behov.
-6. Bruk én aktiv organisasjonskontekst per bruker i de nye personbaserte flytene, ikke flere samtidige aktive organisasjonsvalg.
+1. Preserve the current solution for company representatives.
+2. Reuse existing LWC components, Apex classes, and data models where it is natural to do so.
+3. Ensure a clear separation between user group, representation context, and actual access.
+4. Validate all authorization dependencies on the server side.
+5. Avoid introducing new and generic architecture without a concrete need.
+6. Use one active organization context per user in the new person-based flows, not multiple simultaneous active organization selections.
 
-## Inngangsvinkler
+## Entry approaches
 
-Løsningen skal støtte to inngangsmåter:
+The solution should support two entry methods:
 
-- Eksisterende `aareg_home`-flyt for virksomhetsrepresentanter og dagens brukerstøttebrukere.
-- Ny, liten inngangsside for brukergruppevalg for arbeidsgiver, samarbeidspartner og privatperson, der organisasjonsnummer kun er påkrevd når det er relevant.
-- Direkte inngang via URL med query parameters for brukergruppe og organisasjonsnummer der dette er relevant.
+- The existing `aareg_home` flow for company representatives and current support users.
+- A new, small entry page for user-group selection for employers, partners, and private individuals, where the organization number is only required when relevant.
+- Direct entry via URL using query parameters for user group and organization number when relevant.
 
-## Utkast til ønsket oppførsel
+## Draft of desired behavior
 
-- Virksomhetsrepresentant: kan bruke eksisterende løsninger som søknad, mine søknader, mine avtaler, brukerstøtte og mine meldinger.
-- Brukerstøtte: har tilgang til brukerstøtte og relevante meldinger, i tråd med dagens modell.
-- Arbeidsgiver: får tilgang til brukerstøtte og personlige meldinger i personbasert kontekst, men ikke til organisasjonsbaserte søknads- og avtalefunksjoner uten egen kontekst.
-- Samarbeidspartner / fullmektig: får tilgang til brukerstøtte og egne meldinger i personbasert kontekst, men ikke til organisasjonsbaserte søknads- og avtalefunksjoner uten egen kontekst.
-- Privatperson: får tilgang til egne meldinger og personlige funksjoner uten organisasjonsnummer, men ikke til virksomhetsbaserte funksjoner.
+- Company representative: can use existing solutions such as application, my applications, my agreements, support, and my messages.
+- Support user: has access to support and relevant messages, in line with the current model.
+- Employer: receives access to support and personal messages in a person-based context, but not to organization-based application and agreement functions without their own context.
+- Partner / authorized representative: receives access to support and personal messages in a person-based context, but not to organization-based application and agreement functions without their own context.
+- Private individual: receives access to personal messages and personal functions without an organization number, but not to business-based functions.
 
-## Dokumentasjonsstruktur
+## Documentation structure
 
-Dette dokumentet er det overordnede rammeverket. De mer detaljerte analysene finnes i de øvrige dokumentene i denne katalogen:
+This document is the overarching framework. The more detailed analyses are in the other documents in this directory:
 
 - current-implementation.md
 - proposed-changes.md
@@ -60,6 +60,6 @@ Dette dokumentet er det overordnede rammeverket. De mer detaljerte analysene fin
 - risks-and-testing.md
 - open-questions.md
 
-## Avgrensning
+## Scope limitation
 
-Dette er en analyse- og spesifikasjonsfase. Det skal ikke implementeres kode i denne fasen. Endringene dokumenteres kun som plan for senere utvikling.
+This is an analysis and specification phase. No code should be implemented in this phase. The changes are documented only as plans for later development.

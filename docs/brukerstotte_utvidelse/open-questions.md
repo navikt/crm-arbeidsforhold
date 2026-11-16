@@ -1,97 +1,97 @@
-# Åpne spørsmål og beslutninger som må tas før implementasjon
+# Open questions and decisions to be made before implementation
 
-## 1. Hvilke brukergrupper skal faktisk støttes i første leveranse?
+## 1. Which user groups should actually be supported in the first release?
 
-Ja, første versjon skal støtte privatpersoner i tillegg til arbeidsgiver og samarbeidspartnere.
+Yes, the first version should support private individuals in addition to employers and partners.
 
-Dette betyr at første leveranse skal dekke tre brukergrupper:
+This means the first release should cover three user groups:
 
-- arbeidsgiver,
-- samarbeidspartner,
-- privatperson.
+- employers,
+- partners,
+- private individuals.
 
-Dette påvirker både URL-mønsteret, tilgangsmodellen og hvordan personbasert kontekst skal velges og valideres i UI og serverlogikk.
+This affects both the URL pattern, the access model, and how person-based context is selected and validated in the UI and server logic.
 
-## 2. Skal brukergruppe være definert i en egen Apex-kontekstmodell?
+## 2. Should the user group be defined in a separate Apex context model?
 
-Det anbefales ja, men dette må besluttes eksplisitt. En enkel modell er bedre enn en overordnet og generisk tilgangsramme.
+It is recommended yes, but this must be decided explicitly. A simple model is better than a broad and generic access framework.
 
-## 3. Skal meldingsvisning være personbasert eller organisasjonsbasert per gruppe?
+## 3. Should message display be person-based or organization-based per group?
 
-Beslutning: dagens meldingsvisning for virksomhetsrepresentanter og for brukere som allerede har tilgang til brukerstøtte skal fungere nøyaktig som i dag og skal ikke endres.
+Decision: the current message display for company representatives and for users who already have access to support should work exactly as it does today and should not be changed.
 
-For de nye representasjonsrollene som gjelder personer som representerer arbeidsgivere, samarbeidspartnere og seg selv, skal meldingsvisning være personbasert som hovedmodell. Organisasjon brukes da som kontekst eller filter, men ikke som det eneste eller primære kriteriet for hvilke meldinger som skal vises.
+For the new representation roles covering people who represent employers, partners, and themselves, message display should be person-based as the main model. The organization is then used as context or filter, but not as the only or primary criterion for which messages should be shown.
 
-Det betyr at:
+This means that:
 
-- dagens organisasjonsbaserte flyt beholdes uendret for eksisterende brukere,
-- den nye personbaserte modellen brukes kun for de nye representasjonsrollene,
-- en persons aktive ACR-relasjoner til arbeidsgiver eller samarbeidspartner skal kunne hente riktig meldingskontekst,
-- organisasjonsvalg kan brukes for å avgrense eller sette kontekst, men ikke som eneste kriterium for hvem som skal se hvilke meldinger,
-- personens identitet og relasjon er den bærende faktoren for tilgang til meldinger og e-post i den nye brukergruppen.
+- the current organization-based flow is kept unchanged for existing users,
+- the new person-based model is used only for the new representation roles,
+- a person’s active ACR relationships to an employer or partner should be able to resolve the correct message context,
+- organization selection can be used to narrow or set context, but not as the only criterion for who should see which messages,
+- the person’s identity and relationship are the underlying factors for access to messages and email in the new user group.
 
-Dette gjør at vi unngår regressjon i dagens løsning samtidig som vi får støtte for de nye representasjonsmønstrene.
+This avoids regression in the current solution while still supporting the new representation patterns.
 
-## 4. Er det nødvendig å støtte flere organisasjonsvalg per bruker?
+## 4. Is it necessary to support multiple organization selections per user?
 
-Nei. `LastUsedOrganization__c` skal bare brukes for virksomhetsrepresentanter.
+No. `LastUsedOrganization__c` should only be used for company representatives.
 
-For de andre brukergruppene skal vi bruke personbasert kontekst, og samtidig støtte valgt organisasjonsnummer som arbeidskontekst for den aktuelle oppgaven. Det betyr at hver bruker kun skal kunne ha ett aktivt organisasjonsvalg i en gitt arbeidsflyt, ikke flere samtidige organisasjonsvalg som er aktive i samme kontekst.
+For the other user groups, we should use person-based context while also supporting a selected organization number as the work context for the current task. This means that each user should only have one active organization selection in a given work flow, not several simultaneous active organization selections in the same context.
 
-Kort sagt:
+In short:
 
-- virksomhetsrepresentanter: eksisterende modell med `LastUsedOrganization__c` som hovedkontekst,
-- arbeidsgiver, samarbeidspartner og privatperson: personbasert kontekst + ett valgt organisasjonsnummer som arbeidskontekst,
-- ingen støtte for flere samtidige aktive organisasjonsvalg for disse gruppene.
+- company representatives: existing model with `LastUsedOrganization__c` as the main context,
+- employers, partners, and private individuals: person-based context + one selected organization number as the work context,
+- no support for multiple simultaneous active organization selections for these groups.
 
-Dette er forståelig og gjør at vi unngår dobbelt kontekstmodell i samme flyt.
+This is understandable and helps avoid a double context model in the same flow.
 
-## 5. Hva er ønsket oppførsel for brukere uten organisasjonskontekst?
+## 5. What is the desired behavior for users without an organization context?
 
-For privatpersoner som representerer seg selv, trenger de ikke å komme inn med et organisasjonsnummer og heller ikke å velge en organisasjon. De skal kunne gå inn i sin personlige kontekst direkte.
+For private individuals representing themselves, they do not need to enter an organization number and do not need to select an organization. They should be able to enter their personal context directly.
 
-For arbeidsgivere og samarbeidspartnere er det viktig at de enten:
+For employers and partners, it is important that they either:
 
-- kommer inn med et organisasjonsnummer, eller
-- må velge en organisasjon på homepage før de kan fortsette i arbeidsflyten.
+- enter with an organization number, or
+- must select an organization on the homepage before they can continue in the work flow.
 
-Det vil si at disse brukerne må ha en gyldig organisasjonskontekst, mens privatpersoner ikke trenger det.
+This means these users must have a valid organization context, while private individuals do not need one.
 
-## 6. Er det behov for nye Custom Metadata eller permission set for ny brukergruppe?
+## 6. Is there a need for new Custom Metadata or permission sets for the new user group?
 
-Dette må avklares før implementasjon, fordi noen tilganger kan være mer naturlige å modellere som eksisterende roller eller Custom Metadata.
+This must be clarified before implementation, because some permissions may be more naturally modeled as existing roles or Custom Metadata.
 
-## 7. Skal dette ligge i samme LWC-komponent eller i flere delte komponenter?
+## 7. Should this live in the same LWC component or several shared components?
 
-Ja, vi bør begrense antallet nye komponenter. Jeg mener det er bedre å bruke dagens `aareg_home` som dagens organisasjonsbaserte inngang, og så lage en liten ny inngangsside for de nye brukergruppene som skal kunne velge bruker type og organisasjon.
+Yes, we should limit the number of new components. I believe it is better to use the current `aareg_home` as the current organization-based entry, and then create a small new entry page for the new user groups that can choose user type and organization.
 
-Dette bør fungere som en sammenhengende struktur:
+This should work as a coherent structure:
 
-- dagens `aareg_home` beholdes som den eksisterende organisasjonsbaserte siden,
-- den nye siden brukes for nye brukergrupper når de må velge bruker type og/eller organisasjonskontekst,
-- etter at konteksten er valgt, kan de gå videre inn i den samme eksisterende funksjonaliteten som dagens flyt,
-- vi unngår å bygge en helt ny parallelle app fra bunnen av og holder løsningen liten og forståelig.
+- the current `aareg_home` remains the existing organization-based page,
+- the new page is used for new user groups when they need to choose user type and/or organization context,
+- after the context is chosen, they can continue into the same existing functionality as the current flow,
+- we avoid building an entirely new parallel app from scratch and keep the solution small and understandable.
 
-Kort sagt: jeg vil ikke lage en helt ny "aareg_home" fra scratch som erstatter dagens side, men heller en liten, tydelig ny inngang som peker bakover til dagens `aareg_home`-flyt når det er nødvendig.
+In short: I would not create a completely new `aareg_home` from scratch that replaces the current page, but rather a small, clear new entry that points back to the current `aareg_home` flow when necessary.
 
-## 8. Hvilke funksjoner som er "sinne" og hvilke som er "ikke tillatte"?
+## 8. Which functions are “allowed” and which are “not allowed”?
 
-Ja, dette bør dokumenteres som en matrise for hver brukergruppe. Her er en fersk, redigerbar matrise som kan brukes som utgangspunkt før implementasjon:
+Yes, this should be documented as a matrix for each user group. Here is a current, editable matrix for use as a starting point before implementation:
 
-| Brukergruppe                              | Kode / rolle                     | Må ha organisasjonskontekst | Må velge organisasjon                            | Personbasert kontekst     | Tillatte funksjoner                                                                    | Ikke tillatte funksjoner                                |
-| ----------------------------------------- | -------------------------------- | --------------------------- | ------------------------------------------------ | ------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| Virksomhetsrepresentant                   | Eksisterende organisasjonsbruker | Ja                          | Ja, via dagens flyt                              | Nei                       | Alle dagens organisasjonsbaserte funksjoner                                            | Nye personbaserte funksjoner uten organisasjonskontekst |
-| Arbeidsgiver                              | Ny brukergruppe                  | Ja                          | Ja, enten via organisasjonsnummer eller homepage | Ja                        | Funksjoner knyttet til valgt arbeidsgiverorganisasjon og egen personlige kontekst      | Flere samtidige organisasjonsvalg i samme flyt          |
-| Samarbeidspartner                         | Ny brukergruppe                  | Ja                          | Ja, enten via organisasjonsnummer eller homepage | Ja                        | Funksjoner knyttet til valgt samarbeidspartnerorganisasjon og egen personlige kontekst | Flere samtidige organisasjonsvalg i samme flyt          |
-| Privatperson                              | Ny brukergruppe                  | Nei                         | Nei                                              | Ja                        | Personlige oppgaver og personlige meldinger uten organisasjonskrav                     | Obligatorisk organisasjonsvalg                          |
-| Brukerstøtte / eksisterende supportbruker | Eksisterende support             | Ja/avhengig av dagens flyt  | Som i dag                                        | Avhengig av dagens modell | Nåværende supportflyt uten endring                                                     | Regresjon i dagens oppførsel                            |
+| User group                           | Code / role                | Must have organization context | Must select organization                        | Person-based context     | Allowed functions                                                             | Not allowed functions                                          |
+| ------------------------------------ | -------------------------- | ------------------------------ | ----------------------------------------------- | ------------------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Company representative               | Existing organization user | Yes                            | Yes, via current flow                           | No                       | All current organization-based functions                                      | New person-based functions without organization context        |
+| Employer                             | New user group             | Yes                            | Yes, either via organization number or homepage | Yes                      | Functions tied to the selected employer organization and own personal context | Multiple simultaneous organization selections in the same flow |
+| Partner                              | New user group             | Yes                            | Yes, either via organization number or homepage | Yes                      | Functions tied to the selected partner organization and own personal context  | Multiple simultaneous organization selections in the same flow |
+| Private individual                   | New user group             | No                             | No                                              | Yes                      | Personal tasks and personal messages without organization requirements        | Mandatory organization selection                               |
+| Support user / existing support user | Existing support           | Yes/depending on current flow  | As today                                        | Depends on current model | Existing support flow without change                                          | Regression in current behavior                                 |
 
-Dette er et godt utgangspunkt for å få ned de viktigste beslutningene i en enkel tabell. Dere kan redigere den etter hva som faktisk er tillatt for hver funksjon i den endelige leveransen.
+This is a good starting point for reducing the main decisions to a simple table. You can edit it based on what is actually allowed for each function in the final release.
 
-## 9. Hva er ønsket nivå for audit / tracking i dette første steget?
+## 9. What is the desired level of audit / tracking in this first step?
 
-Dette prosjektet bør holde seg liten og AAREG-spesifikk. Før implementasjon må det bestemmes hvor mye historikk som faktisk trengs i prosessen, uten å bygge et generisk aktivitetsystem.
+This project should stay small and AAREG-specific. Before implementation, it must be decided how much history is actually needed in the process without building a generic activity system.
 
-## 10. Vil dette være en isolert AAREG-løsning eller skal det dele logikk med andre områder?
+## 10. Will this be an isolated AAREG solution or should it share logic with other areas?
 
-Det anbefales å holde dette AAREG-spesifikt i første fase, slik at løsningen er enkel å forstå, vedlikeholde og auditere.
+It is recommended to keep this AAREG-specific in the first phase so the solution remains simple to understand, maintain, and audit.

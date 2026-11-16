@@ -1,169 +1,114 @@
-# Agentinstruks: vidareutvikling av underlaget for brukerstøtteutvidelse
+# Agent instructions: further development of the user support extension material
 
-Bruk denne fila som styring når du analyserer, skriv om eller konkretiserer
-arbeidsunderlaget i denne mappa. Ho er ikkje godkjenning til å implementere
-Salesforce-kode, endre metadata eller aksessere eit org.
+Use this file as guidance when you analyze, rewrite, or clarify the working material in this folder. It is not approval to implement Salesforce code, change metadata, or access an org.
 
-## Oppdrag
+## Mission
 
-Hjelp produkteigar og utviklar med å utvikle eit korrekt og testbart design for
-utviding av den eksterne brukarstøtta i Experience Cloud. Hald deg til
-arkitekturanalyse og dokumentasjon med mindre brukaren uttrykkeleg ber om
-implementasjon.
+Help the product owner and developer create a correct and testable design for extending the external support experience in Experience Cloud. Stay focused on architecture analysis and documentation unless the user explicitly asks for implementation.
 
-## Autoritativ kontekst
+## Authoritative context
 
-Les først:
+Read first:
 
-1. Repo-rota `AGENTS.md`, `CONTEXT.md` og `.github/instructions/agentic-development.instructions.md`.
-2. `docs/architecture/README.md`, relevante ADR-ar og utviklingsstandardane.
-3. Alle relevante filer i `docs/brukerstotte_utvidelse/`, særleg:
-    - `review-og-forslag.md` for målreise, funn og rettingsliste;
-    - `dagens-brukerstotte-og-soknad.md` for dagens brukerstøtte og søknad og
-      den utvidbare rollemodellen;
-    - `sikkerheitsfunn-tilgangskontroll.md` for tilgangsfunn som teamet
-      vurderer.
-4. Gjeldande kode og testar berre når det er nødvendig for å verifisere ei
-   konkret påstand. Skil mellom dokumentert påstand, observert kode og
-   Salesforce-org-tilstand.
+1. The repository root files `AGENTS.md`, `CONTEXT.md`, and `.github/instructions/agentic-development.instructions.md`.
+2. `docs/architecture/README.md`, relevant ADRs, and the development standards.
+3. All relevant files in `docs/brukerstotte_utvidelse/`, especially:
+    - `review-og-forslag.md` for the target direction, findings, and correction list;
+    - `dagens-brukerstotte-og-soknad.md` for the current support and application flow and the extensible role model;
+    - `sikkerheitsfunn-tilgangskontroll.md` for access findings under review by the team.
+4. Current code and tests only when needed to validate a specific claim. Separate documented claims, observed code, and Salesforce org state.
 
-Følg nærare `AGENTS.md`, pakkereglar og skills dersom dei kjem i konflikt med
-denne arbeidsinstruksen. Pakkeeigde referansemappene er lesekontekst, ikkje
-arbeidsområde.
+Follow `AGENTS.md`, package rules, and relevant skills more closely if they conflict with this working instruction. Package-owned reference folders are read context, not the work area.
 
-## Stadfesta føringar frå produkteigar
+## Confirmed constraints from the product owner
 
-- Dagens Experience Cloud-URL skal bli den nye hovudsida/inngangsportalen.
-- Portalen skal vise alle desse tre vala:
-    - arbeidsgivar;
-    - samarbeidspartnar/fullmektig;
-    - privatperson/arbeidstakar.
-- Kvar rolle skal ha eiga Experience Cloud-side.
-- Eksterne lenkjer kan gå direkte til rollesida; sida må kontrollere tilgang.
-- Ved manglande tilgang skal brukaren returnerast til inngangsportalen med ei
-  melding.
-- Gjenbruk eksisterande løysing der det er naturleg; ikkje bygg ein parallell
-  app utan dokumentert behov.
-- Vurder om eksisterande feature-toggle-rammeverk kan halde gammal og ny
-  inngangsoppleving valbar for enkel tilbakeføring. Gammal logikk kan fjernast
-  seinare, etter verifisering.
+- The current Experience Cloud URL should become the new main page / entry portal.
+- The portal should show all three of these options:
+    - employer;
+    - partner / authorized representative;
+    - private individual / employee.
+- Each role should have its own Experience Cloud page.
+- External links may go directly to the role page; the page must validate access.
+- If access is missing, the user should be returned to the entry portal with a message.
+- Reuse the existing solution where it makes sense; do not build a parallel app without documented need.
+- Consider whether the existing feature-toggle framework can keep old and new entry experiences selectable for easy rollback. Old logic can be removed later after verification.
 
-Behandle dette som brukarkrav, ikkje ferdig Salesforce-design. Ikkje anta at
-brukarval, URL-parameter, Custom Metadata, ACR, kontaktfelt eller
-Experience Builder-sidevising gir tilgang.
+Treat this as user requirements, not final Salesforce design. Do not assume that user choice, URL parameters, Custom Metadata, ACR, contact fields, or Experience Builder page visibility grant access.
 
-## Føreslått målarkitektur i korte trekk
+## Proposed target architecture in brief
 
-Dette er **tilrådd**, ikkje vedteke. Bruk det som utgangspunkt og marker
-avvik.
+This is a recommendation, not a decision. Use it as a baseline and mark deviations.
 
-- Ei rolle er ein post i eit rolleregister i Custom Metadata med konteksttype,
-  side, feature-flagg og kapabilitetar.
-- Éi serverteneste tek avgjerda for både rollesida og kvar kontrollarmetode.
-- Policyen blir vald etter konteksttype med ein eksplisitt `switch`.
-- Brukerstøtteskjema og meldingsliste blir gjenbrukte under alle rollene.
-- Bobestyrar og seinare roller skal kunne leggjast til utan å endre felles
-  komponentar.
+- A role is a record in a Custom Metadata role registry with context type, page, feature flag, and capabilities.
+- One server service makes decisions for both the role page and each control method.
+- The policy is selected based on context type with an explicit `switch`.
+- Support forms and message lists are reused across roles.
+- Board managers and future roles should be added without changing shared components.
 
 ```mermaid
 flowchart TB
-    MD[("Rolleregister<br/>(Custom Metadata)")] --> SVC[Felles tilgangsteneste]
-    SVC --> POL{Konteksttype}
-    POL --> O[Organisasjon: Altinn]
-    POL --> P[Person: innlogga brukar]
-    POL --> E["Dødsbu: kjelde uavklart"]
-    PAGE[Rolleside] --> SVC
-    CTRL[Kontrollarmetodar] --> SVC
+    MD[("Role registry<br/>(Custom Metadata)")] --> SVC[Shared access service]
+    SVC --> POL{Context type}
+    POL --> O[Organization: Altinn]
+    POL --> P[Person: logged-in user]
+    POL --> E["Estate: source unclear"]
+    PAGE[Role page] --> SVC
+    CTRL[Control methods] --> SVC
 ```
 
-**Døme på korleis ein agent skal svare på «legg til bobestyrar»:**
+**Example of how an agent should respond to “add board manager”:**
 
-1. **Stadfesta:** Bobestyrar skal inn på sikt.
-2. **Uavklart:** kjelde for tilgang, kapabilitetar og om bobestyrar kan søkje.
-3. **Tilrådd:** ny post i rolleregisteret, ny `EstatePolicy`, ny rolleside og
-   eige feature-flagg.
-4. **Testkrav:** tilgang, avslag, teknisk feil, flagg av og direkte kall til
-   kontrollarar.
-5. **Stopp:** be om avgjerd frå produkteigar før policyen blir spesifisert,
-   fordi dette er raud sone.
+1. **Confirmed:** Board manager should be supported eventually.
+2. **Unclear:** source of access, capabilities, and whether the board manager can apply.
+3. **Recommended:** new record in the role registry, new `EstatePolicy`, new role page, and its own feature flag.
+4. **Test requirements:** access, denial, technical error, flag off, and direct calls to controls.
+5. **Stop:** ask the product owner for a decision before the policy is specified, because this is a red-zone decision.
 
-## Arbeidsreglar
+## Working rules
 
-- Endre ikkje dei eksisterande sju underlagsfilene utan uttrykkeleg beskjed.
-  Når brukaren ber om eit forslag, opprett ein separat, tydeleg merkt
-  gjennomgangsfil.
-- Hald vedtekne forhold, brukaravklaringar, observerte kodefunn,
-  anbefalingar og opne spørsmål tydeleg skilde.
-- Når underlaget er sjølvmotseiande, vis til fil/avsnitt, forklar kva som
-  kolliderer og foreslå éi målmodell. Ikkje slå saman roller eller velje
-  tilgangsreglar på vegner av produkteigar.
-- Spør brukaren når avgjerda påverkar tilgang, personvern, representasjon,
-  datakjelde, ekstern URL-kontrakt eller rollback-strategi. Dersom arbeidet kan
-  leverast utan svaret, dokumenter spørsmålet som ei eksplisitt
-  implementasjonsgate.
-- Bruk Salesforce-terminologi korrekt. Audience-reglar og
-  navigasjonssynlegheit i Experience Cloud erstattar ikkje autorisasjon ved
-  Apex- eller datatilgang.
-- Gjenbruk først; samanlikn det minste løysingsalternativet med eitt reelt
-  alternativ. Unngå generiske rammeverk, spekulative lag og kopiert
-  forretningslogikk.
-- Feature toggle kan styre val av oppleving, ikkje tilgang. Verifiser om
-  eksisterande toggle støttar Experience Cloud/LWC-ruting før du tilrår henne
-  som implementerbar. Definer flagg av/på, manglande verdi, teknisk feil,
-  direkte lenkjer, cache, rollback og plan for fjerning.
-- Behandle ACR og e-postval i ADR-0002/0003 som foreslåtte til dei er godkjende.
-  Stadfest faktisk datamodell og tilgang før dei blir føresetnader.
-- Skriv norsk dokumentasjon i eksisterande stil. Ikkje legg inn personnamn,
-  testdata, identifikatorar, secrets, org-alias eller miljøspesifikke URL-ar.
+- Do not change the existing seven source documents without explicit instruction. When the user asks for a proposal, create a separate, clearly marked review file.
+- Keep established facts, user clarifications, observed code findings, recommendations, and open questions clearly separated.
+- When the source material is internally contradictory, refer to the file/section, explain what conflicts, and propose a single target model. Do not merge roles or choose access rules on behalf of the product owner.
+- Ask the user when the decisions affect access, privacy, representation, data source, external URL contracts, or rollback strategy. If the work can be delivered without the answer, document the question as an explicit implementation gate.
+- Use Salesforce terminology correctly. Audience rules and navigation visibility in Experience Cloud do not replace authorization in Apex or data access.
+- Reuse first; compare the smallest solution with one realistic alternative. Avoid generic frameworks, speculative layers, and copied business logic.
+- Feature toggles can control the user experience, not access. Verify whether the existing toggle supports Experience Cloud/LWC routing before recommending it as implementable. Define flag on/off, missing value, technical error, direct links, cache, rollback, and removal plan.
+- Treat ACR and email decisions in ADR-0002/0003 as proposed until approved. Confirm the actual data model and access before treating them as prerequisites.
+- Write Norwegian documentation in the existing style. Do not include personal names, test data, identifiers, secrets, org aliases, or environment-specific URLs.
 
-## Sikkerheits- og org-grenser
+## Security and org boundaries
 
-- Tilgang og personvern er raud sone. Dokumenter minste privilegium,
-  identitets-/representasjonskontroll, server-side autorisasjon, CRUD/FLS,
-  record sharing, feiltilstandar og negative testar.
-- Direkte URL og manipulert tilstand må behandlast som ubetrodd input. Bruk
-  allowlist for interne ruter og ikkje bygg open redirect.
-- Skil «ikkje autorisert» frå «tilgangsoppslag feila». Ikkje presenter
-  driftsfeil som om brukaren sikkert manglar rettar.
-- Aldri køyr ei Salesforce-org-kommando utan fersk stadfesting frå brukaren av
-  eksakt ikkje-produksjonsmål og handling. Agentar skal aldri aksessere
-  produksjon.
-- Ikkje endre pakkeeigde katalogar, CI/auth, pakkar eller deployoppsett utan
-  eksplisitt godkjenning etter repo-reglane.
-- Repoet er offentleg. Skriv tilgangsfunn på overordna nivå, utan steg for
-  misbruk. Teamet handterer detaljane internt.
+- Access and privacy are in the red zone. Document minimum privilege, identity/representation control, server-side authorization, CRUD/FLS, record sharing, failure states, and negative tests.
+- Direct URL and manipulated state must be treated as untrusted input. Use an allowlist for internal routes and do not build open redirects.
+- Distinguish “not authorized” from “access lookup failed.” Do not present an operational error as if the user simply lacks rights.
+- Never run a Salesforce org command without fresh confirmation from the user of the exact non-production target and action. Agents must never access production.
+- Do not change package-owned directories, CI/auth, packages, or deployment setup without explicit approval under the repo rules.
+- The repository is public. Document access findings at a high level without steps for misuse. The team handles details internally.
 
-## Arbeidsflyt for agenten
+## Agent workflow
 
 ```mermaid
 flowchart LR
-    A[Les kontekst og dokument] --> B[Skil stadfesta, observert, tilrådd og uavklart]
-    B --> C{Påverkar avgjerda tilgang, personvern eller URL-kontrakt?}
-    C -- Ja --> D[Spør brukaren]
-    C -- Nei --> E[Skriv forslag i eiga fil]
+    A[Read context and documents] --> B[Separate confirmed, observed, recommended, and unclear]
+    B --> C{Does the decision affect access, privacy, or URL contract?}
+    C -- Yes --> D[Ask the user]
+    C -- No --> E[Write proposal in its own file]
     D --> E
-    E --> F[Prettier-sjekk av endra filer]
-    F --> G[Oppsummer endringar og opne spørsmål]
+    E --> F[Prettier check for changed files]
+    F --> G[Summarize changes and open questions]
 ```
 
-## Leveranseformat
+## Delivery format
 
-Ved kvar oppdatering:
+For each update:
 
-1. Oppsummer målreise og kva som varierer mellom dei tre rollene.
-2. List eksisterande åtferd som skal bevarast.
-3. Beskriv grensekontrakt, tilgang, datafilter, feil, sideeffektar og
-   konfigurering.
-4. Vis direkte lenkje- og portalnavigasjonsflyt, inkludert avslag og teknisk
-   feil.
-5. Merk kvart punkt som **stadfesta**, **observert**, **tilrådd** eller
-   **uavklart**.
-6. Ta med relevante Trusted/Easy/Adaptable-tradeoffs og Salesforce
-   Well-Architected-kjelder.
-7. List testkrav og avgrensingar; ikkje påstå at org-kontrollar er utførte utan
-   evidens.
-8. Oppdater berre dokumenta som brukaren har bede om. Ikkje lag kode-, plan-
-   eller trackingfiler som ikkje er etterspurde.
+1. Summarize the target direction and what varies between the three roles.
+2. List existing behavior that must be preserved.
+3. Describe boundary contracts, access, data filters, errors, side effects, and configuration.
+4. Show direct-link and portal navigation flows, including denial and technical error paths.
+5. Mark each point as **confirmed**, **observed**, **recommended**, or **unclear**.
+6. Include relevant Trusted/Easy/Adaptable trade-offs and Salesforce Well-Architected references.
+7. List test requirements and constraints; do not claim org checks were performed without evidence.
+8. Update only the documents the user requested. Do not create code, plan, or tracking files that were not requested.
 
-Før kodearbeid: få godkjent observerbar åtferd og testseam, følg repoets
-TDD-prosess, og få menneskeleg gjennomgang av tilgangs- og personvernval.
+Before code work: obtain approval for observable behavior and the test seam, follow the repository TDD process, and get human review of access and privacy decisions.

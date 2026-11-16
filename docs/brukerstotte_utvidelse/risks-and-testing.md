@@ -1,61 +1,61 @@
-# Risikoer og teststrategi
+# Risks and testing strategy
 
-## 1. Risikoer
+## 1. Risks
 
-### 1.1 Regresjon for virksomhetsrepresentanter
+### 1.1 Regression for company representatives
 
-Den største risikoen er at eksisterende oppførsel for virksomhetsrepresentanter blir endret ved forsøk på å utvide brukergruppene.
+The biggest risk is that the existing behavior for company representatives will change when trying to expand the user groups.
 
-Dette gjelder spesielt:
+This particularly applies to:
 
-- organisasjonsvalg og `LastUsedOrganization__c`,
-- mine søknader,
-- mine avtaler,
-- mine meldinger,
-- tilgang til brukerstøtte.
+- organization selection and `LastUsedOrganization__c`,
+- my applications,
+- my agreements,
+- my messages,
+- access to support.
 
-### 1.2 Feil tilgangskontroll
+### 1.2 Incorrect access control
 
-Hvis tilgang kun baseres på UI-skjuling, kan brukeren få tilgang til data eller funksjonalitet via direkte kall eller manipulerte parametre. Derfor må serverlogikk i Apex være den faktiske autorisasjonsmekanismen.
+If access is based only on UI hiding, the user may gain access to data or functionality through direct calls or manipulated parameters. Therefore, Apex server logic must be the actual authorization mechanism.
 
-### 1.3 Modellblanding mellom brukergruppe og representasjon
+### 1.3 Mixing user group and representation models
 
-Hvis brukergruppe og valgt organisasjonsnummer blandes sammen i samme variabel eller samme flyt, kan det føre til feil kontekst og uønsket tilgang.
+If the user group and selected organization number are mixed into the same variable or flow, it can lead to incorrect context and unintended access.
 
-### 1.4 Meldingsfeil
+### 1.4 Message errors
 
-Dagens meldingsmodell er organisasjonsbasert. Det er en stor risiko ved å utvide uten eksplisitt personbasert filtrering for andre grupper.
+The current message model is organization-based. There is significant risk in extending it without explicit person-based filtering for other groups.
 
-## 2. Testtilnærming
+## 2. Test approach
 
-### 2.1 Eksisterende Apex-tester
+### 2.1 Existing Apex tests
 
-Det finnes allerede testklasser i flere AAREG-moduler, for eksempel:
+There are already test classes in several AAREG modules, for example:
 
 - AAREG_ApplicationControllerTest
 - AAREG_MyApplicationsControllerTest
 - AAREG_ContactSupportControllerTest
 - AAREG_MyThreadsControllerTest
 
-Disse må vurderes og utvides, spesielt når tilgangskontroll eller meldingsoppsett endres.
+These must be reviewed and extended, especially when access control or message configuration is changed.
 
-### 2.2 Nye tester som bør opprettes
+### 2.2 New tests that should be created
 
-- tilgangstest for arbeidsgiver uten søknadstilgang,
-- tilgangstest for samarbeidspartner uten organisasjonsvisning av søknader og avtaler,
-- tilgangstest for privatperson med kun personlige meldinger,
-- negativ test for ugyldige URL-parametere,
-- negativ test for manipulert organisasjonsnummer,
-- test på at virksomhetsrepresentantens eksisterende flyt blir uendret.
+- access test for employer without application access,
+- access test for partner without organization-based display of applications and agreements,
+- access test for private individual with only personal messages,
+- negative test for invalid URL parameters,
+- negative test for manipulated organization number,
+- test that the existing company representative flow remains unchanged.
 
-### 2.3 LWC-testdekning
+### 2.3 LWC test coverage
 
-Det finnes LWC-tester i delområdene som allerede bruker Apex-wires, for eksempel `aareg_home`-testen. Disse bør utvides for nytt brukergruppemønster og for feilhandtering av valgt kontekst.
+There are LWC tests in the affected areas that already use Apex wires, for example the `aareg_home` test. These should be extended for the new user-group pattern and for error handling of the selected context.
 
-### 2.4 Verifisering av serverbasert tilgang
+### 2.4 Verification of server-side access
 
-Det må testes i Apex at ikke bare UI-elementer skjules, men at serveren faktisk nektar uautoriserte kall.
+It must be tested in Apex that not only UI elements are hidden, but that the server actually rejects unauthorized calls.
 
-## 3. Rekommendasjon
+## 3. Recommendation
 
-For å begrense regressjonsrisiko bør implementasjonen deles i små faser og verifiseres etter hver fase. Dette er viktig fordi dagens organisasjonsbaserte flyt er sentral i løsningen og ikke bør endres uten målrettet regresjonstest.
+To limit regression risk, the implementation should be split into small phases and validated after each phase. This is important because the current organization-based flow is central to the solution and should not be changed without targeted regression testing.

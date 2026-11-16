@@ -1,106 +1,106 @@
-# ACR og e-posthåndtering for brukerstøtteutvidelse
+# ACR and email handling for the support extension
 
-## 1. Kontekst
+## 1. Context
 
-For å kunne identifisere riktig e-postadresse for en person som representerer en arbeidsgiver, samarbeidspartner eller seg selv, må vi bruke AccountContactRelation (ACR) som elvergangen mellom person og virksomhet. ACR er den sikre kilden til at en person faktisk er knyttet til en konkret konto og i hvilken rolle den personen opererer.
+To identify the correct email address for a person representing an employer, partner, or themselves, we must use AccountContactRelation (ACR) as the bridge between the person and the organization. ACR is the reliable source showing that a person is actually connected to a specific account and in which role that person acts.
 
-Dette er nødvendig fordi dagens løsning i stor grad bygger på `User.LastUsedOrganization__c` og valgt organisasjonsnummer. Det er ikke nok for personbaserte representasjonsforhold, siden samme person kan ha flere relevante roller og flere tilknyttede kontoer.
+This is necessary because the current solution is heavily based on `User.LastUsedOrganization__c` and the selected organization number. This is not enough for person-based representation relationships, because the same person can have several relevant roles and several related accounts.
 
-## 2. Problemstilling
+## 2. Problem statement
 
-Vi trenger å løse tre ting samtidig:
+We need to solve three things at the same time:
 
-1. finne riktig person som er knyttet til valgt organisasjon eller eget brukerforhold,
-2. finne riktig e-postadresse til den personen,
-3. lagre e-postadressen i Salesforce på en måte som er søkbar, validerbar og robust mot endringer i KRR/Altinn.
+1. find the correct person connected to the selected organization or their own user relationship,
+2. find the correct email address for that person,
+3. store the email address in Salesforce in a way that is searchable, validatable, and robust against changes in KRR/Altinn.
 
-## 3. Krav til løsning
+## 3. Requirements for the solution
 
-### 3.1 ACR som kilde til representasjonsforhold
+### 3.1 ACR as the source of representation relationship
 
-- `AccountContactRelation` er master for relasjonen mellom person og virksomhet.
-- Relasjonen skal kun være aktiv når `IsActive = true`.
-- Rollen på relasjonen må kunne skille mellom:
-    - arbeidsgiver,
-    - samarbeidspartner,
-    - egen person / selv,
-    - eventuelt andre relevante typer representasjon.
-- Relasjonen må kunne ha tidsbegrensning gjennom `StartDate` og `EndDate` dersom dette er nødvendig for historie eller reell endring i tilgang.
+- `AccountContactRelation` is the master of the relationship between a person and an organization.
+- The relationship should only be active when `IsActive = true`.
+- The role on the relationship must distinguish between:
+    - employer,
+    - partner,
+    - own person / self,
+    - possibly other relevant representation types.
+- The relationship may need time restrictions via `StartDate` and `EndDate` if this is required for historical accuracy or real changes in access.
 
-### 3.2 Identifisering av riktig kontakt
+### 3.2 Identifying the correct contact
 
-For hver innlogget bruker skal systemet kunne løse:
+For each logged-in user, the system should be able to resolve:
 
-- hvilken personkonto eller kontakt som er relevant for brukeren,
-- hvilken konto eller virksomhet personen representerer,
-- om personen skal betraktes som "selv", "arbeidsgiver" eller "samarbeidspartner".
+- which person account or contact is relevant for the user,
+- which account or organization the person represents,
+- whether the person should be treated as “self”, “employer”, or “partner”.
 
-Det bør ikke være mulig å tolke bare `User.LastUsedOrganization__c` som gyldig representasjonskontekst for disse brukergruppene. `LastUsedOrganization__c` kan fortsatt brukes som fallback for eksisterende organisasjonsbaserte brukere, men ikke som eneste kilde for nye representasjonsmønstre.
+It should not be possible to treat `User.LastUsedOrganization__c` alone as valid representation context for these user groups. `LastUsedOrganization__c` can still be used as a fallback for existing organization-based users, but not as the only source for new representation patterns.
 
-I praksis innebærer dette at:
+In practice this means:
 
-- virksomhetsrepresentanter bruker dagens organisasjonsmodell,
-- arbeidsgiver og samarbeidspartner bruker personbasert kontekst og ett valgt organisasjonsnummer,
-- privatpersoner bruker personbasert kontekst uten organisasjonsnummer,
-- vi ikke støtter flere samtidige organisasjonsvalg i samme flyt for disse nye gruppene.
+- company representatives use the current organization model,
+- employers and partners use person-based context and one selected organization number,
+- private individuals use person-based context without an organization number,
+- we do not support multiple simultaneous organization selections in the same flow for these new groups.
 
-### 3.3 E-post som data i Salesforce
+### 3.3 Email as data in Salesforce
 
-Vi trenger et oppbevaringsmønster som gjør at e-post kan brukes i:
+We need a storage pattern that allows email to be used in:
 
-- kontaktinformasjon,
-- Varsling/kommunikasjon,
-- støtteflyt og meldinger,
-- historikk og søkbarhet,
-- senere videreføring til KRR eller andre datakilder.
+- contact information,
+- notifications / communication,
+- support flow and messages,
+- history and searchability,
+- later transfer to KRR or other data sources.
 
-Det finnes allerede flere steder i repoet hvor e-post lagres på transactional objekter som `Application__c.Email__c`, `RelatedContact__c.Email__c` og `Inquiry__c.Email__c`. Dette er nyttig, men det er ikke nok som master for representasjonskontekst. Vi trenger derfor en normalisert, tydelig datakilde for kontakt-e-post i person-/kontekstmodellen.
+There are already several places in the repo where email is stored on transactional objects such as `Application__c.Email__c`, `RelatedContact__c.Email__c`, and `Inquiry__c.Email__c`. This is useful, but it is not enough as the master for representation context. We therefore need a normalized, explicit data source for contact email in the person/context model.
 
-## 4. Forslått design
+## 4. Proposed design
 
-### 4.1 Bruk ACR som relasjonsmodell
+### 4.1 Use ACR as the relationship model
 
-Vi anbefaler å bygge en liten og konkret kontekstmodul rundt ACR:
+We recommend building a small, concrete context module around ACR:
 
-- `AccountContactRelation` brukes til å finne alle aktive relasjoner for den aktuelle personen.
-- `Roles` eller en AAREG-spesifikk feltmodell brukes til å klassifisere relasjonen.
-- En liten Apex-tjeneste, for eksempel `AAREG_ContactContextService`, ansvarlig for å knytte sammen:
-    - bruker,
-    - relativ kontakt,
-    - konto,
-    - rolle,
-    - relevant e-postadresse.
+- `AccountContactRelation` is used to find all active relationships for the current person.
+- `Roles` or an AAREG-specific field model is used to classify the relationship.
+- A small Apex service, for example `AAREG_ContactContextService`, is responsible for connecting:
+    - user,
+    - related contact,
+    - account,
+    - role,
+    - relevant email address.
 
-Dette holder løsningen liten og begrenset til AAREG, uten å introdusere et stort generisk audit-/access-system.
+This keeps the solution small and limited to AAREG without introducing a large generic audit/access system.
 
-### 4.2 E-post i Salesforce
+### 4.2 Email in Salesforce
 
-Vi anbefaler å bruke en av to modeller, avhengig av hvilken datakilde som faktisk er master:
+We recommend using one of two models depending on which source is actually authoritative:
 
-#### Variant A: Bruk Contact.Email / PersonEmail som primærfelt
+#### Variant A: Use Contact.Email / PersonEmail as the primary field
 
-Dette er den enkleste modellen hvis Salesforce er den autoritative kilden for den aktuelle personen. Fordeler:
+This is the simplest model if Salesforce is the authoritative source for the current person. Advantages:
 
-- liten endring i kode,
-- enkel tilganger,
-- god søkbarhet,
-- støtter standard Salesforce-felter.
+- small code change,
+- simple access control,
+- good searchability,
+- uses standard Salesforce fields.
 
-Krav for dette:
+Requirements for this:
 
-- feltet må oppdateres som en del av AAREG/KRR-synkronisering,
-- det må være tydelig hvilke kilder som kan overskrive e-posten,
-- feltet må aldri brukes uten validering.
+- the field must be updated as part of the AAREG/KRR synchronization,
+- it must be clear which sources can overwrite the email,
+- the field must never be used without validation.
 
-#### Variant B: Egen liten AAREG-tabell for e-postsnapshot
+#### Variant B: A small AAREG table for email snapshot
 
-Hvis KRR/AAREG har egne krav om historikk, flere e-postadresser eller datakilde-sporing, bør vi bruke en liten custom object, for eksempel:
+If KRR/AAREG has specific requirements for history, multiple email addresses, or source tracking, we should use a small custom object, for example:
 
 - `AAREG_PersonEmail__c`
 
-Dette objektet bør inneholde:
+This object should contain:
 
-- `ContactId` eller `PersonAccountId`
+- `ContactId` or `PersonAccountId`
 - `Email__c`
 - `Source__c` (KRR, AAREG, Manual, Import)
 - `IsPrimary__c`
@@ -108,71 +108,71 @@ Dette objektet bør inneholde:
 - `ValidTo__c`
 - `LastValidated__c`
 
-Dette er et godt valg når vi trenger å lagre flere adresser eller ha historikk uten å overbelaste standard `Contact.Email`.
+This is a good choice when we need to store several addresses or maintain history without overloading standard `Contact.Email`.
 
-### 4.3 Rekommendasjon
+### 4.3 Recommendation
 
-For denne løsningen anbefaler vi en liten og praktisk modell:
+For this solution we recommend a small and practical model:
 
-- ACR er source of truth for representasjonsrelasjon.
-- E-post lagres i Salesforce i et normalisert felt eller liten custom object.
-- En utils/service henter relevant e-post basert på ACR og valgt kontekst.
-- Vi unngår et stort generisk "email framework"; vi bruker kun det som faktisk trengs for AAREG.
+- ACR is the source of truth for representation relationships.
+- Email is stored in Salesforce in a normalized field or small custom object.
+- A utility/service fetches the relevant email based on the ACR and selected context.
+- We avoid a large generic “email framework”; we only use what is actually needed for AAREG.
 
-## 5. Endringer som kreves i AAREG-løsningen
+## 5. Changes required in the AAREG solution
 
-### 5.1 Apex og tjenestelag
+### 5.1 Apex and service layer
 
-Det må opprettes en ny liten Apex-tjeneste med ansvar for å:
+A new small Apex service must be created with responsibility for:
 
-- finne aktive ACR-forekomster for en person,
-- bestemme hvilken konto som er aktuell,
-- klassifisere relasjonen som arbeidsgiver / samarbeidspartner / selv,
-- returnere relevant e-postadresse.
+- finding active ACR records for a person,
+- deciding which account is relevant,
+- classifying the relationship as employer / partner / self,
+- returning the relevant email address.
 
-Eksempler på metoder:
+Examples of methods:
 
 - `resolvePersonContext(User currentUser)`
 - `resolveAccountContactRelations(Id personContactId)`
 - `resolveRelevantEmail(Id contactId, Id accountId)`
 - `resolveApplicableContactsForSupport(Id accountId)`
 
-### 5.2 Oppdatering av eksisterende søk og flyt
+### 5.2 Updating existing lookups and flows
 
-Følgende områder må oppdateres så de bruker ACR-kontext i stedet for bare `LastUsedOrganization__c`:
+The following areas must be updated so they use ACR context instead of only `LastUsedOrganization__c`:
 
-- støtte-/meldingsvisning,
-- brukergruppe-/representasjonslogikk,
-- e-posttilknytning i support/inquiry-scenario,
-- personalisering av e-postadresse for relevante kontaktpersoner.
+- support/message display,
+- user group/representation logic,
+- email links in the support/inquiry flow,
+- personalization of email addresses for relevant contacts.
 
-Dette bør ikke gjøres som en stor refaktorering av hele appen. Den riktige endringen er å legge kontekstresolusjon i én liten service og bruke den der dagens organisasjonslogikk er for snever.
+This should not be done as a large refactor of the entire app. The correct change is to place context resolution in one small service and use it where the current organization logic is too narrow.
 
-### 5.3 Testdekning
+### 5.3 Test coverage
 
-For hver ny funksjon må vi ha en liten men tydelig testdekning:
+For each new function we need a small but clear test coverage:
 
-- person med ACR til arbeidsgiver får korrekt e-post,
-- person med ACR til samarbeidspartner får korrekt e-post,
-- person uten aktiv ACR får ingen eller korrekt feil/blank,
-- gammel / utgått ACR ignoreres,
-- historiske e-postadresser håndteres riktig,
-- kun aktiv relasjon brukes i support- og meldingsflyten.
+- person with ACR to an employer gets the correct email,
+- person with ACR to a partner gets the correct email,
+- person without active ACR gets no result or a correct error/blank,
+- old / expired ACR records are ignored,
+- historical email addresses are handled correctly,
+- only the active relationship is used in support and message flows.
 
-## 6. Adopsjonsregler
+## 6. Adoption rules
 
-- ACR er the source of truth for representasjonsforhold.
-- `LastUsedOrganization__c` brukes fortsatt som kontekst for eksisterende organisasjonsbaserte operasjoner, men ikke som eneste mekanisme for personrelasjoner.
-- E-postdata må valideres før bruk i utsendelser.
-- E-post i Salesforce må kunne spores tilbake til kilde og dato.
-- Ingen funksjon skal bruke direkte URL-/UI-state som tilgangsgrunnlag.
+- ACR is the source of truth for representation relationships.
+- `LastUsedOrganization__c` remains the context for existing organization-based operations, but not the only mechanism for person relationships.
+- Email data must be validated before use in outbound communication.
+- Email in Salesforce must be traceable back to source and date.
+- No function should use direct URL/UI state as the basis for access.
 
-## 7. Akseptansekriterier
+## 7. Acceptance criteria
 
-Løsningen er godkjent når:
+The solution is approved when:
 
-1. systemet kan identifisere riktig person og konto for arbeidsgiver, samarbeidspartner og selv via ACR,
-2. systemet kan hente riktig e-postadresse for den aktuelle relasjonen,
-3. e-post er lagret i Salesforce på et stabilt og søkbart format,
-4. bruk av `LastUsedOrganization__c` ikke lenger er eneste spor for personbasert representasjon,
-5. relevante support- og meldingsflyter er verifiserbare med tester.
+1. the system can identify the correct person and account for employer, partner, and self via ACR,
+2. the system can fetch the correct email address for the current relationship,
+3. the email is stored in Salesforce in a stable and searchable format,
+4. the use of `LastUsedOrganization__c` is no longer the only signal for person-based representation,
+5. relevant support and message flows are verifiable with tests.

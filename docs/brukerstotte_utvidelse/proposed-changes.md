@@ -1,117 +1,117 @@
-# Foreslåtte endringer
+# Proposed changes
 
-## 1. Felles startside for brukergruppevalg
+## 1. Shared entry page for user-group selection
 
-Det anbefales å utvikle en liten ny inngangsside som i første omgang er ansvarlig for å:
+It is recommended to develop a small new entry page that is responsible for:
 
-- vise valgt brukergruppe,
-- samle inn organisasjonsnummer når det er relevant,
-- navigere brukeren videre til riktig del av applikasjonen,
-- validere input før videre navigasjon.
+- showing the selected user group,
+- collecting the organization number when relevant,
+- navigating the user to the correct part of the application,
+- validating input before further navigation.
 
-Dagens hjemmeside i [force-app/externalAccess/lwc/aareg_home/aareg_home.js](../force-app/externalAccess/lwc/aareg_home/aareg_home.js) skal beholdes som eksisterende organisasjonsbaserte flyt. Den nye inngangen skal være et tynt lag på toppen av dagens modell, ikke en helt ny app fra bunnen av.
+The current home page in [force-app/externalAccess/lwc/aareg_home/aareg_home.js](../force-app/externalAccess/lwc/aareg_home/aareg_home.js) should be retained as the existing organization-based flow. The new entry should be a thin layer on top of the current model, not a completely new app from scratch.
 
-For den nye startside bør dette utvides med en brukergruppe-selection layer som velger hvilket funksjonsområde brukeren skal åpne. Dette skal ikke gi tilgang i seg selv; det skal kun velge hvilken kontekst som skal brukes videre.
+For the new entry page, this should be extended with a user-group selection layer that chooses which functional area the user should open. This should not grant access on its own; it should only choose which context should be used next.
 
-Det viktigste er at:
+The most important points are:
 
-- virksomhetsrepresentanter går inn via dagens `aareg_home`-flyt,
-- arbeidsgiver og samarbeidspartner må enten ha organisasjonsnummer eller velge organisasjon på homepage,
-- privatpersoner går direkte inn i personbasert kontekst uten organisasjonsvalg,
-- vi begrenser antall nye komponenter og holder eksisterende flyt intakt.
+- company representatives enter through the current `aareg_home` flow,
+- employers and partners must either have an organization number or choose an organization on the homepage,
+- private individuals go directly into a person-based context without organization selection,
+- we limit the number of new components and keep the existing flow intact.
 
-## 2. Skille brukergruppe, representasjonskontekst og tilgang
+## 2. Separate user group, representation context, and access
 
-Det er nødvendig å gjøre denne modellen eksplisitt i designet:
+It is necessary to make this model explicit in the design:
 
-- Brukergruppe: virksomhetsrepresentant, arbeidsgiver, samarbeidspartner, privatperson osv.
-- Representasjonskontekst: organisasjon eller person som brukeren opererer på vegne av.
-- Faktiske tilganger: de rettighetene som faktisk verifiseres på serversiden.
+- User group: company representative, employer, partner, private individual, etc.
+- Representation context: the organization or person the user is acting on behalf of.
+- Actual access: the rights that are actually validated on the server side.
 
-Det anbefales ikke å bruke én enkelt variabel for alle disse konseptene. I stedet bør konteksten bygges opp som et modelleringslag i Apex og LWC:
+It is not recommended to use a single variable for all of these concepts. Instead, context should be built as a modeling layer in Apex and LWC:
 
 - `userType`
-- `selectedOrganizationNumber` eller `selectedPersonContext`
+- `selectedOrganizationNumber` or `selectedPersonContext`
 - `effectiveAccess` / `canAccessFeature`
 
-Dette bør håndteres i serverlogikken, ikke bare i UI-et.
+This should be handled in the server logic, not only in the UI.
 
-Samtidig er det viktig at:
+At the same time, it is important that:
 
-- `LastUsedOrganization__c` bare brukes for virksomhetsrepresentanter,
-- arbeidsgiver og samarbeidspartner bruker personbasert kontekst og ett valgt organisasjonsnummer i arbeidsflyten,
-- privatpersoner ikke trenger organisasjonsnummer eller valg,
-- vi ikke støtter flere samtidige aktive organisasjonsvalg i samme flyt for de nye brukergruppene.
+- `LastUsedOrganization__c` is used only for company representatives,
+- employers and partners use person-based context and one selected organization number in the work flow,
+- private individuals do not need an organization number or selection,
+- we do not support multiple simultaneous active organization selections in the same flow for the new user groups.
 
-## 3. Direkte URL-ingang
+## 3. Direct URL entry
 
-Direkte inngang via query params bør implementeres som et separat kontekstlag i navigasjonsmodellen.
+Direct entry via query parameters should be implemented as a separate context layer in the navigation model.
 
-Anbefalt mønster:
+Recommended pattern:
 
-- `?type=arbeidsgiver&org=123456789`
-- `?type=privatperson`
-- `?type=fullmektig&org=123456789`
+- `?type=employer&org=123456789`
+- `?type=private-person`
+- `?type=agent&org=123456789`
 
-Gjøring:
+Implementation notes:
 
-- validere `type` på klient og server,
-- validere organisasjonsnummerformat,
-- håndtere manglende eller ugyldige parametre med sikker fallback,
-- sikre at URL-verdi ikke brukes som tilgangsgrunnlag,
-- oppdatere valgt kontekst først etter server-validering.
+- validate `type` on the client and server,
+- validate the organization number format,
+- handle missing or invalid parameters with a safe fallback,
+- ensure the URL value is not used as the basis for access,
+- update the selected context only after server validation.
 
-Dagens `CurrentPageReference`-mønster i `aareg_application.js` er en fungerende føring, men det bør ikke brukes som eneste tilgangsmodell. Det skal kun brukes som navigasjons- og kontekstinformasjon, ikke som sikkerhetskontroll.
+The current `CurrentPageReference` pattern in `aareg_application.js` is a useful precedent, but it should not be used as the only access model. It should only be used as navigation and context information, not as security control.
 
-## 4. Endringer i funksjonalitetsvisning
+## 4. Changes in function visibility
 
-For virksomhetsrepresentanter skal dagens oppførsel beholdes som før.
+For company representatives, the current behavior should be preserved as before.
 
-For andre grupper skal funksjonaliteten begrenses slik:
+For other groups, functionality should be restricted as follows:
 
-- Ny søknad: skjult / utilgjengelig
-- Mine søknader: skjult / utilgjengelig
-- Mine avtaler: skjult / utilgjengelig
-- Brukerstøtte: tilgjengelig
-- Mine meldinger: kun personlige meldinger, ikke organisasjonsbaserte meldinger
+- New application: hidden / unavailable
+- My applications: hidden / unavailable
+- My agreements: hidden / unavailable
+- Support: available
+- My messages: only personal messages, not organization-based messages
 
-Det bør være en eksplisitt applikasjonsregel som bygger menyen fra brukergruppe + faktisk tilgang, ikke kun fra valgt organisasjonsnummer.
+There should be an explicit application rule that builds the menu from user group + actual access, not only from the selected organization number.
 
-## 5. Meldingsmodell
+## 5. Messaging model
 
-Dette er et kritisk område.
+This is a critical area.
 
-Dagens modell i `AAREG_MyThreadsController.getUsersThreads()` henter tråder ut fra `User.LastUsedOrganization__c` og `CRM_Account__c`. Dette er godt for virksomhetsrepresentanter, men ikke for arbeidsgiver, samarbeidspartner eller privatperson.
+The current model in `AAREG_MyThreadsController.getUsersThreads()` fetches threads from `User.LastUsedOrganization__c` and `CRM_Account__c`. This works well for company representatives, but not for employers, partners, or private individuals.
 
-Anbefalt endring:
+Recommended changes:
 
-- For virksomhetsrepresentanter: behold organisasjonsbasert visning uten endring.
-- For arbeidsgiver og samarbeidspartner: bruk personbasert filtrering i tillegg til valgt organisasjonsnummer som arbeidskontekst. Organisasjonen brukes som filter, ikke som eneste identifikator.
-- For privatperson: bruk personbasert visning uten organisasjonsnummer.
+- For company representatives: keep the organization-based view unchanged.
+- For employers and partners: use person-based filtering in addition to the selected organization number as the work context. The organization is used as a filter, not as the only identifier.
+- For private individuals: use person-based viewing without an organization number.
 
-Dette bør implementeres både i LWC-visning og i Apex-koden. UI-skjuling alene er ikke nok.
+This should be implemented in both the LWC display and Apex logic. UI hiding alone is not enough.
 
-## 6. Reuse av eksisterende komponenter
+## 6. Reuse of existing components
 
-Det anbefales å være konservativ i gjenbruk:
+It is recommended to be conservative in reuse:
 
-- `aareg_home` kan utvides til felles valgside.
-- `AAREG_HomeController` kan gjenbrukes som grunnlag for organisasjons- og tilgangslogikk.
-- `AAREG_ApplicationController` og `AAREG_MyApplicationsController` kan beholdes uten endring for virksomhetsrepresentanter.
-- `AAREG_MyThreadsController` må eventuelt utvides med en personbasert metode eller ny filterlogikk, uten å endre dagens organisasjonsmodell for eksisterende kunder.
-- `AAREG_contactSupportController` bør kunne brukes videre for brukerstøtteflyten; dette er allerede et re-usable støttepunkt.
+- `aareg_home` can be expanded into a shared selection page.
+- `AAREG_HomeController` can be reused as the basis for organization and access logic.
+- `AAREG_ApplicationController` and `AAREG_MyApplicationsController` can remain unchanged for company representatives.
+- `AAREG_MyThreadsController` may need to be extended with a person-based method or new filter logic, without changing the current organization model for existing customers.
+- `AAREG_contactSupportController` should continue to be usable for the support flow; this is already a reusable support point.
 
-## 7. Nytt oppsett for tilgangskontroll
+## 7. New setup for access control
 
-Det anbefales å introdusere en tydelig serverbasert tilgangstjeneste eller en liten helper som bestemmer:
+It is recommended to introduce a clear server-side access service or small helper that decides:
 
-- brukertype,
-- valgt kontekst,
-- om brukeren kan åpne funksjonen,
-- om henting av meldinger eller andre data må filtreres mot person eller organisasjon.
+- user type,
+- selected context,
+- whether the user can open the function,
+- whether fetching messages or other data must be filtered against person or organization.
 
-Dette bør være designet som en liten, fokuseret util tilpasset AAREG, ikke som et generisk audit- eller autorisasjonsrammeverk.
+This should be designed as a small, focused utility adapted to AAREG, not as a generic audit or authorization framework.
 
-## 8. Hvorfor ikke større refactoring
+## 8. Why not do a larger refactoring
 
-En større refaktorering av all navigasjons- og autorisasjonslogikk er ikke nødvendig i denne fasen. Dagens design er allerede godt nok til å støtte en mellomlagring av kontekst, men den mangler tydelig modellering av flere brukerroller og personlige kontekster. Den beste løsningen er derfor å bygge på dagens mønster uten å gjøre en stor redesign av kjernearkitekturen.
+A larger refactoring of all navigation and authorization logic is not necessary in this phase. The current design is already good enough to support context layering, but it lacks clear modeling of multiple user roles and personal contexts. The best solution is therefore to build on the current pattern without doing a large redesign of the core architecture.

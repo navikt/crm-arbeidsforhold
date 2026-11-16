@@ -1,353 +1,254 @@
-# Gjennomgang og forslag
+# Review and proposal
 
-**Status:** Fagleg gjennomgang av arbeidsunderlag; ikkje eit vedtak  
-**Dato:** 2026-11-13  
-**Omfang:** Dei sju eksisterande dokumenta i denne mappa og relevante
-arkitekturføringar i repoet. Originaldokumenta er ikkje endra.
+**Status:** Professional review of the working material; not a decision  
+**Date:** 2026-11-13  
+**Scope:** The seven existing documents in this folder and the relevant architecture guidance in the repository. The original documents have not been changed.
 
-## Samandrag
+## Summary
 
-Arbeidsunderlaget identifiserer dei sentrale risikoområda: dagens flyt er
-organisasjonsorientert, personbasert tilgang må ikkje blandast saman med
-organisasjonsval, og autorisasjon må skje på serversida. Det treng likevel ei
-tydelegare målreise før implementasjonsplanen blir brukt:
+The working material identifies the key risk areas: the current flow is organization-oriented, person-based access must not be mixed with organization selection, and authorization must happen on the server side. A clearer target direction is still needed before the implementation plan is used:
 
-1. Éi inngangsportal på dagens URL viser dei tre brukarvala.
-2. Kvar rolle har ei eiga Experience Cloud-side med ein stabil, lenkbar URL.
-3. Ei direkte lenkje går gjennom same tilgangskontroll som navigasjon frå
-   portalen.
-4. Ved avslag går brukaren tilbake til portalen med ei forståeleg melding.
-5. Gammal funksjonalitet blir halden tilgjengeleg bak ei kontrollert overgang
-   dersom feature-toggle-mønsteret kan brukast trygt.
+1. A single entry portal on the current URL shows the three user choices.
+2. Each role has its own Experience Cloud page with a stable, linkable URL.
+3. A direct link goes through the same access control as navigation from the portal.
+4. When access is denied, the user is returned to the portal with a clear message.
+5. Old functionality remains available behind a controlled transition if the feature-toggle pattern can be used safely.
 
-Det viktigaste skiljet i all vidare utforming er:
+The most important distinction in any further design is:
 
-> Rolleval og URL veljer ei ønskt brukaroppleving. Dei er aldri bevis på
-> identitet, representasjonsrett eller tilgang til data.
+> Role selection and the URL choose the desired user experience. They are never proof of identity, representation rights, or access to data.
 
-### Målbilete
+### Target picture
 
-Brukaren kjem anten til portalen eller direkte til ei rolleside via ei ekstern
-lenkje. Uansett veg kontrollerer rollesida tilgangen på serveren. Ved avslag går
-brukaren tilbake til portalen med ei melding.
+The user arrives either at the portal or directly at a role page via an external link. In either case, the role page checks access on the server. If access is denied, the user is returned to the portal with a message.
 
 ```mermaid
 flowchart LR
-    EXT[Ekstern lenkje] --> RS
-    URL[Dagens URL] --> PORTAL[Inngangsportal med rolleval]
-    PORTAL --> RS{Rolleside}
-    RS --> AG[Arbeidsgivar]
-    RS --> SP[Samarbeidspartnar/fullmektig]
-    RS --> PP[Privatperson/arbeidstakar]
-    RS -.-> BB["Bobestyrar (seinare)"]
-    AG & SP & PP & BB --> CHK{Tilgang på serveren?}
-    CHK -- Ja --> INN["Brukerstøtte, meldingar, søknad"]
-    CHK -- Nei --> PORTAL
+    EXT[External link] --> RS
+    URL[Current URL] --> PORTAL[Entry portal with role selection]
+    PORTAL --> RS{Role page}
+    RS --> AG[Employer]
+    RS --> SP[Partner / authorized representative]
+    RS --> PP[Private person / employee]
+    RS -.-> BB["Board manager (later)"]
+    AG & SP & PP & BB --> CHK{Access on server?}
+    CHK -- Yes --> INN["Support, messages, application"]
+    CHK -- No --> PORTAL
 ```
 
-### Relaterte dokument frå denne gjennomgangen
+### Related documents from this review
 
-| Dokument                                                                   | Innhald                                                                            |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| [dagens-brukerstotte-og-soknad.md](dagens-brukerstotte-og-soknad.md)       | Korleis brukerstøtte og søknad fungerer i dag, og forslag til utvidbar rollemodell |
-| [sikkerheitsfunn-tilgangskontroll.md](sikkerheitsfunn-tilgangskontroll.md) | Overordna tilgangsfunn i dagens løysing som teamet vurderer                        |
-| [agent-instruks.md](agent-instruks.md)                                     | Instruks for agenten som vidareutviklar underlaget                                 |
+| Document                                                                   | Content                                                                             |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [dagens-brukerstotte-og-soknad.md](dagens-brukerstotte-og-soknad.md)       | How support and application work today, and a proposal for an extensible role model |
+| [sikkerheitsfunn-tilgangskontroll.md](sikkerheitsfunn-tilgangskontroll.md) | High-level access findings in the current solution that the team is reviewing       |
+| [agent-instruks.md](agent-instruks.md)                                     | Instructions for the agent continuing the work                                      |
 
-## Funn i underlaget
+## Findings in the material
 
-### 1. Inngangsmodell og brukargrupper er motstridande
+### 1. Entry model and user groups are inconsistent
 
-`overview.md`, `proposed-changes.md`, `implementation-plan.md` og
-`open-questions.md` omtalar fleire inngangar: den eksisterande
-`aareg_home`-flyten, ei ny startside og direkte inngang med parameterar.
-Dei skildrar òg «virksomhetsrepresentant» og brukerstøtte som eksisterande
-grupper ved sida av arbeidsgivar, samarbeidspartnar og privatperson.
+`overview.md`, `proposed-changes.md`, `implementation-plan.md`, and `open-questions.md` reference several entry points: the existing `aareg_home` flow, a new landing page, and direct entry with parameters. They also describe “company representative” and support users as existing groups alongside employers, partners, and private individuals.
 
-Brukarens presisering for målbildet er i staden éi ny inngangsportal på dagens
-URL med tre synlege rolleval, kvar med si eiga side. Dette bør vere den
-overordna målreisa i neste versjon av spesifikasjonen. Kva som skjer med
-eksisterande verksemdsrepresentantar og supportbrukarar må framleis kartleggjast
-som bakoverkompatibilitet; ikkje slå dei saman med ei av dei tre nye rollene
-utan ei stadfesta mapping.
+The user’s specification for the target state is instead a new entry portal on the current URL with three visible role choices, each with its own page. This should be the overarching target direction in the next version of the specification. What happens with existing business representatives and support users still needs to be mapped as backward compatibility; do not merge them with one of the three new roles without a confirmed mapping.
 
-### 2. Rolle og tilgang er blanda saman i nokre formuleringar
+### 2. Role and access are mixed together in some formulations
 
-Dokumenta seier at ei ny brukargruppe skal få tilgang til bestemte funksjonar og
-at menyen kan byggjast frå `userType`. Dette kan lesast som om rollevalet
-avgjer tilgang. Bruk ein eksplisitt modell der:
+The documents say that a new user group should get access to certain functions and that the menu can be built from `userType`. This can be read as if the role selection determines access. Use an explicit model where:
 
-- **Vald rolle** styrer kva side brukaren ønskjer å opne.
-- **Identitet og relasjonar** avgjer kven brukaren er og eventuelt kven brukaren
-  representerer.
-- **Autorisasjon** avgjer kva side, funksjon og data brukaren faktisk får bruke.
-- **Organisasjonskontekst** avgrensar ei godkjend arbeidsøkt; han gir ikkje i
-  seg sjølv rettar.
+- **Selected role** controls which page the user wants to open.
+- **Identity and relationships** determine who the user is and, if relevant, whom they represent.
+- **Authorization** determines which page, function, and data the user can actually use.
+- **Organization context** narrows a valid work session; it does not, by itself, grant rights.
 
-Sidan direkte lenkjer er eit krav, må same autorisasjon køyrast for direkte
-sideopning og for navigasjon frå portalen. Navigasjonsskjuling eller
-Experience Builder-publikum åleine er ikkje dokumentert som tilstrekkeleg
-datatilgangskontroll. Kontroller faktisk side- og datatilgang i Experience
-Cloud og handhev tilgang på serversida.
+Since direct links are required, the same authorization must run for direct page opening and navigation from the portal. Navigation hiding or Experience Builder audience alone is not documented as sufficient data access control. Validate actual page and data access in Experience Cloud and enforce access on the server side.
 
-### 3. Feature toggle er eit relevant forslag, men ikkje ei stadfesta Experience Cloud-løysing
+### 3. Feature toggle is one relevant suggestion, but not a permanent solution for Experience Cloud-solution
 
-Repoet viser at `feature-toggle` er ei pakkeavhengigheit med inngangar for
-Apex, Flow og Aura ([pakkeavhengigheiter](../architecture/pakkeavhengigheiter.md)).
-Det finst eit fail-closed Apex-mønster for P360 i
+The repository shows that `feature-toggle` is a package dependency with entry points for
+Apex, Flow, and Aura ([package dependencies](../architecture/pakkeavhengigheiter.md)).
+There is a fail-closed Apex pattern for P360 in
 [P360_ArchiveProcessingGate.cls](../../force-app/integration/p360/classes/P360_ArchiveProcessingGate.cls).
-Desse kjeldene dokumenterer ikkje at pakka kan byte Experience Cloud-side eller
-LWC-rute direkte.
+These sources do not document that the package can switch Experience Cloud pages or
+LWC routes directly.
 
-**Tilråding:** Halde gammal flyt urørt, og bruk ein tydeleg brytar ved
-inngangsgrensa til den nye portalopplevinga dersom eksisterande API kan kallast
-frå denne grensa utan å endre den pakkeeigde avhengigheita. Verifiser først:
+**Recommendation:** Keep the old flow unchanged and use a clear switch at the
+entry boundary of the new portal experience if the existing API can be called from
+this boundary without changing the package-owned dependency. Verify first:
 
-- kvar Custom Metadata-flagget blir lese, og om det er eigna for denne
-  Experience Cloud-flyten;
-- korleis LWC-en får eit trygt og testbart svar frå serveren;
-- kva flaggverdi, manglande metadata og teknisk feil skal gjere;
-- om direkte URL til rollesider følgjer same overgangsregel;
-- korleis aktivering/tilbakeføring skjer operativt, og om eventuell cache gjer
-  at «på dagen» ikkje er umiddelbart.
+- where the Custom Metadata flag is read, and whether it is appropriate for this
+  Experience Cloud flow;
+- how the LWC gets a safe and testable response from the server;
+- what the flag value, missing metadata, and technical errors should do;
+- whether direct URLs to role pages follow the same transition rule;
+- how activation / rollback happens operationally, and whether any cache means
+  that “on the day” is not immediate.
 
-Flagget skal velje mellom versjonar av brukaropplevinga, aldri mellom
-tilgangsreglar. Autorisasjon må vere aktiv uansett flagg. Ein feil eller
-manglande flaggverdi må ikkje opne ny tilgang; den trygge fallbacken bør vere
-avklart og testa. P360-mønsteret returnerer `false` ved manglande flagg eller
-`FeatureToggleException`, men det er eit mønster å vurdere, ikkje eit ferdig
-krav for portalens feilflyt.
+The flag should choose between versions of the user experience, never between
+access rules. Authorization must be active regardless of the flag. An error or
+missing flag value must not open new access; the safe fallback should be clarified
+and tested. The P360 pattern returns `false` when the flag is missing or
+`FeatureToggleException` occurs, but it is a pattern to evaluate, not a final
+requirement for the portal’s error flow.
 
-Figuren viser korleis flagget kan velje oppleving utan å påverke tilgangen.
-Tilgangskontrollen er den same uansett kva grein brukaren hamnar i.
+The figure shows how the flag can choose the experience without affecting access.
+Access control remains the same regardless of which branch the user ends up in.
 
 ```mermaid
 flowchart TD
-    IN[Brukar opnar dagens URL] --> FF{"Flagg for ny portal?"}
-    FF -- På --> NEW[Ny inngangsportal]
-    FF -- "Av, manglar eller feil" --> OLD[Dagens heimeside]
-    NEW --> AUTH[Same tilgangskontroll på serveren]
+    IN[User opens the current URL] --> FF{"Flag for new portal?"}
+    FF -- On --> NEW[New entry portal]
+    FF -- "Off, missing, or error" --> OLD[Current home page]
+    NEW --> AUTH[Same access control on the server]
     OLD --> AUTH
 ```
 
-Døme på operativ bruk: Flagget blir slått på i SIT2 og verifisert med
-testbrukarar for kvar rolle. Deretter blir det slått på i produksjon. Ved feil
-blir flagget slått av, og brukarane får dagens heimeside utan deploy.
+Example of operational use: the flag is turned on in SIT2 and verified with test
+users for each role. It is then turned on in production. If there is a problem,
+the flag is turned off, and users get the current home page without a deployment.
 
-### 4. «Tilbake til portalen» treng ein eksplisitt kontrakt
+### 4. “Back to the portal” needs an explicit contract
 
-Gjer feilsituasjonen konkret for både direkte lenkje og navigasjon frå portalen:
+Make the error situation concrete for both direct links and navigation from the portal:
 
-Flyten er slik:
+The flow is:
 
-1. Brukaren vel rolle i portalen, eller opnar rollesida direkte frå ei lenkje.
-2. Rollesida kallar tilgangskontrollen på serveren.
-3. Ved tilgang blir innhaldet vist.
-4. Ved avslag går brukaren tilbake til portalen, som viser ei melding.
-5. Ved teknisk feil blir ei feilmelding vist på rollesida med høve til å prøve
-   igjen.
+1. The user selects a role in the portal or opens the role page directly via a link.
+2. The role page calls the access control on the server.
+3. If access is granted, the content is shown.
+4. If access is denied, the user is returned to the portal, which shows a message.
+5. If there is a technical error, an error message is shown on the role page with the option to retry.
 
 ```mermaid
 sequenceDiagram
-    actor B as Brukar
+    actor B as User
     participant P as Portal
-    participant R as Rolleside
-    participant S as Tilgangskontroll (server)
+    participant R as Role page
+    participant S as Access control (server)
 
-    alt Via portalen
-        B->>P: Vel rolle
-        P->>R: Navigerer til rollesida
-    else Direkte lenkje
-        B->>R: Opnar rollesida
+    alt Via portal
+        B->>P: Select role
+        P->>R: Navigate to role page
+    else Direct link
+        B->>R: Opens role page
     end
-    R->>S: Kontroller tilgang
-    alt Tilgang
+    R->>S: Check access
+    alt Access granted
         S-->>R: GRANTED
-        R-->>B: Viser innhald
-    else Ingen tilgang
+        R-->>B: Show content
+    else No access
         S-->>R: DENIED
-        R->>P: Navigerer med c__melding=ingen-tilgang
-        P-->>B: Viser melding og rolleval
-    else Teknisk feil
+        R->>P: Navigate with c__message=no-access
+        P-->>B: Show message and role selection
+    else Technical error
         S-->>R: TECHNICAL_ERROR
-        R-->>B: Feilmelding og «Prøv igjen»
+        R-->>B: Error message and “Try again”
     end
 ```
 
-Døme på kontrakt for meldinga i portalen:
+Example contract for the message in the portal:
 
-| Verdi i `c__melding` | Melding (døme)                                            |
-| -------------------- | --------------------------------------------------------- |
-| `ingen-tilgang`      | «Du har ikkje tilgang til denne sida. Vel ei anna rolle.» |
-| `rolle-ikkje-aktiv`  | «Denne tenesta er ikkje tilgjengeleg no.»                 |
-| anna eller tom       | Ingen melding                                             |
+| Value in `c__message`  | Message (example)                                           |
+| ---------------------- | ----------------------------------------------------------- |
+| `no-access`            | “You do not have access to this page. Choose another role.” |
+| `role-not-active`      | “This service is not available right now.”                  |
+| anything else or empty | No message                                                  |
 
-Portalen må kunne vise ei melding etter retur utan å stole på ein manipulert
-URL-parameter som autorisasjon. Bruk ein avgrensa statuskode for vising, ikkje
-personopplysningar eller tilgangsbevis i URL-en. Avklar om teknisk feil (til
-dømes feil ved oppslag av tilgang) skal gi ei eiga feilmelding og forsøk på
-nytt, i staden for å bli feilaktig omtala som «manglande tilgang». Unngå
-redirect-loopar og opne retur-URL-ar.
+The portal must be able to show a message after returning without relying on a manipulated URL parameter as authorization. Use a limited status code for display, not personal information or access evidence in the URL. Clarify whether a technical error (for example, a failure in access lookup) should show a separate message and retry option rather than being incorrectly described as “missing access.” Avoid redirect loops and open return URLs.
 
-## Føreslått rettingsliste for neste utgåve av underlaget
+## Proposed correction list for the next version of the material
 
-1. Skriv éi autoritativ målreise i `overview.md`: dagens URL er portal,
-   tre valde roller, eiga side per rolle og same kontroll for direkte lenkjer.
-2. Flytt «virksomhetsrepresentant» og noverande supportflyt til ein tydeleg
-   **eksisterande flyt som skal bevarast**-del, fram til rolle-/tilgangsmapping
-   er godkjend.
-3. Merk motstridande forslag om ny og gammal startside som foreldra/erstatt
-   med éi målmodell; ikkje presenter begge som vedtekne.
-4. Gjer tabellen i `open-questions.md` om frå førebels løysingsval til
-   avgjerdstabell med eigar/status for kvar uavklart rett: roller, tilgang,
-   organisasjonskontekst, funksjonar, meldingsomfang, ACR og e-post.
-5. Del `implementation-plan.md` i **avklaringsgater** og **implementasjonsfasar**.
-   Ikkje start personbasert meldings- eller e-postmodell før datakjelde,
-   eigarskap, lovleg tilgang og rolledefinisjon er stadfesta.
-6. Merk ADR-0002 og ADR-0003 som foreslåtte avgjerder. Ikkje gjer ACR-rollar,
-   e-postlagring eller ny e-posttabell til føresetnader før ADR-eigarane har
-   avgjort det.
-7. Legg til test av direkte tilgang, avslag/retur, flagg av/på og regressjon for
-   eksisterande brukarar. Test brukaropplevinga og datatilgang kvar for seg.
-8. Ta inn skildringa av dagens brukerstøtte og søknad og den utvidbare
-   rollemodellen frå
-   [dagens-brukerstotte-og-soknad.md](dagens-brukerstotte-og-soknad.md), slik at
-   bobestyrar og seinare roller kan leggjast til med konfigurasjon.
-9. Vis til [sikkerheitsfunn-tilgangskontroll.md](sikkerheitsfunn-tilgangskontroll.md)
-   der planen gjenbruker eksisterande kontrollarar.
+1. Write one authoritative target direction in `overview.md`: the current URL is the portal, three selected roles, one page per role, and the same control for direct links.
+2. Move “company representative” and the current support flow into a clear **existing flow to preserve** section until the role/access mapping is approved.
+3. Mark contradictory proposals about the new and old entry pages as deprecated/replaced with one target model; do not present both as approved.
+4. Convert the table in `open-questions.md` from preliminary solution choices to a decision table with owner/status for each unresolved right: roles, access, organization context, functions, message scope, ACR, and email.
+5. Split `implementation-plan.md` into **clarification tracks** and **implementation phases**. Do not start the person-based message or email model before the data source, ownership, legal access, and role definition are confirmed.
+6. Mark ADR-0002 and ADR-0003 as proposed decisions. Do not treat ACR roles, email storage, or a new email table as prerequisites before the ADR owners decide.
+7. Add tests for direct access, denial/return, flag on/off, and regression for existing users. Test user experience and data access separately.
+8. Include the description of the current support and application flow and the extensible role model from [dagens-brukerstotte-og-soknad.md](dagens-brukerstotte-og-soknad.md) so that board managers and later roles can be added through configuration.
+9. Refer to [sikkerheitsfunn-tilgangskontroll.md](sikkerheitsfunn-tilgangskontroll.md) where the plan reuses existing controls.
 
-Denne lista er eit forslag til rettingar. Ho endrar ikkje dei sju
-underlagsfilene.
+This list is a proposal for fixes. It does not change the seven source files.
 
-## Førebels atferdsmatrise
+## Preliminary behavior matrix
 
-Dette er kva som kan førast vidare frå brukarens avklaringar og repoet. Ho
-stadfestar ikkje ennå kva data eller forretningsfunksjonar kvar rolle skal ha.
+This is what can be taken forward from the user’s clarifications and the repository. It does not yet confirm which data or business functions each role should have.
 
-| Situasjon                         | Førebels forventa atferd                                                                         | Må avklarast/verifiserast                                             |
-| --------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| Opne dagens hovud-URL             | Vis inngangsportalen med arbeidsgivar, samarbeidspartnar/fullmektig og privatperson/arbeidstakar | Om eksisterande brukargrupper også skal visast som val                |
-| Velje ei rolle                    | Naviger til den rollespesifikke Experience Cloud-sida                                            | Om rollevalet blir hugsa; det må aldri vere autorisasjon              |
-| Opne direkte lenkje til rolleside | Køyr same kontroll som ved portalnavigasjon                                                      | Stabil URL, innloggings-/redirect-flyt og sidekonfigurasjon           |
-| Brukar manglar tilgang            | Returner til portalen og vis ei informativ melding                                               | Nøyaktig melding og om retur skjer straks                             |
-| Tilgangsoppslag feilar teknisk    | Vis ei eiga trygg feilmelding og gi ein forståeleg veg vidare                                    | Feil-/retry-policy; ikkje gjer teknisk feil om til eit tilgangsavslag |
-| Ny flyt er slått av               | Bruk avklart gammal/fallback-oppleving utan å opne nye funksjonar                                | At fallback faktisk støttar brukargruppa                              |
-| Ny flyt er slått på               | Bruk den nye portalen og rolleflyten                                                             | Gradvis utrulling, rollback og metadata/cache-effekt                  |
+| Situation                         | Preliminary expected behavior                                                                           | Must be clarified / verified                                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Open the current main URL         | Show the entry portal with employer, partner / authorized representative, and private person / employee | Whether existing user groups should also be displayed as choices      |
+| Select a role                     | Navigate to the role-specific Experience Cloud page                                                     | Whether the role choice is remembered; it must never be authorization |
+| Open a direct link to a role page | Run the same control as portal navigation                                                               | Stable URL, login / redirect flow, and page configuration             |
+| User lacks access                 | Return to the portal and show an informative message                                                    | Exact message and whether the return happens immediately              |
+| Access lookup fails technically   | Show a dedicated safe error message and provide a clear next step                                       | Error / retry policy; do not treat technical failure as access denial |
+| New flow is turned off            | Use the agreed old / fallback experience without enabling new functions                                 | Whether the fallback actually supports the user group                 |
+| New flow is turned on             | Use the new portal and role flow                                                                        | Gradual rollout, rollback, and metadata / cache effects               |
 
-## Tilrådd ansvarsskilje
+## Recommended responsibility split
 
-| Ansvar                                        | Plassering/regel                                                                       |
-| --------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Vis dei tre rollevala og naviger              | Portal-LWC / Experience Cloud-navigasjon                                               |
-| Oppslag av rolle og representasjonsrelasjon   | Eksisterande godkjend datakjelde og serverlogikk                                       |
-| Autorisasjon av funksjonar og data            | Server-side tilgangskontroll, sharing og nødvendige CRUD/FLS-kontrollar                |
-| Val av gammal/ny inngangsoppleving            | Feature-toggle ved inngangsgrensa, dersom pakka støttar mønsteret                      |
-| Meldingsretur til portalen                    | Trygg, avgrensa navigasjonstilstand utan sensitiv informasjon                          |
-| Kva roller som finst og kva dei gir           | Rolleregister i Custom Metadata, sjå [rollemodellen](dagens-brukerstotte-og-soknad.md) |
-| Felles tilgangsavgjerd for side og kontrollar | Éi serverteneste, til dømes `AAREG_RoleAccessService`                                  |
+| Responsibility                                  | Location / rule                                                                          |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Show the three role choices and navigate        | Portal LWC / Experience Cloud navigation                                                 |
+| Look up role and representation relationship    | Existing approved data source and server logic                                           |
+| Authorize functions and data                    | Server-side access control, sharing, and necessary CRUD / FLS checks                     |
+| Choose old / new entry experience               | Feature toggle at the entry boundary if the package supports the pattern                 |
+| Return messages to the portal                   | Safe, restricted navigation state without sensitive information                          |
+| Which roles exist and what they provide         | Role registry in Custom Metadata, see [the role model](dagens-brukerstotte-og-soknad.md) |
+| Shared access decision for page and controllers | One server service, for example `AAREG_RoleAccessService`                                |
 
-Ikkje utvid den eksisterande
-[AAREG_HomeController](../../force-app/externalAccess/classes/AAREG_HomeController.cls)
-utan ei særskild vurdering: han er `without sharing` og utfører tilgangs- og
-delingsoperasjonar. Dette er ein eksisterande raud-sone-grense, ikkje berre ein
-praktisk plass å leggje ny rutinglogikk.
+Do not expand the existing [AAREG_HomeController](../../force-app/externalAccess/classes/AAREG_HomeController.cls) without a specific assessment: it is `without sharing` and performs access and sharing operations. This is an existing red-zone boundary, not just a convenient place to add new routing logic.
 
-## Tilgang, ACR, e-post og personvern
+## Access, ACR, email, and privacy
 
-- Bruk Salesforce sin tilgangsmodell lagvis: org-/lisensrammer, objekt-CRUD,
-  felt-FLS og record sharing. Test som den faktiske eksterne brukarprofilen,
-  ikkje berre som administrator.
-- ACR kan vere eit relevant relasjonsobjekt, men dei lokale ADR-ane om ACR og
-  e-post er framleis foreslåtte. Stadfest faktiske ACR-roller, status-/datoregl,
-  kontakt-/personkontomodell og datakjelde før implementasjon.
-- Unngå å lagre eller logge meir persondata enn use caset krev. Avklar
-  e-postkjelder, oppdateringsprioritet, historikk, retention og kven som kan
-  lese/endre data før val av nye felt eller objekt.
-- Hald serverkontroll på alle direkte Apex-operasjonar; ei avgrensa side eller
-  skjult knapp fjernar ikkje behovet for kontroll ved datakallet.
+- Use Salesforce’s access model layer by layer: org / license boundaries, object CRUD, field FLS, and record sharing. Test as the actual external user profile, not just as an administrator.
+- ACR may be a relevant relationship object, but the local ADRs on ACR and email are still proposed. Confirm actual ACR roles, status / date rules, contact / person account model, and data source before implementation.
+- Avoid storing or logging more personal data than the use case requires. Clarify email sources, update priority, history, retention, and who can read or change the data before selecting new fields or objects.
+- Keep server control on all direct Apex operations; a limited page or hidden button does not remove the need for control at the data call.
 
-## Gjenbruk og overgang
+## Reuse and transition
 
-Målprinsippet er **gjenbruk utan å gjere rollback avhengig av dobbelt
-forretningslogikk**:
+The target principle is **reuse without making rollback depend on duplicate business logic**:
 
-1. Kartlegg kva eksisterande side, komponentar og serveroperasjonar som faktisk
-   kan delast utan å endre dagens tilgangskontrakt.
-2. Legg ny rolleval/navigasjon i ei avgrensa portalgrense.
-3. La gammal og ny inngangsoppleving vere valbare medan den nye blir verifisert.
-4. Hald autorisasjon, datatilgang og domenereglar felles eller eksplisitt
-   uendra; ikkje dupliser dei bak kvar si flagggren.
-5. Definer målbar exit-kriterium for når flagget og gammal implementasjon kan
-   fjernast. Ikkje la overgangsflagget bli permanent arkitektur ved uhell.
+1. Map which existing pages, components, and server operations can actually be shared without changing today’s access contract.
+2. Place the new role selection and navigation in a limited portal boundary.
+3. Keep the old and new entry experiences switchable while the new one is validated.
+4. Keep authorization, data access, and domain rules shared or explicitly unchanged; do not duplicate them behind separate flag branches.
+5. Define measurable exit criteria for when the flag and old implementation can be removed. Do not let the transition flag become permanent architecture by accident.
 
-**Døme:** Brukerstøtteskjemaet `aareg_contactSupportForm` og meldingslista
-`aareg_myThreads` kan brukast uendra under alle rollesidene. Berre
-serverkontrollane får rolle og kontekst som parameter. Sjå
-[dagens-brukerstotte-og-soknad.md](dagens-brukerstotte-og-soknad.md) for
-komponentoversikt og stega for å leggje til bobestyrar.
+**Example:** The support form `aareg_contactSupportForm` and the message list `aareg_myThreads` can be reused unchanged under all role pages. Only the server controls receive the role and context as parameters. See [dagens-brukerstotte-og-soknad.md](dagens-brukerstotte-og-soknad.md) for component overview and the steps for adding a board manager.
 
-Det minste designet som kan fungere er portal + rollebasert navigasjon, med
-eksisterande sider og use case gjenbrukte der kontrakt og tilgang tillèt det.
-Eit alternativ er ein ny parallell app med eigne datasider og tilgangslogikk.
-Det alternativet gir større risiko for dobbelt vedlikehald og
-regresjonsavvik, og er ikkje tilrådd utan eit konkret krav om funksjonelt skilje.
+The smallest design that can work is portal + role-based navigation, with existing pages and use cases reused where the contract and access allow it. An alternative is a new parallel app with separate data pages and access logic. That alternative has higher risk of duplicate maintenance and regression drift, and is not recommended without a concrete requirement for functional separation.
 
-## Test- og godkjenningsgater
+## Test and approval gates
 
-**Før kode**
+**Before code**
 
-- Stadfest ordlista og mappinga mellom dei tre synlege rollene, eksisterande
-  virksomhetsrepresentantar og supportbrukarar.
-- Stadfest funksjons-/datarettar per rolle og kva system som er kjelda for
-  kvar relasjon.
-- Avklar om arbeidsgivar og samarbeidspartnar må velje organisasjon, og om
-  privatperson alltid opererer utan organisasjonskontekst.
-- Avklar feature-flaggets fallback, livssyklus, eigar og direkte URL-atferd.
-- Behandle tilgang, meldingar og personopplysningar som raud sone med
-  menneskeleg gjennomgang.
+- Confirm the glossary and mapping between the three visible roles, existing company representatives, and support users.
+- Confirm the function/data rights per role and which system is the source for each relationship.
+- Clarify whether employers and partners must select an organization, and whether private individuals always operate without an organization context.
+- Clarify the feature flag fallback, lifecycle, owner, and direct URL behavior.
+- Treat access, messages, and personal data as a red zone with human review.
 
-**Under implementasjon**
+**During implementation**
 
-- LWC/Jest: rolleval, URL-parsing, ukjend rolle, avslagstilstand og
-  tilgjengeleg melding.
-- Apex-test: tilgang på serveren ved direkte kall, positive og negative
-  autorisasjonstilfelle, person-/organisasjonsfilter og teknisk feil.
-- Regresjonstest: eksisterande virksomhetsrepresentant- og supportflyt.
-- Toggle-test: på, av, manglande flagg og teknisk feil; same tilgangsreglar i
-  begge modus.
-- Experience Cloud-verifikasjon i godkjent ikkje-produksjonsorg: direkte URL,
-  innlogging/redirect, rett side for rett brukar, avvist brukar, og at
-  ugyldig retur ikkje gir open redirect.
+- LWC/Jest: role selection, URL parsing, unknown role, denial state, and available message.
+- Apex tests: access on the server for direct calls, positive and negative authorization cases, person / organization filtering, and technical errors.
+- Regression tests: existing company representative and support flow.
+- Toggle tests: on, off, missing flag, and technical error; same access rules in both modes.
+- Experience Cloud verification in an approved non-production org: direct URL, login / redirect, correct page for the correct user, rejected user, and ensuring invalid return does not create an open redirect.
 
-Ingen org-validering er utført som del av denne dokumentasjonsgjennomgangen.
-Org-tilgang krev ny stadfesting av eksakt mål og handling.
+No org validation was performed as part of this documentation review. Org access requires fresh confirmation of the exact target and action.
 
-## Salesforce- og repo-referansar
+## Salesforce and repo references
 
-- Repoets [arkitekturoversikt](../architecture/README.md) og
-  [utviklingsstandardar](../utviklingsstandarder.md).
-- Salesforce Help: [Best Practices and Considerations for Page-Level Access
-  in Experience Builder](https://help.salesforce.com/s/articleView?id=platform.networks_page_level_best_practices.htm&language=en_US&type=5).
-  Verifiser sideåtferd med faktiske brukarar; skjult navigasjon må ikkje
-  forvekslast med datatilgangskontroll.
-- Salesforce Architects:
-  [Identity and Access Management patterns](https://architect.salesforce.com/docs/architect/well-architected/guide/trust-identity-access-patterns.html)
-  og [Well-Architected Framework](https://architect.salesforce.com/docs/architect/well-architected/guide/framework.html).
-  Den gjeldande rammeoversikta bruker fem pillarar: Trust, Reliability,
-  Operational Excellence, Resource and Cost Optimization, Fairness. Repoet
-  brukar òg Trusted/Easy/Adaptable som vurderingsspråk; begge kan brukast utan
-  å hevde at dei er same inndeling.
+- The repo’s [architecture overview](../architecture/README.md) and [development standards](../utviklingsstandarder.md).
+- Salesforce Help: [Best Practices and Considerations for Page-Level Access in Experience Builder](https://help.salesforce.com/s/articleView?id=platform.networks_page_level_best_practices.htm&language=en_US&type=5). Verify page behavior with real users; hidden navigation must not be confused with data access control.
+- Salesforce Architects: [Identity and Access Management patterns](https://architect.salesforce.com/docs/architect/well-architected/guide/trust-identity-access-patterns.html) and [Well-Architected Framework](https://architect.salesforce.com/docs/architect/well-architected/guide/framework.html). The current framework uses five pillars: Trust, Reliability, Operational Excellence, Resource and Cost Optimization, and Fairness. The repo also uses Trusted / Easy / Adaptable as evaluation language; both can be used without claiming they are the same classification.
 
-## Samla vurdering med repoets Trusted / Easy / Adaptable
+## Overall assessment against the repo’s Trusted / Easy / Adaptable
 
-- **Trusted:** Gå vidare berre med serverautorisering, dokumentert
-  datatilgang, negativtesting og avklart handtering av personopplysningar.
-- **Easy:** Éi inngangsportal og direkte lenkjer gjer brukarvegen tydeleg.
-  Hald feilmelding og fallback enkel og konsistent.
-- **Adaptable:** Ei avgrensa overgangsgrense kan gjere rask tilbakeføring
-  mogleg; verifiser at toggle verkeleg dekkjer Experience Cloud-inngangen og
-  definer når gammal kode blir fjerna.
+- **Trusted:** Proceed only with server authorization, documented data access, negative testing, and clarified handling of personal data.
+- **Easy:** A single entry portal and direct links make the user flow clear. Keep error messages and fallback simple and consistent.
+- **Adaptable:** A limited transition boundary can enable quick rollback; verify that the toggle really covers the Experience Cloud entry and define when the old code is removed.
 
-**Hovudtradeoff:** Ein liten router-/inngangsgrense og mellombels feature flag
-gir ein tryggare overgang, men legg til mellombels konfigurasjon og
-testmatrise. Det er mindre risikabelt enn å endre dagens organisasjons- og
-tilgangslogikk samtidig som nye personbaserte roller blir introduserte.
+**Main tradeoff:** A small router / entry boundary and temporary feature flag provide a safer transition, but add temporary configuration and test matrix. This is less risky than changing the current organization and access logic at the same time as new person-based roles are introduced.

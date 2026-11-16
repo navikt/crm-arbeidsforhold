@@ -1,135 +1,135 @@
-# Implementeringsplan
+# Implementation plan
 
-## Fase 1: Kartlegging og avklaring
+## Phase 1: Mapping and clarification
 
-### Mål for fase 1
+### Goals for phase 1
 
-- avklare hvilke brukergrupper som trenger egne veier,
-- definere hvilke funksjoner som skal være skjult eller synlige for hver gruppe,
-- avklare hvordan representasjonskontekst skal håndteres for arbeidsgiver, samarbeidspartner og privatperson.
+- clarify which user groups need separate paths,
+- define which functions should be hidden or visible for each group,
+- clarify how representation context should be handled for employers, partners, and private individuals.
 
-### Berørte områder i fase 1
+### Areas affected in phase 1
 
 - [force-app/externalAccess/lwc/aareg_home/aareg_home.js](../force-app/externalAccess/lwc/aareg_home/aareg_home.js)
 - [force-app/externalAccess/classes/AAREG_HomeController.cls](../force-app/externalAccess/classes/AAREG_HomeController.cls)
 - [force-app/dialog/classes/AAREG_MyThreadsController.cls](../force-app/dialog/classes/AAREG_MyThreadsController.cls)
 
-### Tester
+### Tests
 
-- verifiser eksisterende oppførsel for virksomhetsrepresentanter,
-- dokumenter forventet oppførsel for ny brukergruppe per felt.
+- verify existing behavior for company representatives,
+- document expected behavior for each new user group per field.
 
-## Fase 2: ACR- og e-postmodell for representasjonsforhold
+## Phase 2: ACR and email model for representative relationships
 
-### Mål for fase 2
+### Goals for phase 2
 
-- bruke ACR som eneste gyldige kilde for relasjon mellom person og virksomhet,
-- definere hvilke roller som skal tolkes som arbeidsgiver, samarbeidspartner og selv,
-- fastsette hvordan e-post lagres og hentes i Salesforce uten å stole på UI-state alene.
+- use ACR as the only valid source for the relationship between a person and an organization,
+- define which roles should be interpreted as employer, partner, and self,
+- determine how email is stored and retrieved in Salesforce without relying on UI state alone.
 
-### Berørte områder i fase 2
+### Areas affected in phase 2
 
 - `AccountContactRelation`
-- person-/kontaktmodell i Salesforce,
-- e-postfelt eller liten AAREG-spesifikk email-tabell,
-- Apex-helper for å løse relevant kontakt og e-post basert på valgt kontekst.
+- person/contact model in Salesforce,
+- email field or a small AAREG-specific email table,
+- Apex helper for resolving relevant contact and email based on the selected context.
 
-### Tester for fase 2
+### Tests for phase 2
 
-- verifiser riktig ACR-matching for arbeidsgiver, samarbeidspartner og selv,
-- verifiser at utgåtte eller inaktive ACR-er ignoreres,
-- verifiser at relevant e-post hentes uten å bruke `LastUsedOrganization__c` som eneste kilde.
+- verify correct ACR matching for employer, partner, and self,
+- verify that expired or inactive ACR records are ignored,
+- verify that relevant email is retrieved without using `LastUsedOrganization__c` as the only source.
 
-## Fase 3: Felles startside og kontekstvalg
+## Phase 3: Shared entry page and context selection
 
-### Mål for fase 3
+### Goals for phase 3
 
-- bygge en liten ny inngangsside som håndterer valg av brukergruppe,
-- beholde dagens `aareg_home`-flyt for virksomhetsrepresentanter,
-- legge til logikk for organisasjonsnummer når det er relevant for arbeidsgiver og samarbeidspartner,
-- støtte privatpersoner uten organisasjonsvalg,
-- sikre at klienten ikke kan gi tilgang på egen hånd.
+- build a small new entry page that handles user-group selection,
+- preserve the current `aareg_home` flow for company representatives,
+- add logic for organization number when relevant for employers and partners,
+- support private individuals without organization selection,
+- ensure the client cannot grant access on its own.
 
-### Berørte områder i fase 3
+### Areas affected in phase 3
 
-- LWC-komponenter for startside og navigasjon,
-- eventuelle Apex-metoder for inputvalidering og kontekstvalidering,
-- potensielle oppdateringer i `AAREG_HomeController`.
+- LWC components for the home page and navigation,
+- any Apex methods for input validation and context validation,
+- potential updates to `AAREG_HomeController`.
 
-### Avhengigheter for fase 3
+### Dependencies for phase 3
 
-- må være på plass før ny navigasjonsflyt for andre grupper kan testes.
+- must be in place before the new navigation flow for other groups can be tested.
 
-## Fase 4: Tilgangsmodell og servervalidering
+## Phase 4: Access model and server validation
 
-### Mål for fase 4
+### Goals for phase 4
 
-- definere tydelig autorisasjon per brukergruppe,
-- sørge for at UI-skjuling ikke er eneste tilgangssjekk,
-- håndtere at URL-parametere kun brukes som kontekst og ikke som tilgang.
+- define clear authorization per user group,
+- ensure that UI hiding is not the only access check,
+- handle URL parameters as context only, not as access control.
 
-### Berørte områder i fase 4
+### Areas affected in phase 4
 
 - `AAREG_HomeController.checkAndShareIfAuthorized()`
-- eventuelle nye Apex-hjelpeklasser for rettighetsmodellering
-- eventuell bruk av custom permissions eller andre eksisterende tillatelser
+- any new Apex helper classes for rights modeling
+- any use of custom permissions or other existing permissions
 
-### Tester for fase 4
+### Tests for phase 4
 
-- positiv/negativ test av tilgang basert på validerte parametre,
-- test av ugyldige URL-verdier,
-- test av manglende organisasjonsnummer.
+- positive/negative access tests based on validated parameters,
+- tests for invalid URL values,
+- tests for missing organization number.
 
-## Fase 5: Meldinger og personbasert tilgang
+## Phase 5: Messages and person-based access
 
-### Mål for fase 5
+### Goals for phase 5
 
-- gjøre skille mellom organisasjonsbaserte meldinger og personbaserte meldinger,
-- holde dagens organisasjonsbaserte meldingsflyt uendret for virksomhetsrepresentanter,
-- utvide støtte for arbeidsgiver, samarbeidspartner og privatperson via personbasert kontekst og valgt organisasjonsnummer når det er relevant.
+- distinguish between organization-based messages and person-based messages,
+- keep the current organization-based message flow unchanged for company representatives,
+- extend support for employers, partners, and private individuals via person-based context and selected organization number when relevant.
 
-### Berørte områder i fase 5
+### Areas affected in phase 5
 
 - [force-app/dialog/classes/AAREG_MyThreadsController.cls](../force-app/dialog/classes/AAREG_MyThreadsController.cls)
-- relevante LWC-komponenter for visning av mine meldinger
+- relevant LWC components for displaying my messages
 
-### Avhengigheter for fase 5
+### Dependencies for phase 5
 
-- må håndtere alle brukergrupper før dette går i produksjon.
+- must handle all user groups before moving to production.
 
-## Fase 6: Funksjonsvisning og navigasjonsregler
+## Phase 6: Function visibility and navigation rules
 
-### Mål for fase 6
+### Goals for phase 6
 
-- skjule insensitive funksjoner for arbeidsgiver, samarbeidspartner og privatperson,
-- vise relevante menyer og knapper basert på faktisk tilgang.
+- hide irrelevant functions for employers, partners, and private individuals,
+- display relevant menus and buttons based on actual access.
 
-### Berørte områder i fase 6
+### Areas affected in phase 6
 
-- LWC-komponenter for nav og dashboard
-- kontrollert logikk i Apex for funksjonsliste
+- LWC components for navigation and dashboards
+- controlled logic in Apex for the function list
 
-### Tester for fase 6
+### Tests for phase 6
 
-- verifiser at kun relevante funksjoner vises per rolle,
-- verifiser at virksomhetsrepresentantens eksisterende flyt ikke endres.
+- verify that only relevant functions are shown per role,
+- verify that the existing company representative flow is not changed.
 
-## Fase 7: Verifisering og regresjonstesting
+## Phase 7: Verification and regression testing
 
-### Mål for fase 7
+### Goals for phase 7
 
-- verifisere at eksisterende virksomhetsrepresentantflyt er uendret,
-- verifisere rolle-/kontekstbaserte regler,
-- verifisere serverstyrt tilgang i Apex.
+- verify that the existing company representative flow is unchanged,
+- verify role/context-based rules,
+- verify server-side access in Apex.
 
-### Testtilnærming for fase 7
+### Test approach for phase 7
 
-- eksisterende Apex-tester for AAREG-moduler oppdateres eller utvides,
-- relevante LWC-tester vurderes der det finnes eksisterende tester,
-- ekstra sikkerhetstester for tilgangs- og meldingslogikk.
+- existing Apex tests for AAREG modules are updated or extended,
+- relevant LWC tests are reviewed where existing tests exist,
+- additional security tests for access and message logic.
 
-## Fase 8: Godkjenning og overgang
+## Phase 8: Approval and transition
 
-- dokumentere åpne spørsmål,
-- bekrefte innstilling av brukergrupper,
-- bekrefte at servervalidering er på plass før release.
+- document open questions,
+- confirm user-group setup,
+- confirm that server validation is in place before release.

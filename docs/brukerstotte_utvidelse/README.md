@@ -1,93 +1,92 @@
-# Brukerstøtteutvidelse
+# User Support Extension
 
-Denne mappa samlar analyse og forslag for utviding av den eksterne
-brukerstøtteflata i Experience Cloud. Dokumenta er arbeidsunderlag, ikkje
-godkjende arkitekturvedtak eller bevis på at løysinga er implementert.
+This folder gathers analysis and proposals for extending the external
+support experience in Experience Cloud. These documents are working material,
+not approved architecture decisions or proof that the solution has been implemented.
 
-## Start her
+## Start here
 
-| Dokument                                                                   | Føremål                                                |
-| -------------------------------------------------------------------------- | ------------------------------------------------------ |
-| [overview.md](overview.md)                                                 | Bakgrunn og overordna mål                              |
-| [current-implementation.md](current-implementation.md)                     | Skildring av dagens løysing                            |
-| [proposed-changes.md](proposed-changes.md)                                 | Føreslåtte endringar                                   |
-| [implementation-plan.md](implementation-plan.md)                           | Faseinndelt plan                                       |
-| [open-questions.md](open-questions.md)                                     | Avklaringar og førebelse val                           |
-| [risks-and-testing.md](risks-and-testing.md)                               | Risiko og testidéar                                    |
-| [acr-email-handling.md](acr-email-handling.md)                             | ACR- og e-postmodell                                   |
-| [review-og-forslag.md](review-og-forslag.md)                               | Uavhengig gjennomgang, motstridar og anbefalingar      |
-| [agent-instruks.md](agent-instruks.md)                                     | Instruks for agent som vidareutviklar underlaget       |
-| [dagens-brukerstotte-og-soknad.md](dagens-brukerstotte-og-soknad.md)       | Dagens brukerstøtte og søknad, og utvidbar rollemodell |
-| [sikkerheitsfunn-tilgangskontroll.md](sikkerheitsfunn-tilgangskontroll.md) | Overordna tilgangsfunn som teamet vurderer             |
+| Document                                                                   | Purpose                                                             |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| [overview.md](overview.md)                                                 | Background and overall goals                                        |
+| [current-implementation.md](current-implementation.md)                     | Description of the current solution                                 |
+| [proposed-changes.md](proposed-changes.md)                                 | Proposed changes                                                    |
+| [implementation-plan.md](implementation-plan.md)                           | Phase-based plan                                                    |
+| [open-questions.md](open-questions.md)                                     | Open questions and decisions to clarify                             |
+| [risks-and-testing.md](risks-and-testing.md)                               | Risks and test ideas                                                |
+| [acr-email-handling.md](acr-email-handling.md)                             | ACR and email model                                                 |
+| [review-og-forslag.md](review-og-forslag.md)                               | Independent review, conflicts, and recommendations                  |
+| [agent-instruks.md](agent-instruks.md)                                     | Instructions for the agent extending the material                   |
+| [dagens-brukerstotte-og-soknad.md](dagens-brukerstotte-og-soknad.md)       | Current support and application flow, and the extensible role model |
+| [sikkerheitsfunn-tilgangskontroll.md](sikkerheitsfunn-tilgangskontroll.md) | High-level access findings under review by the team                 |
 
-### Leserekkjefølgje
+### Reading order
 
-Dei sju første dokumenta er det opphavlege underlaget. Dei fire siste kom frå
-gjennomgangen 2026-11-13. Start med gjennomgangen, gå vidare til rollemodellen,
-og bruk agentinstruksen når ein agent skal arbeide vidare.
+The first seven documents are the original source material. The last four were added
+from the review performed on 2026-11-13. Start with the review, then move to the role model,
+and use the agent instructions when an agent is expected to continue the work.
 
 ```mermaid
 flowchart LR
-    U["Underlaget<br/>(7 dokument)"] --> R[review-og-forslag]
+    U["Source material<br/>(7 documents)"] --> R[review-og-forslag]
     R --> D[dagens-brukerstotte-og-soknad]
     D --> S[sikkerheitsfunn-tilgangskontroll]
     R --> A[agent-instruks]
     D --> A
 ```
 
-## Målbilete i éin figur
+## Target state in one diagram
 
 ```mermaid
 flowchart LR
-    EXT[Ekstern lenkje] --> RS{Rolleside}
-    URL[Dagens URL] --> PORTAL[Inngangsportal]
-    PORTAL -- vel rolle --> RS
-    RS -- tilgang --> INN["Brukerstøtte, meldingar, søknad"]
-    RS -- ikkje tilgang --> PORTAL
+    EXT[External link] --> RS{Role page}
+    URL[Current URL] --> PORTAL[Entry portal]
+    PORTAL -- select role --> RS
+    RS -- access --> INN["Support, messages, application"]
+    RS -- no access --> PORTAL
 ```
 
-**Døme:** Ein arbeidsgivar får ei lenkje til arbeidsgivarsida i ein e-post.
-Sida kontrollerer tilgangen mot Altinn. Har brukaren tilgang, ser hen
-brukerstøtte, meldingar og søknad. Har brukaren ikkje tilgang, kjem hen til
-portalen med meldinga «Du har ikkje tilgang til denne sida. Vel ei anna rolle.»
+**Example:** An employer receives a link to the employer page in an email.
+The page checks access against Altinn. If the user has access, they can see
+support, messages, and application pages. If the user does not have access, they are
+returned to the portal with the message: “You do not have access to this page. Choose another role.”
 
-## Førebels retning
+## Current direction
 
-Brukarens føringar for vidare designarbeid er:
+The user guidance for continued design work is:
 
-- Dagens Experience Cloud-URL blir den nye hovudsida/inngangsportalen.
-- Portalen viser tre val: arbeidsgivar, samarbeidspartnar/fullmektig og
-  privatperson/arbeidstakar.
-- Kvar rolle har si eiga Experience Cloud-side. Eksterne lenkjer kan gå direkte
-  til rollesida.
-- Rollesida og serverkalla skal kontrollere reell tilgang. Val av rolle eller
-  verdiar i URL gir ikkje tilgang.
-- Ved manglande tilgang skal brukaren tilbake til inngangsportalen med ei
-  forståeleg melding.
-- Gjenbruk eksisterande komponentar og funksjonalitet så langt det er naturleg.
-- Bobestyrar og seinare roller skal kunne leggjast til raskt, helst med
-  konfigurasjon. Sjå [rollemodellen](dagens-brukerstotte-og-soknad.md).
-- Vurder feature toggle for kontrollert overgang og rask tilbakeføring, og
-  fjern gammal logikk først når ny løysing er teken i bruk og verifisert.
+- The current Experience Cloud URL becomes the new main page / entry portal.
+- The portal shows three choices: employer, partner / authorized representative, and
+  private person / employee.
+- Each role has its own Experience Cloud page. External links may go directly to the
+  role page.
+- The role page and server calls must validate real access. Selecting a role or values
+  in the URL does not grant access.
+- If access is missing, the user is returned to the entry portal with a clear message.
+- Reuse existing components and functionality where it makes sense.
+- Additional roles such as board manager or future roles should be added quickly, ideally
+  through configuration. See [the role model](dagens-brukerstotte-og-soknad.md).
+- Consider feature toggles for controlled transition and quick rollback, and remove old
+  logic only after the new solution is adopted and validated.
 
-Desse føringane erstattar ikkje opne domene- og tilgangsavgjerder i
-underlagsdokumenta. Sjå [gjennomgangen](review-og-forslag.md) før
-implementasjonsplanen blir brukt som oppgåveliste.
+These guidelines do not replace open domain and access decisions in the supporting
+documents. See [the review](review-og-forslag.md) before using the implementation plan
+as a task list.
 
-## Dokument- og avgjerdsstatus
+## Document and decision status
 
-- Eksisterande filer i denne mappa er bevarte uendra i denne gjennomgangen.
-- Nye forslag i `review-og-forslag.md` er ikkje vedtekne før produkteigar og
-  relevante tekniske eigarar har godkjent dei.
-- ADR-0002 og ADR-0003 er merkte som foreslåtte i repoet; ikkje presenter
-  ACR- eller e-postval der som endeleg vedtekne.
-- Følg repoets [utviklingsstandardar](../utviklingsstandarder.md),
-  [arkitekturrettleiing](../architecture/README.md) og rotfila
-  [AGENTS.md](../../AGENTS.md). Feature-arbeid som kryssar modular eller
-  tilgangsgrenser kan krevje Issue, spesifikasjon eller ADR.
+- Existing files in this folder are preserved unchanged in this review.
+- New proposals in `review-og-forslag.md` are not approved until the product owner and
+  relevant technical owners have approved them.
+- ADR-0002 and ADR-0003 are marked as proposed in the repository; do not present ACR
+  or email choices there as final decisions.
+- Follow the repository’s [development standards](../utviklingsstandarder.md),
+  [architecture guidance](../architecture/README.md), and the root file
+  [AGENTS.md](../../AGENTS.md). Feature work crossing module or access boundaries may
+  require an issue, specification, or ADR.
 
-## Avgrensing
+## Scope limitation
 
-Dette dokumentasjonsunderlaget inneheld ikkje implementasjon. Org-tilgang,
-deploy, metadataendringar og endringar i pakkeeigd innhald krev eigne
-godkjenningar etter repoets reglar.
+This documentation set does not include implementation. Org access,
+deployment, metadata changes, and changes to package-owned content require separate
+approvals under the repository rules.

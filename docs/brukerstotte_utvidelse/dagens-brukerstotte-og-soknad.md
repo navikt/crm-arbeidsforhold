@@ -1,173 +1,136 @@
-# Brukerstøtte og søknad om tilgang: dagens løysing og rollemodell
+# Support and access application: current solution and role model
 
-Dette notatet skildrar korleis brukerstøtte og søknad om tilgang fungerer i dag,
-og korleis funksjonane kan førast vidare under dei nye rollesidene. Bobestyrar og
-andre roller skal kunne leggjast til utan å byggje om løysinga.
+This note describes how support and access application work today and how the functions can be extended under the new role pages. Board managers and other roles should be able to be added without rebuilding the solution.
 
-**Status:** Arbeidsunderlag basert på statisk lesing av koden. Ingenting er
-verifisert i org, og ingen forslag er vedtekne. Kodedøma er illustrasjonar, ikkje
-implementasjon.
+**Status:** Working material based on static reading of the code. Nothing has been verified in the org, and no proposals are approved. The code examples are illustrations, not implementation.
 
-Sjå òg [review-og-forslag.md](review-og-forslag.md) for målreisa og
-[sikkerheitsfunn-tilgangskontroll.md](sikkerheitsfunn-tilgangskontroll.md) for
-tilgangsfunn som teamet vurderer.
+See also [review-og-forslag.md](review-og-forslag.md) for the target direction and [sikkerheitsfunn-tilgangskontroll.md](sikkerheitsfunn-tilgangskontroll.md) for access findings the team is reviewing.
 
-## 1. Dagens løysing
+## 1. Current solution
 
-### 1.1 Inngang og tilgangsavgjerd
+### 1.1 Entry and access decision
 
-Heimesida [aareg_home](../../force-app/externalAccess/lwc/aareg_home/aareg_home.html)
-har tittelen «Min side - Brukerstøtte og søknad om tilgang til Aa-registeret».
-Flyten er slik:
+The home page [aareg_home](../../force-app/externalAccess/lwc/aareg_home/aareg_home.html) has the title “My page - Support and access application for Aa-registeret”.
+The flow is as follows:
 
-1. Brukaren vel virksomheit i ei nedtrekksliste. Lista kjem frå Altinn via
-   `AAREG_HomeController.getOrganizationsWithRoles`.
-2. Valet blir lagra i `User.LastUsedOrganization__c`.
-3. `AAREG_HomeController.checkAndShareIfAuthorized` spør Altinn om to ressursar
-   for valt virksomheit, først søknadsressursen og deretter
-   brukerstøtteressursen.
-4. Ved tilgang blir aktive avtalar for virksomheita og kontaktpersonane deira
-   delte med brukaren.
-5. Heimesida viser panel etter kva tilgang brukaren fekk.
+1. The user selects an organization from a dropdown. The list comes from Altinn via `AAREG_HomeController.getOrganizationsWithRoles`.
+2. The selection is stored in `User.LastUsedOrganization__c`.
+3. `AAREG_HomeController.checkAndShareIfAuthorized` asks Altinn for two resources for the selected organization: first the application resource and then the support resource.
+4. If access is granted, active agreements for the organization and their contact persons are shared with the user.
+5. The home page shows panels depending on the access granted.
 
-Sekvensen under viser det same som lista over.
+The sequence below shows the same process as the list above.
 
 ```mermaid
 sequenceDiagram
-    actor B as Brukar
+    actor B as User
     participant H as aareg_home (LWC)
     participant C as AAREG_HomeController
     participant A as Altinn
     participant U as User.LastUsedOrganization__c
 
-    B->>H: Opnar Min side
+    B->>H: Opens My page
     H->>C: getOrganizationsWithRoles
-    C->>A: Hent virksomheiter
-    A-->>H: Liste over virksomheiter
-    B->>H: Vel virksomheit
+    C->>A: Fetch organizations
+    A-->>H: List of organizations
+    B->>H: Select organization
     H->>C: updateLastUsedOrganization
-    C->>U: Lagrar organisasjonsnummer
+    C->>U: Store organization number
     H->>C: checkAndShareIfAuthorized
-    C->>A: Rettar for sok-tilgang
-    alt sok-tilgang gir løyve
-        C-->>H: hasAccess og hasApplicationAccess
-    else ikkje løyve
-        C->>A: Rettar for brukerstotte
-        C-->>H: hasAccess eller ingen tilgang
+    C->>A: Check application access
+    alt application access grants permission
+        C-->>H: hasAccess and hasApplicationAccess
+    else no permission
+        C->>A: Check support access
+        C-->>H: hasAccess or no access
     end
-    C->>C: Deler avtalar og kontaktar ved tilgang
-    H-->>B: Viser panel eller «manglar tilgang»
+    C->>C: Shares agreements and contacts when access is granted
+    H-->>B: Shows panel or “missing access”
 ```
 
-### 1.2 Kva brukaren ser
+### 1.2 What the user sees
 
-Avgjerda på heimesida følgjer dette treet. Teknisk feil frå Altinn blir vist som
-feilmelding og ikkje som manglande tilgang.
+The decision on the home page follows this tree. Technical errors from Altinn are shown as error messages and not as missing access.
 
 ```mermaid
 flowchart TD
-    S[Valt virksomheit] --> Q1{"Løyve for sok-tilgang?"}
-    Q1 -- Ja --> FULL["Alle panel: Ny søknad, Mine søknader,<br/>Mine avtaler, Brukerstøtte, Mine meldinger"]
-    Q1 -- Nei --> Q2{"Løyve for brukerstotte?"}
-    Q1 -- Teknisk feil --> ERR[Feilmelding, prøv igjen]
-    Q2 -- Ja --> SUP["Mine avtaler, Brukerstøtte, Mine meldinger"]
-    Q2 -- Nei --> NONE["Side for manglande tilgang"]
-    Q2 -- Teknisk feil --> ERR
+    S[Selected organization] --> Q1{"Access for application?"}
+    Q1 -- Yes --> FULL["All panels: New application, My applications,<br/>My agreements, Support, My messages"]
+    Q1 -- No --> Q2{"Support access?"}
+    Q1 -- Technical error --> ERR[Error message, try again]
+    Q2 -- Yes --> SUP["My agreements, Support, My messages"]
+    Q2 -- No --> NONE["Access missing page"]
+    Q2 -- Technical error --> ERR
 ```
 
-| Altinn-løyve            | Ny søknad   | Mine søknader | Mine avtaler | Brukerstøtte (ny melding) | Mine meldinger |
-| ----------------------- | ----------- | ------------- | ------------ | ------------------------- | -------------- |
-| `sok-tilgang`           | Ja          | Ja            | Ja           | Ja                        | Ja             |
-| berre `brukerstotte`    | Nei         | Nei           | Ja           | Ja                        | Ja             |
-| ingen                   | Nei         | Nei           | Nei          | Nei                       | Nei            |
-| teknisk feil frå Altinn | Feilmelding | Feilmelding   | Feilmelding  | Feilmelding               | Feilmelding    |
+| Altinn permission           | New application | My applications | My agreements | Support (new message) | My messages   |
+| --------------------------- | --------------- | --------------- | ------------- | --------------------- | ------------- |
+| `sok-tilgang`               | Yes             | Yes             | Yes           | Yes                   | Yes           |
+| only `brukerstotte`         | No              | No              | Yes           | Yes                   | Yes           |
+| none                        | No              | No              | No            | No                    | No            |
+| technical error from Altinn | Error message   | Error message   | Error message | Error message         | Error message |
 
-Brukerstøtte-løyvet gir i dag òg «Mine avtaler» og skrivetilgang til
-avtalekontaktar. Det bør avklarast om dette er tilsikta.
+The support permission currently also grants “My agreements” and write access to agreement contacts. This should be clarified to confirm if this is intentional.
 
-Dei fulle Altinn-ressursnamna er `nav_arbeidsforhold_aa-registeret-sok-tilgang`
-og `nav_arbeidsforhold_aa-registeret-brukerstotte`.
+The full Altinn resource names are `nav_arbeidsforhold_aa-registeret-sok-tilgang` and `nav_arbeidsforhold_aa-registeret-brukerstotte`.
 
-### 1.3 Undersider og kontrollarar
+### 1.3 Screens and controllers
 
-| Side (URL)               | LWC / kontrollar                                              | Kontekst i dag                            |
-| ------------------------ | ------------------------------------------------------------- | ----------------------------------------- |
-| `ny-melding`             | `aareg_contactSupportForm` / `AAREG_contactSupportController` | `LastUsedOrganization__c` på henvendinga  |
-| `mine-meldinger`         | `aareg_myThreads` / `AAREG_MyThreadsController`               | tråder på kontoen til siste virksomheit   |
-| `ny-soknad-aa-registret` | `aareg_application` / `AAREG_ApplicationController`           | siste virksomheit, rettssjekk berre i LWC |
-| `mine-soknader`          | `AAREG_MyApplicationsController`                              | siste virksomheit                         |
-| `mine-avtaler`           | `AAREG_MyAgreementsController`                                | siste virksomheit                         |
+| Page (URL)               | LWC / controller                                              | Current context                                  |
+| ------------------------ | ------------------------------------------------------------- | ------------------------------------------------ |
+| `ny-melding`             | `aareg_contactSupportForm` / `AAREG_contactSupportController` | `LastUsedOrganization__c` on the request         |
+| `mine-meldinger`         | `aareg_myThreads` / `AAREG_MyThreadsController`               | threads for the account of the last organization |
+| `ny-soknad-aa-registret` | `aareg_application` / `AAREG_ApplicationController`           | last organization, rights check only in LWC      |
+| `mine-soknader`          | `AAREG_MyApplicationsController`                              | last organization                                |
+| `mine-avtaler`           | `AAREG_MyAgreementsController`                                | last organization                                |
 
-Alle rutene i `force-app/unpackagable/experiences/Aa_registret1/routes` har
-`pageAccess: UseParent`. Dei krev innlogging, men har ingen rollekontroll.
+All routes in `force-app/unpackagable/experiences/Aa_registret1/routes` have `pageAccess: UseParent`. They require login but have no role control.
 
-Figuren viser at tilgangskontrollen berre ligg i heimesida, medan undersidene
-les den lagra virksomheita.
+The figure shows that the access control is only on the home page, while the subpages read the stored organization.
 
 ```mermaid
 flowchart LR
-    subgraph Kontroll["Tilgangskontroll mot Altinn"]
+    subgraph Control["Access control against Altinn"]
         HOME[aareg_home]
     end
     LUO[("User.LastUsedOrganization__c")]
-    HOME -- skriv --> LUO
-    LUO -- les --> NM[ny-melding]
-    LUO -- les --> MM[mine-meldinger]
-    LUO -- les --> NS[ny-soknad]
-    LUO -- les --> MS[mine-soknader]
-    LUO -- les --> MA[mine-avtaler]
-    EXT[Direkte lenkje] -.-> NM
+    HOME -- write --> LUO
+    LUO -- read --> NM[new message]
+    LUO -- read --> MM[my messages]
+    LUO -- read --> NS[new application]
+    LUO -- read --> MS[my applications]
+    LUO -- read --> MA[my agreements]
+    EXT[Direct link] -.-> NM
     EXT -.-> MS
 ```
 
-### 1.4 Hovudfunn
+### 1.4 Main findings
 
-1. **Tilgangsavgjerda skjer berre på heimesida.** Undersidene og kontrollarane
-   bruker `LastUsedOrganization__c` som kontekst og spør ikkje Altinn på nytt. Ei
-   direkte lenkje til ei underside går difor ikkje gjennom same kontroll.
-2. **Lagra kontekst blir behandla som tilgangsbevis.** Feltet blir sett frå
-   klienten og lese av fleire kontrollarar utan å vere knytt til ei verifisert
-   avgjerd.
-3. **Søknadskontrollen er berre i UI.** `aareg_application` kallar
-   `getUserRights` frå LWC-en. Innsendinga på serversida kontrollerer ikkje
-   løyvet.
-4. **Kontekst og rolle er samanblanda.** Alt er organisasjonsbasert. Det finst
-   ingen modell for person-, fullmakts- eller dødsbukontekst.
-5. **Altinn-ressursar og panelval er hardkoda** i Apex og HTML. Ei ny rolle
-   krev endringar i fleire filer.
+1. **Access decisions happen only on the home page.** The subpages and controllers use `LastUsedOrganization__c` as context and do not ask Altinn again. A direct link to a subpage therefore does not go through the same control.
+2. **Stored context is treated as proof of access.** The field is set by the client and read by several controllers without being tied to a verified decision.
+3. **Application control is only in the UI.** `aareg_application` calls `getUserRights` from the LWC. The request submission on the server side does not validate the permission.
+4. **Context and role are mixed together.** Everything is organization-based. There is no model for person, authority, or estate context.
+5. **Altinn resources and panel choices are hardcoded** in Apex and HTML. A new role requires changes in multiple files.
 
-Funn 1–3 har òg ei sikkerheitsside. Dei er samla på overordna nivå i
-[sikkerheitsfunn-tilgangskontroll.md](sikkerheitsfunn-tilgangskontroll.md), og
-teamet vurderer og prioriterer dei. Den nye rollemodellen bør ikkje byggje vidare
-på metodar som stolar på lagra kontekst utan serverkontroll.
+Findings 1–3 also have a security side. They are summarized at a high level in [sikkerheitsfunn-tilgangskontroll.md](sikkerheitsfunn-tilgangskontroll.md), and the team reviews and prioritizes them. The new role model should not build on approaches that rely on stored context without server-side control.
 
-## 2. Mål for rollemodellen
+## 2. Goals for the role model
 
-- Brukerstøtte og søknad om tilgang skal finnast under kvar rolle der dei er
-  relevante. For arbeidsgivar skal oppførselen vere som i dag.
-- Ei ny rolle, til dømes bobestyrar, skal i hovudsak krevje konfigurasjon, éi ny
-  Experience Cloud-side og eventuelt éin ny tilgangspolicy, ikkje endringar i
-  felles komponentar.
-- Kvar rolleside og kvart serverkall skal kontrollere reell tilgang sjølv.
-- Ved avslag går brukaren tilbake til inngangsportalen med ei melding.
+- Support and access application should be available under each relevant role. For employers, the behavior should be the same as today.
+- A new role, for example board manager, should mainly require configuration, one new Experience Cloud page, and possibly one new access policy, not changes in shared components.
+- Each role page and each server call should validate actual access itself.
+- When access is denied, the user is returned to the entry portal with a message.
 
-## 3. Foreslått design
+## 3. Proposed design
 
-### 3.1 Omgrep
+### 3.1 Concepts
 
-- **Rolle** er korleis brukaren opptrer, til dømes arbeidsgivar,
-  samarbeidspartnar/fullmektig, privatperson eller bobestyrar.
-- **Kontekst** er kven brukaren opptrer for: ei virksomheit, seg sjølv eller
-  eit dødsbu.
-- **Kapabilitet** er ein funksjon brukaren kan få, til dømes `SUPPORT`,
-  `MESSAGES`, `APPLICATION`, `MY_APPLICATIONS` eller `AGREEMENTS`.
-- **Tilgangsavgjerd** er resultatet av ein serverkontroll for rolle og kontekst.
-  Resultatet er `GRANTED`, `DENIED` eller `TECHNICAL_ERROR`, med ei liste over
-  kapabilitetar.
+- **Role** is how the user acts, for example employer, partner / authorized representative, private individual, or board manager.
+- **Context** is whom the user is acting for: an organization, themselves, or an estate.
+- **Capability** is a function the user may get, for example `SUPPORT`, `MESSAGES`, `APPLICATION`, `MY_APPLICATIONS`, or `AGREEMENTS`.
+- **Access decision** is the result of a server-side control for role and context. The result is `GRANTED`, `DENIED`, or `TECHNICAL_ERROR`, with a list of capabilities.
 
-Modellen under viser korleis omgrepa heng saman. Ei rolle har éin konteksttype
-og fleire kapabilitetar. Kvar kapabilitet kan krevje éin eller fleire
-Altinn-ressursar.
+The model below shows how the concepts fit together. A role has one context type and multiple capabilities. Each capability can require one or more Altinn resources.
 
 ```mermaid
 classDiagram
@@ -189,37 +152,34 @@ classDiagram
         contextKey
         capabilities
     }
-    PortalRole "1" --> "*" RoleCapability : gir
-    RoleAccessDecision ..> PortalRole : vurderer
+    PortalRole "1" --> "*" RoleCapability : grants
+    RoleAccessDecision ..> PortalRole : evaluates
 ```
 
-### 3.2 Rolleregister i Custom Metadata
+### 3.2 Role registry in Custom Metadata
 
-Kvar rolle får éin post, til dømes i `AAREG_PortalRole__mdt`.
+Each role gets one record, for example in `AAREG_PortalRole__mdt`.
 
-| Felt             | Døme for arbeidsgivar                   | Føremål                                 |
-| ---------------- | --------------------------------------- | --------------------------------------- |
-| `DeveloperName`  | `Employer`                              | stabil rollenøkkel                      |
-| `ContextType__c` | `Organization`                          | `Organization`, `Person` eller `Estate` |
-| `PageApiName__c` | `arbeidsgiver__c`                       | navigasjon frå portalen                 |
-| `FeatureFlag__c` | namnet på flagget i `Feature_Flag__mdt` | kontrollert lansering og tilbakeføring  |
-| `SortOrder__c`   | `10`                                    | rekkjefølgje i portalen                 |
-| `IsActive__c`    | `true`                                  | om rolla blir vist                      |
-| Etikett          | Custom Label og Translation Workbench   | norsk tekst utan hardkoding             |
+| Field            | Example for employer                    | Purpose                               |
+| ---------------- | --------------------------------------- | ------------------------------------- |
+| `DeveloperName`  | `Employer`                              | stable role key                       |
+| `ContextType__c` | `Organization`                          | `Organization`, `Person`, or `Estate` |
+| `PageApiName__c` | `arbeidsgiver__c`                       | navigation from the portal            |
+| `FeatureFlag__c` | name of the flag in `Feature_Flag__mdt` | controlled rollout and rollback       |
+| `SortOrder__c`   | `10`                                    | order in the portal                   |
+| `IsActive__c`    | `true`                                  | whether the role is shown             |
+| Label            | Custom Label and Translation Workbench  | Norwegian text without hardcoding     |
 
-Kapabilitetane og Altinn-ressursane per rolle ligg i ein eigen post, til dømes
-`AAREG_RoleCapability__mdt`, med `Role__c`, `Capability__c` og
-`AltinnResource__c`. Dagens to ressursar blir då data og ikkje kode.
+The capabilities and Altinn resources per role are stored in a separate record, for example `AAREG_RoleCapability__mdt`, with `Role__c`, `Capability__c`, and `AltinnResource__c`. The current two resources then become data rather than code.
 
-| Rolle      | Kapabilitet                         | Altinn-ressurs som gir løyve       |
-| ---------- | ----------------------------------- | ---------------------------------- |
-| `Employer` | `APPLICATION`, `MY_APPLICATIONS`    | `sok-tilgang`                      |
-| `Employer` | `SUPPORT`, `MESSAGES`, `AGREEMENTS` | `sok-tilgang` eller `brukerstotte` |
+| Role       | Capability                          | Altinn resource granting access |
+| ---------- | ----------------------------------- | ------------------------------- |
+| `Employer` | `APPLICATION`, `MY_APPLICATIONS`    | `sok-tilgang`                   |
+| `Employer` | `SUPPORT`, `MESSAGES`, `AGREEMENTS` | `sok-tilgang` or `brukerstotte` |
 
-Det må avgjerast eksplisitt at fleire ressursar for same kapabilitet tyder at
-éin av dei er nok. Det er dagens oppførsel.
+It must be decided explicitly that multiple resources for the same capability means that one of them is enough. That is the current behavior.
 
-**Døme på metadatapost** (illustrasjon):
+**Example metadata record** (illustration):
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -249,42 +209,42 @@ Det må avgjerast eksplisitt at fleire ressursar for same kapabilitet tyder at
 </CustomMetadata>
 ```
 
-### 3.3 Éi serverteneste for tilgang
+### 3.3 One server-side service for access
 
-Tenesta `AAREG_RoleAccessService` les rolla frå metadata, sjekkar
-feature-flagget og vel policy etter konteksttypen. Same teneste blir kalla frå
-rollesida og frå kvar kontrollarmetode.
+The `AAREG_RoleAccessService` service reads the role from metadata, checks the
+feature flag, and selects a policy based on the context type. The same service is
+called from the role page and from each controller method.
 
 ```mermaid
 flowchart TD
-    CALL["decide(roleKey, contextKey, capability)"] --> MD[Les rolle og kapabilitetar frå metadata]
-    MD --> FF{"Feature-flagg på?"}
-    FF -- Nei eller feil --> DEN[DENIED]
-    FF -- Ja --> SW{"ContextType"}
+    CALL["decide(roleKey, contextKey, capability)"] --> MD[Read role and capabilities from metadata]
+    MD --> FF{"Feature flag on?"}
+    FF -- No or error --> DEN[DENIED]
+    FF -- Yes --> SW{"ContextType"}
     SW -- Organization --> P1[AltinnOrganizationPolicy]
     SW -- Person --> P2[SelfPersonPolicy]
-    SW -- Estate --> P3["EstatePolicy (når kjelda er avklart)"]
-    P1 --> RES{Resultat}
+    SW -- Estate --> P3["EstatePolicy (when the source is clarified)"]
+    P1 --> RES{Result}
     P2 --> RES
     P3 --> RES
-    RES -- løyve --> GR["GRANTED + kapabilitetar"]
-    RES -- avslag --> DEN
-    RES -- feil frå kjelde --> TE[TECHNICAL_ERROR]
+    RES -- permission --> GR["GRANTED + capabilities"]
+    RES -- denial --> DEN
+    RES -- source error --> TE[TECHNICAL_ERROR]
 ```
 
-Reglar for tenesta:
+Rules for the service:
 
-- Policyen blir vald med ein eksplisitt `switch` på `ContextType__c`, ikkje med
-  dynamisk klasseoppslag. Ei ny rolle med eksisterande konteksttype krev berre
-  metadata. Ein ny konteksttype krev éin ny policyklasse og éi ny grein.
-- Identiteten kjem alltid frå `UserInfo.getUserId()`. Klienten sender aldri
+- The policy is selected with an explicit `switch` on `ContextType__c`, not with
+  dynamic class lookup. A new role with an existing context type only needs
+  metadata. A new context type requires one new policy class and one new branch.
+- Identity always comes from `UserInfo.getUserId()`. The client never sends
   `userId`.
-- Gjenbruk `AAREG_AltinnServiceFactory` og Altinn-scenarioa, slik at testar og
-  scratch-org kan styre løyve per rolle.
-- Platform Cache med kort levetid kan vurderast dersom Altinn-kalla blir dyre.
-  Cachen er ei ytingsoptimalisering og erstattar ikkje kontrollen.
+- Reuse `AAREG_AltinnServiceFactory` and Altinn scenarios so that tests and the
+  scratch org can control access per role.
+- Short-lived Platform Cache can be considered if Altinn calls become expensive.
+  The cache is a performance optimization and does not replace the check.
 
-**Døme på kontrakt** (illustrasjon, ikkje implementert):
+**Example contract** (illustrative, not implemented):
 
 ```apex
 public with sharing class AAREG_RoleAccessService {
@@ -295,69 +255,67 @@ public with sharing class AAREG_RoleAccessService {
     }
 
     public static RoleAccessDecision decide(String roleKey, String contextKey) {
-        // 1. Les AAREG_PortalRole__mdt og kapabilitetar
-        // 2. Sjekk feature-flagg fail-closed
+        // 1. Read AAREG_PortalRole__mdt and capabilities
+        // 2. Check feature flag fail-closed
         // 3. switch on ContextType__c -> policy
-        // 4. Returner avgjerd med kapabilitetar
-        return null; // skisse
+        // 4. Return decision with capabilities
+        return null; // sketch
     }
 
     public static void require(String roleKey, String contextKey, String capability) {
         RoleAccessDecision decision = decide(roleKey, contextKey);
         if (decision.status != Status.GRANTED || !decision.capabilities.contains(capability)) {
-            throw new AuraHandledException('Du har ikkje tilgang til denne funksjonen.');
+            throw new AuraHandledException('You do not have access to this function.');
         }
     }
 }
 ```
 
-**Døme på bruk i ein eksisterande kontrollar** (illustrasjon):
+**Example of use in an existing controller** (illustrative):
 
 ```apex
 @AuraEnabled
 public static void createNewInquiry(String roleKey, String contextKey, Inquiry__c inquiry, List<FileData> files) {
     AAREG_RoleAccessService.require(roleKey, contextKey, 'SUPPORT');
     inquiry.SubmittedRole__c = roleKey;
-    // eksisterande logikk for henvending, tråd og vedlegg
+    // existing logic for inquiry, thread, and attachments
 }
 ```
 
-### 3.4 Aktiv kontekst
+### 3.4 Active context
 
-`LastUsedOrganization__c` bør ikkje lenger bere tilgang.
+`LastUsedOrganization__c` should no longer grant access.
 
-- Lagra kontekst kan framleis brukast for å førehandsvelje i UI.
-- Serveren kontrollerer konteksten på nytt i kvart kall, eller lagrar ei
-  verifisert avgjerd med rolle, kontekst og tidspunkt som berre serveren kan
-  skrive.
-- Henvendingar og tråder får rolle og kontekst lagra eksplisitt, til dømes
-  `SubmittedRole__c` og konteksttype i tillegg til
-  `CreatedByOrganizationNumber__c`. Saksbehandlarar ser då kva rolle brukaren
-  kom frå.
+- Stored context may still be used to preselect in the UI.
+- The server re-checks the context on every call, or stores a verified decision with
+  role, context, and timestamp that only the server can write.
+- Inquiries and threads store the role and context explicitly, for example
+  `SubmittedRole__c` and the context type in addition to
+  `CreatedByOrganizationNumber__c`. Case handlers then see which role the user came from.
 
-| Rolle                        | Konteksttype   | Døme på `contextKey`        | Kjelde for kontroll  |
-| ---------------------------- | -------------- | --------------------------- | -------------------- |
-| Arbeidsgivar                 | `Organization` | organisasjonsnummer         | Altinn               |
-| Samarbeidspartnar/fullmektig | `Organization` | organisasjonsnummer         | Altinn, må avklarast |
-| Privatperson/arbeidstakar    | `Person`       | tom, alltid innlogga person | innlogginga          |
-| Bobestyrar                   | `Estate`       | referanse til dødsbuet      | må avklarast         |
+| Role                      | Context type   | Example `contextKey`         | Source for control      |
+| ------------------------- | -------------- | ---------------------------- | ----------------------- |
+| Employer                  | `Organization` | organization number          | Altinn                  |
+| Partner / authorized rep. | `Organization` | organization number          | Altinn, to be clarified |
+| Private person / employee | `Person`       | empty, always logged-in user | login                   |
+| Estate administrator      | `Estate`       | reference to the estate      | to be clarified         |
 
-### 3.5 Gjenbrukbare komponentar
+### 3.5 Reusable components
 
-| Komponent                  | Ansvar                                                                                                                      | Gjenbruk frå                        |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
-| `aareg_rolePage`           | Tek `roleKey` som designattributt i Experience Builder, kallar `decide` og viser innhald eller sender brukaren til portalen | `aareg_home`, `aareg_missingAccess` |
-| `aareg_contextPicker`      | Viser val for konteksttypen til rolla; for organisasjon er dette dagens nedtrekksliste                                      | `aareg_home`                        |
-| `aareg_capabilityPanels`   | Viser `c-link-panel` per kapabilitet i avgjerda                                                                             | panela i `aareg_home`               |
-| `aareg_contactSupportForm` | Uendra skjema; serveren tek rolle og kontekst frå avgjerda                                                                  | eksisterande                        |
-| `aareg_myThreads`          | Uendra liste; serveren filtrerer på rolle og kontekst                                                                       | eksisterande                        |
+| Component                  | Responsibility                                                                                                                      | Reuse from                          |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `aareg_rolePage`           | Takes `roleKey` as a design attribute in Experience Builder, calls `decide`, and shows content or sends the user back to the portal | `aareg_home`, `aareg_missingAccess` |
+| `aareg_contextPicker`      | Shows the context options for the role; for organizations this is the current dropdown list                                         | `aareg_home`                        |
+| `aareg_capabilityPanels`   | Shows a `c-link-panel` for each capability in the decision                                                                          | panels in `aareg_home`              |
+| `aareg_contactSupportForm` | Unchanged form; the server takes role and context from the decision                                                                 | existing                            |
+| `aareg_myThreads`          | Unchanged list; the server filters by role and context                                                                              | existing                            |
 
-`roleKey` blir sett i Experience Builder per side og blir ikkje lese frå URL-en.
-Ein manipulert URL kan difor ikkje byte rolle.
+`roleKey` is set in Experience Builder per page and is not read from the URL.
+A manipulated URL therefore cannot change the role.
 
 ```mermaid
 flowchart TB
-    subgraph Side["Experience Cloud-side per rolle"]
+    subgraph Side["Per-role Experience Cloud page"]
         RP["aareg_rolePage (roleKey=Employer)"]
         CP[aareg_contextPicker]
         PAN[aareg_capabilityPanels]
@@ -372,7 +330,7 @@ flowchart TB
     F3 -- require APPLICATION --> SVC
 ```
 
-**Døme på designattributt** i `aareg_rolePage.js-meta.xml` (illustrasjon):
+**Example of design attribute** in `aareg_rolePage.js-meta.xml` (illustrative):
 
 ```xml
 <targetConfigs>
@@ -380,7 +338,7 @@ flowchart TB
         <property
             name="roleKey"
             type="String"
-            label="Rolle"
+            label="Role"
             datasource="Employer,Partner,Private"
             required="true"
         />
@@ -388,138 +346,123 @@ flowchart TB
 </targetConfigs>
 ```
 
-### 3.6 Direkte lenkje og retur til portalen
+### 3.6 Direct link and return to the portal
 
-Ei direkte lenkje går gjennom same kontroll som navigasjon frå portalen. Ved
-avslag går brukaren tilbake til portalen med ein avgrensa statuskode som berre
-styrer kva melding som blir vist.
+A direct link goes through the same control as navigation from the portal. On
+denial, the user is returned to the portal with a limited status code that only
+controls which message is shown.
 
 ```mermaid
 sequenceDiagram
-    actor B as Brukar
-    participant R as Rolleside (aareg_rolePage)
+    actor B as User
+    participant R as Role page (aareg_rolePage)
     participant S as AAREG_RoleAccessService
     participant P as Portal
 
-    B->>R: Opnar /arbeidsgiver frå ekstern lenkje
-    R->>S: decide(Employer, kontekst)
+    B->>R: Opens /employer from an external link
+    R->>S: decide(Employer, context)
     alt GRANTED
-        S-->>R: kapabilitetar
-        R-->>B: Viser panel for kapabilitetane
+        S-->>R: capabilities
+        R-->>B: Shows the capability panels
     else DENIED
-        S-->>R: avslag
-        R->>P: Navigerer med c__melding=ingen-tilgang
-        P-->>B: Viser infomelding og rolleval
+        S-->>R: denial
+        R->>P: Navigates with c__message=no-access
+        P-->>B: Shows a notice and role selection
     else TECHNICAL_ERROR
-        S-->>R: teknisk feil
-        R-->>B: Viser feilmelding med «Prøv igjen»
+        S-->>R: technical error
+        R-->>B: Shows an error message with “Try again”
     end
 ```
 
-| Statuskode i URL    | Melding i portalen (døme)                                 |
-| ------------------- | --------------------------------------------------------- |
-| `ingen-tilgang`     | «Du har ikkje tilgang til denne sida. Vel ei anna rolle.» |
-| `rolle-ikkje-aktiv` | «Denne tenesta er ikkje tilgjengeleg no.»                 |
-| ukjend verdi        | Ingen melding                                             |
+| URL status code   | Message in the portal (example)                             |
+| ----------------- | ----------------------------------------------------------- |
+| `no-access`       | “You do not have access to this page. Choose another role.” |
+| `role-not-active` | “This service is not available right now.”                  |
+| unknown value     | No message                                                  |
 
-Portalen viser berre meldingar frå ei fast liste. Verdien i URL-en gir aldri
-tilgang og inneheld ikkje personopplysningar.
+The portal shows only messages from a fixed list. The value in the URL never
+grants access and does not contain personal data.
 
-### 3.7 Leggje til bobestyrar
+### 3.7 Adding board managers
 
-Figuren viser stega for ei ny rolle. Felles komponentar og dei andre rollene blir
-ikkje endra.
+The figure shows the steps for a new role. Shared components and the other roles
+are not changed.
 
 ```mermaid
 flowchart LR
-    A[Avklar tilgangskjelde og kapabilitetar] --> B{Ny konteksttype?}
-    B -- Nei --> D[Ny post i AAREG_PortalRole__mdt]
-    B -- "Ja (Estate)" --> C["Ny EstatePolicy + testar<br/>(raud sone)"]
+    A[Clarify access source and capabilities] --> B{New context type?}
+    B -- No --> D[New record in AAREG_PortalRole__mdt]
+    B -- "Yes (Estate)" --> C["New EstatePolicy + tests<br/>(red zone)"]
     C --> D
-    D --> E[Kapabilitetspostar]
-    E --> F[Ny Experience Cloud-side med aareg_rolePage]
-    F --> G[Feature-flagg av i produksjon]
-    G --> H[Verifiser i SIT2, så slå på]
+    D --> E[Capability records]
+    E --> F[New Experience Cloud page with aareg_rolePage]
+    F --> G[Feature flag off in production]
+    G --> H[Verify in SIT2, then turn it on]
 ```
 
-1. Avklar kjelda for tilgang, til dømes skifteattest, Digitalt dødsbo eller ei
-   anna kjelde, og om bobestyrar skal kunne søkje om tilgang eller berre få
-   brukerstøtte.
-2. Legg til `AAREG_PortalRole__mdt.Estate_Administrator` og kapabilitetspostar,
-   til dømes berre `SUPPORT` og `MESSAGES`.
-3. Implementer `EstatePolicy` med eigne testar. Dette er raud sone på grunn av
-   personvern og opplysningar om avdøde.
-4. Opprett Experience Cloud-sida med `aareg_rolePage` og `roleKey` sett.
-5. Legg til eit feature-flagg og slå det på i SIT2 før produksjon.
+1. Clarify the access source, for example a probate certificate, Digital Estate, or another source, and whether the board manager should be able to request access or only receive support.
+2. Add `AAREG_PortalRole__mdt.Estate_Administrator` and capability records, for example only `SUPPORT` and `MESSAGES`.
+3. Implement `EstatePolicy` with its own tests. This is a red-zone area because of privacy and information about the deceased.
+4. Create the Experience Cloud page with `aareg_rolePage` and `roleKey` set.
+5. Add a feature flag and turn it on in SIT2 before production.
 
-**Døme på kapabilitetar for bobestyrar** (føresetnad, ikkje vedteke):
+**Example capabilities for board managers** (assumption, not decided):
 
-| Rolle                  | Kapabilitet           | Kjelde         |
+| Role                   | Capability            | Source         |
 | ---------------------- | --------------------- | -------------- |
 | `Estate_Administrator` | `SUPPORT`, `MESSAGES` | `EstatePolicy` |
 
-## 4. Alternativ som er vurdert
+## 4. Options considered
 
-| Alternativ                                                             | Fordel                                                     | Ulempe                                                                       |
-| ---------------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Kopiere `aareg_home` og kontrollarane per rolle                        | raskt for første rolle                                     | duplisert tilgangslogikk; bobestyrar gir ein ny kopi; lett å gløyme kontroll |
-| Dynamisk policyklasse frå metadata (`Type.forName`)                    | ingen kodeendring for ny konteksttype                      | skjult kontrollflyt; vanskelegare å teste og gjennomgå; ikkje behov no       |
-| **Metadata for rolle og eksplisitt policy per konteksttype** (tilrådd) | ny rolle er stort sett konfigurasjon; éin stad for tilgang | krev at dagens kontrollarar blir lagde om til å bruke felles teneste         |
+| Option                                                                   | Advantage                                              | Disadvantage                                                                      |
+| ------------------------------------------------------------------------ | ------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Copy `aareg_home` and the controllers per role                           | quick for the first role                               | duplicated access logic; board managers create a new copy; easy to forget control |
+| Dynamic policy class from metadata (`Type.forName`)                      | no code change for new context types                   | hidden control flow; harder to test and review; not needed now                    |
+| **Metadata for role and explicit policy per context type** (recommended) | new role is mostly configuration; one place for access | requires current controllers to be adapted to use a shared service                |
 
-## 5. Overgang
+## 5. Transition
 
-Kvar rolle har sitt eige feature-flagg. Gammal heimeside og nye rollesider kan
-difor leve side om side.
+Each role has its own feature flag. The old home page and the new role pages can therefore live side by side.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Gammal: Flagg av
-    Gammal --> Arbeidsgivar: Slå på Employer i SIT2, så produksjon
-    Arbeidsgivar --> Fleire: Slå på Partner og Private
-    Fleire --> Bobestyrar: Slå på Estate_Administrator
-    Arbeidsgivar --> Gammal: Tilbakeføring, slå av flagg
-    Bobestyrar --> Opprydding: Ny løysing verifisert
-    Opprydding --> [*]: Fjern gammal heimeside og gamle metodar
+    [*] --> Old: Flag off
+    Old --> Employer: Turn on Employer in SIT2, then production
+    Employer --> Several: Turn on Partner and Private
+    Several --> BoardManager: Turn on Estate_Administrator
+    Employer --> Old: Rollback, turn the flag off
+    BoardManager --> Cleanup: New solution verified
+    Cleanup --> [*]: Remove the old home page and old methods
 ```
 
-- Rollesida er av når flagget er av.
-- Start med arbeidsgivar, sidan rolla svarar til dagens oppførsel og kan testast
-  mot tabellen i 1.2.
-- Nye sider skal ikkje kalle gamle kontrollarmetodar som berre stolar på
-  `LastUsedOrganization__c`. Dei gamle metodane blir fjerna når ny løysing er
-  verifisert.
+- The role page is off when the flag is off.
+- Start with the employer role, since it matches today’s behavior and can be tested against the table in 1.2.
+- New pages should not call old controller methods that rely only on `LastUsedOrganization__c`. The old methods are removed when the new solution is verified.
 
-## 6. Testar som må finnast
+## 6. Tests that need to be in place
 
-- Tabellen i 1.2 som parametriserte Apex-testar mot `decide`, via
-  Altinn-scenario.
-- Kvar kontrollarmetode avviser kall utan gyldig avgjerd, også ved direkte kall
-  utan å gå via sida.
-- Direkte lenkje til rolleside utan tilgang gir retur til portalen med rett
-  statuskode.
-- Teknisk feil gir `TECHNICAL_ERROR` og ikkje `DENIED`.
-- Avslått feature-flagg gir same resultat som manglande tilgang.
-- `System.runAs` med minimumsprofil, i tråd med repoets reglar.
+- The table in 1.2 as parameterized Apex tests against `decide`, via an Altinn scenario.
+- Every controller method rejects calls without a valid decision, including direct calls without going through the page.
+- A direct link to a role page without access returns to the portal with the correct status code.
+- Technical errors yield `TECHNICAL_ERROR` rather than `DENIED`.
+- A disabled feature flag gives the same result as missing access.
+- `System.runAs` with the minimum profile, in line with the repository rules.
 
-**Døme på testscenario** (illustrasjon):
+**Example test scenario** (illustrative):
 
-| Scenario                            | Rolle      | Altinn-svar           | Forventa                 |
-| ----------------------------------- | ---------- | --------------------- | ------------------------ |
-| Full tilgang                        | `Employer` | `sok-tilgang` Permit  | `GRANTED`, alle fem      |
-| Berre brukerstøtte                  | `Employer` | `brukerstotte` Permit | `GRANTED`, tre           |
-| Ingen løyve                         | `Employer` | begge Deny            | `DENIED`                 |
-| Altinn nede                         | `Employer` | teknisk feil          | `TECHNICAL_ERROR`        |
-| Flagg av                            | `Employer` | Permit                | `DENIED`                 |
-| Direkte kall til `createNewInquiry` | `Employer` | Deny                  | unntak, ingen henvending |
+| Scenario                          | Role       | Altinn response       | Expected              |
+| --------------------------------- | ---------- | --------------------- | --------------------- |
+| Full access                       | `Employer` | `sok-tilgang` Permit  | `GRANTED`, all five   |
+| Support only                      | `Employer` | `brukerstotte` Permit | `GRANTED`, three      |
+| No access                         | `Employer` | both Deny             | `DENIED`              |
+| Altinn down                       | `Employer` | technical error       | `TECHNICAL_ERROR`     |
+| Flag off                          | `Employer` | Permit                | `DENIED`              |
+| Direct call to `createNewInquiry` | `Employer` | Deny                  | exception, no inquiry |
 
-## 7. Opne spørsmål
+## 7. Open questions
 
-1. Skal berre brukerstøtte-løyve framleis gi «Mine avtaler» og skrivetilgang
-   til avtalekontaktar?
-2. Kva Altinn-ressursar eller andre kjelder gjeld for samarbeidspartnar,
-   privatperson og bobestyrar?
-3. Kan privatperson og bobestyrar søkje om tilgang, eller berre bruke
-   brukerstøtte?
-4. Skal meldingar vere synlege på tvers av roller for same person, eller berre
-   innanfor rolla og konteksten dei vart sende frå?
-5. Kva skal saksbehandlar sjå om rolle og kontekst i `Inquiry__c` og trådane?
+1. Should support-only access still grant “My agreements” and write access to agreement contacts?
+2. Which Altinn resources or other sources apply to partners, private individuals, and board managers?
+3. Can private individuals and board managers request access, or do they only use support?
+4. Should messages be visible across roles for the same person, or only within the role and context from which they were sent?
+5. What should a case handler see about the role and context in `Inquiry__c` and the threads?
