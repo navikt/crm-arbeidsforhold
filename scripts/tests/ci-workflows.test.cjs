@@ -71,8 +71,14 @@ test('promotion helper uses the local reusable workflow', () => {
     assert.match(promotion, /workflow_call:/);
     assert.match(promotion, /validate-inputs:[\s\S]*?PACKAGE_ID: \$\{\{ inputs\.packageId \}\}/);
     assert.match(promotion, /\[\[ ! "\$PACKAGE_ID" =~ \^\(\[A-Za-z0-9\]\{15\}\|\[A-Za-z0-9\]\{18\}\)\$ \]\]/);
-    assert.match(promotion, /install-package-preprod:[\s\S]*?needs: \[validate-inputs\][\s\S]*?deployPackage\.yml@/);
-    assert.match(promotion, /install-package-uat:[\s\S]*?needs: \[validate-inputs\][\s\S]*?deployPackage\.yml@/);
+    assert.match(
+        promotion,
+        /install-package-preprod:[\s\S]*?needs: \[validate-inputs\][\s\S]*?uses: \.\/\.github\/workflows\/package-install\.yml/
+    );
+    assert.match(
+        promotion,
+        /install-package-uat:[\s\S]*?needs: \[validate-inputs\][\s\S]*?uses: \.\/\.github\/workflows\/package-install\.yml/
+    );
     assert.match(promotion, /promote-package:[\s\S]*?needs: \[validate-inputs, install-package-preprod\]/);
     assert.match(promotion, /sf package version promote/);
     assert.match(promotion, /packageMinorVersionUpdater@/);
@@ -85,6 +91,29 @@ test('promotion helper uses the local reusable workflow', () => {
         /navikt\/crm-workflows-base\/.*(?:@master|@main)|(?:actions|peter-evans|metcalfc|softprops)\/.*@(?![a-f0-9]{40}\b)[^\s]+/
     );
     assert.equal(fs.existsSync(path.join(directory, 'promotion-auto-merge.yml')), false);
+});
+
+test('sandbox installation inherits only its explicitly passed secrets', () => {
+    const promotion = readWorkflow('package-promotion.yml');
+    for (const [job, allowedSecret, forbiddenSecret] of [
+        ['install-package-preprod', 'CRM_PREPROD_SFDX_URL', 'CRM_UAT_SFDX_URL'],
+        ['install-package-uat', 'CRM_UAT_SFDX_URL', 'CRM_PREPROD_SFDX_URL']
+    ]) {
+        const section = promotion.match(new RegExp(`^    ${job}:\\n([\\s\\S]*?)(?=^    [\\w-]+:|$(?![\\s\\S]))`, 'm'));
+        assert.ok(section, `Missing ${job}`);
+        assert.match(section[1], new RegExp(`${allowedSecret}: \\$\\{\\{ secrets\\.${allowedSecret} \\}\\}`));
+        assert.match(section[1], /CRM_PACKAGE_KEY: \$\{\{ secrets\.CRM_PACKAGE_KEY \}\}/);
+        assert.doesNotMatch(section[1], new RegExp(`${forbiddenSecret}|CRM_PROD_SFDX_URL|secrets: inherit`));
+    }
+
+    const installer = readWorkflow('package-install.yml');
+    assert.match(installer, /workflow_call:/);
+    assert.match(installer, /CRM_PREPROD_SFDX_URL:\s*\n\s+required: false/);
+    assert.match(installer, /CRM_UAT_SFDX_URL:\s*\n\s+required: false/);
+    assert.match(installer, /CRM_PACKAGE_KEY:\s*\n\s+required: true/);
+    assert.doesNotMatch(installer, /CRM_PROD_SFDX_URL|CRM_DEPLOYMENT_PAT/);
+    assert.match(installer, /uses: navikt\/crm-workflows-base\/\.github\/workflows\/deployPackage\.yml@[a-f0-9]{40}/);
+    assert.match(installer, /secrets: inherit/);
 });
 
 for (const name of fs.readdirSync(directory).filter((name) => name.endsWith('.yml'))) {

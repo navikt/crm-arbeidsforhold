@@ -56,11 +56,10 @@ jobs:
     install-package-preprod:
         name: Validate install in PREPROD
         needs: [validate-inputs]
-        uses: navikt/crm-workflows-base/.github/workflows/deployPackage.yml@aad6b4f48e419d71490db436da697cd7581a2c6a
+        uses: ./.github/workflows/package-install.yml
         with:
             packageId: ${{ inputs.packageId }}
             org: preprod
-            unpackagable: ./force-app/unpackagable-with-auto-deploy
         secrets:
             CRM_PREPROD_SFDX_URL: ${{ secrets.CRM_PREPROD_SFDX_URL }}
             CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
@@ -68,11 +67,10 @@ jobs:
     install-package-uat:
         name: Install package in UAT
         needs: [validate-inputs]
-        uses: navikt/crm-workflows-base/.github/workflows/deployPackage.yml@aad6b4f48e419d71490db436da697cd7581a2c6a
+        uses: ./.github/workflows/package-install.yml
         with:
             packageId: ${{ inputs.packageId }}
             org: crm-uat
-            unpackagable: ./force-app/unpackagable-with-auto-deploy
         secrets:
             CRM_UAT_SFDX_URL: ${{ secrets.CRM_UAT_SFDX_URL }}
             CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
