@@ -60,6 +60,10 @@ test('promotion helper uses the local reusable workflow', () => {
     assert.match(caller, /packageId: \$\{\{ inputs\.packageId \}\}/);
     assert.match(caller, /comment: \$\{\{ inputs\.comment \}\}/);
     assert.match(caller, /if: github\.ref == 'refs\/heads\/main'/);
+    assert.match(
+        caller,
+        /run-package-promotion:[\s\S]*?permissions:\s*\n\s+contents: write\s*\n\s+pull-requests: write\s*\n\s+actions: write/
+    );
     assert.match(caller, /CRM_PROD_SFDX_URL: \$\{\{ secrets\.CRM_PROD_SFDX_URL \}\}/);
     assert.match(caller, /CRM_PREPROD_SFDX_URL: \$\{\{ secrets\.CRM_PREPROD_SFDX_URL \}\}/);
     assert.match(caller, /CRM_UAT_SFDX_URL: \$\{\{ secrets\.CRM_UAT_SFDX_URL \}\}/);
