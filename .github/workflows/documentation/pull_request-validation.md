@@ -1,13 +1,15 @@
 # [PR] Validation
 
-|               |                       |
-| ------------- | --------------------- |
-| **Initiator** | Pull Request          | 
-| **Type**      | Metadata Validation   |
+|               |                     |
+| ------------- | ------------------- |
+| **Initiator** | Pull Request        |
+| **Type**      | Metadata Validation |
 
 # Intro
 
 This workflow automatically validates that metadata is valid, tests run successfully and that code coverage is at least 85%. The workflows runs on all Pull Requests, regardless of source and destination. You can also configure GitHub settings to requires some of the jobs (described below) to be passed before a PR can be merged.
+
+The trusted base revision of `scripts/ci-changes.cjs` determines whether Salesforce validation is needed. A diff containing only a changed, valid `versionNumber` for the `crm-arbeidsforhold` package at `force-app` in `sfdx-project.json` skips the Salesforce jobs. The required validation gates still succeed without creating a scratch org. LWC tests and formatting remain enabled. Other project configuration changes, including dependency versions, still require full validation; invalid project JSON is not exempt.
 
 ## Jobs
 

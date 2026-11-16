@@ -1,5 +1,36 @@
 const { execFileSync } = require('node:child_process');
 const { appendFileSync } = require('node:fs');
+const { isDeepStrictEqual } = require('node:util');
+
+function isPackageVersionOnlyChange(baseProject, headSource) {
+    let headProject;
+    try {
+        headProject = JSON.parse(headSource);
+    } catch (error) {
+        if (!(error instanceof SyntaxError)) {
+            throw error;
+        }
+        console.warn('Invalid head sfdx-project.json; full validation is required.');
+        return false;
+    }
+    const index = baseProject.packageDirectories.findIndex(
+        (directory) => directory.path === 'force-app' && directory.package === 'crm-arbeidsforhold'
+    );
+    const baseDirectory = baseProject.packageDirectories[index];
+    const headDirectory = headProject?.packageDirectories?.[index];
+    const versionPattern = /^\d+\.\d+\.\d+\.NEXT$/;
+    if (
+        !baseDirectory ||
+        !headDirectory ||
+        !versionPattern.test(baseDirectory.versionNumber) ||
+        !versionPattern.test(headDirectory.versionNumber) ||
+        baseDirectory.versionNumber === headDirectory.versionNumber
+    ) {
+        return false;
+    }
+    headDirectory.versionNumber = baseDirectory.versionNumber;
+    return isDeepStrictEqual(baseProject, headProject);
+}
 
 function classifyChanges(files, packageDirectories) {
     if (!Array.isArray(packageDirectories) || packageDirectories.length === 0) {
@@ -49,10 +80,19 @@ if (require.main === module) {
     })
         .split('\0')
         .filter(Boolean);
-    const { packageDirectories } = JSON.parse(
-        execFileSync('git', ['show', `${base}:sfdx-project.json`], { encoding: 'utf8' })
-    );
-    const changes = classifyChanges(files, packageDirectories);
+    const baseProject = JSON.parse(execFileSync('git', ['show', `${base}:sfdx-project.json`], { encoding: 'utf8' }));
+    const changes = classifyChanges(files, baseProject.packageDirectories);
+    const packageVersionOnly =
+        files.length === 1 &&
+        files[0] === 'sfdx-project.json' &&
+        isPackageVersionOnlyChange(
+            baseProject,
+            execFileSync('git', ['show', `${head}:sfdx-project.json`], { encoding: 'utf8' })
+        );
+    if (packageVersionOnly) {
+        changes.salesforce = false;
+    }
+    changes.package_version_only = packageVersionOnly;
     appendFileSync(
         process.env.GITHUB_OUTPUT,
         Object.entries(changes)

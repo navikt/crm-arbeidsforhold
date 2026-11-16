@@ -54,6 +54,22 @@ test('offline CI covers the workflow contracts and Node tooling on PRs and main'
     }
 });
 
+test('promotion auto-merge trusts only base code and preserves review and status requirements', () => {
+    const source = readWorkflow('promotion-auto-merge.yml');
+    assert.match(source, /workflow_run:\s*\n\s+workflows: \['\[HELPER\] Promote Package'\]/);
+    assert.match(source, /types: \[completed\]\s*\n\s+branches:\s*\n\s+- main\b/);
+    assert.match(source, /github\.event\.workflow_run\.event == 'workflow_dispatch'/);
+    assert.match(source, /github\.event\.workflow_run\.head_repository\.full_name == github\.repository/);
+    assert.match(source, /--state open --base main/);
+    assert.match(source, /--head auto\/package-version-update/);
+    assert.match(source, /select\(\.isCrossRepository == false and \.isDraft == false\)/);
+    assert.match(source, /ref: \$\{\{ steps\.promotion\.outputs\.base \}\}/);
+    assert.match(source, /persist-credentials: false/);
+    assert.match(source, /if: steps\.changes\.outputs\.package_version_only == 'true'/);
+    assert.match(source, /gh pr merge .*--auto .*--match-head-commit "\$HEAD_SHA"/);
+    assert.doesNotMatch(source, /--admin|secrets: inherit|CRM_DEPLOYMENT_PAT|npm ci/);
+});
+
 for (const name of fs.readdirSync(directory).filter((name) => name.endsWith('.yml'))) {
     test(`${name} declares token permissions and pins external actions`, () => {
         const source = readWorkflow(name);
