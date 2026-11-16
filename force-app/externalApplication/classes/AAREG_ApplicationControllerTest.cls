@@ -146,6 +146,7 @@ private class AAREG_ApplicationControllerTest {
         Application__c application = new Application__c(
             Account__c = account.Id,
             Access_Request__c = accessRequest.Id,
+            OwnerId = applicant.Id,
             CasehandlerOwner__c = UserInfo.getUserId(),
             Status__c = 'Additional Information Required',
             Casehandler_Status__c = 'Additional Information Required',
@@ -160,6 +161,7 @@ private class AAREG_ApplicationControllerTest {
         System.Assert.areEqual('Additional Information Required', application.Status__c);
         System.Assert.areEqual('Additional Information Required', application.Casehandler_Status__c);
 
+        Id originalApplicationId = application.Id;
         Id processedApplicationId;
         System.Test.startTest();
         System.runAs(applicant) {
@@ -178,7 +180,7 @@ private class AAREG_ApplicationControllerTest {
             FROM Application__c
             WHERE Id = :processedApplicationId
         ];
-        System.Assert.areEqual(application.Id, result.Id, 'Resubmission should reuse the application');
+        System.Assert.areEqual(originalApplicationId, result.Id, 'Resubmission should reuse the application');
         System.Assert.areEqual(accessRequest.Id, result.Access_Request__c, 'The access request should be reused');
         System.Assert.areEqual('In Progress', result.Status__c, 'Application should be in progress');
         System.Assert.areEqual(
