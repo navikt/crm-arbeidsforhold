@@ -1,13 +1,13 @@
 # [HELPER] Promotion
 
-|               |                         |
-| ------------- | ----------------------- |
-| **Initiator** | Manual                  | 
-| **Type**      | Package Promotion       |
+|               |                   |
+| ------------- | ----------------- |
+| **Initiator** | Manual            |
+| **Type**      | Package Promotion |
 
 # Intro
 
-This workflows does the following: 
+This workflows does the following:
 
 - Promotes an unlocked package
 - Creates a new GitHub Release
@@ -27,13 +27,17 @@ This workflows does the following:
 - Debug Information (`debug`)
     - Prints the input information (in case you forgot).
 - Promote Package (`promote-package`)
-    - Basic `sfdx force:package:version:promote`
+    - Promotes the package in production after the PREPROD installation succeeds.
 - Install Package in Preprod (`install-package-preprod`)
     - Basic `sfdx force:package:install`
-- Push new version number to master (`push-new-version-number-to-master`)
-    - Uses [navikt/github-action-sfdx-version-updater](https://github.com/navikt/github-action-sfdx-version-updater) (GitHub Actions plugin) to update the version number in `sfdx-project.json` (e.g., 1.7.0 => 1.8.0)
-    - Creates a pull request that is instantly merged (to avoid GitHub which blocks pushing to master)
-    - Needs a GitHub personal access token from an admin to merge (see secrets below)
+- Install Package in UAT (`install-package-uat`)
+    - Installs the package in UAT, independently of the PREPROD promotion gate.
+- Create version update pull request (`push-new-version-number`)
+    - Uses the pinned package version updater to update `sfdx-project.json` (e.g., 1.7.0 => 1.8.0).
+    - Creates a pull request from `auto/package-version-update` for the version number update.
+    - The local workflow enables squash auto-merge for that PR using `GITHUB_TOKEN`. GitHub still enforces the required reviews and status checks; the workflow does not use a PAT or request an admin bypass.
+    - Pure version updates skip Salesforce scratch-org validation but retain the LWC and formatting checks. Dependency, metadata, API-version, and other configuration changes still require Salesforce validation.
+    - GitHub may require a user with write access to approve PR workflow runs created by `GITHUB_TOKEN` before required checks can run. See [GitHub's workflow triggering documentation](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow).
 - Create GitHub Release (`create-release`)
     - Contains the version number, package ID, code coverage, changelog, author and basic description of changes
 
@@ -42,9 +46,34 @@ This workflows does the following:
 - Environment secrets
     - `secrets.CRM_PROD_SFDX_URL`
     - `secrets.CRM_PREPROD_SFDX_URL`
+    - `secrets.CRM_UAT_SFDX_URL`
     - `secrets.CRM_PACKAGE_KEY`
         - Needed to install dependant packages
-    - `secrets.CRM_DEPLOYMENT_PAT`
-        - Needed to force merge PR's without all tests
-        - Forced because the ony changes are the version number changes so that users don't have to remember to update manually
-        - [Create a PAT](https://docs.github.com/en/enterprise/2.17/user/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) with "REPO" access to get a working secret
+
+The local [package-promotion.yml](../package-promotion.yml) owns the promotion
+sequence and PR auto-merge. The caller only runs it when manually dispatched
+from `main`. It continues to call the pinned shared
+`deployPackage.yml` workflow for PREPROD and UAT installation and the shared
+Salesforce CLI install, authentication and version-update actions. Those
+external dependencies remain owned by `navikt/crm-workflows-base`.
+
+## Version-update handoff
+
+The promotion workflow waits for the generated version-update PR to merge. Since
+that PR uses `GITHUB_TOKEN`, its merge does not trigger the `push`-based package
+creation workflow. After confirming the merge and expected PR head, promotion
+creates a temporary tag on the merge commit and dispatches
+`push_create-package1.yml` from that tag. It removes the tag after dispatch, so
+the workflow is pinned to the exact merged revision without leaving temporary
+refs behind. The wait is limited to 350 minutes; if the PR is closed without
+merging or is not merged before the timeout, the promotion job fails without
+dispatching package creation.
+
+The GitHub Release action targets `github.sha`, keeping a newly created release
+tag on the same commit that the promotion workflow checked out.
+
+If a person merges the version-update PR manually, the promotion workflow skips
+the explicit dispatch and relies on the normal `push` trigger. For bot merges,
+it checks for an existing package-creation run for the merge commit before
+creating the temporary tag and dispatching, avoiding a duplicate build and SIT
+installation.
