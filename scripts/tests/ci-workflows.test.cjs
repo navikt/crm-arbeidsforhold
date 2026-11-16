@@ -4,7 +4,7 @@ const path = require('node:path');
 const { test } = require('node:test');
 
 const directory = path.resolve(__dirname, '../../.github/workflows');
-const readWorkflow = (name) => fs.readFileSync(path.join(directory, name), 'utf8');
+const readWorkflow = (name) => fs.readFileSync(path.join(directory, name), 'utf8').replace(/\r\n/g, '\n');
 
 test('package creation runs on main for metadata and package configuration changes', () => {
     const source = readWorkflow('push_create-package1.yml');
