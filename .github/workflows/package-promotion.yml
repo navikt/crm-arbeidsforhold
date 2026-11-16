@@ -184,7 +184,7 @@ jobs:
                   echo "Timed out waiting for the version-update PR to merge." >&2
                   exit 1
                 fi
-                if [[ "$merged_by" != "github-actions[bot]" ]]; then
+                if [[ "$merged_by" != "app/github-actions" && "$merged_by" != "github-actions[bot]" ]]; then
                   echo "Version-update PR was merged by a person; its push event will start package creation."
                   exit 0
                 fi

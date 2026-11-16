@@ -96,7 +96,7 @@ test('promotion helper uses the local reusable workflow', () => {
     );
     assert.match(
         promotion,
-        /gh pr view .*--json state,mergedAt,headRefOid,mergedBy,mergeCommit[\s\S]*?merged_by=\$\(jq -r '\.mergedBy\.login \/\/ empty'[\s\S]*?if \[\[ "\$merged_by" != "github-actions\[bot\]" \]\]; then[\s\S]*?gh api "repos\/\$GITHUB_REPOSITORY\/actions\/workflows\/push_create-package1\.yml\/runs\?head_sha=\$merge_sha[\s\S]*?gh workflow run/
+        /gh pr view .*--json state,mergedAt,headRefOid,mergedBy,mergeCommit[\s\S]*?merged_by=\$\(jq -r '\.mergedBy\.login \/\/ empty'[\s\S]*?if \[\[ "\$merged_by" != "app\/github-actions" && "\$merged_by" != "github-actions\[bot\]" \]\]; then[\s\S]*?gh api "repos\/\$GITHUB_REPOSITORY\/actions\/workflows\/push_create-package1\.yml\/runs\?head_sha=\$merge_sha[\s\S]*?gh workflow run/
     );
     assert.match(
         promotion,
