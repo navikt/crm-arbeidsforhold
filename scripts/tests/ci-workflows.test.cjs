@@ -133,6 +133,11 @@ test('bot-merged promotion PRs dispatch the review audit for the exact merge com
     );
 });
 
+test('audit concurrency is keyed by the SHA being audited', () => {
+    const audit = readWorkflow('post-merge-review-audit.yml');
+    assert.match(audit, /group: post-merge-review-audit-\$\{\{ inputs\.sha \|\| github\.sha \}\}/);
+});
+
 test('sandbox installation inherits only its explicitly passed secrets', () => {
     const promotion = readWorkflow('package-promotion.yml');
     for (const [job, allowedSecret, forbiddenSecret] of [

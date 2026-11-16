@@ -18,7 +18,7 @@ function assessMergedPullRequest(pullRequest, reviews) {
         latestHumanStates.set(login, review.state);
     }
     const states = [...latestHumanStates.values()];
-    if (states.includes('APPROVED') && !states.includes('CHANGES_REQUESTED')) {
+    if (states.includes('APPROVED')) {
         return { followUpRequired: false, reason: 'Godkjend av ein annan person før merge.' };
     }
 

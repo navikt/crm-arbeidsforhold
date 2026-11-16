@@ -58,6 +58,15 @@ test('approval submitted after merge or replaced by requested changes needs foll
     assert.equal(superseded.followUpRequired, true);
 });
 
+test('one reviewers change request does not override another reviewers valid approval', () => {
+    const result = assessMergedPullRequest(pullRequest({ mergedBy: 'merger' }), [
+        review('approver', 'APPROVED'),
+        review('requester', 'CHANGES_REQUESTED', { submittedAt: '2026-11-16T11:30:00Z' })
+    ]);
+
+    assert.equal(result.followUpRequired, false);
+});
+
 test('push range audits each merged PR once and reports direct commits alongside unreviewed PRs', async () => {
     const firstPrCommit = sha('1');
     const firstPrMerge = sha('2');
