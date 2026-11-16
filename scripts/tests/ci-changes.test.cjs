@@ -189,7 +189,15 @@ test('CLI uses trusted base configuration even when the PR corrupts the project 
     assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=true\nlwc=true\npackage_version_only=false\n');
 });
 
-for (const scenario of ['dependency', 'api-version', 'metadata', 'invalid-version', 'removed-version', 'format-only']) {
+for (const scenario of [
+    'dependency',
+    'api-version',
+    'metadata',
+    'invalid-version',
+    'invalid-version-type',
+    'removed-version',
+    'format-only'
+]) {
     test(`CLI does not exempt a promotion with ${scenario} changes`, (t) => {
         const project = {
             packageDirectories: [
@@ -213,6 +221,8 @@ for (const scenario of ['dependency', 'api-version', 'metadata', 'invalid-versio
             f.write('force-app/changed.cls');
         } else if (scenario === 'invalid-version') {
             directory.versionNumber = 'not-a-version';
+        } else if (scenario === 'invalid-version-type') {
+            directory.versionNumber = ['0.317.0.NEXT'];
         } else if (scenario === 'removed-version') {
             delete directory.versionNumber;
         } else {

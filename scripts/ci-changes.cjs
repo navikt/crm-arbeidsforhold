@@ -22,6 +22,8 @@ function isPackageVersionOnlyChange(baseProject, headSource) {
     if (
         !baseDirectory ||
         !headDirectory ||
+        typeof baseDirectory.versionNumber !== 'string' ||
+        typeof headDirectory.versionNumber !== 'string' ||
         !versionPattern.test(baseDirectory.versionNumber) ||
         !versionPattern.test(headDirectory.versionNumber) ||
         baseDirectory.versionNumber === headDirectory.versionNumber

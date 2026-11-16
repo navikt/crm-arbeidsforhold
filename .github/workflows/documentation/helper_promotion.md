@@ -68,3 +68,8 @@ timeout, the promotion job fails without dispatching package creation.
 
 The GitHub Release action targets `github.sha`, keeping a newly created release
 tag on the same commit that the promotion workflow checked out.
+
+If a person merges the version-update PR manually, the promotion workflow skips
+the explicit dispatch and relies on the normal `push` trigger. For bot merges,
+it checks for an existing package-creation run for the merge commit before
+dispatching, avoiding a duplicate build and SIT installation.

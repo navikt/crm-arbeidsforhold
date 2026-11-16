@@ -155,13 +155,19 @@ jobs:
                 EXPECTED_HEAD: ${{ steps.cpr.outputs.pull-request-head-sha }}
               run: |
                 for attempt in $(seq 1 350); do
-                  pull_request=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state,mergedAt,headRefOid)
+                  pull_request=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state,mergedAt,headRefOid,mergedBy,mergeCommit)
                   state=$(jq -r '.state' <<< "$pull_request")
                   merged_at=$(jq -r '.mergedAt // empty' <<< "$pull_request")
                   if [[ -n "$merged_at" ]]; then
                     merged_head=$(jq -r '.headRefOid' <<< "$pull_request")
+                    merged_by=$(jq -r '.mergedBy.login // empty' <<< "$pull_request")
+                    merge_sha=$(jq -r '.mergeCommit.oid // empty' <<< "$pull_request")
                     if [[ "$merged_head" != "$EXPECTED_HEAD" ]]; then
                       echo "Merged version-update PR head does not match the expected commit." >&2
+                      exit 1
+                    fi
+                    if [[ -z "$merged_by" || -z "$merge_sha" ]]; then
+                      echo "Could not identify the version-update PR merger and merge commit." >&2
                       exit 1
                     fi
                     break
@@ -177,6 +183,15 @@ jobs:
                 if [[ -z "$merged_at" ]]; then
                   echo "Timed out waiting for the version-update PR to merge." >&2
                   exit 1
+                fi
+                if [[ "$merged_by" != "github-actions[bot]" ]]; then
+                  echo "Version-update PR was merged by a person; its push event will start package creation."
+                  exit 0
+                fi
+                existing_runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/push_create-package1.yml/runs?head_sha=$merge_sha&per_page=100" --jq '[.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch")] | length')
+                if [[ "$existing_runs" -gt 0 ]]; then
+                  echo "Package creation already started for this merge commit; skipping duplicate dispatch."
+                  exit 0
                 fi
                 gh workflow run push_create-package1.yml --ref main --repo "$GITHUB_REPOSITORY"
 
