@@ -92,11 +92,20 @@ test('promotion helper uses the local reusable workflow', () => {
     assert.match(promotion, /gh pr merge .*--auto .*--match-head-commit/);
     assert.match(
         promotion,
-        /Wait for version-update PR to merge[\s\S]*?gh pr view[\s\S]*?gh workflow run push_create-package1\.yml --ref main/
+        /Wait for version-update PR to merge[\s\S]*?gh pr view[\s\S]*?gh workflow run push_create-package1\.yml --ref "\$dispatch_ref"/
     );
     assert.match(
         promotion,
         /gh pr view .*--json state,mergedAt,headRefOid,mergedBy,mergeCommit[\s\S]*?merged_by=\$\(jq -r '\.mergedBy\.login \/\/ empty'[\s\S]*?if \[\[ "\$merged_by" != "app\/github-actions" && "\$merged_by" != "github-actions\[bot\]" \]\]; then[\s\S]*?gh api "repos\/\$GITHUB_REPOSITORY\/actions\/workflows\/push_create-package1\.yml\/runs\?head_sha=\$merge_sha[\s\S]*?gh workflow run/
+    );
+    assert.match(promotion, /dispatch_ref="package-create-\$\{GITHUB_RUN_ID\}-\$\{GITHUB_RUN_ATTEMPT\}"/);
+    assert.match(
+        promotion,
+        /gh api -X POST "repos\/\$GITHUB_REPOSITORY\/git\/refs" -f ref="refs\/tags\/\$dispatch_ref" -f sha="\$merge_sha"[\s\S]*?trap cleanup_dispatch_tag EXIT[\s\S]*?gh workflow run push_create-package1\.yml --ref "\$dispatch_ref"/
+    );
+    assert.match(
+        promotion,
+        /cleanup_dispatch_tag\(\) \{[\s\S]*?gh api -X DELETE "repos\/\$GITHUB_REPOSITORY\/git\/refs\/tags\/\$dispatch_ref"[\s\S]*?exit "\$dispatch_status"/
     );
     assert.match(
         promotion,

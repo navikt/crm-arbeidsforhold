@@ -62,9 +62,12 @@ external dependencies remain owned by `navikt/crm-workflows-base`.
 The promotion workflow waits for the generated version-update PR to merge. Since
 that PR uses `GITHUB_TOKEN`, its merge does not trigger the `push`-based package
 creation workflow. After confirming the merge and expected PR head, promotion
-explicitly dispatches `push_create-package1.yml` on `main`. The wait is limited
-to 350 minutes; if the PR is closed without merging or is not merged before the
-timeout, the promotion job fails without dispatching package creation.
+creates a temporary tag on the merge commit and dispatches
+`push_create-package1.yml` from that tag. It removes the tag after dispatch, so
+the workflow is pinned to the exact merged revision without leaving temporary
+refs behind. The wait is limited to 350 minutes; if the PR is closed without
+merging or is not merged before the timeout, the promotion job fails without
+dispatching package creation.
 
 The GitHub Release action targets `github.sha`, keeping a newly created release
 tag on the same commit that the promotion workflow checked out.
@@ -72,4 +75,5 @@ tag on the same commit that the promotion workflow checked out.
 If a person merges the version-update PR manually, the promotion workflow skips
 the explicit dispatch and relies on the normal `push` trigger. For bot merges,
 it checks for an existing package-creation run for the merge commit before
-dispatching, avoiding a duplicate build and SIT installation.
+creating the temporary tag and dispatching, avoiding a duplicate build and SIT
+installation.

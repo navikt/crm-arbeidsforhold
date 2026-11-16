@@ -193,7 +193,18 @@ jobs:
                   echo "Package creation already started for this merge commit; skipping duplicate dispatch."
                   exit 0
                 fi
-                gh workflow run push_create-package1.yml --ref main --repo "$GITHUB_REPOSITORY"
+                dispatch_ref="package-create-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+                cleanup_dispatch_tag() {
+                  dispatch_status=$?
+                  if ! gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/tags/$dispatch_ref" >/dev/null; then
+                    echo "Failed to clean up temporary package-creation tag $dispatch_ref." >&2
+                    exit 1
+                  fi
+                  exit "$dispatch_status"
+                }
+                gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$dispatch_ref" -f sha="$merge_sha" >/dev/null
+                trap cleanup_dispatch_tag EXIT
+                gh workflow run push_create-package1.yml --ref "$dispatch_ref" --repo "$GITHUB_REPOSITORY"
 
     create-release:
         name: Create GitHub Release
