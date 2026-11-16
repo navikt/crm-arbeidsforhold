@@ -4,7 +4,7 @@ const path = require('node:path');
 const { test } = require('node:test');
 
 const directory = path.resolve(__dirname, '../../.github/workflows');
-const readWorkflow = (name) => fs.readFileSync(path.join(directory, name), 'utf8');
+const readWorkflow = (name) => fs.readFileSync(path.join(directory, name), 'utf8').replace(/\r\n/g, '\n');
 
 test('package creation runs on main for metadata and package configuration changes', () => {
     const source = readWorkflow('push_create-package1.yml');
@@ -52,6 +52,96 @@ test('offline CI covers the workflow contracts and Node tooling on PRs and main'
     for (const pattern of ['scripts/*.cjs', 'scripts/tests/**', '.github/workflows/**']) {
         assert.equal(source.split(`'${pattern}'`).length - 1, 2, pattern);
     }
+});
+
+test('promotion helper uses the local reusable workflow', () => {
+    const caller = readWorkflow('helper_promotion1.yml');
+    assert.match(caller, /uses: \.\/\.github\/workflows\/package-promotion\.yml/);
+    assert.match(caller, /packageId: \$\{\{ inputs\.packageId \}\}/);
+    assert.match(caller, /comment: \$\{\{ inputs\.comment \}\}/);
+    assert.match(caller, /if: github\.ref == 'refs\/heads\/main'/);
+    assert.match(
+        caller,
+        /run-package-promotion:[\s\S]*?permissions:\s*\n\s+contents: write\s*\n\s+pull-requests: write\s*\n\s+actions: write/
+    );
+    assert.match(caller, /CRM_PROD_SFDX_URL: \$\{\{ secrets\.CRM_PROD_SFDX_URL \}\}/);
+    assert.match(caller, /CRM_PREPROD_SFDX_URL: \$\{\{ secrets\.CRM_PREPROD_SFDX_URL \}\}/);
+    assert.match(caller, /CRM_UAT_SFDX_URL: \$\{\{ secrets\.CRM_UAT_SFDX_URL \}\}/);
+    assert.match(caller, /CRM_PACKAGE_KEY: \$\{\{ secrets\.CRM_PACKAGE_KEY \}\}/);
+    assert.doesNotMatch(caller, /secrets: inherit|CRM_DEPLOYMENT_PAT/);
+    assert.doesNotMatch(caller, /crm-workflows-base\/\.github\/workflows\/packagePromotion\.yml/);
+
+    const promotion = readWorkflow('package-promotion.yml');
+    assert.match(promotion, /workflow_call:/);
+    assert.match(promotion, /validate-inputs:[\s\S]*?PACKAGE_ID: \$\{\{ inputs\.packageId \}\}/);
+    assert.match(promotion, /\[\[ ! "\$PACKAGE_ID" =~ \^\(\[A-Za-z0-9\]\{15\}\|\[A-Za-z0-9\]\{18\}\)\$ \]\]/);
+    assert.match(
+        promotion,
+        /install-package-preprod:[\s\S]*?needs: \[validate-inputs\][\s\S]*?uses: \.\/\.github\/workflows\/package-install\.yml/
+    );
+    assert.match(
+        promotion,
+        /install-package-uat:[\s\S]*?needs: \[validate-inputs\][\s\S]*?uses: \.\/\.github\/workflows\/package-install\.yml/
+    );
+    assert.match(promotion, /promote-package:[\s\S]*?needs: \[validate-inputs, install-package-preprod\]/);
+    assert.match(promotion, /promote-package:\n\s+name: [^\n]+\n\s+environment: production\n/);
+    assert.match(promotion, /create-release:\n\s+name: [^\n]+\n\s+environment: production\n/);
+    assert.match(promotion, /sf package version promote/);
+    assert.match(promotion, /packageMinorVersionUpdater@/);
+    assert.match(promotion, /create-pull-request@/);
+    assert.match(promotion, /gh pr merge .*--auto .*--match-head-commit/);
+    assert.match(
+        promotion,
+        /Wait for version-update PR to merge[\s\S]*?gh pr view[\s\S]*?gh workflow run push_create-package1\.yml --ref "\$dispatch_ref"/
+    );
+    assert.match(
+        promotion,
+        /gh pr view .*--json state,mergedAt,headRefOid,mergedBy,mergeCommit[\s\S]*?merged_by=\$\(jq -r '\.mergedBy\.login \/\/ empty'[\s\S]*?if \[\[ "\$merged_by" != "app\/github-actions" && "\$merged_by" != "github-actions\[bot\]" \]\]; then[\s\S]*?gh api "repos\/\$GITHUB_REPOSITORY\/actions\/workflows\/push_create-package1\.yml\/runs\?head_sha=\$merge_sha[\s\S]*?gh workflow run/
+    );
+    assert.match(promotion, /dispatch_ref="package-create-\$\{GITHUB_RUN_ID\}-\$\{GITHUB_RUN_ATTEMPT\}"/);
+    assert.match(
+        promotion,
+        /gh api -X POST "repos\/\$GITHUB_REPOSITORY\/git\/refs" -f ref="refs\/tags\/\$dispatch_ref" -f sha="\$merge_sha"[\s\S]*?trap cleanup_dispatch_tag EXIT[\s\S]*?gh workflow run push_create-package1\.yml --ref "\$dispatch_ref"/
+    );
+    assert.match(
+        promotion,
+        /cleanup_dispatch_tag\(\) \{[\s\S]*?gh api -X DELETE "repos\/\$GITHUB_REPOSITORY\/git\/refs\/tags\/\$dispatch_ref"[\s\S]*?exit "\$dispatch_status"/
+    );
+    assert.match(
+        promotion,
+        /push-new-version-number:[\s\S]*?permissions:\s*\n\s+contents: write\s*\n\s+pull-requests: write\s*\n\s+actions: write/
+    );
+    assert.match(promotion, /create-release:[\s\S]*?softprops\/action-gh-release@/);
+    assert.match(promotion, /target_commitish: \$\{\{ github\.sha \}\}/);
+    assert.doesNotMatch(promotion, /CRM_DEPLOYMENT_PAT|merge-pull-request-action|--admin/);
+    assert.doesNotMatch(
+        promotion,
+        /navikt\/crm-workflows-base\/.*(?:@master|@main)|(?:actions|peter-evans|metcalfc|softprops)\/.*@(?![a-f0-9]{40}\b)[^\s]+/
+    );
+    assert.equal(fs.existsSync(path.join(directory, 'promotion-auto-merge.yml')), false);
+});
+
+test('sandbox installation inherits only its explicitly passed secrets', () => {
+    const promotion = readWorkflow('package-promotion.yml');
+    for (const [job, allowedSecret, forbiddenSecret] of [
+        ['install-package-preprod', 'CRM_PREPROD_SFDX_URL', 'CRM_UAT_SFDX_URL'],
+        ['install-package-uat', 'CRM_UAT_SFDX_URL', 'CRM_PREPROD_SFDX_URL']
+    ]) {
+        const section = promotion.match(new RegExp(`^    ${job}:\\n([\\s\\S]*?)(?=^    [\\w-]+:|$(?![\\s\\S]))`, 'm'));
+        assert.ok(section, `Missing ${job}`);
+        assert.match(section[1], new RegExp(`${allowedSecret}: \\$\\{\\{ secrets\\.${allowedSecret} \\}\\}`));
+        assert.match(section[1], /CRM_PACKAGE_KEY: \$\{\{ secrets\.CRM_PACKAGE_KEY \}\}/);
+        assert.doesNotMatch(section[1], new RegExp(`${forbiddenSecret}|CRM_PROD_SFDX_URL|secrets: inherit`));
+    }
+
+    const installer = readWorkflow('package-install.yml');
+    assert.match(installer, /workflow_call:/);
+    assert.match(installer, /CRM_PREPROD_SFDX_URL:\s*\n\s+required: false/);
+    assert.match(installer, /CRM_UAT_SFDX_URL:\s*\n\s+required: false/);
+    assert.match(installer, /CRM_PACKAGE_KEY:\s*\n\s+required: true/);
+    assert.doesNotMatch(installer, /CRM_PROD_SFDX_URL|CRM_DEPLOYMENT_PAT/);
+    assert.match(installer, /uses: navikt\/crm-workflows-base\/\.github\/workflows\/deployPackage\.yml@[a-f0-9]{40}/);
+    assert.match(installer, /secrets: inherit/);
 });
 
 for (const name of fs.readdirSync(directory).filter((name) => name.endsWith('.yml'))) {

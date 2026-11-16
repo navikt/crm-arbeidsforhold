@@ -18,7 +18,7 @@ av den lokale valideringen.
 | `Dokumentasjon og GitHub Pages` | PR-er bygger og kontrollerer dokumentasjonen med leserettigheter. Push til `main` eller manuell start fra `main` kan publisere etter godkjenning i `github-pages`-miljøet.               |
 | `[HELPER] Create Scratch Org`   | Manuell, men blokkert av feil i den delte implementasjonen; se nedenfor.                                                                                                                 |
 | `[HELPER] Quick Package Create` | Manuell rask pakkeoppretting via delt workflow.                                                                                                                                          |
-| `[HELPER] Promote Package`      | Manuell promotering, versjonsoppdatering og release via delt workflow.                                                                                                                   |
+| `[HELPER] Promote Package`      | Manuell promotering, versjonsoppdatering og release via lokal workflow; PREPROD/UAT-installasjon bruker delt workflow.                                                                   |
 | `[HELPER] Deployment`           | Manuell pakkeinstallasjon i valgt sandboxmiljø via delt workflow.                                                                                                                        |
 | `[HELPER] Deploy to Production` | Manuell pakkeinstallasjon i produksjon via delt workflow.                                                                                                                                |
 
@@ -38,9 +38,17 @@ Se også [reglene for behovsstyrt PR-validering](../../scripts/README.md#behovss
 
 ## Ekstern eier og valideringsansvar
 
-`navikt/crm-workflows-base` eier de delte Salesforce-workflowene. De lokale
-referansene er festet til commit `aad6b4f48e419d71490db436da697cd7581a2c6a`.
-Eieren har ansvar for org-oppsett, Apex-/dekningsvalidering, pakkeoperasjoner og opprydding.
+`navikt/crm-workflows-base` eier de delte Salesforce-workflowene. Den lokale
+pakke-promoteringsworkflowen kaller den delte `deployPackage.yml`-workflowen
+for installasjon i PREPROD og UAT. Referansen er festet til commit
+`aad6b4f48e419d71490db436da697cd7581a2c6a`. Eieren har ansvar for
+implementasjonen av installasjonsworkflowen og dens org-oppsett.
+
+Selve promoteringa, opprettinga av versjons-PR, auto-merge etter kravde
+kontrollar og GitHub Release ligg lokalt i
+`.github/workflows/package-promotion.yml`. Produksjonsautentisering og
+Salesforce-pakkeoperasjonar skjer framleis berre når workflowen blir starta
+manuelt med godkjende repository-secrets.
 
 Lokal SHA-pinning låser ikke transitive action-referanser: den delte
 implementasjonen bruker fortsatt flere muterbare tags og `@master`/`@main`.
