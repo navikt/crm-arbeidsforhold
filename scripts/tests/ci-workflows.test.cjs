@@ -86,7 +86,16 @@ test('promotion helper uses the local reusable workflow', () => {
     assert.match(promotion, /packageMinorVersionUpdater@/);
     assert.match(promotion, /create-pull-request@/);
     assert.match(promotion, /gh pr merge .*--auto .*--match-head-commit/);
+    assert.match(
+        promotion,
+        /Wait for version-update PR to merge[\s\S]*?gh pr view[\s\S]*?gh workflow run push_create-package1\.yml --ref main/
+    );
+    assert.match(
+        promotion,
+        /push-new-version-number:[\s\S]*?permissions:\s*\n\s+contents: write\s*\n\s+pull-requests: write\s*\n\s+actions: write/
+    );
     assert.match(promotion, /create-release:[\s\S]*?softprops\/action-gh-release@/);
+    assert.match(promotion, /target_commitish: \$\{\{ github\.sha \}\}/);
     assert.doesNotMatch(promotion, /CRM_DEPLOYMENT_PAT|merge-pull-request-action|--admin/);
     assert.doesNotMatch(
         promotion,

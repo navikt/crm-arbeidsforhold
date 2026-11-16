@@ -111,6 +111,8 @@ jobs:
         permissions:
             contents: write
             pull-requests: write
+            actions: write
+        timeout-minutes: 360
         outputs:
             pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
         steps:
@@ -145,6 +147,38 @@ jobs:
                   PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
                   EXPECTED_HEAD: ${{ steps.cpr.outputs.pull-request-head-sha }}
               run: gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --squash --auto --match-head-commit "$EXPECTED_HEAD"
+            - name: Wait for version-update PR to merge
+              if: steps.cpr.outputs.pull-request-number != ''
+              env:
+                GH_TOKEN: ${{ github.token }}
+                PR_NUMBER: ${{ steps.cpr.outputs.pull-request-number }}
+                EXPECTED_HEAD: ${{ steps.cpr.outputs.pull-request-head-sha }}
+              run: |
+                for attempt in $(seq 1 350); do
+                  pull_request=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state,mergedAt,headRefOid)
+                  state=$(jq -r '.state' <<< "$pull_request")
+                  merged_at=$(jq -r '.mergedAt // empty' <<< "$pull_request")
+                  if [[ -n "$merged_at" ]]; then
+                    merged_head=$(jq -r '.headRefOid' <<< "$pull_request")
+                    if [[ "$merged_head" != "$EXPECTED_HEAD" ]]; then
+                      echo "Merged version-update PR head does not match the expected commit." >&2
+                      exit 1
+                    fi
+                    break
+                  fi
+                  if [[ "$state" != "OPEN" ]]; then
+                    echo "Version-update PR closed without being merged." >&2
+                    exit 1
+                  fi
+                  if [[ "$attempt" -lt 350 ]]; then
+                    sleep 60
+                  fi
+                done
+                if [[ -z "$merged_at" ]]; then
+                  echo "Timed out waiting for the version-update PR to merge." >&2
+                  exit 1
+                fi
+                gh workflow run push_create-package1.yml --ref main --repo "$GITHUB_REPOSITORY"
 
     create-release:
         name: Create GitHub Release
@@ -196,6 +230,7 @@ jobs:
               with:
                   token: ${{ github.token }}
                   tag_name: ${{ steps.release-fields.outputs.tag_name }}
+                  target_commitish: ${{ github.sha }}
                   name: ${{ steps.release-fields.outputs.release_name }}
                   body: |
                       **Version**: ${{ steps.release-fields.outputs.body_version }}

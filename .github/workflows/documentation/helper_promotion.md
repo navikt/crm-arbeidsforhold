@@ -56,3 +56,15 @@ from `main`. It continues to call the pinned shared
 `deployPackage.yml` workflow for PREPROD and UAT installation and the shared
 Salesforce CLI install, authentication and version-update actions. Those
 external dependencies remain owned by `navikt/crm-workflows-base`.
+
+## Version-update handoff
+
+The promotion workflow waits for the generated version-update PR to merge. Since
+that PR uses `GITHUB_TOKEN`, its merge does not trigger the `push`-based package
+creation workflow. After confirming the merge and expected PR head, promotion
+explicitly dispatches `push_create-package1.yml` on `main`. The wait is limited
+to 350 minutes; if the PR is closed without merging or is not merged before the
+timeout, the promotion job fails without dispatching package creation.
+
+The GitHub Release action targets `github.sha`, keeping a newly created release
+tag on the same commit that the promotion workflow checked out.
