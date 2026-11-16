@@ -3,6 +3,12 @@ name: Post-merge review audit
 on:
     push:
         branches: [main]
+    workflow_dispatch:
+        inputs:
+            sha:
+                description: Merged commit SHA to audit
+                required: true
+                type: string
 
 permissions:
     contents: read
@@ -30,4 +36,6 @@ jobs:
             - name: Create follow-up issue when review is missing
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  AUDIT_SHA: ${{ inputs.sha || github.sha }}
+                  GITHUB_EVENT_BEFORE: ${{ github.event.before }}
               run: node scripts/post-merge-review-audit.cjs

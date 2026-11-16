@@ -121,6 +121,18 @@ test('promotion helper uses the local reusable workflow', () => {
     assert.equal(fs.existsSync(path.join(directory, 'promotion-auto-merge.yml')), false);
 });
 
+test('bot-merged promotion PRs dispatch the review audit for the exact merge commit', () => {
+    const audit = readWorkflow('post-merge-review-audit.yml');
+    assert.match(audit, /workflow_dispatch:\s*\n\s+inputs:\s*\n\s+sha:/);
+    assert.match(audit, /AUDIT_SHA: \$\{\{ inputs\.sha \|\| github\.sha \}\}/);
+
+    const promotion = readWorkflow('package-promotion.yml');
+    assert.match(
+        promotion,
+        /echo "bot-merge-sha=\$merge_sha" >> "\$GITHUB_OUTPUT"[\s\S]*?gh workflow run push_create-package1\.yml[\s\S]*?if: always\(\) && steps\.wait-for-merge\.outputs\.bot-merge-sha != ''[\s\S]*?gh workflow run post-merge-review-audit\.yml --ref main --repo "\$GITHUB_REPOSITORY" -f sha="\$MERGE_SHA"/
+    );
+});
+
 test('sandbox installation inherits only its explicitly passed secrets', () => {
     const promotion = readWorkflow('package-promotion.yml');
     for (const [job, allowedSecret, forbiddenSecret] of [
