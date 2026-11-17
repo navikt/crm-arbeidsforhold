@@ -156,7 +156,7 @@ class PagesWorkflowTest(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertEqual(actual, "")
 
-    def test_main_and_manual_builds_are_not_skipped(self):
+    def test_main_and_manual_publication_chain_handles_skipped_pr_filter(self):
         self.assertEqual(self.workflow["on"]["push"]["branches"], ["main"])
         self.assertNotIn("paths", self.workflow["on"]["push"])
         self.assertIn("workflow_dispatch", self.workflow["on"])
@@ -168,6 +168,10 @@ class PagesWorkflowTest(unittest.TestCase):
         self.assertIn("!cancelled()", build["if"])
         self.assertIn("github.event_name != 'pull_request'", build["if"])
         self.assertIn("needs.changes.outputs.docs != 'false'", build["if"])
+        deploy = self.workflow["jobs"]["deploy"]
+        self.assertEqual(deploy["needs"], "build")
+        self.assertIn("!cancelled()", deploy["if"])
+        self.assertIn("needs.build.result == 'success'", deploy["if"])
 
     def test_deploy_requires_protected_pages_environment(self):
         deploy = self.workflow["jobs"]["deploy"]
