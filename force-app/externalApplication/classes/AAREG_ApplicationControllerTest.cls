@@ -89,15 +89,19 @@ private class AAREG_ApplicationControllerTest {
 
         String base64 = 'sdkldsfjlcm';
         String fileName = 'Test file name';
+        User applicant = createApplicant();
 
+        Id processedApplicationId;
         System.Test.startTest();
-        Id processedApplicationId = AAREG_ApplicationController.processApplication(
-            application,
-            basisCodes,
-            contacts,
-            base64,
-            fileName
-        );
+        System.runAs(applicant) {
+            processedApplicationId = AAREG_ApplicationController.processApplication(
+                application,
+                basisCodes,
+                contacts,
+                base64,
+                fileName
+            );
+        }
         System.Test.stopTest();
 
         List<Application__c> result = [
@@ -111,12 +115,12 @@ private class AAREG_ApplicationControllerTest {
     }
 
     /**
-     * processApplication should upsert an application requiring additional information and reset status to New.
+     * processApplication should save an application requiring additional information and move it to In Progress.
      *
      * @since July 2026
      */
     @IsTest
-    private static void shouldResetAdditionalInformationApplicationToNew() {
+    private static void shouldMoveAdditionalInformationApplicationToInProgress() {
         Account account = [SELECT Id FROM Account LIMIT 1];
 
         Application__c application = new Application__c();
@@ -134,18 +138,22 @@ private class AAREG_ApplicationControllerTest {
 
         String base64 = null;
         String fileName = null;
+        User applicant = createApplicant();
 
+        Id appId;
         System.Test.startTest();
-        Id appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
+        System.runAs(applicant) {
+            appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
+        }
         System.Test.stopTest();
 
         List<Application__c> result = [SELECT Id, Status__c FROM Application__c WHERE Id = :appId];
 
         System.Assert.areEqual(1, result.size(), 'Application should be upserted');
         System.Assert.areEqual(
-            'New',
+            'In Progress',
             result[0].Status__c,
-            'Status should be New after processing Additional Information Required application'
+            'Status should be In Progress after processing Additional Information Required application'
         );
     }
 
