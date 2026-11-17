@@ -25,6 +25,10 @@ private class AAREG_ApplicationControllerTest {
      * field and object access instead of the running administrator's.
      */
     private static User createApplicant() {
+        return createApplicant(true);
+    }
+
+    private static User createApplicant(Boolean assignPermissionSet) {
         User applicant = new User(
             FirstName = 'Applicant',
             LastName = 'Tester',
@@ -40,13 +44,60 @@ private class AAREG_ApplicationControllerTest {
         );
         System.runAs(new User(Id = UserInfo.getUserId())) {
             insert applicant;
-            insert new PermissionSetAssignment(
-                AssigneeId = applicant.Id,
-                PermissionSetId = [SELECT Id FROM PermissionSet WHERE Name = 'AAREG_CommunityPermission' LIMIT 1]
-                .Id
-            );
+            if (assignPermissionSet) {
+                insert new PermissionSetAssignment(
+                    AssigneeId = applicant.Id,
+                    PermissionSetId = [SELECT Id FROM PermissionSet WHERE Name = 'AAREG_CommunityPermission' LIMIT 1]
+                    .Id
+                );
+            }
         }
         return applicant;
+    }
+
+    /**
+     * Submission is rejected before DML when the portal user cannot update the status fields required by the flows.
+     *
+     * @since 2026-11-17
+     */
+    @IsTest
+    private static void shouldRejectSubmissionWithoutStatusFieldAccess() {
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        User applicant = createApplicant(false);
+        String applicantEmail = 'applicant.no-status-access@example.invalid';
+        Application__c application = new Application__c(
+            Account__c = account.Id,
+            Email__c = applicantEmail,
+            TermsOfUse__c = true
+        );
+        Boolean submissionRejected = false;
+
+        System.Test.startTest();
+        System.runAs(applicant) {
+            try {
+                AAREG_ApplicationController.processApplication(
+                    application,
+                    new List<ApplicationBasisCode__c>(),
+                    new List<RelatedContact__c>(),
+                    null,
+                    null
+                );
+            } catch (AuraHandledException caughtError) {
+                submissionRejected = true;
+                System.Assert.areEqual(
+                    'You do not have permission to submit this application.',
+                    caughtError.getMessage()
+                );
+            }
+        }
+        System.Test.stopTest();
+
+        System.Assert.isTrue(submissionRejected, 'Submission should require status field access');
+        System.Assert.areEqual(
+            0,
+            [SELECT COUNT() FROM Application__c WHERE Email__c = :applicantEmail],
+            'No application should be created when status access is missing'
+        );
     }
 
     /**

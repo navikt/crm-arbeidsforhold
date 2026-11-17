@@ -148,12 +148,14 @@ _Ja, ja, ja_ samsvarar med feil 1.
 ```sql
 SELECT COUNT()
 FROM Application__c
-WHERE ApplicationSubmittedDate__c >= YYYY-MM-DD
+WHERE ApplicationSubmittedDate__c > YYYY-MM-DD
   AND Status__c != 'Draft'
   AND (Contact__c = null OR ApplicationDeadlineForReply__c = null)
 ```
 
-Bytt `YYYY-MM-DD` med installasjonsdatoen. Forventa resultat er `0`.
+Bytt `YYYY-MM-DD` med installasjonsdatoen. Datoen må vere strengt etter
+installasjonsdatoen, sidan feltet berre har datopresisjon. Forventa resultat
+er `0`.
 
 4. Saksbehandlar opnar éin ny søknad og stadfestar at _Kontaktperson som
    søker_ og varslingskontaktar er fylte i søknadsteksten (ja/nei).

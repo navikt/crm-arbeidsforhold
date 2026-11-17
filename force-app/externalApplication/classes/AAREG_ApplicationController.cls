@@ -9,7 +9,6 @@ public without sharing class AAREG_ApplicationController {
     private static final String NEW_APPLICATION = 'New';
     private static final String IN_PROGRESS = 'In Progress';
     private static final Set<String> SUBMISSION_FIELDS = new Set<String>{
-        'Status__c',
         'Casehandler_Status__c',
         'ApplicationSubmittedDate__c',
         'AA_ApplicationArchived__c'
@@ -142,6 +141,7 @@ public without sharing class AAREG_ApplicationController {
         String fileName
     ) {
         Boolean isResubmission = application.Status__c == ADDITIONAL_INFORMATION;
+        requireSubmissionStatusAccess(application);
         Application__c submission = buildSubmissionStatus(isResubmission);
 
         // If application already exists, check for existing Access Request
@@ -157,8 +157,8 @@ public without sharing class AAREG_ApplicationController {
 
         Id accessRequestId = upsertAccessRequest(application.Access_Request__c);
         application.Access_Request__c = accessRequestId;
-        application = sanitizeApplicationForDml(application, SUBMISSION_FIELDS);
         application.Status__c = isResubmission ? ADDITIONAL_INFORMATION : DRAFT_APPLICATION;
+        application = sanitizeApplicationForDml(application, SUBMISSION_FIELDS);
         upsert application;
         upsertRelatedContacts(application.Id, relatedContacts);
         upsertBasisCodes(application.Id, basisCode);
@@ -167,6 +167,20 @@ public without sharing class AAREG_ApplicationController {
         submission.Id = application.Id;
         update sanitizeApplicationForDml(submission);
         return application.Id;
+    }
+
+    private static void requireSubmissionStatusAccess(Application__c application) {
+        Schema.DescribeFieldResult statusField = Application__c.Status__c.getDescribe();
+        Schema.DescribeFieldResult casehandlerStatusField = Application__c.Casehandler_Status__c.getDescribe();
+        Boolean allowed = application.Id == null
+            ? statusField.isCreateable() && casehandlerStatusField.isCreateable()
+            : statusField.isUpdateable() && casehandlerStatusField.isUpdateable();
+        if (!allowed) {
+            String message = 'You do not have permission to submit this application.';
+            AuraHandledException error = new AuraHandledException(message);
+            error.setMessage(message);
+            throw error;
+        }
     }
 
     private static Application__c buildSubmissionStatus(Boolean isResubmission) {

@@ -85,10 +85,10 @@ sequenceDiagram
 
 ## Kva er endra
 
-| Fil                                                                                                                    | Endring                                                                                                                                                                                                                                                                                                   |
-| ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [AAREG_ApplicationController.cls](../../force-app/externalApplication/classes/AAREG_ApplicationController.cls)         | `processApplication` lagrar først søknaden utan innsendingsfelt (`Draft`, eller uendra `Additional Information Required`), deretter kontaktar, grunnlag og fil, og gjer statusovergangen i ein eigen `update`. Ny hjelpar `buildSubmissionStatus`. `sanitizeApplicationForDml` kan no utelate gitte felt. |
-| [AAREG_ApplicationControllerTest.cls](../../force-app/externalApplication/classes/AAREG_ApplicationControllerTest.cls) | Fem nye testar og hjelparar.                                                                                                                                                                                                                                                                              |
+| Fil                                                                                                                    | Endring                                                                                                                                                                                                                                                                                   |
+| ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [AAREG_ApplicationController.cls](../../force-app/externalApplication/classes/AAREG_ApplicationController.cls)         | `processApplication` lagrar først søknaden utan innsendingsfelt (`Draft`, eller uendra `Additional Information Required`), deretter kontaktar, grunnlag og fil, og gjer statusovergangen i ein eigen `update`. Statusfelta må vere skrivbare; mellombels status går gjennom FLS-filteret. |
+| [AAREG_ApplicationControllerTest.cls](../../force-app/externalApplication/classes/AAREG_ApplicationControllerTest.cls) | Fem nye testar og hjelparar.                                                                                                                                                                                                                                                              |
 
 Ingen Flow, objekt, felt, tilgang eller LWC er endra.
 
@@ -145,6 +145,7 @@ og syntetiske `example.invalid`-adresser.
 | `shouldUseChangedNotificationEmailWhenSubmittingDraft` | Utkast: endra varslings-e-post i tekst, gammal e-post ikkje i tekst                       | Feila       | Grøn  |
 | `shouldUseChangedApplicantEmailWhenSubmittingDraft`    | Utkast: endra søkjar-e-post gir kontakt med ny e-post og éi stadfesting                   | Grøn        | Grøn  |
 | `shouldNotQueueConfirmationAgainWhenResubmitting`      | Ny innsending: `In Progress`, same kontakt, ingen ekstra stadfesting                      | Grøn*       | Grøn  |
+| `shouldRejectSubmissionWithoutStatusFieldAccess`       | Avviser innsending før DML når søkjaren manglar skrivetilgang til statusfelta             | Ny          | Grøn  |
 
 \* Fixture-feil i første køyring (manglande saksbehandlar for varsel), retta i
 testen før produksjonsendringa.
