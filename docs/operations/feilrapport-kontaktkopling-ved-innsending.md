@@ -162,6 +162,12 @@ statusen. Dei køyrer no som portalsøkjar med `AAREG_CommunityPermission`:
   `shouldMoveAdditionalInformationApplicationToInProgress` og ventar
   `In Progress`, slik ein ekte søkjar også fekk før rettinga.
 
+Etter at metoden byrja å krevje skriverett til statusfelta, køyrer òg
+`shouldLinkUploadedFileToApplicationAndAccessRequest`,
+`shouldProcessApplicationThroughForcedSanitizeBranch` og
+`shouldReuseAccessRequestForExistingApplication` som portalsøkjar. Som admin
+utan feltrett blir dei no avviste, slik dei skal.
+
 ## Teststeg for gjennomgang i scratch-org
 
 Bruk ein portalbrukar med tilgang til ein syntetisk organisasjon og e-post

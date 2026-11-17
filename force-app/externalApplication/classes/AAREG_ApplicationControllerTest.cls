@@ -788,15 +788,19 @@ private class AAREG_ApplicationControllerTest {
         };
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>{ new ApplicationBasisCode__c() };
         String base64 = EncodingUtil.base64Encode(Blob.valueOf('test-content'));
+        User applicant = createApplicant();
 
+        Id appId;
         System.Test.startTest();
-        Id appId = AAREG_ApplicationController.processApplication(
-            application,
-            basisCodes,
-            contacts,
-            base64,
-            'document.txt'
-        );
+        System.runAs(applicant) {
+            appId = AAREG_ApplicationController.processApplication(
+                application,
+                basisCodes,
+                contacts,
+                base64,
+                'document.txt'
+            );
+        }
         System.Test.stopTest();
 
         Integer applicationLinks = [
@@ -833,11 +837,16 @@ private class AAREG_ApplicationControllerTest {
         };
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>{ new ApplicationBasisCode__c() };
 
-        Test.startTest();
-        AAREG_ApplicationController.forceSanitizeAllowedBranch = true;
-        Id appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, null, null);
-        AAREG_ApplicationController.forceSanitizeAllowedBranch = false;
-        Test.stopTest();
+        User applicant = createApplicant();
+
+        Id appId;
+        System.Test.startTest();
+        System.runAs(applicant) {
+            AAREG_ApplicationController.forceSanitizeAllowedBranch = true;
+            appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, null, null);
+            AAREG_ApplicationController.forceSanitizeAllowedBranch = false;
+        }
+        System.Test.stopTest();
 
         System.Assert.isNotNull(appId, 'Application should be created when forcing sanitize allowed branch.');
     }
@@ -856,9 +865,11 @@ private class AAREG_ApplicationControllerTest {
         ];
         Access_Request__c ar = new Access_Request__c();
         insert ar;
+        User applicant = createApplicant();
 
         Application__c existing = AAREG_TestDataFactory.getApplicationCounty(account);
         existing.Access_Request__c = ar.Id;
+        existing.OwnerId = applicant.Id;
         insert existing;
 
         Application__c updateForProcess = new Application__c(
@@ -871,15 +882,18 @@ private class AAREG_ApplicationControllerTest {
         List<RelatedContact__c> contacts = new List<RelatedContact__c>{ new RelatedContact__c(Name = 'Reuse Contact') };
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>{ new ApplicationBasisCode__c() };
 
-        Test.startTest();
-        Id processedId = AAREG_ApplicationController.processApplication(
-            updateForProcess,
-            basisCodes,
-            contacts,
-            null,
-            null
-        );
-        Test.stopTest();
+        Id processedId;
+        System.Test.startTest();
+        System.runAs(applicant) {
+            processedId = AAREG_ApplicationController.processApplication(
+                updateForProcess,
+                basisCodes,
+                contacts,
+                null,
+                null
+            );
+        }
+        System.Test.stopTest();
 
         Application__c afterProcess = [
             SELECT Id, Access_Request__c

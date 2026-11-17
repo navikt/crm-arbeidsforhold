@@ -141,9 +141,21 @@ _Ja, ja, ja_ samsvarar med feil 1.
 ### Etter installasjon: verifiser rettinga
 
 1. Noter installert pakkeversjon og tidspunkt.
-2. Vent til minst éin ny søknad er sendt inn av ein ekte søkjar. Ikkje send
-   inn testsøknader i PROD.
-3. Køyr spørjinga nedanfor dagen etter:
+2. Vent til minst éin ny søknad er sendt inn av ein ekte søkjar _etter_
+   installasjonsdagen. Søknader frå sjølve installasjonsdagen tel ikkje med,
+   sidan spørjingane nedanfor berre har datopresisjon. Ikkje send inn
+   testsøknader i PROD.
+3. Kontroller først at det finst søknader i grunnlaget:
+
+```sql
+SELECT COUNT()
+FROM Application__c
+WHERE ApplicationSubmittedDate__c > YYYY-MM-DD
+  AND Status__c != 'Draft'
+```
+
+Dersom resultatet er `0`, er det ikkje noko å vurdere enno. Vent og køyr
+kontrollen på nytt seinare. Køyr deretter feilspørjinga:
 
 ```sql
 SELECT COUNT()
@@ -155,7 +167,8 @@ WHERE ApplicationSubmittedDate__c > YYYY-MM-DD
 
 Bytt `YYYY-MM-DD` med installasjonsdatoen. Datoen må vere strengt etter
 installasjonsdatoen, sidan feltet berre har datopresisjon. Forventa resultat
-er `0`.
+er `0` når grunnlagsspørjinga gir minst `1`. Talet `0` i feilspørjinga er
+berre eit prov på at rettinga verkar dersom grunnlaget ikkje er tomt.
 
 4. Saksbehandlar opnar éin ny søknad og stadfestar at _Kontaktperson som
    søker_ og varslingskontaktar er fylte i søknadsteksten (ja/nei).
