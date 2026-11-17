@@ -149,8 +149,17 @@ og syntetiske `example.invalid`-adresser.
 \* Fixture-feil i første køyring (manglande saksbehandlar for varsel), retta i
 testen før produksjonsendringa.
 
-Eksisterande testar for status, tilgangsførespurnad, fil og feltfilter er
-uendra og grøne.
+Eksisterande testar for tilgangsførespurnad, fil og feltfilter er uendra og
+grøne.
+
+To eldre statustestar køyrde som admin utan feltrettar. I CI passerte dei
+berre fordi `Status__c` har standardverdien `New`, så feltfilteret fjerna
+statusen. Dei køyrer no som portalsøkjar med `AAREG_CommunityPermission`:
+
+- `shouldProcessNewApplication` ventar framleis `New`.
+- `shouldResetAdditionalInformationApplicationToNew` heiter no
+  `shouldMoveAdditionalInformationApplicationToInProgress` og ventar
+  `In Progress`, slik ein ekte søkjar også fekk før rettinga.
 
 ## Teststeg for gjennomgang i scratch-org
 
