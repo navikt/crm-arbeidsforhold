@@ -2,10 +2,15 @@
 
 Denne guiden forklarer korleis vi testar P360-arkivering utan P360-server, korleis du får tilgang til å sjå dataa, kva som er ein del av pakka og kva som berre finst i scratch, og kvifor ting er laga slik dei er.
 
-Guiden viser verktøy og produktkode på `P360Test`. Han er ikkje bevis for at
-dei same delane finst på `main` eller er installerte i den aktuelle orgen.
-Kommandoane som nyttar scratch-verktøya krev ei arbeidskopi av `P360Test`;
-dei kan ikkje køyrast direkte frå `main`.
+På `main` finst scratch-mottakaren og admin-testlaben utanfor pakka.
+`verify`, `test`, `regression`, `smoke` og `inspect` testar mottakaren
+direkte med syntetiske data; dei sender ikkje inn ein søknad eller aktiverer
+P360-transport. Admin-testlaben har eigne kommandoar i punkt 7.5.
+
+Ende-til-ende-testen `e2e` og produktflyten som nyttar han, finst berre på
+`P360Test`. Diagram og forklaringar om innsending og val av RPC-klient
+nedanfor beskriv denne greina. Historisk scratch-evidens frå `P360Test` er
+ikkje bevis for at same flyt finst på `main` eller er installert i orga.
 
 Guiden skil mellom tre typar påstandar:
 
@@ -17,14 +22,14 @@ Meir teknisk bakgrunn finn du i [scratch-kontrakttest-og-interne-val.md](scratch
 
 ## 1. Kort fortalt
 
-1. Når ein arbeidsgivar sender inn ein søknad på denne greina, ber Salesforce om ein **arkivjobb** dersom prosesseringsporten er open. Jobboppretting kan feile utan at innsendinga blir stoppa.
+1. På `P360Test` ber innsending om ein **arkivjobb** dersom prosesseringsporten er open. Jobboppretting kan feile utan at innsendinga blir stoppa.
 2. Ein **worker** (eit Apex-program som køyrer i bakgrunnen) tek jobben, byggjer ein førespurnad i P360-formatet (SIF) og sender han vidare.
 3. I eit ekte miljø skal førespurnaden gå til P360-serveren. Den delen er ikkje laga enno.
-4. I scratch sender vi førespurnaden til ein **liksom-P360** som heiter `P360_ScratchRpcClient`. Han sjekkar at førespurnaden ser rett ut og lagrar han som ein post i objektet `P360ScratchCapture__c`. Vi kallar posten ei **kvittering**.
+4. I scratch kan vi sende syntetiske førespurnader til ein **liksom-P360** som heiter `P360_ScratchRpcClient`. Han sjekkar at førespurnaden ser rett ut og lagrar han som ein post i objektet `P360ScratchCapture__c`. Vi kallar posten ei **kvittering**.
 5. Ei kontrollert kvittering viser kva testmottaket fekk i den konkrete
    køyringa. Ho viser ikkje at ein ekte P360-server har motteke noko, eller at
    alle scenario og alle søknadsfelt er dekte.
-6. Alt dette blir styrt av eitt skript: `scripts/p360-scratch-contract.cjs`. Du køyrer det med éin kommando, `npm run p360:scratch -- <modus>`, på macOS, Linux og Windows.
+6. Mottakartestane blir styrte av `scripts/p360-scratch-contract.cjs`: `npm run p360:scratch -- <modus>` på macOS, Linux og Windows. `e2e` krev `P360Test`.
 
 ## 2. Ord du treng
 
@@ -44,7 +49,7 @@ Meir teknisk bakgrunn finn du i [scratch-kontrakttest-og-interne-val.md](scratch
 | SIF                     | Formatet P360 bruker. Det er beskrive i SIF-API-dokumentet frå P360-teamet.                                                               |
 | Kvittering              | Ein `P360ScratchCapture__c`-post som viser kva liksom-P360 tok imot.                                                                      |
 
-## 3. Det store bildet
+## 3. Det store bildet på `P360Test`
 
 ```mermaid
 flowchart TD
@@ -65,6 +70,7 @@ flowchart TD
 Testen bruker produktkoden som er installert i det aktuelle scratch-orget,
 men byter ut siste mottakarledd. Ei grøn køyring beviser berre dei konkrete
 stega og det innhaldet som faktisk er kontrollerte i den køyringa.
+På `main` testar `verify` mottakaren direkte og lagar ikkje ein arkivjobb.
 
 ## 4. Kvifor vi valde slik
 
@@ -72,23 +78,25 @@ stega og det innhaldet som faktisk er kontrollerte i den køyringa.
 
 Mocken (`Use_Mock_Transport__c = true`) svarar alltid «OK» og lagrar ingenting. Då blir jobben grøn sjølv om førespurnaden er tom eller feil.
 
-Dette skjedde faktisk: det første ende-til-ende-forsøket gav jobbstatus `Succeeded`, men null kvitteringar. Mocken hadde «vunne» over den konfigurerte mottakaren. Difor:
+Dette skjedde faktisk på `P360Test`: det første ende-til-ende-forsøket gav jobbstatus `Succeeded`, men null kvitteringar. Mocken hadde «vunne» over den konfigurerte mottakaren. Difor:
 
 - slår skriptet mocken av medan testen køyrer og på igjen etterpå
 - krev skriptet at kvitteringane finst, ikkje berre at jobben er grøn.
 
 ### 4.2 Kvifor byte ut nettopp RPC-klienten?
 
-RPC-klienten er det siste steget før nettverket. Testen kan dermed følgje
+På `P360Test` er RPC-klienten det siste steget før nettverket. Ende-til-ende-testen kan dermed følgje
 innsending, jobb, worker og oppbygging av SIF-førespurnaden. Kontroller
 evidensen for kva dokumentinnhald og vedlegg det enkelte scenarioet faktisk
 dekkjer.
 
-Mottakaren er vald med eit tekstfelt, `Rpc_Client_Class__c`. Då kan vi byte mottakar utan å endre kode. Når ekte HTTP-transport er laga, peikar vi berre feltet dit.
+På `P360Test` blir mottakaren vald med tekstfeltet `Rpc_Client_Class__c`.
+Adapterfabrikken på `main` brukar ikkje dette feltet til å velje
+scratch-mottakaren; der blir mottakaren testa direkte.
 
 ### 4.3 Kvifor er ting konfigurerbare?
 
-Vi tek vala sjølv no, utan svar frå P360-teamet. Vala må vere lette å endre seinare.
+Vi tek vala sjølv no, utan svar frå P360-teamet. Vala må vere lette å endre seinare. `Rpc_Client_Class__c` og `External_System__c` i tabellen finst berre på `P360Test`.
 
 | Kva                                              | Kvar det blir endra                                   | Døme                                                 |
 | ------------------------------------------------ | ----------------------------------------------------- | ---------------------------------------------------- |
@@ -108,7 +116,7 @@ Han har i tillegg tre sperrer:
 2. Han gjer ingenting før nokon har slått han på med `P360ScratchSetting__c.Enabled__c`.
 3. Han gjer aldri nettverkskall (`callouts = 0` blir sjekka).
 
-### 4.5 Kvifor les workeren søknaden med `without sharing`?
+### 4.5 Kvifor les workeren på `P360Test` søknaden med `without sharing`?
 
 Workeren køyrer som ein teknisk brukar. Den brukaren eig ikkje søknaden, og sharing gjer at han ikkje ser han.
 
@@ -127,10 +135,10 @@ Alternativet var å gi den tekniske brukaren «View All» på søknader, tilgang
 
 Du kunne i prinsippet skrive alle kommandoane sjølv. Skriptet finst fordi det gjer fem ting som er lette å gløyme eller gjere feil:
 
-1. **Sjekkar målet.** Det godtek berre aliaset `crm-arbeidsforhold` når orga er registrert som scratch, har scratch-domene og svarar `IsSandbox = true`. Eit alias åleine er ikkje bevis, sidan alle kan kalle ei org kva som helst.
+1. **Sjekkar målet.** Det krev ein uavhengig verifisert org-ID i `AAREG_SCRATCH_ORG_ID`, kontrollerer lokal scratch-identitet og domene, og sjekkar at orga svarar med same ID og `IsSandbox = true`. Eit alias åleine er ikkje bevis.
 2. **Set saman det som berre skal til scratch.** Liksom-P360 og testklassen hans ligg på to ulike stader og skal ikkje med i pakka. Skriptet kopierer dei til ei mellombels mappe og deployar berre dei.
-3. **Gjer ting Apex ikkje kan.** Deploy av metadata, tildeling av permission set og mellombels påslag av feature-flagget må gjerast med Salesforce CLI, ikkje frå Apex.
-4. **Ryddar opp sjølv om noko feilar.** I `e2e` blir feature-flagget sett tilbake til `false` frå kjelda i ein `finally`-blokk, sjølv om testen feilar eller du trykkjer Ctrl+C. Mellombelse filer blir sletta til slutt.
+3. **Gjer ting Apex ikkje kan.** Deploy av metadata og tildeling av permission set blir gjort med Salesforce CLI. Berre `e2e` på `P360Test` slår feature-flagget på mellombels.
+4. **Ryddar opp sjølv om noko feilar.** Mellombelse filer blir sletta til slutt. I `e2e` på `P360Test` blir feature-flagget sett tilbake til `false` frå kjelda i ein `finally`-blokk.
 5. **Avgjer bestått eller ikkje.** Skriptet les JSON-svaret frå `sf` og avsluttar med feil om noko ikkje stemmer, til dømes om det manglar kvitteringar. Du slepp å tolke lange loggar sjølv.
 
 **Kvifor Node.js og ikkje bash?** Den første versjonen var eit bash-skript (`.sh`). Det fungerer ikkje på Windows utan ekstra verktøy, og det trong `jq` og `shasum` i tillegg. Vi vurderte tre løysingar:
@@ -148,8 +156,8 @@ På Windows er `sf` installert som `sf.cmd`. Node kan berre starte slike filer g
 Skriptet har eigne testar i `scripts/tests/p360-scratch-contract.test.cjs`. Dei bruker ein falsk `sf` og sjekkar:
 
 - at skriptet stoppar mot feil org utan å røre ho
-- at `e2e` feilar når jobben er grøn utan kvitteringar
-- at flagget alltid blir sett tilbake
+- at `main` avviser `e2e` utan å kontakte ei org
+- at mottakartesten feilar ved manglande eller avviste kvitteringar og ved callouts
 - at argumenta blir rett siterte på Windows.
 
 Testane blir køyrde med `npm run test:node`.
@@ -181,10 +189,14 @@ flowchart LR
     end
     L1 -->|"deployar"| Scratch
     L1 -->|"køyrer"| L2
-    S1 -->|"blir valt via Rpc_Client_Class__c"| P3
+    S1 -->|"på P360Test: blir vald via Rpc_Client_Class__c"| P3
 ```
 
 ### 5.1 Fullstendig liste
+
+Produktdelane i tabellen viser kjelda på `P360Test`. Innsendingskroken,
+request-builderen og felta `Rpc_Client_Class__c` og `External_System__c` er
+ikkje del av denne utskiljinga til `main`.
 
 | Del                                                                                              | Stad i repoet                                                                                | Med i pakka?     | Korleis han kjem til scratch                                   |
 | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- | ---------------- | -------------------------------------------------------------- |
@@ -193,13 +205,13 @@ flowchart LR
 | Arkivjobb-objektet og P360-felta på søknad, tilgangsførespurnad, avtale og vedtak                | `force-app/integration/p360/objects/`                                                        | Ja               | Vanleg deploy                                                  |
 | `P360_Integration_Setting__c` med `Rpc_Client_Class__c` og `External_System__c`                  | `force-app/integration/p360/objects/P360_Integration_Setting__c/`                            | Ja               | Vanleg deploy. Sjølve _verdiane_ er data og må setjast per org |
 | Kodeverdiar (CMDT)                                                                               | `force-app/integration/p360/customMetadata/P360_Code_Table_Value.*`                          | Ja               | Vanleg deploy                                                  |
-| Feature-flagg (`false`)                                                                          | `force-app/integration/p360/customMetadata/Feature_Flag.P360_Archive_Processing.md-meta.xml` | Ja               | Vanleg deploy. `e2e` slår det mellombels på                    |
+| Feature-flagg (`false`)                                                                          | `force-app/integration/p360/customMetadata/Feature_Flag.P360_Archive_Processing.md-meta.xml` | Ja               | Vanleg deploy. `e2e` på `P360Test` slår det mellombels på      |
 | P360-permission set og -gruppe                                                                   | `force-app/integration/p360/permissionsets/` og `permissionsetgroups/`                       | Ja               | Vanleg deploy. _Tildeling_ er data per org                     |
 | Testar for produktkoden, inkludert `P360_CapturingRpcClient`                                     | `force-app/tests/classes/integration/p360/`                                                  | Ja, som testkode | Vanleg deploy                                                  |
 | Liksom-P360 (`P360_ScratchRpcClient`)                                                            | `scripts/scratch/p360/classes/`                                                              | Nei              | `npm run p360:scratch -- verify`                               |
 | Kvitterings- og innstillingsobjekta, fane, layout, Lightning-side, `P360_Scratch_Capture_Access` | `scripts/scratch/p360/`                                                                      | Nei              | `verify`                                                       |
 | Testen for liksom-P360                                                                           | `scripts/scratch/p360/tests/`                                                                | Nei              | `verify`                                                       |
-| Apex-skript for smoke og e2e                                                                     | `scripts/apex/`                                                                              | Nei              | Blir køyrde som anonym Apex, ikkje lagra i orga                |
+| Apex-skript for smoke; `e2e` berre på `P360Test`                                                 | `scripts/apex/`                                                                              | Nei              | Blir køyrde som anonym Apex, ikkje lagra i orga                |
 | Skriptet og testen hans                                                                          | `scripts/`                                                                                   | Nei              | Køyrer berre lokalt                                            |
 
 ### 5.2 Kvifor ligg testen for liksom-P360 under `scripts/scratch/`?
@@ -239,15 +251,14 @@ Verifisert i scratch 2026-11-15: CLI-brukaren i `crm-arbeidsforhold` har profile
 **Med terminalen i VS Code:**
 
 1. Opne terminalen i VS Code (`` Ctrl+` ``).
-2. Kontroller at aliaset peikar på scratch-orga:
+2. Skaff den uavhengig verifiserte org-ID-en og følg punkt 7.1–7.2. Før
+   deploy kontrollerer skriptet den lokalt registrerte scratch-identiteten,
+   domenet og orga sitt svar. Alias åleine er ikkje bevis.
 
-    ```bash
-    sf org display --target-org crm-arbeidsforhold
-    ```
+    Ikkje bruk `sf org display` som ein rein lokal kontroll: Salesforce CLI
+    kan spørje den tilknytte Dev Hub-en for ei scratch-org.
 
-    Linja **Instance Url** skal slutte på `.scratch.my.salesforce.com`. Gjer det ikkje det, stopp.
-
-3. Gi deg sjølv tilgangen:
+3. Når kontrollen har stadfesta målet, gi deg sjølv tilgangen:
 
     ```bash
     sf org assign permset --target-org crm-arbeidsforhold --name P360_Archive_Job_Viewer
@@ -286,8 +297,24 @@ Dette er ei manuell endring i scratch og blir ikkje lagra i repoet. Ho forsvinn 
 ### 7.1 Før du byrjar (ein gong)
 
 1. Du har Salesforce CLI 2.158.7 og Node.js 20 eller nyare. Sjekk med `sf --version` og `node --version`. Køyr `npm install` éin gong i repoet. Alt fungerer i terminalen i VS Code på både macOS og Windows (PowerShell).
-2. Aliaset `crm-arbeidsforhold` er logga inn (sjå 6.3, punkt 2).
-3. Produktkoden er deployert til scratch:
+2. Kontroller den eksisterande `crm-arbeidsforhold` scratch-orga mot ein uavhengig verifisert org-ID, som i 6.3. Set ID-en i miljøet før du køyrer skripta:
+
+    ```bash
+    export AAREG_SCRATCH_ORG_ID="<uavhengig-verifisert-scratch-org-ID>"
+    ```
+
+    I PowerShell bruker du:
+
+    ```powershell
+    $env:AAREG_SCRATCH_ORG_ID = "<uavhengig-verifisert-scratch-org-ID>"
+    ```
+
+    Alias åleine er ikkje nok. Ikkje bruk produksjon, ein Dev Hub eller ei anna org.
+    Målkontrollen bruker `sf org list auth`, som les lokalt lagra
+    autorisasjonar for fleire orgar og kan utløyse Keychain-førespurnader.
+    Stopp dersom slik lokal lesing ikkje er tillaten.
+
+3. Produktkoden er deployert til den verifiserte scratch-orga:
 
     ```bash
     sf project deploy start --source-dir force-app --target-org crm-arbeidsforhold --test-level NoTestRun
@@ -305,7 +332,7 @@ Dette skjer, i rekkjefølgje:
 
 1. Målet blir kontrollert (scratch, domene, `IsSandbox`).
 2. Liksom-P360 blir deployert, først som prøve (dry run), så på ekte.
-3. Testen til liksom-P360 blir køyrd. Han skal ha 9 av 9 grøne.
+3. `P360_ScratchRpcClientTest` blir køyrd, og skriptet krev at testen består.
 4. Du får `P360_Scratch_Capture_Access`.
 5. Første gong blir `P360ScratchSetting__c` laga med `Enabled = true`, `Scenario = Success` og `MaxFileBytes = 1024`.
 6. Eit lite smoke-skript sender éi syntetisk sak og eitt syntetisk dokument rett til liksom-P360.
@@ -313,7 +340,10 @@ Dette skjer, i rekkjefølgje:
 
 Forventa slutt: ei JSON-oppsummering med `persistentReceipts: 2`, og exit-kode 0. Ein jobb i pakka blir _ikkje_ laga i dette steget.
 
-### 7.3 Køyr `e2e`
+### 7.3 Køyr `e2e` på `P360Test`
+
+Denne modusen finst ikkje på `main`. Han krev ei arbeidskopi av `P360Test`
+og den tilhøyrande produktkoden deployert i den verifiserte scratch-orga.
 
 ```bash
 npm run p360:scratch -- e2e
@@ -350,22 +380,52 @@ Forventa resultat i JSON-utskrifta:
 
 Siste linje skal vere `Archive-processing flag restored from source (Is_Enabled__c=false).`
 
-Verifisert i scratch: `e2e` bestod med søknad `a0jPw00000rIk4HIAS`, kvitteringane `SCRATCH-000036` (CreateCase) og `SCRATCH-000037` (CreateDocument), `filesVerified = 2` og `callouts = 0`. Etterpå var mock på igjen, mottakarfelta tomme og flagget `false`. Same resultat med Node-skriptet: søknad `a0jPw00000rIlTNIA0`, kvitteringane `SCRATCH-000044` og `SCRATCH-000045`, `filesVerified = 2`, `callouts = 0`, og innstillingane og flagget sette tilbake.
+Historisk verifisert i scratch på `P360Test`: `e2e` bestod med søknad `a0jPw00000rIk4HIAS`, kvitteringane `SCRATCH-000036` (CreateCase) og `SCRATCH-000037` (CreateDocument), `filesVerified = 2` og `callouts = 0`. Etterpå var mock på igjen, mottakarfelta tomme og flagget `false`. Same resultat med Node-skriptet: søknad `a0jPw00000rIlTNIA0`, kvitteringane `SCRATCH-000044` og `SCRATCH-000045`, `filesVerified = 2`, `callouts = 0`, og innstillingane og flagget sette tilbake. Dette er ikkje verifikasjon av utskiljinga på `main`.
 
 ### 7.4 Dei andre modusane
 
-| Modus        | Kva han gjer                                                 | Skriv data?                                                                    |
-| ------------ | ------------------------------------------------------------ | ------------------------------------------------------------------------------ |
-| `verify`     | Deploy, test, tilgang, smoke og kontroll                     | Ja: liksom-P360 og to syntetiske kvitteringar                                  |
-| `test`       | Køyrer berre testen til liksom-P360                          | Nei, Apex-testar rullar tilbake                                                |
-| `regression` | Køyrer testen til liksom-P360 og tre relevante produkttestar | Nei                                                                            |
-| `smoke`      | Tilgang, smoke og kontroll, utan deploy                      | Ja: dei to syntetiske kvitteringane første gong, elles berre fleire `Attempts` |
-| `inspect`    | Les kvitteringane frå smoke og kontrollerer dei              | Nei                                                                            |
-| `e2e`        | Heile vegen frå innsending, sjå 7.3                          | Ja: syntetisk organisasjon, søknad, jobb og kvitteringar                       |
+| Modus               | Kva han gjer                                                 | Skriv data?                                                                    |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `verify`            | Deploy, test, tilgang, smoke og kontroll                     | Ja: liksom-P360 og to syntetiske kvitteringar                                  |
+| `test`              | Køyrer berre testen til liksom-P360                          | Nei, Apex-testar rullar tilbake                                                |
+| `regression`        | Køyrer testen til liksom-P360 og tre relevante produkttestar | Nei                                                                            |
+| `smoke`             | Tilgang, smoke og kontroll, utan deploy                      | Ja: dei to syntetiske kvitteringane første gong, elles berre fleire `Attempts` |
+| `inspect`           | Les kvitteringane frå smoke og kontrollerer dei              | Nei                                                                            |
+| `e2e` på `P360Test` | Heile vegen frå innsending, sjå 7.3                          | Ja: syntetisk organisasjon, søknad, jobb og kvitteringar                       |
 
 Liksom-P360 gjenkjenner same førespurnad med ein nøkkel (SHA-256 av operasjon, system og identitet). Difor lagar ny køyring av `smoke` ikkje nye kvitteringar. I staden aukar `Attempts`.
 
 Kjem same identitet tilbake med _anna_ innhald, avviser liksom-P360 førespurnaden. Det er med vilje: P360 skal ikkje få to ulike dokument med same identitet.
+
+### 7.5 Admin-testlab
+
+**Ikkje køyr `seed` enno.** Ein eksisterande Flow kan fjerne koplinga
+mellom søknaden og den syntetiske kontoen. Ein Apex-regresjonstest er lagd
+til, men må køyrast og feilen rettast før testlaben kan brukast trygt.
+
+Etter kontrollen i 7.1 kan du køyre admin-verktøya frå `main`:
+
+```bash
+npm run admin:scratch -- verify
+npm run admin:scratch -- testlab
+```
+
+`verify` prøver og deployerer eksisterande admin-metadata, tildeler
+`AAREG_Admin_Viewer` og køyrer dei fire admin-testklassane på `main`.
+`testlab` prøver og deployerer scratch-metadata for testlaben og køyrer
+Apex-testane hans, utan å opprette varige scenario-data.
+Når feilen er retta og testane er verifiserte, vil `seed` deployere
+testlaben utanfor pakka, køyre testane hans og lage merkte, syntetiske
+data. Scenarioa er `soknad-ny`, `p360-arkivert`, `p360-feila`,
+`p360-manuell` og `p360-utgatt-lease`. Etter dagens claim-regel skal desse
+jobbane ikkje veljast av workeren.
+
+`inspect` les testlab-data dersom testlaben alt er deployert.
+Automatisk `reset` er halden att på `P360Test`:
+sletting av ein merkt søknad kan òg slette tilhøyrande vedtak eller endre
+andre relasjonar. Identifiser eksakte testdata og alle avhengnader før
+eventuell manuell opprydding i scratch. Bruk aldri persondata eller live
+P360/Altinn i testlaben.
 
 ## 8. Sjå resultatet sjølv
 
@@ -420,12 +480,12 @@ Kjem same identitet tilbake med _anna_ innhald, avviser liksom-P360 førespurnad
 
     På denne Lightning-sida blir dokumentlista berre vist på ei sakskvittering. Ho blir ikkje vist på dokumentkvitteringar, som ikkje er saker.
 
-    Kvitteringar laga før felta fanst, blir fylte ut frå rådataa sine når du køyrer `verify` eller `smoke`. Utfyllinga les berre det som allereie er lagra, og kontaktar ikkje P360.
+    På `main` blir ikkje eldre kvitteringar fylte ut automatisk. Utfylling av historiske kvitteringar er halden att på `P360Test` for tryggleiksvurdering.
 
     > **Ser du ikkje dei nye seksjonane?** Lightning lagrar layouten i nettlesaren. Etter ein deploy kan sida difor vise den gamle layouten sjølv om du lastar ho på nytt. Logg ut og inn att (eller køyr `sf org open --target-org crm-arbeidsforhold` i eit nytt privat vindauge). Då hentar Lightning layouten på nytt.
 
-6. App Launcher → **P360 Archive Jobs** for å sjå jobben, status og eventuell feilmelding.
-7. Søknaden finn du via kontoen som heiter **Syntetisk P360 scratch-organisasjon** og eit tal.
+6. Etter `e2e` på `P360Test`: App Launcher → **P360 Archive Jobs** for å sjå jobben, status og eventuell feilmelding.
+7. Etter `e2e` på `P360Test` finn du søknaden via kontoen som heiter **Syntetisk P360 scratch-organisasjon** og eit tal. `verify` på `main` lagar ikkje ein slik søknad.
 
 ### 8.2 I terminalen
 
@@ -434,7 +494,7 @@ sf data query --target-org crm-arbeidsforhold --query "SELECT Name, Operation__c
 
 sf data query --target-org crm-arbeidsforhold --query "SELECT Name, Status__c, Archive_Event_Type__c, Attempt_Count__c, Last_Error_Message__c FROM P360_Archive_Job__c ORDER BY CreatedDate DESC LIMIT 5"
 
-sf data query --target-org crm-arbeidsforhold --query "SELECT Use_Mock_Transport__c, Rpc_Client_Class__c, External_System__c FROM P360_Integration_Setting__c"
+sf data query --target-org crm-arbeidsforhold --query "SELECT Use_Mock_Transport__c FROM P360_Integration_Setting__c"
 
 sf data query --target-org crm-arbeidsforhold --query "SELECT Enabled__c, Scenario__c, MaxFileBytes__c FROM P360ScratchSetting__c"
 ```
@@ -445,17 +505,17 @@ Kommandoane står på éi linje kvar, så dei fungerer både i bash/zsh og i Pow
 
 | Melding                                                              | Kva det betyr                                                                                  | Gjer dette                                                                                                                                                             |
 | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `STOP: The explicit target is not a locally identified scratch org.` | Aliaset finst ikkje, eller orga er ikkje scratch                                               | Sjekk `sf org list`. Ikkje bruk ei anna org                                                                                                                            |
-| `Enable the Success scenario …`                                      | Liksom-P360 er av eller i eit anna scenario                                                    | Køyr `verify`, eller set `Enabled = true` og `Scenario = Success` i P360 Scratch Setting                                                                               |
+| `STOP: The explicit target is not a locally identified scratch org.` | Alias, uavhengig org-ID eller lokal scratch-identitet stemmer ikkje                            | Kontroller den verifiserte identiteten og `AAREG_SCRATCH_ORG_ID`. Ikkje bruk ei anna org                                                                               |
+| `Enable the Success scenario …`                                      | Liksom-P360 er av eller i eit anna scenario                                                    | Kontroller målet og set `Enabled = true` og `Scenario = Success` i P360 Scratch Setting; `verify` overskriv ikkje eksisterande innstillingar                           |
 | `Other pending archive jobs exist …`                                 | Det ligg uferdige jobbar. Testen ville ha teke dei òg                                          | Sjå P360 Archive Jobs. Slett eller avslutt dei syntetiske jobbane i scratch                                                                                            |
-| `The P360 archive-processing flag must be enabled in scratch.`       | Flagget blei ikkje slått på                                                                    | Køyr `e2e` via skriptet, ikkje Apex-skriptet åleine                                                                                                                    |
+| `The P360 archive-processing flag must be enabled in scratch.`       | Flagget blei ikkje slått på i `P360Test`-flyten                                                | Køyr `e2e` via skriptet på `P360Test`, ikkje Apex-skriptet åleine                                                                                                      |
 | `FAIL: … could not be assigned …`                                    | Permission set-et finst ikkje i orga                                                           | Køyr `verify` (for scratch-settet) eller deploy `force-app`                                                                                                            |
 | `WARNING: restore the archive-processing flag manually …`            | Skriptet klarte ikkje å slå flagget av igjen                                                   | Køyr `sf project deploy start --source-dir force-app/integration/p360/customMetadata/Feature_Flag.P360_Archive_Processing.md-meta.xml --target-org crm-arbeidsforhold` |
 | Du trykte Ctrl+C under `e2e`                                         | Skriptet stoppar, men set flagget tilbake før det avsluttar                                    | Vent til `Archive-processing flag restored …` eller `WARNING …` blir skrive. Følg i så fall raden over                                                                 |
-| Jobb `Succeeded`, men ingen kvitteringar                             | Mocken var på og «vann»                                                                        | Bruk `e2e`, som slår mocken av. Stol aldri på jobbstatus åleine                                                                                                        |
-| `Application archive source is unavailable`                          | Workeren fann ikkje søknaden                                                                   | Sjå 4.5. Sjekk at `force-app` er deployert med den nye lesaren                                                                                                         |
+| Jobb `Succeeded`, men ingen kvitteringar                             | Mocken kan ha vore på og «vunne»                                                               | På `P360Test`, bruk `e2e` som slår mocken av. Stol aldri på jobbstatus åleine                                                                                          |
+| `Application archive source is unavailable`                          | Workeren på `P360Test` fann ikkje søknaden                                                     | Sjå 4.5. Sjekk at rett versjon av `force-app` er deployert i scratch                                                                                                   |
 | Jobb `Manual Review`                                                 | Feilen kan ikkje rettast ved å prøve om att, t.d. fil utan filending, avvising eller tapt svar | Les `Last_Error_Code__c` og `Last_Error_Message__c` på jobben                                                                                                          |
-| Jobb `Failed` med `Next_Attempt_Date__c`                             | Mellombels feil. Jobben skal prøvast om att                                                    | Det finst ingen scheduler i scratch. Jobben blir ikkje prøvd om att av seg sjølv                                                                                       |
+| Jobb `Failed` med `Next_Attempt_Date__c`                             | Mellombels feil. Jobben kan prøvast om att når forsøket forfell                                | Kontroller om ein scheduler faktisk er sett opp i den aktuelle scratch-orga                                                                                            |
 
 ## 10. Scenario du kan prøve
 
@@ -468,7 +528,7 @@ Liksom-P360 har fire scenario i `P360ScratchSetting__c.Scenario__c`:
 | `PermanentFailure` | Avviser (`Rejected`, `Successful = false`)      | `Manual Review`                                                                  |
 | `UnknownOutcome`   | Godtek, men «mistar» svaret                     | `Manual Review`. Ny create med same identitet blir nekta til nokon har slått opp |
 
-Liksom-P360 i alle fire scenario er dekt av `P360_ScratchRpcClientTest` (kjelde, 9 av 9 grøne i scratch). Jobbstatusen i høgre kolonne kjem frå `classifyFailure` i `P360_ArchiveJobWorker` og er ikkje køyrd ende-til-ende i scratch for andre scenario enn `Success`.
+Liksom-P360 i alle fire scenario er dekt av `P360_ScratchRpcClientTest` i kjelda. Historiske testresultat frå `P360Test` verifiserer ikkje den utskilde versjonen på `main`. Jobbstatusen i høgre kolonne kjem frå `classifyFailure` i `P360_ArchiveJobWorker` og er ikkje køyrd ende-til-ende i scratch for andre scenario enn `Success`.
 
 `smoke` og `e2e` krev `Success`. Set scenariet tilbake til `Success` etter manuelle forsøk.
 
@@ -487,8 +547,8 @@ Liksom-P360 i alle fire scenario er dekt av `P360_ScratchRpcClientTest` (kjelde,
 
 | Område                                                       | Status                                                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------------- |
-| Innsending ber om arkivjobb                                  | Kjelde; avgrensa historisk scratch-test                             |
-| Worker byggjer tekstsamandrag og lenkja filer                | Kjelde; avgrensa historisk scratch-test                             |
+| Innsending ber om arkivjobb                                  | `P360Test`-kjelde; avgrensa historisk scratch-test                  |
+| Worker byggjer tekstsamandrag og lenkja filer                | `P360Test`-kjelde; avgrensa historisk scratch-test                  |
 | Liksom-P360 som tek imot og lagrar kvitteringar              | Kjelde; avgrensa historisk scratch-test                             |
 | Konfigurerbare kodeverdiar og mottakar                       | Kjelde                                                              |
 | Tilbakeskriving av saks- og dokumentnummer                   | Saksnummer blir lagra; dokumentnummer står att                      |
