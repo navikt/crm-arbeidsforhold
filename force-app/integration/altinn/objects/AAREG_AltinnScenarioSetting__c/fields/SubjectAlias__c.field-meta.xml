@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SubjectAlias__c</fullName>
+    <description>Logical synthetic subject alias from the scenario catalogue. Never store a person identifier here.</description>
+    <label>Subject Alias</label>
+    <length>80</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -21,21 +21,57 @@
                     Min side - Brukerstøtte og søknad om tilgang til Aa-registeret
                 </h1>
             </div>
-            <div class="org_picker">
-                <template if:true={organizations}>
-                    <select class="organization-select" aria-invalid="false" onchange={handleOrganizationChange}>
-                        <option if:false={hasPreviouslySelectedOrganization} value="">-- Velg virksomhet --</option>
-                        <template for:each={organizations} for:item="organization">
-                            <option key={organization.organizationNumber} value={organization.organizationNumber}>
-                                <div>
-                                    <p>{organization.name}- ({organization.organizationNumber})</p>
-                                </div>
+            <div class="org_picker" aria-busy={isRefreshing}>
+                <template if:true={hasOrganizations}>
+                    <select
+                        class="organization-select"
+                        aria-label="Velg virksomhet"
+                        aria-invalid="false"
+                        disabled={isRefreshing}
+                        onchange={handleOrganizationChange}
+                    >
+                        <option value="" selected={hasNoSelectedOrganization}>-- Velg virksomhet --</option>
+                        <template for:each={organizationOptions} for:item="organization">
+                            <option
+                                key={organization.organizationNumber}
+                                value={organization.organizationNumber}
+                                selected={organization.isSelected}
+                            >
+                                {organization.name} - ({organization.organizationNumber})
                             </option>
                         </template>
                     </select>
                 </template>
+                <div class="organization-actions">
+                    <lightning-button
+                        data-id="refresh-organizations"
+                        label={labels.refreshOrganizations}
+                        variant="neutral"
+                        icon-name="utility:refresh"
+                        icon-position="left"
+                        disabled={isRefreshing}
+                        onclick={handleRefresh}
+                    ></lightning-button>
+                    <template if:true={isRefreshing}>
+                        <lightning-spinner
+                            alternative-text={labels.refreshOrganizations}
+                            size="small"
+                        ></lightning-spinner>
+                    </template>
+                </div>
             </div>
         </div>
+        <template if:true={hasNoOrganizations}>
+            <section data-id="organization-empty-state" role="status">
+                <div class="mangler-tilgang-bakgrunn organization-empty-state">
+                    <h2 class="typo-innholdstittel mangler-tilgang-bakgrunn__innholdstittel">
+                        {labels.noOrganizationsTitle}
+                    </h2>
+                    <p class="missing-access-subtitle">{labels.noOrganizationsDescription}</p>
+                    <p class="missing-access-subtitle">{labels.noOrganizationsGuidance}</p>
+                </div>
+            </section>
+        </template>
         <template if:true={hasAccess}>
             <div class="slds-grid inner-container">
                 <div class="slds-col" style="flex: 50%">
@@ -85,7 +121,7 @@
                 </div>
             </div>
         </template>
-        <template if:false={hasAccess}>
+        <template if:true={showMissingAccess}>
             <c-aareg_missing-access></c-aareg_missing-access>
         </template>
     </template>

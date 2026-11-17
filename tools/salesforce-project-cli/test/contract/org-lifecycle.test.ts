@@ -215,12 +215,12 @@ describe('org lifecycle', () => {
         expect(requests[1]?.executable).toBe('sfp');
     });
 
-    it('runs selected post steps in deploy, permission, data, community order', async () => {
+    it('runs selected post steps through synthetic Altinn users after publishing the community', async () => {
         const projectDirectory = await createProject({
             permissionSets: ['Permission_One', 'Permission_Two'],
             dummyDataPlan: 'dummy-data/Plan.json',
             communityName: 'Aa-registeret',
-            postSteps: ['deploy', 'permsets', 'data', 'community']
+            postSteps: ['deploy', 'permsets', 'data', 'community', 'altinn-scenario-users']
         });
         const requests: CommandRequest[] = [];
         const runner = vi.fn(async (request: CommandRequest) => {
@@ -270,6 +270,10 @@ describe('org lifecycle', () => {
                 path.join(projectDirectory, 'dummy-data/Plan.json')
             ],
             ['community', 'publish', '--target-org', 'existing-org', '--name', 'Aa-registeret'],
+            ['apex', 'run', '--target-org', 'existing-org', '--file', 'bin/seed-altinn-scenario-owner.apex'],
+            ['apex', 'run', '--target-org', 'existing-org', '--file', 'bin/seed-altinn-scenario-accounts.apex'],
+            ['apex', 'run', '--target-org', 'existing-org', '--file', 'bin/seed-altinn-scenario-users.apex'],
+            ['apex', 'run', '--target-org', 'existing-org', '--file', 'bin/seed-altinn-scenario-settings.apex'],
             ['project', 'reset', 'tracking', '--target-org', 'existing-org', '--no-prompt', '--json']
         ]);
     });
@@ -746,9 +750,9 @@ describe('org lifecycle', () => {
             if (request.arguments?.[0] === 'org' && request.arguments?.[1] === 'create') {
                 orgCreateAttempts += 1;
                 if (orgCreateAttempts === 1) {
-                    expect(await request.retry?.shouldRetry?.({ ...successfulResult(request), stderr: 'ECONNRESET' })).toBe(
-                        true
-                    );
+                    expect(
+                        await request.retry?.shouldRetry?.({ ...successfulResult(request), stderr: 'ECONNRESET' })
+                    ).toBe(true);
                     expect(
                         await request.retry?.shouldRetry?.({
                             ...successfulResult(request),
@@ -764,7 +768,17 @@ describe('org lifecycle', () => {
         const stdout: string[] = [];
 
         const exitCode = await runCli(
-            ['org', 'create', '--project-dir', projectDirectory, '--alias', 'retry-org', '--post-steps', 'none', '--json'],
+            [
+                'org',
+                'create',
+                '--project-dir',
+                projectDirectory,
+                '--alias',
+                'retry-org',
+                '--post-steps',
+                'none',
+                '--json'
+            ],
             { stdout: (line) => stdout.push(line), stderr: () => undefined },
             { runCommand: runner }
         );

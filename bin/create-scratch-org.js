@@ -9,28 +9,37 @@ function getLauncher(platform, forwardedArgs) {
     );
 
     return {
-        command: isWindows ? 'powershell.exe' : 'bash',
-        args: isWindows
-            ? ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scriptPath, ...normalizedArgs]
-            : [scriptPath, ...normalizedArgs]
+        command: isWindows ? 'pwsh.exe' : 'bash',
+        args: isWindows ? ['-NoProfile', '-File', scriptPath, ...normalizedArgs] : [scriptPath, ...normalizedArgs]
     };
 }
 
-function main() {
-    const launcher = getLauncher(process.platform, process.argv.slice(2));
-    const result = spawnSync(launcher.command, launcher.args, { stdio: 'inherit' });
+function main({
+    platform = process.platform,
+    forwardedArgs = process.argv.slice(2),
+    spawn = spawnSync,
+    writeError = console.error,
+    setExitCode = (code) => {
+        process.exitCode = code;
+    }
+} = {}) {
+    const launcher = getLauncher(platform, forwardedArgs);
+    const result = spawn(launcher.command, launcher.args, { stdio: 'inherit' });
 
     if (result.error) {
-        console.error(`Unable to start ${launcher.command}: ${result.error.message}`);
-        process.exitCode = 1;
-        return;
+        const guidance = platform === 'win32' ? ' Install PowerShell 7 LTS and ensure pwsh.exe is on PATH.' : '';
+        writeError(`Unable to start ${launcher.command}: ${result.error.message}.${guidance}`);
+        setExitCode(1);
+        return 1;
     }
 
-    process.exitCode = result.status ?? 1;
+    const exitCode = result.status ?? 1;
+    setExitCode(exitCode);
+    return exitCode;
 }
 
 if (require.main === module) {
     main();
 }
 
-module.exports = { getLauncher };
+module.exports = { getLauncher, main };

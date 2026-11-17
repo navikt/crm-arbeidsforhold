@@ -1,19 +1,19 @@
-name: "[PR] Validate"
+name: '[PR] Validate'
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
-      - converted_to_draft
-    branches:
-      - "*"
+    pull_request:
+        types:
+            - opened
+            - synchronize
+            - reopened
+            - ready_for_review
+            - converted_to_draft
+        branches:
+            - '*'
 jobs:
-  run-pr-validation:
-    name: Validate PR
-    if: github.event.pull_request.draft == false
-    uses: navikt/crm-workflows-base/.github/workflows/validate.yml@aad6b4f48e419d71490db436da697cd7581a2c6a
-    permissions:
-      contents: read
-    secrets: inherit
+    run-pr-validation:
+        name: Validate PR
+        if: github.event.pull_request.draft == false
+        uses: ./.github/workflows/salesforce-validation.yml
+        permissions:
+            contents: read
+        secrets: inherit

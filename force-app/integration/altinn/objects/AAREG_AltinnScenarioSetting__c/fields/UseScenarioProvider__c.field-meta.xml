@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>UseScenarioProvider__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Explicit user opt-in to scenario results. Organization and profile activation are not supported.</description>
+    <label>Use Scenario Provider</label>
+    <type>Checkbox</type>
+</CustomField>

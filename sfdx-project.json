@@ -7,8 +7,88 @@
       "versionNumber": "0.316.0.NEXT",
       "dependencies": [
         {
-          "package": "platform-data-model",
-          "versionNumber": "0.1.49.LATEST"
+            "path": "force-app",
+            "package": "crm-arbeidsforhold",
+            "versionName": "ver 0.300",
+            "versionNumber": "0.316.0.NEXT",
+            "dependencies": [
+                {
+                    "package": "platform-data-model",
+                    "versionNumber": "0.1.49.LATEST"
+                },
+                {
+                    "package": "custom-metadata-dao",
+                    "versionNumber": "0.1.49.LATEST"
+                },
+                {
+                    "package": "custom-permission-helper",
+                    "versionNumber": "0.1.49.LATEST"
+                },
+                {
+                    "package": "feature-toggle",
+                    "versionNumber": "0.1.50.LATEST"
+                },
+                {
+                    "package": "record-type-cache",
+                    "versionNumber": "0.1.17.LATEST"
+                },
+                {
+                    "package": "crm-platform-base",
+                    "versionNumber": "0.311.0.LATEST"
+                },
+                {
+                    "package": "crm-platform-reporting",
+                    "versionNumber": "0.47.0.LATEST"
+                },
+                {
+                    "package": "crm-shared-flowComponents",
+                    "versionNumber": "0.4.0.LATEST"
+                },
+                {
+                    "package": "crm-henvendelse-base",
+                    "versionNumber": "0.42.0.LATEST"
+                },
+                {
+                    "package": "crm-platform-integration",
+                    "versionNumber": "0.177.0.LATEST"
+                },
+                {
+                    "package": "crm-platform-access-control",
+                    "versionNumber": "0.179.0.LATEST"
+                },
+                {
+                    "package": "crm-thread-view",
+                    "versionNumber": "0.8.0.LATEST"
+                },
+                {
+                    "package": "crm-shared-timeline",
+                    "versionNumber": "1.45.0.LATEST"
+                },
+                {
+                    "package": "crm-community-base",
+                    "versionNumber": "0.146.0.LATEST"
+                },
+                {
+                    "package": "crm-platform-email-scheduling",
+                    "versionNumber": "1.8.0.LATEST"
+                },
+                {
+                    "package": "crm-journal-utilities",
+                    "versionNumber": "0.55.0.LATEST"
+                },
+                {
+                    "package": "crm-shared-user-notification",
+                    "versionNumber": "0.27.0.LATEST"
+                },
+                {
+                    "package": "crm-platform-oppgave",
+                    "versionNumber": "0.84.0.LATEST"
+                },
+                {
+                    "package": "crm-henvendelse",
+                    "versionNumber": "0.209.0.LATEST"
+                }
+            ]
         },
         {
           "package": "custom-metadata-dao",

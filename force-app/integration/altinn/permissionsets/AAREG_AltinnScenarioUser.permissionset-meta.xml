@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>AAREG_UseAltinnScenario</name>
+    </customPermissions>
+    <description>Opt-in permission for synthetic Altinn scenario users in non-production. Grants no administration or configuration write access.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Altinn Scenario User</label>
+</PermissionSet>

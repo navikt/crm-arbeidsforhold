@@ -8,7 +8,7 @@ import { z } from 'zod';
 import type { PackageDependency } from './packages.js';
 
 /** Built-in post-steps every project can select; a project may declare additional named steps. */
-export const BUILTIN_POST_STEPS = ['deploy', 'permsets', 'data', 'community'] as const;
+export const BUILTIN_POST_STEPS = ['deploy', 'permsets', 'data', 'community', 'altinn-scenario-users'] as const;
 
 /**
  * Default per-command timeouts applied when neither `sf-project.config.json` nor a CLI flag
@@ -200,7 +200,7 @@ export interface ProjectConfiguration {
     coverage: CoverageConfiguration;
     /** Ordered project configuration steps. Values are built-in step names or declared `customPostSteps[].name` values. */
     postSteps: PostStep[];
-    /** Project-declared post-steps beyond the built-in `deploy`, `permsets`, `data`, and `community` steps. */
+    /** Project-declared post-steps beyond the built-in setup steps. */
     customPostSteps: CustomPostStep[];
     /** Scratch-org pool defaults. */
     pool: PoolConfiguration;
@@ -357,13 +357,13 @@ export async function loadProjectConfiguration(projectDirectory: string): Promis
         ...(toolConfig.dummyUsers === undefined
             ? {}
             : {
-                dummyUsers: {
-                    file: path.resolve(resolvedProjectDirectory, toolConfig.dummyUsers.file),
-                    profileName: toolConfig.dummyUsers.profileName,
-                    profileAssignments: toolConfig.dummyUsers.profileAssignments,
-                    permissionSetAssignments: toolConfig.dummyUsers.permissionSetAssignments
-                }
-            }),
+                  dummyUsers: {
+                      file: path.resolve(resolvedProjectDirectory, toolConfig.dummyUsers.file),
+                      profileName: toolConfig.dummyUsers.profileName,
+                      profileAssignments: toolConfig.dummyUsers.profileAssignments,
+                      permissionSetAssignments: toolConfig.dummyUsers.permissionSetAssignments
+                  }
+              }),
         postSteps: toolConfig.postSteps,
         customPostSteps: toolConfig.customPostSteps.map((step) => ({
             name: step.name,

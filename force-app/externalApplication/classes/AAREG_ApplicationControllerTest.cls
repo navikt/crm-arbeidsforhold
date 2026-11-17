@@ -324,6 +324,54 @@ private class AAREG_ApplicationControllerTest {
     }
 
     /**
+     * processApplication should link uploaded files to both the application and the access request.
+     *
+     * @since October 2026
+     */
+    @IsTest
+    private static void shouldLinkUploadedFileToApplicationAndAccessRequest() {
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        Access_Request__c accessRequest = new Access_Request__c();
+        insert accessRequest;
+
+        Application__c application = new Application__c();
+        application.Account__c = account.Id;
+        application.Access_Request__c = accessRequest.Id;
+        application.IsConfirmationEmailSent__c = true;
+        application.Status__c = 'New';
+
+        List<RelatedContact__c> contacts = new List<RelatedContact__c>{
+            new RelatedContact__c(Name = 'Linked Contact')
+        };
+        List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>{ new ApplicationBasisCode__c() };
+        String base64 = EncodingUtil.base64Encode(Blob.valueOf('test-content'));
+
+        System.Test.startTest();
+        Id appId = AAREG_ApplicationController.processApplication(
+            application,
+            basisCodes,
+            contacts,
+            base64,
+            'document.txt'
+        );
+        System.Test.stopTest();
+
+        Integer applicationLinks = [
+            SELECT COUNT()
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId = :appId
+        ];
+        Integer accessRequestLinks = [
+            SELECT COUNT()
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId = :accessRequest.Id
+        ];
+
+        System.Assert.areEqual(1, applicationLinks, 'Uploaded file should be linked to the application.');
+        System.Assert.areEqual(1, accessRequestLinks, 'Uploaded file should be linked to the access request.');
+    }
+
+    /**
      * processApplication should still create the application when the forced sanitize-allowed branch is set.
      *
      * @since August 2026

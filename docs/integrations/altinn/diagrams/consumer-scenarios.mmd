@@ -1,0 +1,27 @@
+flowchart LR
+    subgraph Consumer["crm-arbeidsforhold"]
+        Home["AAREG_HomeController"]
+        Utils["AAREG_CommunityUtils"]
+        Factory["AAREG_AltinnServiceFactory"]
+        Policy["AAREG_AltinnScenarioPolicy"]
+        Setting[("Brukarsetting og permission")]
+        Provider["AAREG_AltinnScenarioProvider"]
+        Repository["AAREG_AltinnScenarioRepository"]
+        Scenarios[("Versjonerte scenario")]
+    end
+    subgraph Integration["crm-platform-integration"]
+        Facade["AltinnCalloutService"]
+        Contract["IAltinnCalloutService"]
+        Live["Ordinaer provider"]
+    end
+    Home --> Factory
+    Utils --> Factory
+    Factory --> Policy
+    Policy --> Setting
+    Factory -->|"Opprettar"| Facade
+    Facade -->|"Delegerer via"| Contract
+    Contract -.->|"Modus av"| Live
+    Contract -.->|"Godkjend scenario-modus"| Provider
+    Provider -->|"Kontrollerer vern"| Policy
+    Provider --> Repository
+    Repository --> Scenarios

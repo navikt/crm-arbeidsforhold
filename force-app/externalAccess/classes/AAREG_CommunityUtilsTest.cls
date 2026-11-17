@@ -46,6 +46,7 @@ private class AAREG_CommunityUtilsTest {
      */
     @IsTest
     private static void getUserRightsAV3ApplayForAccess() {
+        AAREG_AltinnTestDataFactory.setAltinnVersion3(true);
         Altinn3IntegrationSetting__c settings = new Altinn3IntegrationSetting__c();
         settings.Name = 'Altinn3IntegrationSettings';
         settings.CachePartitionName__c = 'local.tokens';
@@ -60,14 +61,17 @@ private class AAREG_CommunityUtilsTest {
         String body = '{"response":[{"decision":"Permit","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[{"id":"urn:altinn:obligation:authenticationLevel1","attributeAssignment":[{"attributeId":"urn:altinn:obligation1-assignment1","value":"4","category":"urn:altinn:minimum-authenticationlevel","dataType":"http://www.w3.org/2001/XMLSchema#integer","issuer":null}]}],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
 
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', body, new Map<String, String>());
-        Test.setMock(HttpCalloutMock.class, mock);
+        System.Test.setMock(HttpCalloutMock.class, mock);
 
         System.Test.startTest();
-        AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(
-            user.Id,
-            DEFAULT_ORGANIZATION_NUMBER,
-            DEFAULT_ALTINN_APPLICATION_RESOURCE
-        );
+        AltinnCalloutService.AltinnRightsResponse response;
+        System.runAs(user) {
+            response = AAREG_CommunityUtils.getUserRights(
+                user.Id,
+                DEFAULT_ORGANIZATION_NUMBER,
+                DEFAULT_ALTINN_APPLICATION_RESOURCE
+            );
+        }
         System.Test.stopTest();
 
         System.debug('Response: ' + JSON.serializePretty(response));
@@ -84,6 +88,7 @@ private class AAREG_CommunityUtilsTest {
      */
     @IsTest
     private static void getUserRightsAV3ApplayForHenvendelse() {
+        AAREG_AltinnTestDataFactory.setAltinnVersion3(true);
         Altinn3IntegrationSetting__c settings = new Altinn3IntegrationSetting__c();
         settings.Name = 'Altinn3IntegrationSettings';
         settings.CachePartitionName__c = 'local.tokens';
@@ -98,14 +103,17 @@ private class AAREG_CommunityUtilsTest {
         String body = '{"response":[{"decision":"Permit","status":{"statusMessage":null,"statusDetails":null,"statusCode":{"value":"urn:oasis:names:tc:xacml:1.0:status:ok","statusCode":null}},"obligations":[{"id":"urn:altinn:obligation:authenticationLevel1","attributeAssignment":[{"attributeId":"urn:altinn:obligation1-assignment1","value":"4","category":"urn:altinn:minimum-authenticationlevel","dataType":"http://www.w3.org/2001/XMLSchema#integer","issuer":null}]}],"associateAdvice":null,"category":null,"policyIdentifierList":null}]}';
 
         SingleRequestMock mock = new SingleRequestMock(200, 'OK', body, new Map<String, String>());
-        Test.setMock(HttpCalloutMock.class, mock);
+        System.Test.setMock(HttpCalloutMock.class, mock);
 
         System.Test.startTest();
-        AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(
-            user.Id,
-            DEFAULT_ORGANIZATION_NUMBER,
-            DEFAULT_ALTINN_SUPPORT_RESOURCE
-        );
+        AltinnCalloutService.AltinnRightsResponse response;
+        System.runAs(user) {
+            response = AAREG_CommunityUtils.getUserRights(
+                user.Id,
+                DEFAULT_ORGANIZATION_NUMBER,
+                DEFAULT_ALTINN_SUPPORT_RESOURCE
+            );
+        }
         System.Test.stopTest();
 
         System.debug('Response: ' + JSON.serializePretty(response));

@@ -94,7 +94,16 @@ export default class Aareg_myApplications extends NavigationMixin(LightningEleme
                 ...application,
                 decisionUrl: null,
                 disableButton: true,
-                disableApplication: !['Venter på svar', 'Utkast'].includes(application.Status__c)
+                disableApplication: ![
+                    'Venter på svar',
+                    'Utkast',
+                    'Innvilget',
+                    'Delvis Innvilget',
+                    'Avslag',
+                    'Under Behandling',
+                    'Ny',
+                    'Henlagt'
+                ].includes(application.Status__c)
             }));
             this.updateStatusFilterOptions(rows);
             this.resolveDecisionStateOnLoad(rows);

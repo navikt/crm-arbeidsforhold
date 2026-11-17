@@ -1,0 +1,48 @@
+flowchart LR
+    APP["crm-arbeidsforhold<br/>vår pakke"]
+    subgraph HELPERS["Grunnpakker og hjelparar"]
+        DATA["platform-data-model"]
+        DAO["custom-metadata-dao"]
+        PERM["custom-permission-helper"]
+        TOGGLE["feature-toggle"]
+        CACHE["record-type-cache"]
+    end
+    subgraph PLATFORM["Plattformtenester"]
+        BASE["crm-platform-base"]
+        REPORT["crm-platform-reporting"]
+        INTEGRATION["crm-platform-integration"]
+        ACCESS["crm-platform-access-control"]
+        EMAIL["crm-platform-email-scheduling"]
+        JOURNAL["crm-journal-utilities"]
+        TASK["crm-platform-oppgave"]
+    end
+    subgraph SHARED["Delte komponentar og flater"]
+        FLOW["crm-shared-flowComponents"]
+        THREAD["crm-thread-view"]
+        TIMELINE["crm-shared-timeline"]
+        COMMUNITY["crm-community-base"]
+        NOTIFY["crm-shared-user-notification"]
+    end
+    subgraph DIALOG["Henvendelsespakkar"]
+        HBASE["crm-henvendelse-base"]
+        HENV["crm-henvendelse"]
+    end
+    APP --> DATA
+    APP --> DAO
+    APP --> PERM
+    APP --> TOGGLE
+    APP --> CACHE
+    APP --> BASE
+    APP --> REPORT
+    APP --> INTEGRATION
+    APP --> ACCESS
+    APP --> EMAIL
+    APP --> JOURNAL
+    APP --> TASK
+    APP --> FLOW
+    APP --> THREAD
+    APP --> TIMELINE
+    APP --> COMMUNITY
+    APP --> NOTIFY
+    APP --> HBASE
+    APP --> HENV

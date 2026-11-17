@@ -19,16 +19,10 @@ Klon repoet og kjør kommandoene fra prosjektroten.
 
 ## Scratch org
 
-Scratch-org-flyten og avhengighetsinstallasjon er dokumentert i [bin/README.md](bin/README.md). Der finner du blant annet:
-
-- opprettelse med `bin/create-scratch-org.sh`
-- Windows-flyt med `bin/create-scratch-org.bat` (PowerShell engine, no `sf-project` dependency)
-- henting fra scratch-org-pool
-- pakkeoppløsning og nødvendige Dev Hub-forutsetninger
-
-En typisk CLI-flyt starter med at du logger inn mot en Dev Hub med `sf org login web`, og deretter bruker den dokumenterte scratch-org-flyten. Installasjonsnøkler skal aldri legges i README, kildekode eller shell-historikk.
-
-På Windows er `bin/create-scratch-org.bat` den anbefalte CMD-inngangen.
+Oppsett, pool, avhengigheter, preflight, autofiks og feilsøking er samlet i
+[scratch-org-guiden](bin/README.md). Se [kommandoreferansen](bin/COMMANDS.md)
+for alle flagg og eksempler og [plattformmatrisen](bin/COMPATIBILITY.md) for
+forskjeller mellom macOS, Linux og Windows. Org-endringer krever godkjenning.
 
 ## Lokal validering
 
@@ -38,51 +32,44 @@ npm test
 npm run prettier:check
 ```
 
-`npm test` kjører LWC Jest-testene. Apex-kompilering og Apex-tester er org-avhengige og må kjøres mot en autentisert Salesforce-org.
+`npm test` kjører først Node-testene for lokale utviklerverktøy og deretter LWC Jest-testene.
+Bruk `npm run test:node` for bare Node-testene og `npm run test:unit` for bare LWC-testene.
+`npm run test:dependency-report` køyrer dei isolerte Jest/jsdom-testane for
+interaktiv HTML (hover/fokus, retning, låsing, tastatur og zoom). Denne separate
+kommandoen er ikkje inkludert i `npm test` eller den avhengigheitsfrie offline-CI.
+Han krev prosjektets installerte devDependencies, men ingen Salesforce-org.
+Med PowerShell 7 LTS installert kan `npm run test:scratch-org:powershell` køyre
+den portable offline-harnessen på Mac og Windows, utan Salesforce-tilgang.
+Mac-testane verifiserer ikkje Windows-entrypoints; desse krev eiga Windows-køyring.
+Node-testene under `bin/tests/` og `scripts/tests/` bruker `node:test` og er derfor
+utelatt fra Jest sitt testsøk. Begge runnerne må lykkes for at `npm test` skal lykkes.
+Apex-kompilering og Apex-tester er org-avhengige og må kjøres mot en autentisert Salesforce-org.
+
+### Behovsstyrte PR-sjekkar
+
+PR-workflowene bevarer påkrevde sjekknavn og velger Salesforce-/LWC-validering
+ut fra endringene. Rene dokumentasjons- og verktøyendringer trenger normalt
+ikke org-validering; lokale tester og formatering gjelder fortsatt.
+Se [endringsfilteret og eksemplene](scripts/README.md#behovsstyrte-ci-sjekkar)
+for regler, sikkerhetsgrenser og lokal kontroll. Endringer i workflows krever
+særskilt menneskelig gjennomgang.
+
+### Pre-commit på Windows, Linux og macOS
+
+Husky installeres ved `npm install` eller `npm ci`. Git og Node må være i PATH,
+og Node må oppfylle npm-avhengighetenes krav (`lint-staged` 17.6.0 krever >=22.22.1).
+Hooken beskytter pakkeeide mapper og formaterer staged filer. Se
+[hook- og formateringsguiden](scripts/README.md#pre-commit-og-formatering) for
+oppsett, godkjente unntak, eksempler og isolerte tester.
 
 ## Salesforce Project CLI
 
-CLI-en er ein sjølvstendig lokal pakke i [tools/salesforce-project-cli](tools/salesforce-project-cli). Root-prosjektet har ingen npm-script eller dependency som startar verktøyet automatisk.
-
-Installer verktøyet frå tool-mappa. Denne eine kommandoen installerer avhengigheiter, byggjer CLI-en, opprettar prosjektkonfigurasjonen og lenkjer `sf-project` lokalt:
-
-```bash
-cd tools/salesforce-project-cli
-npm run setup
-```
-
-Setup opprettar eller gjennomgår `sf-project.config.json` ved sida av `sfdx-project.json`. Kvar innstilling viser eksisterande verdi og defaultverdi. Trykk Enter for å bevare eksisterande verdi; dersom innstillinga manglar, brukar Enter defaultverdien.
-
-Gå så tilbake til repo-rota:
-
-```bash
-cd ../..
-```
-
-Køyr deretter kommandoane frå repo-rota:
-
-```bash
-sf-project doctor
-sf-project org list
-sf-project packages plan
-sf-project web start
-```
-
-Utan global lenking kan du køyre CLI-en direkte frå tool-mappa:
-
-```bash
-cd tools/salesforce-project-cli
-npx sf-project doctor --project-dir ../..
-```
-
-Konfigurasjonen inneheld ikkje installasjonsnøklar. Nøkkelen må ligge i miljøvariabelen som står i `packageInstallKeyEnvironmentVariable`. På macOS kan ein lagre ein nøkkel i Keychain og berre eksportere han for éi køyring:
-
-```bash
-security add-generic-password -a "$USER" -s PACKAGE_INSTALL_KEY -w
-PACKAGE_INSTALL_KEY="$(security find-generic-password -a "$USER" -s PACKAGE_INSTALL_KEY -w)" sf-project packages install --target-org my-org
-```
-
-Nøklar, tokens og credentials skal ikkje skrivast til `sf-project.config.json`, shell-script eller README.
+Den valgfrie [Salesforce Project CLI-en](tools/salesforce-project-cli/README.md)
+er en separat lokal pakke med egen installasjon, kommandoreferanse og webflate.
+Den kreves ikke av scratch-org-skriptene og startes ikke automatisk fra rotprosjektet.
+Se [verktøyets dokumentasjon](tools/salesforce-project-cli/docs/README.md) for bruk
+og forskjeller fra skriptene. Nøkler og credentials skal ikke lagres i kildekode
+eller konfigurasjonsfiler.
 
 ## Dokumentasjon og agentregler
 
@@ -95,5 +82,8 @@ Nøklar, tokens og credentials skal ikkje skrivast til `sf-project.config.json`,
 - [docs/surfaces/](docs/surfaces/) — brukerflate-dokumentasjon
 - [docs/integrations/](docs/integrations/) — integrasjonsspesifikk teknisk dokumentasjon
 - [docs/utviklingsstandarder.md](docs/utviklingsstandarder.md) — speilet oversikt over utviklingsstandarder
+- [bin/COMMANDS.md](bin/COMMANDS.md) — total kommandoreferanse for lokale skript
+- [bin/COMPATIBILITY.md](bin/COMPATIBILITY.md) — funksjons-, system- og testmatriser
+- [scripts/README.md](scripts/README.md) — full oversikt over støtteskript
 
 Testtilgang, testbrukere, tokens, credentials og miljøspesifikke URL-er skal håndteres i godkjent, ikke-offentlig dokumentasjon.

@@ -7,7 +7,11 @@ import { EXIT_CODES, type EventSink, type ExitCode } from '../domain/events.js';
 import { isOrgMutationConfirmed, type OrgClassification } from '../domain/org-policy.js';
 import type { CommandRequest, CommandResult } from '../infrastructure/command-runner.js';
 import { withProgressHeartbeat } from '../infrastructure/progress-heartbeat.js';
-import { classifySalesforceFailure, describeCommandFailure, isTransientCommandFailure } from '../infrastructure/salesforce-errors.js';
+import {
+    classifySalesforceFailure,
+    describeCommandFailure,
+    isTransientCommandFailure
+} from '../infrastructure/salesforce-errors.js';
 import { runCommandStep, withCommandOutput } from './command-step-runner.js';
 import { clearDependencySources } from './clear-dependency-sources.js';
 import { importDummyUsers } from './dummy-users.js';
@@ -134,43 +138,85 @@ interface PostStepCommand {
     arguments: string[];
 }
 
-function postStepCommand(configuration: ProjectConfiguration, alias: string, postStep: PostStep): PostStepCommand | undefined {
+function postStepCommands(
+    configuration: ProjectConfiguration,
+    alias: string,
+    postStep: PostStep
+): PostStepCommand[] | undefined {
     switch (postStep) {
         case 'deploy':
-            return { executable: 'sf', arguments: ['project', 'deploy', 'start', '--target-org', alias, '--ignore-conflicts'] };
+            return [
+                {
+                    executable: 'sf',
+                    arguments: ['project', 'deploy', 'start', '--target-org', alias, '--ignore-conflicts']
+                }
+            ];
         case 'permsets':
             return configuration.permissionSets.length === 0
                 ? undefined
-                : {
-                    executable: 'sf',
-                    arguments: [
-                        'org',
-                        'assign',
-                        'permset',
-                        '--target-org',
-                        alias,
-                        ...configuration.permissionSets.flatMap((permissionSet) => ['--name', permissionSet])
-                    ]
-                };
+                : [
+                      {
+                          executable: 'sf',
+                          arguments: [
+                              'org',
+                              'assign',
+                              'permset',
+                              '--target-org',
+                              alias,
+                              ...configuration.permissionSets.flatMap((permissionSet) => ['--name', permissionSet])
+                          ]
+                      }
+                  ];
         case 'data':
             return configuration.dummyDataPlan === null
                 ? undefined
-                : {
-                    executable: 'sf',
-                    arguments: ['data', 'import', 'tree', '--target-org', alias, '--plan', configuration.dummyDataPlan]
-                };
+                : [
+                      {
+                          executable: 'sf',
+                          arguments: [
+                              'data',
+                              'import',
+                              'tree',
+                              '--target-org',
+                              alias,
+                              '--plan',
+                              configuration.dummyDataPlan
+                          ]
+                      }
+                  ];
         case 'community':
             return configuration.communityName === null
                 ? undefined
-                : {
-                    executable: 'sf',
-                    arguments: ['community', 'publish', '--target-org', alias, '--name', configuration.communityName]
-                };
+                : [
+                      {
+                          executable: 'sf',
+                          arguments: [
+                              'community',
+                              'publish',
+                              '--target-org',
+                              alias,
+                              '--name',
+                              configuration.communityName
+                          ]
+                      }
+                  ];
+        case 'altinn-scenario-users':
+            return configuration.communityName === null
+                ? undefined
+                : [
+                      'bin/seed-altinn-scenario-owner.apex',
+                      'bin/seed-altinn-scenario-accounts.apex',
+                      'bin/seed-altinn-scenario-users.apex',
+                      'bin/seed-altinn-scenario-settings.apex'
+                  ].map((file) => ({
+                      executable: 'sf',
+                      arguments: ['apex', 'run', '--target-org', alias, '--file', file]
+                  }));
         default: {
             const customStep = configuration.customPostSteps.find((candidate) => candidate.name === postStep);
             return customStep === undefined
                 ? undefined
-                : { executable: customStep.executable, arguments: customStep.arguments };
+                : [{ executable: customStep.executable, arguments: customStep.arguments }];
         }
     }
 }
@@ -180,7 +226,8 @@ function postStepLabel(configuration: ProjectConfiguration, postStep: PostStep):
         deploy: 'Deploy metadata',
         permsets: 'Assign permission sets',
         data: 'Import dummy data',
-        community: 'Publish community'
+        community: 'Publish community',
+        'altinn-scenario-users': 'Seed synthetic Altinn scenario users'
     };
     const builtinLabel = builtinLabels[postStep];
     if (builtinLabel !== undefined) return builtinLabel;
@@ -212,7 +259,9 @@ function emitPostStepResult(
  * @param options - Resolved configuration and the requested post-steps.
  * @returns The first unrecognized step name, or `undefined` when every requested step is known.
  */
-function findUnknownPostStep(options: Pick<ConfigureProjectOptions, 'configuration' | 'postSteps'>): string | undefined {
+function findUnknownPostStep(
+    options: Pick<ConfigureProjectOptions, 'configuration' | 'postSteps'>
+): string | undefined {
     const knownSteps = new Set(canonicalPostStepOrder(options.configuration));
     return options.postSteps.find((postStep) => !knownSteps.has(postStep));
 }
@@ -228,8 +277,8 @@ async function runPostSteps(options: ResolvedConfigureProjectOptions): Promise<E
             emitPostStepResult(options, postStep, 'skipped', `${postStep} was not selected`);
             continue;
         }
-        const command = postStepCommand(options.configuration, options.alias, postStep);
-        if (command === undefined) {
+        const commands = postStepCommands(options.configuration, options.alias, postStep);
+        if (commands === undefined) {
             warnings += 1;
             emitPostStepResult(options, postStep, 'warning', `${postStep} has no configured value`);
             continue;
@@ -257,10 +306,13 @@ async function runPostSteps(options: ResolvedConfigureProjectOptions): Promise<E
                 ['project', 'delete', 'tracking', '--target-org', options.alias, '--no-prompt']
             );
         }
-        if (stepExitCode === EXIT_CODES.SUCCESS) {
+        for (const [index, command] of commands.entries()) {
+            if (stepExitCode !== EXIT_CODES.SUCCESS) break;
+            const commandStepId =
+                commands.length === 1 ? `post-step:${postStep}` : `post-step:${postStep}:${index + 1}`;
             stepExitCode = await runStep(
                 options,
-                `post-step:${postStep}`,
+                commandStepId,
                 postStepLabel(options.configuration, postStep),
                 command.executable,
                 command.arguments
@@ -335,40 +387,34 @@ async function resetSourceTracking(options: ResolvedConfigureProjectOptions): Pr
             message: (elapsedSeconds) => `${step} is still running (${elapsedSeconds}s, attempt ${currentAttempt}/3)`
         },
         () =>
-            options.runCommand(withCommandOutput(options, stepId, step, {
-                executable: 'sf',
-                arguments: [
-                    'project',
-                    'reset',
-                    'tracking',
-                    '--target-org',
-                    options.alias,
-                    '--no-prompt',
-                    '--json'
-                ],
-                cwd: options.configuration.projectDirectory,
-                retry: {
-                    maxAttempts: 3,
-                    delayMs: 5_000,
-                    shouldRetry: isTransientCommandFailure,
-                    onRetry: (failure, nextAttempt, delayMs) => {
-                        currentAttempt = nextAttempt;
-                        options.emit({
-                            kind: 'retrying',
-                            operationId: options.operationId,
-                            timestamp: new Date().toISOString(),
-                            stepId,
-                            step,
-                            attempt: nextAttempt - 1,
-                            nextAttempt,
-                            maxAttempts: 3,
-                            delayMs,
-                            message: `Retrying ${step}`,
-                            error: failure.error ?? failure.stderr
-                        });
+            options.runCommand(
+                withCommandOutput(options, stepId, step, {
+                    executable: 'sf',
+                    arguments: ['project', 'reset', 'tracking', '--target-org', options.alias, '--no-prompt', '--json'],
+                    cwd: options.configuration.projectDirectory,
+                    retry: {
+                        maxAttempts: 3,
+                        delayMs: 5_000,
+                        shouldRetry: isTransientCommandFailure,
+                        onRetry: (failure, nextAttempt, delayMs) => {
+                            currentAttempt = nextAttempt;
+                            options.emit({
+                                kind: 'retrying',
+                                operationId: options.operationId,
+                                timestamp: new Date().toISOString(),
+                                stepId,
+                                step,
+                                attempt: nextAttempt - 1,
+                                nextAttempt,
+                                maxAttempts: 3,
+                                delayMs,
+                                message: `Retrying ${step}`,
+                                error: failure.error ?? failure.stderr
+                            });
+                        }
                     }
-                }
-            }))
+                })
+            )
     );
     if (failed(result)) {
         options.emit({
@@ -392,7 +438,8 @@ async function resetSourceTracking(options: ResolvedConfigureProjectOptions): Pr
         };
         sourceMembersSynced =
             typeof payload.result?.sourceMembersSynced === 'number' ? payload.result.sourceMembersSynced : undefined;
-        localPathsSynced = typeof payload.result?.localPathsSynced === 'number' ? payload.result.localPathsSynced : undefined;
+        localPathsSynced =
+            typeof payload.result?.localPathsSynced === 'number' ? payload.result.localPathsSynced : undefined;
     } catch {
         // The command succeeded; older CLI versions may not return JSON counters.
     }
@@ -553,17 +600,17 @@ function parseUnusedPoolOrgCount(stdout: string): number | undefined {
 
 async function resolvePoolDevHub(options: CreateOrgOptions): Promise<string | undefined> {
     if (options.poolDevHub !== undefined) return options.poolDevHub;
-    const result = await options.runCommand(withCommandOutput(options, 'pool-devhub', 'Resolve pool Dev Hub', {
-        executable: 'sf',
-        arguments: ['config', 'get', 'target-dev-hub', '--json'],
-        cwd: options.configuration.projectDirectory
-    }));
+    const result = await options.runCommand(
+        withCommandOutput(options, 'pool-devhub', 'Resolve pool Dev Hub', {
+            executable: 'sf',
+            arguments: ['config', 'get', 'target-dev-hub', '--json'],
+            cwd: options.configuration.projectDirectory
+        })
+    );
     if (failed(result)) return undefined;
     try {
         const payload = JSON.parse(result.stdout) as { result?: Array<Record<string, unknown>> };
-        const setting = payload.result?.find(
-            (item) => item.name === 'target-dev-hub' || item.key === 'target-dev-hub'
-        );
+        const setting = payload.result?.find((item) => item.name === 'target-dev-hub' || item.key === 'target-dev-hub');
         return typeof setting?.value === 'string' && setting.value.length > 0 ? setting.value : undefined;
     } catch {
         return undefined;
@@ -585,11 +632,13 @@ async function acquireFromPool(options: CreateOrgOptions): Promise<'acquired' | 
         });
         return EXIT_CODES.INVALID_INPUT_OR_CONFIG;
     }
-    const listResult = await options.runCommand(withCommandOutput(options, 'pool-list', 'List scratch org pool', {
-        executable: 'sfp',
-        arguments: ['pool', 'list', '--tag', options.poolTag, '-a', '--targetdevhubusername', poolDevHub],
-        cwd: options.configuration.projectDirectory
-    }));
+    const listResult = await options.runCommand(
+        withCommandOutput(options, 'pool-list', 'List scratch org pool', {
+            executable: 'sfp',
+            arguments: ['pool', 'list', '--tag', options.poolTag, '-a', '--targetdevhubusername', poolDevHub],
+            cwd: options.configuration.projectDirectory
+        })
+    );
     if (failed(listResult)) {
         options.emit({
             kind: 'step-failed',
@@ -706,8 +755,7 @@ async function acquireByCreation(options: CreateOrgOptions): Promise<ExitCode> {
  */
 export async function createOrg(options: CreateOrgOptions): Promise<ExitCode> {
     const resolvedPoolDevHub = options.usePool ? await resolvePoolDevHub(options) : options.poolDevHub;
-    const resolvedOptions =
-        resolvedPoolDevHub === undefined ? options : { ...options, poolDevHub: resolvedPoolDevHub };
+    const resolvedOptions = resolvedPoolDevHub === undefined ? options : { ...options, poolDevHub: resolvedPoolDevHub };
     if (resolvedOptions.usePool && resolvedOptions.poolDevHub === undefined) {
         options.emit({
             kind: 'step-failed',

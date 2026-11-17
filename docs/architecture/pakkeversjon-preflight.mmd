@@ -1,0 +1,17 @@
+flowchart TB
+    START["Les manifest og pakkemetadata"] --> METADATA{"Metadata og deklarasjonar gyldige?"}
+    METADATA -->|"Nei"| STOP["Stopp utan oppsettsplan"]
+    METADATA -->|"Ja"| CHECK{"Minimum, deklarasjonar og rekkjefølgje OK?"}
+    CHECK -->|"Ja"| PASS["PASS<br/>Høgare versjonar er berre informasjon"]
+    PASS --> PLAN["Versjonsplan for denne køyringa"]
+    CHECK -->|"Nei, interaktiv køyring"| CHOICE{"Vis konkret problem og be om val"}
+    CHECK -->|"Nei, utan interaksjon og utan eksplisitt apply"| STOP
+    CHOICE -->|"s / Enter / EOF"| STOP
+    CHOICE -->|"c"| ACCEPT["Fortset uendra med åtvaring<br/>Problema er ikkje retta"]
+    ACCEPT --> PLAN
+    CHOICE -->|"f"| FIX["Foreslå oppgradering, manglande pakkar og rett rekkjefølgje"]
+    FIX --> VALIDATE{"Heile den foreslåtte grafen består?"}
+    VALIDATE -->|"Nei"| STOP
+    VALIDATE -->|"Ja"| SAVE["Ta backup og skriv validert manifest"]
+    SAVE --> PLAN
+    PLAN --> SETUP["Fortset det godkjende org-oppsettet"]

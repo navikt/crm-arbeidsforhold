@@ -9,13 +9,17 @@ set -euo pipefail
 # Project-specific values belong in sf-project.config.json, never in this file.
 
 DEFAULT_DURATION_DAYS=14
+CHECK_DEPENDENCIES_ONLY=false
+APPLY_DEPENDENCIES=false
+DEPENDENCY_PLAN_DIR=""
+DEPENDENCY_CHECK_SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/package-dependencies.js"
 DEFAULT_SCRATCH_DEF_FILE="config/project-scratch-def.json"
 DEFAULT_POST_STEPS="deploy"
 DEFAULT_POOL_TAG="dev"
 DEFAULT_DUMMY_USER_PROFILE_NAME="Standard User"
 DEFAULT_PACKAGE_INSTALL_KEY_ENV_VAR="PACKAGE_INSTALL_KEY"
 DEFAULT_PRESERVE_ROOT_FILES="README.md"
-BUILTIN_POST_STEPS="deploy permsets data community"
+BUILTIN_POST_STEPS="deploy permsets data community altinn-scenario-users"
 CONFIG_FILE_NAME="sf-project.config.json"
 # jq helper that quotes a value as a SOQL string literal, escaping backslashes and single quotes.
 SOQL_STRING_JQ='def soql_string: "\u0027" + (gsub("\\\\"; "\\\\") | gsub("\u0027"; "\\\u0027")) + "\u0027";'
@@ -28,6 +32,7 @@ fi
 DURATION_DAYS="${DURATION_DAYS:-}"
 SCRATCH_DEF_FILE="${SCRATCH_DEF_FILE:-}"
 PROJECT_FILE="${PROJECT_FILE:-sfdx-project.json}"
+DEPENDENCY_REPORT=""
 COMMUNITY_NAME="${COMMUNITY_NAME:-}"
 DUMMY_DATA_PLAN="${DUMMY_DATA_PLAN:-}"
 PERMISSION_SETS="${PERMISSION_SETS:-}"
@@ -446,6 +451,10 @@ on_exit() {
     local exit_code=$?
     set +e
     print_run_summary "$exit_code"
+    if [[ -n "$DEPENDENCY_PLAN_DIR" ]]; then
+        rm -f "$DEPENDENCY_PLAN_DIR/plan.json"
+        rmdir "$DEPENDENCY_PLAN_DIR"
+    fi
 }
 
 trap on_exit EXIT
@@ -490,7 +499,7 @@ create-scratch-org.sh - create and configure a Salesforce scratch org for this p
 
 A full run: delete the old org with the same alias, create a new one, install the
 package dependencies from sfdx-project.json, then run the post-steps
-(deploy, permsets, data, community, custom steps).
+(deploy, permsets, data, community, altinn-scenario-users, custom steps).
 
 Usage:
   ./bin/create-scratch-org.sh [options]
@@ -519,7 +528,7 @@ Target and scratch org:
 What to run:
   --post-steps-only               Use an existing org: skip org create and package install.
   -s, --post-steps <steps>        Comma-separated post-steps. Config: postSteps. Default: deploy
-                                  Values: deploy, permsets, data, community, custom step names, all, none.
+                                  Values: deploy, permsets, data, community, altinn-scenario-users, custom step names, all, none.
   --redeploy                      Shortcut for --post-steps-only --post-steps deploy --full-deploy.
   --full-deploy                   The deploy step deletes local source tracking first, so all local
                                   source is deployed, not only tracked changes. Org data is untouched.
@@ -560,6 +569,7 @@ Maintenance:
 
 Configuration:
   -p, --project-file <file>       Salesforce DX project file. Default: sfdx-project.json
+  --dependency-report <file.md>   Override the automatic Markdown/Mermaid report path.
   --config <file>                 Config file. Default: sf-project.config.json next to the project file.
   --no-config                     Ignore the config file.
   --init-config                   Write sf-project.config.json from the effective settings and exit.
@@ -1505,6 +1515,20 @@ RESOLVED_LATEST_SUBSCRIBER_PACKAGE_VERSION_ID=""
 resolve_package_version() {
     local package_name="$1"
     local requested_version="$2"
+    if [[ -n "$DEPENDENCY_PLAN_DIR" ]]; then
+        local validated
+        validated="$(jq -ce --arg name "$package_name" '.[$name]' "$DEPENDENCY_PLAN_DIR/plan.json")" \
+            || error 1 "No validated dependency version for $package_name"
+        RESOLVED_SUBSCRIBER_PACKAGE_VERSION_ID="$(subscriber_package_version_id_from_json "$validated")"
+        RESOLVED_SELECTED_VERSION="$(version_label_from_json "$validated")"
+        RESOLVED_SELECTED_BASE_VERSION="$(base_version_from_json "$validated")"
+        local validated_latest
+        validated_latest="$(jq -c '.LatestVersion // .' <<< "$validated")"
+        RESOLVED_LATEST_VERSION="$(version_label_from_json "$validated_latest")"
+        RESOLVED_LATEST_BASE_VERSION="$(base_version_from_json "$validated_latest")"
+        RESOLVED_LATEST_SUBSCRIBER_PACKAGE_VERSION_ID="$(subscriber_package_version_id_from_json "$validated_latest")"
+        return
+    fi
 
     local versions_json=""
     local selected_json=""
@@ -1593,6 +1617,7 @@ print_package_update_suggestions() {
     while IFS='|' read -r package_name current_version suggested_version latest_version latest_04t; do
         [[ -z "$package_name" ]] && continue
 
+        echo "Dependency checks: --check-dependencies (read-only), --apply-dependencies (explicit manifest update)"
         cat <<EOF_JSON
 {
     "package": "$package_name",
@@ -1994,7 +2019,9 @@ dependency_package_directory() {
 is_preserved_root_file() {
     local entry_name="$1"
     local preserved=""
+    local preserved_entries=()
 
+    [[ -n "$PRESERVE_ROOT_FILES" ]] || return 1
     IFS=',' read -ra preserved_entries <<< "$PRESERVE_ROOT_FILES"
     for preserved in "${preserved_entries[@]}"; do
         preserved="${preserved// /}"
@@ -2578,6 +2605,32 @@ publish_community() {
     add_action "Published community $COMMUNITY_NAME"
 }
 
+seed_altinn_scenario_users() {
+    local apex_file
+    local -a apex_files=(
+        "bin/seed-altinn-scenario-owner.apex"
+        "bin/seed-altinn-scenario-accounts.apex"
+        "bin/seed-altinn-scenario-users.apex"
+        "bin/seed-altinn-scenario-settings.apex"
+    )
+
+    step "Seeding synthetic Altinn scenario users..."
+
+    for apex_file in "${apex_files[@]}"; do
+        if [[ "$DRY_RUN" != "true" && ! -f "$apex_file" ]]; then
+            error 1 "Altinn scenario seed file not found: $apex_file"
+        fi
+    done
+    for apex_file in "${apex_files[@]}"; do
+        run_cmd sf apex run \
+            --target-org "$TARGET_ORG" \
+            --file "$apex_file" \
+            || error $? "\"sf apex run\" command failed for synthetic Altinn seed: $apex_file"
+    done
+
+    add_action "Seeded synthetic Altinn scenario users"
+}
+
 run_custom_post_step() {
     local step_name="$1"
     local executable=""
@@ -2605,6 +2658,7 @@ run_post_step() {
         permsets) [[ -z "$PERMISSION_SETS" ]] && missing_setting="No permission sets configured (permissionSets / PERMISSION_SETS / --permission-sets)." ;;
         data) [[ -z "$DUMMY_DATA_PLAN" ]] && missing_setting="No dummy data plan configured (dummyDataPlan / DUMMY_DATA_PLAN / --dummy-data-plan)." ;;
         community) [[ -z "$COMMUNITY_NAME" ]] && missing_setting="No community name configured (communityName / COMMUNITY_NAME / --community-name)." ;;
+        altinn-scenario-users) [[ -z "$COMMUNITY_NAME" ]] && missing_setting="No community name configured (communityName / COMMUNITY_NAME / --community-name)." ;;
     esac
 
     if [[ -n "$missing_setting" ]]; then
@@ -2618,6 +2672,7 @@ run_post_step() {
         permsets) assign_permission_sets ;;
         data) import_dummy_data ;;
         community) publish_community ;;
+        altinn-scenario-users) seed_altinn_scenario_users ;;
         *) run_custom_post_step "$step" ;;
     esac
 
@@ -3122,6 +3177,11 @@ while [[ $# -gt 0 ]]; do
             PROJECT_FILE="$2"
             shift 2
             ;;
+        --dependency-report)
+            require_option_value "$1" "${2:-}"
+            DEPENDENCY_REPORT="$2"
+            shift 2
+            ;;
         -c|--community-name)
             require_option_value "$1" "${2:-}"
             COMMUNITY_NAME="$2"
@@ -3205,6 +3265,15 @@ while [[ $# -gt 0 ]]; do
             ;;
         --package-plan)
             PACKAGE_PLAN_ONLY=true
+            shift
+            ;;
+        --check-dependencies)
+            CHECK_DEPENDENCIES_ONLY=true
+            shift
+            ;;
+        --apply-dependencies)
+            CHECK_DEPENDENCIES_ONLY=true
+            APPLY_DEPENDENCIES=true
             shift
             ;;
         --check-versions)
@@ -3487,6 +3556,26 @@ fi
 
 require_command "sf"
 
+check_package_dependencies() {
+    require_command "node"
+    local arguments=("$DEPENDENCY_CHECK_SCRIPT" --project-file "$PROJECT_FILE")
+    [[ -n "$DEPENDENCY_REPORT" ]] && arguments+=(--report "$DEPENDENCY_REPORT")
+    if colour_enabled; then arguments+=(--color); else arguments+=(--no-color); fi
+    [[ "$INSTALL_LATEST_PACKAGES" == "true" ]] && arguments+=(--latest)
+    [[ "$DRY_RUN" == "true" ]] && arguments+=(--dry-run)
+    [[ "$APPLY_DEPENDENCIES" == "true" ]] && arguments+=(--apply)
+    if [[ "$CHECK_DEPENDENCIES_ONLY" != "true" ]]; then
+        DEPENDENCY_PLAN_DIR="$(mktemp -d "${TMPDIR:-/tmp}/package-plan.XXXXXX")"
+        arguments+=(--plan-file "$DEPENDENCY_PLAN_DIR/plan.json")
+    fi
+    node "${arguments[@]}" || error 1 "Dependency preflight failed; no setup mutations were started."
+}
+
+if [[ "$CHECK_DEPENDENCIES_ONLY" == "true" ]]; then
+    check_package_dependencies
+    exit 0
+fi
+
 if [[ "$USE_POOL" == "true" ]]; then
     require_command "sfp"
     require_command "jq"
@@ -3568,6 +3657,9 @@ done
 [[ "$REFRESH_DEPENDENCY_SOURCES" == "true" ]] && PHASE_TOTAL=$((PHASE_TOTAL + 1))
 
 check_if_package_install_key_is_required
+if [[ "$RUN_PACKAGE_PHASE" == "true" ]]; then
+    check_package_dependencies
+fi
 setup_org
 
 if [[ "$RUN_PACKAGE_PHASE" == "true" ]]; then
