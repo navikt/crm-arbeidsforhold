@@ -273,13 +273,6 @@
             <assignToReference>relatedContactList</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference>loopThroughContacts.SecurityNotifications__c</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>relatedContactList</assignToReference>
-            <operator>Add</operator>
-            <value>
                 <elementReference>newLine</elementReference>
             </value>
         </assignmentItems>
@@ -636,7 +629,7 @@ Setter også svarfristdato</description>
     <formulas>
         <name>relatedContactDetails</name>
         <dataType>String</dataType>
-        <expression>{!loopThroughContacts.Name} &amp; ',' &amp; {!loopThroughContacts.Email__c} &amp; ',' &amp; {!loopThroughContacts.Phone__c} &amp; ',' &amp; TEXT({!loopThroughContacts.AgreementNotifications__c}) &amp; ',' &amp; TEXT({!loopThroughContacts.ChangeNotifications__c}) &amp; ',' &amp; TEXT({!loopThroughContacts.ErrorMessageNotifications__c}) &amp; ',' &amp; TEXT({!loopThroughContacts.SecurityNotifications__c})</expression>
+        <expression>{!loopThroughContacts.Name} &amp; ',' &amp; {!loopThroughContacts.Email__c} &amp; ',' &amp; {!loopThroughContacts.Phone__c} &amp; ',' &amp; IF({!loopThroughContacts.AgreementNotifications__c}, 'true', 'false') &amp; ',' &amp; IF({!loopThroughContacts.ChangeNotifications__c}, 'true', 'false') &amp; ',' &amp; IF({!loopThroughContacts.ErrorMessageNotifications__c}, 'true', 'false') &amp; ',' &amp; IF({!loopThroughContacts.SecurityNotifications__c}, 'true', 'false')</expression>
     </formulas>
     <formulas>
         <name>var_FlowNameNoLongerThan32Char</name>
