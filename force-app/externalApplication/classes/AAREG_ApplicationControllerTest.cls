@@ -256,6 +256,94 @@ private class AAREG_ApplicationControllerTest {
     }
 
     /**
+     * Keeps a previously saved application in progress after additional information is submitted.
+     *
+     * @since 2026-11-15
+     */
+    @IsTest
+    private static void shouldKeepResubmittedApplicationInProgress() {
+        User applicant;
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            applicant = Integration_TestDataFactory.createMinimumAccessUser();
+            PermissionSet communityPermission = [
+                SELECT Id
+                FROM PermissionSet
+                WHERE Name = 'AAREG_CommunityPermission'
+                LIMIT 1
+            ];
+            insert new PermissionSetAssignment(AssigneeId = applicant.Id, PermissionSetId = communityPermission.Id);
+        }
+
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        Access_Request__c accessRequest = new Access_Request__c();
+        insert accessRequest;
+
+        Application__c application = new Application__c(
+            Account__c = account.Id,
+            AccountId__c = String.valueOf(account.Id),
+            Access_Request__c = accessRequest.Id,
+            OwnerId = applicant.Id,
+            CasehandlerOwner__c = UserInfo.getUserId(),
+            Status__c = 'Additional Information Required',
+            Casehandler_Status__c = 'Additional Information Required',
+            IsConfirmationEmailSent__c = true
+        );
+        insert application;
+        application = [
+            SELECT Id, Account__c, AccountId__c, Access_Request__c, Status__c, Casehandler_Status__c
+            FROM Application__c
+            WHERE Id = :application.Id
+        ];
+        System.Assert.areEqual(account.Id, application.Account__c, 'The applicant organization should be linked');
+        System.Assert.areEqual(
+            String.valueOf(account.Id),
+            application.AccountId__c,
+            'The account ID used by the after-insert flow should be preserved'
+        );
+        System.Assert.areEqual('Additional Information Required', application.Status__c);
+        System.Assert.areEqual('Additional Information Required', application.Casehandler_Status__c);
+
+        Id originalApplicationId = application.Id;
+        Id processedApplicationId;
+        System.Test.startTest();
+        System.runAs(applicant) {
+            processedApplicationId = AAREG_ApplicationController.processApplication(
+                application,
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>(),
+                null,
+                null
+            );
+        }
+        System.Test.stopTest();
+
+        Application__c result = [
+            SELECT Id, Account__c, Access_Request__c, Status__c, Casehandler_Status__c
+            FROM Application__c
+            WHERE Id = :processedApplicationId
+        ];
+        System.Assert.areEqual(originalApplicationId, result.Id, 'Resubmission should reuse the application');
+        System.Assert.areEqual(account.Id, result.Account__c, 'Resubmission should retain the applicant organization');
+        System.Assert.areEqual(accessRequest.Id, result.Access_Request__c, 'The access request should be reused');
+        Access_Request__c resultAccessRequest = [
+            SELECT Account__c
+            FROM Access_Request__c
+            WHERE Id = :result.Access_Request__c
+        ];
+        System.Assert.areEqual(
+            account.Id,
+            resultAccessRequest.Account__c,
+            'The existing access request should retain the applicant organization'
+        );
+        System.Assert.areEqual('In Progress', result.Status__c, 'Application should be in progress');
+        System.Assert.areEqual(
+            'In Progress',
+            result.Casehandler_Status__c,
+            'Case handler status should be in progress'
+        );
+    }
+
+    /**
      * getLastUsedOrganizationInformation should return the account for the user's last used organization.
      *
      * @since May 2021

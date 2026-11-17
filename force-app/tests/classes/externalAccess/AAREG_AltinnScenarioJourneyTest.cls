@@ -315,6 +315,45 @@ private with sharing class AAREG_AltinnScenarioJourneyTest {
     }
 
     /**
+     * Gives a synthetic community account owner a role isolated from existing org roles.
+     *
+     * @since 2026-11-16
+     */
+    @IsTest
+    static void shouldUseAnIsolatedRoleForTheCommunityAccountOwner() {
+        String roleSuffix = EncodingUtil.convertToHex(Crypto.generateAesKey(128)).substring(0, 12);
+        UserRole existingRole = new UserRole(
+            Name = 'Existing Altinn Test ' + roleSuffix,
+            DeveloperName = 'Existing_Altinn_Test_' + roleSuffix
+        );
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            insert as system existingRole;
+        }
+        Set<Id> existingRoleIds = new Map<Id, UserRole>([SELECT Id FROM UserRole WITH SYSTEM_MODE]).keySet();
+
+        System.Test.startTest();
+        User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S01', 'subject-a');
+        System.Test.stopTest();
+
+        Contact contact = [
+            SELECT Account.OwnerId
+            FROM Contact
+            WHERE Id = :communityUser.ContactId
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        User accountOwner = [
+            SELECT UserRoleId
+            FROM User
+            WHERE Id = :contact.Account.OwnerId
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        System.Assert.isNotNull(accountOwner.UserRoleId, 'The community account owner needs a role');
+        System.Assert.isFalse(existingRoleIds.contains(accountOwner.UserRoleId), 'The role must be isolated');
+    }
+
+    /**
      * Inserts only synthetic fixture records in system mode; runtime access checks remain in community runAs blocks.
      */
     private static void insertAgreementForOrganization(String targetOrganizationNumber) {

@@ -11,8 +11,45 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Oppdag dokumentasjonsendringar
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      docs: ${{ steps.docs.outputs.docs }}
+    steps:
+      - name: Hent kjelda
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Kontroller endra filer
+        id: docs
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if git diff --quiet --no-renames "$BASE_SHA...$HEAD_SHA" -- \
+            docs/ docs-site/ mkdocs.yml requirements-docs.in requirements-docs.txt \
+            .github/workflows/docs-pages.yml ':(glob,icase)**/*.md' \
+            ':(glob,icase)**/*.markdown' ':(glob,icase)**/*.mdx' \
+            ':(glob,icase)**/*.mmd' ':(glob,icase)**/*.mermaid'; then
+            echo "docs=false" >> "$GITHUB_OUTPUT"
+          else
+            status=$?
+            if [ "$status" -ne 1 ]; then
+              echo "Kan ikkje avgjere dokumentasjonsendringar." >&2
+              exit "$status"
+            fi
+            echo "docs=true" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
     name: Bygg og kontroller dokumentasjon
+    needs: changes
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || needs.changes.outputs.docs != 'false') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -42,7 +79,7 @@ jobs:
 
   deploy:
     name: Publiser til GitHub Pages
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: ${{ !cancelled() && needs.build.result == 'success' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
     needs: build
     runs-on: ubuntu-latest
     concurrency:

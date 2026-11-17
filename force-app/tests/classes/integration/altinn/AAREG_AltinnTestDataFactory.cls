@@ -55,9 +55,13 @@ public with sharing class AAREG_AltinnTestDataFactory {
      * @return The inserted community user with scenario permission and assignment.
      */
     public static User createCommunityAssignedUser(String scenarioName, String subjectAlias) {
-        UserRole role = new UserRole(Name = 'Altinn Scenario Test Role', DeveloperName = 'Altinn_Scenario_Test_Role');
+        String roleSuffix = EncodingUtil.convertToHex(Crypto.generateAesKey(128)).substring(0, 12);
+        UserRole role = new UserRole(
+            Name = 'Altinn Scenario Test ' + roleSuffix,
+            DeveloperName = 'Altinn_Scenario_Test_' + roleSuffix
+        );
         System.runAs(new User(Id = administratorId)) {
-            insert role;
+            insert as system role;
         }
 
         Profile internalProfile = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];

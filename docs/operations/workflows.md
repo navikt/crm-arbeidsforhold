@@ -22,6 +22,11 @@ av den lokale valideringen.
 | `[HELPER] Deployment`           | Manuell pakkeinstallasjon i valgt sandboxmiljø via delt workflow.                                                                                                                        |
 | `[HELPER] Deploy to Production` | Manuell pakkeinstallasjon i produksjon via delt workflow.                                                                                                                                |
 
+På PR-er kjører en lett endringskontroll alltid. Dokumentasjonsbygget kjøres
+bare når Markdown, Mermaid-diagrammer, `docs/`, `docs-site/`, `mkdocs.yml`,
+`requirements-docs.in`, `requirements-docs.txt` eller dokumentasjonsworkflowen er endret. Push til
+`main` og manuell start bygger fortsatt uavhengig av endrede filer.
+
 Push-utløseren gjelder også direkte push, ikke bare PR-merge.
 Rene dokumentasjonsendringer lager ikke pakke. Direkte dev-deploy kjører ikke
 automatisk parallelt ved merge.
