@@ -40,6 +40,7 @@ public with sharing class AAREG_AdminTestLab {
         insert as user accessRequest;
         Application__c application = new Application__c(
             Account__c = account.Id,
+            AccountId__c = account.Id,
             Access_Request__c = accessRequest.Id,
             ApplicationSubmittedDate__c = scenario == 'soknad-ny' ? null : System.today()
         );
