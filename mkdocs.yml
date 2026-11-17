@@ -36,11 +36,13 @@ nav:
     - Testing:
           - Scenario og testplan: testing/aaregisteret-scenario-testplan.md
           - Testdata: testing/aaregisteret-testdata-strategi.md
+          - Kontaktkopling i SIT og PROD: testing/kontaktkopling-verifisering-sit-prod.md
     - Utvikling og drift:
           - Kom i gang: kom-i-gang.md
           - Utviklingsstandardar: utviklingsstandarder.md
           - Workflowar: operations/workflows.md
           - Metadataopprydding: operations/salesforce-metadata-cleanup-runbook.md
+          - Feilrapport kontaktkopling: operations/feilrapport-kontaktkopling-ved-innsending.md
     - Arkiv: archive/README.md
 hooks:
     - docs-site/hooks.py

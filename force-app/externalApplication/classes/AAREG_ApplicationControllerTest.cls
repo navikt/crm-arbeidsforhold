@@ -21,6 +21,86 @@ private class AAREG_ApplicationControllerTest {
     }
 
     /**
+     * Creates a minimum-access user with the applicant permission set, so submission tests use the applicant's
+     * field and object access instead of the running administrator's.
+     */
+    private static User createApplicant() {
+        return createApplicant(true);
+    }
+
+    private static User createApplicant(Boolean assignPermissionSet) {
+        User applicant = new User(
+            FirstName = 'Applicant',
+            LastName = 'Tester',
+            Email = 'aareg.applicant@example.com',
+            Username = 'aareg.applicant.' + System.currentTimeMillis() + '@example.com',
+            Alias = 'aaregapp',
+            LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US',
+            TimeZoneSidKey = 'Europe/Oslo',
+            EmailEncodingKey = 'UTF-8',
+            ProfileId = [SELECT Id FROM Profile WHERE Name = 'Minimum Access - Salesforce' LIMIT 1]
+            .Id
+        );
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            insert applicant;
+            if (assignPermissionSet) {
+                insert new PermissionSetAssignment(
+                    AssigneeId = applicant.Id,
+                    PermissionSetId = [SELECT Id FROM PermissionSet WHERE Name = 'AAREG_CommunityPermission' LIMIT 1]
+                    .Id
+                );
+            }
+        }
+        return applicant;
+    }
+
+    /**
+     * Submission is rejected before DML when the portal user cannot update the status fields required by the flows.
+     *
+     * @since 2026-11-17
+     */
+    @IsTest
+    private static void shouldRejectSubmissionWithoutStatusFieldAccess() {
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        User applicant = createApplicant(false);
+        String applicantEmail = 'applicant.no-status-access@example.invalid';
+        Application__c application = new Application__c(
+            Account__c = account.Id,
+            Email__c = applicantEmail,
+            TermsOfUse__c = true
+        );
+        Boolean submissionRejected = false;
+
+        System.Test.startTest();
+        System.runAs(applicant) {
+            try {
+                AAREG_ApplicationController.processApplication(
+                    application,
+                    new List<ApplicationBasisCode__c>(),
+                    new List<RelatedContact__c>(),
+                    null,
+                    null
+                );
+            } catch (AuraHandledException caughtError) {
+                submissionRejected = true;
+                System.Assert.areEqual(
+                    'You do not have permission to submit this application.',
+                    caughtError.getMessage()
+                );
+            }
+        }
+        System.Test.stopTest();
+
+        System.Assert.isTrue(submissionRejected, 'Submission should require status field access');
+        System.Assert.areEqual(
+            0,
+            [SELECT COUNT() FROM Application__c WHERE Email__c = :applicantEmail],
+            'No application should be created when status access is missing'
+        );
+    }
+
+    /**
      * getAccountNameByOrgNumber should return the account name for a known organization number.
      *
      * @since May 2021
@@ -60,15 +140,19 @@ private class AAREG_ApplicationControllerTest {
 
         String base64 = 'sdkldsfjlcm';
         String fileName = 'Test file name';
+        User applicant = createApplicant();
 
+        Id processedApplicationId;
         System.Test.startTest();
-        Id processedApplicationId = AAREG_ApplicationController.processApplication(
-            application,
-            basisCodes,
-            contacts,
-            base64,
-            fileName
-        );
+        System.runAs(applicant) {
+            processedApplicationId = AAREG_ApplicationController.processApplication(
+                application,
+                basisCodes,
+                contacts,
+                base64,
+                fileName
+            );
+        }
         System.Test.stopTest();
 
         List<Application__c> result = [
@@ -82,12 +166,12 @@ private class AAREG_ApplicationControllerTest {
     }
 
     /**
-     * processApplication should upsert an application requiring additional information and reset status to New.
+     * processApplication should save an application requiring additional information and move it to In Progress.
      *
      * @since July 2026
      */
     @IsTest
-    private static void shouldResetAdditionalInformationApplicationToNew() {
+    private static void shouldMoveAdditionalInformationApplicationToInProgress() {
         Account account = [SELECT Id FROM Account LIMIT 1];
 
         Application__c application = new Application__c();
@@ -105,18 +189,22 @@ private class AAREG_ApplicationControllerTest {
 
         String base64 = null;
         String fileName = null;
+        User applicant = createApplicant();
 
+        Id appId;
         System.Test.startTest();
-        Id appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
+        System.runAs(applicant) {
+            appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
+        }
         System.Test.stopTest();
 
         List<Application__c> result = [SELECT Id, Status__c FROM Application__c WHERE Id = :appId];
 
         System.Assert.areEqual(1, result.size(), 'Application should be upserted');
         System.Assert.areEqual(
-            'New',
+            'In Progress',
             result[0].Status__c,
-            'Status should be New after processing Additional Information Required application'
+            'Status should be In Progress after processing Additional Information Required application'
         );
     }
 
@@ -206,6 +294,273 @@ private class AAREG_ApplicationControllerTest {
             result.Casehandler_Status__c,
             'Case handler status should be in progress'
         );
+    }
+
+    /**
+     * A direct submission links the applicant contact, queues the confirmation e-mail and generates the archive text
+     * with the notification contact's e-mail.
+     *
+     * @since 2026-11-17
+     */
+    @IsTest
+    private static void shouldLinkApplicantContactWhenSubmittingDirectly() {
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        User applicant = createApplicant();
+
+        Id applicationId;
+        System.Test.startTest();
+        System.runAs(applicant) {
+            applicationId = AAREG_ApplicationController.processApplication(
+                buildPortalApplication(account.Id, 'applicant.direct@example.invalid'),
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>{ buildNotificationContact('notify.direct@example.invalid') },
+                null,
+                null
+            );
+        }
+        System.Test.stopTest();
+
+        Application__c result = readSubmittedApplication(applicationId);
+        System.Assert.areEqual('New', result.Casehandler_Status__c, 'The application should be new');
+        System.Assert.isNotNull(result.Contact__c, 'The applicant contact should be linked');
+        System.Assert.areEqual('applicant.direct@example.invalid', result.Contact__r.Email);
+        System.Assert.areEqual(
+            account.Id,
+            result.Contact__r.AccountId,
+            'The contact should belong to the organization'
+        );
+        System.Assert.isTrue(result.IsEmailConfirmationSent__c, 'The confirmation should be marked as queued');
+        System.Assert.areEqual(1, countQueuedConfirmations(applicationId), 'One confirmation should be queued');
+        System.Assert.isNotNull(result.ApplicationDeadlineForReply__c, 'The reply deadline should be set');
+        System.Assert.isTrue(
+            result.AA_register_application_text__c.contains('notify.direct@example.invalid'),
+            'The generated text should contain the notification contact e-mail'
+        );
+        System.Assert.isTrue(
+            result.AA_register_application_text__c.contains('applicant.direct@example.invalid'),
+            'The generated text should contain the applicant contact e-mail'
+        );
+    }
+
+    /**
+     * A direct submission reuses an existing contact with the same organization and e-mail instead of creating a
+     * duplicate.
+     *
+     * @since 2026-11-17
+     */
+    @IsTest
+    private static void shouldReuseExistingContactWhenSubmittingDirectly() {
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        Contact existingContact = new Contact(
+            AccountId = account.Id,
+            LastName = 'Existing',
+            Email = 'applicant.existing@example.invalid'
+        );
+        insert existingContact;
+        User applicant = createApplicant();
+
+        Id applicationId;
+        System.Test.startTest();
+        System.runAs(applicant) {
+            applicationId = AAREG_ApplicationController.processApplication(
+                buildPortalApplication(account.Id, 'applicant.existing@example.invalid'),
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>(),
+                null,
+                null
+            );
+        }
+        System.Test.stopTest();
+
+        System.Assert.areEqual(existingContact.Id, readSubmittedApplication(applicationId).Contact__c);
+        System.Assert.areEqual(
+            1,
+            [SELECT COUNT() FROM Contact WHERE Email = 'applicant.existing@example.invalid'],
+            'No duplicate contact should be created'
+        );
+    }
+
+    /**
+     * Submitting a draft after changing a notification contact's e-mail generates the archive text with the new
+     * e-mail, not the e-mail saved in the draft.
+     *
+     * @since 2026-11-17
+     */
+    @IsTest
+    private static void shouldUseChangedNotificationEmailWhenSubmittingDraft() {
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        User applicant = createApplicant();
+
+        Id applicationId;
+        System.runAs(applicant) {
+            applicationId = AAREG_ApplicationController.saveAsDraft(
+                buildPortalApplication(account.Id, 'applicant.draft@example.invalid'),
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>{ buildNotificationContact('notify.old@example.invalid') },
+                null,
+                null
+            );
+        }
+        RelatedContact__c changedContact = [
+            SELECT Id, Name, Email__c
+            FROM RelatedContact__c
+            WHERE Application__c = :applicationId
+        ];
+        changedContact.Email__c = 'notify.new@example.invalid';
+        Application__c draft = buildPortalApplication(account.Id, 'applicant.draft@example.invalid');
+        draft.Id = applicationId;
+        draft.Status__c = 'Draft';
+
+        System.Test.startTest();
+        System.runAs(applicant) {
+            AAREG_ApplicationController.processApplication(
+                draft,
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>{ changedContact },
+                null,
+                null
+            );
+        }
+        System.Test.stopTest();
+
+        Application__c result = readSubmittedApplication(applicationId);
+        System.Assert.areEqual('applicant.draft@example.invalid', result.Contact__r.Email);
+        System.Assert.isTrue(
+            result.AA_register_application_text__c.contains('notify.new@example.invalid'),
+            'The generated text should contain the changed e-mail'
+        );
+        System.Assert.isFalse(
+            result.AA_register_application_text__c.contains('notify.old@example.invalid'),
+            'The generated text should not contain the e-mail saved in the draft'
+        );
+    }
+
+    /**
+     * Submitting a draft after changing the applicant e-mail links a contact with the new e-mail.
+     *
+     * @since 2026-11-17
+     */
+    @IsTest
+    private static void shouldUseChangedApplicantEmailWhenSubmittingDraft() {
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        User applicant = createApplicant();
+
+        Id applicationId;
+        System.runAs(applicant) {
+            applicationId = AAREG_ApplicationController.saveAsDraft(
+                buildPortalApplication(account.Id, 'applicant.before@example.invalid'),
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>(),
+                null,
+                null
+            );
+        }
+        Application__c draft = buildPortalApplication(account.Id, 'applicant.after@example.invalid');
+        draft.Id = applicationId;
+        draft.Status__c = 'Draft';
+
+        System.Test.startTest();
+        System.runAs(applicant) {
+            AAREG_ApplicationController.processApplication(
+                draft,
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>(),
+                null,
+                null
+            );
+        }
+        System.Test.stopTest();
+
+        Application__c result = readSubmittedApplication(applicationId);
+        System.Assert.areEqual('applicant.after@example.invalid', result.Email__c);
+        System.Assert.areEqual('applicant.after@example.invalid', result.Contact__r.Email);
+        System.Assert.areEqual(1, countQueuedConfirmations(applicationId), 'One confirmation should be queued');
+    }
+
+    /**
+     * Resubmitting requested information keeps the linked contact and does not queue another confirmation.
+     *
+     * @since 2026-11-17
+     */
+    @IsTest
+    private static void shouldNotQueueConfirmationAgainWhenResubmitting() {
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        User applicant = createApplicant();
+
+        Id applicationId;
+        System.runAs(applicant) {
+            applicationId = AAREG_ApplicationController.processApplication(
+                buildPortalApplication(account.Id, 'applicant.resubmit@example.invalid'),
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>(),
+                null,
+                null
+            );
+        }
+        Application__c submitted = readSubmittedApplication(applicationId);
+        update new Application__c(
+            Id = applicationId,
+            CasehandlerOwner__c = UserInfo.getUserId(),
+            Status__c = 'Additional Information Required',
+            Casehandler_Status__c = 'Additional Information Required'
+        );
+        Application__c resubmission = buildPortalApplication(account.Id, 'applicant.resubmit@example.invalid');
+        resubmission.Id = applicationId;
+        resubmission.Status__c = 'Additional Information Required';
+
+        System.Test.startTest();
+        System.runAs(applicant) {
+            AAREG_ApplicationController.processApplication(
+                resubmission,
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>(),
+                null,
+                null
+            );
+        }
+        System.Test.stopTest();
+
+        Application__c result = readSubmittedApplication(applicationId);
+        System.Assert.areEqual('In Progress', result.Casehandler_Status__c);
+        System.Assert.areEqual(submitted.Contact__c, result.Contact__c, 'The linked contact should be kept');
+        System.Assert.areEqual(1, countQueuedConfirmations(applicationId), 'No extra confirmation should be queued');
+    }
+
+    private static Application__c buildPortalApplication(Id accountId, String applicantEmail) {
+        return new Application__c(
+            AccountId__c = String.valueOf(accountId),
+            Email__c = applicantEmail,
+            TermsOfUse__c = true
+        );
+    }
+
+    private static RelatedContact__c buildNotificationContact(String email) {
+        return new RelatedContact__c(Name = 'Notification Contact', Email__c = email, Phone__c = '12345678');
+    }
+
+    private static Application__c readSubmittedApplication(Id applicationId) {
+        return [
+            SELECT
+                Id,
+                Email__c,
+                Casehandler_Status__c,
+                Contact__c,
+                Contact__r.Email,
+                Contact__r.AccountId,
+                IsEmailConfirmationSent__c,
+                ApplicationDeadlineForReply__c,
+                AA_register_application_text__c
+            FROM Application__c
+            WHERE Id = :applicationId
+        ];
+    }
+
+    private static Integer countQueuedConfirmations(Id applicationId) {
+        return [
+            SELECT COUNT()
+            FROM EmailQueue__c
+            WHERE WhatId__c = :applicationId AND TemplateName__c = 'aaRegApplicationConfirmation'
+        ];
     }
 
     /**
@@ -433,15 +788,19 @@ private class AAREG_ApplicationControllerTest {
         };
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>{ new ApplicationBasisCode__c() };
         String base64 = EncodingUtil.base64Encode(Blob.valueOf('test-content'));
+        User applicant = createApplicant();
 
+        Id appId;
         System.Test.startTest();
-        Id appId = AAREG_ApplicationController.processApplication(
-            application,
-            basisCodes,
-            contacts,
-            base64,
-            'document.txt'
-        );
+        System.runAs(applicant) {
+            appId = AAREG_ApplicationController.processApplication(
+                application,
+                basisCodes,
+                contacts,
+                base64,
+                'document.txt'
+            );
+        }
         System.Test.stopTest();
 
         Integer applicationLinks = [
@@ -478,11 +837,16 @@ private class AAREG_ApplicationControllerTest {
         };
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>{ new ApplicationBasisCode__c() };
 
-        Test.startTest();
-        AAREG_ApplicationController.forceSanitizeAllowedBranch = true;
-        Id appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, null, null);
-        AAREG_ApplicationController.forceSanitizeAllowedBranch = false;
-        Test.stopTest();
+        User applicant = createApplicant();
+
+        Id appId;
+        System.Test.startTest();
+        System.runAs(applicant) {
+            AAREG_ApplicationController.forceSanitizeAllowedBranch = true;
+            appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, null, null);
+            AAREG_ApplicationController.forceSanitizeAllowedBranch = false;
+        }
+        System.Test.stopTest();
 
         System.Assert.isNotNull(appId, 'Application should be created when forcing sanitize allowed branch.');
     }
@@ -501,9 +865,11 @@ private class AAREG_ApplicationControllerTest {
         ];
         Access_Request__c ar = new Access_Request__c();
         insert ar;
+        User applicant = createApplicant();
 
         Application__c existing = AAREG_TestDataFactory.getApplicationCounty(account);
         existing.Access_Request__c = ar.Id;
+        existing.OwnerId = applicant.Id;
         insert existing;
 
         Application__c updateForProcess = new Application__c(
@@ -516,15 +882,18 @@ private class AAREG_ApplicationControllerTest {
         List<RelatedContact__c> contacts = new List<RelatedContact__c>{ new RelatedContact__c(Name = 'Reuse Contact') };
         List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>{ new ApplicationBasisCode__c() };
 
-        Test.startTest();
-        Id processedId = AAREG_ApplicationController.processApplication(
-            updateForProcess,
-            basisCodes,
-            contacts,
-            null,
-            null
-        );
-        Test.stopTest();
+        Id processedId;
+        System.Test.startTest();
+        System.runAs(applicant) {
+            processedId = AAREG_ApplicationController.processApplication(
+                updateForProcess,
+                basisCodes,
+                contacts,
+                null,
+                null
+            );
+        }
+        System.Test.stopTest();
 
         Application__c afterProcess = [
             SELECT Id, Access_Request__c
