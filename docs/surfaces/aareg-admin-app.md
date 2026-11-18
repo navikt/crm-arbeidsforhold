@@ -189,6 +189,10 @@ Testlaben skal kontrollere at målet er ein scratch-org (`Organization.IsSandbox
 
 #### Slik brukar du testlaben
 
+Før køyring må `AAREG_SCRATCH_ORG_ID` vere sett til den uavhengig stadfesta
+scratch-org-ID-en. Sjå [P360-brukarguiden](../integrations/p360/scratch-brukarguide.md)
+for oppsett og handtering av ID-en.
+
 Køyr kommandoane i ein terminal i VS Code, eller vel **Terminal → Run Task** og ei av oppgåvene som byrjar med «Admin test lab». Kommandoane er like på macOS, Linux og Windows.
 
 | Steg | Kommando                                   | Kva skjer                                                                                     |

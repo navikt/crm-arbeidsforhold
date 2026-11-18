@@ -111,7 +111,7 @@ npm run test:pack
 
 These checks validate code, browser behavior, dependency findings, builds, and package shape. They do not validate Salesforce compatibility.
 
-Before a release that claims Salesforce support, run an approved authenticated gate against an explicitly selected non-production org. At minimum, exercise the supported read paths and the release-relevant mutation paths, verify stable exit/output contracts, and record sanitized evidence. Org creation, package installation, deployment, retrieval, deletion, and pool use require human approval and suitable disposable targets. Never embed credentials or installation keys in CI configuration, fixtures, logs, or artifacts.
+Before a release that claims Salesforce support, run an authenticated gate against an explicitly verified non-production target under the repository's `AGENTS.md`. At minimum, exercise the supported read paths and the release-relevant mutation paths, verify stable exit/output contracts, and record sanitized evidence. Work in the existing `crm-arbeidsforhold` scratch org, including package installation, deployment, retrieval, and data/metadata deletion, needs no renewed user approval. Org creation/replacement, Dev Hub/pool access, package creation/promotion, and each operation in other non-production orgs still require approval and suitable disposable targets. Native tool controls remain in force. Agents must never access production. Never embed credentials or installation keys in CI configuration, fixtures, logs, or artifacts.
 
 ## Legacy handover
 

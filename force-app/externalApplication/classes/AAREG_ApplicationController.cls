@@ -8,6 +8,10 @@ public without sharing class AAREG_ApplicationController {
     private static final String DRAFT_APPLICATION = 'Draft';
     private static final String NEW_APPLICATION = 'New';
     private static final String IN_PROGRESS = 'In Progress';
+    @TestVisible
+    private static final String ATTACHMENT_ACCESS_DENIED = 'Access to the application is denied.';
+    @TestVisible
+    private static final String ATTACHMENT_ACCESS_UNVERIFIED = 'Unable to verify application access.';
     private static final Set<String> SUBMISSION_FIELDS = new Set<String>{
         'Casehandler_Status__c',
         'ApplicationSubmittedDate__c',
@@ -78,6 +82,87 @@ public without sharing class AAREG_ApplicationController {
             getBasisCodes(recordId),
             getRelatedContacts(recordId)
         );
+    }
+
+    /**
+     * Returns the attachments associated with an application and their current selection state.
+     * Enforces user-mode access to the application and files and checks the signed-in user's Altinn rights.
+     *
+     * @param applicationId The application whose attachments are requested.
+     * @return The application's current attachment selection.
+     * @throws AuraHandledException If access is denied or the Altinn decision cannot be verified.
+     */
+    @AuraEnabled
+    public static List<AttachmentSelection> getApplicationAttachments(Id applicationId) {
+        if (applicationId == null) {
+            throw attachmentAccessError('An application is required.');
+        }
+
+        List<Application__c> applications = [
+            SELECT OrganizationNumber__c
+            FROM Application__c
+            WHERE Id = :applicationId
+            WITH USER_MODE
+            LIMIT 1
+        ];
+        if (applications.isEmpty()) {
+            throw attachmentAccessError(ATTACHMENT_ACCESS_DENIED);
+        }
+
+        User currentUser = [
+            SELECT LastUsedOrganization__c
+            FROM User
+            WHERE Id = :UserInfo.getUserId()
+            LIMIT 1
+        ];
+        String organizationNumber = currentUser.LastUsedOrganization__c;
+        if (String.isBlank(organizationNumber) || organizationNumber != applications[0].OrganizationNumber__c) {
+            throw attachmentAccessError(ATTACHMENT_ACCESS_DENIED);
+        }
+
+        AltinnCalloutService.AltinnRightsResponse response = AAREG_CommunityUtils.getUserRights(
+            UserInfo.getUserId(),
+            organizationNumber,
+            'nav_arbeidsforhold_aa-registeret-sok-tilgang'
+        );
+        Boolean permitted = false;
+        Boolean denied = false;
+        if (response?.rights != null) {
+            for (AltinnCalloutService.Right right : response.rights) {
+                if (right.Action == 'Access' && right.Decision == 'Permit') {
+                    permitted = true;
+                } else if (right.Action == 'Access' && right.Decision == 'Deny') {
+                    denied = true;
+                }
+            }
+        }
+        if (denied) {
+            throw attachmentAccessError(ATTACHMENT_ACCESS_DENIED);
+        }
+        if (response?.success != true || !permitted) {
+            throw attachmentAccessError(ATTACHMENT_ACCESS_UNVERIFIED);
+        }
+
+        List<AttachmentSelection> attachments = new List<AttachmentSelection>();
+        for (ContentDocumentLink link : [
+            SELECT ContentDocumentId, ContentDocument.Title
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId = :applicationId
+            WITH USER_MODE
+        ]) {
+            AttachmentSelection attachment = new AttachmentSelection();
+            attachment.contentDocumentId = link.ContentDocumentId;
+            attachment.title = link.ContentDocument.Title;
+            attachment.selected = true;
+            attachments.add(attachment);
+        }
+        return attachments;
+    }
+
+    private static AuraHandledException attachmentAccessError(String message) {
+        AuraHandledException error = new AuraHandledException(message);
+        error.setMessage(message);
+        return error;
     }
 
     private static Access_Request__c getAccessRequest(Id applicationId) {
@@ -166,6 +251,7 @@ public without sharing class AAREG_ApplicationController {
 
         submission.Id = application.Id;
         update sanitizeApplicationForDml(submission);
+        P360_ArchiveJobService.requestApplicationArchiveOnSubmit(accessRequestId, application.Id);
         return application.Id;
     }
 
@@ -404,5 +490,24 @@ public without sharing class AAREG_ApplicationController {
             this.basisCodes = basisCodes;
             this.contacts = contacts;
         }
+    }
+
+    /**
+     * Represents one attachment and whether it is selected for the next application submission.
+     *
+     * @author Team Arbeidsforhold
+     * @since 2026-11-15
+     * @group AAREG External Application
+     */
+    public class AttachmentSelection {
+        /** The document linked to the application. */
+        @AuraEnabled
+        public Id contentDocumentId;
+        /** The title shown in the application form. */
+        @AuraEnabled
+        public String title;
+        /** Whether the document is selected for the next application submission. */
+        @AuraEnabled
+        public Boolean selected;
     }
 }

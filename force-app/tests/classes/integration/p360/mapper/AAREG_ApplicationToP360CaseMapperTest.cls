@@ -54,6 +54,11 @@ private class AAREG_ApplicationToP360CaseMapperTest {
             System.Assert.areEqual(1, request.archiveCodes.size(), 'Expected one primary archive code.');
             System.Assert.areEqual('359', request.archiveCodes[0].archiveCode, 'Expected the approved archive code.');
             System.Assert.areEqual(
+                'Arkivnøkkel',
+                request.archiveCodes[0].archiveType,
+                'Expected the configured archive type.'
+            );
+            System.Assert.areEqual(
                 1,
                 request.archiveCodes[0].sortOrder,
                 'Expected the primary archive-code sort order.'

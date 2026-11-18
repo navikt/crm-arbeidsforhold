@@ -15,6 +15,9 @@ detaljert P360-prosedyre finst i
 Kjeldepeikarane viser `main` om ikkje anna er oppgitt. Historiske testresultat
 frå `P360Test` gjeld den greina og er ikkje testresultat for `main`.
 
+Når du les dokumentet på `P360Test`, viser relative kjeldepeikarar til den
+greina; nokre kjelder er festa til ein bestemt `P360Test`-versjon.
+
 ## 1. Status og gjennomføringsrekkjefølgje
 
 | Status         | Tyding                                                                      |

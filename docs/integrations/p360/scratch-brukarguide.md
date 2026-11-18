@@ -285,6 +285,26 @@ Dette er ei manuell endring i scratch og blir ikkje lagra i repoet. Ho forsvinn 
 
 ### 7.1 Før du byrjar (ein gong)
 
+Skriptet krev at `AAREG_SCRATCH_ORG_ID` inneheld den eksakte org-ID-en til den
+eksisterande scratch-orgen, stadfesta frå ei uavhengig, godkjend kjelde.
+Aliaset åleine er ikkje ei slik stadfesting. Ikkje legg ID-en i repoet,
+publiserte dokument eller issue-kommentarar.
+
+macOS/Linux, i terminalen der skriptet skal køyrast:
+
+```bash
+export AAREG_SCRATCH_ORG_ID='<verifisert-scratch-org-id>'
+```
+
+PowerShell:
+
+```powershell
+$env:AAREG_SCRATCH_ORG_ID = '<verifisert-scratch-org-id>'
+```
+
+VS Code-oppgåver må arve variabelen frå miljøet som startar VS Code, eller få
+han sett i lokal oppgåvekonfigurasjon som ikkje blir committa.
+
 1. Du har Salesforce CLI 2.158.7 og Node.js 20 eller nyare. Sjekk med `sf --version` og `node --version`. Køyr `npm install` éin gong i repoet. Alt fungerer i terminalen i VS Code på både macOS og Windows (PowerShell).
 2. Aliaset `crm-arbeidsforhold` er logga inn (sjå 6.3, punkt 2).
 3. Produktkoden er deployert til scratch:

@@ -50,7 +50,7 @@ private class AAREG_CreateDocumentMapperTest {
             System.Assert.areEqual('J', request.status, 'Expected the approved journal status.');
             System.Assert.areEqual('U', request.accessCode, 'Expected the approved access code.');
             System.Assert.areEqual('Alle ansatte i Nav', request.accessGroup, 'Expected the approved access group.');
-            System.Assert.isNull(request.category, 'Expected no guessed document category.');
+            System.Assert.areEqual('Dokument inn', request.category, 'Expected the configured incoming category.');
             System.Assert.areEqual(1, request.files.size(), 'Expected the document file to be mapped.');
             System.Assert.areEqual('docx', request.files[0].format, 'Expected the file format.');
             System.Assert.areEqual('UEsDBA==', request.files[0].base64Data, 'Expected the base64 file data.');
