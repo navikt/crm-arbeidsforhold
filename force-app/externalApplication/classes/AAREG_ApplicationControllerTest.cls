@@ -432,6 +432,10 @@ private class AAREG_ApplicationControllerTest {
             readNotificationEmails(applicationId),
             'Only the changed e-mail should be linked to the application'
         );
+        System.Assert.isFalse(
+            result.AA_register_application_text__c.contains('notify.old@example.invalid'),
+            'The generated text should not contain the e-mail saved in the draft'
+        );
         logMissingArchiveText(result, new List<String>{ 'notify.new@example.invalid' });
     }
 
