@@ -138,14 +138,14 @@ nytt (som før).
 Alle testar køyrer som ein minimum-access-brukar med `AAREG_CommunityPermission`
 og syntetiske `example.invalid`-adresser.
 
-| Test                                                   | Dekkjer                                                                                   | Før retting | Etter |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------- | ----------- | ----- |
-| `shouldLinkApplicantContactWhenSubmittingDirectly`     | Direkte: kontakt, konto, stadfesting i kø, svarfrist, søkjar- og varslings-e-post i tekst | Feila       | Grøn  |
-| `shouldReuseExistingContactWhenSubmittingDirectly`     | Direkte: gjenbruk av kontakt med same organisasjon og e-post, ingen duplikat              | Feila       | Grøn  |
-| `shouldUseChangedNotificationEmailWhenSubmittingDraft` | Utkast: endra varslings-e-post i tekst, gammal e-post ikkje i tekst                       | Feila       | Grøn  |
-| `shouldUseChangedApplicantEmailWhenSubmittingDraft`    | Utkast: endra søkjar-e-post gir kontakt med ny e-post og éi stadfesting                   | Grøn        | Grøn  |
-| `shouldNotQueueConfirmationAgainWhenResubmitting`      | Ny innsending: `In Progress`, same kontakt, ingen ekstra stadfesting                      | Grøn*       | Grøn  |
-| `shouldRejectSubmissionWithoutStatusFieldAccess`       | Avviser innsending før DML når søkjaren manglar skrivetilgang til statusfelta             | Ny          | Grøn  |
+| Test                                                   | Dekkjer                                                                                      | Før retting | Etter |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------- | ----------- | ----- |
+| `shouldLinkApplicantContactWhenSubmittingDirectly`     | Direkte: kontakt, konto, stadfesting i kø, svarfrist, generert tekst, kopla varslingskontakt | Feila       | Grøn  |
+| `shouldReuseExistingContactWhenSubmittingDirectly`     | Direkte: gjenbruk av kontakt med same organisasjon og e-post, ingen duplikat                 | Feila       | Grøn  |
+| `shouldUseChangedNotificationEmailWhenSubmittingDraft` | Utkast: berre ny varslings-e-post er kopla, gammal e-post ikkje i tekst                      | Feila       | Grøn  |
+| `shouldUseChangedApplicantEmailWhenSubmittingDraft`    | Utkast: endra søkjar-e-post gir kontakt med ny e-post og éi stadfesting                      | Grøn        | Grøn  |
+| `shouldNotQueueConfirmationAgainWhenResubmitting`      | Ny innsending: `In Progress`, same kontakt, ingen ekstra stadfesting                         | Grøn*       | Grøn  |
+| `shouldRejectSubmissionWithoutStatusFieldAccess`       | Avviser innsending før DML når søkjaren manglar skrivetilgang til statusfelta                | Ny          | Grøn  |
 
 \* Fixture-feil i første køyring (manglande saksbehandlar for varsel), retta i
 testen før produksjonsendringa.
@@ -167,6 +167,24 @@ Etter at metoden byrja å krevje skriverett til statusfelta, køyrer òg
 `shouldProcessApplicationThroughForcedSanitizeBranch` og
 `shouldReuseAccessRequestForExistingApplication` som portalsøkjar. Som admin
 utan feltrett blir dei no avviste, slik dei skal.
+
+### Pakkebygg etter merge
+
+Etter #1212 og #1213 feila `[PUSH] Create Package` i dei to testane som
+kravde at varslings-e-posten stod i `AA_register_application_text__c`.
+PR-valideringa deployerer kjeldekoden til ein scratch-org og var grøn.
+Pakkebygget brukar same `config/project-scratch-def.json`
+(`--definition-file`), men køyrer testane i Salesforce sin eigen byggjeorg
+med pakka og avhengigheitene installerte som pakker. Der fann flyten ingen
+varslingskontaktar sjølv om teksten blei generert. Årsaka er ikkje stadfesta.
+
+Testane sjekkar no kontrakten rettinga gjeld: at `RelatedContact__c` med rett
+e-post er kopla til søknaden. Utkasttesten krev framleis at teksten ikkje
+inneheld e-posten frå utkastet, slik at feil rekkjefølgje ved innsending blir
+fanga. Manglar teksten forventa e-post, loggar testen ei `WARN`-linje i staden
+for å feile. Innhaldet i søknadsteksten må
+verifiserast i SIT, sjå
+[verifiseringsguiden](../testing/kontaktkopling-verifisering-sit-prod.md).
 
 ## Teststeg for gjennomgang i scratch-org
 

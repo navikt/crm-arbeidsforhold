@@ -266,49 +266,7 @@
             <assignToReference>relatedContactList</assignToReference>
             <operator>Add</operator>
             <value>
-                <stringValue>{!loopThroughContacts.Name},</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>relatedContactList</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <stringValue>{!loopThroughContacts.Email__c},</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>relatedContactList</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <stringValue>{!loopThroughContacts.Phone__c},</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>relatedContactList</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <stringValue>{!loopThroughContacts.AgreementNotifications__c},</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>relatedContactList</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <stringValue>{!loopThroughContacts.ChangeNotifications__c},</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>relatedContactList</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <stringValue>{!loopThroughContacts.ErrorMessageNotifications__c},</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>relatedContactList</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>loopThroughContacts.SecurityNotifications__c</elementReference>
+                <elementReference>relatedContactDetails</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -667,6 +625,11 @@ Setter også svarfristdato</description>
         <name>setApplicationDeadlineDate</name>
         <dataType>Date</dataType>
         <expression>{!$Record.ApplicationSubmittedDate__c}+ ( 365 / 12 )</expression>
+    </formulas>
+    <formulas>
+        <name>relatedContactDetails</name>
+        <dataType>String</dataType>
+        <expression>{!loopThroughContacts.Name} &amp; ',' &amp; {!loopThroughContacts.Email__c} &amp; ',' &amp; {!loopThroughContacts.Phone__c} &amp; ',' &amp; IF({!loopThroughContacts.AgreementNotifications__c}, 'true', 'false') &amp; ',' &amp; IF({!loopThroughContacts.ChangeNotifications__c}, 'true', 'false') &amp; ',' &amp; IF({!loopThroughContacts.ErrorMessageNotifications__c}, 'true', 'false') &amp; ',' &amp; IF({!loopThroughContacts.SecurityNotifications__c}, 'true', 'false')</expression>
     </formulas>
     <formulas>
         <name>var_FlowNameNoLongerThan32Char</name>
