@@ -25,6 +25,11 @@ godkjenning av mål og handling, og skal aldri bruke PROD.
 | `ApplicationDeadlineForReply__c`  | Fylt                                           | Tekstflyten køyrde ikkje         |
 | `AA_register_application_text__c` | Inneheld gjeldande e-post til varslingskontakt | Feil 2 (utkast med endra e-post) |
 
+Søknadsteksten blir ikkje lenger kontrollert av Apex-testane fordi han varierer
+i byggjeorgen for pakken. Kontroller han difor alltid i SIT. Svarfristen blir
+òg sett av `AAREG_updateDeadlineDate` og beviser ikkje åleine at tekstflyten
+køyrde.
+
 ## SIT
 
 ### Førebuing
