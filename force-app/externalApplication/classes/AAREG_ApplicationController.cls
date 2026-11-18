@@ -12,6 +12,11 @@ public without sharing class AAREG_ApplicationController {
     private static final String ATTACHMENT_ACCESS_DENIED = 'Access to the application is denied.';
     @TestVisible
     private static final String ATTACHMENT_ACCESS_UNVERIFIED = 'Unable to verify application access.';
+    private static final Set<String> SUBMISSION_FIELDS = new Set<String>{
+        'Casehandler_Status__c',
+        'ApplicationSubmittedDate__c',
+        'AA_ApplicationArchived__c'
+    };
     private static Datetime dt = System.now();
     @TestVisible
     private static Boolean forceSanitizeAllowedBranch = false;
@@ -202,9 +207,15 @@ public without sharing class AAREG_ApplicationController {
 
     @AuraEnabled
     /**
-     * Processes the application by updating its status, saving related data, and linking documents.
+     * Submits the application. The application, related contacts and basis codes are saved before the status
+     * changes, so the submission flows (applicant contact, confirmation e-mail and generated application text)
+     * read the submitted data.
      *
-     * @param applicationData A wrapper object containing application data, basis codes, related contacts, and file details.
+     * @param application The application from the portal. A new application is first saved as a draft.
+     * @param basisCode Basis codes to save on the application.
+     * @param relatedContacts Notification contacts to save on the application.
+     * @param base64 Optional file content to link to the application and access request.
+     * @param fileName Optional file name for the uploaded file.
      * @return The ID of the processed application.
      */
     public static Id processApplication(
@@ -214,16 +225,9 @@ public without sharing class AAREG_ApplicationController {
         String base64,
         String fileName
     ) {
-        if (application.Status__c != ADDITIONAL_INFORMATION) {
-            application.Casehandler_Status__c = NEW_APPLICATION;
-            application.status__c = NEW_APPLICATION;
-            application.ApplicationSubmittedDate__c = date.newInstance(dt.year(), dt.month(), dt.day());
-        } else {
-            application.AA_ApplicationArchived__c = false;
-            application.Casehandler_Status__c = IN_PROGRESS;
-            application.status__c = IN_PROGRESS;
-            application.AA_ApplicationArchived__c = false;
-        }
+        Boolean isResubmission = application.Status__c == ADDITIONAL_INFORMATION;
+        requireSubmissionStatusAccess(application);
+        Application__c submission = buildSubmissionStatus(isResubmission);
 
         // If application already exists, check for existing Access Request
         if (application.Id != null && application.Access_Request__c == null) {
@@ -238,13 +242,45 @@ public without sharing class AAREG_ApplicationController {
 
         Id accessRequestId = upsertAccessRequest(application.Access_Request__c);
         application.Access_Request__c = accessRequestId;
-        application = sanitizeApplicationForDml(application);
+        application.Status__c = isResubmission ? ADDITIONAL_INFORMATION : DRAFT_APPLICATION;
+        application = sanitizeApplicationForDml(application, SUBMISSION_FIELDS);
         upsert application;
         upsertRelatedContacts(application.Id, relatedContacts);
         upsertBasisCodes(application.Id, basisCode);
         insertDocumentWithLink(application.Id, accessRequestId, base64, fileName);
+
+        submission.Id = application.Id;
+        update sanitizeApplicationForDml(submission);
         P360_ArchiveJobService.requestApplicationArchiveOnSubmit(accessRequestId, application.Id);
         return application.Id;
+    }
+
+    private static void requireSubmissionStatusAccess(Application__c application) {
+        Schema.DescribeFieldResult statusField = Application__c.Status__c.getDescribe();
+        Schema.DescribeFieldResult casehandlerStatusField = Application__c.Casehandler_Status__c.getDescribe();
+        Boolean allowed = application.Id == null
+            ? statusField.isCreateable() && casehandlerStatusField.isCreateable()
+            : statusField.isUpdateable() && casehandlerStatusField.isUpdateable();
+        if (!allowed) {
+            String message = 'You do not have permission to submit this application.';
+            AuraHandledException error = new AuraHandledException(message);
+            error.setMessage(message);
+            throw error;
+        }
+    }
+
+    private static Application__c buildSubmissionStatus(Boolean isResubmission) {
+        Application__c submission = new Application__c();
+        if (isResubmission) {
+            submission.AA_ApplicationArchived__c = false;
+            submission.Casehandler_Status__c = IN_PROGRESS;
+            submission.Status__c = IN_PROGRESS;
+        } else {
+            submission.Casehandler_Status__c = NEW_APPLICATION;
+            submission.Status__c = NEW_APPLICATION;
+            submission.ApplicationSubmittedDate__c = date.newInstance(dt.year(), dt.month(), dt.day());
+        }
+        return submission;
     }
 
     @AuraEnabled
@@ -350,6 +386,10 @@ public without sharing class AAREG_ApplicationController {
      * don't have access to.
      */
     private static Application__c sanitizeApplicationForDml(Application__c application) {
+        return sanitizeApplicationForDml(application, new Set<String>());
+    }
+
+    private static Application__c sanitizeApplicationForDml(Application__c application, Set<String> excludedFields) {
         if (application == null)
             return null;
 
@@ -362,7 +402,7 @@ public without sharing class AAREG_ApplicationController {
         Map<String, Schema.SObjectField> fieldMap = Schema.sObjectType.Application__c.fields.getMap();
 
         for (String fieldName : populated.keySet()) {
-            if (fieldName == 'Id')
+            if (fieldName == 'Id' || excludedFields.contains(fieldName))
                 continue;
             if (!fieldMap.containsKey(fieldName) || (Test.isRunningTest() && forceSanitizeUnknownFieldBranch))
                 continue;
