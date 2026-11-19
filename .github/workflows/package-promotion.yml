@@ -256,7 +256,7 @@ jobs:
                   echo "code_coverage=$code_coverage" >> "$GITHUB_OUTPUT"
             - name: Generate changelog
               id: changelog
-              uses: metcalfc/changelog-generator@bb7a08e07e326061351dab6ce89c72f13797043c
+              uses: metcalfc/changelog-generator@031a6408a9ad7fa6dcda49b7222ab2b54110a680
               with:
                   mytoken: ${{ github.token }}
             - name: Create GitHub Release
