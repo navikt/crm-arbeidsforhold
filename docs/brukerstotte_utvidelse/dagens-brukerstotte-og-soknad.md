@@ -346,7 +346,44 @@ flowchart TB
 </targetConfigs>
 ```
 
-### 3.6 Direct link and return to the portal
+### 3.6 Multi-role and employer representative behavior
+
+A person can hold more than one role for the same organization, such as company representative and employer. The specification therefore separates the following concepts:
+
+- `Role` is the selected experience/context.
+- `ContextKey` is the selected organization or person.
+- `SourceRights` are the rights returned for the logged-in person by Altinn or another approved source.
+- `Capabilities` are the actions allowed by the server after evaluating those source rights.
+
+The role does not grant a capability by itself. For example, opening the employer role page does not grant `APPLICATION`, even if the same person is a company representative for another context. The server evaluates the selected organization and selected role context against the approved source.
+
+```mermaid
+flowchart LR
+    P[Person] --> R1[Company representative role]
+    P --> R2[Employer role]
+    R1 --> C1[Selected organization context]
+    R2 --> C1
+    C1 --> A[Altinn rights lookup]
+    A --> D[Server capability calculation]
+    D --> V1[APPLICATION if granted]
+    D --> V2[MY_APPLICATIONS if granted]
+    D --> V3[AGREEMENTS if granted]
+    D --> V4[SUPPORT if granted]
+    D --> V5[MESSAGES if granted]
+```
+
+For organization-based roles, the effective capability matrix should use the following baseline mapping until a final business owner decision replaces it:
+
+| Source result          | APPLICATION          | MY_APPLICATIONS      | AGREEMENTS                                      | SUPPORT              | MESSAGES             |
+| ---------------------- | -------------------- | -------------------- | ----------------------------------------------- | -------------------- | -------------------- |
+| `sok-tilgang`          | Yes                  | Yes                  | Yes                                             | Yes                  | Yes                  |
+| Only `brukerstotte`    | No                   | No                   | Yes, according to current behavior if confirmed | Yes                  | Yes                  |
+| No relevant access     | No                   | No                   | No                                              | No                   | No                   |
+| Technical source error | No; show error/retry | No; show error/retry | No; show error/retry                            | No; show error/retry | No; show error/retry |
+
+Existing agreement behavior for support-only access must be explicitly confirmed. The capability mapping must not be derived from UI role selection.
+
+### 3.7 Direct link and return to the portal
 
 A direct link goes through the same control as navigation from the portal. On
 denial, the user is returned to the portal with a limited status code that only
@@ -383,7 +420,7 @@ sequenceDiagram
 The portal shows only messages from a fixed list. The value in the URL never
 grants access and does not contain personal data.
 
-### 3.7 Adding board managers
+### 3.8 Adding board managers
 
 The figure shows the steps for a new role. Shared components and the other roles
 are not changed.

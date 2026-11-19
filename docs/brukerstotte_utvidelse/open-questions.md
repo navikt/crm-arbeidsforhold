@@ -1,97 +1,57 @@
-# Open questions and decisions to be made before implementation
+# Decision register and open gates before implementation
 
-## 1. Which user groups should actually be supported in the first release?
+This file now acts as a decision register instead of a pure question list.
 
-Yes, the first version should support private individuals in addition to employers and partners.
+Status values:
 
-This means the first release should cover three user groups:
+- `Confirmed`: agreed and can be used as implementation input.
+- `Needs owner decision`: still unresolved and blocks part of implementation.
+- `Proposed`: recommendation exists but must be approved.
 
-- employers,
-- partners,
-- private individuals.
+## Decision table
 
-This affects both the URL pattern, the access model, and how person-based context is selected and validated in the UI and server logic.
+| ID  | Topic                              | Decision                                                                                                                                      | Status               | Owner                          | Notes                                                                                   |
+| --- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------ | --------------------------------------------------------------------------------------- |
+| D1  | First-release user groups          | First version supports employer, partner, and private individual.                                                                             | Confirmed            | Product owner                  | Existing company representative/support flow remains during transition.                 |
+| D2  | Separate context model             | Use explicit model for selected role, organization/person context, Altinn result, and effective capabilities.                                 | Confirmed            | Tech lead + Product owner      | Selected role is UX/context; Altinn determines capabilities.                            |
+| D3  | Message model per group            | Existing company representative/support message behavior remains unchanged. New roles use person-based model; organization is context/filter. | Confirmed            | Product owner + Tech lead      | Must be enforced server-side, not only UI.                                              |
+| D4  | Multiple active organizations      | No. One active organization context per flow where organization context is required.                                                          | Confirmed            | Product owner                  | `LastUsedOrganization__c` only for company representatives.                             |
+| D5  | Users without organization context | Private individual: no organization required. Employer/partner: organization required (via URL or selection).                                 | Confirmed            | Product owner                  | Must be validated on server in role flow.                                               |
+| D6  | Metadata vs permission sets        | Need explicit decision on which parts belong in Custom Metadata and/or permission sets.                                                       | Needs owner decision | Tech lead + Security owner     | Impacts implementation boundaries and operations.                                       |
+| D7  | Component strategy                 | Limit new components. Use a small new portal/entry layer and reuse current flows where safe.                                                  | Confirmed            | Product owner + Tech lead      | Do not build parallel app without need.                                                 |
+| D8  | Allowed/not-allowed matrix         | Matrix is capability-based and derived from server-side access checks, primarily Altinn for organization contexts.                            | Confirmed            | Product owner + Domain owner   | Role selection does not grant access. Final capabilities must be approved before build. |
+| D9  | Audit/tracking scope               | Keep first step small and AAREG-specific.                                                                                                     | Proposed             | Product owner + Security owner | Decide minimum needed history before implementation.                                    |
+| D10 | Isolation vs shared logic          | Keep first phase AAREG-specific while reusing existing shared components/services where safe.                                                 | Confirmed            | Tech lead                      | Avoid speculative generic framework.                                                    |
 
-## 2. Should the user group be defined in a separate Apex context model?
+## Baseline capability matrix
 
-It is recommended yes, but this must be decided explicitly. A simple model is better than a broad and generic access framework.
+The selected role determines presentation and context. The server derives the effective capabilities from Altinn or another approved source for the selected organization/person. A capability is available only when the server decision is `GRANTED`.
 
-## 3. Should message display be person-based or organization-based per group?
+| Selected role                       | Context required | Data/action source                                          | New application              | My applications              | Agreements                                                  | Support                                      | My messages                                  |
+| ----------------------------------- | ---------------- | ----------------------------------------------------------- | ---------------------------- | ---------------------------- | ----------------------------------------------------------- | -------------------------------------------- | -------------------------------------------- |
+| Company representative              | Organization     | Altinn for selected organization                            | If `sok-tilgang` is granted  | If `sok-tilgang` is granted  | Existing behavior; support-capability clarification remains | If support or application capability applies | If support or application capability applies |
+| Employer                            | Organization     | Altinn for selected organization                            | If `sok-tilgang` is granted  | If `sok-tilgang` is granted  | Only according to effective capability                      | If support/application capability applies    | Only server-approved thread scope            |
+| Partner / authorized representative | Organization     | Altinn or approved partner source; source must be confirmed | As approved for partner role | As approved for partner role | As approved for partner role                                | As approved for partner role                 | Only server-approved thread scope            |
+| Private individual / employee       | Person           | Approved person/self source; source is not yet confirmed    | No                           | No                           | No                                                          | As approved for person role                  | Personal scope only                          |
+| Existing support user               | Existing context | Current support/access behavior                             | Existing behavior            | Existing behavior            | Existing behavior                                           | Existing behavior                            | Existing behavior                            |
 
-Decision: the current message display for company representatives and for users who already have access to support should work exactly as it does today and should not be changed.
+The matrix for selected role and capability is UX guidance. It is never authorization. If the same person holds company representative and employer roles simultaneously, the server aggregates capabilities for the selected organization and chosen role context. One role can be shown without granting every capability that another role provides.
 
-For the new representation roles covering people who represent employers, partners, and themselves, message display should be person-based as the main model. The organization is then used as context or filter, but not as the only or primary criterion for which messages should be shown.
+```mermaid
+flowchart TD
+    P[Person with one or several roles] --> R{Selected role/page}
+    R --> C{Organization or person context}
+    C --> ALT[Altinn or approved source]
+    ALT --> D{Server evaluates capability}
+    D -->|GRANTED| CAP[Effective capabilities]
+    D -->|DENIED| NO[No capability; safe denial]
+    D -->|TECHNICAL_ERROR| ERR[Technical error; retry]
+    CAP --> UI[Show only granted actions]
+```
 
-This means that:
+## Remaining implementation gates
 
-- the current organization-based flow is kept unchanged for existing users,
-- the new person-based model is used only for the new representation roles,
-- a person’s active ACR relationships to an employer or partner should be able to resolve the correct message context,
-- organization selection can be used to narrow or set context, but not as the only criterion for who should see which messages,
-- the person’s identity and relationship are the underlying factors for access to messages and email in the new user group.
-
-This avoids regression in the current solution while still supporting the new representation patterns.
-
-## 4. Is it necessary to support multiple organization selections per user?
-
-No. `LastUsedOrganization__c` should only be used for company representatives.
-
-For the other user groups, we should use person-based context while also supporting a selected organization number as the work context for the current task. This means that each user should only have one active organization selection in a given work flow, not several simultaneous active organization selections in the same context.
-
-In short:
-
-- company representatives: existing model with `LastUsedOrganization__c` as the main context,
-- employers, partners, and private individuals: person-based context + one selected organization number as the work context,
-- no support for multiple simultaneous active organization selections for these groups.
-
-This is understandable and helps avoid a double context model in the same flow.
-
-## 5. What is the desired behavior for users without an organization context?
-
-For private individuals representing themselves, they do not need to enter an organization number and do not need to select an organization. They should be able to enter their personal context directly.
-
-For employers and partners, it is important that they either:
-
-- enter with an organization number, or
-- must select an organization on the homepage before they can continue in the work flow.
-
-This means these users must have a valid organization context, while private individuals do not need one.
-
-## 6. Is there a need for new Custom Metadata or permission sets for the new user group?
-
-This must be clarified before implementation, because some permissions may be more naturally modeled as existing roles or Custom Metadata.
-
-## 7. Should this live in the same LWC component or several shared components?
-
-Yes, we should limit the number of new components. I believe it is better to use the current `aareg_home` as the current organization-based entry, and then create a small new entry page for the new user groups that can choose user type and organization.
-
-This should work as a coherent structure:
-
-- the current `aareg_home` remains the existing organization-based page,
-- the new page is used for new user groups when they need to choose user type and/or organization context,
-- after the context is chosen, they can continue into the same existing functionality as the current flow,
-- we avoid building an entirely new parallel app from scratch and keep the solution small and understandable.
-
-In short: I would not create a completely new `aareg_home` from scratch that replaces the current page, but rather a small, clear new entry that points back to the current `aareg_home` flow when necessary.
-
-## 8. Which functions are “allowed” and which are “not allowed”?
-
-Yes, this should be documented as a matrix for each user group. Here is a current, editable matrix for use as a starting point before implementation:
-
-| User group                           | Code / role                | Must have organization context | Must select organization                        | Person-based context     | Allowed functions                                                             | Not allowed functions                                          |
-| ------------------------------------ | -------------------------- | ------------------------------ | ----------------------------------------------- | ------------------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Company representative               | Existing organization user | Yes                            | Yes, via current flow                           | No                       | All current organization-based functions                                      | New person-based functions without organization context        |
-| Employer                             | New user group             | Yes                            | Yes, either via organization number or homepage | Yes                      | Functions tied to the selected employer organization and own personal context | Multiple simultaneous organization selections in the same flow |
-| Partner                              | New user group             | Yes                            | Yes, either via organization number or homepage | Yes                      | Functions tied to the selected partner organization and own personal context  | Multiple simultaneous organization selections in the same flow |
-| Private individual                   | New user group             | No                             | No                                              | Yes                      | Personal tasks and personal messages without organization requirements        | Mandatory organization selection                               |
-| Support user / existing support user | Existing support           | Yes/depending on current flow  | As today                                        | Depends on current model | Existing support flow without change                                          | Regression in current behavior                                 |
-
-This is a good starting point for reducing the main decisions to a simple table. You can edit it based on what is actually allowed for each function in the final release.
-
-## 9. What is the desired level of audit / tracking in this first step?
-
-This project should stay small and AAREG-specific. Before implementation, it must be decided how much history is actually needed in the process without building a generic activity system.
-
-## 10. Will this be an isolated AAREG solution or should it share logic with other areas?
-
-It is recommended to keep this AAREG-specific in the first phase so the solution remains simple to understand, maintain, and audit.
+1. Final owner approval of D2, D6, and D9.
+2. Final role-function matrix approved for data access and not only navigation.
+3. Direct-link contract finalized for denied and technical-error outcomes.
+4. Feature-toggle transition and rollback contract approved.

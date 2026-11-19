@@ -1,5 +1,56 @@
 # Proposed changes
 
+## End-to-end target flow
+
+```mermaid
+flowchart TD
+    U[User] --> P[Entry portal on current URL]
+    U2[Direct link] --> R[Role page]
+    P --> CH{Choose role}
+    CH --> R
+    R --> CX{Context required for role?}
+    CX -- Yes --> CP[Context picker org number or selection]
+    CX -- No --> D[Access decision request]
+    CP --> D
+    D --> S[Server-side RoleAccess decision]
+    S --> GR{Decision}
+    GR -- Granted --> F[Show allowed capabilities only]
+    GR -- Denied --> B[Back to portal with safe message code]
+    GR -- Technical error --> E[Error state with retry]
+```
+
+## Current-to-target transition map
+
+```mermaid
+flowchart LR
+    subgraph Current[Current state]
+        C1[aareg_home as entry]
+        C2[Org-centered context]
+        C3[LastUsedOrganization-driven pages]
+    end
+
+    subgraph Target[Target state]
+        T1[Portal as entry]
+        T2[Role pages]
+        T3[Shared server access decision]
+        T4[Person-based context for new roles]
+    end
+
+    C1 --> T1
+    C2 --> T4
+    C3 --> T3
+```
+
+## 0. One target model and replaced alternatives
+
+This document now assumes one target model from [review-og-forslag.md](review-og-forslag.md): portal on current URL, one page per role, same server-side access control for portal and direct links, and return to portal on access denial.
+
+The following alternatives are considered replaced in this version:
+
+- treating role choice or URL values as authorization,
+- running multiple parallel entry architectures as equally valid,
+- relying on UI visibility as the main access mechanism.
+
 ## 1. Shared entry page for user-group selection
 
 It is recommended to develop a small new entry page that is responsible for:
@@ -61,21 +112,63 @@ Implementation notes:
 - ensure the URL value is not used as the basis for access,
 - update the selected context only after server validation.
 
+Contract notes:
+
+- direct links must call the same server-side access decision as portal navigation,
+- access denial should return to portal with a restricted message code,
+- technical lookup failure should show safe retry/error behavior and not be described as normal access denial.
+
 The current `CurrentPageReference` pattern in `aareg_application.js` is a useful precedent, but it should not be used as the only access model. It should only be used as navigation and context information, not as security control.
 
-## 4. Changes in function visibility
+## 4. Changes in function visibility and server enforcement
 
-For company representatives, the current behavior should be preserved as before.
+For all roles, the menu and action availability should be calculated from server-granted capabilities, not from role name or URL alone.
 
-For other groups, functionality should be restricted as follows:
+Recommended capability mapping:
 
-- New application: hidden / unavailable
-- My applications: hidden / unavailable
-- My agreements: hidden / unavailable
-- Support: available
-- My messages: only personal messages, not organization-based messages
+| Capability        | Typical action or page              |
+| ----------------- | ----------------------------------- |
+| `APPLICATION`     | New application                     |
+| `MY_APPLICATIONS` | My applications                     |
+| `AGREEMENTS`      | My agreements                       |
+| `SUPPORT`         | Create support inquiry              |
+| `MESSAGES`        | Read or write allowed message scope |
 
-There should be an explicit application rule that builds the menu from user group + actual access, not only from the selected organization number.
+For organization-based contexts:
+
+- Altinn is queried for the selected organization.
+- The server converts approved Altinn resources into capabilities.
+- One or more capabilities are returned with `GRANTED`, `DENIED`, or `TECHNICAL_ERROR`.
+- UI visibility is derived from that result, and every Apex method independently calls `requireCapability` before reading or changing data.
+
+For a person holding company representative and employer roles simultaneously:
+
+- the selected role determines which role page/context is used,
+- the selected organization is sent to the server as context,
+- the server evaluates the approved source and capabilities for that context,
+- no capability is granted merely because another role exists,
+- the effective capability list can contain support-only or application-plus-support actions according to Altinn.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Page as Role page
+    participant Service as AAREG_RoleAccessService
+    participant Source as Altinn or approved source
+
+    User->>Page: Select role and organization
+    Page->>Service: decide(roleKey, contextKey, requestedCapability)
+    Service->>Source: Lookup rights for logged-in user and organization
+    Source-->>Service: Rights/resources
+    Service-->>Page: GRANTED + capabilities / DENIED / TECHNICAL_ERROR
+    alt GRANTED
+        Page-->>User: Show only granted actions
+    else DENIED
+        Page-->>User: Return to portal with safe message
+    else TECHNICAL_ERROR
+        Page-->>User: Show retry/error state
+    end
+```
 
 ## 5. Messaging model
 
@@ -110,7 +203,85 @@ It is recommended to introduce a clear server-side access service or small helpe
 - whether the user can open the function,
 - whether fetching messages or other data must be filtered against person or organization.
 
+The same decision service should be used consistently by:
+
+- role pages,
+- support/message/application controller methods,
+- direct URL page openings.
+
 This should be designed as a small, focused utility adapted to AAREG, not as a generic audit or authorization framework.
+
+## Proposed dependency model
+
+```mermaid
+flowchart TB
+    subgraph Entry[Entry layer]
+        EP[Portal page]
+        RP[Role pages]
+    end
+
+    subgraph Reuse[Reused components]
+        SUP[aareg_contactSupportForm]
+        MSG[aareg_myThreads]
+        APP[aareg_application and related pages]
+    end
+
+    subgraph Control[Shared control]
+        RAS[AAREG_RoleAccessService]
+        POL[Policy by context type]
+        ALT[Altinn and approved data sources]
+    end
+
+    EP --> RP
+    RP --> SUP
+    RP --> MSG
+    RP --> APP
+
+    RP --> RAS
+    SUP --> RAS
+    MSG --> RAS
+    APP --> RAS
+
+    RAS --> POL --> ALT
+```
+
+## Proposed responsibility model
+
+```mermaid
+classDiagram
+    class EntryPortal {
+        +selectRole(roleKey)
+        +navigateToRolePage()
+    }
+
+    class RolePage {
+        +load(roleKey)
+        +resolveContext(contextInput)
+        +requestAccessDecision()
+    }
+
+    class RoleAccessService {
+        +decide(roleKey, contextKey)
+        +requireCapability(capability)
+    }
+
+    class AccessDecision {
+        +status
+        +capabilities
+        +safeMessageCode
+    }
+
+    class SupportAndMessageControllers {
+        +createInquiry()
+        +getThreads()
+        +validateRoleContext()
+    }
+
+    EntryPortal --> RolePage : navigates
+    RolePage --> RoleAccessService : calls
+    RoleAccessService --> AccessDecision : returns
+    SupportAndMessageControllers --> RoleAccessService : enforces
+```
 
 ## 8. Why not do a larger refactoring
 

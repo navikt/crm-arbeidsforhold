@@ -1,135 +1,197 @@
 # Implementation plan
 
-## Phase 1: Mapping and clarification
+## Phase dependency overview
+
+```mermaid
+flowchart LR
+    A1[Track A1 role/access contract]
+    A2[Track A2 context/data source]
+    A3[Track A3 transition/rollback]
+
+    P1[Phase 1 security hardening]
+    P2[Phase 2 portal and role pages]
+    P3[Phase 3 context handling]
+    P4[Phase 4 messaging/support alignment]
+    P5[Phase 5 rollout and verification]
+
+    A1 --> P2
+    A2 --> P3
+    A3 --> P5
+    P1 --> P2 --> P3 --> P4 --> P5
+```
+
+## Indicative timeline
+
+```mermaid
+gantt
+    title Clarification and implementation timeline (indicative)
+    dateFormat  YYYY-MM-DD
+    section Clarification tracks
+    Track A1 role and access contract     :a1, 2026-11-20, 10d
+    Track A2 context and data decisions   :a2, 2026-11-20, 14d
+    Track A3 transition and rollback      :a3, 2026-11-24, 10d
+    section Implementation phases
+    Phase 1 security hardening            :p1, after a1, 10d
+    Phase 2 portal and role pages         :p2, after p1, 14d
+    Phase 3 context handling              :p3, after a2, 10d
+    Phase 4 messaging and support         :p4, after p3, 10d
+    Phase 5 rollout and verification      :p5, after a3, 7d
+```
+
+## Part A: Clarification tracks (must be completed before major implementation)
+
+### Track A1: Role and access contract
+
+#### Goal for A1
+
+- freeze exact function and data access per role,
+- keep current company representative and support behavior unchanged,
+- confirm that role/URL/context do not grant access on their own.
+
+#### Deliverables for A1
+
+- approved role-function matrix,
+- approved direct-link behavior contract,
+- approved denial and technical-error behavior.
+
+#### Dependencies for A1
+
+- input from product owner and technical owners.
+
+### Track A2: Context and data source decisions
+
+#### Goal for A2
+
+- confirm source of truth for representation relationships,
+- clarify ACR/email decisions that are still proposed,
+- decide where organization context is mandatory or optional.
+
+#### Deliverables for A2
+
+- approved source mapping per role,
+- approved context rules per role,
+- approved data ownership notes for email and representation.
+
+#### Dependencies for A2
+
+- ADR owners and domain owner decisions.
+
+### Track A3: Transition and rollback model
+
+#### Goal for A3
+
+- confirm if feature toggle can safely control entry experience,
+- define fallback behavior when toggle is off, missing, or has technical error,
+- ensure same access rules in old/new entry flows.
+
+#### Deliverables for A3
+
+- approved transition contract,
+- rollout and rollback runbook,
+- removal criteria for old flow and temporary toggle logic.
+
+#### Dependencies for A3
+
+- validation against existing toggle framework and Experience Cloud behavior.
+
+## Part B: Implementation phases (after clarifications are approved)
+
+## Phase 1: Security hardening of existing flow
 
 ### Goals for phase 1
 
-- clarify which user groups need separate paths,
-- define which functions should be hidden or visible for each group,
-- clarify how representation context should be handled for employers, partners, and private individuals.
+- strengthen server-side identity and access checks in existing exposed methods,
+- reduce reliance on client-supplied identity/context,
+- preserve current business behavior while closing high-risk control gaps.
 
 ### Areas affected in phase 1
 
-- [force-app/externalAccess/lwc/aareg_home/aareg_home.js](../force-app/externalAccess/lwc/aareg_home/aareg_home.js)
-- [force-app/externalAccess/classes/AAREG_HomeController.cls](../force-app/externalAccess/classes/AAREG_HomeController.cls)
-- [force-app/dialog/classes/AAREG_MyThreadsController.cls](../force-app/dialog/classes/AAREG_MyThreadsController.cls)
+- existing Apex controllers in external/support/application flows,
+- current entry and context handling logic.
 
-### Tests
+### Tests for phase 1
 
-- verify existing behavior for company representatives,
-- document expected behavior for each new user group per field.
+- negative tests for manipulated parameters,
+- runAs tests for minimum-access users,
+- regression tests for current company representative/support flow.
 
-## Phase 2: ACR and email model for representative relationships
+## Phase 2: Portal and role-page foundation
 
 ### Goals for phase 2
 
-- use ACR as the only valid source for the relationship between a person and an organization,
-- define which roles should be interpreted as employer, partner, and self,
-- determine how email is stored and retrieved in Salesforce without relying on UI state alone.
+- build portal on current URL,
+- create role pages for employer, partner, and private individual,
+- ensure direct link and portal navigation call same access decision service.
 
 ### Areas affected in phase 2
 
-- `AccountContactRelation`
-- person/contact model in Salesforce,
-- email field or a small AAREG-specific email table,
-- Apex helper for resolving relevant contact and email based on the selected context.
+- Experience Cloud page/routing setup,
+- LWC portal and role-shell components,
+- shared server-side access decision service.
 
 ### Tests for phase 2
 
-- verify correct ACR matching for employer, partner, and self,
-- verify that expired or inactive ACR records are ignored,
-- verify that relevant email is retrieved without using `LastUsedOrganization__c` as the only source.
+- portal navigation tests,
+- direct role-page open tests,
+- denied/return-to-portal tests,
+- technical-error flow tests.
 
-## Phase 3: Shared entry page and context selection
+## Phase 3: Context handling per role
 
 ### Goals for phase 3
 
-- build a small new entry page that handles user-group selection,
-- preserve the current `aareg_home` flow for company representatives,
-- add logic for organization number when relevant for employers and partners,
-- support private individuals without organization selection,
-- ensure the client cannot grant access on its own.
+- keep `aareg_home` behavior for company representative flow,
+- require organization context for employer/partner,
+- allow private individual flow without organization selection,
+- keep one active organization context per flow where relevant.
 
 ### Areas affected in phase 3
 
-- LWC components for the home page and navigation,
-- any Apex methods for input validation and context validation,
-- potential updates to `AAREG_HomeController`.
+- role page context picker behavior,
+- server context validation.
 
-### Dependencies for phase 3
+### Tests for phase 3
 
-- must be in place before the new navigation flow for other groups can be tested.
+- positive/negative context tests per role,
+- tests for missing/invalid organization context,
+- tests for no multi-active organization context.
 
-## Phase 4: Access model and server validation
+## Phase 4: Messaging and support alignment
 
 ### Goals for phase 4
 
-- define clear authorization per user group,
-- ensure that UI hiding is not the only access check,
-- handle URL parameters as context only, not as access control.
+- keep existing organization-based messaging unchanged for company representatives,
+- add person-based filtering for new roles,
+- align support flow with role/context decision.
 
 ### Areas affected in phase 4
 
-- `AAREG_HomeController.checkAndShareIfAuthorized()`
-- any new Apex helper classes for rights modeling
-- any use of custom permissions or other existing permissions
+- message and support controllers,
+- related LWC components.
 
 ### Tests for phase 4
 
-- positive/negative access tests based on validated parameters,
-- tests for invalid URL values,
-- tests for missing organization number.
+- role-based message scope tests,
+- support permission tests per role,
+- regression tests for existing message/support behavior.
 
-## Phase 5: Messages and person-based access
+## Phase 5: Controlled rollout and verification
 
 ### Goals for phase 5
 
-- distinguish between organization-based messages and person-based messages,
-- keep the current organization-based message flow unchanged for company representatives,
-- extend support for employers, partners, and private individuals via person-based context and selected organization number when relevant.
+- verify toggle on/off/missing/error behavior,
+- verify rollback path,
+- verify no regressions in old flow during transition.
 
-### Areas affected in phase 5
+### Tests for phase 5
 
-- [force-app/dialog/classes/AAREG_MyThreadsController.cls](../force-app/dialog/classes/AAREG_MyThreadsController.cls)
-- relevant LWC components for displaying my messages
+- transition matrix tests,
+- end-to-end user journey checks for each role,
+- final regression pass for current users.
 
-### Dependencies for phase 5
+## Approval gate before production-like rollout
 
-- must handle all user groups before moving to production.
-
-## Phase 6: Function visibility and navigation rules
-
-### Goals for phase 6
-
-- hide irrelevant functions for employers, partners, and private individuals,
-- display relevant menus and buttons based on actual access.
-
-### Areas affected in phase 6
-
-- LWC components for navigation and dashboards
-- controlled logic in Apex for the function list
-
-### Tests for phase 6
-
-- verify that only relevant functions are shown per role,
-- verify that the existing company representative flow is not changed.
-
-## Phase 7: Verification and regression testing
-
-### Goals for phase 7
-
-- verify that the existing company representative flow is unchanged,
-- verify role/context-based rules,
-- verify server-side access in Apex.
-
-### Test approach for phase 7
-
-- existing Apex tests for AAREG modules are updated or extended,
-- relevant LWC tests are reviewed where existing tests exist,
-- additional security tests for access and message logic.
-
-## Phase 8: Approval and transition
-
-- document open questions,
-- confirm user-group setup,
-- confirm that server validation is in place before release.
+- all clarification tracks approved,
+- access/privacy red-zone review completed,
+- regression and negative tests passed,
+- rollback path verified.

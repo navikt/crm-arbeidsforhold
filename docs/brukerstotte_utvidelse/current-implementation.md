@@ -1,5 +1,33 @@
 # Current technical implementation
 
+## End-to-end process flow today
+
+```mermaid
+sequenceDiagram
+    actor U as User
+    participant H as aareg_home
+    participant HC as Home controller
+    participant SRC as Altinn
+    participant LUO as Last used organization
+    participant T as My threads controller
+    participant APP as Application and agreement controllers
+
+    U->>H: Open current page
+    H->>HC: getOrganizationsWithRoles
+    HC->>SRC: Fetch organizations and roles
+    SRC-->>H: Organization list
+    U->>H: Select organization
+    H->>HC: updateLastUsedOrganization
+    HC->>LUO: Save selected organization
+    H->>HC: checkAndShareIfAuthorized
+    HC->>SRC: Check access
+    SRC-->>H: Access result
+    U->>T: Open messages
+    T->>LUO: Read last organization
+    U->>APP: Open application or agreement pages
+    APP->>LUO: Read last organization
+```
+
 ## 1. Home page and organization selection
 
 The home page for the external user experience is implemented in the LWC [force-app/externalAccess/lwc/aareg_home/aareg_home.js](../force-app/externalAccess/lwc/aareg_home/aareg_home.js) and the server controller [force-app/externalAccess/classes/AAREG_HomeController.cls](../force-app/externalAccess/classes/AAREG_HomeController.cls).
@@ -84,3 +112,82 @@ The current solution has a clear pattern:
 - server logic performs actual access control, while UIs only show or hide elements in addition.
 
 This is a good foundation for the extension, but it requires a conscious model to separate business context from personal context and actual entitlement.
+
+## Dependency map today
+
+```mermaid
+flowchart TD
+    subgraph UI[Experience Cloud UI]
+        H[aareg_home]
+        M[aareg_myThreads]
+        S[aareg_contactSupportForm]
+        AP[aareg_application]
+    end
+
+    subgraph Apex[Controllers]
+        HC[AAREG_HomeController]
+        TC[AAREG_MyThreadsController]
+        SC[AAREG_contactSupportController]
+        AC[AAREG_ApplicationController]
+        MC[AAREG_MyApplicationsController]
+        GC[AAREG_MyAgreementsController]
+    end
+
+    subgraph Context[Context and access]
+        LUO[LastUsedOrganization__c]
+        AR[AAREG_CommunityUtils.getUserRights]
+        ALT[Altinn access/resources]
+    end
+
+    H --> HC
+    M --> TC
+    S --> SC
+    AP --> AC
+    AP --> MC
+    AP --> GC
+
+    HC --> AR --> ALT
+    HC --> LUO
+    TC --> LUO
+    MC --> LUO
+    GC --> LUO
+    AC --> LUO
+```
+
+## Data/context relationships today
+
+```mermaid
+erDiagram
+    USER ||--o{ INQUIRY : creates
+    USER ||--o{ THREAD : reads
+    USER ||--|| USER_LAST_USED_ORG : stores
+    USER_LAST_USED_ORG }o--|| ACCOUNT : points_to
+    ACCOUNT ||--o{ AGREEMENT : has
+    ACCOUNT ||--o{ ACCESS_REQUEST : has
+    ACCESS_REQUEST ||--o{ RELATED_CONTACT : has
+
+    USER {
+        id userId
+    }
+    USER_LAST_USED_ORG {
+        string organizationNumber
+    }
+    ACCOUNT {
+        string organizationNumber
+    }
+    THREAD {
+        id threadId
+    }
+    INQUIRY {
+        id inquiryId
+    }
+    AGREEMENT {
+        id agreementId
+    }
+    ACCESS_REQUEST {
+        id requestId
+    }
+    RELATED_CONTACT {
+        id relatedContactId
+    }
+```
