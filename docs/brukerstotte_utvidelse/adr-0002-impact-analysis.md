@@ -1,28 +1,39 @@
 # Konsekvensanalyse av ADR-0002
 
-**Status:** Analysegrunnlag for intern teamdiskusjon — ikke godkjent ADR-beslutning  
-**Dato:** 2026-11-19  
-**Område:** CRM-arbeidsforhold og tilknyttede repoer
+**Status:** Komplett statisk analysegrunnlag — ikke godkjent ADR-beslutning
+**Dato for analyse:** 2026-11-19
+**Dato for utvidet metadata-/kryssrepoanalyse:** 2026-11-23
+**Omfang:** crm-arbeidsforhold, crm-ips, sf-arkiv-jobbsporet og tilknyttede arbeidsgiverrepoer
 
-Denne analysen vurderer hvordan foreslått bruk av `AccountContactRelation` (ACR) for Personkontoer kan påvirke `crm-ips` og `sf-arkiv-jobbsporet`. Den bygger på lokalt kode- og dokumentgjennomgang. Ingen Salesforce-org, Apex-tests eller produksjonsdata er verifisert som del av analysen.
+Denne analysen vurderer hvordan foreslått bruk av `AccountContactRelation` (ACR) for Personkontoer påvirker alle repositoriene i arbeidsgiver-/Aa-registeret-landskapet. Metoden kombinerer lokal Salesforce-metadata og kodegjennomgang, offentlig statisk GitHub-gjennomgang og kryssanalyse av pakkeavhengigheter. Ingen Salesforce-org, Apex-tests eller produksjonsdata er verifisert som del av analysen.
 
 ## Sammendrag
 
-| Repo/app              | Samlet risiko        | Type påvirkning                                                                                                                |
-| --------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `crm-ips`             | Lav til middels      | Salesforce-metadata, Personkontoer, sharing, relaterte lister og potensielle migrerings-/forretningsregler                     |
-| `sf-arkiv-jobbsporet` | Ingen direkte risiko | Kotlin/PostgreSQL-app uten Salesforce-kode eller SObject-avhengighet; indirekte risiko bare ved endret API/data fra Salesforce |
+| Repo/app                              | Samlet risiko                           | Dominerende påvirkning                                                                                               |
+| ------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `crm-arbeidsforhold`                  | Middels                                 | Ekstern tilgang, support, søknader, avtaler, meldinger, Altinn, Contact/Personkonto og Flow/permission-set-koblinger |
+| `crm-ips`                             | Lav til middels                         | PersonAccount, Work Trail, portal, ACR-layout, permission sets og rolebasert sharing                                 |
+| `sf-arkiv-jobbsporet`                 | Ingen direkte, lav indirekte            | fnr/orgnr-payload, arkivnøkler og downstream-kontrakt må bevares                                                     |
+| `arena-arbeidsgiver-aktivitet-filter` | Lav indirekte                           | Arena-/Kafka-data må fortsatt kobles mot stabilt organisasjonsnummer, ikke Salesforce-/ACR-ID                        |
+| `crm-arbeidsgiver-base`               | Høyest direkte kontakt-/relasjonsrisiko | Shared Contact-opprettelse, e-postmatching, `AccountContactRelation`, ACR-status og PersonAccount                    |
+| `crm-arbeidsgiver-innsyn`             | Lav til middels indirekte               | Kandidat-/personidentitet, snokelogg og synlig persondata må ikke endres via ACR                                     |
+| `crm-arbeidsgiver-integration`        | Høy indirekte import-/migreringsrisiko  | Mange Kafka-handlere bruker orgnr, Account, Contact og ACR-lignende relasjoner                                       |
+| `crm-arbeidsgiver-kontaktskjema`      | Lav direkte ACR-risiko                  | Publikumsinnsender må ikke kobles til PersonAccount eller ACR som autorisasjon                                       |
+| `crm-arbeidsgiver-tcrm`               | Lav til middels indirekte               | Rapportering og KPI kan påvirkes av delte Account-/Contact-/Personkonto-data                                         |
+| `crm-arbeidsgiver-utilities`          | Lav direkte                             | Felles Kafka/Salesforce REST kan ikke få ACR-ID eller person-ID som ny implisitt kontrakt                            |
+| `crm-arbeidsgiver-dialog`             | Høy tilgangsrisiko                      | Personkonto, organisasjonskontekst, Altinn og Salesforce `Thread__Share` må samordnes                                |
 
-Den mest sannsynlige negative konsekvensen er ikke kompileringsfeil i øvrige repoer. Hovedrisikoen ligger i:
+Den mest sannsynlige negative konsekvensen er ikke kompileringsfeil i øvrige repoer. Hovedrisikoen ligger på tvers av alle repoene i:
 
-- migrering som endrer eller sletter eksisterende relasjoner
-- globale ACR-triggere eller batchjobber som skriver til andre pakker
-- bruk av ACR som implisitt tilgangs- eller representasjonskilde
-- endring av eksisterende standardverdier eller datakilder
-- endring av Personkonto-, ContactId- eller AccountId-modell
-- endrede integrasjonskontrakter, spesielt fnr/orgnr, mot arkivsystemet
+- migrering som endrer eller sletter eksisterende relasjoner,
+- globale ACR-triggere eller batchjobber som skriver til andre pakker,
+- bruk av ACR som implisitt tilgangs- eller representasjonskilde,
+- endring av standardfelter eller rolleverdi,
+- endring av Personkonto-, ContactId-, AccountId- eller personidentitetsmodell,
+- duplikater og konflikt i samtidig relasjons-/e-postimport,
+- endring av fnr/orgnr- og nedstrøms integrasjonskontrakter.
 
-Anbefalt mål: **Lavere eller ingen negativ påvirkning ved additiv, avgrenset og migreringssikker implementasjon.**
+**Anbefalt mål for alle repositoriene:** Lavere eller ingen negativ påvirkning ved en additiv, avgrenset, idempotent og migreringssikker implementasjon. Ingen repo skal få ny ACR- eller Personkontoavhengighet uten et eksplisitt behov, package-/domeneavhengighet og regresjonstest.
 
 ---
 
@@ -304,7 +315,7 @@ Legg til følgende form for ADR-prinsipp:
 
 ADR-teksten bør si:
 
-> Standardfeltet AccountContactRelation.Roles utvides additivt. Eksisterende verdier skal ikke omdøpes eller slettes. Eventuelle prosjektspecificke verdier skal dokumenteres og ikke brukes som implisitt autorisasjonsnøkkel.
+> Standardfeltet AccountContactRelation.Roles utvides additivt. Eksisterende verdier skal ikke omdøpes eller slettes. Eventuelle prosjektspecifikke verdier skal dokumenteres og ikke brukes som implisitt autorisasjonsnøkkel.
 
 Foreslått avgrensing av domeneverdier:
 
@@ -416,7 +427,7 @@ Foreslått ADR-konklusjon:
 Før teamet godkjenner ADR-0002 bør følgende besluttes:
 
 1. Skal ACR bare brukes som representasjonsrelasjon eller også som datakilde for meldings- og supportkontekst?
-2. Skal eksisterende ACR-relasjoner i CRM-IPS gjøres om til prosjekspesifikke rolleverdi ved utrulling?
+2. Skal eksisterende ACR-relasjoner i CRM-IPS gjøres om til prosjektspecifikke rolleverdi ved utrulling?
 3. Hvem eier Personkonto-/ACR-migreringen og hvordan verifiseres den i CRM-IPS og CRM-arbeidsforhold?
 4. Skal rolleverdien `Employee`, `Employer`, `Partner` eller norske businessrolleverdi være autoritativ?
 5. Hvilken pakke kan eie og distribuere standardrolleverdien i ACR?
