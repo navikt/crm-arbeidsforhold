@@ -25,9 +25,9 @@
         "@salesforce/sfdx-lwc-jest": "^8.0.0",
         "husky": "^9.1.7",
         "jest-canvas-mock": "^2.5.8",
-        "lint-staged": "^17.6.0",
-        "prettier": "^3.9.10",
-        "prettier-plugin-apex": "^2.3.0"
+        "lint-staged": "^17.6.1",
+        "prettier": "^3.10.1",
+        "prettier-plugin-apex": "^2.4.0"
     },
     "lint-staged": {
         "**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}": [
