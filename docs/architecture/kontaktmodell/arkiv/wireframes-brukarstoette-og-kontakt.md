@@ -10,7 +10,7 @@ Artefakten omtalar sjølv skissene som lo-fi og ikkje vedtekne. Dei er baserte p
 brukarstøtteutvidinga, ikkje bevis for at tenesta eller tilgangskontrollane er implementerte.
 
 Dette dokumentet supplerer [brukarstøtte- og e-postanalysen](brukarstoette-og-e-post-analyse.md)
-og [kontaktprototypen](prototype.html). Ingen av dei eksisterande tekstane eller prototypane
+og [kontaktprototypen](prototype-v1.html). Ingen av dei eksisterande tekstane eller prototypane
 er endra.
 
 ## 1. Kva wireframene tilfører

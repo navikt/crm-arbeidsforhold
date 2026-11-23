@@ -1,6 +1,8 @@
 # Brief til Claude: skisser for kontaktmodellen i Aa-registeret
 
-**Status: Forslag til vurdering, ikkje vedteken arkitektur.**
+**Status: Grunnlag for design. Avgjerdene i [spesifikasjonen](../../../.github/specs/aareg-contact-model.md) gjeld føre denne briefen.**
+
+Avgjort 23. november 2026: **rolle først**, deretter søkbar organisasjonsveljar. E-post per organisasjon blir lagra på ACR.
 
 Dette dokumentet er laga for å limast inn i Claude, eller ein annan designassistent, i sin heilskap.
 Det inneheld alt som trengst for å lage wireframes, diagram og flytskjema for eksterne og interne
@@ -189,7 +191,7 @@ Aksel tilrår `UNSAFE_Combobox` for lange lister. Portalen er bygd med LWC, så 
 lagast som LWC etter
 [ARIA-mønsteret for combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/), med Aksel-stil.
 Teikn han som Aksel Combobox og merk han «Nytt (LWC)». Sjå òg
-[samla-vurdering.md](samla-vurdering.md), kapittel 4.
+[arkiv/samla-vurdering.md](arkiv/samla-vurdering.md), kapittel 4.
 
 ## 8. Eksterne skjermar (Experience Cloud)
 
@@ -202,20 +204,20 @@ WCAG 2.1 AA.
 Sidehovudet skal alltid ha Nav-logo, «Aa-registeret», ein **søkbar kontekstveljar** med teksten
 «Du opptrer som: …», «Min profil» og «Logg ut». Sjå krava i kapittel 7.
 
-| ID  | Skjerm                         | Innhald og tilstandar                                                                                                                                                                                                                                                                                                                                                                       |
-| --- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| E1  | Vel kontekst                   | Overskrift «Hvem opptrer du som i dag?». Søkbar veljar (kapittel 7) med «Meg selv» øvst og organisasjonane frå Altinn under. Søk på namn og org.nr. Vis døme med 40 organisasjonar og eit søk. Tilstandar: lastar, ingen organisasjonar, ingen treff og Altinn-feil med «Prøv igjen». Éin organisasjon blir ikkje vald automatisk. Infotekst: tilknyting i Aa-registeret gir ikkje tilgang. |
-| E2  | Min profil – før val           | Berre «Meg selv»: namn frå innlogging (ikkje redigerbart), privat e-post og telefon med «Endre». Hjelpetekst «Velg organisasjon i «Du opptrer som» for å se kontaktopplysninger og roller der». Ingen eigen veljar på sida. Lukka seksjon «Tidligere tilknytninger».                                                                                                                        |
-| E3  | Min profil – etter val         | Banner «Kontrollert i Altinn [tid]». Kort for «E-post hos Organisasjon A» med verdi, status «Bekreftet» og «Endre». Liste over rollene mine hos A, til dømes «Innsender, 2 søknader» og «Faglig kontakt, 1 avtale». Tilstand utan adresse: åtvaring og «Legg til». Tilstand der Altinn-retten er borte: feilmelding, og ingen data blir viste.                                              |
-| E4  | Endre adresse (modal)          | Tittel med kontekst: «Endre e-post hos Organisasjon A» eller «Endre privat e-post». Noverande adresse, felt for ny adresse, boksen «Dette endres / Dette endres ikke», kode sendt til ny adresse, felt for kode, feil kode, utgått kode og konflikt med anna økt.                                                                                                                           |
-| E5  | Tidlegare tilknytingar         | Ekspandert seksjon med organisasjonsnamn, «Ingen tilgang via Altinn lenger» og «Fjern e-postadressen min». Stadfestingsdialog. Ingen roller eller søknader.                                                                                                                                                                                                                                 |
-| E6  | Søknad – kontaktpersonar       | Steg 3 av 5. «Deg som innsender» med adressa hos organisasjonen. Tabell med rolle, person, e-post hos organisasjonen, varsel og «Fjern». Same person kan ha fleire roller. Status: «Kjent kontakt», «Invitert» eller «Uavklart». Knapp: «Legg til kontaktperson».                                                                                                                           |
-| E7  | Legg til kontaktperson (modal) | Vel rolle. Søk berre blant personar med aktiv tilknyting til den valde organisasjonen. Viss personen ikkje finst: namn og e-post hos organisasjonen, med teksten «Lagres som uavklart til personen logger inn. Vi slår ikke sammen personer på e-post.»                                                                                                                                     |
-| E8  | Ny melding til brukarstøtte    | Boks «Du sender som: brukerstøtte for Organisasjon B». Tema, melding og felt for e-post hos Organisasjon B. Når adressa manglar, er feltet **tomt og påkravd** og har feilmelding. Radioknappar: «Lagre som min adresse hos Organisasjon B» eller «Bruk bare for denne meldingen».                                                                                                          |
-| E9  | Mine meldingar                 | Berre meldingar i aktiv kontekst. Kolonnar: emne, sendt som, svar går til og status. Merknad når adressa er endra etter innsending.                                                                                                                                                                                                                                                         |
-| E10 | Kvittering                     | Stadfesting med adressa som faktisk vart brukt, og kontekst.                                                                                                                                                                                                                                                                                                                                |
-| E11 | Privatperson – eigen regi      | Kontekst «Meg selv». Oversikt over eigne forhold og ny melding med privat adresse. Ingen organisasjonsdata.                                                                                                                                                                                                                                                                                 |
-| E12 | Ingen tilgang                  | Ein person som opnar ei side utan gjeldande Altinn-rett, blir send tilbake til E1 med melding. Ingen data frå sida blir viste.                                                                                                                                                                                                                                                              |
+| ID  | Skjerm                         | Innhald og tilstandar                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E1  | Vel rolle og kontekst          | **Rolle først.** Steg 1: «Hvordan vil du bruke tjenesten?» med radioknappane «Som arbeidsgiver», «Som samarbeidspartner» og «Som privatperson». Steg 2 for dei to første: søkbar veljar (kapittel 7) med organisasjonane frå Altinn der personen har rett for den valde rolla. «Som privatperson» går rett til «Meg selv». Søk på namn og org.nr. Vis døme med 40 organisasjonar og eit søk. Tilstandar: lastar, ingen organisasjonar, ingen treff og Altinn-feil med «Prøv igjen». Éin organisasjon blir ikkje vald automatisk. Infotekst: tilknyting i Aa-registeret gir ikkje tilgang. |
+| E2  | Min profil – før val           | Berre «Meg selv»: namn frå innlogging (ikkje redigerbart), privat e-post og telefon med «Endre». Hjelpetekst «Velg organisasjon i «Du opptrer som» for å se kontaktopplysninger og roller der». Ingen eigen veljar på sida. Lukka seksjon «Tidligere tilknytninger».                                                                                                                                                                                                                                                                                                                      |
+| E3  | Min profil – etter val         | Banner «Kontrollert i Altinn [tid]». Kort for «E-post hos Organisasjon A» med verdi, status «Bekreftet» og «Endre». Liste over rollene mine hos A, til dømes «Innsender, 2 søknader» og «Faglig kontakt, 1 avtale». Tilstand utan adresse: åtvaring og «Legg til». Tilstand der Altinn-retten er borte: feilmelding, og ingen data blir viste.                                                                                                                                                                                                                                            |
+| E4  | Endre adresse (modal)          | Tittel med kontekst: «Endre e-post hos Organisasjon A» eller «Endre privat e-post». Noverande adresse, felt for ny adresse, boksen «Dette endres / Dette endres ikke», kode sendt til ny adresse, felt for kode, feil kode, utgått kode og konflikt med anna økt.                                                                                                                                                                                                                                                                                                                         |
+| E5  | Tidlegare tilknytingar         | Ekspandert seksjon med organisasjonsnamn, «Ingen tilgang via Altinn lenger» og «Fjern e-postadressen min». Stadfestingsdialog. Ingen roller eller søknader.                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| E6  | Søknad – kontaktpersonar       | Steg 3 av 5. «Deg som innsender» med adressa hos organisasjonen. Tabell med rolle, person, e-post hos organisasjonen, varsel og «Fjern». Same person kan ha fleire roller. Status: «Kjent kontakt», «Invitert» eller «Uavklart». Knapp: «Legg til kontaktperson».                                                                                                                                                                                                                                                                                                                         |
+| E7  | Legg til kontaktperson (modal) | Vel rolle. Søk berre blant personar med aktiv tilknyting til den valde organisasjonen. Viss personen ikkje finst: namn og e-post hos organisasjonen, med teksten «Lagres som uavklart til personen logger inn. Vi slår ikke sammen personer på e-post.»                                                                                                                                                                                                                                                                                                                                   |
+| E8  | Ny melding til brukarstøtte    | Boks «Du sender som: brukerstøtte for Organisasjon B». Tema, melding og felt for e-post hos Organisasjon B. Når adressa manglar, er feltet **tomt og påkravd** og har feilmelding. Radioknappar: «Lagre som min adresse hos Organisasjon B» eller «Bruk bare for denne meldingen».                                                                                                                                                                                                                                                                                                        |
+| E9  | Mine meldingar                 | Berre meldingar i aktiv kontekst. Kolonnar: emne, sendt som, svar går til og status. Merknad når adressa er endra etter innsending.                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| E10 | Kvittering                     | Stadfesting med adressa som faktisk vart brukt, og kontekst.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| E11 | Privatperson – eigen regi      | Kontekst «Meg selv». Oversikt over eigne forhold og ny melding med privat adresse. Ingen organisasjonsdata.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| E12 | Ingen tilgang                  | Ein person som opnar ei side utan gjeldande Altinn-rett, blir send tilbake til E1 med melding. Ingen data frå sida blir viste.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 Lag mobilversjonar av E1, E2, E3 og E8.
 
@@ -299,27 +301,25 @@ Bruk éin HTML-fil per leveranse eller eit samla designdokument. Merk kvart elem
 
 ## 14. Opne spørsmål
 
-| Spørsmål                                                           | Eigar                          |
-| ------------------------------------------------------------------ | ------------------------------ |
-| Adresse som felt på ACR eller i eit eige kontaktpunktobjekt?       | Produkteigar og Team Platforce |
-| Kan domenefelt på ACR skjulast for andre appar?                    | Team Platforce                 |
-| Teknisk domenekonto som primærkonto                                | Team Platforce                 |
-| Mellomlagringstid for Altinn-svar og regel for deaktivering av ACR | Produkteigar og tryggleik      |
-| Kva Altinn-rett krevst for kvar handling (rollekatalog)?           | Produkteigar                   |
-| Kontrollert mapping mellom innlogging og domenekontakt             | Team Platforce                 |
-| Kan `EmailQueue__c` binde og revalidere mottakar ved utsending?    | Eigar av e-postpakken          |
-| Mekanisme for å stadfeste ny e-postadresse                         | Team Platforce                 |
-| Kan brukarstøtteløyvet endre roller i avtalar?                     | Produkteigar                   |
-| Maskering i søk, rapportar og lookup for skjerma personar          | Tryggleiksansvarleg            |
-| Målform i UI-tekst                                                 | Produkteigar                   |
-| Kontekst først eller rolle først (sjå branch-skissene)             | Produkteigar                   |
-| Grense for tal på viste treff i organisasjonsveljaren              | Produkteigar og UX             |
-| Kvar går svaret når adressa er endra etter innsending?             | Produkteigar                   |
-| Blir ACR tømd eller deaktivert når personen fjernar ei adresse?    | Produkteigar                   |
-| Kan saksbehandlaren endre adressa til personen hos organisasjonen? | Produkteigar                   |
-| Blir saksbehandlaren sitt oppslag av privat adresse logga?         | Tryggleiksansvarleg            |
-| Krev søk etter kontaktpersonar fersk stadfesting i Altinn?         | Produkteigar og tryggleik      |
-| Duplikat- og valideringsreglar på Contact frå andre team           | Team Platforce                 |
+| Spørsmål                                                           | Eigar                     |
+| ------------------------------------------------------------------ | ------------------------- |
+| Kan domenefelt på ACR skjulast for andre appar?                    | Team Platforce            |
+| Teknisk domenekonto som primærkonto                                | Team Platforce            |
+| Mellomlagringstid for Altinn-svar og regel for deaktivering av ACR | Produkteigar og tryggleik |
+| Kva Altinn-rett krevst for kvar handling (rollekatalog)?           | Produkteigar              |
+| Kontrollert mapping mellom innlogging og domenekontakt             | Team Platforce            |
+| Kan `EmailQueue__c` binde og revalidere mottakar ved utsending?    | Eigar av e-postpakken     |
+| Mekanisme for å stadfeste ny e-postadresse                         | Team Platforce            |
+| Kan brukarstøtteløyvet endre roller i avtalar?                     | Produkteigar              |
+| Maskering i søk, rapportar og lookup for skjerma personar          | Tryggleiksansvarleg       |
+| Målform i UI-tekst                                                 | Produkteigar              |
+| Grense for tal på viste treff i organisasjonsveljaren              | Produkteigar og UX        |
+| Kvar går svaret når adressa er endra etter innsending?             | Produkteigar              |
+| Blir ACR tømd eller deaktivert når personen fjernar ei adresse?    | Produkteigar              |
+| Kan saksbehandlaren endre adressa til personen hos organisasjonen? | Produkteigar              |
+| Blir saksbehandlaren sitt oppslag av privat adresse logga?         | Tryggleiksansvarleg       |
+| Krev søk etter kontaktpersonar fersk stadfesting i Altinn?         | Produkteigar og tryggleik |
+| Duplikat- og valideringsreglar på Contact frå andre team           | Team Platforce            |
 
 Funn frå SIT2 som påverkar skissene: portalbrukarar er knytte til ein personkonto, og Contact og
-ACR blir delte med andre team. Sjå [samla-vurdering.md](samla-vurdering.md), kapittel 5.
+ACR blir delte med andre team. Sjå [arkiv/samla-vurdering.md](arkiv/samla-vurdering.md), kapittel 5.

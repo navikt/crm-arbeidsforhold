@@ -8,7 +8,7 @@ Analysedato: 23. november 2026.
 Utgangspunktet er brukarstøttematerialet på branchen
 [`brukerstøtteløsning_utvidelse_20261110`](https://github.com/navikt/crm-arbeidsforhold/tree/89625d04dab0b1ddc97ff73584f2f88d753a1e84/docs/brukerstotte_utvidelse)
 ved commit `89625d04dab0b1ddc97ff73584f2f88d753a1e84`, samanlikna med
-[kontaktanalysen](analyse-og-malmodell.md), [prototypen](prototype.html) og relevant kode i dette arbeidsområdet.
+[kontaktanalysen](analyse-og-malmodell.md), [prototypen](prototype-v1.html) og relevant kode i dette arbeidsområdet.
 Branchkjeldene er lenkja til denne faste versjonen, ikkje til ein branch som kan endre seg.
 
 Dokumenta på branchen er arbeidsmateriale. Nokre punkt er markerte `Confirmed` i eit beslutningsregister,
@@ -103,7 +103,7 @@ endeleg eigargodkjenning. Skil mellom ei akseptert arbeidsretning og ei fullfør
 ## 3. Kontaktflyten finst også i brukarstøtta
 
 Den tidlegare analysen viste søknadsflyten. Den lokale
-[støtteflyten](../../../force-app/main/default/flows/AAREG_createSupportContact.flow-meta.xml)
+[støtteflyten](../../../../force-app/main/default/flows/AAREG_createSupportContact.flow-meta.xml)
 har eit tilsvarande oppslag:
 
 - `checkContact`, linje 393–420: finn `Contact` etter `AccountId` **og** `Inquiry.Email__c`.
@@ -114,9 +114,9 @@ Dermed er problemet ikkje avgrensa til søknad: ein ny adresse eller annan organ
 gi ein annan kontakt i støtteflyten. Lik organisasjon og e-post kan samtidig peike på ein delt adresse,
 ikkje nødvendigvis den same personen. Dette er observert i kjeldekode, ikkje tal på faktiske duplikat.
 
-[AAREG_contactSupportController](../../../force-app/dialog/classes/AAREG_contactSupportController.cls),
+[AAREG_contactSupportController](../../../../force-app/dialog/classes/AAREG_contactSupportController.cls),
 linje 68–83 og 543–561, koplar støtteutkast til sist brukte organisasjonsnummer og tek imot e-post
-som metadata. [AAREG_MyThreadsController](../../../force-app/dialog/classes/AAREG_MyThreadsController.cls),
+som metadata. [AAREG_MyThreadsController](../../../../force-app/dialog/classes/AAREG_MyThreadsController.cls),
 linje 22–68, les `LastUsedOrganization__c` og finn trådar etter organisasjonskonto.
 Desse mekanismane må vurderast for privatperson og ny rollekontekst; organisasjonsfilter åleine kan
 ikkje definere personleg innsyn.
@@ -164,7 +164,7 @@ tilknyting til rette org må vere implementerte før data kan visast eller bruka
 
 Vårt tidlegare forslag om separat Aa-register-kontakt og seinare skjerma Person Account-kopling
 er framleis **eit forslag**, ikkje ei avgjord plattformløysing.
-[AAREG_CommunityUtils](../../../force-app/externalAccess/classes/AAREG_CommunityUtils.cls)
+[AAREG_CommunityUtils](../../../../force-app/externalAccess/classes/AAREG_CommunityUtils.cls)
 les allereie identitet via `User.Contact.Account.INT_PersonIdent__c`.
 Person Account/contact-typen og eigarskap i faktisk org er ikkje verifisert her.
 

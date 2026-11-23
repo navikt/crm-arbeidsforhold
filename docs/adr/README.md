@@ -49,6 +49,7 @@ ADR-er navngis med løpenummer og kort tittel.
 | [ADR-0003](0003-e-post-for-personkonto-via-aareg-og-krr.md)       | Håndtering av e-postadresse for personkonto via AAREG og KRR                                       | Foreslått        | 2026-08-27 |
 | [ADR-0004](0004-p360-composition-root-og-kontraktsgrense.md)      | P360 composition root og kontraktsgrense                                                           | Foreslått        | 2026-09-10 |
 | [ADR-0005](0005-repositorystruktur-ny-kode-og-legacy.md)          | Avgrense repositorystrukturen til ny kode                                                          | Foreslått        | 2026-10-04 |
+| [ADR-0006](0006-kontaktmodell-ein-kontakt-acr-og-roller.md)       | Éin kontakt per person, ACR for organisasjonar og roller på RelatedContact                         | Foreslått        | 2026-11-23 |
 
 ## Repo-lokal konvensjon
 
@@ -71,6 +72,6 @@ Malens seksjoner (`Status`, `Dato`, `Kontekst`, `Beslutning`, `Alternativer vurd
 
 **To ulike ADR-spor.** ADR-0002 og ADR-0003 handler om personkonto, kontaktrelasjoner og e-post — ikke om integrasjonsarkitektur. ADR-0001 handler om lagdeling og navnestandard. Det ser ut til å være to uavhengige beslutningsspor i samme nummerserie.
 
-**Konsekvens:** ADR-0005 dokumenterer forslaget til repositorystruktur. Neste ledige nummer er ADR-0006. Sak #988 følgjer opp attståande spørsmål om nummerserie, statusvokabular og malbruk.
+**Konsekvens:** ADR-0005 dokumenterer forslaget til repositorystruktur. Neste ledige nummer er ADR-0007. Sak #988 følgjer opp attståande spørsmål om nummerserie, statusvokabular og malbruk.
 
 **Statusvokabularet varierer:** «UNDER BEHANDLING» i ADR-0001, «Foreslått» i ADR-0002 og ADR-0003. Bør normaliseres.

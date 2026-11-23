@@ -210,7 +210,7 @@ Tilrådd policy:
 5. Retry av arkivering brukar det same innsende grunnlaget, ikkje ein ny profilversjon.
 
 Den eksisterande
-[stadfestingsflyten](../../../force-app/main/default/flows/AAREG_createContactSendConfirmation.flow-meta.xml),
+[stadfestingsflyten](../../../../force-app/main/default/flows/AAREG_createContactSendConfirmation.flow-meta.xml),
 linje 400–403, legg berre kontakt-ID inn som target.
 Dermed må det installerte e-postsystemet undersøkjast for adressebinding, tidspunkt og støtte for
 konkrete mottakarar. Denne analysen har ikkje stadfesta den kontrakten.

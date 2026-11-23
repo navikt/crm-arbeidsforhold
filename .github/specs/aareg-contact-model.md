@@ -1,0 +1,131 @@
+# Spesifikasjon: kontaktmodell for Aa-registeret
+
+**Status:** Retning valt 23. november 2026. Avgjerder: [ADR-0006](../../docs/adr/0006-kontaktmodell-ein-kontakt-acr-og-roller.md).
+**Bakgrunn:** [docs/architecture/kontaktmodell](../../docs/architecture/kontaktmodell/README.md).
+**Eigar:** Team Arbeidsforhold. Team Platforce godkjenner endringar i produksjon.
+
+## 1. Mål
+
+Éin varig Aa-register-kontakt per innlogga person. Kontakten er knytt til organisasjonar med
+`AccountContactRelation` (ACR) og til søknader med rolle på `RelatedContact__c`. Kontakten har éi
+privat e-postadresse og éi adresse per organisasjon. Det finst ingen fallback mellom adressene.
+
+Løysinga skal kunne slåast på gradvis og rullast tilbake utan tap av data.
+
+## 2. Ikkje mål i denne leveransen
+
+- Endring av `User.ContactId`, `User.Email`, Person Account eller KRR.
+- Automatisk samanslåing av kontaktar på e-post eller namn.
+- Sletting av eksisterande kontaktar eller `RelatedContact__c`-rader.
+- Bruk av `AccountContactRelation.Roles`. Feltet er delt med andre team.
+
+## 3. Avgjerder
+
+| ID  | Avgjerd                                                                                                                                                          |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Flyten startar med rolle («Som arbeidsgiver», «Som samarbeidspartner», «Som privatperson»), deretter søkbar organisasjonsveljar.                                 |
+| D2  | Organisasjonsveljaren er ein søkbar combobox (namn og org.nr.) bygd som LWC etter ARIA-mønsteret, fylt frå Altinn, aldri frå ACR.                                |
+| D3  | E-post og telefon per organisasjon blir lagra på ACR i eigne `AAREG_`-felt. `AAREG_Managed__c` markerer rader som Aa-registeret forvaltar.                       |
+| D4  | Domenekontaktane har ein teknisk primærkonto. Id-en ligg i `AAREG_Default_Settings__c.Contact_Model_Account_Id__c` og blir sett av oppsettskommandoen.           |
+| D5  | Identiteten er portalbrukaren sin `User.Id`, lagra i det unike feltet `Contact.AAREG_Identity_Key__c`. Ingen endring på `User`.                                  |
+| D6  | `RelatedContact__c` blir utvida med `Contact__c`, `Role__c`, `Participation_Key__c` (unik) og `Organization_Relation_Id__c`.                                     |
+| D7  | Skuggeskriving skjer asynkront i ein Queueable i systemmodus med berre serverutleidde verdiar. Feil blir logga og stoppar aldri innsendinga.                      |
+| D8  | Brytarane er `Feature_Flag__mdt`-rader lesne gjennom `AAREG_ContactModelGate`, som sperrer når noko manglar eller er av. Pilotbrukarar får ein custom permission. |
+| D9  | Migreringa skriv backup før kvar endring og kan rullast tilbake per køyring. Berre klasse A (sikker) blir kopla automatisk.                                      |
+| D10 | Drift skjer i fana «Kontaktmodell» i appen Arbeidsforhold Admin, med rapportar og dashboard.                                                                     |
+
+## 4. Datamodell
+
+| Objekt og felt                                    | Type                   | Formål                                                                 |
+| ------------------------------------------------- | ---------------------- | ---------------------------------------------------------------------- |
+| `Contact.AAREG_Identity_Key__c`                   | Text(18), unik, ext.id | Portalbrukar-Id. Éin domenekontakt per innlogga person.                |
+| `Contact.AAREG_Private_Email__c`                  | Email                  | Privat adresse for eigen regi.                                         |
+| `Contact.AAREG_Private_Phone__c`                  | Phone                  | Privat telefon for eigen regi.                                         |
+| `AccountContactRelation.AAREG_Managed__c`         | Checkbox               | Rada er oppretta eller teken over av Aa-registeret.                    |
+| `AccountContactRelation.AAREG_Email__c`           | Email                  | Adressa hos denne organisasjonen.                                      |
+| `AccountContactRelation.AAREG_Phone__c`           | Phone                  | Telefon hos denne organisasjonen.                                      |
+| `AccountContactRelation.AAREG_Altinn_Verified_At__c` | DateTime            | Sist stadfesta mot Altinn.                                             |
+| `RelatedContact__c.Contact__c`                    | Lookup(Contact)        | Domenekontakten.                                                       |
+| `RelatedContact__c.Role__c`                       | Picklist               | `Submitter`, `NotificationContact`.                                    |
+| `RelatedContact__c.Participation_Key__c`          | Text(80), unik         | `<kontekst-Id>:<kontakt-Id>:<rolle>`. Hindrar duplikat ved samtidigheit. |
+| `RelatedContact__c.Organization_Relation_Id__c`   | Text(18)               | ACR-raden som gav adressa. ACR kan ikkje ha oppslag.                   |
+| `AAREG_Contact_Migration_Run__c`                  | Objekt                 | Éi køyring: modus, status, tal per klasse.                             |
+| `AAREG_Contact_Migration_Item__c`                 | Objekt, master-detail  | Éi kjeldepost: klasse, handling, JSON-backup, resultat.                |
+
+## 5. Brytarar
+
+| Flagg                                     | Omfang                | Verknad når på                                                           |
+| ----------------------------------------- | --------------------- | ------------------------------------------------------------------------ |
+| `AAREG_ContactModel_ShadowWrite`          | Globalt               | Innsending skriv domenekontakt, ACR og deltaking i tillegg til gammal modell. |
+| `AAREG_ContactModel_OrgSelector`          | Pilot eller globalt   | Rolle først og søkbar organisasjonsveljar i portalen.                    |
+| `AAREG_ContactModel_Profile`              | Pilot eller globalt   | «Min profil» med privat adresse og adresse per organisasjon.             |
+| `AAREG_ContactModel_ContextAddress`       | Pilot eller globalt   | Varsel blir sende til adressa for konteksten, utan fallback.             |
+| `AAREG_ContactModel_LegacyMatchingOff`    | Globalt               | Den gamle kontaktkoplinga på e-post blir slått av.                       |
+
+Regel: Eit flagg er på for ein brukar når `Is_Enabled__c` er sann og anten
+`Required_Custom_Permission__c` er tom, eller brukaren har custom permissionen som står der.
+Pilotflagga brukar `AAREG_ContactModelPilot`. Manglande rad eller feil gir «av».
+LWC hentar status utan cache.
+
+Tilbakerulling: Den gamle modellen blir skriven heilt til opprydningsfasen. Å slå av eit flagg er
+derfor alltid nok til å gå tilbake. Data frå den nye modellen blir verande og kan fjernast med
+migreringa sin `ROLLBACK`.
+
+## 6. Krav
+
+| ID     | Krav                                                                                                                                  | Fase |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| REQ-01 | Med alle flagg av skal åtferda vere uendra.                                                                                           | K1   |
+| REQ-02 | Gate sperrer når flagg manglar, er av, eller krev ein permission brukaren ikkje har.                                                   | K1   |
+| REQ-03 | Ved innsending blir éin domenekontakt per portalbrukar oppretta eller gjenbrukt.                                                       | K2   |
+| REQ-04 | Ei ACR-rad per kontakt og organisasjon blir oppretta eller oppdatert med adressa frå søknaden. Eksisterande ikkje-forvalta rader blir ikkje endra. | K2   |
+| REQ-05 | Éi `Submitter`-deltaking per søknad og kontakt, idempotent ved ny innsending.                                                          | K2   |
+| REQ-06 | Feil i skuggeskrivinga blir logga og påverkar ikkje innsendinga.                                                                       | K2   |
+| REQ-07 | Admin-fana viser flaggstatus, nøkkeltal og køyringar, og kan starte plan, migrering, verifisering og tilbakerulling for dei som har løyve. | K3   |
+| REQ-08 | Rapportar og dashboard viser domenekontaktar, deltakingar per rolle og migreringsklassar.                                             | K3   |
+| REQ-09 | Migreringa klassifiserer A–E og endrar ingenting i `PLAN`.                                                                             | K4   |
+| REQ-10 | `APPLY` lagrar JSON-backup før endring og koplar berre klasse A.                                                                       | K4   |
+| REQ-11 | `ROLLBACK` fjernar det køyringa oppretta og set tilbake endra felt frå backup.                                                         | K4   |
+| REQ-12 | `VERIFY` stemmer av tal mot køyringa og rapporterer avvik.                                                                             | K4   |
+| REQ-13 | Rolle først og søkbar veljar med søk på namn og org.nr., «Meg selv» øvst, ingen automatisk val.                                        | K5   |
+| REQ-14 | «Min profil» viser berre «Meg selv» før organisasjon er valt og kontrollert i Altinn.                                                  | K6   |
+| REQ-15 | Mottakar blir vald etter kontekst. Manglar adressa, må brukaren oppgi ho. Ingen fallback.                                              | K8   |
+
+## 7. Migreringsklassar
+
+| Klasse | Kjelde                                                                        | Handling          |
+| ------ | ----------------------------------------------------------------------------- | ----------------- |
+| A      | Søknad med portalbrukar (`createdByUser__c`) og organisasjon.                 | Kople automatisk. |
+| B      | Søknad utan sikker portalbrukar, eller varslingskontakt utan innlogging.      | Uavklart. Ingen endring. |
+| C      | E-postadressa blir brukt av fleire ulike portalbrukarar (felles adresse).     | Ingen endring.    |
+| D      | Skjerma person. Krev eiga avklaring (K9).                                     | Ingen endring.    |
+| E      | Konflikt, til dømes ulik kontakt allereie kopla.                              | Ingen endring.    |
+
+Køyringa blir starta frå admin-fana eller med `node scripts/contact-model.cjs <kommando>`. Skriptet
+nektar andre org-ar enn den verifiserte scratch-orgen utan eksplisitt `--target-org`.
+
+## 8. Tilgang og sikkerheit
+
+- Portalbrukarar får inga direkte tilgang til domenekontaktar, ACR-felt eller migreringsobjekta.
+- Skuggeskrivinga brukar systemmodus, men berre med Id-ar utleidde på serveren: innlogga brukar og
+  søknaden brukaren nettopp sende inn.
+- `AAREG_ContactModel_Admin` gir lesetilgang og løyvet `AAREG_ContactModelMigrate` for å starte køyringar.
+- Migreringsbackup kan innehalde personopplysningar (namn og e-post). Objekta er private, og
+  backup skal slettast etter avtalt lagringstid.
+
+## 9. Utrulling
+
+1. Mørk: deploy med alle flagg av.
+2. Skugge: `ShadowWrite` på. Følg dashboardet.
+3. Migrering: `PLAN`, så `APPLY` for klasse A, så `VERIFY`.
+4. Pilot: pilotflagga for utvalde brukarar.
+5. Brei: pilotflagga globalt.
+6. Skifte: `LegacyMatchingOff` på.
+7. Opprydding: eiga sak med runbook og Team Platforce-godkjenning.
+
+## 10. Test
+
+- Apex: gate, skuggeskriving (ny, gjenbruk, ny innsending, feil), migrering (plan, apply, verify,
+  rollback) og admin-kontrollar, med `System.runAs` minimumsbrukar der det gjeld.
+- Jest: admin-fana og organisasjonsveljaren.
+- Scratch: deploy og ende-til-ende-innsending med flagget på og av.

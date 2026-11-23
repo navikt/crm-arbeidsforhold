@@ -1,13 +1,13 @@
 # Analyse og målmodell
 
-**Status: Forslag.** Sjå [oversikta](README.md) for avgrensing og leserekkjefølgje.
+**Status: Forslag.** Sjå [oversikta](../README.md) for avgrensing og leserekkjefølgje.
 Alle nye feltnamn nedanfor er kandidatar, ikkje eksisterande metadata eller lovnader om dependency-API-ar.
 
 ## 1. Dagens løysing
 
 ### 1.1 Innsendar er ein organisasjons- og e-postbasert kontakt
 
-[AAREG_createContactSendConfirmation](../../../force-app/main/default/flows/AAREG_createContactSendConfirmation.flow-meta.xml)
+[AAREG_createContactSendConfirmation](../../../../force-app/main/default/flows/AAREG_createContactSendConfirmation.flow-meta.xml)
 har følgjande kjeldekodeåtferd:
 
 | Steg       | Observert i metadata                                                                                                                                                  |
@@ -39,15 +39,15 @@ flowchart TD
 ```
 
 At kjede og statusrekkjefølgje er tilsikta, er også synleg i
-[AAREG_ApplicationController](../../../force-app/externalApplication/classes/AAREG_ApplicationController.cls),
+[AAREG_ApplicationController](../../../../force-app/externalApplication/classes/AAREG_ApplicationController.cls),
 linje 219–257: barn blir lagra før den separate statusoppdateringa.
-[AAREG_ApplicationControllerTest](../../../force-app/externalApplication/classes/AAREG_ApplicationControllerTest.cls),
+[AAREG_ApplicationControllerTest](../../../../force-app/externalApplication/classes/AAREG_ApplicationControllerTest.cls),
 linje 456–531, testar både organisasjonskopling og gjenbruk ved same organisasjon/e-post.
 Testane er lesne, ikkje køyrde i denne analysen.
 
 ### 1.2 Andre kontaktar er ikkje standard Contact
 
-[RelatedContact__c](../../../force-app/main/default/objects/RelatedContact__c/) inneheld:
+[RelatedContact__c](../../../../force-app/main/default/objects/RelatedContact__c/) inneheld:
 
 - `Name`, `Email__c` og `Phone__c`;
 - valfrie lookup til `Application__c` og `Agreement__c`, begge med `SetNull` ved sletting;
@@ -58,11 +58,11 @@ Testane er lesne, ikkje køyrde i denne analysen.
 Den lokale feltdefinisjonen har **ikkje `Contact__c` eller `Role__c`**. Dette er ei kontakt-/varselrad,
 ikkje enno ein normalisert kontakt–søknad-relasjon.
 
-[aareg_applicationContact](../../../force-app/externalApplication/lwc/aareg_applicationContact/aareg_applicationContact.js),
+[aareg_applicationContact](../../../../force-app/externalApplication/lwc/aareg_applicationContact/aareg_applicationContact.js),
 linje 19–31, tek imot fritekst og varselflagg.
-[upsertRelatedContacts](../../../force-app/externalApplication/classes/AAREG_ApplicationController.cls),
+[upsertRelatedContacts](../../../../force-app/externalApplication/classes/AAREG_ApplicationController.cls),
 linje 307–312, set søknadsoppslaget og upsertar radene.
-[AAREG_ApplicationInternalController](../../../force-app/internalApplication/classes/AAREG_ApplicationInternalController.cls),
+[AAREG_ApplicationInternalController](../../../../force-app/internalApplication/classes/AAREG_ApplicationInternalController.cls),
 linje 223–259, les dei same fritekstfelta.
 
 **Varselflagg er ikkje det same som forretningsrolle.** «Motta tryggleiksvarsel» fortel ikkje i seg sjølv
@@ -70,11 +70,11 @@ om personen er tryggleikskontakt, innsendar eller har signeringsfullmakt.
 
 ### 1.3 Søknad og avtale deler kontaktrader
 
-[AAREG_Decision_Completed](../../../force-app/main/default/flows/AAREG_Decision_Completed.flow-meta.xml),
+[AAREG_Decision_Completed](../../../../force-app/main/default/flows/AAREG_Decision_Completed.flow-meta.xml),
 linje 595–618, set `Agreement__c` på radene som har den aktuelle `Application__c`.
 Dermed kan ei rad vere knytt til begge.
 
-[AAREG_MyAgreementsController](../../../force-app/externalAgreement/classes/AAREG_MyAgreementsController.cls),
+[AAREG_MyAgreementsController](../../../../force-app/externalAgreement/classes/AAREG_MyAgreementsController.cls),
 linje 333–380, opprettar nye fritekstrader ved tillegg til avtale. Ved fjerning, linje 396–432,
 blir avtalerelasjonen tømd dersom søknadsrelasjonen finst; elles blir rada sletta.
 
@@ -83,7 +83,7 @@ Direkte endring av ei delt rad kan elles endre både avtalevisning og søknadsgr
 
 ### 1.4 Innlogging har ei anna kontaktgrense
 
-[AAREG_CommunityUtils](../../../force-app/externalAccess/classes/AAREG_CommunityUtils.cls),
+[AAREG_CommunityUtils](../../../../force-app/externalAccess/classes/AAREG_CommunityUtils.cls),
 linje 23–45, avgrensar brukarmålet til den innlogga brukaren og hentar identitet frå
 `User.Contact.Account.INT_PersonIdent__c` for Altinn-kallet.
 
@@ -270,12 +270,12 @@ Kvar innsending/ny innsending må ha eit versjonert, tilgangsstyrt grunnlag som 
 til dømes godkjend dokumentversjon/arkiv. Lagring, attfinning, innhald og retention må prøvast før valet.
 Salesforce Field History åleine er ikkje eit komplett innsendingsdokument.
 
-[AAREG_populateApplicationFieldAfterSubmit](../../../force-app/main/default/flows/AAREG_populateApplicationFieldAfterSubmit.flow-meta.xml),
+[AAREG_populateApplicationFieldAfterSubmit](../../../../force-app/main/default/flows/AAREG_populateApplicationFieldAfterSubmit.flow-meta.xml),
 linje 631–635, les kontaktfritekst for generert søknadstekst.
 Det må derfor vere bevisst om ei lesing viser aktuelle kontaktopplysningar eller den innsende versjonen.
 
 Ny innsending etter krav om meir informasjon set begge statusane til `In Progress` i
-[AAREG_ApplicationController](../../../force-app/externalApplication/classes/AAREG_ApplicationController.cls),
+[AAREG_ApplicationController](../../../../force-app/externalApplication/classes/AAREG_ApplicationController.cls),
 linje 273–280. Eit nytt historikkgrunnlag kan derfor ikkje vere avhengig av ein flyt som berre startar
 ved `New`. Første innsending og ny innsending må vere eksplisitte hendingar i snapshot-kontrakten.
 
@@ -368,7 +368,7 @@ byggjer derfor på indekserte utdrag frå offisielle sider, ikkje full gjennomle
 Aktuell release, lisens og installert metadata må stadfestast før gjennomføring.
 
 Forslaget harmonerer med retninga i
-[ADR-0002](../../adr/0002-accountcontactrelation-for-personkontoer.md), men den føreslåtte ADR-en
+[ADR-0002](../../../adr/0002-accountcontactrelation-for-personkontoer.md), men den føreslåtte ADR-en
 er ikkje bevis på ACR-aktivering eller korrekt deling i ein org.
-[ADR-0003](../../adr/0003-e-post-for-personkonto-via-aareg-og-krr.md) omfattar ein breiare
+[ADR-0003](../../../adr/0003-e-post-for-personkonto-via-aareg-og-krr.md) omfattar ein breiare
 personkonto-/KRR-e-postmodell. Denne analysen foreslår ikkje å innføre den modellen for jobbe-post.
