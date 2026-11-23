@@ -354,3 +354,171 @@ Utvidelsen må bevare følgende brukervalg under overgang, med mindre en eksplis
 - [ ] Eksisterende brukerstøttebruker får ikke person-/rollemodell som ekspanderer scope utilsiktet.
 - [ ] Direkte lenker til eksisterende undersider må testes mot samme access-regler som portalen.
 - [ ] Nye roller må ikke endre dagens Altinn-rettighetsmapping eller avtalehandlinger uten godkjent endring.
+
+## Foreslått fremtidig kontrollflyt
+
+**Status:** Forslag til målmodell — ikke godkjent før de avhengige beslutningsdokumentene er fylt ut og godkjent.
+
+Fremtidens modell bør skille rolle, kontekst, rettighet, capability og Salesforce-record-scope. Rollen styrer brukeropplevelsen, men gir ikke tilgang alene.
+
+```mermaid
+sequenceDiagram
+    actor User as Pålogget bruker
+    participant LWC as Portal eller rolleside
+    participant Service as Rolle-/tilgangstjeneste
+    participant Source as Altinn, representasjonskilde eller personkilde
+    participant Action as Apex-handling
+    participant Data as Salesforce data og sharing
+
+    User->>LWC: Velger rolle og kontekst
+    LWC->>Service: decide(roleKey, context, capability)
+    Service->>Source: Hent rolle og representasjonsrettighet
+    alt Tilgang er godkjent
+        Source-->>Service: Permit
+        Service->>Service: Evaluer effective capabilities
+        Service-->>LWC: GRANTED og liste over capabilities
+        LWC->>LWC: Vis bare godkjente handlinger
+        LWC->>Action: Utfør godkjent handling
+        Action->>Service: require(roleKey, context, capability)
+        Service->>Source: Revalider nødvendige rettigheter
+        Source-->>Service: Permit
+        Action->>Data: Kontroller CRUD, FLS, sharing og scope
+        Data-->>Action: Godkjente records
+        Action-->>LWC: Resultat
+    else Mangler tilgang
+        Source-->>Service: Deny
+        Service-->>LWC: DENIED
+        LWC->>LWC: Returner til portalen med fast statuskode
+    else Kilden svarer teknisk
+        Source-->>Service: Technical error
+        Service-->>LWC: TECHNICAL_ERROR
+        LWC->>LWC: Vis retry-feilmelding
+    end
+```
+
+### 1. Rolle er UX og kontekst
+
+Rollen bestemmer:
+
+- hvilken rolle-side brukeren ser,
+- om contexttypen er organisasjon, person eller en fremtidig kontekst,
+- hvilke contextvalg som vises,
+- hvilke capabilities som kan gjøres synlige.
+
+Rollen gir ikke automatisk tilgang til søknader, avtaler, support, meldinger eller vedlegg.
+
+### 2. Identitet, representasjon og autorisasjon må skilles
+
+Tjenesten bør håndtere separate beslutninger:
+
+1. **Identitet:** hvem er den påloggede brukeren?
+2. **Representasjon:** hvem har brukeren rett til å representere?
+3. **Rettighet:** hvilke capabilities får brukeren i valgt rolle og kontekst?
+4. **Record-scope:** hvilke Salesforce-records og felt får brukeren lese eller endre?
+
+ACR, Altinn og personkilder bør ikke blandes som om de er samme type beslutning. Kilden som styrer en beslutning må være eksplisitt definert.
+
+### 3. Serverbeslutningen bør være eksplisitt
+
+Hvert relevant serverkall bør evaluere minst:
+
+- pålogget bruker-ID,
+- valgt rolle,
+- valgt eller levert kontekst,
+- forventet capability,
+- relevant data-/recordscope.
+
+Beslutningen bør ha ett av disse resultatene:
+
+- `GRANTED`: handlingen kan utføres innen det servergodkjente scopet.
+- `DENIED`: brukeren mangler rolle, kontekst eller capability.
+- `TECHNICAL_ERROR`: tilgangskilden eller serververdi kan ikke evalueres.
+
+Tomt dataresultat skal ikke automatisk bli `TECHNICAL_ERROR`.
+
+### 4. UI er bare en visningsmodell
+
+Portalen skal bare vise handlinger som serveren har godkjent:
+
+- Ingen granted capability: handling skjules.
+- `DENIED`: safe retur til portalen med fast, godkjent statuskode.
+- `TECHNICAL_ERROR`: egen feilmelding og retry.
+- Tomt resultat: relevant tom tilstand.
+
+Experience Cloud audience, sidevisibility og skjult navigasjon må ikke være eneste tilgangsvern.
+
+### 5. Hver Apex-handling validerer på nytt
+
+Samme serverkontroll må brukes:
+
+- ved åpning av en portal- eller rolleside,
+- ved åpning av en direkte lenke,
+- ved read-operasjoner,
+- ved skriveoperasjoner,
+- ved oppretting av Inquiry,
+- ved oppretting eller svar i tråder,
+- ved opplasting eller nedlasting av vedlegg.
+
+Hver handling bør følge denne rekkefølgen:
+
+1. Hent bruker-ID fra `UserInfo.getUserId()`.
+2. Verifiser rolle og kontekst på serveren.
+3. Evaluer forventet capability.
+4. Kontroller record-eierskap eller serverfiltrering.
+5. Kontroller CRUD og FLS.
+6. Kontroller record sharing.
+7. Utfør bare handlingen innenfor de godkjente grensene.
+
+Klienten må ikke kunne sende `userId`, rolle, capability eller record-scope som autorisasjonsbevis.
+
+## Bevaring av dagens brukere i målmodellen
+
+### Virksomhetsrepresentant
+
+Virksomhetsrepresentanten bør fortsatt være organisasjonsbasert:
+
+- Altinn henter tilgjengelige organisasjoner.
+- Serveren validerer valgt organisasjonsnummer ved hvert kall.
+- `sok-tilgang` gir søknad, Mine søknader, avtaler, support og meldinger.
+- `brukerstotte` gir i dagens modell Mine avtaler, support og meldinger.
+- Eksisterende organisasjonsbaserte meldinger bevares.
+- `LastUsedOrganization__c` brukes bare som lagret kontekst, aldri som bevis på tilgang.
+
+Den endelige mappingen for `brukerstotte` må godkjennes før servermodellen implementeres.
+
+### Eksisterende brukerstøttebruker
+
+Eksisterende brukerstøttebruker bør beholdes som organisasjonsbasert under overgang:
+
+- samme organisasjonskontekst,
+- samme organisasjonsfilter,
+- samme meldingsmodell,
+- serverbasert kontroll av `brukerstotte`,
+- ingen utvidelse til person- eller partnermodell uten godkjent beslutning.
+
+## Viktigste endringer fra dagens løsning
+
+| I dag                                                 | Foreslått målmodell                                     |
+| ----------------------------------------------------- | ------------------------------------------------------- |
+| Tilgang kontrolleres primært på startsiden            | Hver rolle-side og hvert Apex-kall kontrollerer         |
+| `LastUsedOrganization__c` brukes som tilgangskontekst | Kontekst revalideres mot godkjent kilde                 |
+| Rolle, kontekst og rettighet blandes                  | Rolle, kontekst, capability og record-scope er separate |
+| UI skjuler handlinger                                 | UI viser bare servergodkjente handlinger                |
+| Kontrollere har ulik modell                           | Felles rolle-/tilgangstjeneste                          |
+| Meldinger er primært organisasjonsbaserte             | Modell per rolle med serverbasert filter                |
+| Noen metoder kjører uten sharing                      | Eksplisitte CRUD-, FLS-, sharing- og system-modegrenser |
+
+## Avklaringer som må være godkjent før implementasjon
+
+- [ ] Endelig rolle-/capability-matrise.
+- [ ] Autoritativ kilde for partner-/fullmektigrepresentasjon.
+- [ ] Autoritativ personkilde for privatperson.
+- [ ] Eierskap og filtermodell for Inquiry, Thread og vedlegg.
+- [ ] Om `brukerstotte` gir Mine avtaler og skrivetilgang.
+- [ ] Oppførsel ved flere samtidige roller.
+- [ ] Direkte lenke, redirect og feilkontrakt.
+- [ ] CRUD, FLS og record sharing for alle sensitive recordtyper.
+- [ ] Minimum Access-scenarier.
+- [ ] Eksisterende brukere og flater som regresjonskrav.
+
+Dagens access-scenarioer ovenfor skal brukes som baseline for implementasjonen. Ny funksjonalitet skal ikke utvide dagens scope eller tillate datatilgang som ikke er uttrykkelig godkjent i rolle-/capability-matrisen.
