@@ -140,10 +140,11 @@ node scripts/ci-changes.cjs <base-ref> <head-ref>
 Begge Git-referansane må finnast lokalt. Miljøvariabelen `GITHUB_OUTPUT` må peike
 på ei skrivbar fil. Programmet les trepunktsdiffen `<base>...<head>`, med
 slettingar og begge sider av omdøypingar, og les `sfdx-project.json` frå
-**base-revisjonen**. Han skriv `salesforce=true|false` og `lwc=true|false` til
-outputfila med append og viser resultatet i terminalen. Han endrar ikkje Git-indeks,
-kjeldekode eller org; ein ugyldig referanse, manglande base-konfigurasjon eller
-manglande outputfil-innstilling gir feil i staden for eit trygt-liknande resultat.
+**base-revisjonen**. Han skriv `salesforce=true|false`, `lwc=true|false` og
+`package_version_only=true|false` til outputfila med append og viser resultatet i
+terminalen. Han endrar ikkje Git-indeks, kjeldekode eller org; ein ugyldig
+referanse, manglande base-konfigurasjon eller manglande outputfil-innstilling gir
+feil i staden for eit trygt-liknande resultat.
 
 Lokalt Bash-eksempel med ein mellombels outputfil:
 
@@ -174,14 +175,24 @@ try {
 oppdaterer referansen. Eit likt base-/head-tre gir ingen relevante endringar.
 I ein PR skal workflowen velje og køyre den godkjende baseversjonen av filteret;
 ikkje la ugodkjend PR-kode bestemme kva kontrollar som blir hoppa over.
+Endringar i filteret gjeld først etter merge til basegreina, og filterets eigen
+PR krev framleis full Salesforce-validering.
 
 | Endring                                                      | Salesforce                                        | LWC                                        |
 | ------------------------------------------------------------ | ------------------------------------------------- | ------------------------------------------ |
-| Berre dokumentasjon eller `bin/`                             | false                                             | false                                      |
-| Konfigurert pakkemappe, npm-manifest/låsfil eller workflow   | true                                              | true                                       |
+| Dokumentasjon utanfor workflow-mappa eller `bin/`            | false                                             | false                                      |
+| Konfigurert pakkemappe eller `sfdx-project.json`             | true, med unntaket nedanfor                       | true                                       |
+| Npm-manifest/låsfil eller andre workflows                    | false, med mindre andre filer utløyser Salesforce | true                                       |
+| Workflowane for Salesforce PR-validering                     | true                                              | true                                       |
 | Filteret sjølv eller testane for det                         | true                                              | true                                       |
 | `config/`, `manifest/`, `scripts/apex/` eller `.forceignore` | true                                              | false, med mindre andre filer utløyser LWC |
 | Jest-konfigurasjon                                           | false, med mindre andre filer utløyser Salesforce | true                                       |
+
+Ein diff med berre ei gyldig endring av hovudpakkens `versionNumber` i
+`sfdx-project.json` krev ikkje Salesforce-validering. Salesforce PR-workflowane
+er `pull_request-validation1.yml` og `salesforce-validation.yml`. Filteret må
+oppdaterast dersom Salesforce-valideringa tek i bruk fleire lokale workflows eller
+npm-avhengigheitene i prosjektet.
 
 `false` tyder berre at dette filteret ikkje krev den aktuelle tunge sjekken.
 Det hoppar ikkje over Node-testar, formatering, review eller andre nødvendige

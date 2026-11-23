@@ -20,14 +20,26 @@ for (const file of [
     'force-app/tests/classes/ExampleTest.cls',
     'reference-package/main/default/objects/Example.object-meta.xml',
     'sfdx-project.json',
-    'package.json',
-    'package-lock.json',
+    '.github/workflows/pull_request-validation1.yml',
     '.github/workflows/salesforce-validation.yml',
     'scripts/ci-changes.cjs',
     'scripts/tests/ci-changes.test.cjs'
 ]) {
     test(`validates both surfaces for ${file}`, () => {
         assert.deepEqual(classifyChanges([file], packageDirectories), { salesforce: true, lwc: true });
+    });
+}
+
+for (const file of [
+    'package.json',
+    'package-lock.json',
+    '.github/workflows/docs-pages.yml',
+    '.github/workflows/package-promotion.yml',
+    '.github/workflows/pull_request-lwc-validation.yml',
+    '.github/workflows/scratch-org-offline.yml'
+]) {
+    test(`runs LWC but not Salesforce validation for developer tooling: ${file}`, () => {
+        assert.deepEqual(classifyChanges([file], packageDirectories), { salesforce: false, lwc: true });
     });
 }
 
@@ -178,6 +190,57 @@ test('CLI reports no Salesforce or LWC work for a tooling-only diff', (t) => {
     assert.equal(result.status, 0, result.stderr);
     assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=false\nlwc=false\npackage_version_only=false\n');
 });
+
+test('CLI skips Salesforce for combined npm and unrelated workflow changes but retains LWC validation', (t) => {
+    const f = fixture(t);
+    f.write('package.json', '{"devDependencies":{"prettier":"3.10.1"}}');
+    f.write('package-lock.json', '{"lockfileVersion":3}');
+    f.write('.github/workflows/docs-pages.yml');
+    f.write('.github/workflows/package-promotion.yml');
+    f.commit();
+    const result = f.run();
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=false\nlwc=true\npackage_version_only=false\n');
+});
+
+test('CLI still requires Salesforce when npm changes accompany Salesforce metadata', (t) => {
+    const f = fixture(t);
+    f.write('package.json', '{"devDependencies":{"prettier":"3.10.1"}}');
+    f.write('force-app/changed.cls');
+    f.commit();
+    const result = f.run();
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(fs.readFileSync(f.output, 'utf8'), 'salesforce=true\nlwc=true\npackage_version_only=false\n');
+});
+
+test(
+    'Salesforce gate accepts an unnecessary validation but fails closed',
+    { skip: process.platform === 'win32' },
+    () => {
+        const source = fs.readFileSync(
+            path.resolve(__dirname, '../../.github/workflows/salesforce-validation.yml'),
+            'utf8'
+        );
+        const gate = source.indexOf('- name: Require successful or unnecessary Salesforce validation');
+        assert.notEqual(gate, -1, 'Expected a Salesforce validation gate');
+        const match = source.slice(gate).match(/run: \|\n((?: {18}.*\n)+)/);
+        assert.ok(match, 'Expected a Salesforce validation gate script');
+        const script = match[1].replace(/^ {18}/gm, '');
+        for (const [changes, relevant, validation, expected] of [
+            ['success', 'false', 'skipped', 0],
+            ['success', 'false', 'failure', 1],
+            ['failure', 'false', 'skipped', 1],
+            ['success', 'true', 'skipped', 1],
+            ['success', 'true', 'success', 0]
+        ]) {
+            const result = spawnSync('bash', ['-e', '-o', 'pipefail', '-c', script], {
+                encoding: 'utf8',
+                env: { ...process.env, CHANGES_RESULT: changes, RELEVANT: relevant, VALIDATION_RESULT: validation }
+            });
+            assert.equal(result.status, expected, `${changes}/${relevant}/${validation}: ${result.stderr}`);
+        }
+    }
+);
 
 test('CLI uses trusted base configuration even when the PR corrupts the project file', (t) => {
     const f = fixture(t);
