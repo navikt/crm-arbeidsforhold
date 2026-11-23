@@ -1,0 +1,1308 @@
+<!doctype html>
+<html lang="nn">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Kontaktmodellen · klikkbare wireframes</title>
+        <style>
+            /* Avgrensa, offline token-snapshot verifisert mot Aksel MCP 23.11.2026. */
+            :root {
+                color-scheme: light;
+                --ax-bg-default: #ffffff;
+                --ax-bg-neutral-soft: #f5f6f7;
+                --ax-text-neutral: #202733;
+                --ax-text-neutral-subtle: #49515e;
+                --ax-bg-accent-strong: #2176d4;
+                --ax-bg-accent-soft: #f1f7ff;
+                --ax-text-accent: #002459;
+                --ax-text-accent-contrast: white;
+                --ax-border-neutral-subtle: #cfd3d8;
+                --ax-border-neutral: #6f7785;
+                --ax-border-focus: #202733;
+                --ax-text-success: #002e00;
+                --ax-bg-success-soft: #e2fde8;
+                --ax-text-danger: #560000;
+                --ax-bg-warning-soft: #fff5e4;
+                --ax-space-16: 1rem;
+                --ax-space-8: 0.5rem;
+                --ax-radius-8: 8px;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            [hidden] {
+                display: none !important;
+            }
+            body {
+                margin: 0;
+                background: var(--ax-bg-neutral-soft);
+                color: var(--ax-text-neutral);
+                font:
+                    1rem/1.55 system-ui,
+                    sans-serif;
+            }
+            button,
+            input,
+            select {
+                font: inherit;
+            }
+            button,
+            select {
+                cursor: pointer;
+            }
+            a {
+                color: var(--ax-text-accent);
+                text-underline-offset: 0.2em;
+            }
+            :focus-visible {
+                outline: 3px solid var(--ax-border-focus);
+                outline-offset: 4px;
+            }
+            h1,
+            h2,
+            h3,
+            p {
+                margin-top: 0;
+            }
+            h1,
+            h2,
+            h3 {
+                overflow-wrap: break-word;
+            }
+            h1 {
+                font-size: clamp(2rem, 4vw, 2.8rem);
+                line-height: 1.12;
+                letter-spacing: -0.04em;
+                margin-bottom: var(--ax-space-16);
+            }
+            h2 {
+                font-size: 1.35rem;
+                line-height: 1.3;
+                letter-spacing: -0.02em;
+            }
+            h3 {
+                font-size: 1.08rem;
+            }
+            p:last-child {
+                margin-bottom: 0;
+            }
+            .skip {
+                position: absolute;
+                left: var(--ax-space-16);
+                top: -5rem;
+                z-index: 20;
+                padding: var(--ax-space-16);
+                background: var(--ax-bg-default);
+            }
+            .skip:focus {
+                top: var(--ax-space-16);
+            }
+            .demo-strip {
+                background: var(--ax-bg-warning-soft);
+                padding: var(--ax-space-8) calc(var(--ax-space-16) * 2);
+                font-size: 0.85rem;
+                text-align: center;
+            }
+            .masthead {
+                background: var(--ax-text-neutral);
+                color: var(--ax-bg-default);
+            }
+            .masthead-inner {
+                max-width: 88rem;
+                margin: auto;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: var(--ax-space-16);
+                padding: calc(var(--ax-space-16) * 1.25) calc(var(--ax-space-16) * 2);
+            }
+            .brand {
+                display: flex;
+                gap: var(--ax-space-16);
+                align-items: center;
+            }
+            .brand-mark {
+                background: var(--ax-bg-default);
+                color: var(--ax-text-neutral);
+                border-radius: var(--ax-radius-8);
+                padding: var(--ax-space-8);
+                font-size: 1.35rem;
+                font-weight: 800;
+                letter-spacing: -0.08em;
+            }
+            .brand-name {
+                display: block;
+                font-weight: 750;
+                font-size: 1.2rem;
+            }
+            .masthead small {
+                opacity: 0.85;
+            }
+            .shell {
+                max-width: 88rem;
+                margin: auto;
+                display: grid;
+                grid-template-columns: 16rem minmax(0, 1fr);
+            }
+            .sidebar {
+                padding: calc(var(--ax-space-16) * 2);
+                border-right: 1px solid var(--ax-border-neutral-subtle);
+            }
+            .eyebrow {
+                font-size: 0.72rem;
+                font-weight: 750;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--ax-text-neutral-subtle);
+                margin-bottom: var(--ax-space-8);
+            }
+            .sidebar nav {
+                display: grid;
+                gap: var(--ax-space-8);
+                margin: calc(var(--ax-space-16) * 1.5) 0;
+            }
+            .nav-link {
+                display: flex;
+                align-items: center;
+                gap: var(--ax-space-8);
+                padding: var(--ax-space-16);
+                border: 1px solid transparent;
+                border-radius: var(--ax-radius-8);
+                text-decoration: none;
+                color: var(--ax-text-neutral);
+                font-weight: 650;
+            }
+            .nav-link[aria-current='page'] {
+                background: var(--ax-bg-default);
+                border-color: var(--ax-border-neutral-subtle);
+                color: var(--ax-text-accent);
+            }
+            .nav-number {
+                font-size: 0.78rem;
+                color: var(--ax-text-neutral-subtle);
+                min-width: 1.3rem;
+            }
+            .sidebar-note {
+                border-top: 1px solid var(--ax-border-neutral-subtle);
+                padding-top: calc(var(--ax-space-16) * 1.5);
+                font-size: 0.85rem;
+            }
+            .sidebar-note ol {
+                padding-left: var(--ax-space-16);
+            }
+            .sidebar-note li {
+                margin-bottom: var(--ax-space-8);
+            }
+            .sidebar-note a {
+                display: inline-block;
+                margin-top: var(--ax-space-8);
+            }
+            .workspace {
+                min-width: 0;
+                padding: calc(var(--ax-space-16) * 2);
+            }
+            .context-bar {
+                display: flex;
+                justify-content: space-between;
+                gap: var(--ax-space-16);
+                align-items: end;
+                padding-bottom: calc(var(--ax-space-16) * 1.5);
+                border-bottom: 1px solid var(--ax-border-neutral-subtle);
+                margin-bottom: calc(var(--ax-space-16) * 2);
+            }
+            .context-choice {
+                display: grid;
+                gap: var(--ax-space-8);
+                min-width: min(21rem, 100%);
+            }
+            label,
+            legend {
+                font-weight: 650;
+            }
+            select,
+            input[type='email'] {
+                width: 100%;
+                min-height: 2.85rem;
+                padding: var(--ax-space-8) var(--ax-space-16);
+                border: 1px solid var(--ax-border-neutral);
+                border-radius: var(--ax-radius-8);
+                color: var(--ax-text-neutral);
+                background: var(--ax-bg-default);
+            }
+            input:disabled {
+                background: var(--ax-bg-neutral-soft);
+            }
+            .actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: var(--ax-space-8);
+                align-items: center;
+            }
+            .button {
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+                gap: var(--ax-space-8);
+                min-height: 2.75rem;
+                padding: var(--ax-space-8) var(--ax-space-16);
+                border: 1px solid var(--ax-border-neutral);
+                border-radius: var(--ax-radius-8);
+                background: var(--ax-bg-default);
+                color: var(--ax-text-neutral);
+                font-weight: 650;
+                text-decoration: none;
+            }
+            .button:hover {
+                background: var(--ax-bg-neutral-soft);
+            }
+            .button.primary {
+                background: var(--ax-bg-accent-strong);
+                border-color: var(--ax-bg-accent-strong);
+                color: var(--ax-text-accent-contrast);
+            }
+            .button.primary:hover {
+                background: var(--ax-text-accent);
+                border-color: var(--ax-text-accent);
+            }
+            .button.quiet {
+                min-height: 2.5rem;
+                padding-inline: var(--ax-space-8);
+                border-color: transparent;
+                background: transparent;
+                color: var(--ax-text-accent);
+            }
+            .page-heading {
+                margin-bottom: calc(var(--ax-space-16) * 2);
+                max-width: 45rem;
+            }
+            .page-heading p {
+                color: var(--ax-text-neutral-subtle);
+                font-size: 1.05rem;
+            }
+            .card {
+                background: var(--ax-bg-default);
+                border: 1px solid var(--ax-border-neutral-subtle);
+                border-radius: var(--ax-radius-8);
+                padding: calc(var(--ax-space-16) * 1.5);
+                margin-bottom: var(--ax-space-16);
+            }
+            .card-heading {
+                display: flex;
+                justify-content: space-between;
+                gap: var(--ax-space-16);
+                align-items: start;
+                margin-bottom: var(--ax-space-16);
+            }
+            .card-heading h2,
+            .card-heading h3 {
+                margin-bottom: var(--ax-space-8);
+            }
+            .muted {
+                color: var(--ax-text-neutral-subtle);
+            }
+            .small {
+                font-size: 0.85rem;
+            }
+            .pill {
+                display: inline-flex;
+                align-items: center;
+                gap: var(--ax-space-8);
+                border-radius: var(--ax-radius-8);
+                padding: calc(var(--ax-space-8) / 2) var(--ax-space-8);
+                background: var(--ax-bg-neutral-soft);
+                font-size: 0.78rem;
+                font-weight: 650;
+                white-space: nowrap;
+            }
+            .pill.success {
+                color: var(--ax-text-success);
+                background: var(--ax-bg-success-soft);
+            }
+            .pill.blue {
+                color: var(--ax-text-accent);
+                background: var(--ax-bg-accent-soft);
+            }
+            .pill.warning {
+                background: var(--ax-bg-warning-soft);
+            }
+            .identity {
+                display: flex;
+                gap: calc(var(--ax-space-16) * 1.5);
+                align-items: center;
+                min-width: 0;
+            }
+            .identity > div:last-child {
+                min-width: 0;
+            }
+            .identity .pill {
+                white-space: normal;
+            }
+            .avatar {
+                display: grid;
+                place-items: center;
+                background: var(--ax-bg-accent-soft);
+                color: var(--ax-text-accent);
+                border-radius: 50%;
+                width: 4rem;
+                height: 4rem;
+                font-size: 1.7rem;
+                font-weight: 750;
+                flex-shrink: 0;
+            }
+            .identity h2 {
+                margin-bottom: var(--ax-space-8);
+            }
+            .identity p {
+                margin: 0;
+            }
+            .identity-panel {
+                display: flex;
+                justify-content: space-between;
+                gap: var(--ax-space-16);
+                align-items: center;
+            }
+            .identity-count {
+                text-align: right;
+                border-left: 1px solid var(--ax-border-neutral-subtle);
+                padding-left: calc(var(--ax-space-16) * 1.5);
+            }
+            .identity-count strong {
+                display: block;
+                font-size: 1.55rem;
+                letter-spacing: -0.04em;
+            }
+            .section-title {
+                margin-top: calc(var(--ax-space-16) * 2);
+                margin-bottom: var(--ax-space-16);
+            }
+            .address-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: var(--ax-space-16);
+            }
+            .address-grid .card {
+                margin-bottom: 0;
+            }
+            .address {
+                font-weight: 650;
+                font-size: 1.05rem;
+                overflow-wrap: anywhere;
+                margin: var(--ax-space-16) 0;
+            }
+            .scope-line {
+                display: flex;
+                gap: var(--ax-space-8);
+                align-items: center;
+                font-size: 0.8rem;
+                color: var(--ax-text-neutral-subtle);
+            }
+            .scope-dot {
+                width: 0.5rem;
+                height: 0.5rem;
+                border-radius: 50%;
+                background: currentColor;
+                flex-shrink: 0;
+            }
+            .callout {
+                display: flex;
+                gap: var(--ax-space-16);
+                background: var(--ax-bg-accent-soft);
+                border-left: 3px solid var(--ax-bg-accent-strong);
+                border-radius: var(--ax-radius-8);
+                padding: var(--ax-space-16);
+                margin: var(--ax-space-16) 0;
+            }
+            .callout.warning {
+                background: var(--ax-bg-warning-soft);
+                border-color: var(--ax-border-neutral);
+            }
+            .callout strong {
+                display: block;
+                margin-bottom: calc(var(--ax-space-8) / 2);
+            }
+            .callout p {
+                font-size: 0.9rem;
+                margin: 0;
+            }
+            .notice {
+                padding: var(--ax-space-16);
+                margin-bottom: var(--ax-space-16);
+                border: 1px solid var(--ax-text-success);
+                border-radius: var(--ax-radius-8);
+                background: var(--ax-bg-success-soft);
+                color: var(--ax-text-success);
+            }
+            .notice.error {
+                color: var(--ax-text-danger);
+                border-color: var(--ax-text-danger);
+                background: var(--ax-bg-warning-soft);
+            }
+            .relationship {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: var(--ax-space-16);
+            }
+            dl {
+                margin: var(--ax-space-16) 0;
+                display: grid;
+                grid-template-columns: 10rem 1fr;
+                gap: var(--ax-space-8) var(--ax-space-16);
+            }
+            dt {
+                color: var(--ax-text-neutral-subtle);
+            }
+            dd {
+                margin: 0;
+                overflow-wrap: anywhere;
+            }
+            .steps {
+                display: flex;
+                gap: var(--ax-space-16);
+                list-style: none;
+                padding: 0;
+                margin: 0 0 calc(var(--ax-space-16) * 1.5);
+                flex-wrap: wrap;
+                font-size: 0.85rem;
+                color: var(--ax-text-neutral-subtle);
+            }
+            .steps li {
+                display: flex;
+                gap: var(--ax-space-8);
+                align-items: center;
+            }
+            .step-dot {
+                display: grid;
+                place-items: center;
+                width: 1.65rem;
+                height: 1.65rem;
+                border: 1px solid var(--ax-border-neutral);
+                border-radius: 50%;
+            }
+            .steps .current {
+                color: var(--ax-text-accent);
+                font-weight: 750;
+            }
+            .steps .current .step-dot {
+                background: var(--ax-bg-accent-strong);
+                border-color: var(--ax-bg-accent-strong);
+                color: var(--ax-text-accent-contrast);
+            }
+            .participant {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+                gap: var(--ax-space-16);
+                align-items: start;
+                border-top: 1px solid var(--ax-border-neutral-subtle);
+                padding: calc(var(--ax-space-16) * 1.5) 0;
+            }
+            .participant:last-child {
+                padding-bottom: 0;
+            }
+            .participant-name {
+                font-weight: 750;
+                margin-bottom: var(--ax-space-8);
+            }
+            .participant-email {
+                overflow-wrap: anywhere;
+                font-size: 0.9rem;
+            }
+            fieldset {
+                border: 0;
+                margin: 0;
+                padding: 0;
+                min-width: 0;
+            }
+            .notification-label {
+                display: flex;
+                align-items: start;
+                gap: var(--ax-space-8);
+                font-size: 0.85rem;
+                font-weight: 400;
+                margin-top: var(--ax-space-8);
+            }
+            input[type='checkbox'] {
+                width: 1.15rem;
+                height: 1.15rem;
+                flex-shrink: 0;
+                accent-color: var(--ax-bg-accent-strong);
+            }
+            .footer-actions {
+                display: flex;
+                justify-content: space-between;
+                gap: var(--ax-space-16);
+                align-items: center;
+                margin-top: calc(var(--ax-space-16) * 1.5);
+                flex-wrap: wrap;
+            }
+            .table-wrap {
+                overflow-x: auto;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.92rem;
+            }
+            caption {
+                text-align: left;
+                font-weight: 650;
+                padding-bottom: var(--ax-space-16);
+            }
+            th,
+            td {
+                text-align: left;
+                vertical-align: top;
+                padding: var(--ax-space-16) var(--ax-space-8);
+                border-bottom: 1px solid var(--ax-border-neutral-subtle);
+            }
+            th {
+                font-size: 0.78rem;
+                color: var(--ax-text-neutral-subtle);
+                background: var(--ax-bg-neutral-soft);
+            }
+            td {
+                overflow-wrap: anywhere;
+            }
+            .segmented {
+                display: flex;
+                flex-wrap: wrap;
+                gap: var(--ax-space-8);
+                margin-bottom: var(--ax-space-16);
+            }
+            .segmented button[aria-pressed='true'] {
+                border-color: var(--ax-bg-accent-strong);
+                background: var(--ax-bg-accent-soft);
+                color: var(--ax-text-accent);
+            }
+            .empty {
+                text-align: center;
+                padding: calc(var(--ax-space-16) * 3);
+            }
+            .empty h2 {
+                margin-top: var(--ax-space-16);
+            }
+            .app-footer {
+                margin-top: calc(var(--ax-space-16) * 2);
+                padding-top: var(--ax-space-16);
+                border-top: 1px solid var(--ax-border-neutral-subtle);
+                color: var(--ax-text-neutral-subtle);
+                font-size: 0.78rem;
+            }
+            dialog {
+                border: 1px solid var(--ax-border-neutral-subtle);
+                border-radius: var(--ax-radius-8);
+                background: var(--ax-bg-default);
+                color: var(--ax-text-neutral);
+                padding: calc(var(--ax-space-16) * 2);
+                width: min(39rem, calc(100% - 2rem));
+                max-height: calc(100dvh - 2rem);
+                overflow: auto;
+            }
+            dialog::backdrop {
+                background: var(--ax-text-neutral);
+                opacity: 0.65;
+            }
+            dialog h2 {
+                font-size: 1.7rem;
+            }
+            .dialog-label {
+                display: block;
+                margin: var(--ax-space-16) 0 var(--ax-space-8);
+            }
+            .dialog-actions {
+                justify-content: end;
+                margin-top: calc(var(--ax-space-16) * 2);
+            }
+            .dialog-error {
+                color: var(--ax-text-danger);
+                font-weight: 650;
+                margin-top: var(--ax-space-16);
+            }
+            .review-row {
+                display: flex;
+                justify-content: space-between;
+                gap: var(--ax-space-16);
+                border-bottom: 1px solid var(--ax-border-neutral-subtle);
+                padding: var(--ax-space-16) 0;
+            }
+            .review-row span {
+                overflow-wrap: anywhere;
+            }
+            @media (max-width: 65rem) {
+                .shell {
+                    grid-template-columns: 1fr;
+                }
+                .sidebar {
+                    border-right: 0;
+                    border-bottom: 1px solid var(--ax-border-neutral-subtle);
+                    padding: var(--ax-space-16) calc(var(--ax-space-16) * 2);
+                }
+                .sidebar nav {
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    margin: 0;
+                }
+                .sidebar > .eyebrow,
+                .sidebar-note {
+                    display: none;
+                }
+                .nav-link {
+                    padding: var(--ax-space-8);
+                    font-size: 0.9rem;
+                }
+            }
+            @media (max-width: 40rem) {
+                .masthead-inner,
+                .workspace,
+                .sidebar {
+                    padding: var(--ax-space-16);
+                }
+                .masthead-inner > small {
+                    display: none;
+                }
+                .demo-strip {
+                    padding: var(--ax-space-8) var(--ax-space-16);
+                }
+                .sidebar nav {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+                .context-bar {
+                    display: block;
+                }
+                .context-bar .actions {
+                    margin-top: var(--ax-space-16);
+                }
+                .address-grid,
+                .participant,
+                .relationship {
+                    grid-template-columns: 1fr;
+                }
+                .identity-panel {
+                    align-items: start;
+                }
+                .identity-count {
+                    display: none;
+                }
+                .card {
+                    padding: var(--ax-space-16);
+                }
+                .card-heading {
+                    flex-wrap: wrap;
+                }
+                dl {
+                    grid-template-columns: 1fr;
+                }
+                dd {
+                    margin-bottom: var(--ax-space-8);
+                }
+                .table-wrap {
+                    padding-bottom: var(--ax-space-8);
+                }
+                th,
+                td {
+                    min-width: 8rem;
+                }
+                dialog {
+                    padding: calc(var(--ax-space-16) * 1.5);
+                }
+                .review-row {
+                    flex-direction: column;
+                    gap: var(--ax-space-8);
+                }
+            }
+            @media print {
+                body {
+                    background: var(--ax-bg-default);
+                    font-size: 10pt;
+                }
+                .sidebar,
+                .context-bar .actions,
+                .button,
+                .demo-strip,
+                dialog {
+                    display: none !important;
+                }
+                .shell {
+                    display: block;
+                }
+                .workspace {
+                    padding: var(--ax-space-16);
+                }
+                .card {
+                    break-inside: avoid;
+                }
+                .masthead {
+                    color: var(--ax-text-neutral);
+                    background: var(--ax-bg-default);
+                    border-bottom: 1px solid var(--ax-border-neutral);
+                }
+                .address-grid {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <a class="skip" href="#main">Hopp til innhaldet</a>
+        <div class="demo-strip">
+            <strong>DESIGNPROTOTYPE</strong> · Berre fiktive data. Ingen innlogging, e-postsending eller
+            Salesforce-tilkopling. Endringar blir nullstilte ved oppfrisking.
+        </div>
+        <header class="masthead">
+            <div class="masthead-inner">
+                <div class="brand">
+                    <span class="brand-mark" aria-hidden="true">Aa</span>
+                    <div>
+                        <span class="brand-name">Aa-registeret</span
+                        ><small>Ein kontakt. Rett adresse i rett kontekst.</small>
+                    </div>
+                </div>
+                <small>Interaktiv wireframe · forslag, ikkje produksjon</small>
+            </div>
+        </header>
+        <div class="shell">
+            <aside class="sidebar">
+                <p class="eyebrow">Utforsk brukarflatene</p>
+                <nav aria-label="Wireframes">
+                    <a class="nav-link" href="#profil"><span class="nav-number">01</span> Min profil</a>
+                    <a class="nav-link" href="#organisasjonar"><span class="nav-number">02</span> Tilknytingar</a>
+                    <a class="nav-link" href="#soknad"><span class="nav-number">03</span> Søknadsroller</a>
+                    <a class="nav-link" href="#saksbehandling"><span class="nav-number">04</span> Saksbehandling</a>
+                </nav>
+                <div class="sidebar-note">
+                    <strong>Prøv denne reisa</strong>
+                    <ol>
+                        <li>Endre adressa hos verksemd A.</li>
+                        <li>Kontroller at privat og B er uendra.</li>
+                        <li>Legg same person til i to roller.</li>
+                        <li>Send ein demosøknad og samanlikn historikk.</li>
+                    </ol>
+                    <a href="modell.html">Sjå modell og illustrasjonar →</a>
+                    <a href="kontaktmodell.svg" download>Last ned modell som SVG →</a>
+                </div>
+            </aside>
+            <div class="workspace">
+                <div class="context-bar">
+                    <div class="context-choice">
+                        <label for="context">Du opptrer som</label>
+                        <select id="context">
+                            <option value="self">Meg sjølv · eigen regi</option>
+                            <option value="a" selected>Demoverksemd A</option>
+                            <option value="b">Demoverksemd B</option>
+                        </select>
+                    </div>
+                    <div class="actions">
+                        <button class="button quiet" id="reset" type="button">Nullstill demo</button>
+                        <button class="button" id="print" type="button">Skriv ut visninga</button>
+                    </div>
+                </div>
+                <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+                <div id="error" class="notice error" role="alert" hidden></div>
+                <main id="main" tabindex="-1"></main>
+                <footer class="app-footer">
+                    HTML-konsept basert på den føreslåtte kontaktmodellen. Visuell tokenpalett frå Aksel; native HTML,
+                    ingen React- eller Salesforce-avhengigheiter. Navigasjon og demostatus er ikkje tilgangskontroll.
+                    Bruk berre fiktive data.
+                    <p>
+                        <a href="modell.html">Modell og illustrasjonar →</a> ·
+                        <a href="kontaktmodell.svg" download>Last ned SVG</a>
+                    </p>
+                </footer>
+            </div>
+        </div>
+        <noscript
+            ><p class="card">
+                Denne klikkbare prototypen krev JavaScript. <a href="modell.html">Modellillustrasjonane</a> fungerer
+                utan JavaScript.
+            </p></noscript
+        >
+        <dialog id="email-dialog" aria-labelledby="email-title">
+            <form id="email-form">
+                <p class="eyebrow">Endre kontaktpunkt · demo</p>
+                <h2 id="email-title">Endre e-post</h2>
+                <p id="email-description" class="muted"></p>
+                <div class="callout">
+                    <div>
+                        <strong>Same kontakt, berre denne adressa</strong>
+                        <p>Andre kontaktpunkt blir ikkje endra. Tidlegare innsende opplysningar blir bevarte.</p>
+                    </div>
+                </div>
+                <label class="dialog-label" for="new-email">Ny e-postadresse</label>
+                <input id="new-email" type="email" required autocomplete="off" aria-describedby="email-help" />
+                <p id="email-help" class="small muted">
+                    Bruk ei fiktiv adresse. Verifisering blir berre simulert; ingenting blir sendt.
+                </p>
+                <label class="notification-label"
+                    ><input id="no-email" type="checkbox" /> Simuler at eg ikkje har ei adresse i denne
+                    konteksten.</label
+                >
+                <div class="actions dialog-actions">
+                    <button class="button" type="button" data-close="email-dialog">Avbryt</button
+                    ><button class="button primary" id="email-save" type="submit">Simuler verifisering og lagre</button>
+                </div>
+            </form>
+        </dialog>
+        <dialog id="role-dialog" aria-labelledby="role-title">
+            <form id="role-form">
+                <p class="eyebrow">Ny deltaking · demo</p>
+                <h2 id="role-title">Legg til ei kontaktrolle</h2>
+                <p class="muted" id="role-description"></p>
+                <label class="dialog-label" for="role-contact">Kontakt i denne organisasjonen</label>
+                <select id="role-contact"></select>
+                <label class="dialog-label" for="role-name">Rolle i søknaden</label>
+                <select id="role-name">
+                    <option>Fagleg kontakt</option>
+                    <option>Tryggleikskontakt</option>
+                    <option>Teknisk kontakt</option>
+                </select>
+                <p class="small muted">
+                    Same person kan ha fleire roller. Rolle gir ikkje fullmakt, innlogging eller rett til å endre
+                    personen sin profil.
+                </p>
+                <p id="role-error" class="dialog-error" role="alert" tabindex="-1" hidden></p>
+                <div class="actions dialog-actions">
+                    <button class="button" type="button" data-close="role-dialog">Avbryt</button
+                    ><button class="button primary" type="submit">Legg til rolle</button>
+                </div>
+            </form>
+        </dialog>
+        <dialog id="review-dialog" aria-labelledby="review-title">
+            <p class="eyebrow">Kontroller innsending · demo</p>
+            <h2 id="review-title">Rett kontakt i rett kontekst</h2>
+            <div id="review-content"></div>
+            <div class="callout warning">
+                <div>
+                    <strong>Dette er ei simulering</strong>
+                    <p>
+                        Knappen lagrar berre eit innsendingsgrunnlag i denne sida sitt minne. Ingen søknad, e-post eller
+                        arkivjobb blir oppretta i Salesforce.
+                    </p>
+                </div>
+            </div>
+            <div class="actions dialog-actions">
+                <button class="button" type="button" data-close="review-dialog">Tilbake</button
+                ><button class="button primary" id="submit-demo" type="button">Simuler innsending</button>
+            </div>
+        </dialog>
+        <script>
+            const organizations = {
+                a: {
+                    name: 'Demoverksemd A',
+                    contactLabel: 'Fagkontakt A',
+                    contactId: 'contact-a',
+                    contactEmail: 'fag.a@example.invalid'
+                },
+                b: {
+                    name: 'Demoverksemd B',
+                    contactLabel: 'Fagkontakt B',
+                    contactId: 'contact-b',
+                    contactEmail: 'fag.b@example.invalid'
+                }
+            };
+            const notificationNames = ['Avtale', 'Endringar', 'Feilmeldingar', 'Tryggleik'];
+            const main = document.getElementById('main');
+            const context = document.getElementById('context');
+            let emailTarget = null;
+            let state;
+
+            function initialState() {
+                const data = {
+                    emails: {
+                        self: 'eigen@example.invalid',
+                        a: 'arbeid.a@example.invalid',
+                        b: 'arbeid.b@example.invalid'
+                    },
+                    drafts: {},
+                    snapshots: {},
+                    selectedSnapshot: { a: 0, b: 0 },
+                    sequence: 1,
+                    view: 'profil',
+                    caseMode: 'snapshot'
+                };
+                for (const key of Object.keys(organizations)) {
+                    data.drafts[key] = [
+                        { contactId: 'me', role: 'Innsendar', notifications: [true, false, false, false] },
+                        {
+                            contactId: organizations[key].contactId,
+                            role: 'Fagleg kontakt',
+                            notifications: [true, true, false, false]
+                        }
+                    ];
+                    data.snapshots[key] = [
+                        {
+                            reference: `DEMO-${key.toUpperCase()}-1`,
+                            when: '23. november 2026 · fiktivt innsendingsgrunnlag',
+                            participants: data.drafts[key].map((row) => ({
+                                ...row,
+                                notifications: [...row.notifications],
+                                name: row.contactId === 'me' ? 'Demo-brukar (deg)' : organizations[key].contactLabel,
+                                email: row.contactId === 'me' ? data.emails[key] : organizations[key].contactEmail
+                            }))
+                        }
+                    ];
+                }
+                return data;
+            }
+            function escapeHtml(value) {
+                return String(value).replace(
+                    /[&<>"']/g,
+                    (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]
+                );
+            }
+            function heading(number, title, description) {
+                return `<div class="page-heading"><p class="eyebrow">Wireframe ${number} · føreslått brukarflate</p><h1>${title}</h1><p>${description}</p></div>`;
+            }
+            function message(text, isError = false) {
+                document.getElementById('notice').hidden = true;
+                document.getElementById('error').hidden = true;
+                const target = document.getElementById(isError ? 'error' : 'notice');
+                target.textContent = text;
+                target.hidden = false;
+            }
+            function clearMessages() {
+                document.getElementById('notice').hidden = true;
+                document.getElementById('error').hidden = true;
+            }
+            function emailText(key) {
+                return state.emails[key] ? escapeHtml(state.emails[key]) : 'Ikkje registrert';
+            }
+            function contactsFor(key) {
+                return [
+                    { id: 'me', name: 'Demo-brukar (deg)', email: state.emails[key] },
+                    {
+                        id: organizations[key].contactId,
+                        name: organizations[key].contactLabel,
+                        email: organizations[key].contactEmail
+                    }
+                ];
+            }
+            function participantsFor(key) {
+                const contacts = contactsFor(key);
+                return state.drafts[key].map((row) => {
+                    const contact = contacts.find((candidate) => candidate.id === row.contactId);
+                    if (!contact) throw new Error('Demorolla viser til ein kontakt utanfor den valde organisasjonen.');
+                    return { ...row, notifications: [...row.notifications], name: contact.name, email: contact.email };
+                });
+            }
+            function profileView() {
+                return (
+                    heading(
+                        '01',
+                        'Min kontaktprofil',
+                        'Du er éin person, sjølv om du brukar ulike adresser. Her administrerer du dine eigne kontaktpunkt — ikkje fullmakter.'
+                    ) +
+                    `<section class="card identity-panel" aria-label="Din kontaktidentitet">
+                        <div class="identity"><div class="avatar" aria-hidden="true">D</div><div><h2>Demo-brukar</h2><p class="muted">Ein varig Aa-register-kontakt</p><span class="pill blue">Simulert innloggingsidentitet</span></div></div>
+                        <div class="identity-count"><strong>1 kontakt · 3 kontekstar</strong><span class="small muted">E-post er ikkje personidentitet</span></div>
+                    </section>
+                    <h2 class="section-title">Når du opptrer som deg sjølv</h2>
+                    <section class="card" aria-labelledby="private-heading">
+                        <div class="card-heading"><div><h3 id="private-heading">Privat e-postadresse</h3><p class="small muted">Kontaktpunkt for eigen regi, ikkje for organisasjonssøknader.</p></div><span class="pill">Eigen regi</span></div>
+                        <p class="address" data-email="self">${emailText('self')}</p>
+                        <div class="scope-line"><span class="scope-dot" aria-hidden="true"></span>Skal ikkje visast til organisasjonane du representerer</div>
+                        <button class="button quiet" type="button" data-edit-email="self">Endre privat e-post →</button>
+                    </section>
+                    <h2 class="section-title">Når du representerer ein organisasjon</h2>
+                    <div class="address-grid">${Object.entries(organizations)
+                        .map(
+                            ([key, organization]) => `
+                        <section class="card" aria-labelledby="address-${key}">
+                            <div class="card-heading"><div><h3 id="address-${key}">${organization.name}</h3><p class="small muted">Di adresse på denne organisasjonsrelasjonen</p></div><span class="pill success">Aktiv tilknyting</span></div>
+                            <p class="address" data-email="${key}">${emailText(key)}</p>
+                            <div class="scope-line"><span class="scope-dot" aria-hidden="true"></span>Berre for ${organization.name}</div>
+                            <button class="button quiet" type="button" data-edit-email="${key}">Endre e-post hos ${organization.name} →</button>
+                        </section>`
+                        )
+                        .join('')}</div>
+                    <div class="callout"><div><strong>Ei endring skal ikkje forplante seg til feil stad</strong><p>Ny adresse hos A endrar ikkje B, privatadressa, innlogginga eller historiske søknader. Ingen automatisk fallback mellom kontekstane.</p></div></div>`
+                );
+            }
+            function organizationView() {
+                return (
+                    heading(
+                        '02',
+                        'Mine organisasjonstilknytingar',
+                        'Relasjonen seier kven du er knytt til. Fullmakta avgjer kva du kan gjere. Det er to ulike ting.'
+                    ) +
+                    Object.entries(organizations)
+                        .map(
+                            ([key, organization]) => `
+                        <section class="card relationship" aria-labelledby="organization-${key}">
+                            <div><p class="eyebrow">AccountContactRelation · konsept</p><h2 id="organization-${key}">${organization.name}</h2><span class="pill success">Aktiv tilknyting</span>
+                                <dl><dt>Kontakt</dt><dd>Demo-brukar · same kontakt i begge verksemdene</dd><dt>Di e-post her</dt><dd data-email="${key}">${emailText(key)}</dd><dt>Registrert relasjon</dt><dd>Representant · dømerolle, ikkje fullmakt</dd><dt>Fullmakt i demoen</dt><dd>Simulert godkjend · ingen eksterne kall</dd></dl>
+                                <button class="button quiet" type="button" data-edit-email="${key}">Endre mi adresse her →</button>
+                            </div>
+                            <div><button class="button" type="button" data-use-org="${key}">Bruk i demosøknad →</button></div>
+                        </section>`
+                        )
+                        .join('') +
+                    `<div class="callout warning"><div><strong>Organisasjonsinnsyn er avgrensa</strong><p>Denne oversikta er di eiga. Ein organisasjonsrepresentant skal berre sjå relevante kontaktpunkt i sin kontekst, ikkje privatadressa di eller andre arbeidsgivarar.</p></div></div>`
+                );
+            }
+            function selfView(title) {
+                return (
+                    heading(
+                        '03',
+                        title,
+                        'Du opptrer no i eigen regi. Kontaktmodellen kan bruke privatadressa utan organisasjonstilknyting.'
+                    ) +
+                    `<section class="card empty"><span class="pill">Meg sjølv</span><h2>Ingen organisasjonssøknad i denne konteksten</h2><p class="muted">Denne prototypen viser organisasjonssøknader. Ein eigen privatpersonsjourney må avklarast separat.</p><p><strong>Di private adresse:</strong> <span data-email="self">${emailText('self')}</span></p><a class="button" href="#profil">Gå til Min profil</a></section>`
+                );
+            }
+            function applicationView() {
+                const key = context.value;
+                if (key === 'self') return selfView('Kontakt i eigen regi');
+                const participants = participantsFor(key);
+                const unique = new Set(participants.map((row) => row.contactId)).size;
+                return (
+                    heading(
+                        '03',
+                        'Kontaktar og roller i søknaden',
+                        `Søknad for ${organizations[key].name}. Vel person og rolle — rett organisasjonsadresse følgjer relasjonen.`
+                    ) +
+                    `<ol class="steps" aria-label="Illustrert søknadsprosess"><li><span class="step-dot">1</span> Organisasjon</li><li><span class="step-dot">2</span> Grunnlag</li><li class="current" aria-current="step"><span class="step-dot">3</span> Kontaktar</li><li><span class="step-dot">4</span> Kontroller</li></ol>
+                    <section class="card" aria-labelledby="participants-heading">
+                        <div class="card-heading"><div><h2 id="participants-heading">Søknadsdeltakarar</h2><p class="small muted">${unique} personar · ${participants.length} roller · éin kontakt per person</p></div><span class="pill blue">${organizations[key].name}</span></div>
+                        ${participants
+                            .map(
+                                (row, index) => `
+                            <div class="participant">
+                                <div><p class="participant-name">${row.name}</p><span class="pill">${row.role}</span><p class="participant-email">${row.email ? escapeHtml(row.email) : '<strong>Manglar adresse i denne konteksten</strong>'}</p><p class="small muted">Adresse hos ${organizations[key].name}</p></div>
+                                <fieldset><legend class="small">Motta varsel om</legend>${notificationNames.map((name, notificationIndex) => `<label class="notification-label"><input type="checkbox" data-notification="${index}:${notificationIndex}" ${row.notifications[notificationIndex] ? 'checked' : ''} /> ${name}</label>`).join('')}</fieldset>
+                                <div>${row.role === 'Innsendar' ? '<span class="small muted">Innsendar blir sett<br />frå innlogginga</span>' : `<button class="button quiet" type="button" data-remove-role="${index}" aria-label="Fjern ${row.role} for ${row.name}">Fjern rolle</button>`}</div>
+                            </div>`
+                            )
+                            .join('')}
+                        <div class="footer-actions"><button class="button" id="add-role" type="button">+ Legg til kontaktrolle</button><button class="button quiet" type="button" data-edit-email="${key}">Endre mi adresse hos ${organizations[key].name} →</button></div>
+                    </section>
+                    <div class="callout"><div><strong>Rolle, varselval og fullmakt er separate</strong><p>Same person kan vere både innsendar og fagleg kontakt. Det opprettar ei ny deltaking, ikkje ein ny kontakt. Privatadresser eller kontaktar hos den andre verksemda blir ikkje brukte her.</p></div></div>
+                    <div class="footer-actions"><button class="button" id="save-draft" type="button">Lagre demo-utkast</button><button class="button primary" id="review" type="button">Kontroller demosøknaden →</button></div>`
+                );
+            }
+            function caseView() {
+                const key = context.value;
+                if (key === 'self') return selfView('Eigen regi · ingen organisasjonssak');
+                const snapshot = state.snapshots[key][state.selectedSnapshot[key]];
+                const currentContacts = contactsFor(key);
+                const isCurrent = state.caseMode === 'current';
+                const participants = snapshot.participants.map((row) => ({
+                    ...row,
+                    email: isCurrent ? currentContacts.find((contact) => contact.id === row.contactId).email : row.email
+                }));
+                return (
+                    heading(
+                        '04',
+                        'Kontaktgrunnlag i saksbehandling',
+                        'Saksbehandlaren må kunne skilje mellom det som vart sendt inn, og kontaktadressa som gjeld no.'
+                    ) +
+                    `<section class="card"><div class="card-heading"><div><p class="eyebrow">Demosak · ${snapshot.reference}</p><h2>${organizations[key].name}</h2><p class="small muted">${snapshot.when}</p></div><span class="pill blue">Simulert innsendt</span></div>
+                        <label class="dialog-label" for="snapshot-version">Innsendingsversjon</label><select id="snapshot-version">${state.snapshots[key].map((version, index) => `<option value="${index}" ${index === state.selectedSnapshot[key] ? 'selected' : ''}>${version.reference} · ${version.when}</option>`).join('')}</select>
+                        <div class="segmented" aria-label="Vel kontaktgrunnlag" style="margin-top: var(--ax-space-16)"><button class="button" type="button" data-case-mode="snapshot" aria-pressed="${!isCurrent}">Ved innsending</button><button class="button" type="button" data-case-mode="current" aria-pressed="${isCurrent}">Aktuelle adresser</button></div>
+                        <div class="table-wrap"><table><caption>${isCurrent ? 'Aktuelle kontaktpunkt for deltakarane i denne innsendinga' : 'Bevart innsendingsgrunnlag · blir ikkje endra med profilen'}</caption><thead><tr><th scope="col">Kontakt</th><th scope="col">Rolle</th><th scope="col">E-post hos denne verksemda</th><th scope="col">Varselval ved innsending</th></tr></thead><tbody>
+                            ${participants
+                                .map(
+                                    (row) =>
+                                        `<tr><td>${row.name}</td><td>${row.role}</td><td>${row.email ? escapeHtml(row.email) : 'Manglar adresse · sending skal stoppe'}</td><td>${
+                                            row.notifications
+                                                .map((enabled, index) => (enabled ? notificationNames[index] : null))
+                                                .filter(Boolean)
+                                                .join(', ') || 'Ingen valde'
+                                        }</td></tr>`
+                                )
+                                .join('')}
+                        </tbody></table></div>
+                    </section>
+                    <div class="callout"><div><strong>${isCurrent ? 'Gjeldande adresse er ikkje historisk dokumentasjon' : 'Historikken ligg fast'}</strong><p>${isCurrent ? 'Nye meldingar krev rett kontekst, verifisert mottakar og ny tilgangs-/skjermingskontroll. Endra adresse etter kølegging må handterast kontrollert.' : 'Endre adressa hos denne verksemda i Min profil, og byt mellom dei to visningane. Den innsende adressa blir bevart.'}</p></div></div>
+                    <section class="card"><h2>Berre nødvendige opplysningar</h2><p class="muted">Denne organisasjonssaka skal ikkje vise privatadressa, den andre verksemda eller ei framtidig Person Account-kopling. Reell tilgang og skjerming må handhevast server-side; dette er berre ei UX-skisse.</p><a class="button" href="modell.html">Sjå grensa i modellillustrasjonen →</a></section>`
+                );
+            }
+            function render() {
+                const views = {
+                    profil: profileView,
+                    organisasjonar: organizationView,
+                    soknad: applicationView,
+                    saksbehandling: caseView
+                };
+                main.innerHTML = views[state.view]();
+                document.querySelectorAll('.nav-link').forEach((link) => {
+                    if (link.hash === `#${state.view}`) link.setAttribute('aria-current', 'page');
+                    else link.removeAttribute('aria-current');
+                });
+                document.title = `${main.querySelector('h1').textContent} · kontaktmodell-wireframe`;
+            }
+            function navigate() {
+                const requested = location.hash.slice(1) || 'profil';
+                const valid = ['profil', 'organisasjonar', 'soknad', 'saksbehandling'].includes(requested);
+                state.view = valid ? requested : 'profil';
+                clearMessages();
+                render();
+                if (!valid) message('Denne demovisninga finst ikkje. Min profil blir vist.', true);
+                main.focus({ preventScroll: true });
+            }
+            function openEmail(key) {
+                emailTarget = key;
+                const isPrivate = key === 'self';
+                document.getElementById('email-title').textContent = isPrivate
+                    ? 'Endre privat e-post'
+                    : `Endre e-post hos ${organizations[key].name}`;
+                document.getElementById('email-description').textContent = isPrivate
+                    ? 'Denne adressa blir berre brukt når du opptrer som deg sjølv.'
+                    : `Endringa gjeld berre di tilknyting til ${organizations[key].name}.`;
+                document.getElementById('no-email').checked = false;
+                document.getElementById('new-email').disabled = false;
+                document.getElementById('new-email').required = true;
+                document.getElementById('new-email').value = state.emails[key];
+                document.getElementById('email-save').textContent = 'Simuler verifisering og lagre';
+                document.getElementById('email-dialog').showModal();
+                document.getElementById('new-email').focus();
+            }
+            function openRole() {
+                const key = context.value;
+                document.getElementById('role-description').textContent =
+                    `Du vel berre mellom fiktive kontaktar hos ${organizations[key].name}.`;
+                document.getElementById('role-contact').innerHTML = contactsFor(key)
+                    .map((contact) => `<option value="${contact.id}">${contact.name}</option>`)
+                    .join('');
+                document.getElementById('role-contact').value = organizations[key].contactId;
+                document.getElementById('role-name').value = 'Fagleg kontakt';
+                document.getElementById('role-error').hidden = true;
+                document.getElementById('role-dialog').showModal();
+            }
+            function review() {
+                const key = context.value;
+                const participants = participantsFor(key);
+                if (participants.some((row) => !row.email)) {
+                    message(
+                        `Demosøknaden kan ikkje sendast: ein deltakar manglar e-post hos ${organizations[key].name}. Registrer adressa i rett kontekst. Privatadressa blir ikkje brukt som fallback.`,
+                        true
+                    );
+                    return;
+                }
+                document.getElementById('review-content').innerHTML =
+                    `<span class="pill blue">${organizations[key].name}</span><p class="small muted">Mottakargrunnlag for denne demosøknaden:</p>` +
+                    participants
+                        .map(
+                            (row) =>
+                                `<div class="review-row"><div><strong>${row.name}</strong><br /><span class="small muted">${row.role}</span></div><span>${escapeHtml(row.email)}</span></div>`
+                        )
+                        .join('') +
+                    `<p class="small muted">Innsendingsgrunnlaget blir bevart i demoen. Ei seinare profilendring omskriv ikkje dette.</p>`;
+                document.getElementById('review-dialog').showModal();
+            }
+            main.addEventListener('click', (event) => {
+                const button = event.target.closest('button');
+                if (!button) return;
+                if (button.dataset.editEmail) openEmail(button.dataset.editEmail);
+                else if (button.dataset.useOrg) {
+                    clearMessages();
+                    context.value = button.dataset.useOrg;
+                    if (location.hash === '#soknad') render();
+                    else location.hash = 'soknad';
+                } else if (button.dataset.removeRole !== undefined) {
+                    state.drafts[context.value].splice(Number(button.dataset.removeRole), 1);
+                    render();
+                    document.getElementById('add-role').focus();
+                    message('Demorolla er fjerna. Kontakten, andre roller og innsendingshistorikken er bevarte.');
+                } else if (button.dataset.caseMode) {
+                    state.caseMode = button.dataset.caseMode;
+                    render();
+                    main.querySelector(`[data-case-mode="${state.caseMode}"]`).focus();
+                } else if (button.id === 'add-role') openRole();
+                else if (button.id === 'review') review();
+                else if (button.id === 'save-draft')
+                    message(
+                        'Demo-utkastet er halde i minnet på denne sida. Det er ikkje lagra i Salesforce og blir borte ved oppfrisking.'
+                    );
+            });
+            main.addEventListener('change', (event) => {
+                if (event.target.dataset.notification) {
+                    const [row, notification] = event.target.dataset.notification.split(':').map(Number);
+                    state.drafts[context.value][row].notifications[notification] = event.target.checked;
+                } else if (event.target.id === 'snapshot-version') {
+                    state.selectedSnapshot[context.value] = Number(event.target.value);
+                    render();
+                    document.getElementById('snapshot-version').focus();
+                }
+            });
+            document
+                .querySelectorAll('[data-close]')
+                .forEach((button) =>
+                    button.addEventListener('click', () => document.getElementById(button.dataset.close).close())
+                );
+            document.getElementById('no-email').addEventListener('change', (event) => {
+                document.getElementById('new-email').disabled = event.target.checked;
+                document.getElementById('new-email').required = !event.target.checked;
+                document.getElementById('email-save').textContent = event.target.checked
+                    ? 'Lagre utan adresse (demo)'
+                    : 'Simuler verifisering og lagre';
+            });
+            document.getElementById('email-form').addEventListener('submit', (event) => {
+                event.preventDefault();
+                state.emails[emailTarget] = document.getElementById('no-email').checked
+                    ? ''
+                    : document.getElementById('new-email').value.trim();
+                document.getElementById('email-dialog').close();
+                render();
+                main.querySelector(`[data-edit-email="${emailTarget}"]`)?.focus();
+                message(
+                    `Demo: ${emailTarget === 'self' ? 'Privatadressa' : `Adressa hos ${organizations[emailTarget].name}`} er endra. Ingen andre adresser eller historiske opplysningar er endra. Ingen e-post er sendt.`
+                );
+            });
+            document.getElementById('role-form').addEventListener('submit', (event) => {
+                event.preventDefault();
+                const rows = state.drafts[context.value];
+                const contactId = document.getElementById('role-contact').value;
+                const role = document.getElementById('role-name').value;
+                if (rows.some((row) => row.contactId === contactId && row.role === role)) {
+                    const error = document.getElementById('role-error');
+                    error.textContent =
+                        'Denne personen har allereie denne rolla i søknaden. Vel ei anna rolle eller ein annan kontakt.';
+                    error.hidden = false;
+                    error.focus();
+                    return;
+                }
+                rows.push({ contactId, role, notifications: [false, false, false, false] });
+                document.getElementById('role-dialog').close();
+                render();
+                document.getElementById('add-role').focus();
+                message('Ny demorolle er lagt til. Ingen ny kontakt eller fullmakt er oppretta.');
+            });
+            document.getElementById('submit-demo').addEventListener('click', () => {
+                const key = context.value;
+                state.sequence += 1;
+                state.snapshots[key].push({
+                    reference: `DEMO-${key.toUpperCase()}-${state.sequence}`,
+                    when: `${new Date().toLocaleString('nn-NO')} · simulert innsending`,
+                    participants: participantsFor(key)
+                });
+                state.selectedSnapshot[key] = state.snapshots[key].length - 1;
+                state.caseMode = 'snapshot';
+                document.getElementById('review-dialog').close();
+                state.view = 'saksbehandling';
+                history.pushState(null, '', '#saksbehandling');
+                render();
+                main.focus({ preventScroll: true });
+                message(
+                    'Demosøknaden er lagra i minnet på denne sida. Ingen faktisk innsending, e-postsending eller arkivering er utført.'
+                );
+            });
+            context.addEventListener('change', () => {
+                clearMessages();
+                render();
+            });
+            document.getElementById('reset').addEventListener('click', () => {
+                state = initialState();
+                context.value = 'a';
+                history.replaceState(null, '', '#profil');
+                render();
+                message('Demoen er nullstilt til dei fiktive eksempeldataa.');
+            });
+            document.getElementById('print').addEventListener('click', () => window.print());
+            document.querySelector('.skip').addEventListener('click', (event) => {
+                event.preventDefault();
+                main.focus();
+            });
+            window.addEventListener('hashchange', navigate);
+            state = initialState();
+            navigate();
+        </script>
+    </body>
+</html>

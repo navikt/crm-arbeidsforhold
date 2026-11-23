@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="820" viewBox="0 0 1280 820" role="img" aria-labelledby="title description">
+    <title id="title">Ein kontakt, separate adresser og kontekstbundne roller</title>
+    <desc id="description">Føreslått modell. Ein varig Aa-register-kontakt har ei privat adresse for eigen regi og ei separat organisasjonsadresse per AccountContactRelation. Søknadsroller blir lagra som RelatedContact-deltakingar, ikkje nye kontaktar. Innsendt grunnlag er skilt frå aktuelle adresser. Ein teknisk primærkonto og ei seinare skjerma Person Account-kopling er særskilde plattformavklaringar.</desc>
+    <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#49515e" /></marker>
+        <style>
+            text { font-family: system-ui, sans-serif; fill: #202733; }
+            .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; fill: #49515e; }
+            .title { font-size: 32px; font-weight: 750; letter-spacing: -1px; }
+            .subtitle { font-size: 16px; fill: #49515e; }
+            .heading { font-size: 19px; font-weight: 750; }
+            .body { font-size: 15px; }
+            .small { font-size: 13px; fill: #49515e; }
+            .object { font-size: 12px; font-weight: 650; fill: #002459; }
+            .card { fill: #ffffff; stroke: #cfd3d8; stroke-width: 1.5; }
+            .connection { fill: none; stroke: #49515e; stroke-width: 2; marker-end: url(#arrow); }
+            .future { fill: none; stroke: #6f7785; stroke-width: 1.5; stroke-dasharray: 6 5; }
+        </style>
+    </defs>
+    <rect width="1280" height="820" fill="#f5f6f7" />
+    <text x="48" y="43" class="eyebrow">FØRESLÅTT MÅLMODELL · AAREG · IKKJE IMPLEMENTERT METADATA</text>
+    <text x="48" y="86" class="title">Ein person. Fleire adresser. Tydelege roller.</text>
+    <text x="48" y="118" class="subtitle">E-post høyrer til ein kontekst. Organisasjonsrelasjon og søknadsrolle er ikkje tilgangsløyve.</text>
+    <text x="48" y="174" class="eyebrow">01 · VARIG IDENTITET</text>
+    <text x="440" y="174" class="eyebrow">02 · KONTAKTPUNKT I RETT KONTEKST</text>
+    <text x="850" y="174" class="eyebrow">03 · DELTAKING OG BRUK</text>
+
+    <path class="connection" d="M352 330 L396 330 L396 249 L432 249" />
+    <path class="connection" d="M352 330 L432 395" />
+    <path class="connection" d="M352 330 L396 330 L396 541 L432 541" />
+    <path class="connection" d="M786 249 L842 249" />
+    <path class="connection" d="M786 395 L842 395" />
+    <path class="connection" d="M786 541 L842 541" />
+
+    <rect x="48" y="220" width="304" height="222" rx="12" class="card" />
+    <rect x="48" y="220" width="304" height="8" rx="4" fill="#2176d4" />
+    <circle cx="92" cy="279" r="22" fill="#f1f7ff" />
+    <text x="84" y="286" class="heading">D</text>
+    <text x="130" y="273" class="heading">Aa-register-kontakt</text>
+    <text x="130" y="298" class="object">Contact</text>
+    <text x="72" y="344" class="body">Same kontakt-ID over tid</text>
+    <text x="72" y="373" class="small">Verifisert identitet via godkjend grense</text>
+    <text x="72" y="399" class="small">Ny adresse → ikkje ein ny kontakt</text>
+    <text x="72" y="421" class="small">Ny organisasjon → ikkje ein ny person</text>
+
+    <rect x="440" y="194" width="346" height="110" rx="12" class="card" />
+    <text x="462" y="224" class="heading">Privat kontaktpunkt</text>
+    <text x="462" y="253" class="body">eigen@example.invalid</text>
+    <text x="462" y="279" class="small">Eigen regi · ikkje organisasjonsfallback</text>
+
+    <rect x="440" y="332" width="346" height="126" rx="12" class="card" />
+    <text x="462" y="362" class="heading">Demoverksemd A</text>
+    <text x="462" y="384" class="object">AccountContactRelation</text>
+    <text x="462" y="410" class="body">arbeid.a@example.invalid</text>
+    <text x="462" y="437" class="small">Adresse på relasjonen · føreslått tillegg</text>
+
+    <rect x="440" y="478" width="346" height="126" rx="12" class="card" />
+    <text x="462" y="508" class="heading">Demoverksemd B</text>
+    <text x="462" y="530" class="object">AccountContactRelation</text>
+    <text x="462" y="556" class="body">arbeid.b@example.invalid</text>
+    <text x="462" y="583" class="small">Uavhengig av A og privatadressa</text>
+
+    <rect x="850" y="194" width="382" height="110" rx="12" class="card" />
+    <text x="872" y="224" class="heading">Du opptrer som deg sjølv</text>
+    <text x="872" y="253" class="body">Bruk privat kontaktpunkt</text>
+    <text x="872" y="279" class="small">Privatpersonsjourney må avklarast separat</text>
+
+    <rect x="850" y="332" width="382" height="126" rx="12" class="card" />
+    <text x="872" y="362" class="heading">Søknad for verksemd A</text>
+    <text x="872" y="384" class="object">RelatedContact__c · vidareutvikla</text>
+    <text x="872" y="410" class="body">Kontakt + søknad + rolle + varselval</text>
+    <text x="872" y="437" class="small">To roller → to deltakingar, same kontakt</text>
+
+    <rect x="850" y="478" width="382" height="126" rx="12" class="card" />
+    <text x="872" y="508" class="heading">Søknad for verksemd B</text>
+    <text x="872" y="530" class="object">RelatedContact__c · vidareutvikla</text>
+    <text x="872" y="556" class="body">Brukar adressa hos B, ikkje A eller privat</text>
+    <text x="872" y="583" class="small">Innsendt grunnlag blir bevart per innsending</text>
+
+    <path class="future" d="M200 442 L200 478" />
+    <rect x="48" y="478" width="304" height="126" rx="12" fill="#ffffff" stroke="#6f7785" stroke-width="1.5" stroke-dasharray="6 5" />
+    <text x="72" y="508" class="heading">Seinare: personkopling</text>
+    <text x="72" y="536" class="body">Person Account / PersonContactId</text>
+    <text x="72" y="563" class="small">Skjerma mapping · ingen automatisk merge</text>
+    <text x="72" y="588" class="small">Ikkje del av vanleg organisasjonsinnsyn</text>
+
+    <rect x="48" y="638" width="1184" height="72" rx="12" fill="#fff5e4" />
+    <text x="72" y="666" class="heading">Plattformvilkår: vanleg Contact med indirekte ACR treng primærkonto</text>
+    <text x="72" y="691" class="body">Teknisk domenekonto er eit forslag, ikkje arbeidsgivar/fullmakt. Deling, volum og skjerming må prøvast før godkjenning.</text>
+    <text x="48" y="756" class="small">ALLE ADRESSER ER FIKTIVE · SVG KAN BRUKAST I PRESENTASJONAR OG FORSTØRRAST UTAN KVALITETSTAP</text>
+    <text x="48" y="785" class="small">Lagringsfelt, roller og personkopling er designforslag. ACR, Contact og skjerming må avklarast med Team Platforce.</text>
+</svg>

@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="nn">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Kontaktmodellen · illustrasjonar og designprinsipp</title>
+        <style>
+            :root {
+                --ax-bg-default: #ffffff;
+                --ax-bg-neutral-soft: #f5f6f7;
+                --ax-text-neutral: #202733;
+                --ax-text-neutral-subtle: #49515e;
+                --ax-bg-accent-strong: #2176d4;
+                --ax-bg-accent-soft: #f1f7ff;
+                --ax-text-accent: #002459;
+                --ax-border-neutral-subtle: #cfd3d8;
+                --ax-border-neutral: #6f7785;
+                --ax-bg-warning-soft: #fff5e4;
+                --ax-space-16: 1rem;
+                --ax-space-8: 0.5rem;
+                --ax-radius-8: 8px;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                background: var(--ax-bg-neutral-soft);
+                color: var(--ax-text-neutral);
+                font:
+                    1rem/1.6 system-ui,
+                    sans-serif;
+            }
+            a {
+                color: var(--ax-text-accent);
+                text-underline-offset: 0.2em;
+            }
+            :focus-visible {
+                outline: 3px solid var(--ax-text-neutral);
+                outline-offset: 4px;
+            }
+            header,
+            main,
+            footer {
+                max-width: 84rem;
+                margin: auto;
+                padding: calc(var(--ax-space-16) * 2);
+            }
+            header {
+                display: flex;
+                justify-content: space-between;
+                gap: var(--ax-space-16);
+                align-items: center;
+                border-bottom: 1px solid var(--ax-border-neutral-subtle);
+            }
+            header strong {
+                font-size: 1.1rem;
+            }
+            nav {
+                display: flex;
+                gap: var(--ax-space-16);
+                flex-wrap: wrap;
+            }
+            h1 {
+                font-size: clamp(2rem, 4vw, 3.25rem);
+                line-height: 1.15;
+                letter-spacing: -0.045em;
+                max-width: 48rem;
+                margin: var(--ax-space-16) 0;
+            }
+            h2 {
+                font-size: 1.5rem;
+                letter-spacing: -0.025em;
+                margin: 0 0 var(--ax-space-16);
+            }
+            h3 {
+                font-size: 1.08rem;
+                margin: 0 0 var(--ax-space-8);
+            }
+            p {
+                margin-top: 0;
+            }
+            .eyebrow {
+                font-size: 0.75rem;
+                font-weight: 750;
+                color: var(--ax-text-neutral-subtle);
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+            }
+            .intro {
+                max-width: 52rem;
+                color: var(--ax-text-neutral-subtle);
+                font-size: 1.1rem;
+            }
+            .diagram {
+                margin: calc(var(--ax-space-16) * 2) 0;
+                border: 1px solid var(--ax-border-neutral-subtle);
+                border-radius: var(--ax-radius-8);
+                background: var(--ax-bg-default);
+                overflow: auto;
+            }
+            .diagram img {
+                display: block;
+                width: 100%;
+                min-width: 58rem;
+            }
+            figcaption {
+                padding: var(--ax-space-16);
+                font-size: 0.85rem;
+                color: var(--ax-text-neutral-subtle);
+                border-top: 1px solid var(--ax-border-neutral-subtle);
+            }
+            .section {
+                padding: calc(var(--ax-space-16) * 2) 0;
+            }
+            .columns {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: var(--ax-space-16);
+            }
+            .card {
+                background: var(--ax-bg-default);
+                border: 1px solid var(--ax-border-neutral-subtle);
+                padding: calc(var(--ax-space-16) * 1.5);
+                border-radius: var(--ax-radius-8);
+            }
+            .card p:last-child {
+                margin-bottom: 0;
+            }
+            .number {
+                color: var(--ax-text-accent);
+                font-size: 2rem;
+                font-weight: 750;
+                margin-bottom: var(--ax-space-8);
+            }
+            .flow {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                list-style: none;
+                padding: 0;
+                gap: var(--ax-space-16);
+            }
+            .flow li {
+                position: relative;
+                padding: calc(var(--ax-space-16) * 1.5);
+                border: 1px solid var(--ax-border-neutral);
+                border-radius: var(--ax-radius-8);
+                background: var(--ax-bg-accent-soft);
+            }
+            .flow strong {
+                display: block;
+                margin-bottom: var(--ax-space-8);
+            }
+            .flow span {
+                font-size: 0.9rem;
+            }
+            .flow li:not(:last-child)::after {
+                content: '→';
+                position: absolute;
+                right: -0.8rem;
+                top: 45%;
+                color: var(--ax-text-accent);
+                background: var(--ax-bg-neutral-soft);
+                font-weight: 750;
+            }
+            .stop {
+                background: var(--ax-bg-warning-soft);
+                border-left: 3px solid var(--ax-border-neutral);
+                padding: var(--ax-space-16);
+                border-radius: var(--ax-radius-8);
+            }
+            .split {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: var(--ax-space-16);
+            }
+            .boundary {
+                border: 2px dashed var(--ax-border-neutral);
+                background: var(--ax-bg-default);
+                padding: calc(var(--ax-space-16) * 1.5);
+                border-radius: var(--ax-radius-8);
+            }
+            .boundary ul {
+                padding-left: calc(var(--ax-space-16) * 1.5);
+            }
+            .boundary li {
+                margin-bottom: var(--ax-space-8);
+            }
+            .small {
+                font-size: 0.85rem;
+                color: var(--ax-text-neutral-subtle);
+            }
+            footer {
+                border-top: 1px solid var(--ax-border-neutral-subtle);
+                font-size: 0.85rem;
+                color: var(--ax-text-neutral-subtle);
+            }
+            @media (max-width: 48rem) {
+                header,
+                main,
+                footer {
+                    padding: var(--ax-space-16);
+                }
+                header {
+                    align-items: start;
+                    flex-direction: column;
+                }
+                .columns,
+                .flow,
+                .split {
+                    grid-template-columns: 1fr;
+                }
+                .flow li:not(:last-child)::after {
+                    content: '↓';
+                    right: auto;
+                    left: 50%;
+                    top: auto;
+                    bottom: -1rem;
+                }
+                .diagram img {
+                    min-width: 58rem;
+                }
+            }
+            @media print {
+                @page {
+                    size: landscape;
+                    margin: 1cm;
+                }
+                body {
+                    background: var(--ax-bg-default);
+                }
+                header nav {
+                    display: none;
+                }
+                header,
+                main,
+                footer {
+                    padding: var(--ax-space-16);
+                }
+                .diagram {
+                    overflow: visible;
+                    break-inside: avoid;
+                }
+                .diagram img {
+                    min-width: 0;
+                }
+                .section {
+                    break-inside: avoid;
+                }
+                h1 {
+                    font-size: 2rem;
+                }
+                .columns {
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                }
+                .flow {
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                }
+                .split {
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <strong>Aa-registeret · kontaktmodell</strong>
+            <nav aria-label="Illustrasjonsressursar">
+                <a href="prototype.html">Opne klikkbare wireframes →</a
+                ><a href="kontaktmodell.svg" download>Last ned SVG</a><a href="analyse-og-malmodell.md">Les analysen</a>
+            </nav>
+        </header>
+        <main>
+            <p class="eyebrow">Designillustrasjon · forslag til menneskeleg vurdering</p>
+            <h1>Personen ligg fast.<br />Konteksten avgjer adressa.</h1>
+            <p class="intro">
+                Ikkje ein ny kontakt for kvar e-post eller arbeidsgivar. Éin varig kontakt, eigne
+                organisasjonsrelasjonar og eksplisitte roller i kvar søknad. Desse illustrasjonane viser målmodellen,
+                ikkje dagens implementasjon.
+            </p>
+            <figure class="diagram" tabindex="0" aria-label="Modellillustrasjon. Kan rullast sidevegs på liten skjerm.">
+                <img
+                    src="kontaktmodell.svg"
+                    alt="Ein Aa-register-kontakt har privat adresse for eigen regi og separate adresser på ACR-relasjonane til verksemd A og B. Søknadsroller er eigne deltakingar. Seinare Person Account-kopling er skjerma. Vanleg Contact med indirekte ACR krev ei avklart primærkonto."
+                />
+                <figcaption>
+                    Skalerbar illustrasjon for review og presentasjonar. På liten skjerm kan diagrammet rullast
+                    sidevegs; forklaringa nedanfor er mobiltilpassa.
+                    <a href="kontaktmodell.svg">Opne illustrasjonen åleine</a>.
+                </figcaption>
+            </figure>
+            <section class="section" aria-labelledby="responsibility-heading">
+                <h2 id="responsibility-heading">Tre ansvar. Ikkje tre kontaktar.</h2>
+                <div class="columns">
+                    <article class="card">
+                        <div class="number" aria-hidden="true">01</div>
+                        <h3>Person og profil</h3>
+                        <p>
+                            Varig kontaktidentitet og eigne kontaktpunkt. Privatadressa blir brukt i eigen regi, ikkje
+                            automatisk for arbeidsgivaren.
+                        </p>
+                        <p class="small">Ein profilendring endrar ikkje innlogging eller Person Account.</p>
+                    </article>
+                    <article class="card">
+                        <div class="number" aria-hidden="true">02</div>
+                        <h3>Organisasjonsrelasjon</h3>
+                        <p>
+                            ACR knyter kontakten til kvar organisasjon. Adressa hos A kan vere ulik både B og
+                            privatadressa.
+                        </p>
+                        <p class="small">
+                            Kontekstadresse er eit føreslått tillegg; felt, eigarskap og deling må avklarast.
+                        </p>
+                    </article>
+                    <article class="card">
+                        <div class="number" aria-hidden="true">03</div>
+                        <h3>Søknadsdeltaking</h3>
+                        <p>Kontakt + søknad + rolle. Same person kan ha fleire roller utan å bli oppretta på nytt.</p>
+                        <p class="small">Vidareutvikle RelatedContact. Rolle og varselval er ikkje fullmakt.</p>
+                    </article>
+                </div>
+            </section>
+            <section class="section" aria-labelledby="email-heading">
+                <h2 id="email-heading">Slik blir rett mottakar vald</h2>
+                <ol class="flow">
+                    <li>
+                        <strong>1. Verifisert kontekst</strong
+                        ><span>Eigen regi, A eller B. Organisasjonsfullmakt blir kontrollert separat.</span>
+                    </li>
+                    <li>
+                        <strong>2. Kontaktpunkt her</strong
+                        ><span
+                            >Privat ved eigen regi. Adressa på den aktuelle organisasjonsrelasjonen ved
+                            representasjon.</span
+                        >
+                    </li>
+                    <li>
+                        <strong>3. Kontroll før sending</strong
+                        ><span>Verifisering, aktiv deltaking, mottakar og nødvendig tilgang/skjerming.</span>
+                    </li>
+                    <li>
+                        <strong>4. Sporbar utsending</strong
+                        ><span>Bevar vald mottakar. Endra adresse eller rett etter kølegging krev ny kontroll.</span>
+                    </li>
+                </ol>
+                <p class="stop">
+                    <strong>Manglar adresse i konteksten?</strong> Stopp og be om rett kontaktpunkt. Ikkje bruk
+                    privatadressa eller adressa hos ein annan organisasjon som stille fallback.
+                </p>
+            </section>
+            <section class="section" aria-labelledby="history-heading">
+                <h2 id="history-heading">Ei profilendring skal ikkje omskrive historia</h2>
+                <div class="split">
+                    <article class="card">
+                        <p class="eyebrow">Ved innsending</p>
+                        <h3>Det personen faktisk oppgav</h3>
+                        <p>
+                            Kontakt, rolle, kontekstadresse og varselval blir bevarte i innsendingsgrunnlaget. Ny
+                            innsending får eit nytt grunnlag. Arkivretry brukar den rette historiske versjonen.
+                        </p>
+                    </article>
+                    <article class="card">
+                        <p class="eyebrow">Ved neste melding</p>
+                        <h3>Det som er godkjent no</h3>
+                        <p>
+                            Nye meldingar brukar aktuell adresse i rett kontekst. Ei adresseendring hos A påverkar ikkje
+                            B eller privat. Rettar og skjerming må også kontrollerast på nytt.
+                        </p>
+                    </article>
+                </div>
+            </section>
+            <section class="section" aria-labelledby="privacy-heading">
+                <h2 id="privacy-heading">Relasjonar må ikkje bli snarvegar til persondata</h2>
+                <div class="split">
+                    <article class="boundary">
+                        <h3>Organisasjonskontekst</h3>
+                        <ul>
+                            <li>Relevant kontakt og adresse hos denne organisasjonen.</li>
+                            <li>Rolle og varselval for den aktuelle søknaden.</li>
+                            <li>Ikkje privatadresse eller andre arbeidsgivarar.</li>
+                            <li>Ikkje personidentitet eller framtidig Person Account-kopling.</li>
+                        </ul>
+                    </article>
+                    <article class="boundary">
+                        <h3>Skjerma plattformgrense</h3>
+                        <ul>
+                            <li>Verifisert innloggingsidentitet og godkjend mapping.</li>
+                            <li>Særtilgang for eigne tilsette og adressebeskyttelse.</li>
+                            <li>Seinare Person Account-kopling etter eiga godkjenning.</li>
+                            <li>Kontroll også for søk, rapport, eksport, fil, e-post og arkiv.</li>
+                        </ul>
+                    </article>
+                </div>
+                <p class="small">
+                    Dette er ein illustrasjon av krav, ikkje bevis på implementert tilgangskontroll. Teknisk
+                    primærkonto, faktisk deling, ekstern lisens og skjerming må prøvast før modellen blir vedteken.
+                </p>
+            </section>
+        </main>
+        <footer>
+            Fiktive adresser i example.invalid. Ingen eksterne skript, fontar eller nettverkskall. Fargepalett
+            verifisert mot Aksel MCP 23. november 2026. HTML kan opnast lokalt og skrivast ut; SVG kan brukast i
+            presentasjonar.
+        </footer>
+    </body>
+</html>
