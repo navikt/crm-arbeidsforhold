@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Includes the user in contact model pilot features when the pilot flags are enabled.</description>
+    <isLicensed>false</isLicensed>
+    <label>Aa-register Contact Model Pilot</label>
+</CustomPermission>

@@ -608,6 +608,13 @@
                 <elementReference>getApplicationRecords.Id</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Role__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Submitter</stringValue>
+            </value>
+        </filters>
         <inputAssignments>
             <field>Agreement__c</field>
             <value>

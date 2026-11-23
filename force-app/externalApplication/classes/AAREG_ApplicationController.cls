@@ -252,6 +252,7 @@ public without sharing class AAREG_ApplicationController {
         submission.Id = application.Id;
         update sanitizeApplicationForDml(submission);
         P360_ArchiveJobService.requestApplicationArchiveOnSubmit(accessRequestId, application.Id);
+        AAREG_ContactModelShadowWriteJob.enqueueForCurrentUser(application.Id);
         return application.Id;
     }
 
@@ -436,7 +437,7 @@ public without sharing class AAREG_ApplicationController {
                 ErrorMessageNotifications__c,
                 SecurityNotifications__c
             FROM RelatedContact__c
-            WHERE Application__c = :applicationId
+            WHERE Application__c = :applicationId AND Role__c != 'Submitter'
         ];
     }
 

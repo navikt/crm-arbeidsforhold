@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AAREG_Managed__c</fullName>
+    <description>Marks relations created or taken over by Aa-registeret. Aa-registeret only changes relations where this is checked.</description>
+    <externalId>false</externalId>
+    <label>Aa-register Managed</label>
+    <defaultValue>false</defaultValue>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

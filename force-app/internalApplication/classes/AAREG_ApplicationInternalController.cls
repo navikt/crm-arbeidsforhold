@@ -231,7 +231,7 @@ public with sharing class AAREG_ApplicationInternalController {
                 ErrorMessageNotifications__c,
                 SecurityNotifications__c
             FROM RelatedContact__c
-            WHERE Application__c = :recordId
+            WHERE Application__c = :recordId AND Role__c != 'Submitter'
         ];
 
         if (relatedContacts != null && !relatedContacts.isEmpty()) {

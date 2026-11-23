@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contact__c</fullName>
+    <description>Aa-register domain contact that uses this address.</description>
+    <externalId>false</externalId>
+    <label>Contact</label>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <referenceTo>Contact</referenceTo>
+    <relationshipLabel>Aa-register Contact Points</relationshipLabel>
+    <relationshipName>AAREG_Contact_Points</relationshipName>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

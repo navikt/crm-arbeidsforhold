@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Contact Model Context Address</label>
+    <protected>false</protected>
+    <values>
+        <field>Description__c</field>
+        <value xsi:type="xsd:string">Notifications use the address for the current context without fallback. Spec: .github/specs/aareg-contact-model.md.</value>
+    </values>
+    <values>
+        <field>Feature_flag_owner__c</field>
+        <value xsi:type="xsd:string">Arbeidsforhold</value>
+    </values>
+    <values>
+        <field>Is_Enabled__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Required_Custom_Permission__c</field>
+        <value xsi:type="xsd:string">AAREG_ContactModelPilot</value>
+    </values>
+</CustomMetadata>

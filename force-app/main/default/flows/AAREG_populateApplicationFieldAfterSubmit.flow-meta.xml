@@ -738,6 +738,13 @@ Setter også svarfristdato</description>
                 <elementReference>$Record.Id</elementReference>
             </value>
         </filters>
+        <filters>
+            <field>Role__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Submitter</stringValue>
+            </value>
+        </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
         <object>RelatedContact__c</object>
         <queriedFields>Id</queriedFields>

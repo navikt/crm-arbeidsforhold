@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AAREG_Altinn_Verified_At__c</fullName>
+    <description>Last time Altinn confirmed that the contact may act for this organization in Aa-registeret.</description>
+    <externalId>false</externalId>
+    <label>Aa-register Altinn Verified At</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>DateTime</type>
+</CustomField>
