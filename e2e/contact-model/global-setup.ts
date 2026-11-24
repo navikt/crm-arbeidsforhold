@@ -44,25 +44,26 @@ export default async function globalSetup(): Promise<void> {
     };
     const first = (soql: string): any => query(soql)[0] ?? {};
 
-    const opened = runOnTarget(['org', 'open', '--target-org', target, '--url-only', '--json']);
-    const frontdoor: string | undefined = opened.result?.url;
-    if (opened.status !== 0 || !frontdoor) {
-        throw new Error('Could not create a frontdoor URL for the scratch org.');
-    }
-    const instanceUrl = new URL(frontdoor).origin;
-
     const contactPoint = first(
-        "SELECT Contact__c, Organization__c FROM AAREG_Contact_Point__c WHERE Context__c = 'Organization' ORDER BY CreatedDate DESC LIMIT 1"
+        "SELECT Id, Contact__c, Organization__c FROM AAREG_Contact_Point__c WHERE Context__c = 'Organization' ORDER BY CreatedDate DESC LIMIT 1"
+    );
+    const runWithItems = first(
+        "SELECT Run__c FROM AAREG_Contact_Migration_Item__c WHERE Run__r.Mode__c = 'APPLY' ORDER BY CreatedDate DESC LIMIT 1"
     );
     const participation = first(
         'SELECT Application__c FROM RelatedContact__c WHERE Contact_Point__c != null ORDER BY CreatedDate DESC LIMIT 1'
     );
     const context = {
-        instanceUrl,
+        instanceUrl: '',
         orgId: first('SELECT Id FROM Organization').Id,
         applicationId: participation.Application__c,
         organizationId: contactPoint.Organization__c,
         contactId: contactPoint.Contact__c,
+        contactPointId: contactPoint.Id,
+        migrationRunId: runWithItems.Run__c,
+        listViews: query(
+            "SELECT DeveloperName, SobjectType FROM ListView WHERE SobjectType IN ('AAREG_Contact_Point__c', 'AAREG_Contact_Migration_Run__c')"
+        ).map(({ DeveloperName, SobjectType }) => `${SobjectType}.${DeveloperName}`),
         dashboardId: first("SELECT Id FROM Dashboard WHERE DeveloperName = 'AAREG_Contact_Model_Overview'").Id,
         reports: query("SELECT Id, DeveloperName, Name FROM Report WHERE DeveloperName LIKE 'AAREG_CM_%'").map(
             ({ Id, DeveloperName, Name }) => ({ id: Id, developerName: DeveloperName, name: Name })
@@ -78,6 +79,14 @@ export default async function globalSetup(): Promise<void> {
             `SELECT ParentId FROM Thread__Share WHERE UserOrGroupId = '${context.portalUserId}' AND RowCause = 'Manual' LIMIT 1`
         ).ParentId;
     }
+
+    // The frontdoor token is short-lived, so create it only after the slow record queries.
+    const opened = runOnTarget(['org', 'open', '--target-org', target, '--url-only', '--json']);
+    const frontdoor: string | undefined = opened.result?.url;
+    if (opened.status !== 0 || !frontdoor) {
+        throw new Error('Could not create a frontdoor URL for the scratch org.');
+    }
+    context.instanceUrl = new URL(frontdoor).origin;
 
     fs.mkdirSync(AUTH_DIRECTORY, { recursive: true });
     fs.writeFileSync(path.join(AUTH_DIRECTORY, 'context.json'), JSON.stringify(context, null, 2));

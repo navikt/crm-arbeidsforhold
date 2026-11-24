@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Org_Context_Missing_Organization</fullName>
+    <columns>NAME</columns>
+    <columns>Contact__c</columns>
+    <columns>Context__c</columns>
+    <columns>Context_Key__c</columns>
+    <columns>Email__c</columns>
+    <columns>LAST_UPDATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Context__c</field>
+        <operation>equals</operation>
+        <value>Organization</value>
+    </filters>
+    <filters>
+        <field>Organization__c</field>
+        <operation>equals</operation>
+    </filters>
+    <label>Org Context Missing Organization</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

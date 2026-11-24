@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AAREG_Contact_Point_Compact</fullName>
+    <fields>Name</fields>
+    <fields>Contact__c</fields>
+    <fields>Context__c</fields>
+    <fields>Organization__c</fields>
+    <fields>Email__c</fields>
+    <fields>Phone__c</fields>
+    <label>Aa-register Contact Point Compact</label>
+</CompactLayout>

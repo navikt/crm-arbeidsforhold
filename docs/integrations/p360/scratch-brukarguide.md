@@ -387,6 +387,37 @@ Liksom-P360 gjenkjenner same førespurnad med ein nøkkel (SHA-256 av operasjon,
 
 Kjem same identitet tilbake med _anna_ innhald, avviser liksom-P360 førespurnaden. Det er med vilje: P360 skal ikkje få to ulike dokument med same identitet.
 
+### 7.5 Manuell testing: la P360 stå på
+
+`e2e` slår av alt når han er ferdig. Vil du sende inn søknader sjølv og sjå dei bli arkiverte, må du slå på tre ting i scratch-orgen. Ikkje commit nokon av endringane.
+
+| Kva                                          | Verdi under manuell testing                                                                           |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `Feature_Flag.P360_Archive_Processing`       | `Is_Enabled__c = true`. Deploy frå ein mellombels kopi, ikkje frå repoet.                             |
+| `P360_Integration_Setting__c` (org-standard) | `Use_Mock_Transport__c = false`, `Rpc_Client_Class__c = P360_ScratchRpcClient`.                       |
+| Planlagd `P360_ArchiveJobScheduler`          | Tolv jobbar `P360 Archive Job Scheduler (scratch) :00` … `:55`, som til saman køyrer kvart 5. minutt. |
+
+Brukaren treng `P360_Archive_Job_Viewer` og `P360_Scratch_Capture_Access` for å sjå jobbar og kvitteringar (sjå kapittel 6).
+
+Slik planlegg du workeren i Anonymous Apex:
+
+```apex
+for (Integer minute = 0; minute < 60; minute += 5) {
+    String suffix = minute < 10 ? '0' + minute : String.valueOf(minute);
+    System.schedule('P360 Archive Job Scheduler (scratch) :' + suffix, '0 ' + minute + ' * * * ?', new P360_ArchiveJobScheduler());
+}
+```
+
+Send inn ein søknad i portalen. Innan fem minutt skal jobben vere `Succeeded`, og to nye `P360ScratchCapture__c` skal vere `Accepted`.
+
+Slå av igjen når du er ferdig:
+
+1. Slett dei tolv jobbane under **Setup → Scheduled Jobs**.
+2. Set `Use_Mock_Transport__c = true` og tøm `Rpc_Client_Class__c`.
+3. Deploy flagget frå repoet: `sf project deploy start --metadata CustomMetadata:Feature_Flag.P360_Archive_Processing --target-org crm-arbeidsforhold`.
+
+Ein ny `e2e` eller ein full deploy av `force-app` set også flagget tilbake til `false`. Då må det slåast på igjen før vidare manuell testing.
+
 ## 8. Sjå resultatet sjølv
 
 ### 8.1 I nettlesaren

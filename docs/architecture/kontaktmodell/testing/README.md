@@ -46,14 +46,15 @@ Global setup stadfestar org-ID-en, opnar ei innlogga økt utan å logge URL-en o
 syntetiske testdata. Meldingstesten krev at `npm run contact-model -- seed` har delt ei syntetisk melding med
 portalbrukaren (`seed-4-portal-message.apex`). Elles blir han hoppa over. Køyringa tek om lag tre til ti minutt, avhengig av orgen.
 
-| Fil                         | Testar | Kontrollerer                                                                                         |
-| --------------------------- | -----: | ---------------------------------------------------------------------------------------------------- |
-| `admin.spec.ts`             |      5 | Seksjonar og knappar på admin-sida, stadfesting og avbryting av APPLY og ROLLBACK, fana i tre appar. |
-| `record-panels.spec.ts`     |      3 | Kontaktmodellpanelet på søknad, organisasjon og kontakt.                                             |
-| `reports.spec.ts`           |      7 | Dei fem rapportane, dashboardet og at diagramma blir teikna.                                         |
-| `portal-profile.spec.ts`    |      3 | «Min profil»: ingenting vist før val, lagring for «Meg selv» og søk på organisasjon.                 |
-| `entry-portal.spec.ts`      |      6 | Forsida med rolleval, rollesider, direktelenkjer, faste meldingar og «Bytt rolle».                   |
-| `portal-navigation.spec.ts` |      5 | Brødsmulesti, vald virksomheit på undersidene og «Bytt virksomhet», breitt søkjefelt, smal skjerm.   |
+| Fil                         | Testar | Kontrollerer                                                                                            |
+| --------------------------- | -----: | ------------------------------------------------------------------------------------------------------- |
+| `admin.spec.ts`             |      5 | Seksjonar og knappar på admin-sida, stadfesting og avbryting av APPLY og ROLLBACK, fana i tre appar.    |
+| `record-panels.spec.ts`     |      3 | Kontaktmodellpanelet på søknad, organisasjon og kontakt.                                                |
+| `reports.spec.ts`           |      7 | Dei fem rapportane, dashboardet og at diagramma blir teikna.                                            |
+| `portal-profile.spec.ts`    |      3 | «Min profil»: ingenting vist før val, lagring for «Meg selv» og søk på organisasjon.                    |
+| `entry-portal.spec.ts`      |      6 | Forsida med rolleval, rollesider, direktelenkjer, faste meldingar og «Bytt rolle».                      |
+| `portal-navigation.spec.ts` |      5 | Brødsmulesti, vald virksomheit på undersidene og «Bytt virksomhet», breitt søkjefelt, smal skjerm.      |
+| `record-pages.spec.ts`      |      4 | Dei tolv listevisningane, listevisning og postside for kontaktpunkt, og postside for migreringskøyring. |
 
 Testane stadfestar aldri ei migreringskøyring. Dei trykkjer berre «Avbryt» i stadfestingsdialogen.
 Profiltesten lagrar ei syntetisk privatadresse på testbrukaren.
@@ -88,6 +89,9 @@ Skjermbileta blir lagra i [skjermbilete/](skjermbilete/) og viser berre syntetis
 | [20-brodsmulesti-mine-meldinger](skjermbilete/20-brodsmulesti-mine-meldinger.png)                       | «Mine meldinger» utan den gamle stien.         |
 | [21-rolleside-vald-virksomheit](skjermbilete/21-rolleside-vald-virksomheit.png)                         | Rollesida med vald virksomheit og stort felt.  |
 | [22-kontekstlinje-underside](skjermbilete/22-kontekstlinje-underside.png)                               | «Mine søknader» med kontekstlinja.             |
+| [23-listevisning-kontaktpunkt](skjermbilete/23-listevisning-kontaktpunkt.png)                           | Listevisninga «All Contact Points».            |
+| [24-postside-kontaktpunkt](skjermbilete/24-postside-kontaktpunkt.png)                                   | Postsida for eit kontaktpunkt.                 |
+| [25-postside-migreringskoyring](skjermbilete/25-postside-migreringskoyring.png)                         | Postsida for ei migreringskøyring med rader.   |
 
 ## Kjende avgrensingar
 

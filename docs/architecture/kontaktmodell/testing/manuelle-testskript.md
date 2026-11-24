@@ -162,29 +162,42 @@ Følg [runbooken](../utrulling.md). Køyr `npm run contact-model -- status` ette
 
 Set `phase pilot` og logg inn som pilotbrukaren. Opne `/aaregisteret/s/`.
 
-| #     | Steg                                                                                          | Forventa resultat                                                                           | OK  |
-| ----- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | --- |
-| 12.1  | Sjå på forsida.                                                                               | Ingen brødsmulesti.                                                                         | ☐   |
-| 12.2  | Vel «Privatperson».                                                                           | Stien viser «Forside › Privatperson / arbeidstaker». Siste ledd er ikkje ei lenkje.         | ☐   |
-| 12.3  | Opne «Min profil».                                                                            | Stien viser «Forside › Privatperson / arbeidstaker › Min profil», på linje med overskrifta. | ☐   |
-| 12.4  | Trykk «Privatperson / arbeidstaker» i stien.                                                  | Tilbake på rollesida.                                                                       | ☐   |
-| 12.5  | Trykk «Bytt rolle», vel «Arbeidsgiver» og ei virksomheit. Opne «Mine søknader» og ein søknad. | Stien viser «Forside › Arbeidsgiver › Mine søknader › Søknad». Ingen namn på virksomheita.  | ☐   |
-| 12.6  | Trykk «Arbeidsgiver» i stien.                                                                 | Rollesida opnar med same virksomheit vald, og tilgangen blir sjekka på nytt.                | ☐   |
-| 12.7  | Gjer vindauget smalare enn 480px.                                                             | Stien blir erstatta av «Tilbake til {forrige side}».                                        | ☐   |
-| 12.8  | Ctrl-/Cmd-klikk på eit panel.                                                                 | Sida opnar i ny fane.                                                                       | ☐   |
-| 12.9  | Naviger med tastatur og skjermlesar.                                                          | «Brødsmulesti» blir lese opp som navigasjon, og siste ledd som gjeldande side.              | ☐   |
-| 12.10 | Opne «Mine meldinger» og ei melding.                                                          | Berre éin sti: «Forside › Rolle › Mine meldinger › Melding». Ingen «Hjem» eller «Min side». | ☐   |
-| 12.11 | Set `phase shadow` og last ei underside på nytt.                                              | Ingen ny brødsmulesti. Den gamle stien er tilbake, og sida er som før.                      | ☐   |
-
-| 12.12 | Vel «Arbeidsgiver» og ei virksomheit. Opne «Mine søknader», «Mine avtaler» og «Mine meldinger». | Kontekstlinja under stien viser «Arbeidsgiver for {namn} · Org.nr. {nummer}» på alle sidene, med same namn som i veljaren. | ☐ |
-| 12.13 | Trykk «Bytt virksomhet» i kontekstlinja. | Rollesida opnar med virksomheita vald i den grøne «Valgt»-boksen. Søkjefeltet fyller kortet. | ☐ |
-| 12.14 | Gå til «Forside», vel «Arbeidsgiver» på nytt utan å velje virksomheit. | Same virksomheit er framleis vald, og tilgangen blir sjekka på nytt. | ☐ |
-| 12.15 | Opne «Min profil» frå rollesida. | Profilen startar med same virksomheit vald. For privatperson startar han med «Meg selv». | ☐ |
-| 12.16 | Vel «Privatperson» og opne «Min profil». | Kontekstlinja seier «Du bruker tjenesten på egne vegne» og har «Bytt rolle». | ☐ |
-| 12.17 | Opne «Mine søknader», ein søknad, «Ny søknad» og ei melding. | Tittelen (til dømes «Aa-registeret - Henvendelse») står som stor overskrift under stien og kontekstlinja. Ingen blå banner. | ☐ |
-| 12.18 | Set `phase shadow` og last same sider på nytt. | Det blå banneret er tilbake øvst, og stien og kontekstlinja er borte. | ☐ |
+| #     | Steg                                                                                            | Forventa resultat                                                                                                           | OK  |
+| ----- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --- |
+| 12.1  | Sjå på forsida.                                                                                 | Ingen brødsmulesti.                                                                                                         | ☐   |
+| 12.2  | Vel «Privatperson».                                                                             | Stien viser «Forside › Privatperson / arbeidstaker». Siste ledd er ikkje ei lenkje.                                         | ☐   |
+| 12.3  | Opne «Min profil».                                                                              | Stien viser «Forside › Privatperson / arbeidstaker › Min profil», på linje med overskrifta.                                 | ☐   |
+| 12.4  | Trykk «Privatperson / arbeidstaker» i stien.                                                    | Tilbake på rollesida.                                                                                                       | ☐   |
+| 12.5  | Trykk «Bytt rolle», vel «Arbeidsgiver» og ei virksomheit. Opne «Mine søknader» og ein søknad.   | Stien viser «Forside › Arbeidsgiver › Mine søknader › Søknad». Ingen namn på virksomheita.                                  | ☐   |
+| 12.6  | Trykk «Arbeidsgiver» i stien.                                                                   | Rollesida opnar med same virksomheit vald, og tilgangen blir sjekka på nytt.                                                | ☐   |
+| 12.7  | Gjer vindauget smalare enn 480px.                                                               | Stien blir erstatta av «Tilbake til {forrige side}».                                                                        | ☐   |
+| 12.8  | Ctrl-/Cmd-klikk på eit panel.                                                                   | Sida opnar i ny fane.                                                                                                       | ☐   |
+| 12.9  | Naviger med tastatur og skjermlesar.                                                            | «Brødsmulesti» blir lese opp som navigasjon, og siste ledd som gjeldande side.                                              | ☐   |
+| 12.10 | Opne «Mine meldinger» og ei melding.                                                            | Berre éin sti: «Forside › Rolle › Mine meldinger › Melding». Ingen «Hjem» eller «Min side».                                 | ☐   |
+| 12.11 | Set `phase shadow` og last ei underside på nytt.                                                | Ingen ny brødsmulesti. Den gamle stien er tilbake, og sida er som før.                                                      | ☐   |
+| 12.12 | Vel «Arbeidsgiver» og ei virksomheit. Opne «Mine søknader», «Mine avtaler» og «Mine meldinger». | Kontekstlinja under stien viser «Arbeidsgiver for {namn} · Org.nr. {nummer}» på alle sidene, med same namn som i veljaren.  | ☐   |
+| 12.13 | Trykk «Bytt virksomhet» i kontekstlinja.                                                        | Rollesida opnar med virksomheita vald i den grøne «Valgt»-boksen. Søkjefeltet fyller kortet.                                | ☐   |
+| 12.14 | Gå til «Forside», vel «Arbeidsgiver» på nytt utan å velje virksomheit.                          | Same virksomheit er framleis vald, og tilgangen blir sjekka på nytt.                                                        | ☐   |
+| 12.15 | Opne «Min profil» frå rollesida.                                                                | Profilen startar med same virksomheit vald. For privatperson startar han med «Meg selv».                                    | ☐   |
+| 12.16 | Vel «Privatperson» og opne «Min profil».                                                        | Kontekstlinja seier «Du bruker tjenesten på egne vegne» og har «Bytt rolle».                                                | ☐   |
+| 12.17 | Opne «Mine søknader», ein søknad, «Ny søknad» og ei melding.                                    | Tittelen (til dømes «Aa-registeret - Henvendelse») står som stor overskrift under stien og kontekstlinja. Ingen blå banner. | ☐   |
+| 12.18 | Set `phase shadow` og last same sider på nytt.                                                  | Det blå banneret er tilbake øvst, og stien og kontekstlinja er borte.                                                       | ☐   |
 
 12.5–12.6 og 12.12–12.15 krev SIT2 eller ein Altinn-stub. I scratch blir dei dekte av Playwright med syntetiske virksomheiter.
+
+## 13. Listevisningar og postsider
+
+Opne appen «Arbeidsforhold Admin» eller «Aa-registeret Kontaktmodell».
+
+| #    | Steg                                                                      | Forventa resultat                                                                                                                                                                                   | OK  |
+| ---- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| 13.1 | Opne fana «Aa-register Contact Points» og listevelgaren.                  | Seks listevisningar: All Contact Points, Private Contact Points, Organization Contact Points, Contact Points Missing Email, Org Context Missing Organization og Contact Points Changed Last 7 Days. | ☐   |
+| 13.2 | Vel «All Contact Points».                                                 | Kolonnane Contact, Context, Organization, Email, Phone og Last Modified.                                                                                                                            | ☐   |
+| 13.3 | Vel «Contact Points Missing Email» og «Org Context Missing Organization». | Berre kontaktpunkt utan e-post, og berre organisasjonskontaktpunkt utan organisasjon. Begge bør vere tomme etter ei rein migrering.                                                                 | ☐   |
+| 13.4 | Opne eit kontaktpunkt.                                                    | Toppfeltet viser kontakt, kontekst, organisasjon, e-post og telefon. Seksjonane Contact Point, Address og System Information. «Participations» til høgre.                                           | ☐   |
+| 13.5 | Opne fana «Contact Migration Runs» og listevelgaren.                      | Seks listevisningar: All Migration Runs, Queued and Running Migration Runs, Migration Runs With Failures, Migration Runs With Deviations, Apply and Rollback Runs og Migration Runs Last 30 Days.   | ☐   |
+| 13.6 | Opne ei APPLY-køyring.                                                    | Seksjonane Run, Timeline, Results, Classification, Summary og System Information. «Items» og «Follow-up Runs» til høgre.                                                                            | ☐   |
+| 13.7 | Opne ei rad under «Items».                                                | Postsida viser klasse, handling, søknad og grunn.                                                                                                                                                   | ☐   |
 
 ## Avslutning
 

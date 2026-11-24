@@ -8,6 +8,9 @@ export type ScratchContext = {
     applicationId?: string;
     organizationId?: string;
     contactId?: string;
+    contactPointId?: string;
+    migrationRunId?: string;
+    listViews: string[];
     dashboardId?: string;
     reports: { id: string; developerName: string; name: string }[];
     networkId?: string;
