@@ -77,9 +77,11 @@ Skjermbileta blir lagra i [skjermbilete/](skjermbilete/) og viser berre syntetis
 | [08-ny-soknad-vel-rolle](skjermbilete/08-ny-soknad-vel-rolle.png)           | Ny søknad: vel rolle først.                |
 | [09-ny-soknad-privatperson](skjermbilete/09-ny-soknad-privatperson.png)     | Ny søknad: privatperson.                   |
 | [10-ny-soknad-arbeidsgiver](skjermbilete/10-ny-soknad-arbeidsgiver.png)     | Ny søknad: arbeidsgivar vel organisasjon.  |
+| [11-forside-min-profil](skjermbilete/11-forside-min-profil.png)             | Forsida med inngangen til «Min profil».    |
 
 ## Kjende avgrensingar
 
+- Berre `Synthetic Community Test User` har portaltilgang i scratch. Seed-brukarane finst berre for migreringa.
 - Portaltesten loggar inn som Experience-brukaren med «Log in to Experience as User». Altinn er
   ikkje kopla til i scratch, så organisasjonslista kan vere tom. Søketesten blir då hoppa over.
 - Skjerma personar (klasse D) og delingsreglar må testast manuelt, sjå

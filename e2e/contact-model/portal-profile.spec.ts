@@ -42,3 +42,18 @@ test.describe('«Min profil» i Experience Cloud', () => {
         await expect(page.getByRole('option', { name: new RegExp(name) })).toBeVisible();
     });
 });
+
+test.describe('Inngang til «Min profil» frå forsida', () => {
+    test('forsida lenkjer til profilen utan at ein organisasjon er vald', async ({ page }) => {
+        test.skip(!context.networkId || !context.portalUserId, 'Portalbrukaren eller nettstaden manglar i orgen.');
+        await openPortalPage(page, '/aaregisteret/s/');
+
+        const profileLink = page.locator('c-link-panel').filter({ hasText: 'Min profil' });
+        await expect(profileLink).toBeVisible({ timeout: 60_000 });
+        await documentScreenshot(page, '11-forside-min-profil');
+
+        await profileLink.click();
+        await expect(page).toHaveURL(/\/min-profil/);
+        await expect(page.getByRole('heading', { name: 'Min profil', level: 1 })).toBeVisible();
+    });
+});

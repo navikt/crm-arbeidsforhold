@@ -62,7 +62,14 @@ Opne appen **Aa-registeret Kontaktmodell** og fana **Kontaktmodell**.
 
 ## 6. «Min profil» i portalen
 
-Logg inn som testbrukaren via «Log in to Experience as User» og opne `/aaregisteret/s/min-profil`.
+Berre `Synthetic Community Test User` kan logge inn i portalen i scratch. Seed-brukarane har ei lisens utan
+portaltilgang og finst berre for migreringa. Opne kontakten «Synthetic Community Test User» og vel
+«Log in to Experience as User». Forsida opnar seg.
+
+| #    | Steg                                                  | Forventa resultat                                                               | OK  |
+| ---- | ----------------------------------------------------- | ------------------------------------------------------------------------------- | --- |
+| 6.0  | Sjå på forsida før og etter at du vel ein virksomhet. | Flisa «Min profil» blir vist i begge tilfelle. Med `Profile` av er flisa borte. | ☐   |
+| 6.0b | Trykk på «Min profil».                                | `/aaregisteret/s/min-profil` opnar seg.                                         | ☐   |
 
 | #   | Steg                                                             | Forventa resultat                                                                                            | OK  |
 | --- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | --- |
@@ -90,12 +97,19 @@ Stadfesting til kontekstadressa blir testa i [testskript 10](#10-stadfesting-til
 
 ## 8. Skjerma person og deling
 
+For 8.4, 8.5, 8.7 og 8.8 skjermar du testbrukaren mellombels, og fjernar skjerminga att etterpå:
+
+```bash
+sf apex run --target-org crm-arbeidsforhold -f scripts/scratch/contactModel/shield-test-user.apex
+sf apex run --target-org crm-arbeidsforhold -f scripts/scratch/contactModel/unshield-test-user.apex
+```
+
 | #   | Steg                                                                                       | Forventa resultat                                                                | OK  |
 | --- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- | --- |
 | 8.1 | Køyr PLAN og opne rapporten for manuell vurdering.                                         | Den syntetiske skjerma personen ligg i klasse D og blir ikkje kopla.             | ☐   |
 | 8.2 | Logg inn som portalbrukar A og prøv å opne kontaktpunktet til portalbrukar B via URL.      | Ingen tilgang.                                                                   | ☐   |
 | 8.3 | Logg inn som saksbehandlar utan admin-løyve og søk etter kontaktpunkt.                     | Berre kontaktpunkt saksbehandlaren har tilgang til etter delingsreglane.         | ☐   |
-| 8.4 | Logg inn som den skjerma syntetiske portalbrukaren og opne `/aaregisteret/s/min-profil`.   | Profilen er ikkje tilgjengeleg.                                                  | ☐   |
+| 8.4 | Logg inn som den skjerma testbrukaren og opne forsida og `/aaregisteret/s/min-profil`.     | Flisa «Min profil» er borte, og profilen er ikkje tilgjengeleg.                  | ☐   |
 | 8.5 | Send inn ein søknad som den skjerma brukaren.                                              | Søknaden blir lagra som før. Ingen domenekontakt, ACR eller kontaktpunkt.        | ☐   |
 | 8.6 | Opne panelet på ein organisasjon der ein person er blitt skjerma etter innsending.         | Namnet er «Skjerma person», adressene er skjulte og har inga lenkje.             | ☐   |
 | 8.7 | Med `phase pilot`: opne `/aaregisteret/s/ny-soknad-aa-registret` som den skjerma brukaren. | Det gamle søknadsskjemaet blir vist, utan rolle-steget og organisasjonsveljaren. | ☐   |

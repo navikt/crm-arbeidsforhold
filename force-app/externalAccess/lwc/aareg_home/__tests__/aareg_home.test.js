@@ -7,6 +7,7 @@ import checkAndShareIfAuthorized from '@salesforce/apex/AAREG_HomeController.che
 import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.updateLastUsedOrganization';
 import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreads';
 import { refreshApex } from '@salesforce/apex';
+import getContactModelSettings from '@salesforce/apex/AAREG_ContactModelPortalController.getSettings';
 
 jest.mock('@salesforce/user/Id', () => ({ default: 'test-user' }), { virtual: true });
 jest.mock('@salesforce/apex/AAREG_HomeController.refreshOrganizationsWithRoles', () => ({ default: jest.fn() }), {
@@ -58,6 +59,9 @@ jest.mock(
     },
     { virtual: true }
 );
+jest.mock('@salesforce/apex/AAREG_ContactModelPortalController.getSettings', () => ({ default: jest.fn() }), {
+    virtual: true
+});
 const organizationsAdapter = getOrganizationsWithRoles;
 const threadsAdapter = getUsersThreads;
 
@@ -473,5 +477,35 @@ describe('c-aareg-home', () => {
         expect(getLastUsersLastUsedOrganization).not.toHaveBeenCalled();
         expect(checkAndShareIfAuthorized).not.toHaveBeenCalled();
         expect(element.shadowRoot.querySelector('.error-message')).not.toBeNull();
+    });
+
+    describe('Min profil', () => {
+        const profilePanel = (element) =>
+            [...element.shadowRoot.querySelectorAll('c-link-panel')].find(
+                (panel) => panel.relativePath === 'Min_Profil__c'
+            );
+
+        it('links to the profile before any organization is selected when the profile is on', async () => {
+            getContactModelSettings.mockResolvedValue({ profile: true });
+            getLastUsersLastUsedOrganization.mockResolvedValue(null);
+
+            const element = await initializeHome();
+
+            const panel = profilePanel(element);
+            expect(panel).toBeTruthy();
+            expect(panel.title).toBe('Min profil');
+        });
+
+        it.each([
+            ['the profile is off', () => getContactModelSettings.mockResolvedValue({ profile: false })],
+            ['the settings cannot be read', () => getContactModelSettings.mockRejectedValue(new Error('offline'))]
+        ])('hides the profile link when %s', async (_, arrange) => {
+            arrange();
+            getLastUsersLastUsedOrganization.mockResolvedValue(null);
+
+            const element = await initializeHome();
+
+            expect(profilePanel(element)).toBeUndefined();
+        });
     });
 });

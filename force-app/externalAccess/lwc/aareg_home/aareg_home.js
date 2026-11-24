@@ -6,6 +6,7 @@ import refreshOrganizationsWithRoles from '@salesforce/apex/AAREG_HomeController
 import updateLastUsedOrganization from '@salesforce/apex/AAREG_HomeController.updateLastUsedOrganization';
 import checkAndShareIfAuthorized from '@salesforce/apex/AAREG_HomeController.checkAndShareIfAuthorized';
 import getUsersThreads from '@salesforce/apex/AAREG_MyThreadsController.getUsersThreads';
+import getContactModelSettings from '@salesforce/apex/AAREG_ContactModelPortalController.getSettings';
 import refreshOrganizationsLabel from '@salesforce/label/c.AAREG_Refresh_Organizations';
 import noOrganizationsTitle from '@salesforce/label/c.AAREG_No_Organizations_Title';
 import noOrganizationsDescription from '@salesforce/label/c.AAREG_No_Organizations_Description';
@@ -21,12 +22,26 @@ export default class Aareg_home extends LightningElement {
     organizationError;
     accessCheckFailed = false;
     initializationStarted = false;
+    showProfileLink = false;
     labels = {
         refreshOrganizations: refreshOrganizationsLabel,
         noOrganizationsTitle,
         noOrganizationsDescription,
         noOrganizationsGuidance
     };
+
+    connectedCallback() {
+        void this.loadContactModelSettings();
+    }
+
+    async loadContactModelSettings() {
+        try {
+            const settings = await getContactModelSettings();
+            this.showProfileLink = settings?.profile === true;
+        } catch (error) {
+            this.showProfileLink = false;
+        }
+    }
 
     @wire(getUsersThreads, { userId: '$currentUser' })
     wiredThreads({ data }) {
