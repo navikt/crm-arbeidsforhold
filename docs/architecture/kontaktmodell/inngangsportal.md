@@ -33,6 +33,33 @@ flowchart TD
 | `aaregEntryPortal` (LWC)                                            | Ligg på heimesida. Viser rolleval når brytaren er på, elles dagens forside.                                                                                                                                                                                 |
 | `aaregRolePage` (LWC)                                               | Rolleside med `roleKey` som designattributt. «Rolle: … / Bytt rolle» øvst, søkbar veljar som alltid er synleg, og tilgangen blir sjekka straks ei virksomheit er vald. Tenestene blir viste i to kolonnar: søknad og avtaler, og brukarstøtte og meldingar. |
 | Sidene `Arbeidsgiver__c`, `Samarbeidspartner__c`, `Privatperson__c` | Experience Cloud-sider i `Aa_registret1`.                                                                                                                                                                                                                   |
+| `aaregPortalNav` (LWC)                                              | Brødsmulesti øvst på portalsidene. Smal skjerm får «Tilbake til …» i staden. Blir berre vist når portalbrytaren er på.                                                                                                                                      |
+| `aaregPortalContext` (JS)                                           | Hugsar rolle og virksomheit for økta (`sessionStorage`) og byggjer stien. Ingen personopplysningar.                                                                                                                                                         |
+| Aksel-byggjesteinar (LWC)                                           | `aaregLinkPanel`, `aaregAlert`, `aaregTextField`, `aaregLoader` og `aaregIcon`. Felles utsjånad for alle portalsidene.                                                                                                                                      |
+
+## Navigasjon og utsjånad
+
+Alle portalsidene har same oppsett: brødsmulesti øvst, deretter `h1`, og innhald med maks breidd 60rem.
+
+```mermaid
+flowchart LR
+    F[Forside] --> R[Rolleside<br/>Arbeidsgiver / Samarbeidspartner / Privatperson]
+    R --> S[Teneste<br/>Min profil, Mine søknader, Mine avtaler, Mine meldinger, Ny søknad, Ny melding]
+    S --> D[Detalj<br/>Søknad, Avtale]
+```
+
+- **Sti:** `Forside › Rolle › Side › Detalj`. Rolleleddet tek med `?org=` for organisasjonsroller, slik at
+  brukaren kjem tilbake til same virksomheit. Tilgangen blir likevel kontrollert på nytt.
+- **Kontekst:** Rolla og organisasjonsnummeret blir lagra i `sessionStorage` (`aareg.portal.context`) når
+  rollesida har gitt tilgang. Forsida og «Bytt rolle» tømmer konteksten. Ugyldige verdiar blir forkasta.
+  Utan rolle går stien rett frå «Forside». Stien viser aldri namn på verksemder eller personar.
+- **Smal skjerm (under 480px):** Berre lenkja «Tilbake til {forelder}» blir vist.
+- **Tilgjengelegheit:** `<nav aria-label="Brødsmulesti">`, ordna liste og `aria-current="page"` på siste ledd.
+  Panela er ekte lenkjer, så Ctrl-/Cmd-klikk opnar i ny fane.
+- **Aksel:** Nettstaden lastar Aksel v2-CSS globalt gjennom `crm-community-base`. Komponentane brukar difor
+  `navds-*`-klassar og `--a-*`-tokens, ikkje React-pakken. Overgang til Aksel v8 (`--ax-*`) krev endring i
+  `crm-community-base`, som Team Platforce eig. Det er ei eiga oppfølging.
+- **Unnatak:** `threadDetailFlex` har alt `c:aareg_breadcrumbs` og har ikkje fått den nye stien.
 
 ## Avgjerdskontrakt
 
@@ -79,6 +106,11 @@ scratch:
 2. Kopier inn `routes/` og `views/` for `arbeidsgiver`, `samarbeidspartner` og `privatperson`, og byt
    `c:aareg_home` til `c:aaregEntryPortal` i `views/home.json`.
 3. Deploy frå det mellombelse prosjektet og køyr `sf community publish --name "Aa-registret"`.
+
+Brødsmulestien er lagd inn som første komponent i innhaldsseksjonen i `views/` for rollesidene, `minProfil`,
+`mineSøknader`, `mineAvtaler`, `mineMeldinger`, `nyMelding`, `nySøknadAaRegistret`, `applicationDetailFlex` og
+`agreementDetailFlex`. Køyr ikkje Prettier på `views/`. Dei fleste filene er i Salesforce sitt eige JSON-format,
+og ei omformatering gir diff i alle filene.
 
 Utan dette viser nettstaden dagens forside, og rollesidene gir 404 sjølv om brytarane er på.
 

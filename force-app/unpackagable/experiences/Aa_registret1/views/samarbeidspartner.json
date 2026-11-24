@@ -78,6 +78,14 @@
                         {
                             "components": [
                                 {
+                                    "componentAttributes": {},
+                                    "componentName": "c:aaregPortalNav",
+                                    "id": "07149d11-1514-49f4-9b24-63ddb9a11923",
+                                    "renderPriority": "NEUTRAL",
+                                    "renditionMap": {},
+                                    "type": "component"
+                                },
+                                {
                                     "componentAttributes": {
                                         "roleKey": "Partner"
                                     },

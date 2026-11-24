@@ -20,7 +20,7 @@ test.describe('Inngangsportal med rolleval', () => {
         await expect(roleLink(page, 'Arbeidsgiver')).toBeVisible();
         await expect(roleLink(page, 'Samarbeidspartner')).toBeVisible();
         await expect(roleLink(page, 'Privatperson')).toBeVisible();
-        await expect(page.locator('c-link-panel').filter({ hasText: 'Min profil' })).toBeVisible();
+        await expect(page.locator('c-aareg-link-panel').filter({ hasText: 'Min profil' })).toBeVisible();
         await expect(page).toHaveURL(/\/s\/$/);
         await documentScreenshot(page, '12-inngangsportal-rolleval');
     });
@@ -35,7 +35,7 @@ test.describe('Inngangsportal med rolleval', () => {
         const selector = page.getByRole('combobox');
         const altinnWarning = page.getByText(/Altinn/).first();
         await expect(selector.or(altinnWarning)).toBeVisible({ timeout: 60_000 });
-        await expect(page.locator('c-link-panel')).toHaveCount(0);
+        await expect(page.locator('c-aareg-link-panel')).toHaveCount(0);
         await expect(page.getByRole('button', { name: 'Oppdater liste' })).toBeVisible();
         await documentScreenshot(page, '13-rolleside-arbeidsgiver-vel-virksomheit');
     });
@@ -46,7 +46,7 @@ test.describe('Inngangsportal med rolleval', () => {
         await expect(page).toHaveURL(/\/privatperson/, { timeout: 60_000 });
         await expect(page.getByText('Rolle: Privatperson / arbeidstaker')).toBeVisible();
         await expect(page.getByText('Du trenger ikke velge virksomhet.')).toBeVisible();
-        await expect(page.locator('c-link-panel').filter({ hasText: 'Min profil' })).toBeVisible();
+        await expect(page.locator('c-aareg-link-panel').filter({ hasText: 'Min profil' })).toBeVisible();
         await expect(page.getByText('Flere tjenester for privatpersoner kommer.')).toBeVisible();
         await documentScreenshot(page, '14-rolleside-privatperson');
     });
@@ -56,7 +56,7 @@ test.describe('Inngangsportal med rolleval', () => {
 
         await expect(page.getByText('Rolle: Arbeidsgiver')).toBeVisible({ timeout: 60_000 });
         await expect(page.getByRole('button', { name: 'Oppdater liste' })).toBeVisible({ timeout: 60_000 });
-        await expect(page.locator('c-link-panel')).toHaveCount(0);
+        await expect(page.locator('c-aareg-link-panel')).toHaveCount(0);
     });
 
     test('forsida viser berre faste meldingar', async ({ page }) => {

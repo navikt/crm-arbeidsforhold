@@ -2,18 +2,23 @@ import { LightningElement, wire } from 'lwc';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import getPortal from '@salesforce/apex/AAREG_EntryPortalController.getPortal';
 import getSettings from '@salesforce/apex/AAREG_ContactModelPortalController.getSettings';
+import basePath from '@salesforce/community/basePath';
+import { clearContext, hrefFor } from 'c/aaregPortalContext';
 
 export const ROLE_TEXT = {
     Employer: {
         title: 'Arbeidsgiver',
+        icon: 'Buildings3',
         description: 'Du representerer en virksomhet og vil søke om tilgang, se avtaler eller kontakte brukerstøtte.'
     },
     Partner: {
         title: 'Samarbeidspartner / fullmektig',
+        icon: 'Handshake',
         description: 'Du handler på vegne av en virksomhet som samarbeidspartner eller fullmektig.'
     },
     Private: {
         title: 'Privatperson / arbeidstaker',
+        icon: 'Person',
         description: 'Du har spørsmål om dine egne opplysninger i Aa-registeret.'
     }
 };
@@ -46,7 +51,7 @@ export default class AaregEntryPortal extends NavigationMixin(LightningElement) 
             this.enabled = Boolean(portal?.enabled);
             this.roles = (portal?.roles ?? [])
                 .filter((role) => ROLE_TEXT[role.roleKey])
-                .map((role) => ({ ...role, ...ROLE_TEXT[role.roleKey] }));
+                .map((role) => ({ ...role, ...ROLE_TEXT[role.roleKey], href: hrefFor(basePath, role.pageApiName) }));
         } catch (error) {
             this.enabled = false;
         }
@@ -54,6 +59,7 @@ export default class AaregEntryPortal extends NavigationMixin(LightningElement) 
             return;
         }
         if (this.enabled) {
+            clearContext();
             await this.loadProfileSetting();
         }
         this.loaded = true;
@@ -95,6 +101,9 @@ export default class AaregEntryPortal extends NavigationMixin(LightningElement) 
     }
 
     handleRole(event) {
+        if (event.ctrlKey || event.metaKey || event.shiftKey) {
+            return;
+        }
         event.preventDefault();
         const role = this.roles.find((candidate) => candidate.roleKey === event.currentTarget.dataset.role);
         if (role) {

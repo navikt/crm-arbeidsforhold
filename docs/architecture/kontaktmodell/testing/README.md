@@ -45,13 +45,14 @@ npx playwright show-report        # HTML-rapport etter køyringa
 Global setup stadfestar org-ID-en, opnar ei innlogga økt utan å logge URL-en og hentar ID-ar til
 syntetiske testdata. Køyringa tek om lag tre til ti minutt, avhengig av orgen.
 
-| Fil                      | Testar | Kontrollerer                                                                                         |
-| ------------------------ | -----: | ---------------------------------------------------------------------------------------------------- |
-| `admin.spec.ts`          |      5 | Seksjonar og knappar på admin-sida, stadfesting og avbryting av APPLY og ROLLBACK, fana i tre appar. |
-| `record-panels.spec.ts`  |      3 | Kontaktmodellpanelet på søknad, organisasjon og kontakt.                                             |
-| `reports.spec.ts`        |      7 | Dei fem rapportane, dashboardet og at diagramma blir teikna.                                         |
-| `portal-profile.spec.ts` |      3 | «Min profil»: ingenting vist før val, lagring for «Meg selv» og søk på organisasjon.                 |
-| `entry-portal.spec.ts`   |      6 | Forsida med rolleval, rollesider, direktelenkjer, faste meldingar og «Bytt rolle».                   |
+| Fil                         | Testar | Kontrollerer                                                                                         |
+| --------------------------- | -----: | ---------------------------------------------------------------------------------------------------- |
+| `admin.spec.ts`             |      5 | Seksjonar og knappar på admin-sida, stadfesting og avbryting av APPLY og ROLLBACK, fana i tre appar. |
+| `record-panels.spec.ts`     |      3 | Kontaktmodellpanelet på søknad, organisasjon og kontakt.                                             |
+| `reports.spec.ts`           |      7 | Dei fem rapportane, dashboardet og at diagramma blir teikna.                                         |
+| `portal-profile.spec.ts`    |      3 | «Min profil»: ingenting vist før val, lagring for «Meg selv» og søk på organisasjon.                 |
+| `entry-portal.spec.ts`      |      6 | Forsida med rolleval, rollesider, direktelenkjer, faste meldingar og «Bytt rolle».                   |
+| `portal-navigation.spec.ts` |      3 | Brødsmulesti frå forsida via rolle til «Min profil» og tilbake, og «Tilbake til» på smal skjerm.     |
 
 Testane stadfestar aldri ei migreringskøyring. Dei trykkjer berre «Avbryt» i stadfestingsdialogen.
 Profiltesten lagrar ei syntetisk privatadresse på testbrukaren.
@@ -79,6 +80,9 @@ Skjermbileta blir lagra i [skjermbilete/](skjermbilete/) og viser berre syntetis
 | [13-rolleside-arbeidsgiver-vel-virksomheit](skjermbilete/13-rolleside-arbeidsgiver-vel-virksomheit.png) | Arbeidsgivar vel virksomheit.                  |
 | [14-rolleside-privatperson](skjermbilete/14-rolleside-privatperson.png)                                 | Rollesida for privatperson.                    |
 | [15-inngangsportal-ingen-tilgang](skjermbilete/15-inngangsportal-ingen-tilgang.png)                     | Forsida med fast melding om manglande tilgang. |
+| [16-brodsmulesti-rolleside](skjermbilete/16-brodsmulesti-rolleside.png)                                 | Rollesida med brødsmulesti.                    |
+| [17-brodsmulesti-min-profil](skjermbilete/17-brodsmulesti-min-profil.png)                               | «Min profil» med sti tilbake til rolla.        |
+| [18-tilbakelenkje-mobil](skjermbilete/18-tilbakelenkje-mobil.png)                                       | «Tilbake til Forside» på smal skjerm.          |
 
 ## Kjende avgrensingar
 

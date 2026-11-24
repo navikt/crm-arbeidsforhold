@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>68.0</apiVersion>
+    <isExposed>false</isExposed>
+    <masterLabel>Aa-registeret portalkontekst</masterLabel>
+    <description>Session-scoped role and organization context plus the breadcrumb trail for the Aa-registeret portal.</description>
+</LightningComponentBundle>

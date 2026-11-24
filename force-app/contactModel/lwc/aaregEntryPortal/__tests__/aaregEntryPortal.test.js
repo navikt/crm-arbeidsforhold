@@ -3,6 +3,7 @@ import AaregEntryPortal from 'c/aaregEntryPortal';
 import getPortal from '@salesforce/apex/AAREG_EntryPortalController.getPortal';
 import getSettings from '@salesforce/apex/AAREG_ContactModelPortalController.getSettings';
 import { CurrentPageReference, getNavigateCalls, resetNavigateCalls } from 'lightning/navigation';
+import { readContext, rememberContext } from 'c/aaregPortalContext';
 
 jest.mock('@salesforce/apex/AAREG_EntryPortalController.getPortal', () => ({ default: jest.fn() }), {
     virtual: true
@@ -126,6 +127,21 @@ describe('c-aareg-entry-portal', () => {
 
         expect(getNavigateCalls()).toEqual([]);
         expect(byId(element, 'roles')).not.toBeNull();
+    });
+
+    it('forgets the previously chosen role when the home page opens', async () => {
+        rememberContext({ roleKey: 'Employer', organizationNumber: '889640782' });
+        getPortal.mockResolvedValue({ enabled: true, roles: ROLES });
+        await mount();
+
+        expect(readContext()).toEqual({});
+    });
+
+    it('links each role card to its page so it can open in a new tab', async () => {
+        getPortal.mockResolvedValue({ enabled: true, roles: ROLES });
+        const element = await mount();
+
+        expect(element.shadowRoot.querySelector('[data-role="Employer"]').getAttribute('href')).toBe('/s/arbeidsgiver');
     });
 
     it('hides the profile tile when the profile is off', async () => {

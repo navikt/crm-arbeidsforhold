@@ -158,6 +158,25 @@ Følg [runbooken](../utrulling.md). Køyr `npm run contact-model -- status` ette
 | 11.5 | `phase switch`                         | `LegacyMatchingOff` er `all`.                                                         | ☐   |
 | 11.6 | `phase shadow`                         | Tilbake til skugge. Portalen er som før, data frå tidlegare fasar er urørte.          | ☐   |
 
+## 12. Navigasjon og brødsmulesti
+
+Set `phase pilot` og logg inn som pilotbrukaren. Opne `/aaregisteret/s/`.
+
+| #     | Steg                                                                                          | Forventa resultat                                                                           | OK  |
+| ----- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | --- |
+| 12.1  | Sjå på forsida.                                                                               | Ingen brødsmulesti.                                                                         | ☐   |
+| 12.2  | Vel «Privatperson».                                                                           | Stien viser «Forside › Privatperson / arbeidstaker». Siste ledd er ikkje ei lenkje.         | ☐   |
+| 12.3  | Opne «Min profil».                                                                            | Stien viser «Forside › Privatperson / arbeidstaker › Min profil», på linje med overskrifta. | ☐   |
+| 12.4  | Trykk «Privatperson / arbeidstaker» i stien.                                                  | Tilbake på rollesida.                                                                       | ☐   |
+| 12.5  | Trykk «Bytt rolle», vel «Arbeidsgiver» og ei virksomheit. Opne «Mine søknader» og ein søknad. | Stien viser «Forside › Arbeidsgiver › Mine søknader › Søknad». Ingen namn på virksomheita.  | ☐   |
+| 12.6  | Trykk «Arbeidsgiver» i stien.                                                                 | Rollesida opnar med same virksomheit vald, og tilgangen blir sjekka på nytt.                | ☐   |
+| 12.7  | Gjer vindauget smalare enn 480px.                                                             | Stien blir erstatta av «Tilbake til {forrige side}».                                        | ☐   |
+| 12.8  | Ctrl-/Cmd-klikk på eit panel.                                                                 | Sida opnar i ny fane.                                                                       | ☐   |
+| 12.9  | Naviger med tastatur og skjermlesar.                                                          | «Brødsmulesti» blir lese opp som navigasjon, og siste ledd som gjeldande side.              | ☐   |
+| 12.10 | Set `phase shadow` og last ei underside på nytt.                                              | Ingen ny brødsmulesti. Sida er som før.                                                     | ☐   |
+
+12.5–12.6 krev SIT2 eller ein Altinn-stub.
+
 ## Avslutning
 
 - [ ] `npm run contact-model -- status` er lagra som vedlegg.

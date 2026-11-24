@@ -1,25 +1,27 @@
 <template>
     <main class="profile" aria-labelledby="profile-heading">
-        <h1 id="profile-heading" class="heading">Min profil</h1>
-        <p class="lead">Vel først kven det gjeld. Du ser berre adressa for konteksten du har valt.</p>
+        <h1 id="profile-heading" class="navds-heading navds-heading--xlarge heading">Min profil</h1>
+        <p class="navds-body-long lead">Vel først kven det gjeld. Du ser berre adressa for konteksten du har valt.</p>
 
         <template lwc:if={loading}>
-            <p class="status" role="status" data-id="loading">Hentar …</p>
+            <c-aareg-loader data-id="loading" label="Hentar …"></c-aareg-loader>
         </template>
 
         <template lwc:if={error}>
-            <div class="alert alert_error" role="alert" data-id="error">{error}</div>
+            <c-aareg-alert class="block" variant="error" data-id="error">{error}</c-aareg-alert>
         </template>
 
         <template lwc:if={disabled}>
-            <div class="alert alert_info" data-id="disabled">Profilsida er ikkje tilgjengeleg for deg enno.</div>
+            <c-aareg-alert class="block" variant="info" data-id="disabled"
+                >Profilsida er ikkje tilgjengeleg for deg enno.</c-aareg-alert
+            >
         </template>
 
         <template lwc:if={enabled}>
             <template lwc:if={organizationsError}>
-                <div class="alert alert_warning" role="alert" data-id="organizations-error">
+                <c-aareg-alert class="block" variant="warning" data-id="organizations-error">
                     {organizationsError} Du kan framleis endre adressa for «Meg selv».
-                </div>
+                </c-aareg-alert>
             </template>
 
             <c-aareg-org-selector
@@ -30,46 +32,58 @@
             ></c-aareg-org-selector>
 
             <template lwc:if={nothingSelected}>
-                <p class="placeholder" data-id="choose-first">
+                <p class="navds-body-long placeholder" data-id="choose-first">
                     Ingen opplysningar blir viste før du har valt «Meg selv» eller ein organisasjon. Vi stadfestar rolla
                     di i Altinn kvar gong du vel ein organisasjon.
                 </p>
             </template>
 
             <template lwc:if={organizationDenied}>
-                <div class="alert alert_warning" role="alert" data-id="denied">{organizationMessage}</div>
+                <c-aareg-alert class="block" variant="warning" data-id="denied">{organizationMessage}</c-aareg-alert>
             </template>
 
             <template lwc:if={organizationMissing}>
-                <div class="alert alert_info" data-id="missing">{organizationMessage}</div>
+                <c-aareg-alert class="block" variant="info" data-id="missing">{organizationMessage}</c-aareg-alert>
             </template>
 
             <template lwc:if={showForm}>
-                <form class="card" onsubmit={handleSave} data-id="form" novalidate>
-                    <h2 class="card-heading">{contextHeading}</h2>
-                    <p class="hint">{contextExplanation}</p>
-                    <lightning-input
+                <form class="navds-panel navds-panel--border card" onsubmit={handleSave} data-id="form" novalidate>
+                    <h2 class="navds-heading navds-heading--medium card-heading">{contextHeading}</h2>
+                    <p class="navds-body-long hint">{contextExplanation}</p>
+                    <c-aareg-text-field
+                        class="field"
                         data-id="email"
                         type="email"
+                        autocomplete="email"
                         label="E-post"
                         value={email}
                         required
                         message-when-value-missing="Skriv inn e-postadressa."
                         message-when-type-mismatch="Skriv inn ei gyldig e-postadresse."
                         onchange={handleEmail}
-                    ></lightning-input>
-                    <lightning-input
+                    ></c-aareg-text-field>
+                    <c-aareg-text-field
+                        class="field"
                         data-id="phone"
                         type="tel"
                         label="Telefon (valfritt)"
                         value={phone}
                         onchange={handlePhone}
-                    ></lightning-input>
+                    ></c-aareg-text-field>
                     <div class="actions">
-                        <button class="button" type="submit" disabled={saving} data-id="save">Lagre adressa</button>
+                        <button
+                            class="navds-button navds-button--primary"
+                            type="submit"
+                            disabled={saving}
+                            data-id="save"
+                        >
+                            <span class="navds-label">Lagre adressa</span>
+                        </button>
                     </div>
                     <template lwc:if={saved}>
-                        <p class="alert alert_success" role="status" data-id="saved">{saved}</p>
+                        <c-aareg-alert class="block" variant="success" size="small" role="status" data-id="saved"
+                            >{saved}</c-aareg-alert
+                        >
                     </template>
                 </form>
             </template>

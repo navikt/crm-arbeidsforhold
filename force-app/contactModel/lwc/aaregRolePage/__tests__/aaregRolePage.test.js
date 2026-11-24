@@ -3,6 +3,7 @@ import AaregRolePage from 'c/aaregRolePage';
 import decide from '@salesforce/apex/AAREG_EntryPortalController.decide';
 import getOrganizations from '@salesforce/apex/AAREG_EntryPortalController.getOrganizations';
 import { CurrentPageReference, getNavigateCalls, resetNavigateCalls } from 'lightning/navigation';
+import { readContext, rememberContext } from 'c/aaregPortalContext';
 
 jest.mock('@salesforce/apex/AAREG_EntryPortalController.decide', () => ({ default: jest.fn() }), { virtual: true });
 jest.mock('@salesforce/apex/AAREG_EntryPortalController.getOrganizations', () => ({ default: jest.fn() }), {
@@ -47,6 +48,7 @@ async function choose(element, organizationNumber) {
 
 describe('c-aareg-role-page', () => {
     beforeEach(() => {
+        window.sessionStorage.clear();
         getOrganizations.mockResolvedValue(ORGANIZATIONS);
         resetNavigateCalls();
     });
@@ -155,5 +157,26 @@ describe('c-aareg-role-page', () => {
         expect(byId(element, 'private-info')).not.toBeNull();
         expect(byId(element, 'organization-selector')).toBeNull();
         expect(getOrganizations).not.toHaveBeenCalled();
+    });
+
+    it('remembers the role and the granted organization for the breadcrumb trail', async () => {
+        decide.mockResolvedValueOnce(denied('invalid-context')).mockResolvedValueOnce(granted(['SUPPORT']));
+        const element = await mount();
+        expect(readContext()).toEqual({ roleKey: 'Employer' });
+
+        await choose(element, '910000001');
+
+        expect(readContext()).toEqual({ roleKey: 'Employer', organizationNumber: '910000001' });
+    });
+
+    it('forgets the context when the user changes role', async () => {
+        rememberContext({ roleKey: 'Employer', organizationNumber: '910000001' });
+        decide.mockResolvedValueOnce(granted(['SUPPORT']));
+        const element = await mount('Employer', { org: '910000001' });
+
+        byId(element, 'change-role').click();
+
+        expect(readContext()).toEqual({});
+        expect(getNavigateCalls()).toEqual([{ type: 'comm__namedPage', attributes: { name: 'Home' }, state: {} }]);
     });
 });

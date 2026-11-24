@@ -1,54 +1,68 @@
 <template>
     <template lwc:if={showPortal}>
-        <section class="portal" aria-labelledby="portal-heading">
+        <main class="portal" aria-labelledby="portal-heading">
+            <header class="intro">
+                <h1 id="portal-heading" class="navds-heading navds-heading--xlarge">
+                    Brukerstøtte og søknad om tilgang til Aa-registeret
+                </h1>
+                <p class="navds-body-long lead">Hvordan vil du bruke tjenesten?</p>
+            </header>
+
             <template lwc:if={message}>
-                <div class="alert alert_warning" role="status" data-id="message">{message}</div>
+                <c-aareg-alert class="message" variant="warning" data-id="message">{message}</c-aareg-alert>
             </template>
-            <h1 id="portal-heading" class="heading">Brukerstøtte og søknad om tilgang til Aa-registeret</h1>
-            <p class="lead">Hvordan vil du bruke tjenesten?</p>
 
             <template lwc:if={hasRoles}>
                 <ul class="roles" aria-label="Roller" data-id="roles">
                     <template for:each={roles} for:item="role">
                         <li key={role.roleKey} class="role">
                             <a
-                                href="#"
-                                class="role-link"
+                                href={role.href}
+                                class="navds-panel navds-link-panel navds-panel--border role-link"
                                 data-role={role.roleKey}
                                 onclick={handleRole}
-                                aria-describedby={role.roleKey}
                             >
-                                <span class="role-title">{role.title}</span>
-                                <span class="role-description" id={role.roleKey}>{role.description}</span>
-                                <span class="role-continue" aria-hidden="true">Fortsett →</span>
+                                <span class="role-icon">
+                                    <c-aareg-icon name={role.icon}></c-aareg-icon>
+                                </span>
+                                <span class="role-text">
+                                    <span class="navds-link-panel__title navds-heading navds-heading--small role-title"
+                                        >{role.title}</span
+                                    >
+                                    <span class="navds-link-panel__description navds-body-long role-description"
+                                        >{role.description}</span
+                                    >
+                                </span>
+                                <c-aareg-icon class="navds-link-panel__chevron" name="ChevronRight"></c-aareg-icon>
                             </a>
                         </li>
                     </template>
                 </ul>
             </template>
             <template lwc:else>
-                <div class="alert alert_info" data-id="no-roles">
+                <c-aareg-alert variant="info" data-id="no-roles">
                     Ingen roller er tilgjengelige akkurat nå. Prøv igjen senere.
-                </div>
+                </c-aareg-alert>
             </template>
 
             <template lwc:if={showProfile}>
                 <div class="profile" data-id="profile">
-                    <c-link-panel
+                    <c-aareg-link-panel
                         title="Min profil"
-                        sub-title="Her ser og endrer du e-postadressene dine: den private og den du bruker for hver virksomhet."
-                        relative-path="Min_Profil__c"
-                    ></c-link-panel>
+                        description="Her ser og endrer du e-postadressene dine: den private og den du bruker for hver virksomhet."
+                        page="Min_Profil__c"
+                        icon="PersonCircle"
+                    ></c-aareg-link-panel>
                 </div>
             </template>
-        </section>
+        </main>
     </template>
     <template lwc:elseif={showCurrentHome}>
         <c-aareg_home data-id="current-home"></c-aareg_home>
     </template>
     <template lwc:else>
-        <div class="loading" role="status" data-id="loading">
-            <lightning-spinner alternative-text="Laster" size="medium"></lightning-spinner>
+        <div class="portal" data-id="loading">
+            <c-aareg-loader label="Laster …"></c-aareg-loader>
         </div>
     </template>
 </template>

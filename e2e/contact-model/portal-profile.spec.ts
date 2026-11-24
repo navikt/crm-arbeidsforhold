@@ -48,7 +48,7 @@ test.describe('Inngang til «Min profil» frå forsida', () => {
         test.skip(!context.networkId || !context.portalUserId, 'Portalbrukaren eller nettstaden manglar i orgen.');
         await openPortalPage(page, '/aaregisteret/s/');
 
-        const profileLink = page.locator('c-link-panel').filter({ hasText: 'Min profil' });
+        const profileLink = page.locator('c-aareg-link-panel').filter({ hasText: 'Min profil' });
         await expect(profileLink).toBeVisible({ timeout: 60_000 });
         await documentScreenshot(page, '11-forside-min-profil');
 

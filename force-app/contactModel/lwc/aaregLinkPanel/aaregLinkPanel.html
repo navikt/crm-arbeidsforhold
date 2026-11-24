@@ -1,0 +1,24 @@
+<template>
+    <a class="navds-panel navds-link-panel navds-panel--border panel" href={href} onclick={handleClick}>
+        <template lwc:if={icon}>
+            <span class="panel-icon">
+                <c-aareg-icon name={icon}></c-aareg-icon>
+            </span>
+        </template>
+        <div class="panel-content">
+            <div class="navds-link-panel__title navds-heading navds-heading--small">
+                {title}
+                <template lwc:if={hasCount}>
+                    <span
+                        class="navds-tag navds-tag--info-filled navds-tag--small navds-detail navds-detail--small count"
+                        >{count}<span class="navds-sr-only"> {countLabel}</span></span
+                    >
+                </template>
+            </div>
+            <template lwc:if={description}>
+                <div class="navds-link-panel__description navds-body-long navds-body-long--small">{description}</div>
+            </template>
+        </div>
+        <c-aareg-icon class="navds-link-panel__chevron" name="ChevronRight"></c-aareg-icon>
+    </a>
+</template>

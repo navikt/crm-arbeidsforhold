@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>68.0</apiVersion>
+    <isExposed>false</isExposed>
+    <masterLabel>Aa-registeret Aksel-lenkjepanel</masterLabel>
+    <description>Aksel LinkPanel markup (navds v2) that navigates to a named community page.</description>
+</LightningComponentBundle>

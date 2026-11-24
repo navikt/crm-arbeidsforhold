@@ -2,11 +2,19 @@ import { LightningElement, api, wire } from 'lwc';
 import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import decide from '@salesforce/apex/AAREG_EntryPortalController.decide';
 import getOrganizations from '@salesforce/apex/AAREG_EntryPortalController.getOrganizations';
+import basePath from '@salesforce/community/basePath';
+import { clearContext, rememberContext } from 'c/aaregPortalContext';
 
 export const ROLE_TITLES = {
     Employer: 'Arbeidsgiver',
     Partner: 'Samarbeidspartner / fullmektig',
     Private: 'Privatperson / arbeidstaker'
+};
+
+const ROLE_ICONS = {
+    Employer: 'Buildings3',
+    Partner: 'Handshake',
+    Private: 'Person'
 };
 
 const SELECTOR_LABELS = {
@@ -87,12 +95,21 @@ export default class AaregRolePage extends NavigationMixin(LightningElement) {
         this.requestedOrganization = ORGANIZATION_NUMBER.test(org ?? '') ? org : undefined;
         if (!this.initialised) {
             this.initialised = true;
+            rememberContext({ roleKey: this.roleKey });
             this.evaluate(this.requestedOrganization, true);
         }
     }
 
     get roleTitle() {
         return ROLE_TITLES[this.roleKey] ?? 'Aa-registeret';
+    }
+
+    get roleIcon() {
+        return ROLE_ICONS[this.roleKey] ?? 'Person';
+    }
+
+    get homeHref() {
+        return `${basePath}/`;
     }
 
     get isLoading() {
@@ -163,6 +180,9 @@ export default class AaregRolePage extends NavigationMixin(LightningElement) {
         if (decision.outcome === 'GRANTED') {
             this.state = 'granted';
             this.selectedOrganization = decision.organizationNumber ?? this.selectedOrganization;
+            if (this.isOrganizationRole && this.selectedOrganization) {
+                rememberContext({ roleKey: this.roleKey, organizationNumber: this.selectedOrganization });
+            }
             if (this.isOrganizationRole && this.organizations.length === 0) {
                 this.loadOrganizations();
             }
@@ -228,6 +248,7 @@ export default class AaregRolePage extends NavigationMixin(LightningElement) {
 
     handleChangeRole(event) {
         event.preventDefault();
+        clearContext();
         this.goHome();
     }
 

@@ -1,0 +1,31 @@
+<template>
+    <template lwc:if={visible}>
+        <nav class="portal-nav" aria-label="Brødsmulesti">
+            <ol class="crumbs navds-body-short">
+                <template for:each={trail} for:item="item">
+                    <li key={item.key} class="crumb">
+                        <template lwc:if={item.current}>
+                            <span class="crumb-current" aria-current="page">{item.label}</span>
+                        </template>
+                        <template lwc:else>
+                            <a class="navds-link" href={item.href} data-key={item.key} onclick={handleClick}
+                                >{item.label}</a
+                            >
+                            <c-aareg-icon class="crumb-separator" name="ChevronRight"></c-aareg-icon>
+                        </template>
+                    </li>
+                </template>
+            </ol>
+            <a
+                class="navds-link back navds-body-short"
+                href={parent.href}
+                data-key={parent.key}
+                data-id="back"
+                onclick={handleClick}
+            >
+                <c-aareg-icon name="ArrowLeft"></c-aareg-icon>
+                <span>Tilbake til {parent.label}</span>
+            </a>
+        </nav>
+    </template>
+</template>
