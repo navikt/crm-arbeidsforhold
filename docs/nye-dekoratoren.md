@@ -75,7 +75,6 @@ Hvis ID-en mangler:
 Kontroller at følgende sider finnes under **Site Visualforce Pages**:
 
 
-
 - `NavLoginService`
 
 - `IdPortenSid`
@@ -184,9 +183,6 @@ Kontroller at:
 
 - Det ikke vises en gammel eller en ny dekoratør samtidig.
 
-
-
-**Merk:** TestID velger ikke miljø automatisk. Bruk SIT2-URL-en for å teste SIT2.
 
 
 ## 8. Tillegg: Main Content – UU-krav
