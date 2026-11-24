@@ -26,7 +26,7 @@ Denne veiledningen beskriver hvordan NAVs nye header og footer
 2. Kontroller at Relaxed CSP brukes.
 3. Kontroller at Lightning Locker er deaktivert, i tråd med gjeldende sikkerhetskrav.
 4. Godkjenn nødvendige CSP Trusted Sites for scripts på nettstedet.
-5. Bruk oversikten over adresser for Dev og Prod.
+5. Bruk oversikten over adresser.
 
 ## 3. Kontroller ID-porten-oppsettet
 
@@ -34,10 +34,11 @@ Hvis oppsettet allerede finnes for nettstedet, gå videre til punkt 4.
 
 ### 3.1 Finn nettstedets Network ID
 
-Kjør følgende SOQL-spørring:
+For å finne Network ID for siden, kan du kjøre følgende spørring mot databasen:
 
 ```sql
 SELECT Id, Name FROM Network
+```
 
 ### 3.2 Legg inn Network ID i `crm-community-base`
 
