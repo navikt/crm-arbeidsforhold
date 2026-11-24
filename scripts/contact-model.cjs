@@ -15,6 +15,10 @@ const FLAGS = [
     'AAREG_ContactModel_OrgSelector',
     'AAREG_ContactModel_Profile',
     'AAREG_ContactModel_ContextAddress',
+    'AAREG_ContactModel_EntryPortal',
+    'AAREG_ContactModel_RoleEmployer',
+    'AAREG_ContactModel_RolePartner',
+    'AAREG_ContactModel_RolePrivate',
     'AAREG_ContactModel_LegacyMatchingOff'
 ];
 const PILOT_PERMISSION = 'AAREG_ContactModelPilot';

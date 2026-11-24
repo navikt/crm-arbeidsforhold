@@ -45,13 +45,13 @@ npx playwright show-report        # HTML-rapport etter køyringa
 Global setup stadfestar org-ID-en, opnar ei innlogga økt utan å logge URL-en og hentar ID-ar til
 syntetiske testdata. Køyringa tek om lag tre til ti minutt, avhengig av orgen.
 
-| Fil                         | Testar | Kontrollerer                                                                                                |
-| --------------------------- | -----: | ----------------------------------------------------------------------------------------------------------- |
-| `admin.spec.ts`             |      5 | Seksjonar og knappar på admin-sida, stadfesting og avbryting av APPLY og ROLLBACK, fana i tre appar.        |
-| `record-panels.spec.ts`     |      3 | Kontaktmodellpanelet på søknad, organisasjon og kontakt.                                                    |
-| `reports.spec.ts`           |      7 | Dei fem rapportane, dashboardet og at diagramma blir teikna.                                                |
-| `portal-profile.spec.ts`    |      3 | «Min profil»: ingenting vist før val, lagring for «Meg selv» og søk på organisasjon.                        |
-| `application-start.spec.ts` |      3 | Ny søknad: ingen rolle vald på førehand, privatperson får lenkje til «Min profil», organisasjon må veljast. |
+| Fil                      | Testar | Kontrollerer                                                                                         |
+| ------------------------ | -----: | ---------------------------------------------------------------------------------------------------- |
+| `admin.spec.ts`          |      5 | Seksjonar og knappar på admin-sida, stadfesting og avbryting av APPLY og ROLLBACK, fana i tre appar. |
+| `record-panels.spec.ts`  |      3 | Kontaktmodellpanelet på søknad, organisasjon og kontakt.                                             |
+| `reports.spec.ts`        |      7 | Dei fem rapportane, dashboardet og at diagramma blir teikna.                                         |
+| `portal-profile.spec.ts` |      3 | «Min profil»: ingenting vist før val, lagring for «Meg selv» og søk på organisasjon.                 |
+| `entry-portal.spec.ts`   |      6 | Forsida med rolleval, rollesider, direktelenkjer, faste meldingar og «Bytt rolle».                   |
 
 Testane stadfestar aldri ei migreringskøyring. Dei trykkjer berre «Avbryt» i stadfestingsdialogen.
 Profiltesten lagrar ei syntetisk privatadresse på testbrukaren.
@@ -64,20 +64,21 @@ CM_DOC_SCREENSHOTS=1 npm run e2e:contact-model
 
 Skjermbileta blir lagra i [skjermbilete/](skjermbilete/) og viser berre syntetiske data.
 
-| Bilete                                                                      | Flate                                      |
-| --------------------------------------------------------------------------- | ------------------------------------------ |
-| [01-admin-kontaktmodell](skjermbilete/01-admin-kontaktmodell.png)           | Admin-sida for kontaktmodellen.            |
-| [01b-admin-stadfest-rollback](skjermbilete/01b-admin-stadfest-rollback.png) | Stadfesting før tilbakerulling.            |
-| [02-panel-soknad](skjermbilete/02-panel-soknad.png)                         | Panelet på søknaden.                       |
-| [03-panel-organisasjon](skjermbilete/03-panel-organisasjon.png)             | Panelet på organisasjonen.                 |
-| [04-panel-kontakt](skjermbilete/04-panel-kontakt.png)                       | Panelet på kontakten.                      |
-| [05-dashboard](skjermbilete/05-dashboard.png)                               | Dashboardet «Aa-registeret Kontaktmodell». |
-| [06-min-profil-vel-forst](skjermbilete/06-min-profil-vel-forst.png)         | «Min profil» før val.                      |
-| [07-min-profil-meg-selv](skjermbilete/07-min-profil-meg-selv.png)           | «Min profil» med «Meg selv» valt.          |
-| [08-ny-soknad-vel-rolle](skjermbilete/08-ny-soknad-vel-rolle.png)           | Ny søknad: vel rolle først.                |
-| [09-ny-soknad-privatperson](skjermbilete/09-ny-soknad-privatperson.png)     | Ny søknad: privatperson.                   |
-| [10-ny-soknad-arbeidsgiver](skjermbilete/10-ny-soknad-arbeidsgiver.png)     | Ny søknad: arbeidsgivar vel organisasjon.  |
-| [11-forside-min-profil](skjermbilete/11-forside-min-profil.png)             | Forsida med inngangen til «Min profil».    |
+| Bilete                                                                                                  | Flate                                          |
+| ------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| [01-admin-kontaktmodell](skjermbilete/01-admin-kontaktmodell.png)                                       | Admin-sida for kontaktmodellen.                |
+| [01b-admin-stadfest-rollback](skjermbilete/01b-admin-stadfest-rollback.png)                             | Stadfesting før tilbakerulling.                |
+| [02-panel-soknad](skjermbilete/02-panel-soknad.png)                                                     | Panelet på søknaden.                           |
+| [03-panel-organisasjon](skjermbilete/03-panel-organisasjon.png)                                         | Panelet på organisasjonen.                     |
+| [04-panel-kontakt](skjermbilete/04-panel-kontakt.png)                                                   | Panelet på kontakten.                          |
+| [05-dashboard](skjermbilete/05-dashboard.png)                                                           | Dashboardet «Aa-registeret Kontaktmodell».     |
+| [06-min-profil-vel-forst](skjermbilete/06-min-profil-vel-forst.png)                                     | «Min profil» før val.                          |
+| [07-min-profil-meg-selv](skjermbilete/07-min-profil-meg-selv.png)                                       | «Min profil» med «Meg selv» valt.              |
+| [11-forside-min-profil](skjermbilete/11-forside-min-profil.png)                                         | Forsida med inngangen til «Min profil».        |
+| [12-inngangsportal-rolleval](skjermbilete/12-inngangsportal-rolleval.png)                               | Forsida: vel rolle.                            |
+| [13-rolleside-arbeidsgiver-vel-virksomheit](skjermbilete/13-rolleside-arbeidsgiver-vel-virksomheit.png) | Arbeidsgivar vel virksomheit.                  |
+| [14-rolleside-privatperson](skjermbilete/14-rolleside-privatperson.png)                                 | Rollesida for privatperson.                    |
+| [15-inngangsportal-ingen-tilgang](skjermbilete/15-inngangsportal-ingen-tilgang.png)                     | Forsida med fast melding om manglande tilgang. |
 
 ## Kjende avgrensingar
 

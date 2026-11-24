@@ -72,7 +72,7 @@ private class AAREG_ContactModelGateTest {
 
         List<AAREG_ContactModelGate.FlagStatus> statuses = AAREG_ContactModelGate.describeAll();
 
-        System.Assert.areEqual(5, statuses.size(), 'All five flags are described');
+        System.Assert.areEqual(AAREG_ContactModelGate.ALL_FLAGS.size(), statuses.size(), 'Every flag is described');
         System.Assert.areEqual(AAREG_ContactModelGate.SHADOW_WRITE, statuses[0].name, 'Shadow write comes first');
         System.Assert.isTrue(statuses[0].activeForCurrentUser, 'Shadow write is active');
         System.Assert.isFalse(statuses[1].exists, 'Flags without records are reported as missing');

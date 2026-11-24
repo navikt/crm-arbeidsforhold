@@ -34,6 +34,9 @@ Kommandoane blir køyrde med `npm run contact-model -- <kommando>` og
 som i tabellen. «Pilot» betyr `Required_Custom_Permission__c = AAREG_ContactModelPilot`, som blir gitt med
 permission set `AAREG_ContactModel_Pilot`.
 
+Brytarane for inngangsportalen (`EntryPortal`, `RoleEmployer`, `RolePartner` og `RolePrivate`) følgjer kolonna
+`OrgSelector`, `Profile`, `ContextAddress`. Sjå [inngangsportal.md](inngangsportal.md).
+
 ## Før kvar fase
 
 - [ ] `npm run contact-model -- status` (eller dashboardet «Aa-registeret Kontaktmodell») er lagra som evidens.

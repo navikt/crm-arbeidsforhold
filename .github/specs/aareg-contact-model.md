@@ -61,7 +61,7 @@ Løysinga skal kunne slåast på gradvis og rullast tilbake utan tap av data.
 | Flagg                                     | Omfang                | Verknad når på                                                           |
 | ----------------------------------------- | --------------------- | ------------------------------------------------------------------------ |
 | `AAREG_ContactModel_ShadowWrite`          | Globalt               | Innsending skriv domenekontakt, ACR, kontaktpunkt og deltaking i tillegg til gammal modell. |
-| `AAREG_ContactModel_OrgSelector`          | Pilot eller globalt   | Rolle først og søkbar organisasjonsveljar i portalen.                    |
+| `AAREG_ContactModel_OrgSelector`          | Pilot eller globalt   | Søkbar organisasjonsveljar i portalen og «Min profil».                   |
 | `AAREG_ContactModel_Profile`              | Pilot eller globalt   | «Min profil» med privat adresse og adresse per organisasjon.             |
 | `AAREG_ContactModel_ContextAddress`       | Pilot eller globalt   | Varsel blir sende til adressa for konteksten, utan fallback.             |
 | `AAREG_ContactModel_LegacyMatchingOff`    | Globalt               | Den gamle kontaktkoplinga på e-post blir slått av.                       |
@@ -91,7 +91,7 @@ migreringa sin `ROLLBACK`.
 | REQ-10 | `APPLY` lagrar JSON-backup før endring og koplar berre klasse A.                                                                       | K4   |
 | REQ-11 | `ROLLBACK` fjernar det køyringa oppretta og set tilbake endra felt frå backup.                                                         | K4   |
 | REQ-12 | `VERIFY` stemmer av tal mot køyringa og rapporterer avvik.                                                                             | K4   |
-| REQ-13 | Rolle først og søkbar veljar med søk på namn og org.nr., «Meg selv» øvst, ingen automatisk val.                                        | K5   |
+| REQ-13 | Rolle blir vald på forsida (inngangsportalen), deretter søkbar veljar på namn og org.nr. utan automatisk val. Søknaden har ikkje eige rolleval. | K5   |
 | REQ-14 | «Min profil» viser berre «Meg selv» før organisasjon er valt og kontrollert i Altinn.                                                  | K6   |
 | REQ-15 | Mottakar blir vald etter kontekst. Manglar adressa, må brukaren oppgi ho. Ingen fallback.                                              | K8   |
 

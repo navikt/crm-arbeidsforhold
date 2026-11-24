@@ -20,6 +20,14 @@ public with sharing class AAREG_ContactModelGate {
     public static final String CONTEXT_ADDRESS = 'AAREG_ContactModel_ContextAddress';
     /** Stops creating legacy contacts per email address. */
     public static final String LEGACY_MATCHING_OFF = 'AAREG_ContactModel_LegacyMatchingOff';
+    /** Entry portal with role choice on the home page. Off shows the current home page. */
+    public static final String ENTRY_PORTAL = 'AAREG_ContactModel_EntryPortal';
+    /** Employer role page in the entry portal. */
+    public static final String ROLE_EMPLOYER = 'AAREG_ContactModel_RoleEmployer';
+    /** Partner or authorized representative role page in the entry portal. */
+    public static final String ROLE_PARTNER = 'AAREG_ContactModel_RolePartner';
+    /** Private person or employee role page in the entry portal. */
+    public static final String ROLE_PRIVATE = 'AAREG_ContactModel_RolePrivate';
 
     /** All contact model flags in rollout order. */
     public static final List<String> ALL_FLAGS = new List<String>{
@@ -27,6 +35,10 @@ public with sharing class AAREG_ContactModelGate {
         ORG_SELECTOR,
         PROFILE,
         CONTEXT_ADDRESS,
+        ENTRY_PORTAL,
+        ROLE_EMPLOYER,
+        ROLE_PARTNER,
+        ROLE_PRIVATE,
         LEGACY_MATCHING_OFF
     };
 

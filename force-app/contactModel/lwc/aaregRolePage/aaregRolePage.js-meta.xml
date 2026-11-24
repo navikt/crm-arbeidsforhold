@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>68.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Aa-registeret rolleside</masterLabel>
+    <description>Role page: verifies the role and organization on the server and shows only the capabilities the decision grants.</description>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="roleKey" type="String" label="Rolle" datasource="Employer,Partner,Private" default="Employer" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

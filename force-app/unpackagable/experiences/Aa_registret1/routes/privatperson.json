@@ -1,0 +1,12 @@
+{
+    "activeViewId": "b2724b4d-24d7-4375-a275-126f9d7c5571",
+    "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+    "configurationTags": [],
+    "devName": "Privatperson__c",
+    "id": "c606e62e-9cd9-4853-939f-cf8016d7b7af",
+    "label": "Privatperson",
+    "pageAccess": "UseParent",
+    "routeType": "custom-privatperson",
+    "type": "route",
+    "urlPrefix": "privatperson"
+}

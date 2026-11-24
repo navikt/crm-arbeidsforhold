@@ -1,0 +1,175 @@
+{
+    "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+    "componentName": "siteforce:dynamicLayout",
+    "dataProviders": [],
+    "id": "2e2dd1da-1be3-43c5-b0aa-202567af2511",
+    "label": "Arbeidsgiver",
+    "regions": [
+        {
+            "components": [
+                {
+                    "componentAttributes": {
+                        "background": "background: rgba(0,0,0,0)",
+                        "backgroundOverlay": "rgba(0,0,0,0.5)",
+                        "contentAreaWidth": 100,
+                        "sectionConfig": {
+                            "UUID": "a2e586ba-621a-4883-b82f-9b2b877dc6f0",
+                            "columns": [
+                                {
+                                    "UUID": "b12a672c-b840-42af-8091-9670aa0ee06b",
+                                    "columnKey": "1",
+                                    "columnName": "Column 1",
+                                    "columnWidth": "12",
+                                    "seedComponents": []
+                                }
+                            ]
+                        },
+                        "sectionHeight": 32
+                    },
+                    "componentName": "forceCommunity:section",
+                    "id": "a2e586ba-621a-4883-b82f-9b2b877dc6f0",
+                    "regions": [
+                        {
+                            "components": [
+                                {
+                                    "componentAttributes": {
+                                        "NAVarea": "Privatperson"
+                                    },
+                                    "componentName": "c:globalCommunityHeader",
+                                    "id": "c3142d38-e6b1-489e-9928-8dff22d6afce",
+                                    "renderPriority": "NEUTRAL",
+                                    "renditionMap": {},
+                                    "type": "component"
+                                }
+                            ],
+                            "id": "b12a672c-b840-42af-8091-9670aa0ee06b",
+                            "regionLabel": "Column 1",
+                            "regionName": "1",
+                            "renditionMap": {},
+                            "type": "region"
+                        }
+                    ],
+                    "renderPriority": "NEUTRAL",
+                    "renditionMap": {},
+                    "type": "component"
+                },
+                {
+                    "componentAttributes": {
+                        "background": "background: rgba(0,0,0,0)",
+                        "backgroundOverlay": "rgba(0,0,0,0.5)",
+                        "contentAreaWidth": 100,
+                        "sectionConfig": {
+                            "UUID": "76e2eb7b-fae2-4355-9e37-178859135d77",
+                            "columns": [
+                                {
+                                    "UUID": "e50edf61-21c4-4f46-871c-013d6ed852a7",
+                                    "columnKey": "1",
+                                    "columnName": "Column 1",
+                                    "columnWidth": "12",
+                                    "seedComponents": []
+                                }
+                            ]
+                        },
+                        "sectionHeight": 300
+                    },
+                    "componentName": "forceCommunity:section",
+                    "id": "76e2eb7b-fae2-4355-9e37-178859135d77",
+                    "regions": [
+                        {
+                            "components": [
+                                {
+                                    "componentAttributes": {
+                                        "roleKey": "Employer"
+                                    },
+                                    "componentName": "c:aaregRolePage",
+                                    "id": "62b09ecb-027b-45f2-b786-10bf27cbcb08",
+                                    "renderPriority": "NEUTRAL",
+                                    "renditionMap": {},
+                                    "type": "component"
+                                }
+                            ],
+                            "id": "e50edf61-21c4-4f46-871c-013d6ed852a7",
+                            "regionLabel": "Column 1",
+                            "regionName": "1",
+                            "renditionMap": {},
+                            "type": "region"
+                        }
+                    ],
+                    "renderPriority": "NEUTRAL",
+                    "renditionMap": {},
+                    "type": "component"
+                },
+                {
+                    "componentAttributes": {
+                        "background": "background: rgba(0,0,0,0)",
+                        "backgroundOverlay": "rgba(0,0,0,0.5)",
+                        "contentAreaWidth": 100,
+                        "sectionConfig": {
+                            "UUID": "0a7986fc-d5d3-4918-ad63-0c1a16544848",
+                            "columns": [
+                                {
+                                    "UUID": "9c083a10-e7be-4acd-a6f1-b8801c4f752a",
+                                    "columnKey": "1",
+                                    "columnName": "Column 1",
+                                    "columnWidth": "12",
+                                    "seedComponents": []
+                                }
+                            ]
+                        },
+                        "sectionHeight": 32
+                    },
+                    "componentName": "forceCommunity:section",
+                    "id": "0a7986fc-d5d3-4918-ad63-0c1a16544848",
+                    "regions": [
+                        {
+                            "components": [
+                                {
+                                    "componentAttributes": {
+                                        "NAVarea": "Privatperson"
+                                    },
+                                    "componentName": "c:globalCommunityFooter",
+                                    "id": "955956f7-3a56-41db-9188-3962f0235bb9",
+                                    "renderPriority": "NEUTRAL",
+                                    "renditionMap": {},
+                                    "type": "component"
+                                }
+                            ],
+                            "id": "9c083a10-e7be-4acd-a6f1-b8801c4f752a",
+                            "regionLabel": "Column 1",
+                            "regionName": "1",
+                            "renditionMap": {},
+                            "type": "region"
+                        }
+                    ],
+                    "renderPriority": "NEUTRAL",
+                    "renditionMap": {},
+                    "type": "component"
+                }
+            ],
+            "id": "2bf0f192-9d47-4af9-9361-ccf489277b7b",
+            "regionName": "content",
+            "type": "region"
+        },
+        {
+            "components": [
+                {
+                    "componentAttributes": {
+                        "customHeadTags": "",
+                        "description": "",
+                        "title": "Arbeidsgiver"
+                    },
+                    "componentName": "forceCommunity:seoAssistant",
+                    "id": "2a1b437c-92e8-40ef-a51f-3e42dd7c4c9c",
+                    "renditionMap": {},
+                    "type": "component"
+                }
+            ],
+            "id": "0fff0c4c-f8f0-45a3-a27f-c15e390aa17d",
+            "regionName": "sfdcHiddenRegion",
+            "type": "region"
+        }
+    ],
+    "themeLayoutType": "Inner",
+    "type": "view",
+    "viewType": "custom-arbeidsgiver"
+}

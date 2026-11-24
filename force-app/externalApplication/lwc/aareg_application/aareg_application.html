@@ -1,7 +1,4 @@
 <template>
-    <template if:true={showStart}>
-        <c-aareg-application-start onorganizationselected={handleOrganizationSelected}></c-aareg-application-start>
-    </template>
     <template if:true={hasAccess}>
         <template if:true={organization}>
             <template if:false={applicationSubmitted}>

@@ -120,6 +120,17 @@ public with sharing class AAREG_ContactModelPortalController {
     @AuraEnabled
     public static List<OrganizationOption> getOrganizations() {
         requireUnshieldedFlag(AAREG_ContactModelGate.ORG_SELECTOR);
+        return listOrganizations();
+    }
+
+    /**
+     * Lists the organizations Altinn reports for the signed-in user without checking a feature flag. Callers must
+     * check their own flag and shielding first.
+     *
+     * @return Organizations the user can choose, sorted by name.
+     * @throws AuraHandledException When Altinn cannot be reached.
+     */
+    public static List<OrganizationOption> listOrganizations() {
         String personIdent = personIdent();
         AltinnCalloutService.AltinnOrganizationsResponse response;
         try {

@@ -115,21 +115,24 @@ sf apex run --target-org crm-arbeidsforhold -f scripts/scratch/contactModel/unsh
 | 8.7 | Med `phase pilot`: opne `/aaregisteret/s/ny-soknad-aa-registret` som den skjerma brukaren. | Det gamle søknadsskjemaet blir vist, utan rolle-steget og organisasjonsveljaren. | ☐   |
 | 8.8 | Skjerm ein person som alt har domenekontakt, og send inn ein ny søknad som han.            | Stadfestinga går via den gamle kontaktkoplinga, ikkje til kontaktpunktet.        | ☐   |
 
-## 9. Ny søknad: rolle først
+## 9. Forsida: vel rolle
 
-Set `phase pilot` og logg inn som pilotbrukaren. Opne `/aaregisteret/s/ny-soknad-aa-registret`.
+Set `phase pilot` og logg inn som pilotbrukaren. Opne `/aaregisteret/s/`.
 
-| #   | Steg                                                  | Forventa resultat                                                                                | OK  |
-| --- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------ | --- |
-| 9.1 | Sjå på sida før du vel noko.                          | «Korleis søkjer du?» med tre val. Ingenting er valt, og søknadsskjemaet er ikkje vist.           | ☐   |
-| 9.2 | Vel «Som privatperson».                               | Forklaring om at tilgang blir gitt til organisasjonar, og lenkje til «Min profil». Inkje skjema. | ☐   |
-| 9.3 | Vel «Som arbeidsgiver».                               | Organisasjonsveljaren blir vist utan «Meg selv». «Gå vidare til søknaden» er grå.                | ☐   |
-| 9.4 | Søk på namn og deretter på organisasjonsnummer.       | Lista blir filtrert på begge.                                                                    | ☐   |
-| 9.5 | Vel ein organisasjon med rolle i Altinn og gå vidare. | Søknadsskjemaet opnar for den valde organisasjonen.                                              | ☐   |
-| 9.6 | Vel ein organisasjon der rolla er fjerna i Altinn.    | Feilmelding. Du kjem ikkje vidare.                                                               | ☐   |
-| 9.7 | Set `phase shadow` og last sida på nytt.              | Det gamle søknadsskjemaet blir vist direkte, utan rolle-steget.                                  | ☐   |
+| #    | Steg                                               | Forventa resultat                                                                                                                                          | OK  |
+| ---- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
+| 9.1  | Sjå på forsida før du vel noko.                    | «Aa-registeret» med rollene Arbeidsgiver, Samarbeidspartner og Privatperson. Ingen tenester er viste.                                                      | ☐   |
+| 9.2  | Vel «Privatperson».                                | `/privatperson` med «Rolle: Privatperson / arbeidstaker», «Du trenger ikke velge virksomhet», «Min profil» og «Flere tjenester for privatpersoner kommer». | ☐   |
+| 9.3  | Trykk «Bytt rolle», og vel «Arbeidsgiver».         | `/arbeidsgiver` med «Rolle: Arbeidsgiver», søkbar veljar og «Oppdater liste». Ingen virksomheit er vald, og ingen tenester er viste.                       | ☐   |
+| 9.4  | Søk på namn og deretter på organisasjonsnummer.    | Lista blir filtrert på begge.                                                                                                                              | ☐   |
+| 9.5  | Vel ei virksomheit med tilgang i Altinn.           | Tilgangen blir sjekka med ein gong. Veljaren viser virksomheita, og berre tenestene rolla gir blir viste i to kolonnar.                                    | ☐   |
+| 9.6  | Opne «Ny søknad».                                  | Søknadsskjemaet opnar direkte for virksomheita du valde. Søknaden spør ikkje etter rolle.                                                                  | ☐   |
+| 9.7  | Vel ei virksomheit der rolla er fjerna i Altinn.   | Melding om manglande tilgang. Ingen tenester blir viste.                                                                                                   | ☐   |
+| 9.8  | Opne `/aaregisteret/s/?type=employer&org=<orgnr>`. | Går rett til rollesida for arbeidsgivar, og tilgangen blir kontrollert.                                                                                    | ☐   |
+| 9.9  | Opne `/aaregisteret/s/?c__message=no-access`.      | Fast melding: «Du har ikke tilgang til denne siden. Velg en annen rolle.»                                                                                  | ☐   |
+| 9.10 | Set `phase shadow` og last forsida på nytt.        | Dagens forside blir vist, utan rolleval.                                                                                                                   | ☐   |
 
-9.4–9.6 krev SIT2 eller ein Altinn-stub.
+9.4–9.7 krev SIT2 eller ein Altinn-stub.
 
 ## 10. Stadfesting til adressa for organisasjonen
 

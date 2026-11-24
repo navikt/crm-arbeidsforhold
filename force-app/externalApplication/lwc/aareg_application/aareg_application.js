@@ -8,7 +8,6 @@ import getAccountNameByOrgNumber from '@salesforce/apex/AAREG_ApplicationControl
 import deleteDraftRecord from '@salesforce/apex/AAREG_ApplicationController.deleteDraftRecord';
 import saveAsDraft from '@salesforce/apex/AAREG_ApplicationController.saveAsDraft';
 import getUserRights from '@salesforce/apex/AAREG_CommunityUtils.getUserRights';
-import getContactModelSettings from '@salesforce/apex/AAREG_ContactModelPortalController.getSettings';
 import { validateEmail } from 'c/aareg_helperClass';
 
 export default class Aareg_application extends NavigationMixin(LightningElement) {
@@ -27,7 +26,6 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     lastUsedOrganization;
     organizationType;
     isLoaded = false;
-    showStart = false;
     fileData = { base64: null, filename: null };
     error;
     @track numPops = 3;
@@ -50,37 +48,8 @@ export default class Aareg_application extends NavigationMixin(LightningElement)
     currentPageReference;
 
     connectedCallback() {
-        this.start();
-        this.setBreadcrumbs();
-    }
-
-    get isNewApplication() {
-        const type = this.currentPageReference?.state?.c__applicationType;
-        return !this.recordId && type !== 'view' && type !== 'edit';
-    }
-
-    async start() {
-        if (this.isNewApplication && (await this.isRoleFirstStartEnabled())) {
-            this.showStart = true;
-            this.isLoaded = true;
-            return;
-        }
         this.init();
-    }
-
-    async isRoleFirstStartEnabled() {
-        try {
-            const settings = await getContactModelSettings();
-            return settings?.orgSelector === true;
-        } catch (error) {
-            return false;
-        }
-    }
-
-    async handleOrganizationSelected() {
-        this.showStart = false;
-        this.isLoaded = false;
-        await this.init();
+        this.setBreadcrumbs();
     }
 
     get isEditForCheckbox() {

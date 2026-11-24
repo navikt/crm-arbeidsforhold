@@ -1,0 +1,175 @@
+{
+    "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+    "componentName": "siteforce:dynamicLayout",
+    "dataProviders": [],
+    "id": "88d1b1cc-da52-474d-b24d-9af8e6e4bc0c",
+    "label": "Samarbeidspartner",
+    "regions": [
+        {
+            "components": [
+                {
+                    "componentAttributes": {
+                        "background": "background: rgba(0,0,0,0)",
+                        "backgroundOverlay": "rgba(0,0,0,0.5)",
+                        "contentAreaWidth": 100,
+                        "sectionConfig": {
+                            "UUID": "72a557ac-c357-4ea9-96c2-c17368c92a5b",
+                            "columns": [
+                                {
+                                    "UUID": "e944bbbd-8a4c-499d-b685-5b9ff50bc440",
+                                    "columnKey": "1",
+                                    "columnName": "Column 1",
+                                    "columnWidth": "12",
+                                    "seedComponents": []
+                                }
+                            ]
+                        },
+                        "sectionHeight": 32
+                    },
+                    "componentName": "forceCommunity:section",
+                    "id": "72a557ac-c357-4ea9-96c2-c17368c92a5b",
+                    "regions": [
+                        {
+                            "components": [
+                                {
+                                    "componentAttributes": {
+                                        "NAVarea": "Privatperson"
+                                    },
+                                    "componentName": "c:globalCommunityHeader",
+                                    "id": "ab20aec1-9980-4bf2-83f4-f473e8373027",
+                                    "renderPriority": "NEUTRAL",
+                                    "renditionMap": {},
+                                    "type": "component"
+                                }
+                            ],
+                            "id": "e944bbbd-8a4c-499d-b685-5b9ff50bc440",
+                            "regionLabel": "Column 1",
+                            "regionName": "1",
+                            "renditionMap": {},
+                            "type": "region"
+                        }
+                    ],
+                    "renderPriority": "NEUTRAL",
+                    "renditionMap": {},
+                    "type": "component"
+                },
+                {
+                    "componentAttributes": {
+                        "background": "background: rgba(0,0,0,0)",
+                        "backgroundOverlay": "rgba(0,0,0,0.5)",
+                        "contentAreaWidth": 100,
+                        "sectionConfig": {
+                            "UUID": "3490f55d-0da8-4bc9-9ee8-72e6a95fb4f6",
+                            "columns": [
+                                {
+                                    "UUID": "d6a293ef-e4cc-4b95-8708-bba1f9fc5528",
+                                    "columnKey": "1",
+                                    "columnName": "Column 1",
+                                    "columnWidth": "12",
+                                    "seedComponents": []
+                                }
+                            ]
+                        },
+                        "sectionHeight": 300
+                    },
+                    "componentName": "forceCommunity:section",
+                    "id": "3490f55d-0da8-4bc9-9ee8-72e6a95fb4f6",
+                    "regions": [
+                        {
+                            "components": [
+                                {
+                                    "componentAttributes": {
+                                        "roleKey": "Partner"
+                                    },
+                                    "componentName": "c:aaregRolePage",
+                                    "id": "e1bfc346-fbf5-4529-aabd-16f7c6e2ab06",
+                                    "renderPriority": "NEUTRAL",
+                                    "renditionMap": {},
+                                    "type": "component"
+                                }
+                            ],
+                            "id": "d6a293ef-e4cc-4b95-8708-bba1f9fc5528",
+                            "regionLabel": "Column 1",
+                            "regionName": "1",
+                            "renditionMap": {},
+                            "type": "region"
+                        }
+                    ],
+                    "renderPriority": "NEUTRAL",
+                    "renditionMap": {},
+                    "type": "component"
+                },
+                {
+                    "componentAttributes": {
+                        "background": "background: rgba(0,0,0,0)",
+                        "backgroundOverlay": "rgba(0,0,0,0.5)",
+                        "contentAreaWidth": 100,
+                        "sectionConfig": {
+                            "UUID": "b95bbac8-e23c-4b24-a060-de4cbb3853cc",
+                            "columns": [
+                                {
+                                    "UUID": "3e8de3a1-8231-4484-8c19-8b44d6eedd4a",
+                                    "columnKey": "1",
+                                    "columnName": "Column 1",
+                                    "columnWidth": "12",
+                                    "seedComponents": []
+                                }
+                            ]
+                        },
+                        "sectionHeight": 32
+                    },
+                    "componentName": "forceCommunity:section",
+                    "id": "b95bbac8-e23c-4b24-a060-de4cbb3853cc",
+                    "regions": [
+                        {
+                            "components": [
+                                {
+                                    "componentAttributes": {
+                                        "NAVarea": "Privatperson"
+                                    },
+                                    "componentName": "c:globalCommunityFooter",
+                                    "id": "451591c0-8481-452e-a585-4e7830073879",
+                                    "renderPriority": "NEUTRAL",
+                                    "renditionMap": {},
+                                    "type": "component"
+                                }
+                            ],
+                            "id": "3e8de3a1-8231-4484-8c19-8b44d6eedd4a",
+                            "regionLabel": "Column 1",
+                            "regionName": "1",
+                            "renditionMap": {},
+                            "type": "region"
+                        }
+                    ],
+                    "renderPriority": "NEUTRAL",
+                    "renditionMap": {},
+                    "type": "component"
+                }
+            ],
+            "id": "8c98f628-e931-447c-889e-a9c739ac3447",
+            "regionName": "content",
+            "type": "region"
+        },
+        {
+            "components": [
+                {
+                    "componentAttributes": {
+                        "customHeadTags": "",
+                        "description": "",
+                        "title": "Samarbeidspartner"
+                    },
+                    "componentName": "forceCommunity:seoAssistant",
+                    "id": "80789967-3fcc-4e86-a567-f6c274aa6153",
+                    "renditionMap": {},
+                    "type": "component"
+                }
+            ],
+            "id": "d15e0d98-81ed-4d25-837d-d6a6e65e337c",
+            "regionName": "sfdcHiddenRegion",
+            "type": "region"
+        }
+    ],
+    "themeLayoutType": "Inner",
+    "type": "view",
+    "viewType": "custom-samarbeidspartner"
+}

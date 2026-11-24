@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Capability__c</fullName>
+    <description>Capability shown and enforced by the server.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Capability</label>
+    <required>false</required>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>APPLICATION</fullName>
+                <default>false</default>
+                <label>APPLICATION</label>
+            </value>
+            <value>
+                <fullName>MY_APPLICATIONS</fullName>
+                <default>false</default>
+                <label>MY_APPLICATIONS</label>
+            </value>
+            <value>
+                <fullName>AGREEMENTS</fullName>
+                <default>false</default>
+                <label>AGREEMENTS</label>
+            </value>
+            <value>
+                <fullName>SUPPORT</fullName>
+                <default>false</default>
+                <label>SUPPORT</label>
+            </value>
+            <value>
+                <fullName>MESSAGES</fullName>
+                <default>false</default>
+                <label>MESSAGES</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <type>Picklist</type>
+    <unique>false</unique>
+</CustomField>
