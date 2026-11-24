@@ -46,7 +46,12 @@ const PHASES = {
 const RUN_MODES = { plan: 'PLAN', apply: 'APPLY', verify: 'VERIFY', rollback: 'ROLLBACK' };
 const MODES = ['status', 'setup', 'seed', 'flags', 'phase', ...Object.keys(RUN_MODES)];
 const SEED_DIRECTORY = path.join(ROOT, 'scripts/scratch/contactModel');
-const SEED_STEPS = ['seed-1-people.apex', 'seed-2-users.apex', 'seed-3-applications.apex'];
+const SEED_STEPS = [
+    'seed-1-people.apex',
+    'seed-2-users.apex',
+    'seed-3-applications.apex',
+    'seed-4-portal-message.apex'
+];
 const SEED_PERMISSION_SET = 'AAREG_ContactModel_ScratchSeed';
 const PERMISSION_SETS = ['AAREG_ContactModel_Admin', 'AAREG_ContactModel_Pilot'];
 const RESULT_MARKER = 'AAREG_CONTACT_MODEL_RESULT=';

@@ -173,7 +173,8 @@ Set `phase pilot` og logg inn som pilotbrukaren. Opne `/aaregisteret/s/`.
 | 12.7  | Gjer vindauget smalare enn 480px.                                                             | Stien blir erstatta av «Tilbake til {forrige side}».                                        | ☐   |
 | 12.8  | Ctrl-/Cmd-klikk på eit panel.                                                                 | Sida opnar i ny fane.                                                                       | ☐   |
 | 12.9  | Naviger med tastatur og skjermlesar.                                                          | «Brødsmulesti» blir lese opp som navigasjon, og siste ledd som gjeldande side.              | ☐   |
-| 12.10 | Set `phase shadow` og last ei underside på nytt.                                              | Ingen ny brødsmulesti. Sida er som før.                                                     | ☐   |
+| 12.10 | Opne «Mine meldinger» og ei melding.                                                          | Berre éin sti: «Forside › Rolle › Mine meldinger › Melding». Ingen «Hjem» eller «Min side». | ☐   |
+| 12.11 | Set `phase shadow` og last ei underside på nytt.                                              | Ingen ny brødsmulesti. Den gamle stien er tilbake, og sida er som før.                      | ☐   |
 
 12.5–12.6 krev SIT2 eller ein Altinn-stub.
 

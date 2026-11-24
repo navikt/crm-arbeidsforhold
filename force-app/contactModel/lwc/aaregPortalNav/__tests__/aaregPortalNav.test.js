@@ -55,6 +55,19 @@ describe('c-aareg-portal-nav', () => {
         ]);
     });
 
+    it('leads from a message back through Mine meldinger to the role page', async () => {
+        rememberContext({ roleKey: 'Partner', organizationNumber: '889640782' });
+        const element = await render('/s/thread/a0X000000000001AAA/melding');
+
+        const nav = element.shadowRoot.querySelector('nav');
+        const links = [...nav.querySelectorAll('ol a')].map((anchor) => anchor.textContent.trim());
+        expect(links).toEqual(['Forside', 'Samarbeidspartner / fullmektig', 'Mine meldinger']);
+        expect(nav.querySelector('[aria-current="page"]').textContent.trim()).toBe('Melding');
+        expect(element.shadowRoot.querySelector('[data-id="back"]').textContent).toContain(
+            'Tilbake til Mine meldinger'
+        );
+    });
+
     it('renders nothing when the new portal is switched off', async () => {
         getPortal.mockResolvedValue({ enabled: false, roles: [] });
         const element = await render('/s/mine-soknader');

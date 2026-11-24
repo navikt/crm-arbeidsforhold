@@ -70,8 +70,14 @@ export default async function globalSetup(): Promise<void> {
         networkId: first("SELECT Id FROM Network WHERE UrlPathPrefix = 'aaregisteret'").Id,
         portalUserId: first(
             "SELECT Id FROM User WHERE Username LIKE 'aareg.community.test.%@example.invalid' AND IsActive = true LIMIT 1"
-        ).Id
+        ).Id,
+        threadId: undefined as string | undefined
     };
+    if (context.portalUserId) {
+        context.threadId = first(
+            `SELECT ParentId FROM Thread__Share WHERE UserOrGroupId = '${context.portalUserId}' AND RowCause = 'Manual' LIMIT 1`
+        ).ParentId;
+    }
 
     fs.mkdirSync(AUTH_DIRECTORY, { recursive: true });
     fs.writeFileSync(path.join(AUTH_DIRECTORY, 'context.json'), JSON.stringify(context, null, 2));

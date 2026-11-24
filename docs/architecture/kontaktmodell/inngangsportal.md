@@ -59,7 +59,10 @@ flowchart LR
 - **Aksel:** Nettstaden lastar Aksel v2-CSS globalt gjennom `crm-community-base`. Komponentane brukar difor
   `navds-*`-klassar og `--a-*`-tokens, ikkje React-pakken. Overgang til Aksel v8 (`--ax-*`) krev endring i
   `crm-community-base`, som Team Platforce eig. Det er ei eiga oppfølging.
-- **Unnatak:** `threadDetailFlex` har alt `c:aareg_breadcrumbs` og har ikkje fått den nye stien.
+- **Éin sti:** Når portalbrytaren er på, skjuler dei gamle stiane seg. `aareg_breadcrumbs` på meldingssida og
+  omslaget `aaregLegacyBreadcrumbs` rundt `c-breadcrumbs` i sju eldre komponentar (søknad, avtale, avtalekontaktar,
+  mine søknader, mine avtaler, mine meldinger og kontaktskjemaet) spør `getPortal()`. Den gamle stien blir viste
+  berre når brytaren er av eller kallet feilar, så tilbakerulling gir dagens navigasjon.
 
 ## Avgjerdskontrakt
 
@@ -108,8 +111,8 @@ scratch:
 3. Deploy frå det mellombelse prosjektet og køyr `sf community publish --name "Aa-registret"`.
 
 Brødsmulestien er lagd inn som første komponent i innhaldsseksjonen i `views/` for rollesidene, `minProfil`,
-`mineSøknader`, `mineAvtaler`, `mineMeldinger`, `nyMelding`, `nySøknadAaRegistret`, `applicationDetailFlex` og
-`agreementDetailFlex`. `.prettierignore` utelèt `**/experiences/**/*.json`.
+`mineSøknader`, `mineAvtaler`, `mineMeldinger`, `nyMelding`, `nySøknadAaRegistret`, `applicationDetailFlex`,
+`agreementDetailFlex` og `threadDetailFlex`. `.prettierignore` utelèt `**/experiences/**/*.json`.
 Dei fleste filene er i Salesforce sitt eige JSON-format, og ei omformatering ville gitt diff i alle filene.
 
 Utan dette viser nettstaden dagens forside, og rollesidene gir 404 sjølv om brytarane er på.

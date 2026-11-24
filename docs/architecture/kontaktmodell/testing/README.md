@@ -43,7 +43,8 @@ npx playwright show-report        # HTML-rapport etter køyringa
 ```
 
 Global setup stadfestar org-ID-en, opnar ei innlogga økt utan å logge URL-en og hentar ID-ar til
-syntetiske testdata. Køyringa tek om lag tre til ti minutt, avhengig av orgen.
+syntetiske testdata. Meldingstesten krev at `npm run contact-model -- seed` har delt ei syntetisk melding med
+portalbrukaren (`seed-4-portal-message.apex`). Elles blir han hoppa over. Køyringa tek om lag tre til ti minutt, avhengig av orgen.
 
 | Fil                         | Testar | Kontrollerer                                                                                         |
 | --------------------------- | -----: | ---------------------------------------------------------------------------------------------------- |
@@ -52,7 +53,7 @@ syntetiske testdata. Køyringa tek om lag tre til ti minutt, avhengig av orgen.
 | `reports.spec.ts`           |      7 | Dei fem rapportane, dashboardet og at diagramma blir teikna.                                         |
 | `portal-profile.spec.ts`    |      3 | «Min profil»: ingenting vist før val, lagring for «Meg selv» og søk på organisasjon.                 |
 | `entry-portal.spec.ts`      |      6 | Forsida med rolleval, rollesider, direktelenkjer, faste meldingar og «Bytt rolle».                   |
-| `portal-navigation.spec.ts` |      3 | Brødsmulesti frå forsida via rolle til «Min profil» og tilbake, og «Tilbake til» på smal skjerm.     |
+| `portal-navigation.spec.ts` |      4 | Brødsmulesti via rolle til «Min profil», éin sti på melding og «Mine meldinger», smal skjerm.        |
 
 Testane stadfestar aldri ei migreringskøyring. Dei trykkjer berre «Avbryt» i stadfestingsdialogen.
 Profiltesten lagrar ei syntetisk privatadresse på testbrukaren.
@@ -83,6 +84,8 @@ Skjermbileta blir lagra i [skjermbilete/](skjermbilete/) og viser berre syntetis
 | [16-brodsmulesti-rolleside](skjermbilete/16-brodsmulesti-rolleside.png)                                 | Rollesida med brødsmulesti.                    |
 | [17-brodsmulesti-min-profil](skjermbilete/17-brodsmulesti-min-profil.png)                               | «Min profil» med sti tilbake til rolla.        |
 | [18-tilbakelenkje-mobil](skjermbilete/18-tilbakelenkje-mobil.png)                                       | «Tilbake til Forside» på smal skjerm.          |
+| [19-brodsmulesti-melding](skjermbilete/19-brodsmulesti-melding.png)                                     | Meldingssida med éin felles sti.               |
+| [20-brodsmulesti-mine-meldinger](skjermbilete/20-brodsmulesti-mine-meldinger.png)                       | «Mine meldinger» utan den gamle stien.         |
 
 ## Kjende avgrensingar
 

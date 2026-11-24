@@ -46,6 +46,31 @@ test.describe('Navigasjon tilbake med brødsmulesti', () => {
         await expect(breadcrumbs(page)).toHaveCount(0, { timeout: 60_000 });
     });
 
+    test('meldingssida og dei eldre sidene viser berre den nye stien', async ({ page }) => {
+        test.skip(!context.threadId, 'Ingen delt Aa-registeret-melding. Køyr «npm run contact-model -- seed».');
+        await openPortalPage(page, `${HOME}?type=employer&org=111111111`);
+        await expect(page).toHaveURL(/\/arbeidsgiver/, { timeout: 60_000 });
+
+        const siteOrigin = new URL(page.url()).origin;
+        await page.goto(`${siteOrigin}${HOME}thread/${context.threadId}/melding`);
+
+        const trail = breadcrumbs(page);
+        await expect(trail.locator('[aria-current="page"]')).toHaveText('Melding', { timeout: 60_000 });
+        await expect(trail.getByRole('link', { name: 'Arbeidsgiver' })).toBeVisible();
+        await expect(trail).toHaveCount(1);
+        await expect(page.getByRole('link', { name: 'Hjem', exact: true })).toHaveCount(0);
+        await documentScreenshot(page, '19-brodsmulesti-melding');
+
+        await trail.getByRole('link', { name: 'Mine meldinger' }).click();
+        await expect(page).toHaveURL(/\/mine-meldinger/);
+        await expect(breadcrumbs(page).locator('[aria-current="page"]')).toHaveText('Mine meldinger', {
+            timeout: 60_000
+        });
+        await expect(page.getByRole('button', { name: 'Ny melding' })).toBeVisible({ timeout: 60_000 });
+        await expect(page.getByRole('link', { name: 'Min side', exact: true })).toHaveCount(0);
+        await documentScreenshot(page, '20-brodsmulesti-mine-meldinger');
+    });
+
     test('på smal skjerm blir stien ei «Tilbake til»-lenkje', async ({ page }) => {
         await page.setViewportSize({ width: 375, height: 812 });
         await openPortalPage(page, `${HOME}?type=private-person`);

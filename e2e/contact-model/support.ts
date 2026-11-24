@@ -12,6 +12,7 @@ export type ScratchContext = {
     reports: { id: string; developerName: string; name: string }[];
     networkId?: string;
     portalUserId?: string;
+    threadId?: string;
 };
 
 export const context: ScratchContext = JSON.parse(

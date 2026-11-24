@@ -74,6 +74,13 @@
           "renditionMap" : { },
           "type" : "component"
         }, {
+          "componentAttributes" : { },
+          "componentName" : "c:aaregPortalNav",
+          "id" : "6c0f2b7e-4d1a-4f3e-9a5b-2e8d7c1f0a93",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        }, {
           "componentAttributes" : {
             "firstHref" : "Hjem",
             "secondHref" : "Mine Meldinger",
