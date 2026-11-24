@@ -80,4 +80,53 @@ private class P360_AdapterFactoryTest {
             'Expected the explicit mock setting to select the stub adapter.'
         );
     }
+
+    /**
+     * Verifies that a configured RPC client class is wired into the real archive adapter.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void configuredRpcClientClassIsUsedByArchiveAdapter() {
+        insert new P360_Integration_Setting__c(
+            SetupOwnerId = UserInfo.getOrganizationId(),
+            Rpc_Client_Class__c = 'P360_CapturingRpcClient'
+        );
+
+        P360_IArchiveAdapter archiveAdapter = new P360_AdapterFactory().createArchiveAdapter();
+
+        System.Assert.isInstanceOfType(archiveAdapter, P360_ArchiveAdapter.class);
+        System.Assert.isInstanceOfType(
+            ((P360_ArchiveAdapter) archiveAdapter).rpcClient,
+            P360_CapturingRpcClient.class,
+            'Expected the configured RPC client class.'
+        );
+    }
+
+    /**
+     * Verifies that a configured class which is missing or not an RPC client fails closed.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void invalidRpcClientClassIsRejected() {
+        P360_Integration_Setting__c settings = new P360_Integration_Setting__c(
+            SetupOwnerId = UserInfo.getOrganizationId()
+        );
+        insert settings;
+
+        for (String configuredClass : new List<String>{ 'P360_NoSuchClient', 'P360_RpcRequest' }) {
+            settings.Rpc_Client_Class__c = configuredClass;
+            update settings;
+            try {
+                new P360_AdapterFactory();
+                System.Assert.fail('Expected a configuration exception for ' + configuredClass);
+            } catch (P360_ConfigException caughtError) {
+                System.Assert.areEqual(
+                    'Configured P360 RPC client class is not a P360_IRpcClient: ' + configuredClass,
+                    caughtError.getMessage()
+                );
+            }
+        }
+    }
 }

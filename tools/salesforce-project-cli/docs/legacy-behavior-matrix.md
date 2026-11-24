@@ -44,4 +44,4 @@ This matrix records the migration baseline. The TypeScript CLI does not silently
 
 ## Validation boundary
 
-Unit, contract, component and browser tests use fake Salesforce responses. They prove local behaviour but do not prove authenticated Salesforce compatibility. Any real org create, package install, deployment or test run requires an explicitly selected org and human approval.
+Unit, contract, component and browser tests use fake Salesforce responses. They prove local behaviour but do not prove authenticated Salesforce compatibility. Verify an explicit non-production target for real runs. Work in the existing `crm-arbeidsforhold` scratch org needs no renewed user approval under the repository's `AGENTS.md`; org creation/replacement, Dev Hub access, and each operation in other non-production orgs still require approval. Native tool controls remain in force. Agents must never access production.

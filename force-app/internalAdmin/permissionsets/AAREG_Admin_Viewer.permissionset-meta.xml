@@ -17,6 +17,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>AAREG_AdminJourneyController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>AAREG_AdminOverviewController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -253,6 +257,10 @@
     </tabSettings>
     <tabSettings>
         <tab>AAREG_Admin_Access</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AAREG_Admin_Journey</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>

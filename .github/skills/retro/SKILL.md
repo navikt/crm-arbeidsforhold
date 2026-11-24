@@ -16,7 +16,7 @@ Review how the work was performed, not only the resulting code. Propose improvem
 4. For each finding state the observed evidence, consequence, likely cause, smallest improvement, and how to verify that improvement. Mark uncertainty; do not infer a host failure from a single failed skill-name lookup.
 5. Prefer deterministic existing checks for mechanical errors. Use instructions for judgement and workflow, not as a substitute for tests or executable validation. Do not add a new tool when the existing one is simply unwired or unused.
 6. Rank a short list by impact and recurrence. Include what worked and avoid recommendations that merely add files or repeat existing rules.
-7. Ask which changes the user approves before implementation. Any CI/auth, org operation, dependency, or package change retains its separate approval gate.
+7. Ask which changes the user approves before implementation. CI/auth, dependency source changes, org creation/replacement, package creation/promotion, and operations in other non-production orgs retain their approval gates. Work in the verified existing `crm-arbeidsforhold` scratch org needs no renewed user approval under `AGENTS.md`; production access remains prohibited.
 
 ## Salesforce and repository boundaries
 

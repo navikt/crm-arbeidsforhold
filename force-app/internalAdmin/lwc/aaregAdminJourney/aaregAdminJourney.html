@@ -1,0 +1,65 @@
+<template>
+    <lightning-card title="Saksreise" icon-name="standard:timeline">
+        <div class="slds-p-horizontal_medium">
+            <p class="slds-text-body_small slds-m-bottom_small">
+                Alt som har skjedd med éin søknad, frå oppretting til arkiv, i tidsrekkjefølgje. Eldste hending står
+                øvst.
+            </p>
+            <template lwc:if={isAppPage}>
+                <lightning-record-picker
+                    label="Vel søknad"
+                    placeholder="Søk etter søknadsnummer"
+                    object-api-name="Application__c"
+                    onchange={handlePick}
+                ></lightning-record-picker>
+            </template>
+            <template lwc:if={loading}>
+                <lightning-spinner alternative-text="Lastar"></lightning-spinner>
+            </template>
+            <template lwc:if={error}>
+                <div class="slds-text-color_error slds-m-top_small" role="alert">{error}</div>
+            </template>
+            <template lwc:if={journey}>
+                <h2 class="slds-text-heading_small slds-m-vertical_small">{journey.applicationName}</h2>
+                <ol class="slds-list_vertical-space-medium">
+                    <template for:each={entries} for:item="entry">
+                        <li key={entry.key} data-source={entry.source} class="slds-border_bottom slds-p-bottom_x-small">
+                            <template lwc:if={entry.dateOnly}>
+                                <lightning-formatted-date-time
+                                    value={entry.timestamp}
+                                    year="numeric"
+                                    month="2-digit"
+                                    day="2-digit"
+                                ></lightning-formatted-date-time>
+                            </template>
+                            <template lwc:else>
+                                <lightning-formatted-date-time
+                                    value={entry.timestamp}
+                                    year="numeric"
+                                    month="2-digit"
+                                    day="2-digit"
+                                    hour="2-digit"
+                                    minute="2-digit"
+                                ></lightning-formatted-date-time>
+                            </template>
+                            <span class="slds-badge slds-m-horizontal_x-small">{entry.sourceLabel}</span>
+                            <a href={entry.url} target="_blank" rel="noopener noreferrer">{entry.title}</a>
+                            <template lwc:if={entry.detail}>
+                                <div class="slds-text-body_small slds-text-color_weak">{entry.detail}</div>
+                            </template>
+                        </li>
+                    </template>
+                </ol>
+                <template for:each={missingSteps} for:item="missing">
+                    <p key={missing.step} class="slds-text-color_weak slds-m-top_x-small">{missing.text}</p>
+                </template>
+                <template lwc:if={hiddenText}>
+                    <p class="slds-text-color_error slds-m-top_x-small">{hiddenText}</p>
+                </template>
+                <template for:each={journey.notes} for:item="note">
+                    <p key={note} class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">{note}</p>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>

@@ -91,6 +91,22 @@ public with sharing class AAREG_AdminConfigurationController {
             )
         );
         section.items.add(credentialItem(setting == null ? null : setting.Named_Credential_Name__c));
+        section.items.add(
+            new Item(
+                'RPC-klient',
+                setting == null || String.isBlank(setting.Rpc_Client_Class__c) ? NOT_SET : setting.Rpc_Client_Class__c,
+                'neutral',
+                'Apex-klassen som byggjer og sender førespurnaden til P360.'
+            )
+        );
+        section.items.add(
+            new Item(
+                'Eksternt system',
+                setting == null || String.isBlank(setting.External_System__c) ? NOT_SET : setting.External_System__c,
+                'neutral',
+                'Systemnamnet som blir sendt med i P360-førespurnaden.'
+            )
+        );
         return section;
     }
 

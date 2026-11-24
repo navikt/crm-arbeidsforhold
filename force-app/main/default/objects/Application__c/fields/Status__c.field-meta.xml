@@ -6,7 +6,7 @@
     <inlineHelpText>Dette feltet angir status på søknad som vises ut til søker. Denne vil kunne avvike fra &quot;status på søknad&quot; som benyttes internt i saksbehandlingen.</inlineHelpText>
     <label>Status</label>
     <required>false</required>
-    <trackHistory>false</trackHistory>
+    <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>

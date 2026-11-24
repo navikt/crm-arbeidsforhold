@@ -17,6 +17,6 @@ Use this skill only when the behaviour, scope, and test seams are agreed.
 5. Keep Apex org-dependent validation separate from local Jest and static checks.
 6. Run the relevant broader validation at the end.
 7. Apply `.github/skills/code-review-two-axis/SKILL.md` before commit or pull request.
-8. Stop before deployment, package, CI/auth, or other human-approval actions.
+8. Apply `AGENTS.md` org safety: work in the verified existing `crm-arbeidsforhold` scratch org needs no renewed user approval, including deployment and package installation. Stop before other org operations, org creation/replacement, package creation/promotion, CI/auth, or other human-approval actions. Never access production.
 
 Completion requires the focused and broader checks to be reported, with blocked org prerequisites named exactly. Do not close GitHub Issues automatically.

@@ -11,7 +11,10 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
     @TestVisible
     private static final List<Integer> BACKOFF_MINUTES_SCHEDULE = new List<Integer>{ 1, 5, 15, 60, 360 };
 
+    private static final String APPLICATION_DOCUMENT_EVENT = 'ApplicationDocument';
+
     private final Set<Id> jobIds;
+    private final Map<Id, String> createdCaseNumbers = new Map<Id, String>();
     @TestVisible
     private P360_IArchiveAdapter adapter;
 
@@ -28,6 +31,11 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
      * Processes each claimed job and updates it to Succeeded, Failed (with a scheduled retry), or Manual Review.
      * Records the adapter attempt start time with the persisted outcome, without DML before callouts.
      * Disabled processing restores claims without changing the last actual attempt timestamp.
+     * Application document jobs are built from the submitted application; other event types are sent with
+     * only their identity and are rejected by the adapter until their document content is implemented.
+     * A P360 case created for an access request is saved on that access request after all callouts, also when the
+     * document step then fails, so the next submission or retry reuses the case instead of creating a duplicate.
+     * Jobs for the same access request later in the same batch reuse that case as well.
      *
      * @param context Queueable context supplied by the platform.
      * @since 2026-10
@@ -38,12 +46,15 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
             return;
         }
 
-        if (adapter == null) {
-            adapter = new P360_AdapterFactory().createArchiveAdapter();
-        }
-
         List<P360_Archive_Job__c> jobs = [
-            SELECT Id, Idempotency_Key__c, Attempt_Count__c, Correlation_Id__c, Archive_Event_Type__c
+            SELECT
+                Id,
+                Idempotency_Key__c,
+                Attempt_Count__c,
+                Correlation_Id__c,
+                Archive_Event_Type__c,
+                Application__c,
+                Access_Request__c
             FROM P360_Archive_Job__c
             WHERE Id IN :jobIds
         ];
@@ -56,6 +67,7 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
             toUpdate.add(outcome);
         }
         update toUpdate;
+        new CreatedCaseWriter().save(createdCaseNumbers);
     }
 
     private void restoreClaimedJobs() {
@@ -90,10 +102,13 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
     }
 
     private P360_Archive_Job__c processJob(P360_Archive_Job__c job) {
-        P360_ArchiveRequestDto request = new P360_ArchiveRequestDto();
-        request.externalId = job.Idempotency_Key__c;
-
+        P360_ArchiveRequestDto request;
         try {
+            if (adapter == null) {
+                adapter = new P360_AdapterFactory().createArchiveAdapter();
+            }
+            request = buildRequest(job);
+            reuseCaseCreatedInBatch(job, request);
             P360_ArchiveResponseDto response = adapter.archive(request);
             if (response == null || response.success != true) {
                 throw new P360_ContractException('P360 adapter did not confirm a successful archive.');
@@ -104,7 +119,39 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
             String logStatus = failure.Status__c == 'Failed' ? 'RetryScheduled' : 'ManualReview';
             logFailureSafely(job, logStatus);
             return failure;
+        } finally {
+            rememberCreatedCase(job, request);
         }
+    }
+
+    // The access request is read before this batch saves its case number, so reuse a case created earlier in the batch.
+    private void reuseCaseCreatedInBatch(P360_Archive_Job__c job, P360_ArchiveRequestDto request) {
+        String caseNumber = createdCaseNumbers.get(job.Access_Request__c);
+        if (caseNumber != null && request.createCase != null && request.createDocument != null) {
+            request.createCase = null;
+            request.createDocument.caseNumber = caseNumber;
+        }
+    }
+
+    // The adapter sets CreateDocument's case number from the CreateCase result.
+    private void rememberCreatedCase(P360_Archive_Job__c job, P360_ArchiveRequestDto request) {
+        if (
+            job.Access_Request__c != null &&
+            request?.createCase != null &&
+            String.isNotBlank(request.createDocument?.caseNumber)
+        ) {
+            createdCaseNumbers.put(job.Access_Request__c, request.createDocument.caseNumber);
+        }
+    }
+
+    private static P360_ArchiveRequestDto buildRequest(P360_Archive_Job__c job) {
+        if (job.Archive_Event_Type__c == APPLICATION_DOCUMENT_EVENT) {
+            return new AAREG_ApplicationArchiveRequestBuilder().build(job);
+        }
+        P360_ArchiveRequestDto request = new P360_ArchiveRequestDto();
+        request.correlationId = job.Correlation_Id__c;
+        request.externalId = job.Idempotency_Key__c;
+        return request;
     }
 
     private void logFailureSafely(P360_Archive_Job__c job, String status) {
@@ -139,6 +186,33 @@ public with sharing class P360_ArchiveJobWorker implements Queueable, Database.A
             Last_Error_Code__c = errorCode,
             Last_Error_Message__c = errorMessage
         );
+    }
+
+    /**
+     * Saves P360 case numbers on access requests that have none. Runs in system mode because the processing
+     * user has no access to access requests; it writes only the case number of access requests in the batch.
+     */
+    private without sharing class CreatedCaseWriter {
+        void save(Map<Id, String> caseNumberByAccessRequest) {
+            if (caseNumberByAccessRequest.isEmpty()) {
+                return;
+            }
+            List<Access_Request__c> updates = new List<Access_Request__c>();
+            for (Access_Request__c accessRequest : [
+                SELECT Id
+                FROM Access_Request__c
+                WHERE Id IN :caseNumberByAccessRequest.keySet() AND P360_Case_Number__c = NULL
+                WITH SYSTEM_MODE
+            ]) {
+                updates.add(
+                    new Access_Request__c(
+                        Id = accessRequest.Id,
+                        P360_Case_Number__c = caseNumberByAccessRequest.get(accessRequest.Id)
+                    )
+                );
+            }
+            update as system updates;
+        }
     }
 
     private static String limitErrorMessage(String errorMessage) {

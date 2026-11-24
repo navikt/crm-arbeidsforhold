@@ -59,6 +59,7 @@ public with sharing class AAREG_ApplicationToP360CaseMapper {
         archiveCodeParameter.archiveCode = archiveCode.p360Code;
         archiveCodeParameter.sortOrder = Integer.valueOf(archiveSort.p360Code);
         archiveCodeParameter.isManualText = false;
+        archiveCodeParameter.archiveType = codeTableService.getValue('ClassCode1ArchiveType', 'Default').p360Code;
         request.archiveCodes = new List<P360_ClassCodeParameterDto>{ archiveCodeParameter };
         return request;
     }
