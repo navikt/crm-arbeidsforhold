@@ -8,16 +8,17 @@ målet. Det kan ikkje brukast mot SIT2 eller produksjon.
 npm run contact-model -- <modus> [argument]
 ```
 
-| Modus                   | Gjer                                                                                        |
-| ----------------------- | ------------------------------------------------------------------------------------------- |
-| `status`                | Viser brytarane, dei fem siste køyringane og tal på kontaktpunkt og deltakingar.            |
-| `setup`                 | Tildeler `AAREG_ContactModel_Admin` og `AAREG_ContactModel_Pilot` og set opp primærkontoen. |
-| `seed`                  | Lagar syntetiske personar, portalbrukarar og søknader for klassane A–E.                     |
-| `flags off\|pilot\|all` | Set alle fem brytarane i scratch. Repoet held alltid brytarane av.                          |
-| `plan`                  | Klassifiserer søknadene utan å endre data.                                                  |
-| `apply`                 | Koplar klasse A og tek backup av alle verdiar som blir endra.                               |
-| `verify`                | Kontrollerer at siste APPLY framleis stemmer.                                               |
-| `rollback`              | Set tilbake verdiane frå siste APPLY.                                                       |
+| Modus                   | Gjer                                                                                          |
+| ----------------------- | --------------------------------------------------------------------------------------------- |
+| `status`                | Viser brytarane, dei fem siste køyringane og tal på kontaktpunkt og deltakingar.              |
+| `setup`                 | Tildeler `AAREG_ContactModel_Admin` og `AAREG_ContactModel_Pilot` og set opp primærkontoen.   |
+| `seed`                  | Lagar syntetiske personar, portalbrukarar og søknader for klassane A–E.                       |
+| `flags off\|pilot\|all` | Set alle fem brytarane i scratch. Repoet held alltid brytarane av.                            |
+| `phase <fase>`          | Set brytarprofilen for ein utrullingsfase: `dark`, `shadow`, `pilot`, `broad` eller `switch`. |
+| `plan`                  | Klassifiserer søknadene utan å endre data.                                                    |
+| `apply`                 | Koplar klasse A og tek backup av alle verdiar som blir endra.                                 |
+| `verify`                | Kontrollerer at siste APPLY framleis stemmer.                                                 |
+| `rollback`              | Set tilbake verdiane frå siste APPLY.                                                         |
 
 Køyringane `plan`, `apply`, `verify` og `rollback` ventar til batchen er ferdig, i opptil ti
 minutt, og skriv ut resultatet per klasse.
@@ -44,7 +45,8 @@ npm run contact-model -- status
 | `all`   | Alle brukarar ser den nye modellen.                                        |
 
 Brytarane er Custom Metadata (`Feature_Flag__mdt`) og er stengde dersom posten manglar. Rekkjefølgja
-for utrulling står i [spesifikasjonen](../../../../.github/specs/aareg-contact-model.md).
+for utrulling står i [spesifikasjonen](../../../../.github/specs/aareg-contact-model.md). Profilen per fase og
+tilbakerullinga står i [runbooken for utrulling](../utrulling.md).
 
 ## Migrering og tilbakerulling
 

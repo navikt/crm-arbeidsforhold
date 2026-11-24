@@ -15,6 +15,7 @@ public with sharing class AAREG_ContactModelPortalController {
     public static final String ALTINN_RESOURCE = 'nav_arbeidsforhold_aa-registeret-sok-tilgang';
     private static final Pattern EMAIL_PATTERN = Pattern.compile('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
 
+    private static final Pattern ORGANIZATION_NUMBER_PATTERN = Pattern.compile('^\\d{9}$');
     private static final Registry REGISTRY = new Registry();
 
     @TestVisible
@@ -96,15 +97,16 @@ public with sharing class AAREG_ContactModelPortalController {
     }
 
     /**
-     * Returns which features are on.
+     * Returns which features are on. The profile and the role-first start are off for shielded persons (ADR-0008).
      *
      * @return Feature switches for the signed-in user.
      */
     @AuraEnabled
     public static Settings getSettings() {
         Settings settings = new Settings();
-        settings.orgSelector = AAREG_ContactModelGate.isEnabled(AAREG_ContactModelGate.ORG_SELECTOR);
-        settings.profile = AAREG_ContactModelGate.isEnabled(AAREG_ContactModelGate.PROFILE);
+        Boolean shielded = AAREG_ContactModelShielding.isShieldedUser(UserInfo.getUserId());
+        settings.orgSelector = AAREG_ContactModelGate.isEnabled(AAREG_ContactModelGate.ORG_SELECTOR) && !shielded;
+        settings.profile = AAREG_ContactModelGate.isEnabled(AAREG_ContactModelGate.PROFILE) && !shielded;
         settings.contextAddress = AAREG_ContactModelGate.isEnabled(AAREG_ContactModelGate.CONTEXT_ADDRESS);
         return settings;
     }
@@ -113,11 +115,11 @@ public with sharing class AAREG_ContactModelPortalController {
      * Returns the organizations Altinn reports for the signed-in user, including subunits, sorted by name.
      *
      * @return Organizations the user can choose.
-     * @throws AuraHandledException When the selector is off or Altinn cannot be reached.
+     * @throws AuraHandledException When the selector is off, the person is shielded, or Altinn cannot be reached.
      */
     @AuraEnabled
     public static List<OrganizationOption> getOrganizations() {
-        requireFlag(AAREG_ContactModelGate.ORG_SELECTOR);
+        requireUnshieldedFlag(AAREG_ContactModelGate.ORG_SELECTOR);
         String personIdent = personIdent();
         AltinnCalloutService.AltinnOrganizationsResponse response;
         try {
@@ -150,11 +152,11 @@ public with sharing class AAREG_ContactModelPortalController {
      *
      * @param organizationNumber Selected organization, or blank for «Meg selv» only.
      * @return Profile with the private address and, when verified, the address for the selected organization.
-     * @throws AuraHandledException When the profile is off.
+     * @throws AuraHandledException When the profile is off or the person is shielded.
      */
     @AuraEnabled
     public static Profile getProfile(String organizationNumber) {
-        requireFlag(AAREG_ContactModelGate.PROFILE);
+        requireProfile();
         Contact contact = AAREG_ContactModelService.findContactForUser(UserInfo.getUserId());
         Profile profile = new Profile();
         profile.name = UserInfo.getName();
@@ -174,11 +176,12 @@ public with sharing class AAREG_ContactModelPortalController {
      * @param email Address. Required.
      * @param phone Phone. Optional.
      * @return Updated profile for the same context.
-     * @throws AuraHandledException When the profile is off, the address is invalid, or Altinn denies the right.
+     * @throws AuraHandledException When the profile is off, the person is shielded, the address is invalid, or Altinn
+     * denies the right.
      */
     @AuraEnabled
     public static Profile saveAddress(String organizationNumber, String email, String phone) {
-        requireFlag(AAREG_ContactModelGate.PROFILE);
+        requireProfile();
         if (String.isBlank(email) || !EMAIL_PATTERN.matcher(email.trim()).matches()) {
             throw auraError('Skriv inn ei gyldig e-postadresse.');
         }
@@ -219,6 +222,35 @@ public with sharing class AAREG_ContactModelPortalController {
             profile.organization = context;
         }
         return profile;
+    }
+
+    /**
+     * Selects the organization for a new application after the user has chosen a role. Altinn must confirm the right
+     * to apply in this request; the existing «last used organization» on the user is then set, so the application form
+     * loads that organization as before.
+     *
+     * @param organizationNumber Organization chosen in the selector.
+     * @return The selected organization number.
+     * @throws AuraHandledException When the selector is off, the person is shielded, Altinn denies the right, or the
+     *         organization is unknown.
+     */
+    @AuraEnabled
+    public static String selectApplicationOrganization(String organizationNumber) {
+        requireUnshieldedFlag(AAREG_ContactModelGate.ORG_SELECTOR);
+        String normalized = (organizationNumber ?? '').deleteWhitespace();
+        if (!ORGANIZATION_NUMBER_PATTERN.matcher(normalized).matches()) {
+            throw auraError('Vel ein organisasjon frå lista.');
+        }
+        if (!hasAltinnRight(normalized)) {
+            throw auraError(
+                'Altinn stadfestar ikkje at du kan søkje på vegner av denne organisasjonen. Sjekk rolla di i Altinn.'
+            );
+        }
+        if (accountId(normalized) == null) {
+            throw auraError('Organisasjonen finst ikkje i Aa-registeret enno. Vel organisasjonen på forsida først.');
+        }
+        REGISTRY.rememberOrganization(UserInfo.getUserId(), normalized);
+        return normalized;
     }
 
     private static OrganizationContext organizationContext(Contact contact, String organizationNumber) {
@@ -292,6 +324,10 @@ public with sharing class AAREG_ContactModelPortalController {
             return [SELECT Name FROM Account WHERE Id = :organizationId WITH SYSTEM_MODE].Name;
         }
 
+        private void rememberOrganization(Id userId, String organizationNumber) {
+            update as system new User(Id = userId, LastUsedOrganization__c = organizationNumber);
+        }
+
         private void markVerified(Id contactId, Id organizationId) {
             List<AccountContactRelation> relations = [
                 SELECT Id
@@ -358,6 +394,17 @@ public with sharing class AAREG_ContactModelPortalController {
             sorted.add(byKey.get(key));
         }
         return sorted;
+    }
+
+    private static void requireProfile() {
+        requireUnshieldedFlag(AAREG_ContactModelGate.PROFILE);
+    }
+
+    private static void requireUnshieldedFlag(String flagName) {
+        requireFlag(flagName);
+        if (AAREG_ContactModelShielding.isShieldedUser(UserInfo.getUserId())) {
+            throw auraError('Funksjonen er ikkje tilgjengeleg for deg.');
+        }
     }
 
     private static void requireFlag(String flagName) {

@@ -33,6 +33,9 @@ Løysinga skal kunne slåast på gradvis og rullast tilbake utan tap av data.
 | D8  | Brytarane er `Feature_Flag__mdt`-rader lesne gjennom `AAREG_ContactModelGate`, som sperrer når noko manglar eller er av. Pilotbrukarar får ein custom permission. |
 | D9  | Migreringa skriv backup før kvar endring og kan rullast tilbake per køyring. Berre klasse A (sikker) blir kopla automatisk.                                      |
 | D10 | Drift skjer i fana «Kontaktmodell» i appen Arbeidsforhold Admin, med rapportar og dashboard.                                                                     |
+| D11 | Skjerma personar (kode 6/7 og Nav-tilsette) blir haldne heilt utanfor kontaktmodellen og følgjer den gamle flyten ([ADR-0008](../../docs/adr/0008-skjerming-i-kontaktmodellen.md)). |
+| D12 | Adressa som blir skriven inn i ein søknad, blir den nye adressa for same organisasjon. Andre kontekstar, inkludert privatadressa, blir ikkje endra.            |
+| D13 | Rolla frå start-steget blir ikkje lagra. Søknaden har ikkje noko felt for henne, og domeneavgjerda står att.                                                    |
 
 ## 4. Datamodell
 
@@ -102,6 +105,8 @@ migreringa sin `ROLLBACK`.
 | D      | Skjerma person. Krev eiga avklaring (K9).                                     | Ingen endring.    |
 | E      | Konflikt, til dømes ulik kontakt allereie kopla.                              | Ingen endring.    |
 
+Klasse D følgjer [ADR-0008](../../docs/adr/0008-skjerming-i-kontaktmodellen.md): skjerma personar blir aldri kopla.
+
 Køyringa blir starta frå admin-fana eller med `node scripts/contact-model.cjs <kommando>`. Skriptet
 nektar andre org-ar enn den verifiserte scratch-orgen utan eksplisitt `--target-org`.
 
@@ -113,6 +118,8 @@ nektar andre org-ar enn den verifiserte scratch-orgen utan eksplisitt `--target-
 - `AAREG_ContactModel_Admin` gir lesetilgang, inkludert kontaktpunkt, og løyvet `AAREG_ContactModelMigrate` for å starte køyringar.
 - Migreringsbackup kan innehalde personopplysningar (namn og e-post). Objekta er private, og
   backup skal slettast etter avtalt lagringstid.
+- Skjerma personar får ingen data i kontaktmodellen, og panelet maskerer personar som blir skjerma seinare
+  ([ADR-0008](../../docs/adr/0008-skjerming-i-kontaktmodellen.md)).
 
 ## 9. Utrulling
 
@@ -124,9 +131,14 @@ nektar andre org-ar enn den verifiserte scratch-orgen utan eksplisitt `--target-
 6. Skifte: `LegacyMatchingOff` på.
 7. Opprydding: eiga sak med runbook og Team Platforce-godkjenning.
 
+Brytarprofil, kommandoar, sjekkliste og tilbakerulling per fase står i
+[runbooken for utrulling](../../docs/architecture/kontaktmodell/utrulling.md).
+
 ## 10. Test
 
 - Apex: gate, skuggeskriving (ny, gjenbruk, ny innsending, feil), migrering (plan, apply, verify,
   rollback) og admin-kontrollar, med `System.runAs` minimumsbrukar der det gjeld.
 - Jest: admin-fana og organisasjonsveljaren.
 - Scratch: deploy og ende-til-ende-innsending med flagget på og av.
+- Apex for K5, K8 og K9: start-steget, mottakarresolveren gjennom flowen og skjerming.
+- Playwright: start-steget for ny søknad, «Min profil», panel, admin-fana, rapportar og dashboard.

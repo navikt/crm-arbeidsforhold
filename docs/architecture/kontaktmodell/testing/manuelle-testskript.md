@@ -86,16 +86,60 @@ Altinn er ikkje kopla til i scratch. 6.6–6.9 krev SIT2 eller ein Altinn-stub.
 | 7.2 | Kontroller organisasjonen til søknaden.                                   | ACR finst mellom domenekontakten og organisasjonen.                    | ☐   |
 | 7.3 | Endre adressa for organisasjonen i «Min profil» etter innsending.         | `Email__c` på deltakinga er uendra. Historikken blir ikkje skriven om. | ☐   |
 
-Varsel til kontekstadressa (`AAREG_ContactModel_ContextAddress`) er ikkje kopla til
-utsendingane enno og blir testa når den delen er bygd.
+Stadfesting til kontekstadressa blir testa i [testskript 10](#10-stadfesting-til-adressa-for-organisasjonen).
 
 ## 8. Skjerma person og deling
 
-| #   | Steg                                                                                  | Forventa resultat                                                        | OK  |
-| --- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | --- |
-| 8.1 | Køyr PLAN og opne rapporten for manuell vurdering.                                    | Den syntetiske skjerma personen ligg i klasse D og blir ikkje kopla.     | ☐   |
-| 8.2 | Logg inn som portalbrukar A og prøv å opne kontaktpunktet til portalbrukar B via URL. | Ingen tilgang.                                                           | ☐   |
-| 8.3 | Logg inn som saksbehandlar utan admin-løyve og søk etter kontaktpunkt.                | Berre kontaktpunkt saksbehandlaren har tilgang til etter delingsreglane. | ☐   |
+| #   | Steg                                                                                       | Forventa resultat                                                                | OK  |
+| --- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- | --- |
+| 8.1 | Køyr PLAN og opne rapporten for manuell vurdering.                                         | Den syntetiske skjerma personen ligg i klasse D og blir ikkje kopla.             | ☐   |
+| 8.2 | Logg inn som portalbrukar A og prøv å opne kontaktpunktet til portalbrukar B via URL.      | Ingen tilgang.                                                                   | ☐   |
+| 8.3 | Logg inn som saksbehandlar utan admin-løyve og søk etter kontaktpunkt.                     | Berre kontaktpunkt saksbehandlaren har tilgang til etter delingsreglane.         | ☐   |
+| 8.4 | Logg inn som den skjerma syntetiske portalbrukaren og opne `/aaregisteret/s/min-profil`.   | Profilen er ikkje tilgjengeleg.                                                  | ☐   |
+| 8.5 | Send inn ein søknad som den skjerma brukaren.                                              | Søknaden blir lagra som før. Ingen domenekontakt, ACR eller kontaktpunkt.        | ☐   |
+| 8.6 | Opne panelet på ein organisasjon der ein person er blitt skjerma etter innsending.         | Namnet er «Skjerma person», adressene er skjulte og har inga lenkje.             | ☐   |
+| 8.7 | Med `phase pilot`: opne `/aaregisteret/s/ny-soknad-aa-registret` som den skjerma brukaren. | Det gamle søknadsskjemaet blir vist, utan rolle-steget og organisasjonsveljaren. | ☐   |
+| 8.8 | Skjerm ein person som alt har domenekontakt, og send inn ein ny søknad som han.            | Stadfestinga går via den gamle kontaktkoplinga, ikkje til kontaktpunktet.        | ☐   |
+
+## 9. Ny søknad: rolle først
+
+Set `phase pilot` og logg inn som pilotbrukaren. Opne `/aaregisteret/s/ny-soknad-aa-registret`.
+
+| #   | Steg                                                  | Forventa resultat                                                                                | OK  |
+| --- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------ | --- |
+| 9.1 | Sjå på sida før du vel noko.                          | «Korleis søkjer du?» med tre val. Ingenting er valt, og søknadsskjemaet er ikkje vist.           | ☐   |
+| 9.2 | Vel «Som privatperson».                               | Forklaring om at tilgang blir gitt til organisasjonar, og lenkje til «Min profil». Inkje skjema. | ☐   |
+| 9.3 | Vel «Som arbeidsgiver».                               | Organisasjonsveljaren blir vist utan «Meg selv». «Gå vidare til søknaden» er grå.                | ☐   |
+| 9.4 | Søk på namn og deretter på organisasjonsnummer.       | Lista blir filtrert på begge.                                                                    | ☐   |
+| 9.5 | Vel ein organisasjon med rolle i Altinn og gå vidare. | Søknadsskjemaet opnar for den valde organisasjonen.                                              | ☐   |
+| 9.6 | Vel ein organisasjon der rolla er fjerna i Altinn.    | Feilmelding. Du kjem ikkje vidare.                                                               | ☐   |
+| 9.7 | Set `phase shadow` og last sida på nytt.              | Det gamle søknadsskjemaet blir vist direkte, utan rolle-steget.                                  | ☐   |
+
+9.4–9.6 krev SIT2 eller ein Altinn-stub.
+
+## 10. Stadfesting til adressa for organisasjonen
+
+Set `phase pilot`. Lagre ei privatadresse og ei adresse for organisasjonen i «Min profil» først.
+
+| #    | Steg                                                                    | Forventa resultat                                                                                       | OK  |
+| ---- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --- |
+| 10.1 | Send inn ein søknad for organisasjonen med ei ny e-postadresse.         | Stadfestinga i `EmailQueue__c` går til den nye adressa. Kontaktpunktet for organisasjonen er oppdatert. | ☐   |
+| 10.2 | Opne «Min profil» og vel «Meg selv».                                    | Privatadressa er uendra og har ikkje fått stadfestinga.                                                 | ☐   |
+| 10.3 | Set `phase switch` og send inn ein ny søknad med ei anna e-postadresse. | Søknaden blir kopla til domenekontakten. Det blir ikkje oppretta ein ny kontakt for e-posten.           | ☐   |
+| 10.4 | Set `phase broad` og send inn igjen.                                    | Den gamle koplinga per e-post er i bruk att.                                                            | ☐   |
+
+## 11. Utrulling og tilbakerulling
+
+Følg [runbooken](../utrulling.md). Køyr `npm run contact-model -- status` etter kvart steg.
+
+| #    | Steg                                   | Forventa resultat                                                                     | OK  |
+| ---- | -------------------------------------- | ------------------------------------------------------------------------------------- | --- |
+| 11.1 | `phase dark`                           | Alle fem brytarane er `off`. Portalen og innsending er som før.                       | ☐   |
+| 11.2 | `phase shadow` og send inn ein søknad. | `ShadowWrite` er `all`. Talet på deltakingar aukar. Portalen er uendra.               | ☐   |
+| 11.3 | `phase pilot`                          | Dei tre portalbrytarane er `pilot`. Berre pilotbrukaren ser rolle-steget og profilen. | ☐   |
+| 11.4 | `phase broad`                          | Dei tre portalbrytarane er `all`.                                                     | ☐   |
+| 11.5 | `phase switch`                         | `LegacyMatchingOff` er `all`.                                                         | ☐   |
+| 11.6 | `phase shadow`                         | Tilbake til skugge. Portalen er som før, data frå tidlegare fasar er urørte.          | ☐   |
 
 ## Avslutning
 

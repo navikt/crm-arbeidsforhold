@@ -1,25 +1,12 @@
-import { expect, test, type Page } from '@playwright/test';
-import { context, documentScreenshot } from './support';
+import { expect, test } from '@playwright/test';
+import { context, documentScreenshot, openPortalPage } from './support';
 
 const SITE_PATH = '/aaregisteret/s/min-profil';
-
-async function loginAsPortalUser(page: Page): Promise<void> {
-    const parameters = new URLSearchParams({
-        oid: context.orgId,
-        retURL: `/${context.portalUserId}`,
-        sunetworkid: context.networkId!,
-        sunetworkuserid: context.portalUserId!
-    });
-    await page.goto(`${context.instanceUrl}/servlet/servlet.su?${parameters}`);
-    await page.waitForURL(/\.site\.com\//, { timeout: 90_000 });
-    const siteOrigin = new URL(page.url()).origin;
-    await page.goto(`${siteOrigin}${SITE_PATH}`);
-}
 
 test.describe('«Min profil» i Experience Cloud', () => {
     test.beforeEach(async ({ page }) => {
         test.skip(!context.networkId || !context.portalUserId, 'Portalbrukaren eller nettstaden manglar i orgen.');
-        await loginAsPortalUser(page);
+        await openPortalPage(page, SITE_PATH);
         await expect(page.getByRole('heading', { name: 'Min profil', level: 1 })).toBeVisible();
     });
 

@@ -200,4 +200,68 @@ private class AAREG_ContactModelPortalControllerTest {
         System.Assert.isTrue(profile.organization.verified, 'Role confirmed');
         System.Assert.isTrue(profile.organization.message.contains('finst ikkje'), profile.organization.message);
     }
+
+    @IsTest
+    static void applicationStartRemembersAConfirmedOrganization() {
+        enableAll();
+        User user = portalUser();
+        String selected;
+        System.runAs(user) {
+            System.Test.startTest();
+            selected = AAREG_ContactModelPortalController.selectApplicationOrganization(' 910 000 001 ');
+            System.Test.stopTest();
+        }
+
+        System.Assert.areEqual(PERMITTED, selected, 'Normalized organization number');
+        System.Assert.areEqual(
+            PERMITTED,
+            [SELECT LastUsedOrganization__c FROM User WHERE Id = :user.Id WITH SYSTEM_MODE].LastUsedOrganization__c,
+            'The application form opens for the chosen organization'
+        );
+    }
+
+    @IsTest
+    static void applicationStartRejectsOrganizationsWithoutAConfirmedRole() {
+        enableAll();
+        User user = portalUser();
+        Map<String, String> messageByInput = new Map<String, String>();
+        System.runAs(user) {
+            System.Test.startTest();
+            for (String input : new List<String>{ DENIED, UNKNOWN, '12345', null }) {
+                try {
+                    AAREG_ContactModelPortalController.selectApplicationOrganization(input);
+                    System.Assert.fail('Expected AuraHandledException for ' + input);
+                } catch (AuraHandledException error) {
+                    messageByInput.put(input == null ? 'blank' : input, error.getMessage());
+                }
+            }
+            System.Test.stopTest();
+        }
+
+        System.Assert.isTrue(messageByInput.get(DENIED).contains('Altinn'), messageByInput.get(DENIED));
+        System.Assert.isTrue(messageByInput.get(UNKNOWN).contains('finst ikkje'), messageByInput.get(UNKNOWN));
+        System.Assert.isTrue(messageByInput.get('12345').contains('Vel ein organisasjon'), messageByInput.get('12345'));
+        System.Assert.isTrue(messageByInput.get('blank').contains('Vel ein organisasjon'), messageByInput.get('blank'));
+        System.Assert.isNull(
+            [SELECT LastUsedOrganization__c FROM User WHERE Id = :user.Id WITH SYSTEM_MODE].LastUsedOrganization__c,
+            'Nothing remembered'
+        );
+    }
+
+    @IsTest
+    static void applicationStartIsRejectedWhenTheSelectorIsSwitchedOff() {
+        AAREG_ContactModelTestDataFactory.setFlags(
+            new Map<String, Boolean>{ AAREG_ContactModelGate.ORG_SELECTOR => false },
+            null
+        );
+        System.runAs(portalUser()) {
+            System.Assert.isFalse(AAREG_ContactModelPortalController.getSettings().orgSelector, 'Selector flag off');
+            try {
+                AAREG_ContactModelPortalController.selectApplicationOrganization(PERMITTED);
+                System.Assert.fail('Expected AuraHandledException');
+            } catch (AuraHandledException error) {
+                System.Assert.areEqual('Funksjonen er ikkje slått på.', error.getMessage(), 'Readable message');
+            }
+        }
+    }
 }

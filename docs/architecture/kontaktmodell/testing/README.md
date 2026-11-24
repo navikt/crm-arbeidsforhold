@@ -24,12 +24,12 @@ export AAREG_SCRATCH_ORG_ID=<org-ID frå «sf org display --target-org crm-arbei
 
 ## Automatiske testar
 
-| Lag        | Kommando                                                                            | Dekkjer                                                 |
-| ---------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| Apex       | `sf apex run test --target-org crm-arbeidsforhold --class-names <klasse> --wait 20` | Teneste, klassifisering, batch, kontrollarar og deling. |
-| LWC (Jest) | `npm run test:unit -- -- --runInBand force-app/contactModel`                        | Admin-side, panel, profil og organisasjonsveljar.       |
-| Node       | `npm run test:node`                                                                 | Operatørskriptet: brytarverdiar og ukjende modusar.     |
-| Playwright | `npm run e2e:contact-model`                                                         | Interne flater, rapportar, dashboard og portalprofilen. |
+| Lag        | Kommando                                                                            | Dekkjer                                                                          |
+| ---------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Apex       | `sf apex run test --target-org crm-arbeidsforhold --class-names <klasse> --wait 20` | Teneste, klassifisering, batch, kontrollarar og deling.                          |
+| LWC (Jest) | `npm run test:unit -- -- --runInBand force-app/contactModel`                        | Admin-side, panel, profil, organisasjonsveljar og start-steget i søknaden.       |
+| Node       | `npm run test:node`                                                                 | Operatørskriptet: brytarverdiar, utrullingsfasar og ukjende modusar.             |
+| Playwright | `npm run e2e:contact-model`                                                         | Interne flater, rapportar, dashboard, portalprofilen og start-steget i søknaden. |
 
 Apex-testklassane ligg i `force-app/tests/classes/contactModel/`.
 
@@ -45,12 +45,13 @@ npx playwright show-report        # HTML-rapport etter køyringa
 Global setup stadfestar org-ID-en, opnar ei innlogga økt utan å logge URL-en og hentar ID-ar til
 syntetiske testdata. Køyringa tek om lag tre til ti minutt, avhengig av orgen.
 
-| Fil                      | Testar | Kontrollerer                                                                                         |
-| ------------------------ | -----: | ---------------------------------------------------------------------------------------------------- |
-| `admin.spec.ts`          |      5 | Seksjonar og knappar på admin-sida, stadfesting og avbryting av APPLY og ROLLBACK, fana i tre appar. |
-| `record-panels.spec.ts`  |      3 | Kontaktmodellpanelet på søknad, organisasjon og kontakt.                                             |
-| `reports.spec.ts`        |      7 | Dei fem rapportane, dashboardet og at diagramma blir teikna.                                         |
-| `portal-profile.spec.ts` |      3 | «Min profil»: ingenting vist før val, lagring for «Meg selv» og søk på organisasjon.                 |
+| Fil                         | Testar | Kontrollerer                                                                                                |
+| --------------------------- | -----: | ----------------------------------------------------------------------------------------------------------- |
+| `admin.spec.ts`             |      5 | Seksjonar og knappar på admin-sida, stadfesting og avbryting av APPLY og ROLLBACK, fana i tre appar.        |
+| `record-panels.spec.ts`     |      3 | Kontaktmodellpanelet på søknad, organisasjon og kontakt.                                                    |
+| `reports.spec.ts`           |      7 | Dei fem rapportane, dashboardet og at diagramma blir teikna.                                                |
+| `portal-profile.spec.ts`    |      3 | «Min profil»: ingenting vist før val, lagring for «Meg selv» og søk på organisasjon.                        |
+| `application-start.spec.ts` |      3 | Ny søknad: ingen rolle vald på førehand, privatperson får lenkje til «Min profil», organisasjon må veljast. |
 
 Testane stadfestar aldri ei migreringskøyring. Dei trykkjer berre «Avbryt» i stadfestingsdialogen.
 Profiltesten lagrar ei syntetisk privatadresse på testbrukaren.
@@ -73,11 +74,18 @@ Skjermbileta blir lagra i [skjermbilete/](skjermbilete/) og viser berre syntetis
 | [05-dashboard](skjermbilete/05-dashboard.png)                               | Dashboardet «Aa-registeret Kontaktmodell». |
 | [06-min-profil-vel-forst](skjermbilete/06-min-profil-vel-forst.png)         | «Min profil» før val.                      |
 | [07-min-profil-meg-selv](skjermbilete/07-min-profil-meg-selv.png)           | «Min profil» med «Meg selv» valt.          |
+| [08-ny-soknad-vel-rolle](skjermbilete/08-ny-soknad-vel-rolle.png)           | Ny søknad: vel rolle først.                |
+| [09-ny-soknad-privatperson](skjermbilete/09-ny-soknad-privatperson.png)     | Ny søknad: privatperson.                   |
+| [10-ny-soknad-arbeidsgiver](skjermbilete/10-ny-soknad-arbeidsgiver.png)     | Ny søknad: arbeidsgivar vel organisasjon.  |
 
 ## Kjende avgrensingar
 
 - Portaltesten loggar inn som Experience-brukaren med «Log in to Experience as User». Altinn er
   ikkje kopla til i scratch, så organisasjonslista kan vere tom. Søketesten blir då hoppa over.
 - Skjerma personar (klasse D) og delingsreglar må testast manuelt, sjå
-  [testskript 8](manuelle-testskript.md#8-skjerma-person-og-deling).
+  [testskript 8](manuelle-testskript.md#8-skjerma-person-og-deling). Apex-testane dekkjer regelen i
+  `AAREG_ContactModelShieldingTest`.
+- Stadfestinga til kontekstadressa (K8) blir testa i Apex gjennom flowen og manuelt i
+  [testskript 10](manuelle-testskript.md#10-stadfesting-til-adressa-for-organisasjonen). Playwright sender ikkje inn
+  søknader.
 - Rapportar og dashboard ligg i ein iframe. Testane les difor innhaldet inne i ramma.

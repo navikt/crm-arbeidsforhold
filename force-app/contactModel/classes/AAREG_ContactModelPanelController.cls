@@ -12,6 +12,9 @@
 public with sharing class AAREG_ContactModelPanelController {
     private static final Integer ROW_LIMIT = 200;
     private static final String HIDDEN = 'Skjult';
+    private static final String SHIELDED_NAME = 'Skjerma person';
+    private static final String SHIELDED_VALUE = 'Skjult (skjerma)';
+    private static final String SHIELDED_SUMMARY = 'Skjerma person. Kontaktmodellen viser ingen opplysningar om personen.';
 
     /**
      * Panel content.
@@ -102,6 +105,10 @@ public with sharing class AAREG_ContactModelPanelController {
     private static Panel contactPanel(Id contactId) {
         Panel panel = new Panel();
         List<Contact> contacts = [SELECT Id, AAREG_Identity_Key__c FROM Contact WHERE Id = :contactId WITH USER_MODE];
+        if (!AAREG_ContactModelShielding.shieldedContactIds(new Set<Id>{ contactId }).isEmpty()) {
+            panel.summary = SHIELDED_SUMMARY;
+            return panel;
+        }
         Boolean isDomainContact = !contacts.isEmpty() && String.isNotBlank(contacts[0].AAREG_Identity_Key__c);
         panel.summary = isDomainContact
             ? 'Domenekontakt i Aa-registeret. Organisasjonar, adresser og roller står under.'
@@ -138,8 +145,11 @@ public with sharing class AAREG_ContactModelPanelController {
             );
         }
         panel.sections.add(organizations);
-        panel.sections.add(contactPointSection(contactPointsFor(contactId, null), true));
-        panel.sections.add(participationSection(participations('Contact__c', contactId, 'CreatedDate DESC'), true));
+        Set<Id> none = new Set<Id>();
+        panel.sections.add(contactPointSection(contactPointsFor(contactId, null), true, none));
+        panel.sections.add(
+            participationSection(participations('Contact__c', contactId, 'CreatedDate DESC'), true, none)
+        );
         return panel;
     }
 
@@ -153,19 +163,30 @@ public with sharing class AAREG_ContactModelPanelController {
             .link('contactUrl', 'Person', 'contactName')
             .text('managed', 'Forvalta av kontaktmodellen')
             .text('verifiedAt', 'Sist kontrollert i Altinn');
-        for (AccountContactRelation relation : [
+        List<AccountContactRelation> relations = [
             SELECT ContactId, Contact.Name, AAREG_Managed__c, AAREG_Altinn_Verified_At__c
             FROM AccountContactRelation
             WHERE AccountId = :accountId AND IsDirect = FALSE
             WITH USER_MODE
             ORDER BY Contact.Name
             LIMIT :ROW_LIMIT
-        ]) {
+        ];
+        List<AAREG_Contact_Point__c> points = contactPointsFor(null, accountId);
+        Set<Id> contactIds = new Set<Id>();
+        for (AccountContactRelation relation : relations) {
+            contactIds.add(relation.ContactId);
+        }
+        for (AAREG_Contact_Point__c point : points) {
+            contactIds.add(point.Contact__c);
+        }
+        Set<Id> shielded = AAREG_ContactModelShielding.shieldedContactIds(contactIds);
+        for (AccountContactRelation relation : relations) {
+            Boolean isShielded = shielded.contains(relation.ContactId);
             people.rows.add(
                 new Map<String, Object>{
                     'id' => relation.ContactId,
-                    'contactUrl' => '/' + relation.ContactId,
-                    'contactName' => relation.Contact.Name,
+                    'contactUrl' => isShielded ? null : '/' + relation.ContactId,
+                    'contactName' => isShielded ? SHIELDED_NAME : relation.Contact.Name,
                     'managed' => relation.AAREG_Managed__c == true ? 'Ja' : 'Nei',
                     'verifiedAt' => relation.AAREG_Altinn_Verified_At__c?.format()
                 }
@@ -173,7 +194,7 @@ public with sharing class AAREG_ContactModelPanelController {
         }
         panel.summary = people.rows.size() + ' personar er kopla til organisasjonen.';
         panel.sections.add(people);
-        panel.sections.add(contactPointSection(contactPointsFor(null, accountId), false));
+        panel.sections.add(contactPointSection(points, false, shielded));
         return panel;
     }
 
@@ -181,13 +202,17 @@ public with sharing class AAREG_ContactModelPanelController {
         Panel panel = new Panel();
         List<RelatedContact__c> participations = participations('Application__c', applicationId, 'Role__c');
         Integer linked = 0;
+        Set<Id> contactIds = new Set<Id>();
         for (RelatedContact__c participation : participations) {
             if (participation.Contact__c != null) {
                 linked++;
+                contactIds.add(participation.Contact__c);
             }
         }
         panel.summary = linked + ' av ' + participations.size() + ' deltakingar er kopla til ein domenekontakt.';
-        panel.sections.add(participationSection(participations, false));
+        panel.sections.add(
+            participationSection(participations, false, AAREG_ContactModelShielding.shieldedContactIds(contactIds))
+        );
         return panel;
     }
 
@@ -209,7 +234,11 @@ public with sharing class AAREG_ContactModelPanelController {
         );
     }
 
-    private static Section contactPointSection(List<AAREG_Contact_Point__c> points, Boolean byOrganization) {
+    private static Section contactPointSection(
+        List<AAREG_Contact_Point__c> points,
+        Boolean byOrganization,
+        Set<Id> shielded
+    ) {
         Section section = new Section(
             'contactPoints',
             'Kontaktpunkt (adresser per kontekst)',
@@ -226,26 +255,31 @@ public with sharing class AAREG_ContactModelPanelController {
         section.text('email', 'E-post').text('phone', 'Telefon');
         Boolean readable = canReadAddresses();
         for (AAREG_Contact_Point__c point : points) {
+            Boolean isShielded = shielded.contains(point.Contact__c);
             section.rows.add(
                 new Map<String, Object>{
                     'id' => point.Id,
-                    'pointUrl' => '/' + point.Id,
+                    'pointUrl' => isShielded ? null : '/' + point.Id,
                     'pointName' => point.Name,
                     'context' => point.Context__c == AAREG_ContactModelService.CONTEXT_PRIVATE
                         ? 'Privat'
                         : 'Organisasjon',
                     'organizationName' => point.Organization__r?.Name,
-                    'contactUrl' => '/' + point.Contact__c,
-                    'contactName' => point.Contact__r?.Name,
-                    'email' => readable ? point.Email__c : HIDDEN,
-                    'phone' => readable ? point.Phone__c : HIDDEN
+                    'contactUrl' => isShielded ? null : '/' + point.Contact__c,
+                    'contactName' => isShielded ? SHIELDED_NAME : point.Contact__r?.Name,
+                    'email' => isShielded ? SHIELDED_VALUE : readable ? point.Email__c : HIDDEN,
+                    'phone' => isShielded ? SHIELDED_VALUE : readable ? point.Phone__c : HIDDEN
                 }
             );
         }
         return section;
     }
 
-    private static Section participationSection(List<RelatedContact__c> participations, Boolean byApplication) {
+    private static Section participationSection(
+        List<RelatedContact__c> participations,
+        Boolean byApplication,
+        Set<Id> shielded
+    ) {
         Section section = new Section('participations', 'Roller på søknader', 'Ingen roller.');
         if (byApplication) {
             section.link('applicationUrl', 'Søknad', 'applicationName').text('status', 'Status');
@@ -254,16 +288,21 @@ public with sharing class AAREG_ContactModelPanelController {
         }
         section.text('role', 'Rolle').text('linked', 'Kontaktpunkt kopla');
         for (RelatedContact__c participation : participations) {
+            Boolean isShielded = shielded.contains(participation.Contact__c);
             section.rows.add(
                 new Map<String, Object>{
                     'id' => participation.Id,
                     'applicationUrl' => '/' + participation.Application__c,
                     'applicationName' => participation.Application__r?.Name,
                     'status' => participation.Application__r?.Casehandler_Status__c,
-                    'contactUrl' => participation.Contact__c == null ? null : '/' + participation.Contact__c,
-                    'contactName' => participation.Contact__c == null
-                        ? participation.Name + ' (ikkje kopla)'
-                        : participation.Contact__r.Name,
+                    'contactUrl' => participation.Contact__c == null || isShielded
+                        ? null
+                        : '/' + participation.Contact__c,
+                    'contactName' => isShielded
+                        ? SHIELDED_NAME
+                        : participation.Contact__c == null
+                              ? participation.Name + ' (ikkje kopla)'
+                              : participation.Contact__r.Name,
                     'role' => participation.Role__c,
                     'linked' => !canReadContactPoints() ? HIDDEN : participation.Contact_Point__c == null ? 'Nei' : 'Ja'
                 }

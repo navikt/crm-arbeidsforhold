@@ -30,7 +30,8 @@ public without sharing class AAREG_ContactModelService {
     }
 
     /**
-     * Records the submitter of each application in the contact model. Idempotent for resubmissions.
+     * Records the submitter of each application in the contact model. Idempotent for resubmissions. Shielded
+     * submitters are skipped (ADR-0008).
      *
      * @param submitterIdByApplicationId Submitting user Id per application Id.
      * @throws ContactModelException When the primary account is not set up or a domain contact cannot be created.
@@ -39,6 +40,20 @@ public without sharing class AAREG_ContactModelService {
         if (submitterIdByApplicationId == null || submitterIdByApplicationId.isEmpty()) {
             return;
         }
+        Set<Id> shieldedUserIds = AAREG_ContactModelShielding.shieldedUserIds(
+            new Set<Id>(submitterIdByApplicationId.values())
+        );
+        Map<Id, Id> unshielded = new Map<Id, Id>();
+        for (Id applicationId : submitterIdByApplicationId.keySet()) {
+            Id userId = submitterIdByApplicationId.get(applicationId);
+            if (!shieldedUserIds.contains(userId)) {
+                unshielded.put(applicationId, userId);
+            }
+        }
+        if (unshielded.isEmpty()) {
+            return;
+        }
+        submitterIdByApplicationId = unshielded;
         Id primaryAccountId = requirePrimaryAccountId();
         List<Application__c> applications = [
             SELECT Id, Account__c, Email__c
@@ -120,9 +135,13 @@ public without sharing class AAREG_ContactModelService {
      *
      * @param userId Portal user Id, derived on the server.
      * @return Domain contact.
-     * @throws ContactModelException When the primary account is not set up or the contact cannot be created.
+     * @throws ContactModelException When the user is shielded, the primary account is not set up or the contact
+     * cannot be created.
      */
     public static Contact ensureContactForUser(Id userId) {
+        if (AAREG_ContactModelShielding.isShieldedUser(userId)) {
+            throw new ContactModelException('Shielded persons are not part of the contact model.');
+        }
         return ensureContacts(new Set<Id>{ userId }, requirePrimaryAccountId()).get(userId);
     }
 

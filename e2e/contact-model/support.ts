@@ -37,3 +37,17 @@ export async function documentScreenshot(page: Page, name: string, fullPage = tr
     await page.waitForTimeout(3_000);
     await page.screenshot({ path: path.join(DOC_SCREENSHOTS, `${name}.png`), fullPage });
 }
+
+/** Logs in as the seeded portal user and opens a path on the Experience Cloud site. */
+export async function openPortalPage(page: Page, sitePath: string): Promise<void> {
+    const parameters = new URLSearchParams({
+        oid: context.orgId,
+        retURL: `/${context.portalUserId}`,
+        sunetworkid: context.networkId!,
+        sunetworkuserid: context.portalUserId!
+    });
+    await page.goto(`${context.instanceUrl}/servlet/servlet.su?${parameters}`);
+    await page.waitForURL(/\.site\.com\//, { timeout: 90_000 });
+    const siteOrigin = new URL(page.url()).origin;
+    await page.goto(`${siteOrigin}${sitePath}`);
+}

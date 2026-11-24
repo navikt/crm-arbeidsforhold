@@ -20,12 +20,6 @@ public with sharing class AAREG_ContactMigrationClassifier {
     /** Conflicting existing link. */
     public static final String CLASS_E = 'E';
 
-    private static final Set<String> SHIELDED_CONFIDENTIALITY = new Set<String>{
-        'STRENGT_FORTROLIG',
-        'STRENGT_FORTROLIG_UTLAND',
-        'FORTROLIG'
-    };
-
     /**
      * Class and reason for one application.
      */
@@ -143,28 +137,7 @@ public with sharing class AAREG_ContactMigrationClassifier {
                 userIds.add(application.CreatedById);
             }
         }
-        Set<Id> shielded = new Set<Id>();
-        if (userIds.isEmpty()) {
-            return shielded;
-        }
-        for (User user : [
-            SELECT
-                Id,
-                Contact.Account.CRM_Person__r.INT_Confidential__c,
-                Contact.Account.CRM_Person__r.INT_IsNavEmployee__c
-            FROM User
-            WHERE Id IN :userIds
-            WITH SYSTEM_MODE
-        ]) {
-            Person__c person = user.Contact?.Account?.CRM_Person__r;
-            if (
-                person != null &&
-                (person.INT_IsNavEmployee__c == true || SHIELDED_CONFIDENTIALITY.contains(person.INT_Confidential__c))
-            ) {
-                shielded.add(user.Id);
-            }
-        }
-        return shielded;
+        return AAREG_ContactModelShielding.shieldedUserIds(userIds);
     }
 
     private static Map<Id, Set<Id>> linkedSubmitterContacts(List<Application__c> applications) {

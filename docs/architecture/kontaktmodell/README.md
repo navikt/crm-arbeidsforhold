@@ -9,6 +9,9 @@ rolle. Ho har éi privat e-postadresse og éi adresse per organisasjon, utan fal
 | --------------------------------------------------------------------- | --------------------------------------------------------- |
 | [Spesifikasjon](../../../.github/specs/aareg-contact-model.md)        | Avgjerder, datamodell, brytarar, krav, migrering og test. |
 | [ADR-0006](../../adr/0006-kontaktmodell-ein-kontakt-acr-og-roller.md) | Arkitekturavgjerda og alternativa.                        |
+| [ADR-0007](../../adr/0007-kontaktpunkt-i-eige-objekt.md)              | Adresser i eige kontaktpunktobjekt.                       |
+| [ADR-0008](../../adr/0008-skjerming-i-kontaktmodellen.md)             | Skjerma personar blir haldne utanfor kontaktmodellen.     |
+| [Utrulling](utrulling.md)                                             | Fasar, brytarprofilar, sjekkliste og tilbakerulling.      |
 | [Claude-brief](claude-brief.md)                                       | Grunnlag for wireframes og diagram.                       |
 | [Testing](testing/README.md)                                          | Automatiske testar, operatørrettleiing og testskript.     |
 

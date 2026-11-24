@@ -19,8 +19,28 @@ const FLAGS = [
 ];
 const PILOT_PERMISSION = 'AAREG_ContactModelPilot';
 const FLAG_SCOPES = ['off', 'pilot', 'all'];
+const SHADOW = 'AAREG_ContactModel_ShadowWrite';
+const LEGACY_OFF = 'AAREG_ContactModel_LegacyMatchingOff';
+const USER_FLAGS = FLAGS.filter((flag) => flag !== SHADOW && flag !== LEGACY_OFF);
+
+function phase(shadow, userFlags, legacyOff) {
+    return Object.fromEntries([
+        [SHADOW, shadow],
+        ...USER_FLAGS.map((flag) => [flag, userFlags]),
+        [LEGACY_OFF, legacyOff]
+    ]);
+}
+
+/** Flag scope per rollout phase (spec chapter 9). Rolling back means applying the previous phase. */
+const PHASES = {
+    dark: phase('off', 'off', 'off'),
+    shadow: phase('all', 'off', 'off'),
+    pilot: phase('all', 'pilot', 'off'),
+    broad: phase('all', 'all', 'off'),
+    switch: phase('all', 'all', 'all')
+};
 const RUN_MODES = { plan: 'PLAN', apply: 'APPLY', verify: 'VERIFY', rollback: 'ROLLBACK' };
-const MODES = ['status', 'setup', 'seed', 'flags', ...Object.keys(RUN_MODES)];
+const MODES = ['status', 'setup', 'seed', 'flags', 'phase', ...Object.keys(RUN_MODES)];
 const SEED_DIRECTORY = path.join(ROOT, 'scripts/scratch/contactModel');
 const SEED_STEPS = ['seed-1-people.apex', 'seed-2-users.apex', 'seed-3-applications.apex'];
 const SEED_PERMISSION_SET = 'AAREG_ContactModel_ScratchSeed';
@@ -267,14 +287,14 @@ function createRunner({ runSf, log, workDirectory, expectedOrgId }) {
         }
     }
 
-    function setFlags(scope) {
+    function setFlags(scopeByFlag, description) {
         const directory = path.join(workDirectory, 'flags');
         fs.mkdirSync(path.join(directory, 'customMetadata'), { recursive: true });
         for (const flag of FLAGS) {
             const source = fs.readFileSync(path.join(FLAG_DIRECTORY, `Feature_Flag.${flag}.md-meta.xml`), 'utf8');
             fs.writeFileSync(
                 path.join(directory, 'customMetadata', `Feature_Flag.${flag}.md`),
-                flagRecord(source, scope)
+                flagRecord(source, scopeByFlag[flag])
             );
         }
         fs.writeFileSync(
@@ -285,7 +305,8 @@ function createRunner({ runSf, log, workDirectory, expectedOrgId }) {
                 '        <name>CustomMetadata</name>\n    </types>\n    <version>67.0</version>\n</Package>\n'
         );
         deployMetadataDirectory(directory, 'The contact model flags');
-        log(`Contact model flags set to "${scope}" in the scratch org. The repository keeps every flag off.`);
+        log(`Contact model flags set to ${description} in the scratch org. The repository keeps every flag off.`);
+        status();
     }
 
     function latestApplyRunId() {
@@ -326,7 +347,10 @@ function createRunner({ runSf, log, workDirectory, expectedOrgId }) {
             if (mode === 'status') return status();
             if (mode === 'setup') return setup();
             if (mode === 'seed') return seed();
-            if (mode === 'flags') return setFlags(argument);
+            if (mode === 'flags') {
+                return setFlags(Object.fromEntries(FLAGS.map((flag) => [flag, argument])), `"${argument}"`);
+            }
+            if (mode === 'phase') return setFlags(PHASES[argument], `phase "${argument}"`);
             return startRun(RUN_MODES[mode]);
         }
     };
@@ -334,7 +358,7 @@ function createRunner({ runSf, log, workDirectory, expectedOrgId }) {
 
 /**
  * Operates the Aa-register contact model in the verified crm-arbeidsforhold scratch org only:
- * status, setup, synthetic seed data, feature flags and migration runs (plan, apply, verify, rollback).
+ * status, setup, synthetic seed data, feature flags, rollout phases and migration runs (plan, apply, verify, rollback).
  *
  * @returns {number} 0 on success, 1 on a failed or refused check, 2 on an unknown mode or argument.
  */
@@ -354,6 +378,10 @@ function main({
         logError(`Choose a flag scope: ${FLAG_SCOPES.join(', ')}.`);
         return 2;
     }
+    if (mode === 'phase' && !Object.hasOwn(PHASES, argument)) {
+        logError(`Choose a rollout phase: ${Object.keys(PHASES).join(', ')}.`);
+        return 2;
+    }
     const workDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'aareg-contact-model-'));
     try {
         createRunner({ runSf, log, workDirectory, expectedOrgId }).run(mode, argument);
@@ -370,4 +398,4 @@ if (require.main === module) {
     process.exitCode = main();
 }
 
-module.exports = { FLAGS, FLAG_SCOPES, MODES, flagRecord, main };
+module.exports = { FLAGS, FLAG_SCOPES, MODES, PHASES, flagRecord, main };
