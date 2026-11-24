@@ -153,16 +153,48 @@ Ved deployment fra Git skal aktuelle `views/*.json`-filer være oppført i `repl
 
 Produksjonsoppsettet bruker `HEADER_ENV_REPLACER` når `DEPLOY_DESTINATION=PROD`, forutsatt at deployment-pipelinen håndterer disse innstillingene.
 
+Environment må settes til `Dev` eller `Prod`, slik at Dekoratøren bruker riktig konfigurasjon for hvert miljø.
+
+Uten riktig setting kan testmiljø laste produksjonskonfigurasjon, eller produksjon kan bruke Dev-konfigurasjon. Det kan gi feil med innlogging, CORS, CSP og navigasjon.
+
+`HEADER_ENV_REPLACER` endrer verdien automatisk under produksjonsdeploy.
+
 ### 5.1 Experience Cloud-metadatadeployment
 
-Repositoryet har en workflow som automatisk deployer metadata fra:
+Repositoryet har en workflow([Helper Deployment](https://github.com/navikt/crm-arbeidsforhold/blob/decorator/.github/workflows/documentation/helper_deployment.md)) som automatisk deployer metadata fra:
 
 ```text
 force-app/unpackagable-with-auto-deploy
-‘’'
+```
 
-### 5.1 
+Derfor flyttes Experience Cloud-metadataene til denne samlede folderen. Det er ikke bare view-filene som skal flyttes. Hele ExperienceBundle flyttes til `force-app/unpackagable-with-auto-deploy/`, inkludert tilhørende views, themes og configurations.
 
+Dette er nødvendig fordi ExperienceBundle må beholdes samlet som en sammenhengende Salesforce metadata-struktur.
+
+Se Salesforce-dokumentasjonen:
+
+- [Troubleshoot Experience Cloud metadata deployment](https://help.salesforce.com/s/articleView?id=005317315&type=1)
+
+  ### 5.2 Eksempel på replacement i `sfdx-project.json`
+
+```json
+  "replacements": [
+  {
+    "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/home.json",
+    "stringToReplace": "\"Dev\"",
+    "replaceWithEnv": "HEADER_ENV_REPLACER",
+    "replaceWhenEnv": [
+      {
+        "env": "DEPLOY_DESTINATION",
+        "value": "PROD"
+      }
+    ]
+  }
+]
+```
+
+Legg til tilsvarende replacement entry for hver aktuell `views/*.json`-fil som må bruke produksjonsmiljøet.
+  
 ## 6. Publiser
 
 
