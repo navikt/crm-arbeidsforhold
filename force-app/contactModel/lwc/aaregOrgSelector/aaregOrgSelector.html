@@ -2,11 +2,26 @@
     <div class="navds-form-field selector">
         <label class="navds-form-field__label navds-label label" for={inputId}>{label}</label>
         <p class="navds-form-field__description navds-body-short hint" id={hintId}>{hint}</p>
-        <p class="navds-body-short current" data-id="current">Valt: <strong>{selectedText}</strong></p>
+        <template lwc:if={selectedOption}>
+            <div class="current current_selected" data-id="current" aria-live="polite">
+                <c-aareg-icon class="current-icon" name={selectedIcon}></c-aareg-icon>
+                <span class="current-text">
+                    <span class="navds-detail current-label">Valgt</span>
+                    <strong class="navds-body-short current-name">{selectedOption.name}</strong>
+                    <template lwc:if={selectedOption.number}>
+                        <span class="navds-body-short current-number">Org.nr. {selectedOption.number}</span>
+                    </template>
+                </span>
+            </div>
+        </template>
+        <template lwc:else>
+            <p class="navds-body-short current" data-id="current">Ingen valgt ennå</p>
+        </template>
         <div class="combobox">
+            <c-aareg-icon class="search-icon" name="MagnifyingGlass"></c-aareg-icon>
             <input
                 id={inputId}
-                class="navds-text-field__input navds-body-short input"
+                class="navds-text-field__input navds-body-long input"
                 type="text"
                 role="combobox"
                 autocomplete="off"
@@ -15,7 +30,7 @@
                 aria-controls={listboxId}
                 aria-activedescendant={activeDescendant}
                 aria-describedby={describedBy}
-                placeholder="Til dømes «Nav» eller 889 640 782"
+                placeholder={placeholder}
                 value={query}
                 onfocus={handleFocus}
                 oninput={handleInput}

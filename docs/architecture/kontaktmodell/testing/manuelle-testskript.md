@@ -176,7 +176,13 @@ Set `phase pilot` og logg inn som pilotbrukaren. Opne `/aaregisteret/s/`.
 | 12.10 | Opne «Mine meldinger» og ei melding.                                                          | Berre éin sti: «Forside › Rolle › Mine meldinger › Melding». Ingen «Hjem» eller «Min side». | ☐   |
 | 12.11 | Set `phase shadow` og last ei underside på nytt.                                              | Ingen ny brødsmulesti. Den gamle stien er tilbake, og sida er som før.                      | ☐   |
 
-12.5–12.6 krev SIT2 eller ein Altinn-stub.
+| 12.12 | Vel «Arbeidsgiver» og ei virksomheit. Opne «Mine søknader», «Mine avtaler» og «Mine meldinger». | Kontekstlinja under stien viser «Arbeidsgiver for {namn} · Org.nr. {nummer}» på alle sidene, med same namn som i veljaren. | ☐ |
+| 12.13 | Trykk «Bytt virksomhet» i kontekstlinja. | Rollesida opnar med virksomheita vald i den grøne «Valgt»-boksen. Søkjefeltet fyller kortet. | ☐ |
+| 12.14 | Gå til «Forside», vel «Arbeidsgiver» på nytt utan å velje virksomheit. | Same virksomheit er framleis vald, og tilgangen blir sjekka på nytt. | ☐ |
+| 12.15 | Opne «Min profil» frå rollesida. | Profilen startar med same virksomheit vald. For privatperson startar han med «Meg selv». | ☐ |
+| 12.16 | Vel «Privatperson» og opne «Min profil». | Kontekstlinja seier «Du bruker tjenesten på egne vegne» og har «Bytt rolle». | ☐ |
+
+12.5–12.6 og 12.12–12.15 krev SIT2 eller ein Altinn-stub. I scratch blir dei dekte av Playwright med syntetiske virksomheiter.
 
 ## Avslutning
 

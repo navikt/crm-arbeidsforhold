@@ -68,6 +68,67 @@ describe('c-aareg-portal-nav', () => {
         );
     });
 
+    it('shows the active organization on every sub-page with a way to change it', async () => {
+        rememberContext({ roleKey: 'Employer', organizationNumber: '889640782' });
+        getPortal.mockResolvedValue({
+            enabled: true,
+            roles: [],
+            organization: { organizationNumber: '910000001', name: 'Bedrift AS' }
+        });
+        const element = await render('/s/mine-soknader');
+
+        const bar = element.shadowRoot.querySelector('[data-id="context"]');
+        expect(bar.textContent).toContain('Arbeidsgiver');
+        expect(bar.textContent).toContain('Bedrift AS');
+        expect(bar.textContent).toContain('910 000 001');
+        const change = element.shadowRoot.querySelector('[data-id="change-organization"]');
+        expect(change.textContent).toContain('Bytt virksomhet');
+        change.click();
+        expect(getNavigateCalls()).toEqual([
+            { type: 'comm__namedPage', attributes: { name: 'Arbeidsgiver__c' }, state: { org: '910000001' } }
+        ]);
+    });
+
+    it('uses the name the user chose in the selector when it is for the same organization', async () => {
+        rememberContext({ roleKey: 'Employer', organizationNumber: '910000001', organizationName: 'Bedrift' });
+        getPortal.mockResolvedValue({
+            enabled: true,
+            roles: [],
+            organization: { organizationNumber: '910000001', name: 'BEDRIFT AS AVD OSLO' }
+        });
+        const element = await render('/s/mine-soknader');
+
+        const bar = element.shadowRoot.querySelector('[data-id="context"]');
+        expect(bar.textContent).toContain('Bedrift');
+        expect(bar.textContent).not.toContain('AVD OSLO');
+    });
+
+    it('tells a private person they act on their own behalf', async () => {
+        rememberContext({ roleKey: 'Private' });
+        getPortal.mockResolvedValue({
+            enabled: true,
+            roles: [],
+            organization: { organizationNumber: '910000001', name: 'Bedrift AS' }
+        });
+        const element = await render('/s/min-profil');
+
+        const bar = element.shadowRoot.querySelector('[data-id="context"]');
+        expect(bar.textContent).toContain('egne vegne');
+        expect(bar.textContent).not.toContain('Bedrift AS');
+    });
+
+    it('shows no context bar on the role page, which has its own selector', async () => {
+        rememberContext({ roleKey: 'Employer', organizationNumber: '910000001' });
+        getPortal.mockResolvedValue({
+            enabled: true,
+            roles: [],
+            organization: { organizationNumber: '910000001', name: 'Bedrift AS' }
+        });
+        const element = await render('/s/arbeidsgiver');
+
+        expect(element.shadowRoot.querySelector('[data-id="context"]')).toBeNull();
+    });
+
     it('renders nothing when the new portal is switched off', async () => {
         getPortal.mockResolvedValue({ enabled: false, roles: [] });
         const element = await render('/s/mine-soknader');

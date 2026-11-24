@@ -166,7 +166,28 @@ describe('c-aareg-role-page', () => {
 
         await choose(element, '910000001');
 
-        expect(readContext()).toEqual({ roleKey: 'Employer', organizationNumber: '910000001' });
+        expect(readContext()).toEqual({
+            roleKey: 'Employer',
+            organizationNumber: '910000001',
+            organizationName: 'Bedrift AS'
+        });
+    });
+
+    it('keeps the organization chosen earlier in the session until the user changes it', async () => {
+        rememberContext({ roleKey: 'Employer', organizationNumber: '910000001' });
+        decide.mockResolvedValue(granted(['APPLICATION']));
+        const element = await mount('Employer');
+
+        expect(decide).toHaveBeenCalledWith({ roleKey: 'Employer', organizationNumber: '910000001' });
+        expect(element.shadowRoot.querySelector('c-aareg-org-selector').selected).toBe('910000001');
+    });
+
+    it('does not reuse an organization remembered for another role', async () => {
+        rememberContext({ roleKey: 'Partner', organizationNumber: '910000001' });
+        decide.mockResolvedValue(denied('invalid-context'));
+        await mount('Employer');
+
+        expect(decide).toHaveBeenCalledWith({ roleKey: 'Employer', organizationNumber: undefined });
     });
 
     it('forgets the context when the user changes role', async () => {

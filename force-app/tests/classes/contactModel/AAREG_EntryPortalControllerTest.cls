@@ -75,6 +75,33 @@ private class AAREG_EntryPortalControllerTest {
     }
 
     @IsTest
+    static void portalShowsTheOrganizationTheSubPagesUse() {
+        enablePortal(true);
+        update as system new User(Id = portalUser().Id, LastUsedOrganization__c = PERMITTED);
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            insert as system new Account(Name = 'Bedrift AS', INT_OrganizationNumber__c = PERMITTED);
+        }
+        AAREG_EntryPortalController.Portal portal;
+        System.runAs(portalUser()) {
+            portal = AAREG_EntryPortalController.getPortal();
+        }
+
+        System.Assert.areEqual(PERMITTED, portal.organization?.organizationNumber, JSON.serialize(portal));
+        System.Assert.areEqual('Bedrift AS', portal.organization?.name, 'Name although the user cannot see accounts');
+    }
+
+    @IsTest
+    static void portalShowsNoOrganizationBeforeOneIsChosen() {
+        enablePortal(true);
+        AAREG_EntryPortalController.Portal portal;
+        System.runAs(portalUser()) {
+            portal = AAREG_EntryPortalController.getPortal();
+        }
+
+        System.Assert.isNull(portal.organization, 'Nothing chosen yet');
+    }
+
+    @IsTest
     static void portalIsOffWithoutRolesWhenFlagIsOff() {
         enablePortal(false);
         AAREG_EntryPortalController.Portal portal;

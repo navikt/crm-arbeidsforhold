@@ -33,8 +33,8 @@ flowchart TD
 | `aaregEntryPortal` (LWC)                                            | Ligg på heimesida. Viser rolleval når brytaren er på, elles dagens forside.                                                                                                                                                                                 |
 | `aaregRolePage` (LWC)                                               | Rolleside med `roleKey` som designattributt. «Rolle: … / Bytt rolle» øvst, søkbar veljar som alltid er synleg, og tilgangen blir sjekka straks ei virksomheit er vald. Tenestene blir viste i to kolonnar: søknad og avtaler, og brukarstøtte og meldingar. |
 | Sidene `Arbeidsgiver__c`, `Samarbeidspartner__c`, `Privatperson__c` | Experience Cloud-sider i `Aa_registret1`.                                                                                                                                                                                                                   |
-| `aaregPortalNav` (LWC)                                              | Brødsmulesti øvst på portalsidene. Smal skjerm får «Tilbake til …» i staden. Blir berre vist når portalbrytaren er på.                                                                                                                                      |
-| `aaregPortalContext` (JS)                                           | Hugsar rolle og virksomheit for økta (`sessionStorage`) og byggjer stien. Ingen personopplysningar.                                                                                                                                                         |
+| `aaregPortalNav` (LWC)                                              | Brødsmulesti og kontekstlinje øvst på portalsidene. Smal skjerm får «Tilbake til …» i staden for stien. Blir berre vist når portalbrytaren er på.                                                                                                           |
+| `aaregPortalContext` (JS)                                           | Hugsar rolle, organisasjonsnummer og namnet frå veljaren for økta (`sessionStorage`), og byggjer stien. Ingen personopplysningar.                                                                                                                           |
 | Aksel-byggjesteinar (LWC)                                           | `aaregLinkPanel`, `aaregAlert`, `aaregTextField`, `aaregLoader` og `aaregIcon`. Felles utsjånad for alle portalsidene.                                                                                                                                      |
 
 ## Navigasjon og utsjånad
@@ -53,6 +53,19 @@ flowchart LR
 - **Kontekst:** Rolla og organisasjonsnummeret blir lagra i `sessionStorage` (`aareg.portal.context`) når
   rollesida har gitt tilgang. Forsida og «Bytt rolle» tømmer konteksten. Ugyldige verdiar blir forkasta.
   Utan rolle går stien rett frå «Forside». Stien viser aldri namn på verksemder eller personar.
+- **Vald virksomheit på alle sider:** Under stien på alle undersider står ei kontekstlinje, til dømes
+  «Arbeidsgiver for Bedrift AS · Org.nr. 910 000 001 · Bytt virksomhet». Privatperson får «Du bruker tjenesten
+  på egne vegne · Bytt rolle». Rollesida har eigen veljar og viser ikkje linja.
+    - Organisasjonsnummeret kjem frå serveren (`getPortal().organization`, frå `User.LastUsedOrganization__c`).
+      Det er same verdi som dei eldre sidene brukar til å hente søknader, avtaler og meldingar. Linja viser
+      difor alltid den virksomheita sida faktisk arbeider for, også om økta i nettlesaren er utdatert.
+    - Namnet er det brukaren såg i veljaren (frå Altinn) når nummeret stemmer, elles kontonamnet i Salesforce.
+    - «Bytt virksomhet» opnar rollesida med valet, slik at brukaren kan velje ei anna.
+- **Valet blir hugsa:** Rollesida brukar virksomheita frå økta når lenkja ikkje har `?org=`. Ei virksomheit
+  hugsa for ei anna rolle blir ikkje brukt. «Min profil» startar med same kontekst: virksomheita, eller
+  «Meg selv» for privatperson. Tilgangen blir kontrollert i Altinn på nytt begge stader.
+- **Veljaren:** Feltet fyller breidda på kortet (maks 48rem) og har søkjeikon. Den valde virksomheita står i
+  ein grøn boks («Valgt», namn og org.nr.) over feltet til brukaren vel ei anna.
 - **Smal skjerm (under 480px):** Berre lenkja «Tilbake til {forelder}» blir vist.
 - **Tilgjengelegheit:** `<nav aria-label="Brødsmulesti">`, ordna liste og `aria-current="page"` på siste ledd.
   Panela er ekte lenkjer, så Ctrl-/Cmd-klikk opnar i ny fane.

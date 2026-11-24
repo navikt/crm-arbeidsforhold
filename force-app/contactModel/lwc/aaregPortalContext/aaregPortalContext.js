@@ -1,5 +1,6 @@
 const STORAGE_KEY = 'aareg.portal.context';
 const ORGANIZATION_NUMBER = /^\d{9}$/;
+const MAX_NAME_LENGTH = 255;
 
 export const ROLES = {
     Employer: { label: 'Arbeidsgiver', pageName: 'Arbeidsgiver__c', path: 'arbeidsgiver' },
@@ -31,6 +32,10 @@ function sanitize(context) {
     }
     if (ORGANIZATION_NUMBER.test(context?.organizationNumber ?? '')) {
         clean.organizationNumber = context.organizationNumber;
+        const name = typeof context.organizationName === 'string' ? context.organizationName.trim() : '';
+        if (name) {
+            clean.organizationName = name.slice(0, MAX_NAME_LENGTH);
+        }
     }
     return clean;
 }
@@ -46,8 +51,11 @@ export function readContext() {
 export function rememberContext(update) {
     const current = readContext();
     const roleChanged = update.roleKey !== undefined && update.roleKey !== current.roleKey;
+    const organizationChanged =
+        update.organizationNumber !== undefined && update.organizationNumber !== current.organizationNumber;
+    const kept = organizationChanged ? { roleKey: current.roleKey } : current;
     const next = sanitize(
-        roleChanged ? { roleKey: update.roleKey, ...pickOrganization(update) } : { ...current, ...update }
+        roleChanged ? { roleKey: update.roleKey, ...pickOrganization(update) } : { ...kept, ...update }
     );
     try {
         window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
@@ -58,7 +66,9 @@ export function rememberContext(update) {
 }
 
 function pickOrganization(update) {
-    return update.organizationNumber ? { organizationNumber: update.organizationNumber } : {};
+    return update.organizationNumber
+        ? { organizationNumber: update.organizationNumber, organizationName: update.organizationName }
+        : {};
 }
 
 export function clearContext() {

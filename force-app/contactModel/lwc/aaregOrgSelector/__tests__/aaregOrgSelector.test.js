@@ -42,7 +42,7 @@ describe('c-aareg-org-selector', () => {
     it('selects nothing automatically and lists «Meg selv» first', async () => {
         const element = mount();
         await flush();
-        expect(element.shadowRoot.querySelector('[data-id="current"]').textContent).toContain('Ingen valt');
+        expect(element.shadowRoot.querySelector('[data-id="current"]').textContent).toContain('Ingen valgt');
 
         input(element).dispatchEvent(new CustomEvent('focus'));
         await flush();
@@ -97,7 +97,10 @@ describe('c-aareg-org-selector', () => {
             name: 'Nav Oslo',
             isSelf: false
         });
-        expect(element.shadowRoot.querySelector('[data-id="current"]').textContent).toContain('Nav Oslo (990 983 666)');
+        const current = element.shadowRoot.querySelector('[data-id="current"]');
+        expect(current.textContent).toContain('Nav Oslo');
+        expect(current.textContent).toContain('Org.nr. 990 983 666');
+        expect(input(element).getAttribute('placeholder')).toBe('Søk etter en annen virksomhet');
         expect(input(element).getAttribute('aria-expanded')).toBe('false');
     });
 

@@ -4,6 +4,7 @@ import getSettings from '@salesforce/apex/AAREG_ContactModelPortalController.get
 import getOrganizations from '@salesforce/apex/AAREG_ContactModelPortalController.getOrganizations';
 import getProfile from '@salesforce/apex/AAREG_ContactModelPortalController.getProfile';
 import saveAddress from '@salesforce/apex/AAREG_ContactModelPortalController.saveAddress';
+import { rememberContext } from 'c/aaregPortalContext';
 
 jest.mock('@salesforce/apex/AAREG_ContactModelPortalController.getSettings', () => ({ default: jest.fn() }), {
     virtual: true
@@ -58,6 +59,33 @@ describe('c-aareg-my-profile', () => {
         expect(byId(element, 'choose-first')).not.toBeNull();
         expect(byId(element, 'form')).toBeNull();
         expect(getProfile).not.toHaveBeenCalled();
+    });
+
+    it('starts with the organization chosen on the role page and still checks it in Altinn', async () => {
+        window.sessionStorage.clear();
+        rememberContext({ roleKey: 'Employer', organizationNumber: '889640782' });
+        getProfile.mockResolvedValue({
+            organization: { organizationNumber: '889640782', name: 'Arbeids- og velferdsetaten', verified: true }
+        });
+        const element = await mount();
+        await flush();
+
+        expect(getProfile).toHaveBeenCalledWith({ organizationNumber: '889640782' });
+        expect(selector(element).selected).toBe('889640782');
+        expect(byId(element, 'choose-first')).toBeNull();
+        window.sessionStorage.clear();
+    });
+
+    it('starts with «Meg selv» for a private person', async () => {
+        window.sessionStorage.clear();
+        rememberContext({ roleKey: 'Private' });
+        getProfile.mockResolvedValue({ privateEmail: 'meg@example.invalid' });
+        const element = await mount();
+        await flush();
+
+        expect(getProfile).toHaveBeenCalledWith({ organizationNumber: null });
+        expect(selector(element).selected).toBe('SELF');
+        window.sessionStorage.clear();
     });
 
     it('shows only the private address for «Meg selv»', async () => {

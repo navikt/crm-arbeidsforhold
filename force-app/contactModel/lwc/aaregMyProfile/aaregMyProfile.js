@@ -3,6 +3,7 @@ import getSettings from '@salesforce/apex/AAREG_ContactModelPortalController.get
 import getOrganizations from '@salesforce/apex/AAREG_ContactModelPortalController.getOrganizations';
 import getProfile from '@salesforce/apex/AAREG_ContactModelPortalController.getProfile';
 import saveAddress from '@salesforce/apex/AAREG_ContactModelPortalController.saveAddress';
+import { readContext } from 'c/aaregPortalContext';
 
 const message = (error, fallback) => error?.body?.message ?? fallback;
 
@@ -34,6 +35,24 @@ export default class AaregMyProfile extends LightningElement {
         } finally {
             this.loading = false;
         }
+        const kept = this.enabled ? this.keptSelection() : undefined;
+        if (kept) {
+            await this.handleSelect({ detail: kept });
+        }
+    }
+
+    // The role page has already checked this context in Altinn; getProfile checks it again.
+    keptSelection() {
+        const context = readContext();
+        if (context.roleKey === 'Private') {
+            return { organizationNumber: null, name: 'Meg selv', isSelf: true };
+        }
+        const organization = this.organizations.find(
+            (candidate) => candidate.organizationNumber === context.organizationNumber
+        );
+        return organization
+            ? { organizationNumber: organization.organizationNumber, name: organization.name, isSelf: false }
+            : undefined;
     }
 
     get enabled() {

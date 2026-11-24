@@ -111,12 +111,12 @@ export default class AaregOrgSelector extends LightningElement {
         return this.allOptions.find((option) => option.value === this.selected);
     }
 
-    get selectedText() {
-        const option = this.selectedOption;
-        if (!option) {
-            return 'Ingen valt';
-        }
-        return option.isSelf ? option.name : `${option.name} (${option.number})`;
+    get selectedIcon() {
+        return this.selectedOption?.isSelf ? 'Person' : 'Buildings3';
+    }
+
+    get placeholder() {
+        return this.selectedOption ? 'Søk etter en annen virksomhet' : 'For eksempel «Nav» eller 889 640 782';
     }
 
     handleFocus() {

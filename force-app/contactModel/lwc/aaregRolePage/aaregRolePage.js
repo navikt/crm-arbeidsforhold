@@ -3,7 +3,7 @@ import { NavigationMixin, CurrentPageReference } from 'lightning/navigation';
 import decide from '@salesforce/apex/AAREG_EntryPortalController.decide';
 import getOrganizations from '@salesforce/apex/AAREG_EntryPortalController.getOrganizations';
 import basePath from '@salesforce/community/basePath';
-import { clearContext, rememberContext } from 'c/aaregPortalContext';
+import { clearContext, readContext, rememberContext } from 'c/aaregPortalContext';
 
 export const ROLE_TITLES = {
     Employer: 'Arbeidsgiver',
@@ -95,8 +95,11 @@ export default class AaregRolePage extends NavigationMixin(LightningElement) {
         this.requestedOrganization = ORGANIZATION_NUMBER.test(org ?? '') ? org : undefined;
         if (!this.initialised) {
             this.initialised = true;
+            const remembered = readContext();
+            const kept = remembered.roleKey === this.roleKey ? remembered.organizationNumber : undefined;
             rememberContext({ roleKey: this.roleKey });
-            this.evaluate(this.requestedOrganization, true);
+            // A link names the organization explicitly; otherwise the choice made earlier in the session is kept.
+            this.evaluate(this.requestedOrganization ?? kept, Boolean(this.requestedOrganization));
         }
     }
 
@@ -180,11 +183,9 @@ export default class AaregRolePage extends NavigationMixin(LightningElement) {
         if (decision.outcome === 'GRANTED') {
             this.state = 'granted';
             this.selectedOrganization = decision.organizationNumber ?? this.selectedOrganization;
-            if (this.isOrganizationRole && this.selectedOrganization) {
-                rememberContext({ roleKey: this.roleKey, organizationNumber: this.selectedOrganization });
-            }
+            this.rememberOrganization();
             if (this.isOrganizationRole && this.organizations.length === 0) {
-                this.loadOrganizations();
+                this.loadOrganizations().then(() => this.rememberOrganization());
             }
             return;
         }
@@ -206,6 +207,21 @@ export default class AaregRolePage extends NavigationMixin(LightningElement) {
         }
         this.message = 'Du har ikke tilgang til denne tjenesten for virksomheten du valgte. Velg en annen virksomhet.';
         this.state = 'select';
+    }
+
+    // The name shown in the selector is stored with the number so every sub-page names the organization the same way.
+    rememberOrganization() {
+        if (!this.isOrganizationRole || !this.selectedOrganization || this.state !== 'granted') {
+            return;
+        }
+        const chosen = this.organizations.find(
+            (organization) => organization.organizationNumber === this.selectedOrganization
+        );
+        rememberContext({
+            roleKey: this.roleKey,
+            organizationNumber: this.selectedOrganization,
+            organizationName: chosen?.name
+        });
     }
 
     async openSelector() {

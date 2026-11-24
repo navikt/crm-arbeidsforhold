@@ -35,6 +35,15 @@ describe('c-aareg-portal-context', () => {
         });
     });
 
+    it('keeps the chosen organization name only while the organization number stays the same', () => {
+        rememberContext({ roleKey: 'Employer', organizationNumber: '889640782', organizationName: 'Nav Oslo' });
+        expect(readContext().organizationName).toBe('Nav Oslo');
+
+        rememberContext({ organizationNumber: '910000001' });
+
+        expect(readContext()).toEqual({ roleKey: 'Employer', organizationNumber: '910000001' });
+    });
+
     it('falls back to the home page when no role has been chosen', () => {
         expect(labels(buildTrail(`${BASE}/min-profil`, BASE, {}))).toEqual(['Forside', 'Min profil']);
     });

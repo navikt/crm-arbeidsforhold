@@ -71,6 +71,31 @@ test.describe('Navigasjon tilbake med brødsmulesti', () => {
         await documentScreenshot(page, '20-brodsmulesti-mine-meldinger');
     });
 
+    test('vald virksomheit blir vist på undersidene til ho blir bytt', async ({ page }) => {
+        await openPortalPage(page, `${HOME}?type=employer&org=111111111`);
+        await expect(page).toHaveURL(/\/arbeidsgiver/, { timeout: 60_000 });
+        const selected = page.locator('c-aareg-org-selector [data-id="current"]');
+        await expect(selected).toContainText('111 111 111', { timeout: 60_000 });
+        const field = page.locator('c-aareg-org-selector').getByRole('combobox');
+        expect((await field.boundingBox())?.width ?? 0).toBeGreaterThan(400);
+        const chosenName = (await page.locator('c-aareg-org-selector .current-name').innerText()).trim();
+        await documentScreenshot(page, '21-rolleside-vald-virksomheit');
+
+        await page.locator('c-aareg-link-panel').filter({ hasText: 'Mine søknader' }).click();
+        await expect(page).toHaveURL(/\/mine-soknader|\/mine-s%C3%B8knader|soknad/i);
+        const bar = page.locator('c-aareg-portal-nav [data-id="context"]');
+        await expect(bar).toContainText('Arbeidsgiver for', { timeout: 60_000 });
+        await expect(bar).toContainText(chosenName);
+        await expect(bar).toContainText('Org.nr. 111 111 111');
+        await documentScreenshot(page, '22-kontekstlinje-underside');
+
+        await bar.getByRole('link', { name: 'Bytt virksomhet' }).click();
+        await expect(page).toHaveURL(/\/arbeidsgiver/);
+        await expect(page.locator('c-aareg-org-selector [data-id="current"]')).toContainText('111 111 111', {
+            timeout: 60_000
+        });
+    });
+
     test('på smal skjerm blir stien ei «Tilbake til»-lenkje', async ({ page }) => {
         await page.setViewportSize({ width: 375, height: 812 });
         await openPortalPage(page, `${HOME}?type=private-person`);

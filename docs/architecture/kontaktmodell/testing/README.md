@@ -53,7 +53,7 @@ portalbrukaren (`seed-4-portal-message.apex`). Elles blir han hoppa over. Køyri
 | `reports.spec.ts`           |      7 | Dei fem rapportane, dashboardet og at diagramma blir teikna.                                         |
 | `portal-profile.spec.ts`    |      3 | «Min profil»: ingenting vist før val, lagring for «Meg selv» og søk på organisasjon.                 |
 | `entry-portal.spec.ts`      |      6 | Forsida med rolleval, rollesider, direktelenkjer, faste meldingar og «Bytt rolle».                   |
-| `portal-navigation.spec.ts` |      4 | Brødsmulesti via rolle til «Min profil», éin sti på melding og «Mine meldinger», smal skjerm.        |
+| `portal-navigation.spec.ts` |      5 | Brødsmulesti, vald virksomheit på undersidene og «Bytt virksomhet», breitt søkjefelt, smal skjerm.   |
 
 Testane stadfestar aldri ei migreringskøyring. Dei trykkjer berre «Avbryt» i stadfestingsdialogen.
 Profiltesten lagrar ei syntetisk privatadresse på testbrukaren.
@@ -86,6 +86,8 @@ Skjermbileta blir lagra i [skjermbilete/](skjermbilete/) og viser berre syntetis
 | [18-tilbakelenkje-mobil](skjermbilete/18-tilbakelenkje-mobil.png)                                       | «Tilbake til Forside» på smal skjerm.          |
 | [19-brodsmulesti-melding](skjermbilete/19-brodsmulesti-melding.png)                                     | Meldingssida med éin felles sti.               |
 | [20-brodsmulesti-mine-meldinger](skjermbilete/20-brodsmulesti-mine-meldinger.png)                       | «Mine meldinger» utan den gamle stien.         |
+| [21-rolleside-vald-virksomheit](skjermbilete/21-rolleside-vald-virksomheit.png)                         | Rollesida med vald virksomheit og stort felt.  |
+| [22-kontekstlinje-underside](skjermbilete/22-kontekstlinje-underside.png)                               | «Mine søknader» med kontekstlinja.             |
 
 ## Kjende avgrensingar
 

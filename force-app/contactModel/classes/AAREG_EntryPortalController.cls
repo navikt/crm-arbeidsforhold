@@ -26,10 +26,12 @@ public with sharing class AAREG_EntryPortalController {
                 for (AAREG_PortalRole__mdt role : AAREG_RoleAccessService.availableRoles()) {
                     portal.roles.add(new RoleOption(role));
                 }
+                portal.organization = new Registry().activeOrganization(UserInfo.getUserId());
             }
         } catch (Exception error) {
             portal.enabled = false;
             portal.roles.clear();
+            portal.organization = null;
         }
         return portal;
     }
@@ -95,6 +97,48 @@ public with sharing class AAREG_EntryPortalController {
         /** Roles the user can choose, in portal order. */
         @AuraEnabled
         public List<RoleOption> roles = new List<RoleOption>();
+        /** Organization the sub-pages currently act for; null until the user has chosen one. */
+        @AuraEnabled
+        public ActiveOrganization organization;
+    }
+
+    /**
+     * The organization stored as last used after a granted Altinn decision, shown on every page so the user always
+     * knows which organization the sub-pages act for.
+     */
+    public class ActiveOrganization {
+        /** Nine-digit organization number. */
+        @AuraEnabled
+        public String organizationNumber;
+        /** Organization name; blank when the organization is not in Salesforce. */
+        @AuraEnabled
+        public String name;
+    }
+
+    /**
+     * Reads the user's last used organization and its name. Portal users cannot see organization accounts through
+     * sharing, so the read runs in system mode. It only exposes the organization the user was granted by Altinn.
+     */
+    private without sharing class Registry {
+        private ActiveOrganization activeOrganization(Id userId) {
+            String organizationNumber = [SELECT LastUsedOrganization__c FROM User WHERE Id = :userId WITH SYSTEM_MODE]
+            .LastUsedOrganization__c;
+            if (organizationNumber == null || !Pattern.matches('\\d{9}', organizationNumber)) {
+                return null;
+            }
+            ActiveOrganization organization = new ActiveOrganization();
+            organization.organizationNumber = organizationNumber;
+            for (Account account : [
+                SELECT Name
+                FROM Account
+                WHERE INT_OrganizationNumber__c = :organizationNumber
+                WITH SYSTEM_MODE
+                LIMIT 1
+            ]) {
+                organization.name = account.Name;
+            }
+            return organization;
+        }
     }
 
     /**
