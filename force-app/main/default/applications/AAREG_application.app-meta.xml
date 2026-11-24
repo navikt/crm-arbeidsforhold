@@ -138,5 +138,6 @@
     <tabs>Agreement__c</tabs>
     <tabs>standard-report</tabs>
     <tabs>standard-Dashboard</tabs>
+    <tabs>AAREG_Contact_Model</tabs>
     <uiType>Lightning</uiType>
 </CustomApplication>

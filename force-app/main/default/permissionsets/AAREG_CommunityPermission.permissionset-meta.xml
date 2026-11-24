@@ -33,7 +33,27 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>AAREG_checkObjectTypeNameche</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>AAREG_CommunityUtils</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>AAREG_ContactModelPortalController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>AAREG_contactSupportController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>AAREG_distributionAccessController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>AAREG_distributionAccessRequest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -58,22 +78,6 @@
     </classAccesses>
     <classAccesses>
         <apexClass>AAREG_RelatedContactInternal</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>AAREG_checkObjectTypeNameche</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>AAREG_contactSupportController</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>AAREG_distributionAccessController</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>AAREG_distributionAccessRequest</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>

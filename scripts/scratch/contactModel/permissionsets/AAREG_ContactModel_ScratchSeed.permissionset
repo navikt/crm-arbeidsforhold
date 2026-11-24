@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Scratch only. Lets the contact model seed set CreatedById so synthetic applications look submitted by portal users. Never deploy outside a scratch org.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>AAREG Contact Model Scratch Seed</label>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>CreateAuditFields</name>
+    </userPermissions>
+</PermissionSet>

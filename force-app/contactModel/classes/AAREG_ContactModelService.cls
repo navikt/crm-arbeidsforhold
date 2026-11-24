@@ -115,6 +115,87 @@ public without sharing class AAREG_ContactModelService {
         return String.valueOf(contextId) + ':' + String.valueOf(contactId) + ':' + role;
     }
 
+    /**
+     * Returns the domain contact for a portal user, creating it when missing.
+     *
+     * @param userId Portal user Id, derived on the server.
+     * @return Domain contact.
+     * @throws ContactModelException When the primary account is not set up or the contact cannot be created.
+     */
+    public static Contact ensureContactForUser(Id userId) {
+        return ensureContacts(new Set<Id>{ userId }, requirePrimaryAccountId()).get(userId);
+    }
+
+    /**
+     * Returns the domain contact for a portal user without creating it.
+     *
+     * @param userId Portal user Id.
+     * @return Domain contact, or null.
+     */
+    public static Contact findContactForUser(Id userId) {
+        return queryContacts(new Set<Id>{ userId }).get(userId);
+    }
+
+    /**
+     * Saves the address for one context. Organization addresses also ensure a managed ACR, private addresses never do.
+     * Other contexts are never changed.
+     *
+     * @param contactId Domain contact.
+     * @param organizationId Organization account, or null for the private context.
+     * @param email Address for the context.
+     * @param phone Phone for the context.
+     * @return Saved contact point.
+     */
+    public static AAREG_Contact_Point__c saveContactPoint(Id contactId, Id organizationId, String email, String phone) {
+        if (organizationId != null) {
+            List<AccountContactRelation> relations = [
+                SELECT Id
+                FROM AccountContactRelation
+                WHERE ContactId = :contactId AND AccountId = :organizationId
+                WITH SYSTEM_MODE
+            ];
+            if (relations.isEmpty()) {
+                insert as system new AccountContactRelation(
+                    AccountId = organizationId,
+                    ContactId = contactId,
+                    IsActive = true,
+                    AAREG_Managed__c = true
+                );
+            }
+        }
+        AAREG_Contact_Point__c point = new AAREG_Contact_Point__c(
+            Context_Key__c = contextKey(contactId, organizationId),
+            Contact__c = contactId,
+            Organization__c = organizationId,
+            Context__c = organizationId == null ? CONTEXT_PRIVATE : CONTEXT_ORGANIZATION,
+            Email__c = String.isBlank(email) ? null : email.trim(),
+            Phone__c = String.isBlank(phone) ? null : phone.trim()
+        );
+        Database.upsert(point, AAREG_Contact_Point__c.Context_Key__c, true, AccessLevel.SYSTEM_MODE);
+        return point;
+    }
+
+    /**
+     * Returns the address for one context without fallback to another context.
+     *
+     * @param contactId Domain contact.
+     * @param organizationId Organization account, or null for the private context.
+     * @return Contact point, or null when the context has no address.
+     */
+    public static AAREG_Contact_Point__c findContactPoint(Id contactId, Id organizationId) {
+        if (contactId == null) {
+            return null;
+        }
+        String key = contextKey(contactId, organizationId);
+        List<AAREG_Contact_Point__c> points = [
+            SELECT Id, Context__c, Organization__c, Email__c, Phone__c, LastModifiedDate
+            FROM AAREG_Contact_Point__c
+            WHERE Context_Key__c = :key
+            WITH SYSTEM_MODE
+        ];
+        return points.isEmpty() ? null : points[0];
+    }
+
     private static Id requirePrimaryAccountId() {
         Id primaryAccountId = getPrimaryAccountId();
         if (primaryAccountId == null) {

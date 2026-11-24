@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Source_Run__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>APPLY run that a VERIFY or ROLLBACK run works on.</description>
+    <externalId>false</externalId>
+    <label>Source Run</label>
+    <referenceTo>AAREG_Contact_Migration_Run__c</referenceTo>
+    <relationshipLabel>Follow-up Runs</relationshipLabel>
+    <relationshipName>Follow_Up_Runs</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,175 @@
+<template>
+    <lightning-card title="Kontaktmodell – Aa-registeret" icon-name="standard:contact">
+        <lightning-button slot="actions" label="Oppdater" onclick={handleRefresh}></lightning-button>
+        <div class="slds-p-horizontal_medium">
+            <template lwc:if={loading}>
+                <lightning-spinner alternative-text="Lastar"></lightning-spinner>
+            </template>
+            <template lwc:if={error}>
+                <div
+                    class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_small"
+                    role="alert"
+                    data-id="error"
+                >
+                    {error}
+                </div>
+            </template>
+            <template lwc:if={notice}>
+                <div class="slds-notify slds-notify_alert slds-m-bottom_small" role="status" data-id="notice">
+                    {notice}
+                </div>
+            </template>
+
+            <section class="slds-m-bottom_medium" aria-labelledby="cm-metrics">
+                <h2 id="cm-metrics" class="slds-text-heading_small slds-m-bottom_x-small">Nøkkeltal</h2>
+                <ul class="slds-grid slds-wrap slds-gutters_x-small">
+                    <template for:each={metrics} for:item="metric">
+                        <li
+                            key={metric.key}
+                            class="slds-col slds-size_1-of-2 slds-medium-size_1-of-3 slds-m-bottom_x-small"
+                        >
+                            <div class="slds-box slds-box_x-small" data-metric={metric.key}>
+                                <p class="slds-text-title">{metric.label}</p>
+                                <p class="slds-text-heading_large">{metric.value}</p>
+                                <p class="slds-text-body_small slds-text-color_weak">{metric.help}</p>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+            </section>
+
+            <section class="slds-m-bottom_medium" aria-labelledby="cm-flags">
+                <h2 id="cm-flags" class="slds-text-heading_small slds-m-bottom_x-small">Brytarar (feature flags)</h2>
+                <p class="slds-text-body_small slds-m-bottom_x-small">
+                    Brytarane blir slått på i Setup → Custom Metadata Types → Feature Flag, i denne rekkjefølgja.
+                    Pilotbrytarar gjeld berre brukarar med løyvet som står i kolonna «Gjeld for».
+                </p>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                    <thead>
+                        <tr>
+                            <th scope="col">Brytar</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Gjeld for</th>
+                            <th scope="col">Kva gjer han?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={flags} for:item="flag">
+                            <tr key={flag.name} data-flag={flag.name}>
+                                <td class="slds-cell-wrap">{flag.name}</td>
+                                <td><span class={flag.badgeClass}>{flag.stateLabel}</span></td>
+                                <td class="slds-cell-wrap">{flag.permissionText}</td>
+                                <td class="slds-cell-wrap">{flag.description}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="slds-m-bottom_medium" aria-labelledby="cm-actions">
+                <h2 id="cm-actions" class="slds-text-heading_small slds-m-bottom_x-small">Migrering</h2>
+                <template lwc:if={primaryAccountMissing}>
+                    <div class="slds-box slds-theme_warning slds-m-bottom_small" data-id="setup">
+                        <p class="slds-m-bottom_x-small">
+                            Primærkontoen for domenekontaktar er ikkje sett opp. APPLY og skuggeskriving krev han.
+                        </p>
+                        <lightning-button
+                            label="Set opp primærkonto"
+                            onclick={handleSetUp}
+                            disabled={setupDisabled}
+                        ></lightning-button>
+                    </div>
+                </template>
+                <template lwc:if={canMigrate}>
+                    <div class="slds-grid slds-wrap slds-gutters_x-small slds-grid_vertical-align-end">
+                        <div class="slds-col">
+                            <lightning-button
+                                label="Planlegg (PLAN)"
+                                data-mode="PLAN"
+                                onclick={handleRequest}
+                                disabled={actionsDisabled}
+                            ></lightning-button>
+                        </div>
+                        <div class="slds-col">
+                            <lightning-button
+                                label="Migrer klasse A (APPLY)"
+                                data-mode="APPLY"
+                                onclick={handleRequest}
+                                disabled={applyDisabled}
+                            ></lightning-button>
+                        </div>
+                        <div class="slds-col">
+                            <lightning-combobox
+                                label="APPLY-køyring"
+                                placeholder={applyPlaceholder}
+                                options={applyRunOptions}
+                                value={selectedApplyRunId}
+                                onchange={handleApplyRunChange}
+                                disabled={noApplyRuns}
+                            ></lightning-combobox>
+                        </div>
+                        <div class="slds-col">
+                            <lightning-button
+                                label="Verifiser (VERIFY)"
+                                data-mode="VERIFY"
+                                onclick={handleRequest}
+                                disabled={followUpDisabled}
+                            ></lightning-button>
+                        </div>
+                        <div class="slds-col">
+                            <lightning-button
+                                label="Rull tilbake (ROLLBACK)"
+                                variant="destructive-text"
+                                data-mode="ROLLBACK"
+                                onclick={handleRequest}
+                                disabled={followUpDisabled}
+                            ></lightning-button>
+                        </div>
+                    </div>
+                    <template lwc:if={pendingMode}>
+                        <div
+                            class="slds-box slds-m-top_small"
+                            role="alertdialog"
+                            aria-labelledby="cm-confirm"
+                            data-id="confirm"
+                        >
+                            <h3 id="cm-confirm" class="slds-text-heading_small">{pendingLabel}</h3>
+                            <p class="slds-m-vertical_x-small">{pendingText}</p>
+                            <lightning-button
+                                label="Avbryt"
+                                onclick={handleCancel}
+                                class="slds-m-right_x-small"
+                            ></lightning-button>
+                            <lightning-button
+                                label="Start køyringa"
+                                variant={confirmVariant}
+                                onclick={handleConfirm}
+                                data-id="confirm-button"
+                            ></lightning-button>
+                        </div>
+                    </template>
+                </template>
+                <template lwc:else>
+                    <p class="slds-text-body_small" data-id="no-permission">
+                        Du kan sjå status, men ikkje starte køyringar. Det krev løyvet AAREG_ContactModelMigrate.
+                    </p>
+                </template>
+            </section>
+
+            <section aria-labelledby="cm-runs">
+                <h2 id="cm-runs" class="slds-text-heading_small slds-m-bottom_x-small">Siste køyringar</h2>
+                <template lwc:if={hasRuns}>
+                    <lightning-datatable
+                        key-field="Id"
+                        data={runs}
+                        columns={runColumns}
+                        hide-checkbox-column
+                    ></lightning-datatable>
+                </template>
+                <template lwc:else>
+                    <p class="slds-text-body_small">Ingen køyringar enno. Start med PLAN.</p>
+                </template>
+            </section>
+        </div>
+    </lightning-card>
+</template>

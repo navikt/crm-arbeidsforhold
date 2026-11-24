@@ -19,7 +19,8 @@ module.exports = {
         ...(jestConfig.testPathIgnorePatterns || []),
         '<rootDir>/tools/salesforce-project-cli/',
         '<rootDir>/bin/tests/',
-        '<rootDir>/scripts/tests/'
+        '<rootDir>/scripts/tests/',
+        '<rootDir>/e2e/'
     ],
     testTimeout: 10000
 };

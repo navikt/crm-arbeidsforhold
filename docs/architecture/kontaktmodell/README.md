@@ -10,6 +10,7 @@ rolle. Ho har éi privat e-postadresse og éi adresse per organisasjon, utan fal
 | [Spesifikasjon](../../../.github/specs/aareg-contact-model.md)        | Avgjerder, datamodell, brytarar, krav, migrering og test. |
 | [ADR-0006](../../adr/0006-kontaktmodell-ein-kontakt-acr-og-roller.md) | Arkitekturavgjerda og alternativa.                        |
 | [Claude-brief](claude-brief.md)                                       | Grunnlag for wireframes og diagram.                       |
+| [Testing](testing/README.md)                                          | Automatiske testar, operatørrettleiing og testskript.     |
 
 Spesifikasjonen gjeld føre alt anna i denne mappa.
 
