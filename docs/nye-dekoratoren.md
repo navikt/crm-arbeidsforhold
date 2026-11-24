@@ -1,184 +1,139 @@
-# NAV-dekoratøren Aa-registeret
+# NAV-dekoratøren – Aa-registeret
 
-Denne veiledningen beskriver hvordan NAVs nye header og footer
-(Dekoratøren) tas i bruk på Experience Cloud-siden Aa-registret.
+Denne veiledningen beskriver hvordan NAVs nye header og footer (**Dekoratøren**) tas i bruk på Experience Cloud-siden for Aa-registeret.
+
+- **Ansvarlig team:** Team Arbeidsforhold
+- **Sist oppdatert:** 11/2026
+
+---
+
+## Før du starter (Forutsetninger)
+
+Sørg for at du har følgende på plass før du begynner:
+- [ ] Tilgang til **Experience Builder** og **Setup** i aktuelt Salesforce-miljø.
+- [ ] Tilgang til repositoryet for Aa-registeret (`crm-arbeidsforhold`) samt `crm-community-base`.
+- [ ] Oversikt over gammel styling i eget styling-repository: `[sett inn lenke til styling-repo]`.
+
+---
 
 ## 1. Kontroller komponenter og styling
 
-- Kontroller at `crm-community-base` er installert, og at **Decorator Header** og **Decorator Footer** er tilgjengelige i Experience Builder.
-- Gammel dekoratørstyling skal ikke brukes sammen med den nye Dekoratøren.
-- I Aa-registeret kommer stylingløsningen fra et annet repository.
-- Kontroller eksisterende oppsett før du endrer kode.
+Før du gjør endringer i koden, må du kontrollere det eksisterende oppsettet:
+
+- Kontroller at pakken `crm-community-base` er installert, og at komponentene **Decorator Header** og **Decorator Footer** er tilgjengelige i Experience Builder.
+- Påse at gammel dekoratørstyling fra `[navn på styling-repo]` ikke brukes sammen med den nye Dekoratøren.
+- Kontroller eksisterende oppsett i koden før du gjør endringer.
+
+---
 
 ## 2. Kontroller CORS og CSP
 
 ### CORS
+Dekoratøren har en streng CORS-policy og tillater som standard kun nettsider under `*.nav.no`.
 
-Dekoratøren har en streng CORS-policy og tillater vanligvis bare nettsider med domenenavn under `*.nav.no`.
+Ved lokal utvikling eller testing i Scratch Org/Sandbox kan du midlertidig omgå dette på én av følgende måter:
+- Starte Chrome med flagget `--disable-web-security`
+- Bruke en CORS-utvidelse i nettleseren
 
-Ved testing i Scratch Org eller Sandbox kan du:
+> [!WARNING]
+> Bruk helst en separat testnettleser for dette. Deaktivering av CORS må **aldri** brukes som en permanent løsning. Dersom et testdomene legges inn i selve CORS-policyen, må URL-en for både **Experience-siden** og **Experience Builder** registreres.
 
-- Slå av CORS-mekanismen i en egen testnettleser.
-- Starte Chrome med `--disable-web-security`.
-- Bruke en CORS-utvidelse i testnettleseren.
+### CSP (Content Security Policy)
+CSP-innstillinger for scripts må godkjennes for hvert enkelt Experience Cloud-nettsted som bruker Dekoratøren (andre ressurser som styles og bilder kan være definert globalt for org-en).
 
-Bruk helst en separat testnettleser eller en midlertidig CORS-konfigurasjon for testing. Denne løsningen skal ikke brukes som permanent konfigurasjon.
-
-Hvis domenet legges inn i CORS-policyen, må URL-en for både Experience-siden og Experience Builder legges inn.
-
-### CSP
-
-1. Gå til Experience Builder → Settings → Security & Privacy.
-2. Kontroller at **Relaxed CSP** brukes, siden Dekoratøren må kunne laste eksterne scripts.
-3. Kontroller at **Lightning Locker** er deaktivert, siden Dekoratøren krever denne tilgangsløsningen.
-4. Godkjenn nødvendige **CSP Trusted Sites** for scripts på nettstedet.
-
-Mange CSP-er kan bli blokkert automatisk og må godkjennes manuelt.
-
-CSP-innstillinger for scripts må godkjennes for hvert Experience Cloud-nettsted som bruker Dekoratøren. Andre ressurser, som styles, bilder og lignende, kan være definert globalt for Salesforce-organisasjonen.
+1. Gå til **Experience Builder → Settings → Security & Privacy**.
+2. Kontroller at **Relaxed CSP** er valgt, slik at Dekoratøren kan laste eksterne scripts.
+3. Kontroller at **Lightning Locker** er deaktivert.
+4. Godkjenn nødvendige **CSP Trusted Sites** for scripts på nettstedet (flere av disse blir blokkert automatisk og må godkjennes manuelt). Aktuelle domener inkluderer blant annet:
+   - `https://www.nav.no`
+   - `https://dekoratoren.ekstern.dev.nav.no` *(for testmiljøer)*
+   - `[eventuelle andre domener fra Confluence-listen]`
 
 <img width="787" height="353" alt="CORS-policy" src="https://github.com/user-attachments/assets/579e3811-7cfe-4e07-a37c-9718f6683450" />
-
 <img width="781" height="882" alt="CSP Trusted Sites" src="https://github.com/user-attachments/assets/837a0530-1f78-42fd-968b-d34354f2de4b" />
 
+---
 
 ## 3. Kontroller ID-porten-oppsettet
 
-Hvis oppsettet allerede finnes for nettstedet, gå videre til punkt 4.
+*Dersom ID-porten allerede er satt opp for nettstedet, kan du gå rett til [punkt 4](#4-bytt-header-og-footer-i-experience-builder).*
 
 ### 3.1 Finn nettstedets Network ID
-
-Kjør følgende SOQL-spørring mot Salesforce:
+Kjør følgende SOQL-spørring mot Salesforce for å finne riktig ID:
 
 ```sql
 SELECT Id, Name FROM Network
 ```
 
 ### 3.2 Legg inn Network ID i `crm-community-base`
-
-Legg inn NetworkId for Experience Cloud-siden på linje 79 i:
-
-- [IdPortenSidController.cls på GitHub](https://github.com/navikt/crm-community-base/blob/7cf3dbb57253abe7cd0fc55aef2100baedd19da4/force-app/IdPorten/classes/IdPortenSidController.cls#L88-L97)
-
-Kontroller at Network ID finnes i listen `communitiesUsingNewDecorator` i `IdPortenSidController.cls`.
+Åpne [IdPortenSidController.cls på GitHub](https://github.com/navikt/crm-community-base/blob/7cf3dbb57253abe7cd0fc55aef2100baedd19da4/force-app/IdPorten/classes/IdPortenSidController.cls#L88-L97) og kontroller at nettstedets `NetworkId` ligger i listen `communitiesUsingNewDecorator` (rundt linje 88–97).
 
 Hvis ID-en mangler:
+1. Legg til `NetworkId` i `IdPortenSidController.cls`.
+2. Deploy `crm-community-base` til de aktuelle miljøene gjennom godkjent prosess.
 
-1. Legg til ID-en i `IdPortenSidController.cls`.
-2. Deploy `crm-community-base` til aktuelle miljøer gjennom godkjent prosess.
+Dette sikrer at ID-porten-oppsettet fungerer med den nye Dekoratøren for det aktuelle community-nettstedet.
 
-Dette sikrer at ID-porten-oppsettet fungerer med den nye Dekoratøren
-for det aktuelle community-nettstedet.
-
-### 3.3 Legg til Visualforce-sider
-
-
-Kontroller at følgende sider finnes under **Site Visualforce Pages**:
-
-
+### 3.3 Kontroller Visualforce-sider
+Gå til **Site Visualforce Pages** for nettstedet og kontroller at følgende to sider er lagt til (legg dem til hvis de mangler, da de kreves for innloggingsflyten gjennom ID-porten):
 - `NavLoginService`
-
 - `IdPortenSid`
 
-
-Legg dem til hvis de mangler.
-
-Disse Visualforce-sidene må være tilgjengelige for nettstedet, siden
-de brukes i innloggingsflyten gjennom ID-porten.
-
 <img width="824" height="464" alt="Visualforce-sider" src="https://github.com/user-attachments/assets/7b914905-4645-4405-8562-626f49cbc072" />
-
-
 <img width="762" height="561" alt="Visualforce Pages" src="https://github.com/user-attachments/assets/1f3fb874-bbd2-422c-b09f-757e720bf99c" />
 
-
+---
 
 ## 4. Bytt header og footer i Experience Builder
 
+Endringene gjøres direkte i Experience Cloud-temaet:
 
-Endringen skal gjøres i Experience Cloud-temaet.
+1. Åpne **Experience Builder** for Aa-registeret.
+2. Dra **Decorator Header** inn i headerområdet i temaet.
+3. Dra **Decorator Footer** inn i footerområdet i temaet.
+4. Fjern **Global Community Header** og **Global Community Footer** hvis de fortsatt ligger i temaet eller layoutet.
+5. Kontroller at temaet kun bruker **én** header og **én** footer.
 
+### Sider som må kontrolleres etter oppdatering
+Gå gjennom følgende sider og påse at gammel og ny header/footer ikke vises samtidig:
+- [ ] `home`
+- [ ] `mineAvtaler`
+- [ ] `agreementDetailFlex`
+- [ ] `applicationDetailFlex`
+- [ ] `mineMeldinger`
+- [ ] `mineSøknader`
+- [ ] `nyMelding`
+- [ ] `nySøknadAaRegistret`
+- [ ] `threadDetailFlex`
 
-1. Åpne Experience Builder for Aa-registeret.
+> [!IMPORTANT]
+> **Git og `.forceignore`:** Før du kjører *retrieve* av Experience Cloud-endringene, må `**/experiences` og `**/README.md` midlertidig fjernes fra `.forceignore`. Husk å legge dem tilbake i `.forceignore` så snart retrieve er fullført og endringene er kontrollert.
 
-2. Dra **Decorator Header** til headerområdet i temaet.
+---
 
-3. Dra **Decorator Footer** til footerområdet i temaet.
+## 5. Konfigurer miljø og deployment
 
-4. Kontroller at temaet bruker én header og én footer.
+I **Decorator Header** i Experience Builder setter du:
+- **Environment:** `Dev` (for testmiljøer) eller `Prod` (for produksjon).
+- **Context:** Velg `[f.eks. arbeidsgiver / privatperson]` for Aa-registeret.
 
-5. Fjern **Global Community Header** og **Global Community Footer** hvis de fortsatt finnes i det aktuelle temaet eller layoutet.
+Riktig miljøinnstilling er kritisk – dersom produksjon laster `Dev`-konfigurasjon (eller omvendt), vil det føre til feil med innlogging, CORS, CSP og navigasjon. Under produksjonsdeploy vil variabelen `HEADER_ENV_REPLACER` automatisk bytte ut `"Dev"` med produksjonsverdien når `DEPLOY_DESTINATION=PROD`.
 
-
-
-Kontroller følgende sider etter at temaet er oppdatert:
-
-
-
-- `home`
-
-- `mineAvtaler`
-
-- `agreementDetailFlex`
-
-- `applicationDetailFlex`
-
-- `mineMeldinger`
-
-- `mineSøknader`
-
-- `nyMelding`
-
-- `nySøknadAaRegistret`
-
-- `threadDetailFlex`
-
-
-
-Kontroller at den gamle og den nye headeren eller footeren ikke vises samtidig.
-
-> **Git-notat:** Før retrieve av Experience Cloud endringene må de berørte "**/experiences" og
-
-"**/README.md" fjernes fra `.forceignore`. Etter at retrieve er fullført og endringene er kontrollert, må de legges tilbake i `.forceignore`.
-
-
-## 5. Velg miljø
-
-På **Decorator Header** angir du:
-
-- **Environment:** `Dev` i testmiljø og `Prod` i produksjon.
-- **Context:** Velg riktig kontekst for siden.
-
-Ved deployment fra Git skal aktuelle `views/*.json`-filer være oppført i `replacements` i `sfdx-project.json`.
-
-Produksjonsoppsettet bruker `HEADER_ENV_REPLACER` når `DEPLOY_DESTINATION=PROD`, forutsatt at deployment-pipelinen håndterer disse innstillingene.
-
-Environment må settes til `Dev` eller `Prod`, slik at Dekoratøren bruker riktig konfigurasjon for hvert miljø.
-
-Uten riktig setting kan testmiljø laste produksjonskonfigurasjon, eller produksjon kan bruke Dev-konfigurasjon. Det kan gi feil med innlogging, CORS, CSP og navigasjon.
-
-`HEADER_ENV_REPLACER` endrer verdien automatisk under produksjonsdeploy.
-
-### 5.1 Experience Cloud-metadatadeployment
-
-Repositoryet har en workflow([Helper Deployment](https://github.com/navikt/crm-arbeidsforhold/blob/decorator/.github/workflows/documentation/helper_deployment.md)) som automatisk deployer metadata fra:
+### 5.1 Plassering av Experience Cloud-metadata
+Repositoryet har en workflow ([Helper Deployment](https://github.com/navikt/crm-arbeidsforhold/blob/decorator/.github/workflows/documentation/helper_deployment.md)) som automatisk deployer metadata fra:
 
 ```text
 force-app/unpackagable-with-auto-deploy
 ```
 
-Derfor flyttes Experience Cloud-metadataene til denne samlede folderen. Det er ikke bare view-filene som skal flyttes. Hele ExperienceBundle flyttes til `force-app/unpackagable-with-auto-deploy/`, inkludert tilhørende views, themes og configurations.
+Hele **ExperienceBundle** (inkludert views, themes og configurations) må flyttes hit samlet, slik at Salesforce-strukturen forblir intakt. Eller i andre ord; det er ikke bare view-filene som skal flyttes men hele ExperienceBundle flyttes til force-app/unpackagable-with-auto-deploy/, inkludert tilhørende views, themes og configurations.
+Se eventuelt Salesforces artikkel om [Troubleshoot Experience Cloud metadata deployment](https://help.salesforce.com/s/articleView?id=005317315&type=1) ved behov.
 
-Dette er nødvendig fordi ExperienceBundle må beholdes samlet som en sammenhengende Salesforce metadata-struktur.
-
-Se Salesforce-dokumentasjonen:
-
-- [Troubleshoot Experience Cloud metadata deployment](https://help.salesforce.com/s/articleView?id=005317315&type=1)
-
-  ### 5.2 Eksempel på replacement i `sfdx-project.json`
+### 5.2 Oppsett i `sfdx-project.json`
+Ved deployment fra Git må alle relevante `views/*.json`-filer legges inn under `replacements` i `sfdx-project.json` for å sikre miljøbytte ved produksjonsdeploy:
 
 ```json
-  "replacements": [
+"replacements": [
   {
     "filename": "force-app/unpackagable-with-auto-deploy/experiences/Aa_registret1/views/home.json",
     "stringToReplace": "\"Dev\"",
@@ -192,72 +147,52 @@ Se Salesforce-dokumentasjonen:
   }
 ]
 ```
+*(Gjenta blokken over for hver aktulle filer, `views/*.json`-filer, som skal bruke produksjonsmiljøet).*
 
-Legg til tilsvarende replacement entry for hver aktuell `views/*.json`-fil som må bruke produksjonsmiljøet.
-  
+---
+
 ## 6. Publiser
 
+Klikk **Publish** i Experience Builder for å aktivere endringene.
 
-Klikk **Publish** i Experience Builder.
-
+---
 
 ## 7. Test med TestID i SIT2
 
-
-
 1. Åpne Aa-registerets SIT2-URL.
+2. Logg inn via ID-porten med **TestID**.
 
-2. Logg inn via ID-porten med TestID.
+**Verifiser at:**
+- [ ] Ny header og footer vises på alle aktuelle sider.
+- [ ] Navigasjonen fungerer som forventet etter innlogging.
+- [ ] Dekoratøren ikke blokkeres av CORS eller CSP i nettleserkonsollen.
+- [ ] Gammel og ny dekoratør ikke vises samtidig.
 
+---
 
+## 8. Tillegg: Main Content (UU-krav)
 
-Kontroller at:
+Dette er ikke påkrevd for at selve Dekoratøren skal fungere, men er et viktig tiltak for universell utforming (UU).
 
+Komponenten **Main content** er usynlig og oppretter en snarvei («Hopp til hovedinnhold») øverst i Dekoratøren slik at skjermlesere og tastaturbrukere kan hoppe rett til hovedinnholdet.
 
+1. Åpne aktuell side i **Experience Builder** og se under **Page Structure**.
+2. Hvis komponenten mangler, dra **Main content** fra *Components*-panelet til starten av hovedinnholdet.
+3. Klikk **Publish**.
+4. **Test:** Bruk `Tab`-tasten på tastaturet for å verifisere at lenken «Hopp til hovedinnhold» dukker opp og fungerer.
 
-- Ny header og footer vises på alle aktuelle sider.
+---
 
-- Navigasjonen fungerer etter innlogging.
+## 9. Feilsøking og vanlige feil
 
-- Dekoratøren ikke blokkeres av CORS eller CSP.
+- **Dekoratøren dukker ikke opp på siden:** Åpne utviklerverktøy i nettleseren (F12) og sjekk konsollen for CSP- eller CORS-feil. Kontroller også at **Lightning Locker** er deaktivert under *Security & Privacy*.
+- **Innlogging feiler eller havner i en loop:** Kontroller at nettstedets `NetworkId` er lagt inn i `IdPortenSidController.cls` og deployet, samt at `NavLoginService` og `IdPortenSid` ligger under *Site Visualforce Pages*.
+- **Test-banner / Dev-miljø vises i produksjon:** Sjekk at alle aktuelle `views/*.json`-filer er lagt til i `replacements`-listen i `sfdx-project.json`.
+- **Endringer fra Experience Builder blir ikke med i Git:** Kontroller at du midlertidig har fjernet `**/experiences` fra `.forceignore` før du kjører `sf project retrieve start`.
 
-- Det ikke vises en gammel eller en ny dekoratør samtidig.
+---
 
-
-
-## 8. Tillegg: Main Content – UU-krav
-
-
-Dette er ikke en del av selve oppsettet av Dekoratøren, men et tiltak for universell utforming.
-
-
-### 8.1 Legg til Main Content
-
-
-
-1. Åpne aktuell side i Experience Builder.
-
-2. Se etter **Main content** under **Page Structure**.
-
-3. Hvis komponenten mangler, dra **Main content** fra Components til starten av hovedinnholdet.
-
-4. Klikk **Publish**.
-
-
-
-### 8.2 Test tastaturhoppet
-
-
-Test med tastaturet at «Hopp til hovedinnhold» fungerer.
-
-
-Komponenten **Main content** er usynlig og legger til en link i starten av Dekoratøren. Skjermlesere kan bruke linken for å gå direkte til sidens hovedinnhold. Komponenten påvirker ikke funksjonaliteten og er en del av UU-tiltaket.
-
-
-## 9. Kilder
-
+## 10. Kilder
 - [Experience Cloud – Confluence](https://confluence.adeo.no/spaces/PTC/pages/500537629/Experience+Cloud)
-
-- [CORS-konfigurasjonen for Dekoratøren](https://github.com/navikt/nav-dekoratoren)
-
-- [IdPortenSidController.cls på GitHub](https://github.com/navikt/crm-community-base/blob/7cf3dbb57253abe7cd0fc55aef2100baedd19da4/force-app/IdPorten/classes/IdPortenSidController.cls#L88-L97)
+- [CORS-konfigurasjonen for Dekoratøren (GitHub)](https://github.com/navikt/nav-dekoratoren)
+- [IdPortenSidController.cls (GitHub)](https://github.com/navikt/crm-community-base/blob/7cf3dbb57253abe7cd0fc55aef2100baedd19da4/force-app/IdPorten/classes/IdPortenSidController.cls#L88-L97)
