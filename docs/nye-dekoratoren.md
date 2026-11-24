@@ -12,16 +12,14 @@ Denne veiledningen beskriver hvordan NAVs nye header og footer (**Dekoratøren**
 Sørg for at du har følgende på plass før du begynner:
 - [ ] Tilgang til **Experience Builder** og **Setup** i aktuelt Salesforce-miljø.
 - [ ] Tilgang til repositoryet for Aa-registeret (`crm-arbeidsforhold`) samt `crm-community-base`.
-- [ ] Oversikt over gammel styling i eget styling-repository: `[sett inn lenke til styling-repo]`.
 
 ---
 
-## 1. Kontroller komponenter og styling
+## 1. Kontroller komponenter
 
 Før du gjør endringer i koden, må du kontrollere det eksisterende oppsettet:
 
 - Kontroller at pakken `crm-community-base` er installert, og at komponentene **Decorator Header** og **Decorator Footer** er tilgjengelige i Experience Builder.
-- Påse at gammel dekoratørstyling fra `[navn på styling-repo]` ikke brukes sammen med den nye Dekoratøren.
 - Kontroller eksisterende oppsett i koden før du gjør endringer.
 
 ---
