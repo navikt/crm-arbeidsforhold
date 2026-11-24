@@ -109,8 +109,8 @@ scratch:
 
 Brødsmulestien er lagd inn som første komponent i innhaldsseksjonen i `views/` for rollesidene, `minProfil`,
 `mineSøknader`, `mineAvtaler`, `mineMeldinger`, `nyMelding`, `nySøknadAaRegistret`, `applicationDetailFlex` og
-`agreementDetailFlex`. Køyr ikkje Prettier på `views/`. Dei fleste filene er i Salesforce sitt eige JSON-format,
-og ei omformatering gir diff i alle filene.
+`agreementDetailFlex`. `.prettierignore` utelèt `**/experiences/**/*.json`.
+Dei fleste filene er i Salesforce sitt eige JSON-format, og ei omformatering ville gitt diff i alle filene.
 
 Utan dette viser nettstaden dagens forside, og rollesidene gir 404 sjølv om brytarane er på.
 

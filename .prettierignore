@@ -24,3 +24,5 @@ sf-project.config.json
 
 # Exclude Salesforce Metadata XML
 **/*.xml
+# Experience Cloud bundles keep Salesforce JSON formatting
+**/experiences/**/*.json
