@@ -1,4 +1,4 @@
-# NAV-dekoratøren – Aa-registeret
+# NAV-dekoratøren Aa-registeret
 
 Denne veiledningen beskriver hvordan NAVs nye header og footer
 (Dekoratøren) tas i bruk på Experience Cloud-siden Aa-registret.
