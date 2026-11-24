@@ -39,6 +39,11 @@ Mange CSP-er kan bli blokkert automatisk og må godkjennes manuelt.
 
 CSP-innstillinger for scripts må godkjennes for hvert Experience Cloud-nettsted som bruker Dekoratøren. Andre ressurser, som styles, bilder og lignende, kan være definert globalt for Salesforce-organisasjonen.
 
+<img width="787" height="353" alt="CORS-policy" src="https://github.com/user-attachments/assets/579e3811-7cfe-4e07-a37c-9718f6683450" />
+
+<img width="781" height="882" alt="CSP Trusted Sites" src="https://github.com/user-attachments/assets/837a0530-1f78-42fd-968b-d34354f2de4b" />
+
+
 ## 3. Kontroller ID-porten-oppsettet
 
 Hvis oppsettet allerede finnes for nettstedet, gå videre til punkt 4.
@@ -78,6 +83,12 @@ Kontroller at følgende sider finnes under **Site Visualforce Pages**:
 
 
 Legg dem til hvis de mangler.
+
+<img width="824" height="464" alt="Visualforce-sider" src="https://github.com/user-attachments/assets/7b914905-4645-4405-8562-626f49cbc072" />
+
+
+<img width="762" height="561" alt="Visualforce Pages" src="https://github.com/user-attachments/assets/1f3fb874-bbd2-422c-b09f-757e720bf99c" />
+
 
 
 ## 4. Bytt header og footer i Experience Builder
