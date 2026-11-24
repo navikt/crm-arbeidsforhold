@@ -33,13 +33,6 @@
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
-        }, {
-          "componentAttributes" : { },
-          "componentName" : "c:aareg_mainBanner",
-          "id" : "0df4e306-4039-498a-ba5a-3bbcc85f3ae9",
-          "renderPriority" : "NEUTRAL",
-          "renditionMap" : { },
-          "type" : "component"
         } ],
         "id" : "d3e61750-9e7a-4353-a0fc-2150bac703ec",
         "regionLabel" : "Column 1",
@@ -74,6 +67,13 @@
           "componentAttributes" : { },
           "componentName" : "c:aaregPortalNav",
           "id" : "fee06159-ae0e-4598-8e8c-90e6dcc15a07",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        }, {
+          "componentAttributes" : { },
+          "componentName" : "c:aareg_mainBanner",
+          "id" : "0df4e306-4039-498a-ba5a-3bbcc85f3ae9",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"

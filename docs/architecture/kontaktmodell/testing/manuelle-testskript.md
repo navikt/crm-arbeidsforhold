@@ -181,6 +181,8 @@ Set `phase pilot` og logg inn som pilotbrukaren. Opne `/aaregisteret/s/`.
 | 12.14 | Gå til «Forside», vel «Arbeidsgiver» på nytt utan å velje virksomheit. | Same virksomheit er framleis vald, og tilgangen blir sjekka på nytt. | ☐ |
 | 12.15 | Opne «Min profil» frå rollesida. | Profilen startar med same virksomheit vald. For privatperson startar han med «Meg selv». | ☐ |
 | 12.16 | Vel «Privatperson» og opne «Min profil». | Kontekstlinja seier «Du bruker tjenesten på egne vegne» og har «Bytt rolle». | ☐ |
+| 12.17 | Opne «Mine søknader», ein søknad, «Ny søknad» og ei melding. | Tittelen (til dømes «Aa-registeret - Henvendelse») står som stor overskrift under stien og kontekstlinja. Ingen blå banner. | ☐ |
+| 12.18 | Set `phase shadow` og last same sider på nytt. | Det blå banneret er tilbake øvst, og stien og kontekstlinja er borte. | ☐ |
 
 12.5–12.6 og 12.12–12.15 krev SIT2 eller ein Altinn-stub. I scratch blir dei dekte av Playwright med syntetiske virksomheiter.
 

@@ -17,3 +17,18 @@
     font-weight: bold;
     margin-top: 0px;
 }
+.pending {
+    visibility: hidden;
+    min-height: 3.625rem;
+}
+
+.page-title {
+    box-sizing: border-box;
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: var(--a-spacing-6, 1.5rem) var(--a-spacing-4, 1rem) var(--a-spacing-2, 0.5rem);
+}
+
+.page-title-text {
+    margin: 0;
+}

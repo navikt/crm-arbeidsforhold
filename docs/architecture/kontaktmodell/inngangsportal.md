@@ -60,6 +60,10 @@ flowchart LR
       Det er same verdi som dei eldre sidene brukar til å hente søknader, avtaler og meldingar. Linja viser
       difor alltid den virksomheita sida faktisk arbeider for, også om økta i nettlesaren er utdatert.
     - Namnet er det brukaren såg i veljaren (frå Altinn) når nummeret stemmer, elles kontonamnet i Salesforce.
+- **Sidetittel i staden for blått banner:** Når portalbrytaren er på, blir `aareg_mainBanner` ein Aksel-overskrift (`h1`)
+  rett under stien og kontekstlinja, i same breidd som dei nye sidene. Experience-visningane for melding, søknad og ny
+  søknad plasserer komponenten etter `aaregPortalNav`. Når brytaren er av, eller kallet feilar, kjem det blå banneret
+  tilbake øvst slik som før. Teksten i tittelen er uendra.
     - «Bytt virksomhet» opnar rollesida med valet, slik at brukaren kan velje ei anna.
 - **Valet blir hugsa:** Rollesida brukar virksomheita frå økta når lenkja ikkje har `?org=`. Ei virksomheit
   hugsa for ei anna rolle blir ikkje brukt. «Min profil» startar med same kontekst: virksomheita, eller

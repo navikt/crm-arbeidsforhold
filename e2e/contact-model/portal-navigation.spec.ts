@@ -59,6 +59,9 @@ test.describe('Navigasjon tilbake med brødsmulesti', () => {
         await expect(trail.getByRole('link', { name: 'Arbeidsgiver' })).toBeVisible();
         await expect(trail).toHaveCount(1);
         await expect(page.getByRole('link', { name: 'Hjem', exact: true })).toHaveCount(0);
+        const threadTitle = page.getByRole('heading', { level: 1, name: 'Aa-registeret - Henvendelse' });
+        await expect(threadTitle).toBeVisible();
+        expect((await threadTitle.boundingBox())!.y).toBeGreaterThan((await trail.boundingBox())!.y);
         await documentScreenshot(page, '19-brodsmulesti-melding');
 
         await trail.getByRole('link', { name: 'Mine meldinger' }).click();
@@ -87,6 +90,10 @@ test.describe('Navigasjon tilbake med brødsmulesti', () => {
         await expect(bar).toContainText('Arbeidsgiver for', { timeout: 60_000 });
         await expect(bar).toContainText(chosenName);
         await expect(bar).toContainText('Org.nr. 111 111 111');
+        const title = page.getByRole('heading', { level: 1, name: /Mine Søknader/ });
+        await expect(title).toBeVisible();
+        await expect(page.locator('c-aareg_main-banner .mainbanner, c-aareg-main-banner .mainbanner')).toHaveCount(0);
+        expect((await title.boundingBox())!.y).toBeGreaterThan((await bar.boundingBox())!.y);
         await documentScreenshot(page, '22-kontekstlinje-underside');
 
         await bar.getByRole('link', { name: 'Bytt virksomhet' }).click();

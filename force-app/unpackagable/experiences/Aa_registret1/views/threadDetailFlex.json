@@ -65,18 +65,18 @@
       "id" : "651e181e-a78b-489b-bf5c-8dcc0187224f",
       "regions" : [ {
         "components" : [ {
+          "componentAttributes" : { },
+          "componentName" : "c:aaregPortalNav",
+          "id" : "6c0f2b7e-4d1a-4f3e-9a5b-2e8d7c1f0a93",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        }, {
           "componentAttributes" : {
             "title" : "Aa-registeret - Henvendelse"
           },
           "componentName" : "c:aareg_mainBanner",
           "id" : "18037155-015a-440c-85d4-a647594b979c",
-          "renderPriority" : "NEUTRAL",
-          "renditionMap" : { },
-          "type" : "component"
-        }, {
-          "componentAttributes" : { },
-          "componentName" : "c:aaregPortalNav",
-          "id" : "6c0f2b7e-4d1a-4f3e-9a5b-2e8d7c1f0a93",
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
