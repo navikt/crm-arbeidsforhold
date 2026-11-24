@@ -194,5 +194,7 @@ Komponenten **Main content** er usynlig og oppretter en snarvei («Hopp til hove
 
 ## 10. Kilder
 - [Experience Cloud – Confluence](https://confluence.adeo.no/spaces/PTC/pages/500537629/Experience+Cloud)
-- [CORS-konfigurasjonen for Dekoratøren (GitHub)](https://github.com/navikt/nav-dekoratoren)
-- [IdPortenSidController.cls (GitHub)](https://github.com/navikt/crm-community-base/blob/7cf3dbb57253abe7cd0fc55aef2100baedd19da4/force-app/IdPorten/classes/IdPortenSidController.cls#L88-L97)
+
+- [CORS-konfigurasjonen for Dekoratøren](https://github.com/navikt/nav-dekoratoren)
+
+- [IdPortenSidController.cls på GitHub](https://github.com/navikt/crm-community-base/blob/7cf3dbb57253abe7cd0fc55aef2100baedd19da4/force-app/IdPorten/classes/IdPortenSidController.cls#L88-L97)
