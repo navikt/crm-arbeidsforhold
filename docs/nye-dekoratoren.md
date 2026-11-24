@@ -29,7 +29,7 @@ Før du gjør endringer i koden, må du kontrollere det eksisterende oppsettet:
 ## 2. Kontroller CORS og CSP
 
 ### CORS
-Dekoratøren har en streng CORS-policy og tillater som standard kun nettsider under `*.nav.no`.
+Dekoratøren har en streng CORS-policy og tillater som standard kun nettsider under `*.nav.no`
 
 Ved lokal utvikling eller testing i Scratch Org/Sandbox kan du midlertidig omgå dette på én av følgende måter:
 - Starte Chrome med flagget `--disable-web-security`
