@@ -21,7 +21,6 @@ Ved testing i Scratch Org eller Sandbox kan du:
 - Slå av CORS-mekanismen i en egen testnettleser.
 - Starte Chrome med `--disable-web-security`.
 - Bruke en CORS-utvidelse i testnettleseren.
-- Be teamet som eier Dekoratøren om å legge til ditt domene i CORS-whitelisten.
 
 Bruk helst en separat testnettleser eller en midlertidig CORS-konfigurasjon for testing. Denne løsningen skal ikke brukes som permanent konfigurasjon.
 
@@ -30,10 +29,9 @@ Hvis domenet legges inn i CORS-policyen, må URL-en for både Experience-siden o
 ### CSP
 
 1. Gå til Experience Builder → Settings → Security & Privacy.
-2. Kontroller at **Relaxed CSP** brukes.
-3. Kontroller at **Lightning Locker** er deaktivert.
+2. Kontroller at **Relaxed CSP** brukes, siden Dekoratøren må kunne laste eksterne scripts.
+3. Kontroller at **Lightning Locker** er deaktivert, siden Dekoratøren krever denne tilgangsløsningen.
 4. Godkjenn nødvendige **CSP Trusted Sites** for scripts på nettstedet.
-5. Kontroller CSP-adressene som brukes i Dev- og produksjonsmiljøet.
 
 Mange CSP-er kan bli blokkert automatisk og må godkjennes manuelt.
 
@@ -69,6 +67,9 @@ Hvis ID-en mangler:
 1. Legg til ID-en i `IdPortenSidController.cls`.
 2. Deploy `crm-community-base` til aktuelle miljøer gjennom godkjent prosess.
 
+Dette sikrer at ID-porten-oppsettet fungerer med den nye Dekoratøren
+for det aktuelle community-nettstedet.
+
 ### 3.3 Legg til Visualforce-sider
 
 
@@ -80,8 +81,10 @@ Kontroller at følgende sider finnes under **Site Visualforce Pages**:
 - `IdPortenSid`
 
 
-
 Legg dem til hvis de mangler.
+
+Disse Visualforce-sidene må være tilgjengelige for nettstedet, siden
+de brukes i innloggingsflyten gjennom ID-porten.
 
 <img width="824" height="464" alt="Visualforce-sider" src="https://github.com/user-attachments/assets/7b914905-4645-4405-8562-626f49cbc072" />
 
@@ -94,7 +97,6 @@ Legg dem til hvis de mangler.
 
 
 Endringen skal gjøres i Experience Cloud-temaet.
-
 
 
 1. Åpne Experience Builder for Aa-registeret.
@@ -135,25 +137,31 @@ Kontroller følgende sider etter at temaet er oppdatert:
 
 Kontroller at den gamle og den nye headeren eller footeren ikke vises samtidig.
 
+> **Git-notat:** Før retrieve av Experience Cloud endringene må de berørte "**/experiences" og
+
+"**/README.md" fjernes fra `.forceignore`. Etter at retrieve er fullført og endringene er kontrollert, må de legges tilbake i `.forceignore`.
+
 
 ## 5. Velg miljø
 
-
 På **Decorator Header** angir du:
 
-
-
 - **Environment:** `Dev` i testmiljø og `Prod` i produksjon.
-
 - **Context:** Velg riktig kontekst for siden.
-
-
 
 Ved deployment fra Git skal aktuelle `views/*.json`-filer være oppført i `replacements` i `sfdx-project.json`.
 
-
 Produksjonsoppsettet bruker `HEADER_ENV_REPLACER` når `DEPLOY_DESTINATION=PROD`, forutsatt at deployment-pipelinen håndterer disse innstillingene.
 
+### 5.1 Experience Cloud-metadatadeployment
+
+Repositoryet har en workflow som automatisk deployer metadata fra:
+
+```text
+force-app/unpackagable-with-auto-deploy
+‘’'
+
+### 5.1 
 
 ## 6. Publiser
 
