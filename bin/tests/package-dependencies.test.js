@@ -788,6 +788,20 @@ test('resolves numeric builds and LATEST numerically, not lexicographically', as
     assert.equal(selected.LatestVersion.VersionNumber, '1.0.0.10');
 });
 
+test('CI can resolve the latest build including unreleased versions without changing the local default', async () => {
+    const released = version('released', 'pkg');
+    const beta = version('beta', 'pkg');
+    released.BuildNumber = 2;
+    beta.BuildNumber = 3;
+    const run = (args) => (args.includes('--released') ? [released] : [released, beta]);
+
+    const local = createProvider({}, run, false);
+    const ci = createProvider({}, run, false, { includeUnreleased: true });
+
+    assert.equal(await local.resolve({ package: 'parent', versionNumber: '1.0.0.LATEST' }), 'released');
+    assert.equal(await ci.resolve({ package: 'parent', versionNumber: '1.0.0.LATEST' }), 'beta');
+});
+
 test('does not guess an unavailable package name or dependency graph', async () => {
     const provider = createProvider({}, () => [], false);
     await assert.rejects(() => provider.name('unavailable'), /Dev Hub access/);
