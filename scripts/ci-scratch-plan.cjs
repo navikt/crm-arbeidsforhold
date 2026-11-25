@@ -12,6 +12,29 @@ function verifyScratchOrg(orgId, expiration, records) {
     return matches.length === 1 && matches[0].ExpirationDate === expiration;
 }
 
+function compareInstalledVersions(plan, installed) {
+    if (!Array.isArray(installed)) throw new Error('Cannot verify installed package versions.');
+    if (
+        installed.some(
+            (entry) => typeof entry?.SubscriberPackageVersionId !== 'string' || !entry.SubscriberPackageVersionId
+        )
+    ) {
+        return { reason: 'Installed package versions cannot be verified.' };
+    }
+    const installedVersions = new Set(installed.map((entry) => entry.SubscriberPackageVersionId));
+    const plannedVersions = new Set(plan.map((entry) => entry.versionId));
+    const missing = plan.filter((entry) => !installedVersions.has(entry.versionId));
+    const unexpected = [...installedVersions].filter((versionId) => !plannedVersions.has(versionId));
+    if (missing.length || unexpected.length) {
+        return {
+            reason: 'Installed package versions do not exactly match the current plan.',
+            missing,
+            unexpected
+        };
+    }
+    return null;
+}
+
 function selectRoute({
     enabled,
     expectedOrgId,
@@ -39,22 +62,8 @@ function selectRoute({
     ) {
         return { route: 'fresh', reason: 'CI scratch org is expired or close to expiration.' };
     }
-    if (!Array.isArray(installed)) throw new Error('Cannot verify installed package versions.');
-    if (
-        installed.some(
-            (entry) => typeof entry?.SubscriberPackageVersionId !== 'string' || !entry.SubscriberPackageVersionId
-        )
-    ) {
-        return { route: 'fresh', reason: 'Installed package versions cannot be verified.' };
-    }
-    const installedVersions = new Set(installed.map((entry) => entry.SubscriberPackageVersionId));
-    const plannedVersions = new Set(plan.map((entry) => entry.versionId));
-    if (
-        installedVersions.size !== plannedVersions.size ||
-        [...plannedVersions].some((versionId) => !installedVersions.has(versionId))
-    ) {
-        return { route: 'fresh', reason: 'Installed package versions do not exactly match the current plan.' };
-    }
+    const mismatch = compareInstalledVersions(plan, installed);
+    if (mismatch) return { route: 'fresh', reason: mismatch.reason };
     return { route: 'reuse', reason: 'CI scratch org matches the package plan.' };
 }
 
@@ -199,13 +208,45 @@ async function installPlan(plan, targetOrg, packageKey, run) {
             );
         }
     }
+    let output;
+    try {
+        output = await run(['package', 'installed', 'list', '--target-org', targetOrg, '--json'], { quiet: true });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(
+            `Could not verify installed package versions: ${packageKey ? message.replaceAll(packageKey, '[REDACTED]') : message}`
+        );
+    }
+    let response;
+    try {
+        response = JSON.parse(output);
+    } catch (error) {
+        if (!(error instanceof SyntaxError)) throw error;
+        throw new Error('Could not parse installed package list returned by Salesforce CLI.');
+    }
+    if (response?.status !== undefined && response.status !== 0) {
+        throw new Error('Salesforce CLI returned a failed installed package list response.');
+    }
+    const mismatch = compareInstalledVersions(plan, response?.result);
+    if (mismatch) {
+        const details = [];
+        if (mismatch.missing?.length) {
+            details.push(
+                `Missing: ${mismatch.missing.map((entry) => `${entry.name} (${entry.versionId})`).join(', ')}.`
+            );
+        }
+        if (mismatch.unexpected?.length) {
+            details.push(`Unexpected: ${mismatch.unexpected.join(', ')}.`);
+        }
+        throw new Error([mismatch.reason, ...details].join(' '));
+    }
 }
 
 function readJson(filename) {
     return JSON.parse(fs.readFileSync(filename, 'utf8'));
 }
 
-function commandRunner(args, packageKey = '') {
+function commandRunner(args, packageKey = '', { quiet = false } = {}) {
     return new Promise((resolve, reject) => {
         const child = spawn('sf', args, { stdio: ['ignore', 'pipe', 'pipe'] });
         let stdout = '';
@@ -221,10 +262,10 @@ function commandRunner(args, packageKey = '') {
         child.on('error', reject);
         child.on('close', (status) => {
             const redact = (value) => (packageKey ? value.replaceAll(packageKey, '[REDACTED]') : value);
-            if (stdout) process.stdout.write(redact(stdout));
+            if (stdout && (!quiet || status !== 0)) process.stdout.write(redact(stdout));
             if (stderr) process.stderr.write(redact(stderr));
             if (status !== 0) reject(new Error(`Salesforce CLI command failed with exit code ${status}.`));
-            else resolve();
+            else resolve(stdout);
         });
     });
 }
@@ -260,9 +301,10 @@ async function main(args) {
     if (command === 'install' && values.length === 3) {
         const [projectFile, planFile, targetOrg] = values;
         const plan = readPlan(readJson(projectFile), readJson(planFile));
-        await installPlan(plan, targetOrg, process.env.CRM_PACKAGE_KEY ?? '', (installArgs) =>
-            commandRunner(installArgs, process.env.CRM_PACKAGE_KEY ?? '')
+        await installPlan(plan, targetOrg, process.env.CRM_PACKAGE_KEY ?? '', (installArgs, options) =>
+            commandRunner(installArgs, process.env.CRM_PACKAGE_KEY ?? '', options)
         );
+        process.stdout.write('Installed package versions match the package plan.\n');
         return;
     }
     if (command === 'tests' && values.length === 1) {
