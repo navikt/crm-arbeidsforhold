@@ -14,9 +14,30 @@ dry-run.
 
 1. Opprett GitHub Environment `ci-scratch-org` og krev godkjenning frå ein
    ansvarleg reviewer før jobben får tilgang til miljøet sine secrets.
-2. Registrer ein dedikert scratch-org som manuelt blir halden ved like. Opprett
-   han frå `config/project-scratch-def.json` med ein autorisert Dev Hub. Planen
-   kan genererast med:
+2. Registrer ein dedikert scratch-org som manuelt blir halden ved like. Ein
+   autorisert operatør opprettar han frå repo-rota, mot same Dev Hub som
+   workflowen brukar. Vel eit eige alias og bruk 30 dagar, som er maksimal
+   levetid for ein scratch-org:
+
+    ```sh
+    sf org create scratch \
+      --definition-file config/project-scratch-def.json \
+      --duration-days 30 \
+      --alias ci-reusable-scratch-org \
+      --target-dev-hub YOUR_DEVHUB_ALIAS
+    ```
+
+    Erstatt `YOUR_DEVHUB_ALIAS` med aliasen til den autoriserte Dev Hub-en.
+    Bruk eit anna scratch-org-alias dersom `ci-reusable-scratch-org` allereie
+    er i bruk.
+
+    Ikkje bruk `bin/create-scratch-org.sh` for denne orgen. Det skriptet
+    slettar eventuell org med same alias, installerer avhengigheitene og køyrer
+    etterstega for ein vanleg utviklarorg, inkludert deploy av kjeldekode.
+    Gjenbruksorgen skal berre ha avhengigheitspakkane; workflowen validerer
+    `force-app` som ein dry-run.
+
+    Planen for avhengigheitspakkane kan genererast med:
 
     ```sh
     node bin/package-dependencies.js --include-unreleased --plan-file /tmp/ci-package-plan.json
