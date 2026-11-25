@@ -40,9 +40,20 @@ function selectRoute({
         return { route: 'fresh', reason: 'CI scratch org is expired or close to expiration.' };
     }
     if (!Array.isArray(installed)) throw new Error('Cannot verify installed package versions.');
-    const versions = new Set(installed.map((entry) => entry.SubscriberPackageVersionId));
-    if (plan.some((entry) => !versions.has(entry.versionId))) {
-        return { route: 'fresh', reason: 'Installed package versions do not match the current plan.' };
+    if (
+        installed.some(
+            (entry) => typeof entry?.SubscriberPackageVersionId !== 'string' || !entry.SubscriberPackageVersionId
+        )
+    ) {
+        return { route: 'fresh', reason: 'Installed package versions cannot be verified.' };
+    }
+    const installedVersions = new Set(installed.map((entry) => entry.SubscriberPackageVersionId));
+    const plannedVersions = new Set(plan.map((entry) => entry.versionId));
+    if (
+        installedVersions.size !== plannedVersions.size ||
+        [...plannedVersions].some((versionId) => !installedVersions.has(versionId))
+    ) {
+        return { route: 'fresh', reason: 'Installed package versions do not exactly match the current plan.' };
     }
     return { route: 'reuse', reason: 'CI scratch org matches the package plan.' };
 }
@@ -77,13 +88,15 @@ function scratchFingerprint(projectFile, definitionFile) {
         .digest('hex');
 }
 
-function getApexClassNames(sourceDirectory) {
+function getApexCoverageNames(sourceDirectory) {
     const names = new Set();
     const visit = (directory) => {
         for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
             const filename = path.join(directory, entry.name);
             if (entry.isDirectory()) visit(filename);
-            else if (entry.isFile() && entry.name.endsWith('.cls')) names.add(entry.name.slice(0, -4));
+            else if (entry.isFile() && ['.cls', '.trigger'].includes(path.extname(entry.name).toLowerCase())) {
+                names.add(path.basename(entry.name, path.extname(entry.name)));
+            }
         }
     };
     visit(sourceDirectory);
@@ -259,7 +272,7 @@ async function main(args) {
     if (command === 'coverage' && values.length === 2) {
         const [coverageFile, sourceDirectory] = values;
         const data = readJson(coverageFile);
-        const result = calculateCoverage(coverageRecords(data), getApexClassNames(sourceDirectory));
+        const result = calculateCoverage(coverageRecords(data), getApexCoverageNames(sourceDirectory));
         process.stdout.write(`${JSON.stringify(result)}\n`);
         return;
     }
@@ -280,7 +293,7 @@ if (require.main === module) {
 module.exports = {
     calculateCoverage,
     coverageRecords,
-    getApexClassNames,
+    getApexCoverageNames,
     getApexTestClassNames,
     installPlan,
     readPlan,

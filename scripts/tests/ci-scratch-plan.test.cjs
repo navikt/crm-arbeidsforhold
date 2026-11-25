@@ -6,7 +6,7 @@ const { test } = require('node:test');
 const {
     calculateCoverage,
     coverageRecords,
-    getApexClassNames,
+    getApexCoverageNames,
     getApexTestClassNames,
     installPlan,
     readPlan,
@@ -58,6 +58,14 @@ const ready = {
 test('reuses only a registered org with the exact installed versions', () => {
     assert.equal(selectRoute(ready).route, 'reuse');
     assert.equal(selectRoute({ ...ready, installed: [{ SubscriberPackageVersionId: 'baseOld' }] }).route, 'fresh');
+    assert.equal(
+        selectRoute({
+            ...ready,
+            installed: [...ready.installed, { SubscriberPackageVersionId: 'unexpected-version' }]
+        }).route,
+        'fresh'
+    );
+    assert.equal(selectRoute({ ...ready, installed: [...ready.installed, {}] }).route, 'fresh');
     assert.equal(selectRoute({ ...ready, actualFingerprint: 'other' }).route, 'fresh');
     assert.equal(selectRoute({ ...ready, expiration: '2030-01-02' }).route, 'fresh');
     assert.equal(selectRoute({ ...ready, enabled: false }).route, 'fresh');
@@ -88,7 +96,7 @@ test('requires a case-sensitive active Dev Hub scratch record with the registere
     assert.throws(() => verifyScratchOrg("invalid' OR Status='Active", '2030-01-15', []), /invalid.*org.*id/i);
 });
 
-test('calculates the repository coverage threshold using only source classes', () => {
+test('calculates repository coverage from source Apex types', () => {
     assert.deepEqual(
         calculateCoverage(
             [
@@ -108,6 +116,31 @@ test('calculates the repository coverage threshold using only source classes', (
         /invalid coverage/i
     );
     assert.throws(() => calculateCoverage([], ['ApexClass']), /No Apex coverage records/);
+});
+
+test('includes trigger coverage when enforcing the repository coverage threshold', (context) => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-apex-coverage-'));
+    context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+    fs.writeFileSync(path.join(directory, 'Example.cls'), 'public class Example {}');
+    fs.writeFileSync(
+        path.join(directory, 'ExampleTrigger.trigger'),
+        'trigger ExampleTrigger on Account (after insert) {}'
+    );
+    fs.writeFileSync(path.join(directory, 'Example.page'), '<apex:page />');
+
+    const coverageNames = getApexCoverageNames(directory);
+    assert.deepEqual(coverageNames, ['Example', 'ExampleTrigger']);
+    assert.throws(
+        () =>
+            calculateCoverage(
+                [
+                    { name: 'Example', totalCovered: 90, totalLines: 100 },
+                    { name: 'ExampleTrigger', totalCovered: 0, totalLines: 50 }
+                ],
+                coverageNames
+            ),
+        /60\.00% is below 85%/
+    );
 });
 
 test('reads coverage from Salesforce deploy and Apex test result shapes', () => {
@@ -131,7 +164,11 @@ test('finds Apex test classes and fingerprints the checked scratch definition', 
     fs.writeFileSync(definitionFile, '{"edition":"Enterprise"}');
     const first = scratchFingerprint(projectFile, definitionFile);
     fs.writeFileSync(definitionFile, '{"edition":"Developer"}');
-    assert.deepEqual(getApexClassNames(source), ['Example', 'ExampleTest']);
+    fs.writeFileSync(
+        path.join(source, 'ExampleTrigger.trigger'),
+        'trigger ExampleTrigger on Account (after insert) {}'
+    );
+    assert.deepEqual(getApexCoverageNames(source), ['Example', 'ExampleTest', 'ExampleTrigger']);
     assert.deepEqual(getApexTestClassNames(source), ['ExampleTest']);
     assert.notEqual(scratchFingerprint(projectFile, definitionFile), first);
 });

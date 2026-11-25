@@ -6,8 +6,9 @@ manuelt frå `main`; den påkravde PR-valideringa er uendra.
 
 Workflowen finn gjeldande pakkeversjonar frå `sfdx-project.json`, inkludert
 beta-/unreleased-versjonar slik dagens CI gjer. Ein registrert scratch-org blir
-berre brukt når org-ID, scratch-konfigurasjon, utløpsdato og installerte
-pakkeversjonar stemmer. Deployen til gjenbruksorgen er ein dry-run.
+berre brukt når org-ID, scratch-konfigurasjon, utløpsdato og den eksakte mengda
+installerte pakkeversjonar stemmer med planen. Deployen til gjenbruksorgen er ein
+dry-run.
 
 ## Oppsett
 
@@ -51,8 +52,8 @@ Start workflowen manuelt frå `main`. Vel `force_fresh` for å hoppe over
 gjenbruksorgen og teste den vanlege fallbacken.
 
 Manglande registrering, utilgjengeleg org, endra scratch-konfigurasjon,
-utløpsdato innan to dagar eller manglande/utdaterte pakkeversjonar sender
-køyringa til ein ny scratch-org. Fallbacken bruker den same eksakte
+utløpsdato innan to dagar, eller manglande, utdaterte eller uventa installerte
+pakkeversjonar sender køyringa til ein ny scratch-org. Fallbacken bruker den same eksakte
 pakkeplanen, deployer `force-app`, køyrer repoet sine Apex-testar og handhevar
 85 % samla dekning. Den nye orgen blir sletta også når valideringa feilar.
 
