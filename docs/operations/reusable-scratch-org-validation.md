@@ -126,6 +126,11 @@ dry-run.
 Start workflowen manuelt frå `main`. Vel `force_fresh` for å hoppe over
 gjenbruksorgen og teste den vanlege fallbacken.
 
+Etter pakkeinstallasjon hentar installasjonskommandoen dei installerte
+versjonane frå orgen og samanliknar dei med planen. Manglande, feil eller ekstra
+versjonar, eller feil ved innhenting, stoppar kommandoen med ein feilmelding.
+Dette gjeld både manuell installasjon og fallback før deploy og testar.
+
 Manglande registrering, utilgjengeleg org, endra scratch-konfigurasjon,
 utløpsdato innan to dagar, eller manglande, utdaterte eller uventa installerte
 pakkeversjonar sender køyringa til ein ny scratch-org. Fallbacken bruker den same eksakte

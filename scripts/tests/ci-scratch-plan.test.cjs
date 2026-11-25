@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
@@ -182,7 +183,17 @@ test('installs the validated exact versions in order without exposing keys in ou
         ],
         'ci-fresh',
         'test-key',
-        async (args) => calls.push(args)
+        async (args) => {
+            calls.push(args);
+            if (args[1] === 'installed') {
+                return JSON.stringify({
+                    result: [
+                        { SubscriberPackageVersionId: 'base-version' },
+                        { SubscriberPackageVersionId: 'parent-version' }
+                    ]
+                });
+            }
+        }
     );
     assert.deepEqual(calls[0], [
         'package',
@@ -199,6 +210,8 @@ test('installs the validated exact versions in order without exposing keys in ou
     ]);
     assert.ok(calls[1].includes('parent-version'));
     assert.deepEqual(calls[1].slice(-2), ['--installation-key', 'test-key']);
+    assert.deepEqual(calls[2], ['package', 'installed', 'list', '--target-org', 'ci-fresh', '--json']);
+    assert.equal(calls.length, 3);
     await assert.rejects(
         () => installPlan([{ name: 'parent', versionId: 'id', requiresKey: true }], 'org', '', async () => {}),
         /key is required/
@@ -215,3 +228,147 @@ test('installs the validated exact versions in order without exposing keys in ou
         }
     );
 });
+
+test('rejects installed packages that do not exactly match the installation plan', async () => {
+    const plan = [
+        { name: 'base', versionId: 'base-version', requiresKey: false },
+        { name: 'parent', versionId: 'parent-version', requiresKey: false }
+    ];
+    const scenarios = [
+        {
+            installed: [{ SubscriberPackageVersionId: 'base-version' }],
+            expected: /missing.*parent.*parent-version/i
+        },
+        {
+            installed: [{ SubscriberPackageVersionId: 'base-version' }, { SubscriberPackageVersionId: 'old-version' }],
+            expected: /missing.*parent.*unexpected.*old-version/i
+        },
+        {
+            installed: [
+                { SubscriberPackageVersionId: 'base-version' },
+                { SubscriberPackageVersionId: 'parent-version' },
+                { SubscriberPackageVersionId: 'extra-version' }
+            ],
+            expected: /unexpected.*extra-version/i
+        },
+        {
+            installed: [{ SubscriberPackageVersionId: 'base-version' }, {}],
+            expected: /installed package versions cannot be verified/i
+        },
+        { installed: null, expected: /cannot verify installed package versions/i }
+    ];
+    for (const { installed, expected } of scenarios) {
+        await assert.rejects(
+            () =>
+                installPlan(plan, 'ci-fresh', '', async (args) =>
+                    args[1] === 'installed' ? JSON.stringify({ result: installed }) : ''
+                ),
+            expected
+        );
+    }
+});
+
+test('reports package-list failures and invalid responses without exposing the installation key', async () => {
+    const plan = [{ name: 'base', versionId: 'base-version', requiresKey: false }];
+    await assert.rejects(
+        () =>
+            installPlan(plan, 'ci-fresh', 'test-key', async (args) => {
+                if (args[1] === 'installed') throw new Error('List unavailable: test-key');
+                return '';
+            }),
+        (error) => {
+            assert.match(error.message, /could not verify.*list unavailable/i);
+            assert.doesNotMatch(error.message, /test-key/);
+            return true;
+        }
+    );
+    await assert.rejects(
+        () => installPlan(plan, 'ci-fresh', '', async (args) => (args[1] === 'installed' ? 'not-json' : '')),
+        /could not parse.*installed package/i
+    );
+    await assert.rejects(
+        () =>
+            installPlan(plan, 'ci-fresh', '', async (args) =>
+                args[1] === 'installed'
+                    ? JSON.stringify({ status: 1, result: [{ SubscriberPackageVersionId: 'base-version' }] })
+                    : ''
+            ),
+        /failed installed package list response/i
+    );
+});
+
+test(
+    'install command verifies the plan and fails closed on package-list errors',
+    { skip: process.platform === 'win32' ? 'The simulated Salesforce CLI uses a Unix executable.' : false },
+    (context) => {
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-scratch-install-'));
+        context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+        const projectFile = path.join(directory, 'project.json');
+        const planFile = path.join(directory, 'plan.json');
+        const cliFile = path.join(directory, 'sf');
+        fs.writeFileSync(
+            projectFile,
+            JSON.stringify({
+                packageDirectories: [{ dependencies: [{ package: 'base' }, { package: 'parent' }] }],
+                packageKeyConfig: { base: false, parent: false }
+            })
+        );
+        fs.writeFileSync(
+            planFile,
+            JSON.stringify({
+                base: { SubscriberPackageVersionId: 'base-version' },
+                parent: { SubscriberPackageVersionId: 'parent-version' }
+            })
+        );
+        fs.writeFileSync(
+            cliFile,
+            `#!/usr/bin/env node
+const args = process.argv.slice(2);
+if (args[0] === 'package' && args[1] === 'install') {
+    console.log('Package installation requested');
+} else if (args[0] === 'package' && args[1] === 'installed' && args[2] === 'list') {
+    if (process.env.TEST_SCENARIO === 'unavailable') {
+        console.error('List unavailable: test-key');
+        process.exitCode = 1;
+    } else {
+        const versions = process.env.TEST_SCENARIO === 'missing'
+            ? ['base-version']
+            : ['base-version', 'parent-version'];
+        console.log(JSON.stringify({ result: versions.map((id) => ({ SubscriberPackageVersionId: id })) }));
+    }
+} else {
+    process.exitCode = 1;
+}
+`,
+            { mode: 0o755 }
+        );
+        const runInstall = (scenario) =>
+            spawnSync(
+                process.execPath,
+                [path.resolve(__dirname, '../ci-scratch-plan.cjs'), 'install', projectFile, planFile, 'ci-fresh'],
+                {
+                    encoding: 'utf8',
+                    env: {
+                        ...process.env,
+                        PATH: directory + path.delimiter + process.env.PATH,
+                        TEST_SCENARIO: scenario,
+                        CRM_PACKAGE_KEY: 'test-key'
+                    }
+                }
+            );
+        const success = runInstall('matching');
+        assert.equal(success.status, 0, success.stderr);
+        assert.match(success.stdout, /installed package versions match/i);
+
+        const failure = runInstall('missing');
+        assert.notEqual(failure.status, 0);
+        assert.match(failure.stderr, /missing.*parent.*parent-version/i);
+        assert.doesNotMatch(failure.stdout, /installed package versions match/i);
+
+        const unavailable = runInstall('unavailable');
+        assert.notEqual(unavailable.status, 0);
+        assert.match(unavailable.stderr, /list unavailable: \[REDACTED\]/i);
+        assert.match(unavailable.stderr, /could not verify installed package versions/i);
+        assert.doesNotMatch(unavailable.stdout + unavailable.stderr, /test-key/);
+    }
+);
