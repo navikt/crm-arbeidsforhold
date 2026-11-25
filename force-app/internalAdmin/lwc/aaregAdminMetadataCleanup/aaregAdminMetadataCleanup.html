@@ -1,0 +1,157 @@
+<template>
+    <lightning-card title="Metadata og opprydding" icon-name="standard:maintenance_plan">
+        <lightning-button slot="actions" label="Oppdater" onclick={handleRefresh}></lightning-button>
+        <div class="slds-p-horizontal_medium">
+            <p class="slds-text-body_small slds-m-bottom_small">
+                Berre lesing. Viser metadata som er fjerna frå repoet eller merkt som utfasa, og om komponenten framleis
+                finst i denne orgen. Sletting følgjer runbooken for metadataopprydding og blir aldri gjort herifrå.
+            </p>
+            <template lwc:if={loading}>
+                <lightning-spinner alternative-text="Lastar"></lightning-spinner>
+            </template>
+            <template lwc:if={error}>
+                <div class="slds-text-color_error" role="alert">{error}</div>
+            </template>
+            <template lwc:if={hasOverview}>
+                <dl class="slds-list_horizontal slds-wrap slds-m-bottom_small" data-id="source">
+                    <dt class="slds-item_label slds-text-color_weak">Org:</dt>
+                    <dd class="slds-item_detail">{overview.orgName} ({orgKind})</dd>
+                    <dt class="slds-item_label slds-text-color_weak">Repo-grunnlag:</dt>
+                    <dd class="slds-item_detail">
+                        <a href={overview.sourceCommitUrl} target="_blank" rel="noopener noreferrer"
+                            >{overview.sourceCommit}</a
+                        >
+                        ({generatedOn})
+                    </dd>
+                </dl>
+                <ul class="slds-list_horizontal slds-has-dividers_right slds-m-bottom_small" data-id="summary">
+                    <li class="slds-item">
+                        <span class="slds-badge slds-theme_warning">{overview.presentCount}</span> må ryddast
+                    </li>
+                    <li class="slds-item">
+                        <span class="slds-badge">{overview.manualCount}</span> må sjekkast manuelt
+                    </li>
+                    <li class="slds-item">
+                        <span class="slds-badge slds-theme_success">{overview.absentCount}</span> finst ikkje
+                    </li>
+                    <li class="slds-item"><span class="slds-badge">{orphanCount}</span> finst berre i orgen</li>
+                </ul>
+                <template lwc:if={overview.warning}>
+                    <div class="slds-text-color_error slds-m-bottom_small" role="status">{overview.warning}</div>
+                </template>
+                <div class="slds-grid slds-gutters slds-wrap slds-m-bottom_small">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <lightning-combobox
+                            data-id="state"
+                            label="Status i orgen"
+                            value={stateFilter}
+                            options={stateOptions}
+                            onchange={handleStateChange}
+                        ></lightning-combobox>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <lightning-combobox
+                            data-id="type"
+                            label="Metadatatype"
+                            value={typeFilter}
+                            options={typeOptions}
+                            onchange={handleTypeChange}
+                        ></lightning-combobox>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                        <lightning-input
+                            type="search"
+                            label="Søk etter namn"
+                            value={searchTerm}
+                            onchange={handleSearch}
+                        ></lightning-input>
+                    </div>
+                </div>
+                <p class="slds-text-body_small slds-m-bottom_x-small" aria-live="polite">{rowSummary}</p>
+                <template lwc:if={hasRows}>
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer" data-id="items">
+                        <thead>
+                            <tr>
+                                <th scope="col">Komponent</th>
+                                <th scope="col">I denne orgen</th>
+                                <th scope="col">Steg</th>
+                                <th scope="col">Fjerna</th>
+                                <th scope="col">Merknad</th>
+                                <th scope="col">Lenkjer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={rows} for:item="row">
+                                <tr key={row.key} data-key={row.key}>
+                                    <td class="slds-cell-wrap">
+                                        <div class="slds-text-title">{row.type}</div>
+                                        <div>{row.name}</div>
+                                    </td>
+                                    <td><span class={row.stateClass} data-state={row.state}>{row.stateLabel}</span></td>
+                                    <td class="slds-cell-wrap">{row.stageLabel}</td>
+                                    <td class="slds-cell-wrap">
+                                        <template lwc:if={row.commitUrl}>
+                                            <a href={row.commitUrl} target="_blank" rel="noopener noreferrer"
+                                                >{row.removedOn}</a
+                                            >
+                                            <div class="slds-text-body_small slds-text-color_weak">{row.subject}</div>
+                                        </template>
+                                    </td>
+                                    <td class="slds-cell-wrap">{row.note}</td>
+                                    <td class="slds-cell-wrap">
+                                        <template lwc:if={row.runbookUrl}>
+                                            <a href={row.runbookUrl} target="_blank" rel="noopener noreferrer"
+                                                >Runbook</a
+                                            >
+                                        </template>
+                                        <template lwc:if={row.issueUrl}>
+                                            <a
+                                                class="slds-m-left_x-small"
+                                                href={row.issueUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                >Sak</a
+                                            >
+                                        </template>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </template>
+                <template lwc:else>
+                    <p class="slds-text-color_weak">Ingen komponentar passar filteret.</p>
+                </template>
+                <section class="slds-m-top_large" data-id="orphans">
+                    <h2 class="slds-text-heading_small slds-m-bottom_x-small">Finst berre i orgen</h2>
+                    <p class="slds-text-body_small slds-m-bottom_x-small">
+                        Komponentar med prefiksa {prefixes} som finst i denne orgen, men ikkje i repoet. Dei kan vere
+                        rester etter manuelle endringar eller eldre pakkeversjonar. Rapportar, dashboard og e-postmalar
+                        er ikkje med fordi brukarar lagar dei sjølve.
+                    </p>
+                    <template lwc:if={hasOrphans}>
+                        <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Namn</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={overview.orphans} for:item="orphan">
+                                    <tr key={orphan.key} data-key={orphan.key}>
+                                        <td>{orphan.type}</td>
+                                        <td class="slds-cell-wrap">{orphan.name}</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </template>
+                    <template lwc:else>
+                        <p class="slds-text-color_weak">Ingen komponentar finst berre i orgen.</p>
+                    </template>
+                </section>
+            </template>
+        </div>
+    </lightning-card>
+</template>

@@ -23,6 +23,7 @@ public with sharing class AAREG_AdminNavigationController {
         'AAREG_Admin_Access' => ADMIN_VIEWER,
         'AAREG_Admin_Configuration' => ADMIN_VIEWER,
         'AAREG_Admin_Journey' => ADMIN_VIEWER,
+        'AAREG_Admin_Metadata_Cleanup' => ADMIN_VIEWER,
         'AAREG_Admin_Monitor' => ADMIN_VIEWER,
         'AAREG_Admin_Permissions' => new Set<String>{ 'AAREG_Admin_Viewer', 'AAREG_Admin_Access_Overview' },
         'AAREG_Contact_Model' => new Set<String>{ 'AAREG_ContactModel_Admin' }
@@ -202,6 +203,13 @@ public with sharing class AAREG_AdminNavigationController {
                 'AAREG_Admin_Configuration',
                 'Konfigurasjon',
                 'Innstillingar og funksjonsbrytarar.'
+            ),
+            new Destination(
+                'operations',
+                KIND_TAB,
+                'AAREG_Admin_Metadata_Cleanup',
+                'Metadata og opprydding',
+                'Fjerna og utfasa metadata som framleis finst i orgen.'
             ),
             new Destination(
                 'contactModel',

@@ -262,6 +262,40 @@ brukaren berre løyveoversikta. Tildel løyvesettet i produksjon først når til
 
 Flata endrar ingenting. Tildeling skjer framleis i Setup.
 
+### 5.11 Metadata og opprydding
+
+Fana «Metadata og opprydding» (`AAREG_Admin_Metadata_Cleanup`) viser metadata som er fjerna frå repoet eller
+merkt som utfasa, og om komponenten framleis finst i orgen der fana blir opna. Ho kan brukast som evidens for
+runbooken [Salesforce-metadataopprydding](../operations/salesforce-metadata-cleanup-runbook.md) i kvar org.
+
+| Del                 | Kjelde                                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Fjerna frå repoet   | Static Resource `AAREG_Metadata_Inventory`, generert frå git-historikken med `npm run metadata:inventory`. |
+| Utfasa og planlagt  | Custom Metadata `AAREG_Cleanup_Guide__mdt`: steg, erstatning, grunn, runbook og sak.                       |
+| Finst i orgen       | Les direkte frå orgen med SOQL og describe ved kvar opning.                                                |
+| Finst berre i orgen | Komponentar med prefiksa `AAREG` og `P360` som finst i orgen, men ikkje i repoet.                          |
+
+Statusane er:
+
+- **Finst – må ryddast:** komponenten er fjerna eller utfasa, men ligg framleis i orgen.
+- **Sjekk manuelt:** typen kan ikkje lesast med Apex, til dømes Layout, FlexiPage, LWC, QuickAction og
+  ReportType. Rada seier kvar i Setup du sjekkar.
+- **Finst ikkje:** komponenten er borte frå orgen.
+
+Slik held du oversikta oppdatert:
+
+1. Køyr `npm run metadata:inventory` før kvar pakkebygging og commit resultatet. Inventaret gjeld commiten det
+   blei laga frå, og fana viser commiten og datoen.
+2. Legg til ein post i `AAREG_Cleanup_Guide__mdt` når ein komponent skal fasast ut før han blir fjerna, eller for
+   å gi ein fjerna komponent erstatning, runbook og sak. Posten overstyrer steget frå git-historikken.
+3. Når slettinga er verifisert i SIT2 og produksjon, set `Status__c` til `Deleted_Verified`.
+
+Avgrensingar:
+
+- Rapportar, dashboard og e-postmalar er ikkje med i «Finst berre i orgen», fordi brukarar lagar dei sjølve.
+- Sjekken les metadatanamn i system mode. Namna er ikkje persondata, og fana krev `AAREG_Admin_Viewer`.
+- Fana slettar ingenting. Sletting skjer med destructive deployment etter runbooken.
+
 ## 6. Fasar
 
 ```mermaid

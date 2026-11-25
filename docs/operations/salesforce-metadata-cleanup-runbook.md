@@ -16,6 +16,8 @@ Før kvar agentkommando mot andre ikkje-produksjonsorg krevst ny stadfesting av 
 
 Denne runbooken skal brukast nar metadata er fjerna frå repoet, men framleis kan liggje i ein eller fleire Salesforce-orgar. Ei vanleg source deploy slettar ikkje automatisk metadata som ikkje lenger finst i source tree. Sletting i org krev ein eksplisitt destructive deployment og kontrollert verifikasjon.
 
+Fana «Metadata og opprydding» i appen Arbeidsforhold Admin viser kva fjerna eller utfasa metadata som framleis finst i orgen ho blir opna i. Bruk ho til forhandskontroll og verifikasjon i kvar org. Sjå [Arbeidsforhold Admin, kapittel 5.11](../surfaces/aareg-admin-app.md#511-metadata-og-opprydding).
+
 ## Metadata som er fjerna i denne endringa
 
 | Metadata type | Full name                         | Repo path                                                                | Grunngjeving                                                                                                                                   | Org-handling                                                                                         |

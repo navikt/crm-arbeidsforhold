@@ -97,6 +97,8 @@ Skjermbileta blir lagra i [skjermbilete/](skjermbilete/) og viser berre syntetis
 | [27-admin-loyveoversikt](skjermbilete/27-admin-loyveoversikt.png)                                       | Løyveoversikta med detaljar om eitt løyve.     |
 | [28-admin-interne-brukarar](skjermbilete/28-admin-interne-brukarar.png)                                 | Interne brukarar med problem.                  |
 | [29-admin-brukar-tilgang](skjermbilete/29-admin-brukar-tilgang.png)                                     | Effektiv tilgang for éin brukar.               |
+| [30-admin-metadata-opprydding](skjermbilete/30-admin-metadata-opprydding.png)                           | Fjerna metadata og status i orgen.             |
+| [31-admin-metadata-filter](skjermbilete/31-admin-metadata-filter.png)                                   | Søk og filter i oppryddingsoversikta.          |
 
 ## Kjende avgrensingar
 

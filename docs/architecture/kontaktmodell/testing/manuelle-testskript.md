@@ -214,6 +214,19 @@ Opne appen «Arbeidsforhold Admin» som ein brukar med `AAREG_Admin_Viewer`.
 | 14.7 | Logg inn med `AAREG_Admin_Access_Overview` og opne «Interne brukarar». | Tabell med status, profil, løyve, siste innlogging og tal på problem.                                                            | ☐   |
 | 14.8 | Vel ein saksbehandlar.                                                 | Problema blir forklarte. Effektiv tilgang viser kvart hovudobjekt og kva løyve som gir tilgangen. «Opne brukaren i Setup» finst. | ☐   |
 
+## 15. Metadata og opprydding
+
+Opne appen «Arbeidsforhold Admin» som ein brukar med `AAREG_Admin_Viewer`.
+
+| #    | Steg                                                         | Forventa resultat                                                                                                     | OK  |
+| ---- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- | --- |
+| 15.1 | Skriv «opprydding» i søkjefeltet på startsida og vel kortet. | Fana «Metadata og opprydding» blir opna.                                                                              | ☐   |
+| 15.2 | Les kortet øvst.                                             | Org, miljø, repo-commit og dato står øvst. Teljarane viser «må ryddast», «manuelt», «finst ikkje» og «berre i orgen». | ☐   |
+| 15.3 | Søk etter «CheckObjectTypeNaming».                           | Éi rad med steget «Planlagt sletting», erstatninga `AAREG_checkObjectTypeNamecheTest` og lenkje til runbooken.        | ☐   |
+| 15.4 | Vel «Finst – må ryddast» i «Status i orgen».                 | Berre komponentar som framleis finst i orgen, står att.                                                               | ☐   |
+| 15.5 | Vel ein metadatatype, til dømes `Layout`.                    | Radene seier «Sjekk manuelt» og kvar i Setup du sjekkar.                                                              | ☐   |
+| 15.6 | Bla ned til «Finst berre i orgen».                           | Lista viser komponentar med `AAREG`/`P360` som ikkje finst i repoet, eller at det ikkje er nokon.                     | ☐   |
+
 ## Avslutning
 
 - [ ] `npm run contact-model -- status` er lagra som vedlegg.
