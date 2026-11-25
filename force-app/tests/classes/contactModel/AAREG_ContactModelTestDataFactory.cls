@@ -117,7 +117,7 @@ public with sharing class AAREG_ContactModelTestDataFactory {
      */
     public static Account createOrganization(String name) {
         Account organization = new Account(Name = name);
-        insert organization;
+        insert as system organization;
         return organization;
     }
 
@@ -130,7 +130,7 @@ public with sharing class AAREG_ContactModelTestDataFactory {
      */
     public static Application__c createApplication(Account organization, String email) {
         Application__c application = new Application__c(Account__c = organization.Id, Email__c = email);
-        insert application;
+        insert as system application;
         return application;
     }
 

@@ -124,7 +124,7 @@ private class AAREG_EntryPortalControllerTest {
         }
 
         System.Assert.areEqual(AAREG_RoleAccessService.GRANTED, decision.outcome, JSON.serialize(decision));
-        User reread = [SELECT LastUsedOrganization__c FROM User WHERE Id = :portalUser().Id];
+        User reread = [SELECT LastUsedOrganization__c FROM User WHERE Id = :portalUser().Id WITH SYSTEM_MODE];
         System.Assert.areEqual(PERMITTED, reread.LastUsedOrganization__c, 'Sub-pages read the chosen organization');
     }
 
@@ -138,7 +138,7 @@ private class AAREG_EntryPortalControllerTest {
         }
 
         System.Assert.areEqual(AAREG_RoleAccessService.DENIED, decision.outcome, 'No right');
-        User reread = [SELECT LastUsedOrganization__c FROM User WHERE Id = :portalUser().Id];
+        User reread = [SELECT LastUsedOrganization__c FROM User WHERE Id = :portalUser().Id WITH SYSTEM_MODE];
         System.Assert.areEqual(PERMITTED, reread.LastUsedOrganization__c, 'Denial changes nothing');
     }
 

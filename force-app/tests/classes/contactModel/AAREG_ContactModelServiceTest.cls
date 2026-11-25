@@ -252,7 +252,7 @@ private class AAREG_ContactModelServiceTest {
             organization,
             'a@liste.example'
         );
-        insert new RelatedContact__c(
+        insert as system new RelatedContact__c(
             Name = 'Varsel Person',
             Application__c = application.Id,
             Email__c = 'v@liste.example'
