@@ -1,7 +1,10 @@
 const assert = require('node:assert/strict');
+const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { test } = require('node:test');
+const { scratchFingerprint } = require('../ci-scratch-plan.cjs');
 
 const directory = path.resolve(__dirname, '../../.github/workflows');
 const readWorkflow = (name) => fs.readFileSync(path.join(directory, name), 'utf8').replace(/\r\n/g, '\n');
@@ -53,6 +56,184 @@ test('offline CI covers the workflow contracts and Node tooling on PRs and main'
         assert.equal(source.split(`'${pattern}'`).length - 1, 2, pattern);
     }
 });
+
+test('reusable scratch validation is manual, main-only, serialized, and retains fresh-org fallback', () => {
+    const source = readWorkflow('ci-reusable-scratch-org.yml');
+    assert.match(source, /workflow_dispatch:/);
+    assert.match(source, /if: github\.ref == 'refs\/heads\/main'/);
+    assert.match(source, /ref: \$\{\{ github\.sha \}\}/);
+    assert.match(source, /environment: ci-scratch-org/);
+    assert.match(source, /cancel-in-progress: false/);
+    assert.match(source, /--include-unreleased --plan-file/);
+    assert.match(source, /CI_SCRATCH_ORG_AUTH_URL/);
+    assert.match(
+        source,
+        /sf org login sfdx-url --sfdx-url-file "\$auth_file" --alias ci-devhub --set-default-dev-hub >"\$login_log" 2>&1/
+    );
+    assert.match(source, /--target-org ci-reuse \\\s*--dry-run \\\s*--test-level RunLocalTests/);
+    assert.match(source, /sf org create scratch \\\s*--definition-file config\/project-scratch-def\.json/);
+    assert.match(source, /node scripts\/ci-scratch-plan\.cjs install/);
+    assert.match(source, /sf project deploy start --source-dir force-app --target-org ci-fresh/);
+    assert.match(source, /sf org delete scratch --target-org ci-fresh --no-prompt/);
+    assert.doesNotMatch(source, /pull_request:|pull_request_target:|workflow_call:/);
+    assert.doesNotMatch(source, /pull-requests: write|contents: write|actions: write/);
+});
+
+test('scratch validation excludes the non-package sources used by existing CI before either route', () => {
+    const source = readWorkflow('ci-reusable-scratch-org.yml');
+    const excluded = [
+        './force-app/unpackagable',
+        './force-app/unpackagable-with-auto-deploy',
+        './force-app/scratch-org'
+    ];
+    const sourceScope = source.indexOf('- name: Exclude non-package sources from validation');
+    assert.ok(sourceScope >= 0);
+    for (const directory of excluded) assert.ok(source.includes(`rm -rf ${directory}`));
+    assert.ok(sourceScope < source.indexOf('- name: Validate reusable org with tests and coverage'));
+    assert.ok(sourceScope < source.indexOf('- name: Deploy source to fresh org'));
+    assert.ok(sourceScope < source.indexOf('- name: Run repository Apex tests in fresh org'));
+});
+
+test('checks active scratch status and matching org identity before querying installed packages', () => {
+    const source = readWorkflow('ci-reusable-scratch-org.yml');
+    const scratchQuery = source.indexOf('sf data query');
+    const scratchVerification = source.indexOf('ci-scratch-plan.cjs verify-scratch');
+    const login = source.indexOf('sf org login sfdx-url --sfdx-url-file "$auth_file" --alias ci-reuse');
+    const identity = source.indexOf('jq -e --arg expected "$CI_SCRATCH_ORG_ID"');
+    const packages = source.indexOf('sf package installed list --target-org ci-reuse');
+    assert.ok(scratchQuery >= 0);
+    assert.match(source, /ScratchOrgInfo/);
+    assert.ok(scratchQuery < scratchVerification);
+    assert.ok(scratchVerification < login);
+    assert.ok(login < identity);
+    assert.ok(identity < packages);
+    assert.match(source, /CI_SCRATCH_ORG_ID.*=~ \^\[a-zA-Z0-9\]/);
+});
+
+test(
+    'routes the actual workflow safely with a simulated Salesforce CLI',
+    { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
+    (context) => {
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-scratch-route-'));
+        context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+        for (const subdirectory of ['bin', 'config', 'scripts']) fs.mkdirSync(path.join(directory, subdirectory));
+
+        const projectFile = path.join(directory, 'sfdx-project.json');
+        const definitionFile = path.join(directory, 'config/project-scratch-def.json');
+        const traceFile = path.join(directory, 'sf-calls.txt');
+        const githubEnv = path.join(directory, 'github-env.txt');
+        fs.writeFileSync(
+            projectFile,
+            JSON.stringify({
+                sourceApiVersion: '67.0',
+                packageDirectories: [{ dependencies: [{ package: 'base' }] }]
+            })
+        );
+        fs.writeFileSync(definitionFile, '{}');
+        fs.writeFileSync(
+            path.join(directory, 'package-plan.json'),
+            JSON.stringify({ base: { SubscriberPackageVersionId: 'planned-version' } })
+        );
+        fs.copyFileSync(
+            path.resolve(__dirname, '../ci-scratch-plan.cjs'),
+            path.join(directory, 'scripts/ci-scratch-plan.cjs')
+        );
+        const cliFile = path.join(directory, 'fake-cli.cjs');
+        fs.writeFileSync(
+            cliFile,
+            `
+            const fs = require('node:fs');
+            const args = process.argv.slice(2);
+            fs.appendFileSync(process.env.TEST_TRACE, args.slice(0, 3).join(' ') + '\\n');
+            const scenario = process.env.TEST_SCENARIO;
+            if (args[0] === 'data' && args[1] === 'query') {
+                if (scenario === 'query-failed') process.exit(1);
+                const records = scenario === 'inactive' ? [] : [{
+                    ScratchOrg: process.env.CI_SCRATCH_ORG_ID.slice(0, 15),
+                    Status: 'Active',
+                    ExpirationDate: process.env.CI_SCRATCH_ORG_EXPIRATION
+                }];
+                console.log(JSON.stringify({ result: { records } }));
+            } else if (args[0] === 'org' && args[1] === 'login') {
+                process.exit(0);
+            } else if (args[0] === 'org' && args[1] === 'display') {
+                const id = scenario === 'wrong-org' ? 'B'.repeat(15) + 'XYZ' : process.env.CI_SCRATCH_ORG_ID;
+                console.log(JSON.stringify({ result: { id } }));
+            } else if (args[0] === 'package' && args[1] === 'installed') {
+                const id = scenario === 'old-package' ? 'old-version' : 'planned-version';
+                console.log(JSON.stringify({ result: [{ SubscriberPackageVersionId: id }] }));
+            } else {
+                process.exit(2);
+            }
+        `
+        );
+        const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`;
+        fs.writeFileSync(
+            path.join(directory, 'bin/sf'),
+            `#!/bin/sh\nexec ${quote(process.execPath)} ${quote(cliFile)} "$@"\n`,
+            { mode: 0o755 }
+        );
+
+        const workflow = readWorkflow('ci-reusable-scratch-org.yml');
+        const route = workflow.slice(workflow.indexOf('- name: Select reusable org or fresh fallback'));
+        const script = route.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
+        assert.ok(script, 'The workflow route script must be present.');
+
+        const scenarios = [
+            { name: 'ready', route: 'reuse', calls: ['data query', 'org login', 'org display', 'package installed'] },
+            { name: 'inactive', route: 'fresh', calls: ['data query'] },
+            { name: 'query-failed', route: 'fresh', calls: ['data query'] },
+            {
+                name: 'old-package',
+                route: 'fresh',
+                calls: ['data query', 'org login', 'org display', 'package installed']
+            },
+            { name: 'wrong-org', status: 1, calls: ['data query', 'org login', 'org display'] },
+            { name: 'invalid-id', status: 1, calls: [] },
+            { name: 'forced', route: 'fresh', calls: [] }
+        ];
+        for (const scenario of scenarios) {
+            fs.writeFileSync(traceFile, '');
+            fs.writeFileSync(githubEnv, '');
+            const result = spawnSync('/bin/bash', ['-c', script], {
+                cwd: directory,
+                encoding: 'utf8',
+                env: {
+                    ...process.env,
+                    PATH: path.join(directory, 'bin') + path.delimiter + process.env.PATH,
+                    RUNNER_TEMP: directory,
+                    GITHUB_ENV: githubEnv,
+                    TEST_TRACE: traceFile,
+                    TEST_SCENARIO: scenario.name,
+                    CI_SCRATCH_ORG_AUTH_URL: 'placeholder',
+                    CI_SCRATCH_ORG_ID:
+                        scenario.name === 'invalid-id' ? "invalid' OR Status='Active" : 'A'.repeat(15) + 'XYZ',
+                    CI_SCRATCH_ORG_EXPIRATION: '2099-12-01',
+                    CI_SCRATCH_ORG_CONFIG_SHA256: scratchFingerprint(projectFile, definitionFile),
+                    CI_FORCE_FRESH: scenario.name === 'forced' ? 'true' : 'false'
+                }
+            });
+            assert.equal(result.status, scenario.status ?? 0, `${scenario.name}: ${result.stderr}`);
+            if (scenario.route) {
+                assert.match(fs.readFileSync(githubEnv, 'utf8'), new RegExp(`CI_VALIDATION_ROUTE=${scenario.route}`));
+            } else {
+                assert.equal(fs.readFileSync(githubEnv, 'utf8'), '');
+            }
+            const calls = fs.readFileSync(traceFile, 'utf8');
+            assert.deepEqual(
+                calls.trim()
+                    ? calls
+                          .trim()
+                          .split('\n')
+                          .map((line) => line.split(' ').slice(0, 2).join(' '))
+                    : [],
+                scenario.calls,
+                scenario.name
+            );
+            assert.equal(fs.existsSync(path.join(directory, 'reuse-auth.txt')), false, scenario.name);
+        }
+    }
+);
 
 test('promotion helper uses the local reusable workflow', () => {
     const caller = readWorkflow('helper_promotion1.yml');

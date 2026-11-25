@@ -1,0 +1,218 @@
+name: '[CI] Test reusable scratch org'
+
+on:
+    workflow_dispatch:
+        inputs:
+            force_fresh:
+                description: Skip the registered org and test the fresh-org fallback
+                type: boolean
+                required: false
+                default: false
+
+permissions:
+    contents: read
+
+concurrency:
+    group: crm-arbeidsforhold-reusable-scratch-org
+    cancel-in-progress: false
+    queue: max
+
+jobs:
+    validate:
+        if: github.ref == 'refs/heads/main'
+        name: Validate on reusable org or fresh fallback
+        runs-on: ubuntu-24.04
+        timeout-minutes: 180
+        environment: ci-scratch-org
+        steps:
+            - name: Checkout trusted main branch
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  ref: ${{ github.sha }}
+                  persist-credentials: false
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+              with:
+                  node-version: '22'
+
+            - name: Install Salesforce CLI
+              run: npm install --global @salesforce/cli@2.158.7
+
+            - name: Authenticate scratch-org Dev Hub
+              env:
+                  DEVHUB_AUTH_URL: ${{ secrets.CRM_PROD_SFDX_URL }}
+              run: |
+                  set -euo pipefail
+                  if [[ -z "$DEVHUB_AUTH_URL" ]]; then
+                    echo "The existing Dev Hub credential is not configured."
+                    exit 1
+                  fi
+                  auth_file="$RUNNER_TEMP/devhub-auth.txt"
+                  login_log="$RUNNER_TEMP/devhub-login.log"
+                  umask 077
+                  printf '%s' "$DEVHUB_AUTH_URL" > "$auth_file"
+                  trap 'rm -f "$auth_file" "$login_log"' EXIT
+                  if ! sf org login sfdx-url --sfdx-url-file "$auth_file" --alias ci-devhub --set-default-dev-hub >"$login_log" 2>&1; then
+                    echo "Could not authenticate the Dev Hub." >&2
+                    exit 1
+                  fi
+
+            - name: Resolve and validate exact package versions
+              run: node bin/package-dependencies.js --include-unreleased --plan-file "$RUNNER_TEMP/package-plan.json" --no-color
+
+            - name: Select reusable org or fresh fallback
+              id: route
+              env:
+                  CI_SCRATCH_ORG_AUTH_URL: ${{ secrets.CI_SCRATCH_ORG_AUTH_URL }}
+                  CI_SCRATCH_ORG_ID: ${{ vars.CI_SCRATCH_ORG_ID }}
+                  CI_SCRATCH_ORG_EXPIRATION: ${{ vars.CI_SCRATCH_ORG_EXPIRATION }}
+                  CI_SCRATCH_ORG_CONFIG_SHA256: ${{ vars.CI_SCRATCH_ORG_CONFIG_SHA256 }}
+                  CI_FORCE_FRESH: ${{ inputs.force_fresh }}
+              run: |
+                  set -euo pipefail
+                  route_json=""
+                  if [[ "$CI_FORCE_FRESH" == "true" ]]; then
+                    route_json='{"route":"fresh","reason":"Fresh-org validation was requested."}'
+                  elif [[ -z "$CI_SCRATCH_ORG_AUTH_URL" || -z "$CI_SCRATCH_ORG_ID" ||
+                          -z "$CI_SCRATCH_ORG_EXPIRATION" || -z "$CI_SCRATCH_ORG_CONFIG_SHA256" ]]; then
+                    route_json='{"route":"fresh","reason":"The reusable org is not fully configured."}'
+                  else
+                    if [[ ! "$CI_SCRATCH_ORG_ID" =~ ^[a-zA-Z0-9]{15}([a-zA-Z0-9]{3})?$ ]]; then
+                      echo "The registered scratch org ID has an invalid format." >&2
+                      exit 1
+                    fi
+                    auth_file="$RUNNER_TEMP/reuse-auth.txt"
+                    login_log="$RUNNER_TEMP/reuse-login.log"
+                    org_file="$RUNNER_TEMP/reuse-org.json"
+                    installed_file="$RUNNER_TEMP/reuse-packages.json"
+                    scratch_file="$RUNNER_TEMP/reuse-scratch.json"
+                    trap 'rm -f "$auth_file" "$login_log" "$org_file" "$installed_file" "$scratch_file"' EXIT
+                    umask 077
+                    scratch_query="SELECT ScratchOrg, Status, ExpirationDate FROM ScratchOrgInfo WHERE ScratchOrg = '${CI_SCRATCH_ORG_ID:0:15}' AND Status = 'Active'"
+                    if ! sf data query --target-org ci-devhub --query "$scratch_query" --json >"$scratch_file" 2>/dev/null; then
+                      route_json='{"route":"fresh","reason":"Could not verify the registered org in the Dev Hub."}'
+                    elif ! node scripts/ci-scratch-plan.cjs verify-scratch "$scratch_file"; then
+                      route_json='{"route":"fresh","reason":"The registration does not match an active scratch org."}'
+                    else
+                      printf '%s' "$CI_SCRATCH_ORG_AUTH_URL" > "$auth_file"
+                      if ! sf org login sfdx-url --sfdx-url-file "$auth_file" --alias ci-reuse >"$login_log" 2>&1; then
+                        route_json='{"route":"fresh","reason":"The registered scratch org is unavailable."}'
+                      elif ! sf org display --target-org ci-reuse --json >"$org_file" 2>/dev/null; then
+                        route_json='{"route":"fresh","reason":"Could not verify the registered scratch org identity."}'
+                      elif ! jq -e --arg expected "$CI_SCRATCH_ORG_ID" '.result.id == $expected' "$org_file" >/dev/null; then
+                        echo "The authenticated org does not match the registered scratch org." >&2
+                        exit 1
+                      elif ! sf package installed list --target-org ci-reuse --json >"$installed_file" 2>/dev/null; then
+                        route_json='{"route":"fresh","reason":"Could not verify installed package versions."}'
+                      else
+                        route_json="$(node scripts/ci-scratch-plan.cjs route \
+                          sfdx-project.json \
+                          "$RUNNER_TEMP/package-plan.json" \
+                          "$org_file" \
+                          "$installed_file" \
+                          config/project-scratch-def.json)"
+                      fi
+                    fi
+                    rm -f "$auth_file" "$login_log" "$org_file" "$installed_file" "$scratch_file"
+                    trap - EXIT
+                  fi
+                  selected_route="$(jq -er '.route | select(. == "reuse" or . == "fresh")' <<< "$route_json")"
+                  reason="$(jq -er '.reason' <<< "$route_json")"
+                  echo "CI_VALIDATION_ROUTE=$selected_route" >> "$GITHUB_ENV"
+                  echo "::notice::$selected_route validation: $reason"
+
+            - name: Exclude non-package sources from validation
+              run: |
+                  rm -rf ./force-app/unpackagable
+                  rm -rf ./force-app/unpackagable-with-auto-deploy
+                  rm -rf ./force-app/scratch-org
+
+            - name: Create one-time fallback scratch org
+              id: create-fresh
+              if: env.CI_VALIDATION_ROUTE == 'fresh'
+              run: |
+                  sf org create scratch \
+                    --definition-file config/project-scratch-def.json \
+                    --alias ci-fresh \
+                    --target-dev-hub ci-devhub \
+                    --duration-days 1
+                  echo "created=true" >> "$GITHUB_OUTPUT"
+
+            - name: Install the exact validated package plan
+              if: env.CI_VALIDATION_ROUTE == 'fresh'
+              env:
+                  CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
+              run: node scripts/ci-scratch-plan.cjs install sfdx-project.json "$RUNNER_TEMP/package-plan.json" ci-fresh
+
+            - name: Validate reusable org with tests and coverage
+              if: env.CI_VALIDATION_ROUTE == 'reuse'
+              run: |
+                  set -euo pipefail
+                  result_file="$RUNNER_TEMP/reuse-deploy.json"
+                  if ! sf project deploy start \
+                    --source-dir force-app \
+                    --target-org ci-reuse \
+                    --dry-run \
+                    --test-level RunLocalTests \
+                    --coverage-formatters json \
+                    --results-dir "$RUNNER_TEMP/reuse-results" \
+                    --wait 60 \
+                    --json > "$result_file"; then
+                    if jq -e . "$result_file" >/dev/null 2>&1; then
+                      diagnostics="$(jq -r '
+                        [
+                          .message?,
+                          .result.message?,
+                          .result.details.componentFailures[]?.problem?,
+                          .result.details.runTestResult.failures[]?.message?
+                        ] | map(select(. != null and . != "")) | unique | join("\n")
+                      ' "$result_file")"
+                      if [[ -n "$diagnostics" ]]; then
+                        printf '%s\n' "$diagnostics"
+                      else
+                        echo "Salesforce dry-run validation failed without diagnostic messages."
+                      fi
+                    else
+                      echo "Salesforce CLI failed without returning valid JSON."
+                    fi
+                    exit 1
+                  fi
+                  node scripts/ci-scratch-plan.cjs coverage "$result_file" force-app
+
+            - name: Deploy source to fresh org
+              if: env.CI_VALIDATION_ROUTE == 'fresh'
+              run: sf project deploy start --source-dir force-app --target-org ci-fresh --wait 60
+
+            - name: Run repository Apex tests in fresh org
+              id: fresh-tests
+              if: env.CI_VALIDATION_ROUTE == 'fresh'
+              run: |
+                  set -euo pipefail
+                  classes_file="$RUNNER_TEMP/apex-test-classes.json"
+                  node scripts/ci-scratch-plan.cjs tests force-app > "$classes_file"
+                  mapfile -t test_classes < <(jq -r '.[]' "$classes_file")
+                  if ((${#test_classes[@]} == 0)); then
+                    echo "No repository Apex test classes found; matching current CI behavior."
+                    echo "has-tests=false" >> "$GITHUB_OUTPUT"
+                    exit 0
+                  fi
+                  echo "has-tests=true" >> "$GITHUB_OUTPUT"
+                  test_arguments=()
+                  for test_class in "${test_classes[@]}"; do
+                    test_arguments+=(--tests "$test_class")
+                  done
+                  sf apex run test \
+                    --target-org ci-fresh \
+                    "${test_arguments[@]}" \
+                    --code-coverage \
+                    --result-format json \
+                    --output-dir "$RUNNER_TEMP/fresh-apex-results" \
+                    --wait 30
+
+            - name: Enforce repository Apex coverage in fresh org
+              if: steps.fresh-tests.outputs.has-tests == 'true'
+              run: node scripts/ci-scratch-plan.cjs coverage "$RUNNER_TEMP/fresh-apex-results/test-result-codecoverage.json" force-app
+
+            - name: Delete one-time fallback scratch org
+              if: always() && steps.create-fresh.outputs.created == 'true'
+              run: sf org delete scratch --target-org ci-fresh --no-prompt
