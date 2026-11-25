@@ -15,6 +15,11 @@ Diffen mot `main` endrar ingen eksisterande metadatapostar. Han legg berre til n
 likevel alle postane i pakka på nytt, også `Feature_Flag.P360_Archive_Processing`. Han er `false` både på `main`, på
 branchen og i produksjon, så installasjonen endrar ikkje verdien.
 
+Funksjonen er den same for alle brukargrupper, men installasjonen gir nokre få synlege skilnader: historikk på
+seks nye sporingsfelt og nye lesefaner for administratorar. Sjå
+[Kva brukarane merkar når brytarane er av](#kva-brukarane-merkar-når-brytarane-er-av). Sjølve mergen endrar
+ingenting i produksjon, sjå [Kva ein merge til `main` gjer](#kva-ein-merge-til-main-gjer).
+
 Produkteigar stadfesta dei blokkerande vilkåra R2 og R11 og kontrollen i R10 i produksjon 2026-11-25, sjå
 [Stadfesta i produksjon](#stadfesta-i-produksjon). Experience-sidene er ikkje med i pakka. Dei blir deploya
 manuelt etter [R14: Experience-sidene steg for steg](#r14-experience-sidene-steg-for-steg).
