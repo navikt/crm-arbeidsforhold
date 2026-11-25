@@ -1,0 +1,114 @@
+<template>
+    <div class="slds-p-around_medium">
+        <div class="slds-grid slds-gutters slds-wrap">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+                <lightning-input
+                    type="search"
+                    label="Søk etter løyve"
+                    value={searchTerm}
+                    onchange={handleSearch}
+                ></lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                <lightning-combobox
+                    label="Målgruppe"
+                    value={audience}
+                    options={audienceOptions}
+                    onchange={handleAudience}
+                ></lightning-combobox>
+            </div>
+        </div>
+        <template lwc:if={loading}>
+            <lightning-spinner alternative-text="Lastar løyve" size="small"></lightning-spinner>
+        </template>
+        <template lwc:if={error}>
+            <p class="slds-text-color_error slds-m-top_small" role="alert">{error}</p>
+        </template>
+        <template lwc:if={showEmpty}>
+            <p class="slds-m-top_small">Ingen løyve passar filteret.</p>
+        </template>
+        <div class="slds-grid slds-gutters slds-wrap slds-m-top_medium">
+            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                <ul class="slds-has-dividers_around-space">
+                    <template for:each={filteredEntries} for:item="entry">
+                        <li key={entry.apiName} class="slds-item">
+                            <button class={entry.rowClass} data-name={entry.apiName} onclick={handleSelect}>
+                                <span class="row__head">
+                                    <strong>{entry.label}</strong>
+                                    <span class={entry.badgeClass}>{entry.audienceLabel}</span>
+                                </span>
+                                <span class="row__meta">{entry.kind} · {entry.apiName} · {entry.assigneeText}</span>
+                                <span class="row__text">{entry.explanation}</span>
+                            </button>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
+                <template lwc:if={selected}>
+                    <section class="slds-box detail" data-id="detail" aria-label="Detaljar om løyvet">
+                        <div class="slds-grid slds-grid_align-spread">
+                            <h3 class="slds-text-heading_small">{selected.label}</h3>
+                            <lightning-button-icon
+                                icon-name="utility:close"
+                                alternative-text="Lukk detaljar"
+                                variant="bare"
+                                onclick={handleClose}
+                            ></lightning-button-icon>
+                        </div>
+                        <p class="slds-text-color_weak">{selected.kind} · {selected.apiName}</p>
+                        <p class="slds-m-top_small">{selected.explanation}</p>
+                        <dl class="slds-dl_horizontal slds-m-top_small">
+                            <dt class="slds-dl_horizontal__label">Målgruppe</dt>
+                            <dd class="slds-dl_horizontal__detail">{selected.audienceLabel}</dd>
+                            <dt class="slds-dl_horizontal__label">Aktive tildelingar</dt>
+                            <dd class="slds-dl_horizontal__detail">{selected.directAssignees}</dd>
+                            <template lwc:if={selected.hasRecommended}>
+                                <dt class="slds-dl_horizontal__label">Blir tildelt saman med</dt>
+                                <dd class="slds-dl_horizontal__detail">{selected.recommendedText}</dd>
+                            </template>
+                            <template lwc:if={selected.hasMembers}>
+                                <dt class="slds-dl_horizontal__label">Inneheld</dt>
+                                <dd class="slds-dl_horizontal__detail">{selected.membersText}</dd>
+                            </template>
+                            <template lwc:if={selected.hasMemberOf}>
+                                <dt class="slds-dl_horizontal__label">Del av gruppe</dt>
+                                <dd class="slds-dl_horizontal__detail">{selected.memberOfText}</dd>
+                            </template>
+                            <dt class="slds-dl_horizontal__label">Appar og faner</dt>
+                            <dd class="slds-dl_horizontal__detail">{selected.appsText}</dd>
+                            <dt class="slds-dl_horizontal__label">Custom permissions</dt>
+                            <dd class="slds-dl_horizontal__detail">{selected.customPermissionsText}</dd>
+                            <dt class="slds-dl_horizontal__label">Apex-klassar</dt>
+                            <dd class="slds-dl_horizontal__detail">{selected.apexClassCount}</dd>
+                        </dl>
+                        <template lwc:if={selected.hasObjects}>
+                            <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-m-top_small">
+                                <caption class="slds-assistive-text">
+                                    Objekttilgang
+                                </caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Objekt</th>
+                                        <th scope="col">Tilgang</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={selected.objects} for:item="grant">
+                                        <tr key={grant.key}>
+                                            <th scope="row">{grant.label}</th>
+                                            <td>{grant.accessText}</td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </template>
+                    </section>
+                </template>
+                <template lwc:else>
+                    <p class="slds-text-color_weak">Vel eit løyve for å sjå detaljar.</p>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

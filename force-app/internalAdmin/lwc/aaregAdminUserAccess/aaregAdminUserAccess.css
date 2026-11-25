@@ -1,0 +1,47 @@
+.summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 0.5rem;
+}
+
+.summary__item {
+    display: flex;
+    flex-direction: column;
+}
+
+.summary__value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.status {
+    display: inline-block;
+    padding: 0 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.status_error {
+    background: #ffe8e8;
+    color: #8c0000;
+}
+
+.status_warning {
+    background: #fff1d6;
+    color: #6b4100;
+}
+
+.status_info {
+    background: #e6f0ff;
+    color: #00347d;
+}
+
+.status_ok {
+    background: #e2f5e8;
+    color: #105a2b;
+}
+
+.row_selected {
+    background: var(--slds-g-color-brand-base-95, #eef4ff);
+}

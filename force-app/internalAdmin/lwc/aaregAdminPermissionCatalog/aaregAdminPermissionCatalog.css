@@ -1,0 +1,33 @@
+.row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+    padding: 0.5rem;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.row:hover,
+.row:focus-visible,
+.row_selected {
+    background: var(--slds-g-color-brand-base-95, #eef4ff);
+}
+
+.row__head {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.row__meta {
+    color: var(--slds-g-color-neutral-base-30, #444);
+    font-size: 0.75rem;
+}
+
+.detail {
+    position: sticky;
+    top: 0;
+}

@@ -55,6 +55,7 @@ portalbrukaren (`seed-4-portal-message.apex`). Elles blir han hoppa over. Køyri
 | `entry-portal.spec.ts`      |      6 | Forsida med rolleval, rollesider, direktelenkjer, faste meldingar og «Bytt rolle».                      |
 | `portal-navigation.spec.ts` |      5 | Brødsmulesti, vald virksomheit på undersidene og «Bytt virksomhet», breitt søkjefelt, smal skjerm.      |
 | `record-pages.spec.ts`      |      4 | Dei tolv listevisningane, listevisning og postside for kontaktpunkt, og postside for migreringskøyring. |
+| `admin-access.spec.ts`      |      5 | Snarvegar i Arbeidsforhold Admin, løyveoversikta, brukaroversikta og effektiv tilgang for ein brukar.   |
 
 Testane stadfestar aldri ei migreringskøyring. Dei trykkjer berre «Avbryt» i stadfestingsdialogen.
 Profiltesten lagrar ei syntetisk privatadresse på testbrukaren.
@@ -92,6 +93,10 @@ Skjermbileta blir lagra i [skjermbilete/](skjermbilete/) og viser berre syntetis
 | [23-listevisning-kontaktpunkt](skjermbilete/23-listevisning-kontaktpunkt.png)                           | Listevisninga «All Contact Points».            |
 | [24-postside-kontaktpunkt](skjermbilete/24-postside-kontaktpunkt.png)                                   | Postsida for eit kontaktpunkt.                 |
 | [25-postside-migreringskoyring](skjermbilete/25-postside-migreringskoyring.png)                         | Postsida for ei migreringskøyring med rader.   |
+| [26-admin-snarvegar](skjermbilete/26-admin-snarvegar.png)                                               | Startsida i Arbeidsforhold Admin.              |
+| [27-admin-loyveoversikt](skjermbilete/27-admin-loyveoversikt.png)                                       | Løyveoversikta med detaljar om eitt løyve.     |
+| [28-admin-interne-brukarar](skjermbilete/28-admin-interne-brukarar.png)                                 | Interne brukarar med problem.                  |
+| [29-admin-brukar-tilgang](skjermbilete/29-admin-brukar-tilgang.png)                                     | Effektiv tilgang for éin brukar.               |
 
 ## Kjende avgrensingar
 

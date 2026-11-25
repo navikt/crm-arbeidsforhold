@@ -199,6 +199,21 @@ Opne appen «Arbeidsforhold Admin» eller «Aa-registeret Kontaktmodell».
 | 13.6 | Opne ei APPLY-køyring.                                                    | Seksjonane Run, Timeline, Results, Classification, Summary og System Information. «Items» og «Follow-up Runs» til høgre.                                                                            | ☐   |
 | 13.7 | Opne ei rad under «Items».                                                | Postsida viser klasse, handling, søknad og grunn.                                                                                                                                                   | ☐   |
 
+## 14. Snarvegar, løyve og brukarar
+
+Opne appen «Arbeidsforhold Admin» som ein brukar med `AAREG_Admin_Viewer`.
+
+| #    | Steg                                                                   | Forventa resultat                                                                                                                | OK  |
+| ---- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | --- |
+| 14.1 | Opne startsida.                                                        | «Snarvegar» øvst med seks grupper. Snarvegar du ikkje har tilgang til, er grå og forklarer kvifor.                               | ☐   |
+| 14.2 | Skriv «p360» i søkjefeltet.                                            | Berre P360-snarvegane står att.                                                                                                  | ☐   |
+| 14.3 | Vel «Søknader», gå tilbake og vel «Brukarstøtte» under andre appar.    | Lista over søknader blir opna. Deretter blir appen «Aa-registeret – Brukerstøtte» opna.                                          | ☐   |
+| 14.4 | Opne fana «Løyve og brukarar» og vel eit løyve.                        | Detaljane viser målgruppe, forklaring, tilrådde kombinasjonar, objekttilgang og custom permissions.                              | ☐   |
+| 14.5 | Filtrer på målgruppa «Integrasjonsbrukar».                             | Berre integrasjonsløyva står att.                                                                                                | ☐   |
+| 14.6 | Logg inn som ein brukar med berre `AAREG_Admin_Viewer`.                | Fana «Interne brukarar» manglar. I staden står det at løyvesettet «AAREG Admin Access Overview» trengst.                         | ☐   |
+| 14.7 | Logg inn med `AAREG_Admin_Access_Overview` og opne «Interne brukarar». | Tabell med status, profil, løyve, siste innlogging og tal på problem.                                                            | ☐   |
+| 14.8 | Vel ein saksbehandlar.                                                 | Problema blir forklarte. Effektiv tilgang viser kvart hovudobjekt og kva løyve som gir tilgangen. «Opne brukaren i Setup» finst. | ☐   |
+
 ## Avslutning
 
 - [ ] `npm run contact-model -- status` er lagra som vedlegg.

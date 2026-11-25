@@ -1,0 +1,42 @@
+<template>
+    <lightning-card title="Snarvegar" icon-name="standard:apps">
+        <div class="slds-p-horizontal_medium">
+            <lightning-input
+                type="search"
+                label="Søk etter område, objekt eller app"
+                value={searchTerm}
+                onchange={handleSearch}
+            ></lightning-input>
+            <template lwc:if={loading}>
+                <lightning-spinner alternative-text="Lastar snarvegar" size="small"></lightning-spinner>
+            </template>
+            <template lwc:if={error}>
+                <p class="slds-text-color_error slds-m-top_small" role="alert">{error}</p>
+            </template>
+            <template lwc:if={showEmpty}>
+                <p class="slds-m-top_small">Ingen snarvegar passar søket.</p>
+            </template>
+            <template for:each={visibleGroups} for:item="group">
+                <section key={group.key} class="slds-m-top_medium" data-group={group.key}>
+                    <h3 class="slds-text-heading_small slds-m-bottom_x-small">{group.label}</h3>
+                    <ul class="tiles">
+                        <template for:each={group.items} for:item="item">
+                            <li key={item.key}>
+                                <button
+                                    class={item.itemClass}
+                                    data-key={item.key}
+                                    disabled={item.disabled}
+                                    title={item.title}
+                                    onclick={handleOpen}
+                                >
+                                    <span class="tile__label">{item.label}</span>
+                                    <span class="tile__description">{item.title}</span>
+                                </button>
+                            </li>
+                        </template>
+                    </ul>
+                </section>
+            </template>
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>AAREG Admin Viewer</label>
+    <protected>false</protected>
+    <values>
+        <field>Permission_Name__c</field>
+        <value xsi:type="xsd:string">AAREG_Admin_Viewer</value>
+    </values>
+    <values>
+        <field>Audience__c</field>
+        <value xsi:type="xsd:string">Administrator</value>
+    </values>
+    <values>
+        <field>Explanation__c</field>
+        <value xsi:type="xsd:string">Lesetilgang til appen «Arbeidsforhold Admin». Gir ikkje «View All» eller «Modify All»; kva postar brukaren ser, følgjer delingsreglane.</value>
+    </values>
+    <values>
+        <field>Sort_Order__c</field>
+        <value xsi:type="xsd:double">80.0</value>
+    </values>
+</CustomMetadata>

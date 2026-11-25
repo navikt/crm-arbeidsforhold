@@ -222,6 +222,46 @@ Kvifor dette er trygt:
 
 Kvar side har ein kort tekst øvst om kva ho viser og kva som er normalt. Verktøylinja nedst i appen har knappen **Help**, som opnar komponenten `aaregAdminHelp`. Han har lenkjer til denne guiden, [heile løysinga](../architecture/hele-loysinga.md), [Flow-katalogen](../architecture/aareg-flow-katalog.md), [P360 scratch-guiden](../integrations/p360/scratch-brukarguide.md) og [testplanen](../testing/aaregisteret-scenario-testplan.md), og han viser testlab-kommandoane. Lenkjene peikar til `main` på GitHub og verkar først når dokumenta er merga.
 
+### 5.9 Snarvegar
+
+Øvst på startsida viser komponenten `aaregAdminLaunchpad` snarvegar i seks grupper: Aa-registeret, integrasjonar
+og drift, kontaktmodell, rapportar og dashboard, tilgang og løyve, og andre appar. Søkjefeltet filtrerer på namn
+og skildring.
+
+`AAREG_AdminNavigationController.getLaunchpad()` sjekkar tilgangen til den innlogga brukaren for kvar snarveg:
+
+| Type      | Sjekk                                                                                                                              |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Objekt    | Lesetilgang til objektet.                                                                                                          |
+| Fane      | Brukaren har eit løyvesett som gir fana, eller profilen viser henne. Kva løyvesett som gir kva fane, står i `TAB_PERMISSION_SETS`. |
+| App       | `AppMenuItem` er tilgjengeleg og synleg.                                                                                           |
+| Dashboard | Dashboardet finst og er delt med brukaren.                                                                                         |
+| Setup     | «View Setup».                                                                                                                      |
+
+Ein snarveg brukaren ikkje har tilgang til, er grå og forklarer kvifor. Lightning-førespurnader ser berre
+fane-innstillingane frå profilen, ikkje frå løyvesetta. Difor ligg koplinga mellom fane og løyvesett i koden. Ein
+Apex-test feilar dersom ho ikkje stemmer med metadataen.
+
+### 5.10 Løyve og brukarar
+
+Fana «Løyve og brukarar» (`AAREG_Admin_Permissions`) har to delar.
+
+**Løyve** viser alle løyvesett og løyvesettgrupper som byrjar på `AAREG_` eller `P360_`. Kvart løyve har
+målgruppe, forklaring og tilrådde kombinasjonar frå Custom Metadata `AAREG_Permission_Guide__mdt`. Objekttilgang,
+custom permissions og talet på tildelingar blir lesne direkte frå orgen. Eit løyve utan post i guiden blir merkt
+«Ikkje dokumentert».
+
+**Interne brukarar** viser alle som har eit Arbeidsforhold-løyve, med profil, løyve, siste innlogging og problem.
+Problem kan vere at brukaren er inaktiv, aldri har logga inn, har eit løyve som går ut, manglar eit tilrådd løyve
+eller har eit testløyve i produksjon. Vel ein brukar for å sjå effektiv tilgang til hovudobjekta, custom
+permissions og appar, og kva løyve som gir dei.
+
+Kapittel 5.6 seier at diagnose av andre brukarar krev eit eige tilgangsvedtak. Difor er brukarlista låst bak
+custom permission `AAREG_Admin_Access_Overview`, som blir gitt med løyvesettet med same namn. Utan det løyvet ser
+brukaren berre løyveoversikta. Tildel løyvesettet i produksjon først når tilgangsvedtaket er gjort.
+
+Flata endrar ingenting. Tildeling skjer framleis i Setup.
+
 ## 6. Fasar
 
 ```mermaid

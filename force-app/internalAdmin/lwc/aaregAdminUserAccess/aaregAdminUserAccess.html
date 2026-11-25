@@ -1,0 +1,185 @@
+<template>
+    <div class="slds-p-around_medium">
+        <ul class="summary">
+            <template for:each={summary} for:item="item">
+                <li key={item.key} class="slds-box slds-box_x-small summary__item" data-summary={item.key}>
+                    <span class="summary__value">{item.value}</span>
+                    <span>{item.label}</span>
+                </li>
+            </template>
+        </ul>
+        <div class="slds-grid slds-gutters slds-wrap slds-m-top_medium slds-grid_vertical-align-end">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <lightning-input
+                    data-id="search"
+                    type="search"
+                    label="Søk etter namn, brukarnamn, profil eller løyve"
+                    value={searchTerm}
+                    onchange={handleSearch}
+                ></lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-4">
+                <lightning-combobox
+                    label="Status"
+                    value={statusFilter}
+                    options={statusOptions}
+                    onchange={handleStatus}
+                ></lightning-combobox>
+            </div>
+            <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-4">
+                <lightning-input
+                    data-id="inactive"
+                    type="checkbox"
+                    label="Vis inaktive brukarar"
+                    checked={includeInactive}
+                    onchange={handleInactive}
+                ></lightning-input>
+            </div>
+        </div>
+        <template lwc:if={loading}>
+            <lightning-spinner alternative-text="Lastar brukarar" size="small"></lightning-spinner>
+        </template>
+        <template lwc:if={error}>
+            <p class="slds-text-color_error slds-m-top_small" role="alert">{error}</p>
+        </template>
+        <template lwc:if={showEmpty}>
+            <p class="slds-m-top_small">Ingen brukarar passar filteret.</p>
+        </template>
+        <template lwc:if={hasUsers}>
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-m-top_medium">
+                <caption class="slds-assistive-text">
+                    Interne brukarar med Arbeidsforhold-løyve
+                </caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Status</th>
+                        <th scope="col">Namn</th>
+                        <th scope="col">Profil</th>
+                        <th scope="col">Løyve</th>
+                        <th scope="col">Sist innlogga</th>
+                        <th scope="col">Problem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={filteredUsers} for:item="user">
+                        <tr key={user.userId} class={user.rowClass} data-user={user.userId}>
+                            <td><span class={user.statusClass}>{user.statusLabel}</span></td>
+                            <th scope="row">
+                                <button class="slds-button" data-id={user.userId} onclick={handleSelect}>
+                                    {user.name}
+                                </button>
+                                <div class="slds-text-color_weak slds-text-body_small">
+                                    {user.username} · {user.activeText}
+                                </div>
+                            </th>
+                            <td>{user.profileName}</td>
+                            <td class="slds-cell-wrap">{user.permissionText}</td>
+                            <td>{user.lastLoginText}</td>
+                            <td>{user.issueCount}</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </template>
+        <template lwc:if={selectedUser}>
+            <section class="slds-box slds-m-top_medium" data-id="user-detail" aria-label="Tilgang for brukaren">
+                <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                    <h3 class="slds-text-heading_small">{selectedUser.name}</h3>
+                    <div>
+                        <lightning-button label="Opne brukaren i Setup" onclick={handleOpenUser}></lightning-button>
+                        <lightning-button-icon
+                            class="slds-m-left_x-small"
+                            icon-name="utility:close"
+                            alternative-text="Lukk detaljar"
+                            onclick={handleClose}
+                        ></lightning-button-icon>
+                    </div>
+                </div>
+                <h4 class="slds-text-title_caps slds-m-top_medium">Problem</h4>
+                <template lwc:if={selectedUser.hasIssues}>
+                    <ul class="slds-m-top_x-small">
+                        <template for:each={selectedUser.issues} for:item="issue">
+                            <li key={issue.key} class="slds-m-bottom_xx-small">
+                                <span class={issue.levelClass}>{issue.levelLabel}</span> {issue.message}
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+                <template lwc:else>
+                    <p class="slds-m-top_x-small">Ingen problem funne.</p>
+                </template>
+                <h4 class="slds-text-title_caps slds-m-top_medium">Tildelte Arbeidsforhold-løyve</h4>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-m-top_x-small">
+                    <thead>
+                        <tr>
+                            <th scope="col">Løyve</th>
+                            <th scope="col">Målgruppe</th>
+                            <th scope="col">Går ut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={selectedUser.assignments} for:item="assignment">
+                            <tr key={assignment.apiName}>
+                                <th scope="row">{assignment.label}</th>
+                                <td>{assignment.audienceLabel}</td>
+                                <td>{assignment.expiresText}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <h4 class="slds-text-title_caps slds-m-top_medium">Effektiv tilgang</h4>
+                <template lwc:if={accessLoading}>
+                    <lightning-spinner alternative-text="Lastar tilgang" size="small"></lightning-spinner>
+                </template>
+                <template lwc:if={accessError}>
+                    <p class="slds-text-color_error" role="alert">{accessError}</p>
+                </template>
+                <template lwc:if={access}>
+                    <p class="slds-m-top_x-small slds-text-color_weak">Kjelder: {sourcesText}</p>
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-m-top_x-small">
+                        <caption class="slds-assistive-text">
+                            Objekttilgang
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Objekt</th>
+                                <th scope="col">Tilgang</th>
+                                <th scope="col">Gitt av</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={accessObjects} for:item="grant">
+                                <tr key={grant.apiName} class={grant.rowClass}>
+                                    <th scope="row">{grant.label}</th>
+                                    <td>{grant.accessText}</td>
+                                    <td class="slds-cell-wrap">{grant.sourcesText}</td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-m-top_small">
+                        <caption class="slds-assistive-text">
+                            Custom permissions og appar
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Custom permission eller app</th>
+                                <th scope="col">Har tilgang</th>
+                                <th scope="col">Gitt av</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={accessPermissions} for:item="grant">
+                                <tr key={grant.apiName}>
+                                    <th scope="row">{grant.label}</th>
+                                    <td>{grant.grantedText}</td>
+                                    <td class="slds-cell-wrap">{grant.sourcesText}</td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </template>
+            </section>
+        </template>
+    </div>
+</template>

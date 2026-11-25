@@ -12,6 +12,7 @@ rolle. Ho har éi privat e-postadresse og éi adresse per organisasjon, utan fal
 | [ADR-0007](../../adr/0007-kontaktpunkt-i-eige-objekt.md)              | Adresser i eige kontaktpunktobjekt.                       |
 | [ADR-0008](../../adr/0008-skjerming-i-kontaktmodellen.md)             | Skjerma personar blir haldne utanfor kontaktmodellen.     |
 | [Utrulling](utrulling.md)                                             | Fasar, brytarprofilar, sjekkliste og tilbakerulling.      |
+| [Produksjonsisolering](produksjonsisolering.md)                       | Vilkår for å installere i produksjon med brytarane av.    |
 | [Inngangsportal](inngangsportal.md)                                   | Rolleval på forsida, rollesider og tilgangskontroll.      |
 | [Claude-brief](claude-brief.md)                                       | Grunnlag for wireframes og diagram.                       |
 | [Testing](testing/README.md)                                          | Automatiske testar, operatørrettleiing og testskript.     |

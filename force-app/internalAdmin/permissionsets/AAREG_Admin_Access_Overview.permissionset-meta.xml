@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <classAccesses>
+        <apexClass>AAREG_AdminPermissionController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
+        <name>AAREG_Permission_Guide__mdt</name>
+    </customMetadataTypeAccesses>
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>AAREG_Admin_Access_Overview</name>
+    </customPermissions>
+    <description>Read-only overview of internal users with Arbeidsforhold permissions, their access issues and effective access. Assign together with AAREG_Admin_Viewer. Grants no record access and never changes assignments.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>AAREG Admin Access Overview</label>
+    <tabSettings>
+        <tab>AAREG_Admin_Permissions</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+</PermissionSet>
