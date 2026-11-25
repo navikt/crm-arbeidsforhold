@@ -775,8 +775,8 @@
                         <li>Legg same person til i to roller.</li>
                         <li>Send ein demosøknad og samanlikn historikk.</li>
                     </ol>
-                    <a href="modell.html">Sjå modell og illustrasjonar →</a>
-                    <a href="kontaktmodell.svg" download>Last ned modell som SVG →</a>
+                    <a href="modell-v1.html">Sjå modell og illustrasjonar →</a>
+                    <a href="kontaktmodell-v1.svg" download>Last ned modell som SVG →</a>
                 </div>
             </aside>
             <div class="workspace">
@@ -796,21 +796,23 @@
                 </div>
                 <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
                 <div id="error" class="notice error" role="alert" hidden></div>
+                <span id="profil" hidden></span><span id="organisasjonar" hidden></span><span id="soknad" hidden></span
+                ><span id="saksbehandling" hidden></span>
                 <main id="main" tabindex="-1"></main>
                 <footer class="app-footer">
                     HTML-konsept basert på den føreslåtte kontaktmodellen. Visuell tokenpalett frå Aksel; native HTML,
                     ingen React- eller Salesforce-avhengigheiter. Navigasjon og demostatus er ikkje tilgangskontroll.
                     Bruk berre fiktive data.
                     <p>
-                        <a href="modell.html">Modell og illustrasjonar →</a> ·
-                        <a href="kontaktmodell.svg" download>Last ned SVG</a>
+                        <a href="modell-v1.html">Modell og illustrasjonar →</a> ·
+                        <a href="kontaktmodell-v1.svg" download>Last ned SVG</a>
                     </p>
                 </footer>
             </div>
         </div>
         <noscript
             ><p class="card">
-                Denne klikkbare prototypen krev JavaScript. <a href="modell.html">Modellillustrasjonane</a> fungerer
+                Denne klikkbare prototypen krev JavaScript. <a href="modell-v1.html">Modellillustrasjonane</a> fungerer
                 utan JavaScript.
             </p></noscript
         >
@@ -1111,7 +1113,7 @@
                         </tbody></table></div>
                     </section>
                     <div class="callout"><div><strong>${isCurrent ? 'Gjeldande adresse er ikkje historisk dokumentasjon' : 'Historikken ligg fast'}</strong><p>${isCurrent ? 'Nye meldingar krev rett kontekst, verifisert mottakar og ny tilgangs-/skjermingskontroll. Endra adresse etter kølegging må handterast kontrollert.' : 'Endre adressa hos denne verksemda i Min profil, og byt mellom dei to visningane. Den innsende adressa blir bevart.'}</p></div></div>
-                    <section class="card"><h2>Berre nødvendige opplysningar</h2><p class="muted">Denne organisasjonssaka skal ikkje vise privatadressa, den andre verksemda eller ei framtidig Person Account-kopling. Reell tilgang og skjerming må handhevast server-side; dette er berre ei UX-skisse.</p><a class="button" href="modell.html">Sjå grensa i modellillustrasjonen →</a></section>`
+                    <section class="card"><h2>Berre nødvendige opplysningar</h2><p class="muted">Denne organisasjonssaka skal ikkje vise privatadressa, den andre verksemda eller ei framtidig Person Account-kopling. Reell tilgang og skjerming må handhevast server-side; dette er berre ei UX-skisse.</p><a class="button" href="modell-v1.html">Sjå grensa i modellillustrasjonen →</a></section>`
                 );
             }
             function render() {
