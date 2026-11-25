@@ -66,7 +66,7 @@ Profiltesten lagrar ei syntetisk privatadresse på testbrukaren.
 CM_DOC_SCREENSHOTS=1 npm run e2e:contact-model
 ```
 
-Skjermbileta blir lagra i [skjermbilete/](skjermbilete/) og viser berre syntetiske data.
+Skjermbileta blir lagra i `skjermbilete/` og viser berre syntetiske data.
 
 | Bilete                                                                                                  | Flate                                          |
 | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |

@@ -5,6 +5,7 @@ module.exports = {
     ...jestConfig,
     moduleNameMapper: {
         '^lwc$': require.resolve('@lwc/engine-dom/dist/index.cjs'),
+        '^c/breadcrumbs$': '<rootDir>/force-app/tests/jest-mocks/c/breadcrumbs/breadcrumbs',
         '^@salesforce/apex$': '<rootDir>/force-app/tests/jest-mocks/apex',
         '^@salesforce/community/basePath$': '<rootDir>/force-app/tests/jest-mocks/community/basePath',
         '^@salesforce/schema$': '<rootDir>/force-app/tests/jest-mocks/schema',
