@@ -15,7 +15,9 @@
             <template lwc:if={hasOverview}>
                 <dl class="slds-list_horizontal slds-wrap slds-m-bottom_small" data-id="source">
                     <dt class="slds-item_label slds-text-color_weak">Org:</dt>
-                    <dd class="slds-item_detail">{overview.orgName} ({orgKind})</dd>
+                    <dd class="slds-item_detail">{overview.orgName}</dd>
+                    <dt class="slds-item_label slds-text-color_weak">Miljø:</dt>
+                    <dd class="slds-item_detail">{environmentDescription}</dd>
                     <dt class="slds-item_label slds-text-color_weak">Repo-grunnlag:</dt>
                     <dd class="slds-item_detail">
                         <a href={overview.sourceCommitUrl} target="_blank" rel="noopener noreferrer"
@@ -35,7 +37,33 @@
                         <span class="slds-badge slds-theme_success">{overview.absentCount}</span> finst ikkje
                     </li>
                     <li class="slds-item"><span class="slds-badge">{orphanCount}</span> finst berre i orgen</li>
+                    <li class="slds-item">
+                        <span class="slds-badge slds-badge_lightest">{archivedCount}</span> arkivert
+                    </li>
                 </ul>
+                <p class="slds-text-body_small slds-m-bottom_small">
+                    Ein komponent blir arkivert og skjult når slettinga er verifisert i {requiredEnvironments}.
+                    Verifikasjonar ligg i AAREG_Cleanup_Verification__mdt og blir lagt inn via pull request.
+                </p>
+                <template lwc:if={canExport}>
+                    <div class="slds-m-bottom_small">
+                        <lightning-button
+                            data-id="export"
+                            variant="brand"
+                            label={exportLabel}
+                            onclick={handleExport}
+                        ></lightning-button>
+                        <template lwc:if={exportText}>
+                            <lightning-textarea
+                                data-id="export"
+                                class="slds-m-top_x-small"
+                                label="Eksport til npm run metadata:verify (kopiert til utklippstavla om nettlesaren tillèt det)"
+                                value={exportText}
+                                readonly
+                            ></lightning-textarea>
+                        </template>
+                    </div>
+                </template>
                 <template lwc:if={overview.warning}>
                     <div class="slds-text-color_error slds-m-bottom_small" role="status">{overview.warning}</div>
                 </template>
@@ -67,6 +95,16 @@
                         ></lightning-input>
                     </div>
                 </div>
+                <lightning-input
+                    data-id="archived"
+                    type="toggle"
+                    label="Vis arkiverte"
+                    message-toggle-active=""
+                    message-toggle-inactive=""
+                    checked={showArchived}
+                    onchange={handleArchivedToggle}
+                    class="slds-m-bottom_small"
+                ></lightning-input>
                 <p class="slds-text-body_small slds-m-bottom_x-small" aria-live="polite">{rowSummary}</p>
                 <template lwc:if={hasRows}>
                     <table class="slds-table slds-table_bordered slds-table_cell-buffer" data-id="items">
@@ -76,6 +114,7 @@
                                 <th scope="col">I denne orgen</th>
                                 <th scope="col">Steg</th>
                                 <th scope="col">Fjerna</th>
+                                <th scope="col">Verifisert sletta</th>
                                 <th scope="col">Merknad</th>
                                 <th scope="col">Lenkjer</th>
                             </tr>
@@ -95,6 +134,21 @@
                                                 >{row.removedOn}</a
                                             >
                                             <div class="slds-text-body_small slds-text-color_weak">{row.subject}</div>
+                                        </template>
+                                    </td>
+                                    <td class="slds-cell-wrap">
+                                        <template for:each={row.verificationList} for:item="verification">
+                                            <div key={verification.key} class={verification.className}>
+                                                <template lwc:if={verification.evidenceUrl}>
+                                                    <a
+                                                        href={verification.evidenceUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        >{verification.text}</a
+                                                    >
+                                                </template>
+                                                <template lwc:else>{verification.text}</template>
+                                            </div>
                                         </template>
                                     </td>
                                     <td class="slds-cell-wrap">{row.note}</td>

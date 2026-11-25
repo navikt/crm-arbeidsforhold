@@ -34,6 +34,26 @@ test.describe('Arbeidsforhold Admin: metadata og opprydding', () => {
         await documentScreenshot(page, '31-admin-metadata-filter');
     });
 
+    test('arkiverte komponentar er skjulte, og scratch blir ikkje registrert som miljø', async ({ page }) => {
+        await openInApp(page, APP, '/lightning/n/AAREG_Admin_Metadata_Cleanup');
+        const cleanup = page.locator('c-aareg-admin-metadata-cleanup');
+        const summary = cleanup.locator('[data-id="summary"]');
+        await expect(summary).toContainText('arkivert', { timeout: 60_000 });
+        await expect(cleanup.locator('[data-id="source"]')).toContainText('Scratch-org. Blir ikkje registrert');
+        await expect(cleanup).toContainText('verifisert i SIT2 og Produksjon');
+        await expect(cleanup.locator('lightning-button[data-id="export"]')).toHaveCount(0);
+        await expect(cleanup.getByRole('columnheader', { name: 'Verifisert sletta' })).toBeVisible();
+        const guided = cleanup.locator('tr[data-key="ApexClass:AAREG_CheckObjectTypeNamingTest"]');
+        await expect(guided).toContainText('SIT2: –');
+        await expect(guided).toContainText('Produksjon: –');
+
+        const toggle = cleanup
+            .getByRole('switch', { name: 'Vis arkiverte' })
+            .or(cleanup.getByRole('checkbox', { name: 'Vis arkiverte' }));
+        await expect(toggle).toBeVisible();
+        await documentScreenshot(page, '32-admin-metadata-arkivering');
+    });
+
     test('snarvegen «Metadata og opprydding» ligg på startsida', async ({ page }) => {
         await openInApp(page, APP, '/lightning/page/home');
         const launchpad = page.locator('c-aareg-admin-launchpad');

@@ -92,6 +92,9 @@ ikkje køyre produksjonskommandoar. Ikkje gjenbruk sandbox-kommandoen mot produk
 8. Registrer eksplisitt verifikasjon av sletting i SIT2 og referanse til Team
    Platforce si godkjenning og evidens for produksjonsverifikasjon og sletting.
    Ikkje marker stega fullførte utan dokumenterte resultat.
+9. Registrer verifikasjonen i repoet med «Lag verifikasjon» i fana «Metadata og opprydding» og
+   `npm run metadata:verify`, sjå [Arkivering etter verifisert sletting](../surfaces/aareg-admin-app.md#arkivering-etter-verifisert-sletting).
+   Komponenten blir arkivert i fana når både SIT2 og produksjon er registrerte.
 
 ## Feil og rollback
 

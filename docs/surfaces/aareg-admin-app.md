@@ -288,7 +288,45 @@ Slik held du oversikta oppdatert:
    blei laga frå, og fana viser commiten og datoen.
 2. Legg til ein post i `AAREG_Cleanup_Guide__mdt` når ein komponent skal fasast ut før han blir fjerna, eller for
    å gi ein fjerna komponent erstatning, runbook og sak. Posten overstyrer steget frå git-historikken.
-3. Når slettinga er verifisert i SIT2 og produksjon, set `Status__c` til `Deleted_Verified`.
+3. Registrer verifisert sletting per miljø, sjå [Arkivering etter verifisert sletting](#arkivering-etter-verifisert-sletting).
+
+#### Arkivering etter verifisert sletting
+
+Miljøa er definerte i `AAREG_Cleanup_Environment__mdt`: SIT2, Preprod, UAT og Produksjon. Ein komponent blir
+**arkivert** og skjult frå lista når slettinga er verifisert i alle miljø med `Required_For_Archive__c`, i dag SIT2
+og Produksjon, i tråd med runbooken. Verifikasjonane ligg i `AAREG_Cleanup_Verification__mdt` i repoet. Kvar
+verifikasjon går difor gjennom pull request, har revisjonsspor i git og blir synleg i alle orgar etter neste deploy.
+
+| Felt                                 | Tyding                                                                              |
+| ------------------------------------ | ----------------------------------------------------------------------------------- |
+| `Org_Kind__c`                        | `Sandbox` eller `Production`. Produksjon blir kjend att på orgtypen åleine.         |
+| `Sandbox_Name__c`                    | Namnet på sandkassa. Fana viser namnet når orgen ikkje er kopla til eit miljø.      |
+| `Required_For_Archive__c`            | Miljøet må vere verifisert før komponenten blir arkivert.                           |
+| `Environment__c` (på verifikasjonen) | Miljøet som er sjekka, med `Verified_On__c`, `Verified_By__c` og `Evidence_Url__c`. |
+
+Flyten:
+
+1. Ein person med `AAREG_Admin_Viewer` opnar fana i miljøet, til dømes SIT2. Tilhøyrande miljø står under «Miljø».
+   Scratch-orgar blir aldri rekna som miljø.
+2. Knappen «Lag verifikasjon for SIT2 (n)» lagar ein JSON-eksport med alle komponentar som er fjerna, ikkje
+   finst i miljøet og manglar verifikasjon der. Eksporten inneheld berre miljø, dato og komponentnamn.
+3. Lagre eksporten som fil og køyr:
+
+    ```bash
+    npm run metadata:verify -- --from eksport.json --by <github-brukar> --evidence <lenkje til PR, issue eller køyring>
+    ```
+
+    Enkeltkomponentar kan registrerast med `--env SIT2 --type ApexClass --name <namn> [--date YYYY-MM-DD]`. Skriptet
+    avviser ukjende miljø, manglande evidens og ugyldige datoar, og hoppar over verifikasjonar som finst frå før.
+
+4. Commit dei nye filene i `force-app/internalAdmin/customMetadata/` i ein PR. Produksjonsverifikasjonen blir
+   registrert på same måte etter at Team Platforce har sjekka og gitt evidens. Agentar opnar ikkje produksjon.
+
+Kolonnen «Verifisert sletta» viser dato per påkravd miljø, med lenkje til evidensen. Brytaren «Vis arkiverte» viser
+arkiverte komponentar att. Dersom ein verifisert komponent dukkar opp att i orgen, blir han ikkje arkivert. Rada blir
+då merkt «Finst igjen – må ryddast» og lagd øvst.
+
+Før første bruk må `Sandbox_Name__c` fyllast inn for SIT2, Preprod og UAT. Namna er ikkje dokumenterte i repoet.
 
 Avgrensingar:
 

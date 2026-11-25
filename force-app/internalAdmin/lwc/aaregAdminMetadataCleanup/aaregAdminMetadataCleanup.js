@@ -12,9 +12,11 @@ const STATE_CLASS = {
 const STAGE_LABEL = {
     Removed: 'Fjerna frå repoet',
     Deprecated: 'Utfasa',
-    Scheduled_Deletion: 'Planlagt sletting',
-    Deleted_Verified: 'Sletting verifisert'
+    Scheduled_Deletion: 'Planlagt sletting'
 };
+const ARCHIVED_CLASS = 'slds-badge slds-badge_lightest';
+const REAPPEARED_LABEL = 'Finst igjen – må ryddast';
+const REAPPEARED_CLASS = 'slds-badge slds-theme_error';
 
 export default class AaregAdminMetadataCleanup extends LightningElement {
     overview;
@@ -23,6 +25,8 @@ export default class AaregAdminMetadataCleanup extends LightningElement {
     stateFilter = ALL;
     typeFilter = ALL;
     searchTerm = '';
+    showArchived = false;
+    exportText;
 
     connectedCallback() {
         this.load();
@@ -44,8 +48,53 @@ export default class AaregAdminMetadataCleanup extends LightningElement {
         return Boolean(this.overview);
     }
 
-    get orgKind() {
-        return this.overview?.isSandbox ? 'Sandbox eller scratch' : 'Produksjon';
+    get environments() {
+        return this.overview?.environments ?? [];
+    }
+
+    get currentEnvironmentLabel() {
+        const current = this.environments.find((environment) => environment.name === this.overview?.currentEnvironment);
+        return current?.label ?? this.overview?.currentEnvironment;
+    }
+
+    get environmentDescription() {
+        const overview = this.overview ?? {};
+        if (overview.currentEnvironment) {
+            return `${this.currentEnvironmentLabel}. Komponentar som ikkje finst her, kan registrerast som verifisert sletta.`;
+        }
+        if (overview.orgKind === 'Scratch') {
+            return 'Scratch-org. Blir ikkje registrert som miljø, så sletting kan ikkje verifiserast herifrå.';
+        }
+        if (overview.orgKind === 'Sandbox') {
+            return (
+                `Sandkasse «${overview.sandboxName ?? 'ukjend'}» er ikkje kopla til eit miljø. ` +
+                'Legg namnet inn i Sandbox_Name__c på rett post i AAREG_Cleanup_Environment__mdt.'
+            );
+        }
+        return 'Produksjon er ikkje registrert som miljø i AAREG_Cleanup_Environment__mdt.';
+    }
+
+    get requiredEnvironments() {
+        return this.environments
+            .filter((environment) => environment.requiredForArchive)
+            .map((environment) => environment.label)
+            .join(' og ');
+    }
+
+    get archivedCount() {
+        return this.overview?.archivedCount ?? 0;
+    }
+
+    get readyToVerify() {
+        return (this.overview?.items ?? []).filter((item) => item.readyToVerify && !item.archived);
+    }
+
+    get canExport() {
+        return Boolean(this.overview?.currentEnvironment) && this.readyToVerify.length > 0;
+    }
+
+    get exportLabel() {
+        return `Lag verifikasjon for ${this.currentEnvironmentLabel} (${this.readyToVerify.length})`;
     }
 
     get generatedOn() {
@@ -76,10 +125,12 @@ export default class AaregAdminMetadataCleanup extends LightningElement {
             .filter((item) => this.stateFilter === ALL || item.state === this.stateFilter)
             .filter((item) => this.typeFilter === ALL || item.type === this.typeFilter)
             .filter((item) => !term || item.name.toLowerCase().includes(term))
+            .filter((item) => this.showArchived || !item.archived)
             .map((item) => ({
                 ...item,
-                stateLabel: STATE_LABEL[item.state] ?? item.state,
-                stateClass: STATE_CLASS[item.state] ?? STATE_CLASS.manual,
+                stateLabel: this.stateLabel(item),
+                stateClass: this.stateClass(item),
+                verificationList: this.verificationList(item),
                 stageLabel: STAGE_LABEL[item.stage] ?? item.stage,
                 note: [item.reason, item.replacement ? `Erstatta av ${item.replacement}.` : null, item.guidance]
                     .filter(Boolean)
@@ -87,10 +138,41 @@ export default class AaregAdminMetadataCleanup extends LightningElement {
             }))
             .sort(
                 (left, right) =>
+                    Number(Boolean(right.reappeared)) - Number(Boolean(left.reappeared)) ||
+                    Number(Boolean(left.archived)) - Number(Boolean(right.archived)) ||
                     STATE_ORDER[left.state] - STATE_ORDER[right.state] ||
                     left.type.localeCompare(right.type) ||
                     left.name.localeCompare(right.name)
             );
+    }
+
+    stateLabel(item) {
+        if (item.reappeared) {
+            return REAPPEARED_LABEL;
+        }
+        return item.archived ? 'Arkivert' : (STATE_LABEL[item.state] ?? item.state);
+    }
+
+    stateClass(item) {
+        if (item.reappeared) {
+            return REAPPEARED_CLASS;
+        }
+        return item.archived ? ARCHIVED_CLASS : (STATE_CLASS[item.state] ?? STATE_CLASS.manual);
+    }
+
+    verificationList(item) {
+        const byEnvironment = new Map((item.verifications ?? []).map((entry) => [entry.environment, entry]));
+        return this.environments
+            .filter((environment) => environment.requiredForArchive || byEnvironment.has(environment.name))
+            .map((environment) => {
+                const verification = byEnvironment.get(environment.name);
+                return {
+                    key: `${item.key}:${environment.name}`,
+                    text: `${environment.label}: ${verification?.verifiedOn ?? '–'}`,
+                    evidenceUrl: verification?.evidenceUrl,
+                    className: verification ? 'slds-text-color_success' : 'slds-text-color_weak'
+                };
+            });
     }
 
     get hasRows() {
@@ -121,7 +203,30 @@ export default class AaregAdminMetadataCleanup extends LightningElement {
         this.searchTerm = event.target.value ?? '';
     }
 
+    handleArchivedToggle(event) {
+        this.showArchived = Boolean(event.target.checked);
+    }
+
+    async handleExport() {
+        this.exportText = JSON.stringify(
+            {
+                environment: this.overview.currentEnvironment,
+                sandboxName: this.overview.sandboxName ?? null,
+                checkedOn: new Date().toISOString().slice(0, 10),
+                components: this.readyToVerify.map(({ type, name }) => ({ type, name }))
+            },
+            null,
+            2
+        );
+        try {
+            await navigator.clipboard?.writeText(this.exportText);
+        } catch {
+            // Kopiering kan vere blokkert; teksten står likevel i feltet.
+        }
+    }
+
     handleRefresh() {
+        this.exportText = undefined;
         this.load();
     }
 }

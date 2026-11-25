@@ -226,6 +226,13 @@ Opne appen «Arbeidsforhold Admin» som ein brukar med `AAREG_Admin_Viewer`.
 | 15.4 | Vel «Finst – må ryddast» i «Status i orgen».                 | Berre komponentar som framleis finst i orgen, står att.                                                               | ☐   |
 | 15.5 | Vel ein metadatatype, til dømes `Layout`.                    | Radene seier «Sjekk manuelt» og kvar i Setup du sjekkar.                                                              | ☐   |
 | 15.6 | Bla ned til «Finst berre i orgen».                           | Lista viser komponentar med `AAREG`/`P360` som ikkje finst i repoet, eller at det ikkje er nokon.                     | ☐   |
+| 15.7 | Les «Miljø» øvst i scratch-orgen.                            | Teksten seier at scratch ikkje blir registrert som miljø. Knappen «Lag verifikasjon» finst ikkje.                     | ☐   |
+| 15.8 | Sjå kolonnen «Verifisert sletta» og teljaren «arkivert».     | Kvar rad viser «SIT2» og «Produksjon» med dato eller «–». Arkiverte komponentar er skjulte.                           | ☐   |
+| 15.9 | Slå på «Vis arkiverte».                                      | Arkiverte komponentar blir viste med merket «Arkivert», eller lista er uendra når teljaren er 0.                      | ☐   |
+
+I eit registrert miljø, til dømes SIT2, viser fana i tillegg knappen «Lag verifikasjon for SIT2 (n)». Eksporten
+blir gjort om til verifikasjonspostar med `npm run metadata:verify`. Sjå kapittel 5.11 i
+[Arbeidsforhold Admin](../../../surfaces/aareg-admin-app.md#arkivering-etter-verifisert-sletting).
 
 ## Avslutning
 

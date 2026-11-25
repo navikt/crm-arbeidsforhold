@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Required_For_Archive__c</fullName>
+    <description>When checked, deletion must be verified here before a component is archived and hidden from the cleanup overview.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Required For Archive</label>
+    <defaultValue>false</defaultValue>
+    <type>Checkbox</type>
+</CustomField>

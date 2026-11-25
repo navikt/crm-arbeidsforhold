@@ -46,7 +46,15 @@
     </customMetadataTypeAccesses>
     <customMetadataTypeAccesses>
         <enabled>true</enabled>
+        <name>AAREG_Cleanup_Environment__mdt</name>
+    </customMetadataTypeAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
         <name>AAREG_Cleanup_Guide__mdt</name>
+    </customMetadataTypeAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
+        <name>AAREG_Cleanup_Verification__mdt</name>
     </customMetadataTypeAccesses>
     <description>Read-only access to the Arbeidsforhold Admin app. Grants no View All or Modify All; record visibility follows sharing.</description>
     <fieldPermissions>

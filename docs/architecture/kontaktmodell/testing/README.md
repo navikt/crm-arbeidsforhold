@@ -99,6 +99,7 @@ Skjermbileta blir lagra i [skjermbilete/](skjermbilete/) og viser berre syntetis
 | [29-admin-brukar-tilgang](skjermbilete/29-admin-brukar-tilgang.png)                                     | Effektiv tilgang for éin brukar.               |
 | [30-admin-metadata-opprydding](skjermbilete/30-admin-metadata-opprydding.png)                           | Fjerna metadata og status i orgen.             |
 | [31-admin-metadata-filter](skjermbilete/31-admin-metadata-filter.png)                                   | Søk og filter i oppryddingsoversikta.          |
+| [32-admin-metadata-arkivering](skjermbilete/32-admin-metadata-arkivering.png)                           | Miljø, verifisert sletting og arkivering.      |
 
 ## Kjende avgrensingar
 

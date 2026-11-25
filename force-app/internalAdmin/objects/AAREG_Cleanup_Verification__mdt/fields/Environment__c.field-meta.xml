@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Environment__c</fullName>
+    <description>Environment where the deletion was verified.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Environment</label>
+    <referenceTo>AAREG_Cleanup_Environment__mdt</referenceTo>
+    <relationshipLabel>Cleanup Verifications</relationshipLabel>
+    <relationshipName>Cleanup_Verifications</relationshipName>
+    <required>true</required>
+    <type>MetadataRelationship</type>
+    <unique>false</unique>
+</CustomField>

@@ -7,6 +7,12 @@
  * issue and runbook. For each component the controller checks whether it still exists in the org
  * the user is logged in to, so the same tab gives evidence in scratch, SIT2 and production.
  *
+ * Verified deletion per environment comes from AAREG_Cleanup_Verification__mdt. A component is
+ * archived, and hidden by default, when its deletion is verified in every environment in
+ * AAREG_Cleanup_Environment__mdt marked Required For Archive and it does not exist in this org.
+ * The current org is matched to an environment by org kind and sandbox name, so the tab can
+ * export the components that are ready to be verified here.
+ *
  * Presence is read in system mode because metadata names are not personal data and the answer
  * must not depend on the viewer's folder or setup access. Nothing is written or deleted; deletion
  * follows docs/operations/salesforce-metadata-cleanup-runbook.md.
@@ -26,6 +32,9 @@ public with sharing class AAREG_AdminMetadataCleanupController {
     private static final String STAGE_REMOVED = 'Removed';
     private static final String STAGE_DEPRECATED = 'Deprecated';
     private static final Integer ORPHAN_LIMIT = 2000;
+    private static final String KIND_PRODUCTION = 'Production';
+    private static final String KIND_SANDBOX = 'Sandbox';
+    private static final String KIND_SCRATCH = 'Scratch';
 
     /** SOQL source per metadata type: sObject, name field and an optional filter. */
     private static final Map<String, List<String>> QUERY_SOURCES = new Map<String, List<String>>{
@@ -80,6 +89,14 @@ public with sharing class AAREG_AdminMetadataCleanupController {
     private static String inventoryOverride;
     @TestVisible
     private static List<AAREG_Cleanup_Guide__mdt> guideOverride;
+    @TestVisible
+    private static List<AAREG_Cleanup_Environment__mdt> environmentOverride;
+    @TestVisible
+    private static List<AAREG_Cleanup_Verification__mdt> verificationOverride;
+    @TestVisible
+    private static String orgKindOverride;
+    @TestVisible
+    private static String sandboxNameOverride;
 
     /** The complete overview for the org the user is logged in to. */
     public class Overview {
@@ -87,6 +104,16 @@ public with sharing class AAREG_AdminMetadataCleanupController {
         public String orgName;
         @AuraEnabled
         public Boolean isSandbox;
+        /** Production, Sandbox or Scratch. */
+        @AuraEnabled
+        public String orgKind;
+        @AuraEnabled
+        public String sandboxName;
+        /** Developer name of the matching AAREG_Cleanup_Environment__mdt, or null. */
+        @AuraEnabled
+        public String currentEnvironment;
+        @AuraEnabled
+        public List<Environment> environments = new List<Environment>();
         @AuraEnabled
         public String sourceCommit;
         @AuraEnabled
@@ -105,6 +132,8 @@ public with sharing class AAREG_AdminMetadataCleanupController {
         public Integer absentCount = 0;
         @AuraEnabled
         public Integer manualCount = 0;
+        @AuraEnabled
+        public Integer archivedCount = 0;
         @AuraEnabled
         public String warning;
     }
@@ -139,6 +168,43 @@ public with sharing class AAREG_AdminMetadataCleanupController {
         public String issueUrl;
         @AuraEnabled
         public String runbookUrl;
+        /** Verified deleted in every required environment and absent here. Hidden by default. */
+        @AuraEnabled
+        public Boolean archived = false;
+        /** Verified deleted in this environment, but exists again. */
+        @AuraEnabled
+        public Boolean reappeared = false;
+        /** Absent in a mapped environment without a verification for it yet. */
+        @AuraEnabled
+        public Boolean readyToVerify = false;
+        @AuraEnabled
+        public List<Verification> verifications = new List<Verification>();
+    }
+
+    /** An environment where deletion can be verified. */
+    public class Environment {
+        @AuraEnabled
+        public String name;
+        @AuraEnabled
+        public String label;
+        @AuraEnabled
+        public Boolean requiredForArchive;
+        @AuraEnabled
+        public Boolean isCurrent = false;
+    }
+
+    /** Evidence that a component is deleted from one environment. */
+    public class Verification {
+        @AuraEnabled
+        public String environment;
+        @AuraEnabled
+        public String environmentLabel;
+        @AuraEnabled
+        public String verifiedOn;
+        @AuraEnabled
+        public String verifiedBy;
+        @AuraEnabled
+        public String evidenceUrl;
     }
 
     /** A component with an owned prefix that exists in the org but not in the repository. */
@@ -176,7 +242,7 @@ public with sharing class AAREG_AdminMetadataCleanupController {
         }
         Overview overview = new Overview();
         overview.orgName = UserInfo.getOrganizationName();
-        overview.isSandbox = [SELECT IsSandbox FROM Organization WITH SYSTEM_MODE LIMIT 1].IsSandbox;
+        applyOrgContext(overview);
         overview.sourceCommit = inventory.commitHash;
         overview.sourceCommitUrl = commitUrl(inventory, inventory.commitHash);
         overview.generatedAt = inventory.committedAt;
@@ -185,8 +251,11 @@ public with sharing class AAREG_AdminMetadataCleanupController {
         List<String> failedTypes = new List<String>();
         applyPresence(overview.items, failedTypes);
         overview.orphans = findOrphans(inventory, failedTypes);
+        applyVerifications(overview);
         for (Item item : overview.items) {
-            if (item.state == STATE_PRESENT) {
+            if (item.archived) {
+                overview.archivedCount++;
+            } else if (item.state == STATE_PRESENT) {
                 overview.presentCount++;
             } else if (item.state == STATE_ABSENT) {
                 overview.absentCount++;
@@ -198,6 +267,130 @@ public with sharing class AAREG_AdminMetadataCleanupController {
             overview.warning = 'Kunne ikkje lese ' + String.join(failedTypes, ', ') + ' i denne orgen.';
         }
         return overview;
+    }
+
+    private static void applyOrgContext(Overview overview) {
+        Organization org = [SELECT IsSandbox, TrialExpirationDate FROM Organization WITH SYSTEM_MODE LIMIT 1];
+        overview.isSandbox = org.IsSandbox;
+        overview.orgKind = orgKindOverride != null
+            ? orgKindOverride
+            : !org.IsSandbox ? KIND_PRODUCTION : org.TrialExpirationDate != null ? KIND_SCRATCH : KIND_SANDBOX;
+        overview.sandboxName = overview.orgKind == KIND_SANDBOX ? currentSandboxName() : null;
+        for (AAREG_Cleanup_Environment__mdt record : environments()) {
+            Environment environment = new Environment();
+            environment.name = record.DeveloperName;
+            environment.label = record.MasterLabel;
+            environment.requiredForArchive = record.Required_For_Archive__c;
+            environment.isCurrent =
+                overview.orgKind == record.Org_Kind__c &&
+                (overview.orgKind == KIND_PRODUCTION ||
+                (String.isNotBlank(record.Sandbox_Name__c) &&
+                record.Sandbox_Name__c.equalsIgnoreCase(overview.sandboxName)));
+            if (environment.isCurrent && overview.currentEnvironment == null) {
+                overview.currentEnvironment = environment.name;
+            }
+            overview.environments.add(environment);
+        }
+    }
+
+    private static String currentSandboxName() {
+        if (sandboxNameOverride != null) {
+            return sandboxNameOverride;
+        }
+        try {
+            return System.DomainParser.parse(URL.getOrgDomainUrl()).getSandboxName();
+        } catch (Exception error) {
+            return null;
+        }
+    }
+
+    private static List<AAREG_Cleanup_Environment__mdt> environments() {
+        List<AAREG_Cleanup_Environment__mdt> records = environmentOverride != null
+            ? environmentOverride.clone()
+            : [
+                  SELECT
+                      DeveloperName,
+                      MasterLabel,
+                      Org_Kind__c,
+                      Sandbox_Name__c,
+                      Required_For_Archive__c,
+                      Sort_Order__c
+                  FROM AAREG_Cleanup_Environment__mdt
+              ];
+        List<AAREG_Cleanup_Environment__mdt> sorted = new List<AAREG_Cleanup_Environment__mdt>();
+        while (!records.isEmpty()) {
+            Integer first = 0;
+            for (Integer index = 1; index < records.size(); index++) {
+                if (sortValue(records[index]) < sortValue(records[first])) {
+                    first = index;
+                }
+            }
+            sorted.add(records.remove(first));
+        }
+        return sorted;
+    }
+
+    private static Decimal sortValue(AAREG_Cleanup_Environment__mdt record) {
+        return record.Sort_Order__c == null ? 9999 : record.Sort_Order__c;
+    }
+
+    private static List<AAREG_Cleanup_Verification__mdt> verifications() {
+        return verificationOverride != null
+            ? verificationOverride
+            : [
+                  SELECT
+                      Metadata_Type__c,
+                      Component_Name__c,
+                      Verified_On__c,
+                      Verified_By__c,
+                      Evidence_Url__c,
+                      Environment__r.DeveloperName
+                  FROM AAREG_Cleanup_Verification__mdt
+              ];
+    }
+
+    private static void applyVerifications(Overview overview) {
+        Map<String, Map<String, AAREG_Cleanup_Verification__mdt>> byKey = new Map<String, Map<String, AAREG_Cleanup_Verification__mdt>>();
+        for (AAREG_Cleanup_Verification__mdt record : verifications()) {
+            String key = (record.Metadata_Type__c + ':' + record.Component_Name__c).toLowerCase();
+            if (!byKey.containsKey(key)) {
+                byKey.put(key, new Map<String, AAREG_Cleanup_Verification__mdt>());
+            }
+            byKey.get(key).put(record.Environment__r.DeveloperName, record);
+        }
+        for (Item item : overview.items) {
+            Map<String, AAREG_Cleanup_Verification__mdt> verified = byKey.containsKey(item.key.toLowerCase())
+                ? byKey.get(item.key.toLowerCase())
+                : new Map<String, AAREG_Cleanup_Verification__mdt>();
+            Boolean allRequired = true;
+            Boolean anyRequired = false;
+            for (Environment environment : overview.environments) {
+                AAREG_Cleanup_Verification__mdt record = verified.get(environment.name);
+                if (environment.requiredForArchive) {
+                    anyRequired = true;
+                    allRequired &= record != null;
+                }
+                if (record != null) {
+                    item.verifications.add(toVerification(environment, record));
+                }
+            }
+            item.archived = anyRequired && allRequired && item.state != STATE_PRESENT;
+            item.reappeared = item.state == STATE_PRESENT && !verified.isEmpty();
+            item.readyToVerify =
+                overview.currentEnvironment != null &&
+                item.state == STATE_ABSENT &&
+                !verified.containsKey(overview.currentEnvironment);
+        }
+    }
+
+    private static Verification toVerification(Environment environment, AAREG_Cleanup_Verification__mdt record) {
+        Verification verification = new Verification();
+        verification.environment = environment.name;
+        verification.environmentLabel = environment.label;
+        verification.verifiedOn = record.Verified_On__c == null ? null : String.valueOf(record.Verified_On__c);
+        verification.verifiedBy = record.Verified_By__c;
+        verification.evidenceUrl = record.Evidence_Url__c;
+        return verification;
     }
 
     private static Inventory readInventory() {

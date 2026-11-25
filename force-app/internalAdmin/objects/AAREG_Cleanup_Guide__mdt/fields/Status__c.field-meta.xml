@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Status__c</fullName>
-    <description>Cleanup stage. Deprecated components are still in source; the other stages apply after removal from the repository.</description>
+    <description>Cleanup stage. Deprecated components are still in source; the other stages apply after removal from the repository. Verified deletion per environment is recorded in AAREG_Cleanup_Verification__mdt.</description>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Status</label>
@@ -24,11 +24,6 @@
                     <fullName>Scheduled_Deletion</fullName>
                     <default>false</default>
                     <label>Scheduled for deletion</label>
-                </value>
-                <value>
-                    <fullName>Deleted_Verified</fullName>
-                    <default>false</default>
-                    <label>Deletion verified</label>
                 </value>
         </valueSetDefinition>
     </valueSet>
