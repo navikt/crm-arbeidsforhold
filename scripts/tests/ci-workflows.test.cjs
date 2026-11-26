@@ -57,7 +57,110 @@ test('offline CI covers the workflow contracts and Node tooling on PRs and main'
     }
 });
 
-test('reusable scratch validation is manual, main-only, serialized, and retains fresh-org fallback', () => {
+test('PR pilot starts from trusted main and validates a captured PR snapshot without changing required CI', () => {
+    const pilot = readWorkflow('ci-reusable-pr-pilot.yml');
+    assert.match(
+        pilot,
+        /workflow_run:\s*\n\s+workflows:\s*\n\s+- '\[PR\] Validate'\s*\n\s+types:\s*\n\s+- in_progress/
+    );
+    assert.match(pilot, /pull-requests: read/);
+    assert.match(pilot, /ref: \$\{\{ github\.sha \}\}[\s\S]*?path: trusted/);
+    assert.match(pilot, /node trusted\/scripts\/ci-pr-pilot\.cjs resolve/);
+    assert.match(pilot, /ref: \$\{\{ steps\.pull\.outputs\.merge_sha \}\}[\s\S]*?path: candidate/);
+    assert.match(pilot, /ci-pr-pilot\.cjs" verify-snapshot/);
+    assert.match(pilot, /ci-pr-pilot\.cjs" verify-source/);
+    assert.match(pilot, /ci-changes\.cjs" "\$BASE_SHA" "\$HEAD_SHA"/);
+    assert.match(pilot, /uses: \.\/\.github\/workflows\/ci-reusable-scratch-org\.yml/);
+    assert.match(pilot, /if: needs\.prepare\.outputs\.salesforce == 'true'/);
+    assert.match(pilot, /CRM_PROD_SFDX_URL: \$\{\{ secrets\.CRM_PROD_SFDX_URL \}\}/);
+    assert.match(pilot, /CRM_PACKAGE_KEY: \$\{\{ secrets\.CRM_PACKAGE_KEY \}\}/);
+    assert.doesNotMatch(pilot, /secrets: inherit|pull-requests: write|contents: write|actions: write/);
+
+    const required = readWorkflow('pull_request-validation1.yml');
+    assert.match(required, /uses: \.\/\.github\/workflows\/salesforce-validation\.yml/);
+    assert.doesNotMatch(required, /ci-reusable-pr-pilot|ci-reusable-scratch-org/);
+});
+
+test('shared scratch validation runs trusted tools against the captured PR and records minimal evidence', () => {
+    const source = readWorkflow('ci-reusable-scratch-org.yml');
+    assert.match(source, /workflow_dispatch:/);
+    assert.match(source, /workflow_call:/);
+    assert.match(source, /ref: \$\{\{ github\.sha \}\}[\s\S]*?path: trusted/);
+    assert.match(source, /ref: \$\{\{ inputs\.merge_sha \|\| github\.sha \}\}[\s\S]*?path: candidate/);
+    assert.match(source, /working-directory: candidate/);
+    assert.match(source, /ci-pr-pilot\.cjs" verify-snapshot/);
+    assert.match(source, /ci-pr-pilot\.cjs" verify-source/);
+    assert.match(source, /\$TRUSTED_ROOT\/bin\/package-dependencies\.js/);
+    assert.match(source, /\$TRUSTED_ROOT\/scripts\/ci-scratch-plan\.cjs/);
+    assert.match(source, /\$TRUSTED_ROOT\/scripts\/ci-pr-evidence\.cjs" create/);
+    assert.match(source, /actions\/upload-artifact@[a-f0-9]{40}/);
+    assert.match(source, /name: reusable-pr-pilot-evidence-\$\{\{ github\.run_attempt \}\}/);
+    assert.match(source, /if: inputs\.pull_number != ''/);
+    assert.match(source, /group: crm-arbeidsforhold-reusable-scratch-org/);
+    assert.match(source, /cancel-in-progress: false/);
+});
+
+test('PR-controlled Salesforce output cannot issue GitHub workflow commands', () => {
+    const source = readWorkflow('ci-reusable-scratch-org.yml');
+    for (const [start, end] of [
+        ['- name: Resolve and validate exact package versions', '- name: Select reusable org or fresh fallback'],
+        ['- name: Deploy source to fresh org', '- name: Run repository Apex tests in fresh org'],
+        ['- name: Validate reusable org with tests and coverage', '- name: Deploy source to fresh org']
+    ]) {
+        const section = source.slice(source.indexOf(start), source.indexOf(end));
+        assert.ok(section.includes('::stop-commands::$command_token'), start);
+        assert.ok(section.includes('::$command_token::'), start);
+        assert.ok(section.indexOf('::stop-commands::$command_token') < section.indexOf('::$command_token::'), start);
+    }
+});
+
+test(
+    'reuse validation failures remain failures and cannot trigger the fresh-org route',
+    { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
+    (context) => {
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-reuse-failure-'));
+        context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+        const fakeSf = path.join(directory, 'sf');
+        fs.writeFileSync(fakeSf, '#!/bin/sh\nprintf "%s" "$TEST_RESPONSE"\nexit 19\n', { mode: 0o755 });
+        const workflow = readWorkflow('ci-reusable-scratch-org.yml');
+        const section = workflow.slice(
+            workflow.indexOf('- name: Validate reusable org with tests and coverage'),
+            workflow.indexOf('- name: Deploy source to fresh org')
+        );
+        const script = section.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
+        assert.ok(script);
+        assert.doesNotMatch(section, /continue-on-error|CI_VALIDATION_ROUTE=fresh/);
+        assert.match(
+            workflow,
+            /- name: Create one-time fallback scratch org[\s\S]*?if: env\.CI_VALIDATION_ROUTE == 'fresh'/
+        );
+
+        for (const diagnostic of [
+            { componentFailures: [{ problem: 'Metadata compilation failed' }] },
+            { runTestResult: { failures: [{ message: '::error::Apex test failed' }] } }
+        ]) {
+            const result = spawnSync('/bin/bash', ['-c', script], {
+                cwd: directory,
+                encoding: 'utf8',
+                env: {
+                    ...process.env,
+                    PATH: directory + path.delimiter + process.env.PATH,
+                    RUNNER_TEMP: directory,
+                    TRUSTED_ROOT: path.resolve(__dirname, '../..'),
+                    TEST_RESPONSE: JSON.stringify({ result: { details: diagnostic } })
+                }
+            });
+            assert.equal(result.status, 19, result.stderr);
+            const token = result.stdout.match(/::stop-commands::([a-f0-9-]+)/)?.[1];
+            assert.ok(token);
+            const message = diagnostic.componentFailures?.[0].problem ?? diagnostic.runTestResult.failures[0].message;
+            assert.ok(result.stdout.indexOf(message) > result.stdout.indexOf(`::stop-commands::${token}`));
+            assert.ok(result.stdout.indexOf(`::${token}::`) > result.stdout.indexOf(message));
+        }
+    }
+);
+
+test('reusable scratch validation is main-only, serialized, and retains its manual and fresh-org routes', () => {
     const source = readWorkflow('ci-reusable-scratch-org.yml');
     assert.match(source, /workflow_dispatch:/);
     assert.match(source, /if: github\.ref == 'refs\/heads\/main'/);
@@ -72,10 +175,10 @@ test('reusable scratch validation is manual, main-only, serialized, and retains 
     );
     assert.match(source, /--target-org ci-reuse \\\s*--dry-run \\\s*--test-level RunLocalTests/);
     assert.match(source, /sf org create scratch \\\s*--definition-file config\/project-scratch-def\.json/);
-    assert.match(source, /node scripts\/ci-scratch-plan\.cjs install/);
+    assert.match(source, /node "\$TRUSTED_ROOT\/scripts\/ci-scratch-plan\.cjs" install/);
     assert.match(source, /sf project deploy start --source-dir force-app --target-org ci-fresh/);
     assert.match(source, /sf org delete scratch --target-org ci-fresh --no-prompt/);
-    assert.doesNotMatch(source, /pull_request:|pull_request_target:|workflow_call:/);
+    assert.doesNotMatch(source, /pull_request:|pull_request_target:/);
     assert.doesNotMatch(source, /pull-requests: write|contents: write|actions: write/);
 });
 
@@ -97,7 +200,7 @@ test('scratch validation excludes the non-package sources used by existing CI be
 test('checks active scratch status and matching org identity before querying installed packages', () => {
     const source = readWorkflow('ci-reusable-scratch-org.yml');
     const scratchQuery = source.indexOf('sf data query');
-    const scratchVerification = source.indexOf('ci-scratch-plan.cjs verify-scratch');
+    const scratchVerification = source.indexOf('ci-scratch-plan.cjs" verify-scratch');
     const login = source.indexOf('sf org login sfdx-url --sfdx-url-file "$auth_file" --alias ci-reuse');
     const identity = source.indexOf('jq -e --arg expected "$CI_SCRATCH_ORG_ID"');
     const packages = source.indexOf('sf package installed list --target-org ci-reuse');
@@ -201,6 +304,7 @@ test(
                 env: {
                     ...process.env,
                     PATH: path.join(directory, 'bin') + path.delimiter + process.env.PATH,
+                    TRUSTED_ROOT: directory,
                     RUNNER_TEMP: directory,
                     GITHUB_ENV: githubEnv,
                     TEST_TRACE: traceFile,
