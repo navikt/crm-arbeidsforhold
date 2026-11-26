@@ -59,10 +59,15 @@ test('offline CI covers the workflow contracts and Node tooling on PRs and main'
 
 test('PR pilot starts from trusted main and validates a captured PR snapshot without changing required CI', () => {
     const pilot = readWorkflow('ci-reusable-pr-pilot.yml');
-    assert.match(
-        pilot,
-        /workflow_run:\s*\n\s+workflows:\s*\n\s+- '\[PR\] Validate'\s*\n\s+types:\s*\n\s+- in_progress/
+    const required = readWorkflow('pull_request-validation1.yml');
+    const requiredName = required.match(/^name: '([^']+)'$/m);
+    const trigger = pilot.match(
+        /workflow_run:\s*\n\s+workflows:\s*\n\s+- '([^']+)'\s*\n\s+types:\s*\n\s+- in_progress/
     );
+    assert.ok(requiredName, 'The required validation workflow must have a name.');
+    assert.ok(trigger, 'The pilot must use an in-progress workflow trigger.');
+    const literalNamePattern = requiredName[1].replace(/[\\*?+\[\]!]/g, '\\$&');
+    assert.equal(trigger[1], literalNamePattern, 'The pilot must match the exact validation workflow name.');
     assert.match(pilot, /pull-requests: read/);
     assert.match(pilot, /ref: \$\{\{ github\.sha \}\}[\s\S]*?path: trusted/);
     assert.match(pilot, /node trusted\/scripts\/ci-pr-pilot\.cjs resolve/);
@@ -76,7 +81,6 @@ test('PR pilot starts from trusted main and validates a captured PR snapshot wit
     assert.match(pilot, /CRM_PACKAGE_KEY: \$\{\{ secrets\.CRM_PACKAGE_KEY \}\}/);
     assert.doesNotMatch(pilot, /secrets: inherit|pull-requests: write|contents: write|actions: write/);
 
-    const required = readWorkflow('pull_request-validation1.yml');
     assert.match(required, /uses: \.\/\.github\/workflows\/salesforce-validation\.yml/);
     assert.doesNotMatch(required, /ci-reusable-pr-pilot|ci-reusable-scratch-org/);
 });
