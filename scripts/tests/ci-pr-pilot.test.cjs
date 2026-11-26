@@ -235,19 +235,22 @@ test('pilot CLI handles paginated GitHub runs and rechecks the PR snapshot', (co
     context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
     const eventFile = path.join(directory, 'event.json');
     fs.writeFileSync(eventFile, JSON.stringify({ workflow_run: workflowRun }));
+    const mockFile = path.join(directory, 'mock-gh.cjs');
     fs.writeFileSync(
-        path.join(directory, 'gh'),
-        `#!/usr/bin/env node
-const endpoint = process.argv[3];
-let response;
-if (endpoint.includes('/commits/')) response = [[JSON.parse(process.env.MOCK_PULL)]];
-else if (endpoint.endsWith('/pulls/42')) response = JSON.parse(process.env.MOCK_PULL);
-else if (endpoint.includes('/actions/workflows/')) response = process.env.MOCK_INVALID ? [{ jobs: [] }] : [{ workflow_runs: JSON.parse(process.env.MOCK_RUNS) }];
-else if (endpoint.includes('/actions/runs/501/jobs?filter=all')) response = [{ jobs: JSON.parse(process.env.MOCK_JOBS) }];
-else throw new Error('Unexpected GitHub request: ' + endpoint);
-process.stdout.write(JSON.stringify(response));
-`,
-        { mode: 0o755 }
+        mockFile,
+        `const childProcess = require('node:child_process');
+const original = childProcess.execFileSync;
+childProcess.execFileSync = (command, args, options) => {
+    if (command !== 'gh') return original(command, args, options);
+    const endpoint = args[1];
+    let response;
+    if (endpoint.includes('/commits/')) response = [[JSON.parse(process.env.MOCK_PULL)]];
+    else if (endpoint.endsWith('/pulls/42')) response = JSON.parse(process.env.MOCK_PULL);
+    else if (endpoint.includes('/actions/workflows/')) response = process.env.MOCK_INVALID ? [{ jobs: [] }] : [{ workflow_runs: JSON.parse(process.env.MOCK_RUNS) }];
+    else if (endpoint.includes('/actions/runs/501/jobs?filter=all')) response = [{ jobs: JSON.parse(process.env.MOCK_JOBS) }];
+    else throw new Error('Unexpected GitHub request: ' + endpoint);
+    return JSON.stringify(response);
+};`
     );
     const previous = {
         id: 501,
@@ -259,7 +262,6 @@ process.stdout.write(JSON.stringify(response));
     };
     const env = {
         ...process.env,
-        PATH: directory + path.delimiter + process.env.PATH,
         GITHUB_EVENT_PATH: eventFile,
         GITHUB_REPOSITORY: repository,
         GITHUB_RUN_ID: '502',
@@ -274,7 +276,7 @@ process.stdout.write(JSON.stringify(response));
         ])
     };
     const run = (...args) =>
-        spawnSync(process.execPath, [path.resolve(__dirname, '../ci-pr-pilot.cjs'), ...args], {
+        spawnSync(process.execPath, ['--require', mockFile, path.resolve(__dirname, '../ci-pr-pilot.cjs'), ...args], {
             env,
             encoding: 'utf8'
         });
