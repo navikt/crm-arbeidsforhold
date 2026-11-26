@@ -1,6 +1,16 @@
 const assert = require('node:assert/strict');
+const { spawnSync } = require('node:child_process');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const { test } = require('node:test');
-const { resolvePullRequest, validatePrSource, verifyMergeCommit } = require('../ci-pr-pilot.cjs');
+const {
+    hasPriorValidation,
+    isCurrentPullRequest,
+    resolvePullRequest,
+    validatePrSource,
+    verifyMergeCommit
+} = require('../ci-pr-pilot.cjs');
 
 const repository = 'example/repository';
 const headSha = 'a'.repeat(40);
@@ -12,6 +22,7 @@ const workflowRun = {
     event: 'pull_request',
     id: 123,
     run_attempt: 1,
+    run_started_at: '2026-01-02T03:04:05Z',
     head_sha: headSha,
     head_branch: 'feature/example',
     head_repository: { full_name: repository },
@@ -135,6 +146,163 @@ test('surfaces GitHub API failures instead of treating them as an ineligible PR'
         throw new Error('GitHub API unavailable');
     };
     await assert.rejects(() => resolvePullRequest(workflowRun, repository, github), /GitHub API unavailable/);
+});
+
+test('skips repeated notifications once the same baseline attempt has a validation', async () => {
+    const pilot = {
+        id: 501,
+        path: '.github/workflows/ci-reusable-pr-pilot.yml',
+        event: 'workflow_run',
+        status: 'completed',
+        conclusion: 'success',
+        display_title: 'Reusable PR pilot 123 attempt 1'
+    };
+    const current = { ...pilot, id: 502, status: 'in_progress' };
+    const job = {
+        name: 'Run parallel Salesforce pilot / Validate PR #42 on reusable org or fresh fallback',
+        status: 'completed',
+        conclusion: 'success'
+    };
+    const github = {
+        listPilotRuns: async () => [pilot, current],
+        listPilotJobs: async () => [job],
+        wait: async () => {}
+    };
+
+    assert.equal(await hasPriorValidation(workflowRun, 502, github), true);
+    github.listPilotJobs = async () => [{ ...job, conclusion: 'failure' }];
+    assert.equal(await hasPriorValidation(workflowRun, 502, github), true);
+    github.listPilotJobs = async () => [{ ...job, conclusion: 'skipped' }];
+    assert.equal(await hasPriorValidation(workflowRun, 502, github), false);
+    github.listPilotJobs = async () => [{ ...job, conclusion: 'cancelled' }];
+    assert.equal(await hasPriorValidation(workflowRun, 502, github), false);
+    github.listPilotJobs = async () => [{ ...job, conclusion: null }];
+    await assert.rejects(() => hasPriorValidation(workflowRun, 502, github), /invalid/i);
+    github.listPilotJobs = async () => [];
+    await assert.rejects(() => hasPriorValidation(workflowRun, 502, github), /invalid/i);
+    github.listPilotRuns = async () => [{ ...pilot, status: 'queued' }, current];
+    github.listPilotJobs = async () => {
+        throw new Error('Pending pilots must not count as validation.');
+    };
+    assert.equal(await hasPriorValidation(workflowRun, 502, github), false);
+    github.listPilotRuns = async () => [pilot, { ...current, display_title: 'Reusable PR pilot 123 attempt 2' }];
+    assert.equal(await hasPriorValidation({ ...workflowRun, run_attempt: 2 }, 502, github), false);
+});
+
+test('allows a rerun of the original pilot and surfaces missing or failed GitHub responses', async () => {
+    const current = {
+        id: 501,
+        path: '.github/workflows/ci-reusable-pr-pilot.yml',
+        event: 'workflow_run',
+        display_title: 'Reusable PR pilot 123 attempt 1'
+    };
+    const github = {
+        listPilotRuns: async () => [current],
+        listPilotJobs: async () => {
+            throw new Error('The current run must not be inspected.');
+        },
+        wait: async () => {}
+    };
+    assert.equal(await hasPriorValidation(workflowRun, 501, github), false);
+    github.listPilotRuns = async () => [];
+    await assert.rejects(() => hasPriorValidation(workflowRun, 501, github), /current pilot/i);
+    github.listPilotRuns = async () => [{ ...current, display_title: 'Unexpected title' }];
+    await assert.rejects(() => hasPriorValidation(workflowRun, 501, github), /current pilot/i);
+    github.listPilotRuns = async () => {
+        throw new Error('GitHub API unavailable');
+    };
+    await assert.rejects(() => hasPriorValidation(workflowRun, 501, github), /GitHub API unavailable/);
+});
+
+test('does not start a queued pilot after the PR or target base changes', () => {
+    const expected = { number: 42, headSha, baseSha };
+    assert.equal(isCurrentPullRequest(pullRequest, expected, repository), true);
+    for (const changed of [
+        { ...pullRequest, state: 'closed' },
+        { ...pullRequest, draft: true },
+        { ...pullRequest, head: { ...pullRequest.head, sha: 'd'.repeat(40) } },
+        { ...pullRequest, head: { ...pullRequest.head, repo: null } },
+        { ...pullRequest, base: { ...pullRequest.base, sha: 'd'.repeat(40) } },
+        { ...pullRequest, base: { ...pullRequest.base, ref: 'other' } }
+    ]) {
+        assert.equal(isCurrentPullRequest(changed, expected, repository), false);
+    }
+    assert.throws(() => isCurrentPullRequest({ ...pullRequest, draft: 'false' }, expected, repository), /invalid/i);
+});
+
+test('pilot CLI handles paginated GitHub runs and rechecks the PR snapshot', (context) => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-pr-pilot-'));
+    context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+    const eventFile = path.join(directory, 'event.json');
+    fs.writeFileSync(eventFile, JSON.stringify({ workflow_run: workflowRun }));
+    fs.writeFileSync(
+        path.join(directory, 'gh'),
+        `#!/usr/bin/env node
+const endpoint = process.argv[3];
+let response;
+if (endpoint.includes('/commits/')) response = [[JSON.parse(process.env.MOCK_PULL)]];
+else if (endpoint.endsWith('/pulls/42')) response = JSON.parse(process.env.MOCK_PULL);
+else if (endpoint.includes('/actions/workflows/')) response = process.env.MOCK_INVALID ? [{ jobs: [] }] : [{ workflow_runs: JSON.parse(process.env.MOCK_RUNS) }];
+else if (endpoint.includes('/actions/runs/501/jobs?filter=all')) response = [{ jobs: JSON.parse(process.env.MOCK_JOBS) }];
+else throw new Error('Unexpected GitHub request: ' + endpoint);
+process.stdout.write(JSON.stringify(response));
+`,
+        { mode: 0o755 }
+    );
+    const previous = {
+        id: 501,
+        path: '.github/workflows/ci-reusable-pr-pilot.yml',
+        event: 'workflow_run',
+        status: 'completed',
+        conclusion: 'success',
+        display_title: 'Reusable PR pilot 123 attempt 1'
+    };
+    const env = {
+        ...process.env,
+        PATH: directory + path.delimiter + process.env.PATH,
+        GITHUB_EVENT_PATH: eventFile,
+        GITHUB_REPOSITORY: repository,
+        GITHUB_RUN_ID: '502',
+        MOCK_PULL: JSON.stringify(pullRequest),
+        MOCK_RUNS: JSON.stringify([previous, { ...previous, id: 502, status: 'in_progress' }]),
+        MOCK_JOBS: JSON.stringify([
+            {
+                name: 'Run parallel Salesforce pilot / Validate PR #42 on reusable org or fresh fallback',
+                status: 'completed',
+                conclusion: 'success'
+            }
+        ])
+    };
+    const run = (...args) =>
+        spawnSync(process.execPath, [path.resolve(__dirname, '../ci-pr-pilot.cjs'), ...args], {
+            env,
+            encoding: 'utf8'
+        });
+
+    let result = run('resolve');
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(JSON.parse(result.stdout).reason, /already validated/);
+    env.MOCK_JOBS = JSON.stringify([
+        { name: 'Run parallel Salesforce pilot', status: 'completed', conclusion: 'skipped' }
+    ]);
+    result = run('resolve');
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(result.stdout).eligible, true);
+    env.MOCK_INVALID = 'true';
+    result = run('resolve');
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /paginated GitHub response is invalid/);
+    delete env.MOCK_INVALID;
+    result = run('current', '42', headSha, baseSha);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(result.stdout).current, true);
+    env.MOCK_PULL = JSON.stringify({ ...pullRequest, head: { ...pullRequest.head, sha: 'd'.repeat(40) } });
+    result = run('current', '42', headSha, baseSha);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(result.stdout).current, false);
+    result = run('verify-current', '42', headSha, baseSha);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /PR changed/);
 });
 
 test('accepts only the captured merge commit with the expected base and PR parents', () => {

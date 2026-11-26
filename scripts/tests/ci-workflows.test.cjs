@@ -85,6 +85,46 @@ test('PR pilot starts from trusted main and validates a captured PR snapshot wit
     assert.doesNotMatch(required, /ci-reusable-pr-pilot|ci-reusable-scratch-org/);
 });
 
+test('PR pilot passes the reusable org secret to the protected validation workflow', () => {
+    const pilot = readWorkflow('ci-reusable-pr-pilot.yml');
+    const validate = pilot.slice(pilot.indexOf('\n    validate:'));
+    const secrets = validate.match(/\n {8}secrets:\n((?: {12}\S[^\n]*\n)+)/);
+    assert.ok(secrets, 'The pilot must pass named secrets to validation.');
+    assert.match(secrets[1], /^ {12}CI_SCRATCH_ORG_AUTH_URL: \$\{\{ secrets\.CI_SCRATCH_ORG_AUTH_URL \}\}$/m);
+    assert.match(readWorkflow('ci-reusable-scratch-org.yml'), /^ {8}environment: ci-scratch-org$/m);
+});
+
+test('PR pilot replaces queued duplicate notifications without canceling a newer PR revision', () => {
+    const pilot = readWorkflow('ci-reusable-pr-pilot.yml');
+    assert.match(
+        pilot,
+        /run-name: Reusable PR pilot \$\{\{ github\.event\.workflow_run\.id \}\} attempt \$\{\{ github\.event\.workflow_run\.run_attempt \}\}/
+    );
+    assert.match(
+        pilot,
+        /concurrency:\n {4}group: reusable-pilot-baseline-\$\{\{ github\.event\.workflow_run\.id \}\}-\$\{\{ github\.event\.workflow_run\.run_attempt \}\}\n {4}cancel-in-progress: false/
+    );
+    assert.match(pilot, /actions: read/);
+    const validate = pilot.slice(pilot.indexOf('\n    validate:'));
+    assert.doesNotMatch(validate, /concurrency:/);
+});
+
+test('queued PR snapshots are checked before environment approval and before org access', () => {
+    const source = readWorkflow('ci-reusable-scratch-org.yml');
+    const pilot = readWorkflow('ci-reusable-pr-pilot.yml');
+    const caller = pilot.slice(pilot.indexOf('\n    validate:'));
+    const queueCheck = source.indexOf('ci-pr-pilot.cjs" current');
+    const environment = source.indexOf('environment: ci-scratch-org');
+    const approvalCheck = source.indexOf('ci-pr-pilot.cjs" verify-current');
+    const authentication = source.indexOf('- name: Authenticate scratch-org Dev Hub');
+    assert.ok(queueCheck > 0 && queueCheck < environment);
+    assert.ok(environment < approvalCheck && approvalCheck < authentication);
+    assert.match(source, /needs: check-current/);
+    assert.match(source, /needs\.check-current\.outputs\.current == 'true'/);
+    assert.match(source, /^permissions:\n {4}contents: read\n {4}pull-requests: read$/m);
+    assert.match(caller, /permissions:\n {12}contents: read\n {12}pull-requests: read/);
+});
+
 test('shared scratch validation runs trusted tools against the captured PR and records minimal evidence', () => {
     const source = readWorkflow('ci-reusable-scratch-org.yml');
     assert.match(source, /workflow_dispatch:/);

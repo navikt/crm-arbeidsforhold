@@ -471,6 +471,19 @@ PR-valideringa er erstatta. Ved omkøyring av `[PR] Validate`, kontroller at ei
 ny pilotkøyring faktisk blir starta og at lenka på **Summary** peikar på rett
 forsøk.
 
+GitHub kan opprette fleire pilotar for same forsøk av den vanlege
+valideringa. Ein aktiv pilot får fullføre; av duplikata som ventar på same
+forsøk, blir berre det nyaste ståande i køen. Når den aktive piloten har
+køyrt Salesforce-valideringa, hoppar duplikatet over ho, også om den første
+valideringa feila.
+
+Ein eldre PR-versjon kan framleis vente i den felles orgkøen når PR-en eller
+`main` har endra seg. Når piloten får tur, sjekkar han versjonen på nytt og
+hoppar over utdaterte versjonar utan miljøgodkjenning eller tilgang til
+Salesforce. Endrar PR-en seg medan miljøgodkjenninga ventar, feilar piloten
+etter godkjenninga, før orgtilgang. Ei ny omkøyring av den vanlege
+valideringa er eit eige forsøk.
+
 ### 9. Samanlikn dei faktiske testane
 
 **Stad: først GitHub i nettlesaren, deretter terminalen på di eiga maskin.**
