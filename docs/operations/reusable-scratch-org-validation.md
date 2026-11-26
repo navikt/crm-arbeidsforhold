@@ -1,8 +1,10 @@
-# Manuell validering med gjenbrukbar scratch-org
+# Validering med gjenbrukbar scratch-org
 
-Workflowen `[CI] Test reusable scratch org` er ein manuell prøve for å redusere
-ventetida ved Salesforce-validering. Han køyrer berre frå `main` og endrar ikkje
-den påkravde PR-valideringa.
+Workflowen `[CI] Test reusable scratch org` kan startast manuelt frå `main`.
+`[CI] Reusable scratch org PR pilot` kan i tillegg teste endringane i ein PR
+parallelt med den vanlege valideringa. Piloten blir tilgjengeleg etter at
+pilot-workflowen er fletta til `main`. Den vanlege PR-valideringa og krava
+for å flette ein PR er uendra.
 
 Denne guiden er for ein **menneskeleg operatør**. Du skal både bruke terminalen
 på di eiga maskin og GitHub i nettlesaren. Kvar del seier kvar du skal gjere
@@ -432,11 +434,111 @@ Ein ugyldig pakkeplan, feil org-ID eller feil i metadata, Apex-testar eller
 dekning feilar køyringa direkte; dei skal ikkje skjulast ved automatisk
 fallback. Gjenbruksorgen blir serialisert mellom køyringar.
 
+### 8. Følg ein PR gjennom piloten
+
+**Stad: GitHub i nettlesaren.**
+
+Piloten startar automatisk når `[PR] Validate` startar for ein open PR som:
+
+- kjem frå ein branch i dette repoet, ikkje frå ein fork
+- har `main` som mål og ikkje er eit utkast
+- inneheld endringar som krev Salesforce-validering
+
+Du treng ikkje starte piloten manuelt. Dersom PR-en ikkje oppfyller krava,
+hoppar piloten over Salesforce-jobben. Den vanlege PR-valideringa køyrer
+framleis som før.
+
+1. Opne repoet på GitHub. Vel **Actions → [CI] Reusable scratch org PR pilot**.
+   Opne køyringa som starta etter at PR-en vart oppretta eller oppdatert.
+2. Vent til jobben **Select and inspect PR** er ferdig. På **Summary**-sida
+   finn du lenke til PR-en, merge-commit-en som skal validerast, og lenke til
+   den tilhøyrande **Original PR validation**.
+3. Kontroller PR-en, endringane og commit-en før du gir tilgang til miljøet.
+   Vel **Review deployments**, merk `ci-scratch-org` og vel
+   **Approve and deploy**. Du må vere ein av dei som kan godkjenne miljøet.
+   Er du usikker på kva som blir køyrt, ikkje godkjenn.
+4. Opne jobben **Run parallel Salesforce pilot / Validate PR …** og steget
+   **Select reusable org or fresh fallback**. Meldinga seier om køyringa
+   brukar `reuse` eller `fresh`, og kvifor.
+5. Vent til både piloten og **Original PR validation** er ferdige. Ein grøn
+   pilot med `fresh` betyr at fallback vart brukt, ikkje at gjenbruk vart testa.
+   Den vanlege PR-valideringa er framleis den påkravde kontrollen.
+
+Køyringane deler same kø for gjenbruksorgen; ei køyring kan derfor måtte
+vente på ei anna køyring eller på miljøgodkjenning. Feilar piloten, opne det
+raude steget for feilen. Ikkje tolk ein feil i piloten som at den vanlege
+PR-valideringa er erstatta. Ved omkøyring av `[PR] Validate`, kontroller at ei
+ny pilotkøyring faktisk blir starta og at lenka på **Summary** peikar på rett
+forsøk.
+
+### 9. Samanlikn dei faktiske testane
+
+**Stad: først GitHub i nettlesaren, deretter terminalen på di eiga maskin.**
+
+1. Opne pilotkøyringa frå steg 8. Kopier talet etter `/actions/runs/` i
+   nettadressa. Dette er **pilot-run-ID-en**.
+2. På **Summary**, opne lenka **Original PR validation**. Kopier talet etter
+   `/actions/runs/` i nettadressa der. Dette er **baseline-run-ID-en**.
+   Kopier ikkje talet etter `/attempts/`; riktig forsøk er lagra av piloten.
+3. Vent til begge køyringane er grøne. Samanlikninga krev både det ordinære
+   `apex-tests`-artefaktet og pilotartefaktet. Pilotartefaktet blir lagra i
+   sju dagar; samanlikn før eitt av artefakta er utløpt.
+4. Opne repoet i VS Code og vel **Terminal → New Terminal**. Du treng ein
+   lokal kopi som inneheld `scripts/ci-pr-evidence.cjs`, Node.js 22, GitHub CLI
+   og `unzip`. Sjekk frå repo-rota:
+
+    ```sh
+    ls scripts/ci-pr-evidence.cjs
+    node --version
+    gh auth status
+    unzip -v
+    ```
+
+    Manglar skriptet, oppdater den lokale kopien til `main` etter at
+    pilot-workflowen er fletta. Ikkje forkast lokale endringar. Er du ikkje
+    logga inn med ein konto som kan lese Actions-køyringane, køyr
+    `gh auth login` og følg dialogen.
+
+5. Kopier og køyr heile blokka under. Lim inn **baseline-run-ID-en** først og
+   **pilot-run-ID-en** etterpå, og trykk Enter etter kvar verdi:
+
+    ```sh
+    printf 'Baseline-run-ID frå Original PR validation: '
+    read -r BASELINE_RUN_ID
+    printf 'Pilot-run-ID frå Reusable scratch org PR pilot: '
+    read -r PILOT_RUN_ID
+    node scripts/ci-pr-evidence.cjs compare "$BASELINE_RUN_ID" "$PILOT_RUN_ID"
+    ```
+
+Resultatet blir skrive som JSON:
+
+- `comparable: true` betyr at checkout-commitane og dei valde pakkeversjonane
+  samsvarar. Er verdien `false`, viser `reasons` kvifor resultata ikkje er
+  samanliknbare.
+- `sameMethods: true` betyr at dei registrerte Apex-testmetodane samsvarar.
+  `baselineOnly` og `pilotOnly` viser metodar som berre finst i éi køyring.
+- `recordedMethods` er talet på registrerte metodar; `reportedTestsRun` er
+  Salesforce sitt oppsummerte tal. Dei kan vere ulike. `skipped: null` betyr
+  at resultatet ikkje oppgir talet på hoppa-over testar, ikkje at det er null.
+- `sameCoverageComponents` viser om begge resultata har dekningsrader for
+  dei same Apex-klassane og triggerane. Er verdien `false`, viser
+  `baselineCoverageOnly` og `pilotCoverageOnly` forskjellane; då kan
+  dekningstala ikkje samanliknast direkte.
+- `baselineCoverage` og `pilotCoverage` viser dekte linjer, totalt tal og
+  prosent for komponentane Salesforce rapporterte.
+
+Skriptet les Actions-loggar og artefakt via GitHub CLI. Den ordinære
+testfila kan innehalde identitetsfelt; skriptet kopierer dei ikkje til
+rapporten og slettar dei mellombelse filene sine etterpå. Ikkje del heile
+testfila eller rå loggar i chat. Dersom eit seinare forsøk har erstatta
+`apex-tests`-artefaktet, avviser skriptet samanlikninga i staden for å blande
+resultat frå ulike forsøk.
+
 ## Avgrensing og kontroll
 
-Workflowen er berre for manuell utprøving frå `main`. Han endrar ikkje PR-krav
-eller automatisk validering, og han krev ikkje GitHub App. Lokale
-workflowkontraktar og plan-/rutinglogikk blir testa med:
+Den manuelle workflowen og PR-piloten er tillegg til den vanlege valideringa.
+Dei endrar ikkje PR-krav og krev ikkje GitHub App. Lokale workflowkontraktar,
+plan-/rutinglogikk og samanlikninga blir testa med:
 
 ```sh
 npm run test:node
