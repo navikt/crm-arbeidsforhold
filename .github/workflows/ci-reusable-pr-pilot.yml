@@ -1,4 +1,5 @@
 name: '[CI] Reusable scratch org PR pilot'
+run-name: Reusable PR pilot ${{ github.event.workflow_run.id }} attempt ${{ github.event.workflow_run.run_attempt }}
 
 on:
     workflow_run:
@@ -9,7 +10,12 @@ on:
 
 permissions:
     contents: read
+    actions: read
     pull-requests: read
+
+concurrency:
+    group: reusable-pilot-baseline-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+    cancel-in-progress: false
 
 jobs:
     prepare:
@@ -135,6 +141,7 @@ jobs:
         if: needs.prepare.outputs.salesforce == 'true'
         permissions:
             contents: read
+            pull-requests: read
         uses: ./.github/workflows/ci-reusable-scratch-org.yml
         with:
             pull_number: ${{ needs.prepare.outputs.number }}
@@ -146,3 +153,4 @@ jobs:
         secrets:
             CRM_PROD_SFDX_URL: ${{ secrets.CRM_PROD_SFDX_URL }}
             CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
+            CI_SCRATCH_ORG_AUTH_URL: ${{ secrets.CI_SCRATCH_ORG_AUTH_URL }}

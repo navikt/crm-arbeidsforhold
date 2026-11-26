@@ -42,6 +42,7 @@ on:
 
 permissions:
     contents: read
+    pull-requests: read
 
 concurrency:
     group: crm-arbeidsforhold-reusable-scratch-org
@@ -49,8 +50,54 @@ concurrency:
     queue: max
 
 jobs:
-    validate:
+    check-current:
+        name: Check queued PR is still current
         if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.workflow == '[CI] Reusable scratch org PR pilot'))
+        runs-on: ubuntu-24.04
+        outputs:
+            current: ${{ steps.result.outputs.current }}
+        steps:
+            - name: Checkout trusted workflow scripts
+              if: inputs.pull_number != ''
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  ref: ${{ github.sha }}
+                  path: trusted
+                  persist-credentials: false
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+              if: inputs.pull_number != ''
+              with:
+                  node-version: '22'
+
+            - name: Check PR after waiting for the scratch org
+              id: result
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  EVENT_NAME: ${{ github.event_name }}
+                  PR_NUMBER: ${{ inputs.pull_number }}
+                  HEAD_SHA: ${{ inputs.head_sha }}
+                  BASE_SHA: ${{ inputs.base_sha }}
+              run: |
+                  set -euo pipefail
+                  if [[ -z "$PR_NUMBER" ]]; then
+                    if [[ "$EVENT_NAME" != "workflow_dispatch" ]]; then
+                      echo "The PR number is missing." >&2
+                      exit 1
+                    fi
+                    echo "current=true" >> "$GITHUB_OUTPUT"
+                    exit 0
+                  fi
+                  result="$(node "$GITHUB_WORKSPACE/trusted/scripts/ci-pr-pilot.cjs" current "$PR_NUMBER" "$HEAD_SHA" "$BASE_SHA")"
+                  current="$(jq -er '.current | if type == "boolean" then tostring else error("Invalid PR state") end' <<< "$result")"
+                  echo "current=$current" >> "$GITHUB_OUTPUT"
+                  if [[ "$current" == "false" ]]; then
+                    echo "::notice::PR pilot skipped: the PR or target base changed while waiting for the scratch org."
+                  fi
+
+    validate:
+        needs: check-current
+        if: needs.check-current.outputs.current == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.workflow == '[CI] Reusable scratch org PR pilot'))
         name: "${{ inputs.pull_number != '' && format('Validate PR #{0} on reusable org or fresh fallback', inputs.pull_number) || 'Validate on reusable org or fresh fallback' }}"
         runs-on: ubuntu-24.04
         timeout-minutes: 180
@@ -71,6 +118,16 @@ jobs:
             - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
               with:
                   node-version: '22'
+
+            - name: Verify PR after environment approval
+              if: inputs.pull_number != ''
+              working-directory: trusted
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  PR_NUMBER: ${{ inputs.pull_number }}
+                  HEAD_SHA: ${{ inputs.head_sha }}
+                  BASE_SHA: ${{ inputs.base_sha }}
+              run: node "$TRUSTED_ROOT/scripts/ci-pr-pilot.cjs" verify-current "$PR_NUMBER" "$HEAD_SHA" "$BASE_SHA"
 
             - name: Install Salesforce CLI
               working-directory: trusted

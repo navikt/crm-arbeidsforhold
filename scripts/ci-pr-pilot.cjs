@@ -4,8 +4,103 @@ const { setTimeout: delay } = require('node:timers/promises');
 const { isDeepStrictEqual } = require('node:util');
 
 const commitPattern = /^[a-f0-9]{40}$/;
+const repositoryPattern = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const safeNamePattern = /^[A-Za-z0-9_][A-Za-z0-9_. @/-]*$/;
 const unsafeNames = new Set(['__proto__', 'constructor', 'prototype']);
+
+function isCurrentPullRequest(pull, expected, repository) {
+    if (
+        !repositoryPattern.test(repository ?? '') ||
+        !Number.isSafeInteger(expected?.number) ||
+        expected.number <= 0 ||
+        !commitPattern.test(expected.headSha ?? '') ||
+        !commitPattern.test(expected.baseSha ?? '')
+    ) {
+        throw new Error('The expected PR snapshot is invalid.');
+    }
+    if (
+        !pull ||
+        pull.number !== expected.number ||
+        typeof pull.state !== 'string' ||
+        typeof pull.draft !== 'boolean' ||
+        !commitPattern.test(pull.head?.sha ?? '') ||
+        !commitPattern.test(pull.base?.sha ?? '') ||
+        (pull.head?.repo !== null && typeof pull.head?.repo?.full_name !== 'string') ||
+        typeof pull.base?.repo?.full_name !== 'string' ||
+        typeof pull.base?.ref !== 'string'
+    ) {
+        throw new Error('The GitHub PR response is invalid.');
+    }
+    return (
+        pull.state === 'open' &&
+        pull.draft === false &&
+        pull.head.sha === expected.headSha &&
+        pull.base.sha === expected.baseSha &&
+        pull.head.repo?.full_name === repository &&
+        pull.base.repo?.full_name === repository &&
+        pull.base.ref === 'main'
+    );
+}
+
+async function hasPriorValidation(run, currentRunId, github) {
+    if (
+        !Number.isSafeInteger(run?.id) ||
+        run.id <= 0 ||
+        !Number.isSafeInteger(run.run_attempt) ||
+        run.run_attempt <= 0 ||
+        typeof run.run_started_at !== 'string' ||
+        !Number.isFinite(Date.parse(run.run_started_at)) ||
+        !Number.isSafeInteger(currentRunId) ||
+        currentRunId <= 0
+    ) {
+        throw new Error('The pilot or triggering workflow run is invalid.');
+    }
+    const title = `Reusable PR pilot ${run.id} attempt ${run.run_attempt}`;
+    const matchesPilot = (pilot) =>
+        pilot?.display_title === title &&
+        pilot.path === '.github/workflows/ci-reusable-pr-pilot.yml' &&
+        pilot.event === 'workflow_run';
+    let runs;
+    let current;
+    for (let attempt = 0; attempt < 5; attempt++) {
+        runs = await github.listPilotRuns(run.run_started_at);
+        if (!Array.isArray(runs) || runs.some((pilot) => !pilot || typeof pilot !== 'object')) {
+            throw new Error('The GitHub pilot runs response is invalid.');
+        }
+        current = runs.find((pilot) => pilot.id === currentRunId);
+        if (matchesPilot(current)) break;
+        if (attempt < 4) await github.wait();
+    }
+    if (!matchesPilot(current)) throw new Error('The current pilot run metadata could not be verified.');
+    for (const pilot of runs) {
+        if (pilot.id === currentRunId || !matchesPilot(pilot)) continue;
+        if (!Number.isSafeInteger(pilot.id) || pilot.id <= 0) throw new Error('The previous pilot run is invalid.');
+        if (['queued', 'requested', 'waiting', 'pending'].includes(pilot.status)) continue;
+        if (pilot.status !== 'completed' || typeof pilot.conclusion !== 'string' || pilot.conclusion.length === 0) {
+            throw new Error('The previous pilot run has an invalid or active status.');
+        }
+        const jobs = await github.listPilotJobs(pilot.id);
+        if (!Array.isArray(jobs)) throw new Error('The GitHub pilot jobs response is invalid.');
+        let foundValidationJob = false;
+        for (const job of jobs) {
+            if (typeof job.name !== 'string') throw new Error('The GitHub pilot job response is invalid.');
+            const callerSkipped = job.name === 'Run parallel Salesforce pilot';
+            if (!callerSkipped && !job.name.startsWith('Run parallel Salesforce pilot / Validate PR #')) continue;
+            foundValidationJob = true;
+            if (job.status !== 'completed' || typeof job.conclusion !== 'string' || job.conclusion.length === 0) {
+                throw new Error('The GitHub pilot job result is invalid.');
+            }
+            if (callerSkipped && job.conclusion !== 'skipped' && job.conclusion !== 'cancelled') {
+                throw new Error('The GitHub pilot job result is invalid.');
+            }
+            if (job.conclusion !== 'skipped' && job.conclusion !== 'cancelled') return true;
+        }
+        if (!foundValidationJob && pilot.conclusion !== 'cancelled') {
+            throw new Error('The GitHub pilot job result is invalid.');
+        }
+    }
+    return false;
+}
 
 function isEligiblePullRequest(pull, run, repository) {
     return (
@@ -20,7 +115,7 @@ function isEligiblePullRequest(pull, run, repository) {
 }
 
 async function resolvePullRequest(run, repository, github) {
-    if (!run || typeof repository !== 'string' || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)) {
+    if (!run || typeof repository !== 'string' || !repositoryPattern.test(repository)) {
         throw new Error('A workflow run and repository are required.');
     }
     if (
@@ -186,10 +281,21 @@ function githubApi(path, paginate = false) {
     });
     const response = JSON.parse(output);
     if (!paginate) return response;
-    if (!Array.isArray(response) || response.some((page) => !Array.isArray(page))) {
-        throw new Error('The paginated GitHub PR response is invalid.');
+    if (!Array.isArray(response)) throw new Error('The paginated GitHub response is invalid.');
+    return response.flatMap((page) => {
+        const items = paginate === true ? page : page?.[paginate];
+        if (!Array.isArray(items)) throw new Error('The paginated GitHub response is invalid.');
+        return items;
+    });
+}
+
+function getCurrentPullRequest(args, repository) {
+    if (!repositoryPattern.test(repository ?? '') || !/^[1-9]\d*$/.test(args[1] ?? '')) {
+        throw new Error('The expected PR snapshot is invalid.');
     }
-    return response.flat();
+    const expected = { number: Number(args[1]), headSha: args[2], baseSha: args[3] };
+    const pull = githubApi(`repos/${repository}/pulls/${expected.number}`);
+    return isCurrentPullRequest(pull, expected, repository);
 }
 
 async function main(args) {
@@ -199,9 +305,31 @@ async function main(args) {
         const github = {
             list: (sha) => githubApi(`repos/${repository}/commits/${sha}/pulls?per_page=100`, true),
             get: (number) => githubApi(`repos/${repository}/pulls/${number}`),
+            listPilotRuns: (startedAt) =>
+                githubApi(
+                    `repos/${repository}/actions/workflows/ci-reusable-pr-pilot.yml/runs?event=workflow_run&created=${encodeURIComponent(`>=${startedAt}`)}&per_page=100`,
+                    'workflow_runs'
+                ),
+            listPilotJobs: (runId) =>
+                githubApi(`repos/${repository}/actions/runs/${runId}/jobs?filter=all&per_page=100`, 'jobs'),
             wait: () => delay(2000)
         };
-        process.stdout.write(`${JSON.stringify(await resolvePullRequest(event.workflow_run, repository, github))}\n`);
+        let resolution = await resolvePullRequest(event.workflow_run, repository, github);
+        if (
+            resolution.eligible &&
+            (await hasPriorValidation(event.workflow_run, Number(process.env.GITHUB_RUN_ID), github))
+        ) {
+            resolution = { eligible: false, reason: 'A pilot already validated this PR workflow run and attempt.' };
+        }
+        process.stdout.write(`${JSON.stringify(resolution)}\n`);
+        return;
+    }
+    if (args.length === 4 && (args[0] === 'current' || args[0] === 'verify-current')) {
+        const current = getCurrentPullRequest(args, process.env.GITHUB_REPOSITORY);
+        if (args[0] === 'verify-current' && !current) {
+            throw new Error('The PR changed after the pilot was queued.');
+        }
+        if (args[0] === 'current') process.stdout.write(`${JSON.stringify({ current })}\n`);
         return;
     }
     if (args.length === 2 && args[0] === 'verify-source') {
@@ -223,7 +351,7 @@ async function main(args) {
         return;
     }
     throw new Error(
-        'Usage: ci-pr-pilot.cjs resolve | verify-source <trusted-project-file> | verify-snapshot <merge> <base> <head>'
+        'Usage: ci-pr-pilot.cjs resolve | current|verify-current <number> <head> <base> | verify-source <trusted-project-file> | verify-snapshot <merge> <base> <head>'
     );
 }
 
@@ -234,4 +362,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { resolvePullRequest, validatePrSource, verifyMergeCommit };
+module.exports = { hasPriorValidation, isCurrentPullRequest, resolvePullRequest, validatePrSource, verifyMergeCommit };
