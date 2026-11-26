@@ -3,7 +3,7 @@ name: '[CI] Reusable scratch org PR pilot'
 on:
     workflow_run:
         workflows:
-            - '[PR] Validate'
+            - '\[PR\] Validate'
         types:
             - in_progress
 
