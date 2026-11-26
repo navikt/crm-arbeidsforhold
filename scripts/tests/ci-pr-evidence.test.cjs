@@ -231,6 +231,7 @@ test('writes a minimal evidence artifact from the actual deployment result', (co
         env: {
             ...process.env,
             CI_VALIDATION_ROUTE: 'reuse',
+            GITHUB_EVENT_NAME: 'workflow_run',
             GITHUB_REPOSITORY: 'example/repository',
             PR_NUMBER: '42',
             PR_HEAD_SHA: 'b'.repeat(40),
@@ -253,7 +254,37 @@ test('writes a minimal evidence artifact from the actual deployment result', (co
     assert.deepEqual(evidence.coverage, { covered: 85, total: 100, percentage: 85 });
     assert.deepEqual(evidence.coverageComponents, ['Example']);
     assert.deepEqual(evidence.packages, [{ name: 'base', versionId: 'versionA' }]);
+    assert.deepEqual(evidence.baseline, { runId: 123, attempt: 1 });
     assert.doesNotMatch(raw, /do-not-copy/);
+
+    const requiredOptions = {
+        ...options,
+        env: { ...options.env, GITHUB_EVENT_NAME: 'pull_request', BASELINE_RUN_ID: '', BASELINE_ATTEMPT: '' }
+    };
+    const requiredOutput = path.join(directory, 'required-evidence.json');
+    const required = spawnSync(
+        process.execPath,
+        [script, 'create', project, plan, source, result, result, requiredOutput],
+        requiredOptions
+    );
+    assert.equal(required.status, 0, required.stderr);
+    const requiredEvidence = JSON.parse(fs.readFileSync(requiredOutput, 'utf8'));
+    assert.equal(Object.hasOwn(requiredEvidence, 'baseline'), false);
+    assert.deepEqual(requiredEvidence.tests.methods, ['ExampleTest.works']);
+    assert.deepEqual(requiredEvidence.coverage, { covered: 85, total: 100, percentage: 85 });
+
+    for (const invalidEnv of [
+        { GITHUB_EVENT_NAME: 'workflow_run', BASELINE_RUN_ID: '', BASELINE_ATTEMPT: '' },
+        { GITHUB_EVENT_NAME: 'pull_request', BASELINE_RUN_ID: '123', BASELINE_ATTEMPT: '' },
+        { GITHUB_EVENT_NAME: 'push', BASELINE_RUN_ID: '', BASELINE_ATTEMPT: '' }
+    ]) {
+        const invalid = spawnSync(
+            process.execPath,
+            [script, 'create', project, plan, source, result, result, path.join(directory, 'invalid.json')],
+            { ...options, env: { ...options.env, ...invalidEnv } }
+        );
+        assert.notEqual(invalid.status, 0);
+    }
 
     fs.writeFileSync(path.join(source, 'not a valid class.cls'), '');
     const unsafe = spawnSync(

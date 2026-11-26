@@ -239,9 +239,20 @@ function createEvidence(projectFile, planFile, sourceDirectory, resultFile, cove
     if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository ?? ''))
         throw new Error('The pilot repository is invalid.');
     const number = nonNegativeInteger(process.env.PR_NUMBER, 'PR number');
-    const runId = nonNegativeInteger(process.env.BASELINE_RUN_ID, 'baseline run ID');
-    const attempt = nonNegativeInteger(process.env.BASELINE_ATTEMPT, 'baseline run attempt');
-    if (!number || !runId || !attempt) throw new Error('The PR or baseline run reference is invalid.');
+    if (!number) throw new Error('The PR or baseline run reference is invalid.');
+    let baseline;
+    if (process.env.GITHUB_EVENT_NAME === 'workflow_run') {
+        const runId = nonNegativeInteger(process.env.BASELINE_RUN_ID, 'baseline run ID');
+        const attempt = nonNegativeInteger(process.env.BASELINE_ATTEMPT, 'baseline run attempt');
+        if (!runId || !attempt) throw new Error('The PR or baseline run reference is invalid.');
+        baseline = { runId, attempt };
+    } else if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
+        if (process.env.BASELINE_RUN_ID || process.env.BASELINE_ATTEMPT) {
+            throw new Error('The required PR validation cannot use a pilot baseline.');
+        }
+    } else {
+        throw new Error('The PR validation event is invalid.');
+    }
 
     const project = readJson(projectFile);
     const versions = readJson(planFile);
@@ -260,7 +271,7 @@ function createEvidence(projectFile, planFile, sourceDirectory, resultFile, cove
         schemaVersion: 1,
         repository,
         pullRequest: number,
-        baseline: { runId, attempt },
+        ...(baseline ? { baseline } : {}),
         source,
         route,
         packages,
