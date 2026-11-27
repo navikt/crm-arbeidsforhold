@@ -208,7 +208,7 @@ frisk igjen.
 - **REQ-142:** Ny org blir teken i bruk berre etter at røyktesten mot `main` er grøn.
 - **REQ-143:** Avvik i pakkeversjonar blir retta i same org når det er mogleg. Elles blir orgen fornya.
 - **REQ-144:** Vedlikehaldet viser same type oppsummering: tilstand før og etter, pakkar endra og utløpsdato.
-- **REQ-145:** Ny org blir registrert manuelt etter ein grøn røyktest. Secreten og dei tre variablane blir oppdaterte samla, og oppsummeringa listar dei fire verdiane som må endrast, utan å vise sjølve secreten. Den gamle orgen blir ikkje sletta før alle fire peikar på den nye. Automatisering med GitHub App er valfri og kan komme seinare.
+- **REQ-145:** Ny org blir registrert manuelt etter ein grøn røyktest. Secreten og dei tre variablane blir oppdaterte samla, og oppsummeringa listar namna på dei fire som må endrast, utløpsdatoen og fingeravtrykket. Org-ID og auth-URL blir ikkje viste (REQ-123). Personen hentar dei sjølv frå Dev Hub ved å slå opp kandidaten som er merkt etter REQ-146, og oppsummeringa viser kommandoen for det. Den gamle orgen blir ikkje sletta før alle fire peikar på den nye. Automatisering med GitHub App er valfri og kan komme seinare.
 - **REQ-146:** Det finst høgst éin kandidat-org om gongen. Kandidaten blir merkt i Dev Hub, til dømes med `Description` på `ScratchOrgInfo`, slik at tilstanden «ventar på registrering» overlever mellom køyringar utan å skrive til repoet. Ein gyldig kandidat (røyktesta, går ut om meir enn sju døgn og fingeravtrykket stemmer med `main`) blir gjenbrukt. Ein ugyldig kandidat blir sletta før ein ny blir oppretta. Ein kandidat som feilar røyktesten, blir sletta med ein gong.
 
 ### Opprydding
