@@ -6,7 +6,10 @@ const path = require('node:path');
 const { test } = require('node:test');
 const {
     calculateCoverage,
+    changedSourcesWithoutCoverage,
+    coverageMarkdown,
     coverageRecords,
+    isForceIgnored,
     getApexCoverageNames,
     getApexTestClassNames,
     installPlan,
@@ -72,8 +75,10 @@ test('reuses only a registered org with the exact installed versions', () => {
     assert.equal(selectRoute({ ...ready, enabled: false }).route, 'fresh');
 });
 
-test('fails closed when the registered org identity does not match', () => {
-    assert.throws(() => selectRoute({ ...ready, actualOrgId: 'different' }), /identity/i);
+test('falls back when the registered secret and variables point at different orgs', () => {
+    const route = selectRoute({ ...ready, actualOrgId: 'different' });
+    assert.equal(route.route, 'fresh');
+    assert.match(route.reason, /registration is incomplete/i);
 });
 
 test('rejects an invalid package plan instead of routing to fallback', () => {
@@ -106,7 +111,7 @@ test('calculates repository coverage from source Apex types', () => {
             ],
             ['ApexClass']
         ),
-        { covered: 85, total: 100, percentage: 85 }
+        { covered: 85, total: 100, percentage: 85, missing: [] }
     );
     assert.throws(
         () => calculateCoverage([{ name: 'ApexClass', totalCovered: 84, totalLines: 100 }], ['ApexClass']),
@@ -142,6 +147,82 @@ test('includes trigger coverage when enforcing the repository coverage threshold
             ),
         /60\.00% is below 85%/
     );
+});
+
+test('counts changed Apex sources without coverage data as uncovered', (context) => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-changed-coverage-'));
+    context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+    const classes = path.join(directory, 'force-app', 'main', 'classes');
+    fs.mkdirSync(classes, { recursive: true });
+    const write = (name, body) => fs.writeFileSync(path.join(classes, name), body);
+    write('Covered.cls', 'public class Covered { void a() { x = 1; } }');
+    write(
+        'Uncovered.cls',
+        'public class Uncovered {\n    void a() {\n        x = 1;\n        y = 2;\n    }\n    // z = 3;\n}'
+    );
+    write('UncoveredTrigger.trigger', 'trigger UncoveredTrigger on Account (after insert) {\n    run();\n}');
+    write('NewTest.cls', '@IsTest\nprivate class NewTest { static void t() { x = 1; } }');
+    write('Contract.cls', 'public interface Contract {\n    void run();\n}');
+    write('Ignored.cls', 'public class Ignored { void a() { x = 1; } }');
+    write('Empty.cls', 'public class Empty {}');
+    const changed = [
+        'force-app/main/classes/Covered.cls',
+        'force-app/main/classes/Uncovered.cls',
+        'force-app/main/classes/UncoveredTrigger.trigger',
+        'force-app/main/classes/NewTest.cls',
+        'force-app/main/classes/Contract.cls',
+        'force-app/main/classes/Ignored.cls',
+        'force-app/main/classes/Empty.cls',
+        'force-app/main/classes/Deleted.cls',
+        'force-app/main/lwc/example/example.js'
+    ];
+    const records = [{ name: 'Covered', totalCovered: 1, totalLines: 1 }];
+    const missing = changedSourcesWithoutCoverage(changed, records, directory, ['**/classes/Ignored.cls']);
+    assert.deepEqual(missing, [
+        { name: 'Uncovered', path: 'force-app/main/classes/Uncovered.cls', lines: 2 },
+        { name: 'UncoveredTrigger', path: 'force-app/main/classes/UncoveredTrigger.trigger', lines: 1 }
+    ]);
+
+    const result = calculateCoverage(
+        [{ name: 'Covered', totalCovered: 97, totalLines: 100 }],
+        ['Covered', 'Uncovered', 'UncoveredTrigger'],
+        85,
+        missing
+    );
+    assert.equal(result.total, 103);
+    assert.deepEqual(result.missing, missing);
+    assert.throws(
+        () =>
+            calculateCoverage([{ name: 'Covered', totalCovered: 10, totalLines: 10 }], ['Covered', 'Uncovered'], 85, [
+                { name: 'Uncovered', path: 'Uncovered.cls', lines: 10 }
+            ]),
+        /50\.00% is below 85%.*1 changed Apex source without coverage data/
+    );
+});
+
+test('summarizes coverage and lists changed sources without coverage data', () => {
+    const missing = [{ name: 'Uncovered', path: 'force-app/main/classes/Uncovered.cls', lines: 20 }];
+    const failed = coverageMarkdown({ covered: 80, total: 120, percentage: 66.666, missing });
+    assert.match(failed, /❌ 66\.67% \(80\/120 lines, minimum 85%\)/);
+    assert.match(failed, /⚠️ ingen dekningsdata: `force-app\/main\/classes\/Uncovered\.cls` \| 20/);
+    const passed = coverageMarkdown({ covered: 90, total: 100, percentage: 90, missing: [] });
+    assert.match(passed, /✅ 90\.00%/);
+    assert.doesNotMatch(passed, /ingen dekningsdata/);
+});
+
+test('matches .forceignore patterns with negation and directory rules', () => {
+    const patterns = [
+        '# comment',
+        '**/profiles/*',
+        '!unpackagable/profiles/*',
+        '**/experiences',
+        '**/classes/Site*.cls'
+    ];
+    assert.equal(isForceIgnored('force-app/main/profiles/Admin.profile-meta.xml', patterns), true);
+    assert.equal(isForceIgnored('unpackagable/profiles/Admin.profile-meta.xml', patterns), false);
+    assert.equal(isForceIgnored('force-app/x/experiences/site/a.json', patterns), true);
+    assert.equal(isForceIgnored('force-app/main/classes/SiteLoginController.cls', patterns), true);
+    assert.equal(isForceIgnored('force-app/main/classes/Service.cls', patterns), false);
 });
 
 test('reads coverage from Salesforce deploy and Apex test result shapes', () => {

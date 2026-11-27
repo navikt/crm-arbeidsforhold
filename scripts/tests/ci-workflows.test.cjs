@@ -57,225 +57,199 @@ test('offline CI covers the workflow contracts and Node tooling on PRs and main'
     }
 });
 
-test('PR pilot starts from trusted main and validates a captured PR snapshot without changing required CI', () => {
-    const pilot = readWorkflow('ci-reusable-pr-pilot.yml');
-    const required = readWorkflow('pull_request-validation1.yml');
-    const requiredName = required.match(/^name: '([^']+)'$/m);
-    const trigger = pilot.match(/workflow_run:\s*\n\s+workflows:\s*\n\s+- '([^']+)'\s*\n\s+types:\s*\n\s+- requested/);
-    assert.ok(requiredName, 'The required validation workflow must have a name.');
-    assert.ok(trigger, 'The pilot must start once per validation run attempt.');
-    const literalNamePattern = requiredName[1].replace(/[\\*?+\[\]!]/g, '\\$&');
-    assert.equal(trigger[1], literalNamePattern, 'The pilot must match the exact validation workflow name.');
-    assert.match(pilot, /pull-requests: read/);
-    assert.match(pilot, /ref: \$\{\{ github\.sha \}\}[\s\S]*?path: trusted/);
-    assert.match(pilot, /node trusted\/scripts\/ci-pr-pilot\.cjs resolve/);
-    assert.match(pilot, /ref: \$\{\{ steps\.pull\.outputs\.merge_sha \}\}[\s\S]*?path: candidate/);
-    assert.match(pilot, /ci-pr-pilot\.cjs" verify-snapshot/);
-    assert.match(pilot, /ci-pr-pilot\.cjs" verify-source/);
-    assert.match(pilot, /ci-changes\.cjs" "\$BASE_SHA" "\$HEAD_SHA"/);
-    assert.match(pilot, /uses: \.\/\.github\/workflows\/ci-reusable-scratch-org\.yml/);
-    assert.match(pilot, /if: needs\.prepare\.outputs\.salesforce == 'true'/);
-    assert.match(pilot, /repo_only: true/);
-    assert.match(pilot, /CRM_PROD_SFDX_URL: \$\{\{ secrets\.CRM_PROD_SFDX_URL \}\}/);
-    assert.match(pilot, /CRM_PACKAGE_KEY: \$\{\{ secrets\.CRM_PACKAGE_KEY \}\}/);
-    assert.doesNotMatch(pilot, /secrets: inherit|pull-requests: write|contents: write|actions: write/);
+const reusableWorkflow = () => readWorkflow('ci-reusable-scratch-org.yml');
+const jobSection = (workflow, job) => {
+    const start = workflow.indexOf(`\n    ${job}:\n`);
+    assert.ok(start >= 0, `Missing job ${job}`);
+    const next = workflow.slice(start + 1).search(/\n {4}[a-z-]+:\n/);
+    return next < 0 ? workflow.slice(start) : workflow.slice(start, start + 1 + next + 1);
+};
+const stepScript = (section, name) => {
+    const start = section.indexOf(`- name: ${name}`);
+    assert.ok(start >= 0, `Missing step ${name}`);
+    const rest = section.slice(start + 1);
+    const end = rest.search(/\n {12}- (name|uses):/);
+    const step = end < 0 ? rest : rest.slice(0, end + 1);
+    const script = step.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
+    assert.ok(script, `Missing script for ${name}`);
+    return script;
+};
 
-    assert.match(required, /uses: \.\/\.github\/workflows\/salesforce-validation\.yml/);
-    assert.doesNotMatch(required, /ci-reusable-pr-pilot|ci-reusable-scratch-org/);
-});
-
-test('PR pilot passes the reusable org secret to the protected validation workflow', () => {
-    const pilot = readWorkflow('ci-reusable-pr-pilot.yml');
-    const validate = pilot.slice(pilot.indexOf('\n    validate:'));
-    const secrets = validate.match(/\n {8}secrets:\n((?: {12}\S[^\n]*\n)+)/);
-    assert.ok(secrets, 'The pilot must pass named secrets to validation.');
-    assert.match(secrets[1], /^ {12}CI_SCRATCH_ORG_AUTH_URL: \$\{\{ secrets\.CI_SCRATCH_ORG_AUTH_URL \}\}$/m);
-    assert.match(readWorkflow('ci-reusable-scratch-org.yml'), /^ {8}environment: ci-scratch-org$/m);
-});
-
-test('PR pilot replaces queued duplicate notifications without canceling a newer PR revision', () => {
-    const pilot = readWorkflow('ci-reusable-pr-pilot.yml');
-    assert.match(
-        pilot,
-        /run-name: Reusable PR pilot \$\{\{ github\.event\.workflow_run\.id \}\} attempt \$\{\{ github\.event\.workflow_run\.run_attempt \}\}/
-    );
-    assert.match(
-        pilot,
-        /concurrency:\n {4}group: reusable-pilot-baseline-\$\{\{ github\.event\.workflow_run\.id \}\}-\$\{\{ github\.event\.workflow_run\.run_attempt \}\}\n {4}cancel-in-progress: false/
-    );
-    assert.match(pilot, /actions: read/);
-    const validate = pilot.slice(pilot.indexOf('\n    validate:'));
-    assert.doesNotMatch(validate, /concurrency:/);
-});
-
-test('queued PR snapshots are checked before environment approval and before org access', () => {
-    const source = readWorkflow('ci-reusable-scratch-org.yml');
-    const pilot = readWorkflow('ci-reusable-pr-pilot.yml');
-    const caller = pilot.slice(pilot.indexOf('\n    validate:'));
-    const queueCheck = source.indexOf('ci-pr-pilot.cjs" current');
-    const environment = source.indexOf('environment: ci-scratch-org');
-    const approvalCheck = source.indexOf('ci-pr-pilot.cjs" verify-current');
-    const authentication = source.indexOf('- name: Authenticate scratch-org Dev Hub');
-    assert.ok(queueCheck > 0 && queueCheck < environment);
-    assert.ok(environment < approvalCheck && approvalCheck < authentication);
-    assert.match(source, /needs: check-current/);
-    assert.match(source, /needs\.check-current\.outputs\.current == 'true'/);
-    assert.match(source, /^permissions:\n {4}contents: read\n {4}pull-requests: read$/m);
-    assert.match(caller, /permissions:\n {12}contents: read\n {12}pull-requests: read/);
-});
-
-test('required PR validation checks the event before using trusted base scripts or Salesforce credentials', () => {
-    const source = readWorkflow('ci-reusable-scratch-org.yml');
-    const reject = source.indexOf('- name: Reject unsupported PR source');
-    const checkout = source.indexOf('- name: Checkout trusted workflow scripts');
-    const request = source.indexOf('ci-pr-pilot.cjs" verify-required');
-    const authentication = source.indexOf('- name: Authenticate scratch-org Dev Hub');
-    assert.ok(reject >= 0 && reject < checkout && checkout < request && request < authentication);
-    assert.match(source, /github\.event\.pull_request\.base\.ref != 'main'/);
-    assert.match(source, /github\.event\.pull_request\.head\.repo\.full_name != github\.repository/);
-    assert.match(
-        source,
-        /ref: \$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.base\.sha \|\| github\.sha \}\}/
-    );
-    assert.match(source, /if: github\.event_name == 'pull_request'[\s\S]*?verify-required/);
-});
-
-test(
-    'a pilot must identify its actual triggering run before org access',
-    { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
-    () => {
-        const source = readWorkflow('ci-reusable-scratch-org.yml');
-        const start = source.indexOf('- name: Verify the triggering pilot run');
-        const end = source.indexOf('- name: Check PR after waiting for the scratch org');
-        assert.ok(start >= 0 && start < end);
-        const section = source.slice(start, end);
-        const script = section.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
-        assert.ok(script);
-        const run = (overrides = {}) =>
-            spawnSync('/bin/bash', ['-c', script], {
-                encoding: 'utf8',
-                env: {
-                    ...process.env,
-                    BASELINE_RUN_ID: '123',
-                    BASELINE_ATTEMPT: '2',
-                    TRIGGERING_RUN_ID: '123',
-                    TRIGGERING_ATTEMPT: '2',
-                    ...overrides
-                }
-            });
-        assert.equal(run().status, 0);
-        for (const invalid of [
-            { BASELINE_RUN_ID: '' },
-            { BASELINE_ATTEMPT: '' },
-            { BASELINE_RUN_ID: '124' },
-            { BASELINE_ATTEMPT: '1' },
-            { BASELINE_RUN_ID: 'not-a-number' }
-        ]) {
-            assert.notEqual(run(invalid).status, 0);
-        }
+test('the PR pilot is removed and required CI does not call it', () => {
+    assert.equal(fs.existsSync(path.join(directory, 'ci-reusable-pr-pilot.yml')), false);
+    assert.equal(fs.existsSync(path.resolve(__dirname, '../ci-pr-pilot.cjs')), false);
+    for (const name of fs.readdirSync(directory).filter((name) => name.endsWith('.yml'))) {
+        assert.doesNotMatch(readWorkflow(name), /ci-reusable-pr-pilot|ci-pr-pilot\.cjs|baseline_run_id/, name);
     }
-);
+});
+
+test('only the reusable org job is locked and protected; the new-org job runs without the lock', () => {
+    const source = reusableWorkflow();
+    const prepare = jobSection(source, 'prepare');
+    const reuse = jobSection(source, 'reuse');
+    const fresh = jobSection(source, 'fresh');
+    assert.doesNotMatch(source.slice(0, source.indexOf('\njobs:')), /concurrency:/);
+    assert.match(source, /^permissions:\n {4}contents: read\n {4}pull-requests: read\n {4}actions: read$/m);
+    assert.doesNotMatch(source, /pull-requests: write|contents: write|actions: write|secrets: inherit/);
+    assert.doesNotMatch(source, /pull_request:|pull_request_target:|repo_only/);
+    assert.doesNotMatch(prepare, /environment:|concurrency:|secrets\./);
+    assert.match(reuse, /needs: prepare\n {8}if: needs\.prepare\.outputs\.route == 'reuse'/);
+    assert.match(reuse, /\n {8}environment: ci-scratch-org\n/);
+    assert.match(
+        reuse,
+        /\n {8}concurrency:\n {12}group: crm-arbeidsforhold-reusable-scratch-org\n {12}cancel-in-progress: false\n {12}queue: max\n/
+    );
+    assert.match(reuse, /fallback: \$\{\{ steps\.route\.outputs\.fallback \}\}/);
+    assert.doesNotMatch(fresh, /environment:|concurrency:|CI_SCRATCH_ORG_AUTH_URL/);
+    assert.match(fresh, /needs: \[prepare, reuse\]/);
+    assert.match(fresh, /always\(\) &&\n\s+needs\.prepare\.result == 'success' &&/);
+    assert.match(fresh, /needs\.prepare\.outputs\.route == 'fresh' \|\|/);
+    assert.match(fresh, /needs\.reuse\.result == 'success' && needs\.reuse\.outputs\.fallback == 'true'/);
+    assert.match(
+        fresh,
+        /- name: Delete one-time scratch org\n {14}if: always\(\) && steps\.create-fresh\.outputs\.created == 'true'/
+    );
+});
+
+test('PR checks run from trusted base scripts before any Salesforce credential is used', () => {
+    const source = reusableWorkflow();
+    const prepare = jobSection(source, 'prepare');
+    const order = [
+        '- name: Reject unsupported PR source',
+        '- name: Checkout trusted workflow scripts',
+        'ci-pr-guard.cjs" verify-required',
+        'ci-pr-guard.cjs" verify-current',
+        'ci-pr-guard.cjs" queue'
+    ].map((marker) => prepare.indexOf(marker));
+    assert.ok(
+        order.every((index, position) => index >= 0 && (position === 0 || index > order[position - 1])),
+        order.join()
+    );
+    assert.match(prepare, /github\.event\.pull_request\.base\.ref != 'main'/);
+    assert.match(prepare, /github\.event\.pull_request\.head\.repo\.full_name != github\.repository/);
+    for (const job of ['prepare', 'reuse', 'fresh']) {
+        assert.match(
+            jobSection(source, job),
+            /ref: \$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.base\.sha \|\| github\.sha \}\}[\s\S]*?path: trusted/,
+            job
+        );
+    }
+    for (const job of ['reuse', 'fresh']) {
+        const section = jobSection(source, job);
+        const current = section.indexOf('ci-pr-guard.cjs" verify-current');
+        const candidate = section.indexOf('path: candidate');
+        const snapshot = section.indexOf('ci-pr-guard.cjs" verify-snapshot');
+        const devHub = section.indexOf('- name: Authenticate scratch-org Dev Hub');
+        assert.ok(current >= 0 && current < candidate && candidate < snapshot && snapshot < devHub, job);
+        assert.match(section, /ref: \$\{\{ inputs\.merge_sha \|\| github\.sha \}\}[\s\S]*?path: candidate/);
+        assert.match(section, /\$TRUSTED_ROOT\/bin\/package-dependencies\.js" --include-unreleased --plan-file/);
+    }
+});
 
 test(
-    'a stale required PR fails while a stale pilot remains skipped',
+    'the prepare job chooses a route from force_fresh and the CI org queue',
     { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
     (context) => {
-        const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-required-queue-'));
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-prepare-route-'));
         context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
         const trusted = path.join(directory, 'trusted', 'scripts');
         fs.mkdirSync(trusted, { recursive: true });
-        fs.copyFileSync(path.resolve(__dirname, '../ci-pr-pilot.cjs'), path.join(trusted, 'ci-pr-pilot.cjs'));
+        fs.copyFileSync(path.resolve(__dirname, '../ci-pr-guard.cjs'), path.join(trusted, 'ci-pr-guard.cjs'));
         const mock = path.join(directory, 'mock-gh.cjs');
         fs.writeFileSync(
             mock,
             `const child = require('node:child_process');
 const original = child.execFileSync;
-child.execFileSync = (command, args, options) => command === 'gh'
-    ? process.env.MOCK_PULL
-    : original(command, args, options);`
+child.execFileSync = (command, args, options) => {
+    if (command !== 'gh') return original(command, args, options);
+    if (args[1].includes('/jobs?')) return JSON.stringify([{ jobs: [{ name: 'Validate PR / Validate on reusable org', status: 'waiting' }] }]);
+    const status = args[1].includes('status=queued') ? 'queued' : 'in_progress';
+    return JSON.stringify([{ workflow_runs: JSON.parse(process.env.MOCK_RUNS).filter((run) => run.status === status) }]);
+};`
         );
-        const source = readWorkflow('ci-reusable-scratch-org.yml');
-        const section = source.slice(
-            source.indexOf('- name: Check PR after waiting for the scratch org'),
-            source.indexOf('\n    validate:')
+        const script = stepScript(
+            jobSection(reusableWorkflow(), 'prepare'),
+            'Choose reusable org or fresh scratch org'
         );
-        const script = section.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
-        assert.ok(script);
-        const pull = {
-            number: 42,
-            state: 'open',
-            draft: false,
-            head: { sha: 'd'.repeat(40), repo: { full_name: 'example/repository' } },
-            base: { sha: 'b'.repeat(40), ref: 'main', repo: { full_name: 'example/repository' } }
-        };
-        const output = path.join(directory, 'github-output');
-        const run = (event) => {
+        const output = path.join(directory, 'output');
+        const summary = path.join(directory, 'summary');
+        const run = (overrides) => {
             fs.writeFileSync(output, '');
-            return spawnSync('/bin/bash', ['-c', script], {
+            fs.writeFileSync(summary, '');
+            const result = spawnSync('/bin/bash', ['-c', script], {
                 encoding: 'utf8',
                 env: {
                     ...process.env,
                     GITHUB_WORKSPACE: directory,
                     GITHUB_REPOSITORY: 'example/repository',
+                    GITHUB_RUN_ID: '99',
                     GITHUB_OUTPUT: output,
-                    EVENT_NAME: event,
+                    GITHUB_STEP_SUMMARY: summary,
+                    NODE_OPTIONS: `--require=${mock}`,
+                    EVENT_NAME: 'pull_request',
+                    FORCE_FRESH: 'false',
                     PR_NUMBER: '42',
-                    HEAD_SHA: 'a'.repeat(40),
-                    BASE_SHA: 'b'.repeat(40),
-                    MOCK_PULL: JSON.stringify(pull),
-                    NODE_OPTIONS: `--require=${mock}`
+                    HEAD_REF: 'feature/42',
+                    MOCK_RUNS: '[]',
+                    ...overrides
                 }
             });
+            assert.equal(result.status, 0, result.stderr);
+            return { result, output: fs.readFileSync(output, 'utf8'), summary: fs.readFileSync(summary, 'utf8') };
         };
-
-        const required = run('pull_request');
-        assert.notEqual(required.status, 0);
-        assert.match(required.stderr, /PR.*changed/i);
-        const pilot = run('workflow_run');
-        assert.equal(pilot.status, 0, pilot.stderr);
-        assert.match(pilot.stdout, /pilot skipped/i);
-        assert.match(fs.readFileSync(output, 'utf8'), /current=false/);
+        assert.match(run({}).output, /route=reuse\n/);
+        const queued = run({
+            MOCK_RUNS: JSON.stringify([
+                { id: 1, status: 'queued', pull_requests: [{ number: 7 }] },
+                { id: 2, status: 'in_progress', pull_requests: [{ number: 8 }] }
+            ])
+        });
+        assert.match(
+            queued.output,
+            /route=fresh\nreason=2 other PRs are waiting for the CI scratch org\.\nwaiting=2\n/
+        );
+        assert.match(queued.summary, /🆕 New scratch org/);
+        assert.match(run({ FORCE_FRESH: 'true' }).output, /route=fresh\nreason=Fresh-org validation was requested\./);
+        const dispatch = run({ EVENT_NAME: 'workflow_dispatch', PR_NUMBER: '', HEAD_REF: '' });
+        assert.match(dispatch.output, /route=reuse\n/);
+        assert.match(dispatch.summary, /♻️ Reusable CI org/);
     }
 );
 
-test('shared scratch validation runs trusted tools against the captured PR and records minimal evidence', () => {
-    const source = readWorkflow('ci-reusable-scratch-org.yml');
-    assert.match(source, /workflow_dispatch:/);
-    assert.match(source, /workflow_call:/);
-    assert.match(
-        source,
-        /ref: \$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.base\.sha \|\| github\.sha \}\}[\s\S]*?path: trusted/
-    );
-    assert.match(source, /ref: \$\{\{ inputs\.merge_sha \|\| github\.sha \}\}[\s\S]*?path: candidate/);
-    assert.match(source, /working-directory: candidate/);
-    assert.match(source, /ci-pr-pilot\.cjs" verify-snapshot/);
-    assert.match(source, /ci-pr-pilot\.cjs" verify-source/);
-    assert.match(source, /\$TRUSTED_ROOT\/bin\/package-dependencies\.js/);
-    assert.match(source, /\$TRUSTED_ROOT\/scripts\/ci-scratch-plan\.cjs/);
-    assert.match(source, /\$TRUSTED_ROOT\/scripts\/ci-pr-evidence\.cjs" create/);
-    assert.match(source, /actions\/upload-artifact@[a-f0-9]{40}/);
-    assert.match(source, /name: reusable-pr-pilot-evidence-\$\{\{ github\.run_attempt \}\}/);
-    assert.match(source, /if: inputs\.pull_number != ''/);
-    assert.match(source, /group: crm-arbeidsforhold-reusable-scratch-org/);
-    assert.match(source, /cancel-in-progress: false/);
+test('PR-controlled Salesforce output cannot issue GitHub workflow commands', () => {
+    const source = reusableWorkflow();
+    for (const [job, name] of [
+        ['reuse', 'Resolve and validate exact package versions'],
+        ['reuse', 'Validate reusable org with tests and coverage'],
+        ['fresh', 'Resolve and validate exact package versions for the new org'],
+        ['fresh', 'Create one-time scratch org'],
+        ['fresh', 'Install the exact validated package plan'],
+        ['fresh', 'Deploy source to fresh org'],
+        ['fresh', 'Delete one-time scratch org']
+    ]) {
+        const script = stepScript(jobSection(source, job), name);
+        assert.ok(script.indexOf('::stop-commands::$command_token') >= 0, name);
+        assert.ok(script.indexOf('::stop-commands::$command_token') < script.indexOf('::$command_token::'), name);
+    }
 });
 
-test('PR-controlled Salesforce output cannot issue GitHub workflow commands', () => {
-    const source = readWorkflow('ci-reusable-scratch-org.yml');
-    for (const [start, end] of [
-        ['- name: Resolve and validate exact package versions', '- name: Select reusable org or fresh fallback'],
-        ['- name: Deploy source to fresh org', '- name: Run repository Apex tests in fresh org'],
-        ['- name: Validate reusable org with tests and coverage', '- name: Deploy source to fresh org']
+test('both routes exclude the non-package sources before validation', () => {
+    const source = reusableWorkflow();
+    for (const [job, exclude, validate] of [
+        ['reuse', 'Exclude non-package sources from validation', 'Validate reusable org with tests and coverage'],
+        ['fresh', 'Exclude non-package sources from the new org', 'Deploy source to fresh org']
     ]) {
-        const section = source.slice(source.indexOf(start), source.indexOf(end));
-        assert.ok(section.includes('::stop-commands::$command_token'), start);
-        assert.ok(section.includes('::$command_token::'), start);
-        assert.ok(section.indexOf('::stop-commands::$command_token') < section.indexOf('::$command_token::'), start);
+        const section = jobSection(source, job);
+        const script = stepScript(section, exclude);
+        for (const directory of ['unpackagable', 'unpackagable-with-auto-deploy', 'scratch-org']) {
+            assert.ok(script.includes(`rm -rf ./force-app/${directory}\n`), `${job}: ${directory}`);
+        }
+        assert.ok(section.indexOf(`- name: ${exclude}`) < section.indexOf(`- name: ${validate}`), job);
     }
 });
 
 test(
-    'the opt-in reusable-org pilot runs exactly the repository test classes',
+    'both routes run exactly the repository test classes and enforce 85% coverage',
     { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
     async (context) => {
         const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-repo-tests-'));
@@ -293,132 +267,101 @@ test(
         fs.writeFileSync(
             path.join(directory, 'sf'),
             '#!/bin/sh\nprintf "%s\\n" "$@" > "$TEST_TRACE"\nprintf "%s" "$TEST_RESPONSE"\n',
-            { mode: 0o755 }
+            {
+                mode: 0o755
+            }
         );
-        const workflow = readWorkflow('ci-reusable-scratch-org.yml');
-        const section = workflow.slice(
-            workflow.indexOf('- name: Validate reusable org with tests and coverage'),
-            workflow.indexOf('- name: Deploy source to fresh org')
-        );
-        const script = section.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
-        assert.ok(script);
-        const freshSection = workflow.slice(
-            workflow.indexOf('- name: Run repository Apex tests in fresh org'),
-            workflow.indexOf('- name: Enforce repository Apex coverage in fresh org')
-        );
-        const freshScript = freshSection.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
-        assert.ok(freshScript);
+        const source = reusableWorkflow();
+        const script = stepScript(jobSection(source, 'reuse'), 'Validate reusable org with tests and coverage');
+        const freshScript = stepScript(jobSection(source, 'fresh'), 'Run repository Apex tests in fresh org');
         const freshBashAvailable = spawnSync('bash', ['-c', 'type mapfile >/dev/null 2>&1']).status === 0;
-        assert.match(
-            workflow,
-            /- name: Run repository Apex tests in fresh org[\s\S]*?ci-scratch-plan\.cjs" tests force-app/
-        );
-        assert.match(
-            workflow,
-            /- name: Enforce repository Apex coverage in fresh org[\s\S]*?ci-scratch-plan\.cjs" coverage/
-        );
-        assert.match(
-            workflow,
-            /workflow_dispatch:[\s\S]*?repo_only:[\s\S]*?default: false[\s\S]*?workflow_call:[\s\S]*?repo_only:[\s\S]*?default: false/
-        );
-
-        const run = (repoOnly, coverage = [{ name: 'Service', numLocations: 100, numLocationsNotCovered: 10 }]) => {
+        const env = {
+            ...process.env,
+            PATH: directory + path.delimiter + process.env.PATH,
+            RUNNER_TEMP: directory,
+            TRUSTED_ROOT: path.resolve(__dirname, '../..'),
+            TEST_TRACE: trace
+        };
+        const run = (coverage = [{ name: 'Service', numLocations: 100, numLocationsNotCovered: 10 }], changed) => {
             fs.writeFileSync(trace, '');
+            fs.rmSync(path.join(directory, 'changed-apex.txt'), { force: true });
+            if (changed) fs.writeFileSync(path.join(directory, 'changed-apex.txt'), changed);
             const result = spawnSync('/bin/bash', ['-c', script], {
                 cwd: directory,
                 encoding: 'utf8',
                 env: {
-                    ...process.env,
-                    PATH: directory + path.delimiter + process.env.PATH,
-                    RUNNER_TEMP: directory,
-                    TRUSTED_ROOT: path.resolve(__dirname, '../..'),
-                    REPOSITORY_TESTS_ONLY: String(repoOnly),
-                    TEST_TRACE: trace,
+                    ...env,
                     TEST_RESPONSE: JSON.stringify({
-                        result: {
-                            details: {
-                                runTestResult: { codeCoverage: coverage }
-                            }
-                        }
+                        result: { details: { runTestResult: { codeCoverage: coverage } } }
                     })
                 }
             });
             return { result, args: fs.readFileSync(trace, 'utf8').trim().split('\n') };
         };
-        const runFresh = (repoOnly) => {
+        const runFresh = () => {
             fs.writeFileSync(trace, '');
             const result = spawnSync('bash', ['-c', freshScript], {
                 cwd: directory,
                 encoding: 'utf8',
-                env: {
-                    ...process.env,
-                    PATH: directory + path.delimiter + process.env.PATH,
-                    RUNNER_TEMP: directory,
-                    TRUSTED_ROOT: path.resolve(__dirname, '../..'),
-                    GITHUB_OUTPUT: path.join(directory, 'github-output'),
-                    REPOSITORY_TESTS_ONLY: String(repoOnly),
-                    TEST_TRACE: trace,
-                    TEST_RESPONSE: '{}'
-                }
+                env: { ...env, TEST_RESPONSE: '{}' }
             });
             return { result, args: fs.readFileSync(trace, 'utf8').trim().split('\n') };
         };
         const namesFromArgs = (args) =>
             args.flatMap((argument, index) => (argument === '--tests' ? [args[index + 1]] : []));
 
-        const selected = run(true);
+        const selected = run();
         assert.equal(selected.result.status, 0, selected.result.stderr);
         assert.equal(selected.args[selected.args.indexOf('--test-level') + 1], 'RunSpecifiedTests');
         assert.deepEqual(namesFromArgs(selected.args), ['RepoAlphaTest', 'RepoBetaTest']);
         assert.ok(selected.args.includes('--dry-run'));
         await context.test(
-            'the fresh fallback receives the same repository classes',
+            'the new-org route receives the same repository classes',
             { skip: freshBashAvailable ? false : 'The Ubuntu workflow requires Bash 4 or newer.' },
             () => {
-                const fresh = runFresh(true);
+                const fresh = runFresh();
                 assert.equal(fresh.result.status, 0, fresh.result.stderr);
                 assert.deepEqual(namesFromArgs(fresh.args), namesFromArgs(selected.args));
             }
         );
 
-        const existing = run(false);
-        assert.equal(existing.result.status, 0, existing.result.stderr);
-        assert.equal(existing.args[existing.args.indexOf('--test-level') + 1], 'RunLocalTests');
-        assert.equal(existing.args.includes('--tests'), false);
-
-        const minimum = run(true, [{ name: 'Service', numLocations: 100, numLocationsNotCovered: 15 }]);
-        assert.equal(minimum.result.status, 0, minimum.result.stderr);
-        const lowCoverage = run(true, [{ name: 'Service', numLocations: 100, numLocationsNotCovered: 16 }]);
+        assert.equal(run([{ name: 'Service', numLocations: 100, numLocationsNotCovered: 15 }]).result.status, 0);
+        const lowCoverage = run([{ name: 'Service', numLocations: 100, numLocationsNotCovered: 16 }]);
         assert.notEqual(lowCoverage.result.status, 0);
         assert.match(lowCoverage.result.stderr, /84\.00% is below 85%/);
-        const lowTriggerCoverage = run(true, [
+        const lowTrigger = run([
             { name: 'Service', numLocations: 100, numLocationsNotCovered: 10 },
             { name: 'ServiceTrigger', numLocations: 100, numLocationsNotCovered: 100 }
         ]);
-        assert.notEqual(lowTriggerCoverage.result.status, 0);
-        assert.match(lowTriggerCoverage.result.stderr, /45\.00% is below 85%/);
+        assert.notEqual(lowTrigger.result.status, 0);
+        assert.match(lowTrigger.result.stderr, /45\.00% is below 85%/);
 
-        const invalid = run('invalid');
-        assert.notEqual(invalid.result.status, 0);
-        assert.match(invalid.result.stderr, /invalid repository apex test selection/i);
-        assert.equal(fs.readFileSync(trace, 'utf8'), '');
+        fs.writeFileSync(
+            path.join(classes, 'NewService.cls'),
+            'public class NewService {\n' + '    x = 1;\n'.repeat(20) + '}'
+        );
+        const uncovered = run(
+            [{ name: 'Service', numLocations: 100, numLocationsNotCovered: 10 }],
+            'force-app/classes/NewService.cls\n'
+        );
+        assert.notEqual(uncovered.result.status, 0);
+        assert.match(uncovered.result.stderr, /ingen dekningsdata: force-app\/classes\/NewService\.cls/);
+        assert.match(uncovered.result.stderr, /75\.00% is below 85%/);
+        fs.unlinkSync(path.join(classes, 'NewService.cls'));
 
         fs.unlinkSync(path.join(classes, 'RepoAlphaTest.cls'));
         fs.unlinkSync(path.join(classes, 'RepoBetaTest.cls'));
-        const empty = run(true);
+        const empty = run();
         assert.notEqual(empty.result.status, 0);
         assert.match(empty.result.stderr, /no repository apex test classes/i);
         assert.equal(fs.readFileSync(trace, 'utf8'), '');
         await context.test(
-            'both opted-in routes fail closed when no repository tests are found',
+            'the new-org route also fails when no repository tests are found',
             { skip: freshBashAvailable ? false : 'The Ubuntu workflow requires Bash 4 or newer.' },
             () => {
-                const emptyFresh = runFresh(true);
+                const emptyFresh = runFresh();
                 assert.notEqual(emptyFresh.result.status, 0);
                 assert.match(emptyFresh.result.stderr, /no repository apex test classes/i);
-                assert.equal(fs.readFileSync(trace, 'utf8'), '');
-                const existingFresh = runFresh(false);
-                assert.equal(existingFresh.result.status, 0, existingFresh.result.stderr);
                 assert.equal(fs.readFileSync(trace, 'utf8'), '');
             }
         );
@@ -426,7 +369,7 @@ test(
 );
 
 test(
-    'reuse validation failures remain failures and cannot trigger the fresh-org route',
+    'reuse validation failures remain failures and cannot trigger the new-org route',
     { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
     (context) => {
         const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-reuse-failure-'));
@@ -434,20 +377,13 @@ test(
         const classes = path.join(directory, 'force-app', 'classes');
         fs.mkdirSync(classes, { recursive: true });
         fs.writeFileSync(path.join(classes, 'RepoTest.cls'), '@IsTest class RepoTest {}');
-        const fakeSf = path.join(directory, 'sf');
-        fs.writeFileSync(fakeSf, '#!/bin/sh\nprintf "%s" "$TEST_RESPONSE"\nexit 19\n', { mode: 0o755 });
-        const workflow = readWorkflow('ci-reusable-scratch-org.yml');
-        const section = workflow.slice(
-            workflow.indexOf('- name: Validate reusable org with tests and coverage'),
-            workflow.indexOf('- name: Deploy source to fresh org')
-        );
-        const script = section.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
-        assert.ok(script);
-        assert.doesNotMatch(section, /continue-on-error|CI_VALIDATION_ROUTE=fresh/);
-        assert.match(
-            workflow,
-            /- name: Create one-time fallback scratch org[\s\S]*?if: env\.CI_VALIDATION_ROUTE == 'fresh'/
-        );
+        fs.writeFileSync(path.join(directory, 'sf'), '#!/bin/sh\nprintf "%s" "$TEST_RESPONSE"\nexit 19\n', {
+            mode: 0o755
+        });
+        const reuse = jobSection(reusableWorkflow(), 'reuse');
+        const script = stepScript(reuse, 'Validate reusable org with tests and coverage');
+        assert.doesNotMatch(reuse, /continue-on-error/);
+        assert.doesNotMatch(script, /fallback|CI_VALIDATION_ROUTE=fresh/);
 
         for (const { diagnostic, expected } of [
             {
@@ -471,89 +407,45 @@ test(
                 expected: 'ServiceTrigger: Coverage is 50%'
             }
         ]) {
-            for (const repoOnly of ['true', 'false']) {
-                const result = spawnSync('/bin/bash', ['-c', script], {
-                    cwd: directory,
-                    encoding: 'utf8',
-                    env: {
-                        ...process.env,
-                        PATH: directory + path.delimiter + process.env.PATH,
-                        RUNNER_TEMP: directory,
-                        TRUSTED_ROOT: path.resolve(__dirname, '../..'),
-                        REPOSITORY_TESTS_ONLY: repoOnly,
-                        TEST_RESPONSE: JSON.stringify({ result: { details: diagnostic } })
-                    }
-                });
-                assert.equal(result.status, 19, result.stderr);
-                const token = result.stdout.match(/::stop-commands::([a-f0-9-]+)/)?.[1];
-                assert.ok(token);
-                assert.ok(result.stdout.indexOf(expected) > result.stdout.indexOf(`::stop-commands::${token}`));
-                assert.ok(result.stdout.indexOf(`::${token}::`) > result.stdout.indexOf(expected));
-            }
+            const result = spawnSync('/bin/bash', ['-c', script], {
+                cwd: directory,
+                encoding: 'utf8',
+                env: {
+                    ...process.env,
+                    PATH: directory + path.delimiter + process.env.PATH,
+                    RUNNER_TEMP: directory,
+                    TRUSTED_ROOT: path.resolve(__dirname, '../..'),
+                    TEST_RESPONSE: JSON.stringify({ result: { details: diagnostic } })
+                }
+            });
+            assert.equal(result.status, 19, result.stderr);
+            const token = result.stdout.match(/::stop-commands::([a-f0-9-]+)/)?.[1];
+            assert.ok(token);
+            assert.ok(result.stdout.indexOf(expected) > result.stdout.indexOf(`::stop-commands::${token}`));
+            assert.ok(result.stdout.indexOf(`::${token}::`) > result.stdout.indexOf(expected));
         }
     }
 );
 
-test('reusable scratch validation is restricted, serialized, and retains its manual and fresh-org routes', () => {
-    const source = readWorkflow('ci-reusable-scratch-org.yml');
-    assert.match(source, /workflow_dispatch:/);
-    assert.match(source, /github\.ref == 'refs\/heads\/main'/);
-    assert.match(source, /github\.event\.pull_request\.base\.ref != 'main'/);
-    assert.match(
-        source,
-        /ref: \$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.base\.sha \|\| github\.sha \}\}/
-    );
-    assert.match(source, /environment: ci-scratch-org/);
-    assert.match(source, /cancel-in-progress: false/);
-    assert.match(source, /--include-unreleased --plan-file/);
-    assert.match(source, /CI_SCRATCH_ORG_AUTH_URL/);
-    assert.match(
-        source,
-        /sf org login sfdx-url --sfdx-url-file "\$auth_file" --alias ci-devhub --set-default-dev-hub >"\$login_log" 2>&1/
-    );
-    assert.match(source, /test_arguments=\(--test-level RunLocalTests\)/);
-    assert.match(source, /--target-org ci-reuse \\\s*--dry-run \\\s*"\$\{test_arguments\[@\]\}"/);
-    assert.match(source, /sf org create scratch \\\s*--definition-file config\/project-scratch-def\.json/);
-    assert.match(source, /node "\$TRUSTED_ROOT\/scripts\/ci-scratch-plan\.cjs" install/);
-    assert.match(source, /sf project deploy start --source-dir force-app --target-org ci-fresh/);
-    assert.match(source, /sf org delete scratch --target-org ci-fresh --no-prompt/);
-    assert.doesNotMatch(source, /pull_request:|pull_request_target:/);
-    assert.doesNotMatch(source, /pull-requests: write|contents: write|actions: write/);
-});
-
-test('scratch validation excludes the non-package sources used by existing CI before either route', () => {
-    const source = readWorkflow('ci-reusable-scratch-org.yml');
-    const excluded = [
-        './force-app/unpackagable',
-        './force-app/unpackagable-with-auto-deploy',
-        './force-app/scratch-org'
-    ];
-    const sourceScope = source.indexOf('- name: Exclude non-package sources from validation');
-    assert.ok(sourceScope >= 0);
-    for (const directory of excluded) assert.ok(source.includes(`rm -rf ${directory}`));
-    assert.ok(sourceScope < source.indexOf('- name: Validate reusable org with tests and coverage'));
-    assert.ok(sourceScope < source.indexOf('- name: Deploy source to fresh org'));
-    assert.ok(sourceScope < source.indexOf('- name: Run repository Apex tests in fresh org'));
-});
-
 test('checks active scratch status and matching org identity before querying installed packages', () => {
-    const source = readWorkflow('ci-reusable-scratch-org.yml');
-    const scratchQuery = source.indexOf('sf data query');
-    const scratchVerification = source.indexOf('ci-scratch-plan.cjs" verify-scratch');
-    const login = source.indexOf('sf org login sfdx-url --sfdx-url-file "$auth_file" --alias ci-reuse');
-    const identity = source.indexOf('jq -e --arg expected "$CI_SCRATCH_ORG_ID"');
-    const packages = source.indexOf('sf package installed list --target-org ci-reuse');
-    assert.ok(scratchQuery >= 0);
+    const source = stepScript(jobSection(reusableWorkflow(), 'reuse'), 'Check the registered CI org');
+    const markers = [
+        'sf data query',
+        'ci-scratch-plan.cjs" verify-scratch',
+        'sf org login sfdx-url --sfdx-url-file "$auth_file" --alias ci-reuse',
+        'jq -e --arg expected "$CI_SCRATCH_ORG_ID"',
+        'sf package installed list --target-org ci-reuse'
+    ].map((marker) => source.indexOf(marker));
+    assert.ok(
+        markers.every((index, position) => index >= 0 && (position === 0 || index > markers[position - 1])),
+        markers.join()
+    );
     assert.match(source, /ScratchOrgInfo/);
-    assert.ok(scratchQuery < scratchVerification);
-    assert.ok(scratchVerification < login);
-    assert.ok(login < identity);
-    assert.ok(identity < packages);
     assert.match(source, /CI_SCRATCH_ORG_ID.*=~ \^\[a-zA-Z0-9\]/);
 });
 
 test(
-    'routes the actual workflow safely with a simulated Salesforce CLI',
+    'routes the actual reusable-org check safely with a simulated Salesforce CLI',
     { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
     (context) => {
         const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-scratch-route-'));
@@ -616,27 +508,27 @@ test(
             { mode: 0o755 }
         );
 
-        const workflow = readWorkflow('ci-reusable-scratch-org.yml');
-        const route = workflow.slice(workflow.indexOf('- name: Select reusable org or fresh fallback'));
-        const script = route.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
-        assert.ok(script, 'The workflow route script must be present.');
-
+        const script = stepScript(jobSection(reusableWorkflow(), 'reuse'), 'Check the registered CI org');
+        const githubOutput = path.join(directory, 'github-output.txt');
+        const all = ['data query', 'org login', 'org display', 'package installed'];
         const scenarios = [
-            { name: 'ready', route: 'reuse', calls: ['data query', 'org login', 'org display', 'package installed'] },
+            { name: 'ready', route: 'reuse', calls: all },
             { name: 'inactive', route: 'fresh', calls: ['data query'] },
             { name: 'query-failed', route: 'fresh', calls: ['data query'] },
+            { name: 'old-package', route: 'fresh', calls: all },
             {
-                name: 'old-package',
+                name: 'wrong-org',
                 route: 'fresh',
-                calls: ['data query', 'org login', 'org display', 'package installed']
+                reason: /registration is incomplete/,
+                calls: ['data query', 'org login', 'org display']
             },
-            { name: 'wrong-org', status: 1, calls: ['data query', 'org login', 'org display'] },
-            { name: 'invalid-id', status: 1, calls: [] },
-            { name: 'forced', route: 'fresh', calls: [] }
+            { name: 'invalid-id', route: 'fresh', reason: /registration is incomplete/, calls: [] },
+            { name: 'unregistered', route: 'fresh', reason: /No CI scratch org is registered/, calls: [] }
         ];
         for (const scenario of scenarios) {
             fs.writeFileSync(traceFile, '');
             fs.writeFileSync(githubEnv, '');
+            fs.writeFileSync(githubOutput, '');
             const result = spawnSync('/bin/bash', ['-c', script], {
                 cwd: directory,
                 encoding: 'utf8',
@@ -646,30 +538,29 @@ test(
                     TRUSTED_ROOT: directory,
                     RUNNER_TEMP: directory,
                     GITHUB_ENV: githubEnv,
+                    GITHUB_OUTPUT: githubOutput,
+                    GITHUB_STEP_SUMMARY: path.join(directory, 'summary.md'),
                     TEST_TRACE: traceFile,
                     TEST_SCENARIO: scenario.name,
-                    CI_SCRATCH_ORG_AUTH_URL: 'placeholder',
+                    CI_SCRATCH_ORG_AUTH_URL: scenario.name === 'unregistered' ? '' : 'placeholder',
                     CI_SCRATCH_ORG_ID:
                         scenario.name === 'invalid-id' ? "invalid' OR Status='Active" : 'A'.repeat(15) + 'XYZ',
                     CI_SCRATCH_ORG_EXPIRATION: '2099-12-01',
-                    CI_SCRATCH_ORG_CONFIG_SHA256: scratchFingerprint(projectFile, definitionFile),
-                    CI_FORCE_FRESH: scenario.name === 'forced' ? 'true' : 'false'
+                    CI_SCRATCH_ORG_CONFIG_SHA256: scratchFingerprint(projectFile, definitionFile)
                 }
             });
-            assert.equal(result.status, scenario.status ?? 0, `${scenario.name}: ${result.stderr}`);
-            if (scenario.route) {
-                assert.match(fs.readFileSync(githubEnv, 'utf8'), new RegExp(`CI_VALIDATION_ROUTE=${scenario.route}`));
-            } else {
-                assert.equal(fs.readFileSync(githubEnv, 'utf8'), '');
-            }
-            const calls = fs.readFileSync(traceFile, 'utf8');
+            assert.equal(result.status, 0, `${scenario.name}: ${result.stderr}`);
+            assert.match(
+                fs.readFileSync(githubEnv, 'utf8'),
+                new RegExp(`CI_VALIDATION_ROUTE=${scenario.route}`),
+                scenario.name
+            );
+            const output = fs.readFileSync(githubOutput, 'utf8');
+            assert.match(output, new RegExp(`fallback=${scenario.route === 'fresh'}`), scenario.name);
+            if (scenario.reason) assert.match(output, scenario.reason, scenario.name);
+            const calls = fs.readFileSync(traceFile, 'utf8').trim();
             assert.deepEqual(
-                calls.trim()
-                    ? calls
-                          .trim()
-                          .split('\n')
-                          .map((line) => line.split(' ').slice(0, 2).join(' '))
-                    : [],
+                calls ? calls.split('\n').map((line) => line.split(' ').slice(0, 2).join(' ')) : [],
                 scenario.calls,
                 scenario.name
             );

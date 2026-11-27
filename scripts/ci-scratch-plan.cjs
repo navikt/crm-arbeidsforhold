@@ -52,7 +52,12 @@ function selectRoute({
     if (!enabled || !expectedOrgId || !actualOrgId || !expectedFingerprint || !expiration) {
         return { route: 'fresh', reason: 'CI scratch org is not fully configured.' };
     }
-    if (expectedOrgId !== actualOrgId) throw new Error('CI scratch org identity does not match the registered org.');
+    if (expectedOrgId !== actualOrgId) {
+        return {
+            route: 'fresh',
+            reason: 'The CI scratch org registration is incomplete: the secret and variables point at different orgs.'
+        };
+    }
     if (expectedFingerprint !== actualFingerprint) return { route: 'fresh', reason: 'Scratch configuration changed.' };
     const expires = Date.parse(`${expiration}T00:00:00Z`);
     if (
@@ -131,7 +136,84 @@ function getApexTestClassNames(sourceDirectory) {
     return [...names];
 }
 
-function calculateCoverage(records, classNames, minimum = 85) {
+function globToRegExp(pattern) {
+    let source = '';
+    for (let index = 0; index < pattern.length; index++) {
+        const character = pattern[index];
+        if (character === '*' && pattern[index + 1] === '*') {
+            const slash = pattern[index + 2] === '/';
+            source += slash ? '(?:.*/)?' : '.*';
+            index += slash ? 2 : 1;
+        } else if (character === '*') source += '[^/]*';
+        else if (character === '?') source += '[^/]';
+        else source += character.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+    }
+    return new RegExp(`^${pattern.includes('/') ? '' : '(?:.*/)?'}${source.replace(/^\//, '')}$`);
+}
+
+function isForceIgnored(file, patterns) {
+    const parts = file.split('/');
+    const candidates = parts.map((_, index) => parts.slice(0, index + 1).join('/'));
+    let ignored = false;
+    for (const line of patterns) {
+        const pattern = line.trim();
+        if (!pattern || pattern.startsWith('#')) continue;
+        const negated = pattern.startsWith('!');
+        const expression = globToRegExp(negated ? pattern.slice(1) : pattern);
+        if (candidates.some((candidate) => expression.test(candidate))) ignored = !negated;
+    }
+    return ignored;
+}
+
+function stripApexComments(source) {
+    return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+}
+
+function changedSourcesWithoutCoverage(changedFiles, records, root, ignorePatterns = []) {
+    if (!Array.isArray(changedFiles) || !Array.isArray(records))
+        throw new Error('Changed files and coverage data are required.');
+    const covered = new Set(records.map((record) => record?.name));
+    const missing = [];
+    for (const file of changedFiles) {
+        const extension = path.extname(file).toLowerCase();
+        if (!['.cls', '.trigger'].includes(extension)) continue;
+        const name = path.basename(file, path.extname(file));
+        if (covered.has(name) || isForceIgnored(file, ignorePatterns)) continue;
+        const filename = path.join(root, file);
+        if (!fs.existsSync(filename)) continue;
+        const raw = fs.readFileSync(filename, 'utf8');
+        if (/@IsTest\b/i.test(raw)) continue;
+        const source = stripApexComments(raw);
+        if (/^\s*(?:@\w+(?:\([^)]*\))?\s*)*(?:(?:public|global|private)\s+)?interface\s/i.test(source)) continue;
+        const lines = source.split(/\r?\n/).filter((line) => line.includes(';')).length;
+        if (lines > 0) missing.push({ name, path: file, lines });
+    }
+    return missing.sort((first, second) => first.name.localeCompare(second.name));
+}
+
+function coverageMarkdown(result, minimum = 85) {
+    const passed = result.percentage >= minimum;
+    const lines = [
+        '### Apex coverage',
+        '',
+        '| Check | Result |',
+        '| --- | --- |',
+        `| Repository coverage | ${passed ? '✅' : '❌'} ${result.percentage.toFixed(2)}% (${result.covered}/${result.total} lines, minimum ${minimum}%) |`
+    ];
+    if (result.missing.length) {
+        lines.push(
+            '',
+            'Changed Apex sources without coverage data are counted as 0%:',
+            '',
+            '| File | Estimated lines |',
+            '| --- | --- |'
+        );
+        for (const entry of result.missing) lines.push(`| ⚠️ ingen dekningsdata: \`${entry.path}\` | ${entry.lines} |`);
+    }
+    return `${lines.join('\n')}\n\n`;
+}
+
+function calculateCoverage(records, classNames, minimum = 85, missing = []) {
     if (!Array.isArray(records) || !Array.isArray(classNames) || classNames.length === 0) {
         throw new Error('Apex coverage data and source classes are required.');
     }
@@ -155,11 +237,15 @@ function calculateCoverage(records, classNames, minimum = 85) {
         total += recordTotal;
     }
     if (total === 0) throw new Error('No Apex coverage records matched source classes.');
+    for (const entry of missing) total += entry.lines;
     const percentage = (covered / total) * 100;
     if (percentage < minimum) {
-        throw new Error(`Repository Apex coverage ${percentage.toFixed(2)}% is below ${minimum}%.`);
+        const note = missing.length
+            ? ` This includes ${missing.length} changed Apex source${missing.length === 1 ? '' : 's'} without coverage data counted as 0%: ${missing.map((entry) => entry.name).join(', ')}.`
+            : '';
+        throw new Error(`Repository Apex coverage ${percentage.toFixed(2)}% is below ${minimum}%.${note}`);
     }
-    return { covered, total, percentage };
+    return { covered, total, percentage, missing };
 }
 
 function coverageRecords(data) {
@@ -311,10 +397,28 @@ async function main(args) {
         process.stdout.write(`${JSON.stringify(getApexTestClassNames(values[0]))}\n`);
         return;
     }
-    if (command === 'coverage' && values.length === 2) {
-        const [coverageFile, sourceDirectory] = values;
-        const data = readJson(coverageFile);
-        const result = calculateCoverage(coverageRecords(data), getApexCoverageNames(sourceDirectory));
+    if (command === 'coverage' && (values.length === 2 || values.length === 3)) {
+        const [coverageFile, sourceDirectory, changedFile] = values;
+        const records = coverageRecords(readJson(coverageFile));
+        let missing = [];
+        if (changedFile) {
+            const changed = fs.readFileSync(changedFile, 'utf8').split(/\r?\n/).filter(Boolean);
+            const ignore = fs.existsSync('.forceignore') ? fs.readFileSync('.forceignore', 'utf8').split(/\r?\n/) : [];
+            missing = changedSourcesWithoutCoverage(changed, records, '.', ignore);
+            for (const entry of missing) {
+                process.stderr.write(
+                    `⚠️ ingen dekningsdata: ${entry.path} (counted as 0% of ${entry.lines} estimated lines)\n`
+                );
+            }
+        }
+        const names = getApexCoverageNames(sourceDirectory);
+        if (process.env.GITHUB_STEP_SUMMARY) {
+            fs.appendFileSync(
+                process.env.GITHUB_STEP_SUMMARY,
+                coverageMarkdown(calculateCoverage(records, names, 0, missing))
+            );
+        }
+        const result = calculateCoverage(records, names, 85, missing);
         process.stdout.write(`${JSON.stringify(result)}\n`);
         return;
     }
@@ -334,10 +438,13 @@ if (require.main === module) {
 
 module.exports = {
     calculateCoverage,
+    changedSourcesWithoutCoverage,
+    coverageMarkdown,
     coverageRecords,
     getApexCoverageNames,
     getApexTestClassNames,
     installPlan,
+    isForceIgnored,
     readPlan,
     scratchFingerprint,
     selectRoute,
