@@ -64,15 +64,18 @@ const reuseJobSuffix = 'Validate on reusable org';
 function queueRoute(runs, listJobs, current, limit = 2) {
     if (!Array.isArray(runs)) throw new Error('The workflow run list is invalid.');
     const ownKey = String(current.pullRequest);
+    const branchNumbers = new Map([[current.headBranch, ownKey]]);
+    for (const run of runs) {
+        const number = run?.pull_requests?.[0]?.number;
+        if (number && run?.head_branch && !branchNumbers.has(run.head_branch)) {
+            branchNumbers.set(run.head_branch, String(number));
+        }
+    }
     const waiting = new Set();
     for (const run of runs) {
         if (run?.id === current.runId) continue;
         const number = run?.pull_requests?.[0]?.number;
-        const key = number
-            ? String(number)
-            : run?.head_branch === current.headBranch
-              ? ownKey
-              : `branch:${run?.head_branch}`;
+        const key = number ? String(number) : (branchNumbers.get(run?.head_branch) ?? `branch:${run?.head_branch}`);
         if (key === ownKey || waiting.has(key)) continue;
         const jobs = listJobs(run.id);
         if (!Array.isArray(jobs)) throw new Error('The workflow job list is invalid.');

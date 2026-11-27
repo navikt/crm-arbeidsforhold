@@ -159,8 +159,11 @@ function isForceIgnored(file, patterns) {
         const pattern = line.trim();
         if (!pattern || pattern.startsWith('#')) continue;
         const negated = pattern.startsWith('!');
-        const expression = globToRegExp(negated ? pattern.slice(1) : pattern);
-        if (candidates.some((candidate) => expression.test(candidate))) ignored = !negated;
+        const rule = negated ? pattern.slice(1) : pattern;
+        const directoryOnly = rule.endsWith('/');
+        const expression = globToRegExp(directoryOnly ? rule.replace(/\/+$/, '') : rule);
+        const scope = directoryOnly ? candidates.slice(0, -1) : candidates;
+        if (scope.some((candidate) => expression.test(candidate))) ignored = !negated;
     }
     return ignored;
 }
@@ -245,8 +248,8 @@ function calculateCoverage(records, classNames, minimum = 85, missing = []) {
         covered += recordCovered;
         total += recordTotal;
     }
-    if (total === 0) throw new Error('No Apex coverage records matched source classes.');
     for (const entry of missing) total += entry.lines;
+    if (total === 0) throw new Error('No Apex coverage records matched source classes.');
     const percentage = (covered / total) * 100;
     if (percentage < minimum) {
         const note = missing.length

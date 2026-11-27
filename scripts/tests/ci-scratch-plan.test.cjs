@@ -122,6 +122,19 @@ test('calculates repository coverage from source Apex types', () => {
         /invalid coverage/i
     );
     assert.throws(() => calculateCoverage([], ['ApexClass']), /No Apex coverage records/);
+    assert.throws(
+        () => calculateCoverage([], ['ApexClass'], 85, [{ name: 'ApexClass', path: 'ApexClass.cls', lines: 5 }]),
+        /0\.00% is below 85%/
+    );
+    assert.deepEqual(
+        calculateCoverage([], ['ApexClass'], 0, [{ name: 'ApexClass', path: 'ApexClass.cls', lines: 5 }]),
+        {
+            covered: 0,
+            total: 5,
+            percentage: 0,
+            missing: [{ name: 'ApexClass', path: 'ApexClass.cls', lines: 5 }]
+        }
+    );
 });
 
 test('includes trigger coverage when enforcing the repository coverage threshold', (context) => {
@@ -232,6 +245,9 @@ test('matches .forceignore patterns with negation and directory rules', () => {
     assert.equal(isForceIgnored('force-app/x/experiences/site/a.json', patterns), true);
     assert.equal(isForceIgnored('force-app/main/classes/SiteLoginController.cls', patterns), true);
     assert.equal(isForceIgnored('force-app/main/classes/Service.cls', patterns), false);
+    assert.equal(isForceIgnored('force-app/ignored/NewService.cls', ['force-app/ignored/']), true);
+    assert.equal(isForceIgnored('force-app/ignored', ['force-app/ignored/']), false);
+    assert.equal(isForceIgnored('force-app/x/legacy/Old.cls', ['legacy/']), true);
 });
 
 test('reads coverage from Salesforce deploy and Apex test result shapes', () => {

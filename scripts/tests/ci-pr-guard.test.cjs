@@ -187,6 +187,10 @@ test('routes to fresh only when two other PRs wait for the CI org', () => {
         current
     );
     assert.equal(branchKey.waiting, 1);
+
+    const mixed = queueRoute([{ ...queuedRun(11, 0), head_branch: 'feature/7' }, queuedRun(12, 7)], listJobs, current);
+    assert.equal(mixed.route, 'reuse');
+    assert.equal(mixed.waiting, 1);
 });
 
 test('queue CLI reports a fresh route and keeps reuse when GitHub cannot list the queue', (context) => {
