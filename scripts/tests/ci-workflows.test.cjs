@@ -125,11 +125,128 @@ test('queued PR snapshots are checked before environment approval and before org
     assert.match(caller, /permissions:\n {12}contents: read\n {12}pull-requests: read/);
 });
 
+test('required PR validation checks the event before using trusted base scripts or Salesforce credentials', () => {
+    const source = readWorkflow('ci-reusable-scratch-org.yml');
+    const reject = source.indexOf('- name: Reject unsupported PR source');
+    const checkout = source.indexOf('- name: Checkout trusted workflow scripts');
+    const request = source.indexOf('ci-pr-pilot.cjs" verify-required');
+    const authentication = source.indexOf('- name: Authenticate scratch-org Dev Hub');
+    assert.ok(reject >= 0 && reject < checkout && checkout < request && request < authentication);
+    assert.match(source, /github\.event\.pull_request\.base\.ref != 'main'/);
+    assert.match(source, /github\.event\.pull_request\.head\.repo\.full_name != github\.repository/);
+    assert.match(
+        source,
+        /ref: \$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.base\.sha \|\| github\.sha \}\}/
+    );
+    assert.match(source, /if: github\.event_name == 'pull_request'[\s\S]*?verify-required/);
+});
+
+test(
+    'a pilot must identify its actual triggering run before org access',
+    { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
+    () => {
+        const source = readWorkflow('ci-reusable-scratch-org.yml');
+        const start = source.indexOf('- name: Verify the triggering pilot run');
+        const end = source.indexOf('- name: Check PR after waiting for the scratch org');
+        assert.ok(start >= 0 && start < end);
+        const section = source.slice(start, end);
+        const script = section.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
+        assert.ok(script);
+        const run = (overrides = {}) =>
+            spawnSync('/bin/bash', ['-c', script], {
+                encoding: 'utf8',
+                env: {
+                    ...process.env,
+                    BASELINE_RUN_ID: '123',
+                    BASELINE_ATTEMPT: '2',
+                    TRIGGERING_RUN_ID: '123',
+                    TRIGGERING_ATTEMPT: '2',
+                    ...overrides
+                }
+            });
+        assert.equal(run().status, 0);
+        for (const invalid of [
+            { BASELINE_RUN_ID: '' },
+            { BASELINE_ATTEMPT: '' },
+            { BASELINE_RUN_ID: '124' },
+            { BASELINE_ATTEMPT: '1' },
+            { BASELINE_RUN_ID: 'not-a-number' }
+        ]) {
+            assert.notEqual(run(invalid).status, 0);
+        }
+    }
+);
+
+test(
+    'a stale required PR fails while a stale pilot remains skipped',
+    { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
+    (context) => {
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-required-queue-'));
+        context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+        const trusted = path.join(directory, 'trusted', 'scripts');
+        fs.mkdirSync(trusted, { recursive: true });
+        fs.copyFileSync(path.resolve(__dirname, '../ci-pr-pilot.cjs'), path.join(trusted, 'ci-pr-pilot.cjs'));
+        const mock = path.join(directory, 'mock-gh.cjs');
+        fs.writeFileSync(
+            mock,
+            `const child = require('node:child_process');
+const original = child.execFileSync;
+child.execFileSync = (command, args, options) => command === 'gh'
+    ? process.env.MOCK_PULL
+    : original(command, args, options);`
+        );
+        const source = readWorkflow('ci-reusable-scratch-org.yml');
+        const section = source.slice(
+            source.indexOf('- name: Check PR after waiting for the scratch org'),
+            source.indexOf('\n    validate:')
+        );
+        const script = section.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
+        assert.ok(script);
+        const pull = {
+            number: 42,
+            state: 'open',
+            draft: false,
+            head: { sha: 'd'.repeat(40), repo: { full_name: 'example/repository' } },
+            base: { sha: 'b'.repeat(40), ref: 'main', repo: { full_name: 'example/repository' } }
+        };
+        const output = path.join(directory, 'github-output');
+        const run = (event) => {
+            fs.writeFileSync(output, '');
+            return spawnSync('/bin/bash', ['-c', script], {
+                encoding: 'utf8',
+                env: {
+                    ...process.env,
+                    GITHUB_WORKSPACE: directory,
+                    GITHUB_REPOSITORY: 'example/repository',
+                    GITHUB_OUTPUT: output,
+                    EVENT_NAME: event,
+                    PR_NUMBER: '42',
+                    HEAD_SHA: 'a'.repeat(40),
+                    BASE_SHA: 'b'.repeat(40),
+                    MOCK_PULL: JSON.stringify(pull),
+                    NODE_OPTIONS: `--require=${mock}`
+                }
+            });
+        };
+
+        const required = run('pull_request');
+        assert.notEqual(required.status, 0);
+        assert.match(required.stderr, /PR.*changed/i);
+        const pilot = run('workflow_run');
+        assert.equal(pilot.status, 0, pilot.stderr);
+        assert.match(pilot.stdout, /pilot skipped/i);
+        assert.match(fs.readFileSync(output, 'utf8'), /current=false/);
+    }
+);
+
 test('shared scratch validation runs trusted tools against the captured PR and records minimal evidence', () => {
     const source = readWorkflow('ci-reusable-scratch-org.yml');
     assert.match(source, /workflow_dispatch:/);
     assert.match(source, /workflow_call:/);
-    assert.match(source, /ref: \$\{\{ github\.sha \}\}[\s\S]*?path: trusted/);
+    assert.match(
+        source,
+        /ref: \$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.base\.sha \|\| github\.sha \}\}[\s\S]*?path: trusted/
+    );
     assert.match(source, /ref: \$\{\{ inputs\.merge_sha \|\| github\.sha \}\}[\s\S]*?path: candidate/);
     assert.match(source, /working-directory: candidate/);
     assert.match(source, /ci-pr-pilot\.cjs" verify-snapshot/);
@@ -204,11 +321,15 @@ test(
     }
 );
 
-test('reusable scratch validation is main-only, serialized, and retains its manual and fresh-org routes', () => {
+test('reusable scratch validation is restricted, serialized, and retains its manual and fresh-org routes', () => {
     const source = readWorkflow('ci-reusable-scratch-org.yml');
     assert.match(source, /workflow_dispatch:/);
-    assert.match(source, /if: github\.ref == 'refs\/heads\/main'/);
-    assert.match(source, /ref: \$\{\{ github\.sha \}\}/);
+    assert.match(source, /github\.ref == 'refs\/heads\/main'/);
+    assert.match(source, /github\.event\.pull_request\.base\.ref != 'main'/);
+    assert.match(
+        source,
+        /ref: \$\{\{ github\.event_name == 'pull_request' && github\.event\.pull_request\.base\.sha \|\| github\.sha \}\}/
+    );
     assert.match(source, /environment: ci-scratch-org/);
     assert.match(source, /cancel-in-progress: false/);
     assert.match(source, /--include-unreleased --plan-file/);
