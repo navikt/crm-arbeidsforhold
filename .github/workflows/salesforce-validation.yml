@@ -56,7 +56,7 @@ jobs:
             pull_number: ${{ github.event.pull_request.number }}
             head_sha: ${{ github.event.pull_request.head.sha }}
             base_sha: ${{ github.event.pull_request.base.sha }}
-            merge_sha: ${{ github.event.pull_request.merge_commit_sha }}
+            merge_sha: ${{ github.sha }}
         secrets:
             CRM_PROD_SFDX_URL: ${{ secrets.CRM_PROD_SFDX_URL }}
             CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}

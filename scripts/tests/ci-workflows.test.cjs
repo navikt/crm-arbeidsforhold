@@ -81,7 +81,7 @@ test('Salesforce validation calls the local workflow only for same-repository Sa
     assert.match(validation, /pull_number: \$\{\{ github\.event\.pull_request\.number \}\}/);
     assert.match(validation, /head_sha: \$\{\{ github\.event\.pull_request\.head\.sha \}\}/);
     assert.match(validation, /base_sha: \$\{\{ github\.event\.pull_request\.base\.sha \}\}/);
-    assert.match(validation, /merge_sha: \$\{\{ github\.event\.pull_request\.merge_commit_sha \}\}/);
+    assert.match(validation, /merge_sha: \$\{\{ github\.sha \}\}/);
     assert.match(validation, /CRM_PROD_SFDX_URL: \$\{\{ secrets\.CRM_PROD_SFDX_URL \}\}/);
     assert.match(validation, /CRM_PACKAGE_KEY: \$\{\{ secrets\.CRM_PACKAGE_KEY \}\}/);
     assert.doesNotMatch(validation, /CI_SCRATCH_ORG_AUTH_URL|secrets: inherit/);
