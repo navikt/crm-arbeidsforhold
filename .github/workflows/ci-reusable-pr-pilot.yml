@@ -6,7 +6,7 @@ on:
         workflows:
             - '\[PR\] Validate'
         types:
-            - in_progress
+            - requested
 
 permissions:
     contents: read
