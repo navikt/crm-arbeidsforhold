@@ -46,6 +46,7 @@ jobs:
         name: Validate PR
         needs: verify-pr
         if: >-
+            !cancelled() &&
             github.event.pull_request.draft == false &&
             (needs.verify-pr.result == 'success' || needs.verify-pr.result == 'skipped')
         uses: ./.github/workflows/salesforce-validation.yml
