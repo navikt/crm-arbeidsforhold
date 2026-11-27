@@ -111,8 +111,14 @@ sequenceDiagram
     Q->>ORG: Validering B
 ```
 
-Valideringa er check-only og endrar ikkje kjelda i orgen. Køen hindrar at to
-deployar konkurrerer i same org. Fallback-ruta brukar ikkje køen.
+Valideringa er check-only og endrar ikkje kjelda i orgen. Køen er ein felles
+lås for CI-orgen. Han hindrar at to deployar konkurrerer i same org, og at
+vedlikehaldet oppgraderer pakkar eller slettar orgen medan ein PR validerer.
+Fallback-ruta brukar ikkje låsen.
+
+Når ei gjenbruksvalidering har fått låsen, kontrollerer ho tilstanden til orgen
+på nytt: registrering, utløp, pakkeversjonar og fingeravtrykk. Har noko endra
+seg medan ho venta, går ho til fallback før deployen startar.
 
 Når to eller fleire **andre** PR-ar har ei køyring som **ventar** på CI-orgen,
 vel nye køyringar fallback. Elles ville ventetida i køen ete opp tidsvinsten.
@@ -123,13 +129,14 @@ har fleire ventande commitar, og køyringar frå same PR tel ikkje.
 
 ```mermaid
 flowchart TD
-    start["[CI] Maintain CI scratch org: dagleg kl. 05 og manuelt"] --> fresh{"Finst orgen og varer han meir enn 7 døgn til?"}
+    start["[CI] Maintain CI scratch org: dagleg kl. 05 og manuelt"] --> lock["Ta den felles låsen for CI-orgen"]
+    lock --> fresh{"Finst orgen, varer han meir enn 7 døgn til og stemmer fingeravtrykket med main?"}
     fresh -->|nei| create["Lag ny org"]
     create --> install["Installer pakkeplan"]
     install --> smoke["Røyktest: validering av main"]
-    smoke -->|bestått| notify["Oppsummering og varsel: registrer ny secret manuelt"]
-    notify --> secret["Person oppdaterer secret i miljøet ci-scratch-org"]
-    secret --> remove["Neste vedlikehald slettar gammal org"]
+    smoke -->|bestått| notify["Oppsummering og varsel: registrer ny org manuelt"]
+    notify --> secret["Person oppdaterer secret og dei tre variablane samla"]
+    secret --> remove["Neste vedlikehald slettar gammal org når alle fire peikar på den nye"]
     smoke -->|feila| keep["Behald gammal org og vis feilen i oppsummeringa"]
     fresh -->|ja| plan{"Pakkeversjonar lik pakkeplan?"}
     plan -->|ja| unchanged["Ingen endring"]
@@ -137,10 +144,13 @@ flowchart TD
     upgrade --> unchanged
 ```
 
-Secreten blir oppdatert manuelt inntil vidare. Ein GitHub App med skrivetilgang
+Registreringa består av secreten `CI_SCRATCH_ORG_AUTH_URL` og variablane
+`CI_SCRATCH_ORG_ID`, `CI_SCRATCH_ORG_EXPIRATION` og
+`CI_SCRATCH_ORG_CONFIG_SHA256`. Ho blir oppdatert manuelt inntil vidare. Medan
+ho er halvferdig, går PR-ane til fallback. Ein GitHub App med skrivetilgang
 til miljø-secrets kan valfritt takast i bruk seinare for å automatisere dette
-steget. Fram til secreten er oppdatert, held PR-ane fram på den gamle orgen eller
-fallback.
+steget. Fram til alle fire verdiane er oppdaterte, held PR-ane fram på den gamle orgen
+eller fallback.
 
 Ein feil i vedlikehaldet stoppar ikkje PR-ar. Dei går til fallback til orgen er
 frisk igjen.
@@ -154,6 +164,8 @@ frisk igjen.
 - **REQ-102:** Elles blir det laga ein eingongsorg som blir sletta etter køyringa, også ved feil.
 - **REQ-103:** Kompilerings-, test- og dekningsfeil gir aldri fallback.
 - **REQ-104:** Gjenbruksruta brukar check-only deploy og endrar ikkje kjelda i CI-orgen.
+- **REQ-106:** Gjenbruksvalideringa og muterande vedlikehald (pakkeoppgradering, sletting og byte av org) brukar den same eksklusive låsen. Etter at låsen er teken, blir tilstanden i REQ-101 kontrollert på nytt før deploy. Avvik gir fallback.
+- **REQ-107:** Når secreten og dei tre variablane ikkje peikar på same org, vel ruta fallback med grunnen «registreringa er ikkje komplett». Valideringa blir ikkje avbroten.
 - **REQ-105:** Når to eller fleire andre PR-ar har ei køyring som ventar på CI-orgen, vel ei ny køyring fallback. Køyringa som er i gang, tel ikkje. Kvar annan PR tel éin gong, og køyringar frå same PR tel ikkje mot grensa. Grunnen og talet på ventande PR-ar blir vist i oppsummeringa.
 
 ### Testpolicy
@@ -183,11 +195,11 @@ frisk igjen.
 ### Vedlikehald
 
 - **REQ-140:** `[CI] Maintain CI scratch org` køyrer dagleg og manuelt.
-- **REQ-141:** Orgen blir fornya når han går ut om sju døgn eller mindre, eller manglar.
+- **REQ-141:** Orgen blir fornya når han manglar, går ut om sju døgn eller mindre, eller når fingeravtrykket for scratch-definisjonen og `sourceApiVersion` på `main` ikkje stemmer med registreringa.
 - **REQ-142:** Ny org blir teken i bruk berre etter at røyktesten mot `main` er grøn.
 - **REQ-143:** Avvik i pakkeversjonar blir retta i same org når det er mogleg. Elles blir orgen fornya.
 - **REQ-144:** Vedlikehaldet viser same type oppsummering: tilstand før og etter, pakkar endra og utløpsdato.
-- **REQ-145:** Ny secret blir registrert manuelt etter ein grøn røyktest. Oppsummeringa seier kva som må gjerast. Den gamle orgen blir ikkje sletta før secreten peikar på den nye. Automatisering med GitHub App er valfri og kan komme seinare.
+- **REQ-145:** Ny org blir registrert manuelt etter ein grøn røyktest. Secreten og dei tre variablane blir oppdaterte samla, og oppsummeringa listar dei fire verdiane som må endrast, utan å vise sjølve secreten. Den gamle orgen blir ikkje sletta før alle fire peikar på den nye. Automatisering med GitHub App er valfri og kan komme seinare.
 
 ### Opprydding
 
