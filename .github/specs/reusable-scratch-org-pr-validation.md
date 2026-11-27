@@ -111,17 +111,17 @@ deployar konkurrerer i same org. Fallback-ruta brukar ikkje køen.
 
 ```mermaid
 flowchart TD
-    S["[CI] Maintain CI scratch org<br/>dagleg kl. 05 + manuell"] --> E{Org finst og<br/>går ut om meir enn 7 døgn?}
-    E -- nei --> N1[Lag ny org]
-    N1 --> N2[Installer pakkeplan]
-    N2 --> N3[Røyktest: validering av main]
-    N3 -- OK --> N4[Oppdater secret i miljøet ci-scratch-org]
-    N4 --> N5[Slett gammal org]
-    N3 -- feil --> X[Behald gammal org, feil i oppsummering]
-    E -- ja --> P{Pakkeversjonar = pakkeplan?}
-    P -- ja --> OK[Ingen endring]
-    P -- nei --> U[Installer manglande eller nyare versjonar i same org]
-    U --> OK
+    start["[CI] Maintain CI scratch org: dagleg kl. 05 og manuelt"] --> fresh{"Finst orgen og varer han meir enn 7 døgn til?"}
+    fresh -->|nei| create["Lag ny org"]
+    create --> install["Installer pakkeplan"]
+    install --> smoke["Røyktest: validering av main"]
+    smoke -->|bestått| secret["Oppdater secret i miljøet ci-scratch-org"]
+    secret --> remove["Slett gammal org"]
+    smoke -->|feila| keep["Behald gammal org og vis feilen i oppsummeringa"]
+    fresh -->|ja| plan{"Pakkeversjonar lik pakkeplan?"}
+    plan -->|ja| unchanged["Ingen endring"]
+    plan -->|nei| upgrade["Installer manglande eller nyare versjonar i same org"]
+    upgrade --> unchanged
 ```
 
 Ein feil i vedlikehaldet stoppar ikkje PR-ar. Dei går til fallback til orgen er
