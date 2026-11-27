@@ -42,6 +42,23 @@ function isCurrentPullRequest(pull, expected, repository) {
     );
 }
 
+function verifyRequiredPullRequestInvocation(event, expected, context) {
+    const workflowPath = `${context?.repository}/.github/workflows/pull_request-validation1.yml@`;
+    if (
+        event?.number !== expected?.number ||
+        context?.workflow !== '[PR] Validate' ||
+        typeof context.workflowRef !== 'string' ||
+        !context.workflowRef.startsWith(workflowPath) ||
+        context.workflowRef.length === workflowPath.length ||
+        context.ref !== `refs/pull/${expected?.number}/merge` ||
+        !commitPattern.test(expected?.mergeSha ?? '') ||
+        context.sha !== expected.mergeSha ||
+        !isCurrentPullRequest(event.pull_request, expected, context.repository)
+    ) {
+        throw new Error('The required PR validation does not match the captured PR snapshot.');
+    }
+}
+
 async function hasPriorValidation(run, currentRunId, github) {
     if (
         !Number.isSafeInteger(run?.id) ||
@@ -327,9 +344,26 @@ async function main(args) {
     if (args.length === 4 && (args[0] === 'current' || args[0] === 'verify-current')) {
         const current = getCurrentPullRequest(args, process.env.GITHUB_REPOSITORY);
         if (args[0] === 'verify-current' && !current) {
+            if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
+                throw new Error('The PR changed after the validation was queued.');
+            }
             throw new Error('The PR changed after the pilot was queued.');
         }
         if (args[0] === 'current') process.stdout.write(`${JSON.stringify({ current })}\n`);
+        return;
+    }
+    if (args.length === 5 && args[0] === 'verify-required') {
+        if (!/^[1-9]\d*$/.test(args[1])) throw new Error('The expected PR snapshot is invalid.');
+        const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
+        const expected = { number: Number(args[1]), headSha: args[2], baseSha: args[3], mergeSha: args[4] };
+        const context = {
+            repository: process.env.GITHUB_REPOSITORY,
+            workflow: process.env.GITHUB_WORKFLOW,
+            workflowRef: process.env.GITHUB_WORKFLOW_REF,
+            ref: process.env.GITHUB_REF,
+            sha: process.env.GITHUB_SHA
+        };
+        verifyRequiredPullRequestInvocation(event, expected, context);
         return;
     }
     if (args.length === 2 && args[0] === 'verify-source') {
@@ -351,7 +385,8 @@ async function main(args) {
         return;
     }
     throw new Error(
-        'Usage: ci-pr-pilot.cjs resolve | current|verify-current <number> <head> <base> | verify-source <trusted-project-file> | verify-snapshot <merge> <base> <head>'
+        'Usage: ci-pr-pilot.cjs resolve | current|verify-current <number> <head> <base> | verify-source <trusted-project-file> | verify-snapshot <merge> <base> <head>' +
+            ' | verify-required <number> <head> <base> <merge>'
     );
 }
 
@@ -362,4 +397,11 @@ if (require.main === module) {
     });
 }
 
-module.exports = { hasPriorValidation, isCurrentPullRequest, resolvePullRequest, validatePrSource, verifyMergeCommit };
+module.exports = {
+    hasPriorValidation,
+    isCurrentPullRequest,
+    resolvePullRequest,
+    validatePrSource,
+    verifyRequiredPullRequestInvocation,
+    verifyMergeCommit
+};

@@ -37,10 +37,10 @@ on:
                 required: true
             baseline_run_id:
                 type: string
-                required: true
+                required: false
             baseline_attempt:
                 type: string
-                required: true
+                required: false
         secrets:
             CRM_PROD_SFDX_URL:
                 required: true
@@ -61,16 +61,29 @@ concurrency:
 jobs:
     check-current:
         name: Check queued PR is still current
-        if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.workflow == '[CI] Reusable scratch org PR pilot'))
+        if: github.event_name == 'pull_request' || (github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.workflow == '[CI] Reusable scratch org PR pilot')))
         runs-on: ubuntu-24.04
         outputs:
             current: ${{ steps.result.outputs.current }}
         steps:
+            - name: Reject unsupported PR source
+              if: >-
+                  github.event_name == 'pull_request' &&
+                  (github.workflow != '[PR] Validate' ||
+                   github.event.pull_request.base.ref != 'main' ||
+                   github.event.pull_request.base.repo.full_name != github.repository ||
+                   github.event.pull_request.head.repo.full_name != github.repository ||
+                   github.event.pull_request.state != 'open' ||
+                   github.event.pull_request.draft != false)
+              run: |
+                  echo "This validation requires an open internal PR to main." >&2
+                  exit 1
+
             - name: Checkout trusted workflow scripts
               if: inputs.pull_number != ''
               uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
               with:
-                  ref: ${{ github.sha }}
+                  ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.sha }}
                   path: trusted
                   persist-credentials: false
 
@@ -78,6 +91,36 @@ jobs:
               if: inputs.pull_number != ''
               with:
                   node-version: '22'
+
+            - name: Verify the required PR invocation
+              if: github.event_name == 'pull_request'
+              env:
+                  PR_NUMBER: ${{ inputs.pull_number }}
+                  HEAD_SHA: ${{ inputs.head_sha }}
+                  BASE_SHA: ${{ inputs.base_sha }}
+                  MERGE_SHA: ${{ inputs.merge_sha }}
+                  BASELINE_RUN_ID: ${{ inputs.baseline_run_id }}
+                  BASELINE_ATTEMPT: ${{ inputs.baseline_attempt }}
+              run: |
+                  if [[ -n "$BASELINE_RUN_ID" || -n "$BASELINE_ATTEMPT" ]]; then
+                    echo "A required PR validation must not specify a pilot baseline." >&2
+                    exit 1
+                  fi
+                  node "$GITHUB_WORKSPACE/trusted/scripts/ci-pr-pilot.cjs" verify-required "$PR_NUMBER" "$HEAD_SHA" "$BASE_SHA" "$MERGE_SHA"
+
+            - name: Verify the triggering pilot run
+              if: github.event_name == 'workflow_run'
+              env:
+                  BASELINE_RUN_ID: ${{ inputs.baseline_run_id }}
+                  BASELINE_ATTEMPT: ${{ inputs.baseline_attempt }}
+                  TRIGGERING_RUN_ID: ${{ github.event.workflow_run.id }}
+                  TRIGGERING_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+              run: |
+                  if [[ ! "$BASELINE_RUN_ID" =~ ^[1-9][0-9]*$ || "$BASELINE_RUN_ID" != "$TRIGGERING_RUN_ID" ||
+                        ! "$BASELINE_ATTEMPT" =~ ^[1-9][0-9]*$ || "$BASELINE_ATTEMPT" != "$TRIGGERING_ATTEMPT" ]]; then
+                    echo "The pilot baseline does not match the triggering workflow run." >&2
+                    exit 1
+                  fi
 
             - name: Check PR after waiting for the scratch org
               id: result
@@ -101,12 +144,16 @@ jobs:
                   current="$(jq -er '.current | if type == "boolean" then tostring else error("Invalid PR state") end' <<< "$result")"
                   echo "current=$current" >> "$GITHUB_OUTPUT"
                   if [[ "$current" == "false" ]]; then
+                    if [[ "$EVENT_NAME" == "pull_request" ]]; then
+                      echo "The PR changed while waiting for Salesforce validation." >&2
+                      exit 1
+                    fi
                     echo "::notice::PR pilot skipped: the PR or target base changed while waiting for the scratch org."
                   fi
 
     validate:
         needs: check-current
-        if: needs.check-current.outputs.current == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.workflow == '[CI] Reusable scratch org PR pilot'))
+        if: needs.check-current.outputs.current == 'true'
         name: "${{ inputs.pull_number != '' && format('Validate PR #{0} on reusable org or fresh fallback', inputs.pull_number) || 'Validate on reusable org or fresh fallback' }}"
         runs-on: ubuntu-24.04
         timeout-minutes: 180
@@ -120,7 +167,7 @@ jobs:
             - name: Checkout trusted main branch
               uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
               with:
-                  ref: ${{ github.sha }}
+                  ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.sha }}
                   path: trusted
                   persist-credentials: false
 
@@ -437,8 +484,8 @@ jobs:
                   PR_HEAD_SHA: ${{ inputs.head_sha }}
                   PR_BASE_SHA: ${{ inputs.base_sha }}
                   PR_MERGE_SHA: ${{ inputs.merge_sha }}
-                  BASELINE_RUN_ID: ${{ inputs.baseline_run_id }}
-                  BASELINE_ATTEMPT: ${{ inputs.baseline_attempt }}
+                  BASELINE_RUN_ID: ${{ github.event_name == 'workflow_run' && inputs.baseline_run_id || '' }}
+                  BASELINE_ATTEMPT: ${{ github.event_name == 'workflow_run' && inputs.baseline_attempt || '' }}
                   FRESH_HAS_TESTS: ${{ steps.fresh-tests.outputs.has-tests }}
               run: |
                   set -euo pipefail
@@ -464,9 +511,15 @@ jobs:
                     sfdx-project.json "$RUNNER_TEMP/package-plan.json" force-app "$tests" "$coverage" \
                     "$RUNNER_TEMP/pr-evidence/evidence.json"
                   {
-                    echo "## PR pilot validation"
+                    if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+                      echo "## PR Salesforce validation"
+                    else
+                      echo "## PR pilot validation"
+                    fi
                     echo "- PR: [#$PR_NUMBER]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$PR_NUMBER)"
-                    echo "- Original PR validation: [run $BASELINE_RUN_ID, attempt $BASELINE_ATTEMPT]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$BASELINE_RUN_ID/attempts/$BASELINE_ATTEMPT)"
+                    if [[ "$GITHUB_EVENT_NAME" == "workflow_run" ]]; then
+                      echo "- Original PR validation: [run $BASELINE_RUN_ID, attempt $BASELINE_ATTEMPT]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$BASELINE_RUN_ID/attempts/$BASELINE_ATTEMPT)"
+                    fi
                     echo "- Validated merge commit: \`$PR_MERGE_SHA\`"
                     echo "- Route: $CI_VALIDATION_ROUTE"
                     echo "- Recorded test methods: $(jq '.tests.methods | length' "$RUNNER_TEMP/pr-evidence/evidence.json")"
@@ -475,10 +528,19 @@ jobs:
                   } >> "$GITHUB_STEP_SUMMARY"
 
             - name: Upload minimal PR pilot evidence
-              if: inputs.pull_number != ''
+              if: inputs.pull_number != '' && github.event_name == 'workflow_run'
               uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
               with:
                   name: reusable-pr-pilot-evidence-${{ github.run_attempt }}
+                  path: ${{ runner.temp }}/pr-evidence/evidence.json
+                  retention-days: 7
+                  if-no-files-found: error
+
+            - name: Upload minimal required PR evidence
+              if: inputs.pull_number != '' && github.event_name == 'pull_request'
+              uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+              with:
+                  name: reusable-pr-validation-evidence-${{ github.run_attempt }}
                   path: ${{ runner.temp }}/pr-evidence/evidence.json
                   retention-days: 7
                   if-no-files-found: error

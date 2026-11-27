@@ -9,6 +9,7 @@ const {
     isCurrentPullRequest,
     resolvePullRequest,
     validatePrSource,
+    verifyRequiredPullRequestInvocation,
     verifyMergeCommit
 } = require('../ci-pr-pilot.cjs');
 
@@ -16,6 +17,7 @@ const repository = 'example/repository';
 const headSha = 'a'.repeat(40);
 const baseSha = 'b'.repeat(40);
 const mergeSha = 'c'.repeat(40);
+const changedSha = 'd'.repeat(40);
 const workflowRun = {
     name: '[PR] Validate',
     path: '.github/workflows/pull_request-validation1.yml',
@@ -230,6 +232,80 @@ test('does not start a queued pilot after the PR or target base changes', () => 
     assert.throws(() => isCurrentPullRequest({ ...pullRequest, draft: 'false' }, expected, repository), /invalid/i);
 });
 
+test('accepts a required validation only for the captured internal PR to main', () => {
+    const event = { number: 42, pull_request: pullRequest };
+    const expected = { number: 42, headSha, baseSha, mergeSha };
+    const context = {
+        repository,
+        workflow: '[PR] Validate',
+        workflowRef: `${repository}/.github/workflows/pull_request-validation1.yml@refs/pull/42/merge`,
+        ref: 'refs/pull/42/merge',
+        sha: mergeSha
+    };
+    assert.doesNotThrow(() => verifyRequiredPullRequestInvocation(event, expected, context));
+
+    for (const [changedEvent, changedExpected, changedContext] of [
+        [{ ...event, number: 43 }, expected, context],
+        [{ ...event, pull_request: { ...pullRequest, draft: true } }, expected, context],
+        [
+            {
+                ...event,
+                pull_request: { ...pullRequest, head: { ...pullRequest.head, repo: { full_name: 'fork/repo' } } }
+            },
+            expected,
+            context
+        ],
+        [
+            { ...event, pull_request: { ...pullRequest, base: { ...pullRequest.base, ref: 'other' } } },
+            expected,
+            context
+        ],
+        [event, { ...expected, headSha: changedSha }, context],
+        [event, { ...expected, baseSha: changedSha }, context],
+        [event, { ...expected, mergeSha: changedSha }, context],
+        [event, expected, { ...context, sha: changedSha }],
+        [event, expected, { ...context, ref: 'refs/pull/43/merge' }],
+        [event, expected, { ...context, workflow: 'Other workflow' }],
+        [event, expected, { ...context, workflowRef: `${repository}/.github/workflows/other.yml@refs/pull/42/merge` }],
+        [event, expected, { ...context, workflowRef: undefined }]
+    ]) {
+        assert.throws(
+            () => verifyRequiredPullRequestInvocation(changedEvent, changedExpected, changedContext),
+            /PR|snapshot/i
+        );
+    }
+});
+
+test('required PR verification CLI rejects a different captured merge commit or calling workflow', (context) => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-required-pr-'));
+    context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+    const eventFile = path.join(directory, 'event.json');
+    fs.writeFileSync(eventFile, JSON.stringify({ number: 42, pull_request: pullRequest }));
+    const env = {
+        ...process.env,
+        GITHUB_EVENT_PATH: eventFile,
+        GITHUB_REPOSITORY: repository,
+        GITHUB_WORKFLOW: '[PR] Validate',
+        GITHUB_WORKFLOW_REF: `${repository}/.github/workflows/pull_request-validation1.yml@refs/pull/42/merge`,
+        GITHUB_REF: 'refs/pull/42/merge',
+        GITHUB_SHA: mergeSha
+    };
+    const run = (capturedMerge, workflowRef = env.GITHUB_WORKFLOW_REF) =>
+        spawnSync(
+            process.execPath,
+            [path.resolve(__dirname, '../ci-pr-pilot.cjs'), 'verify-required', '42', headSha, baseSha, capturedMerge],
+            { env: { ...env, GITHUB_WORKFLOW_REF: workflowRef }, encoding: 'utf8' }
+        );
+    const accepted = run(mergeSha);
+    assert.equal(accepted.status, 0, accepted.stderr);
+    const rejected = run(changedSha);
+    assert.notEqual(rejected.status, 0);
+    assert.match(rejected.stderr, /PR|snapshot/i);
+    const wrongWorkflow = run(mergeSha, `${repository}/.github/workflows/other.yml@refs/pull/42/merge`);
+    assert.notEqual(wrongWorkflow.status, 0);
+    assert.match(wrongWorkflow.stderr, /PR|snapshot/i);
+});
+
 test('pilot CLI handles paginated GitHub runs and rechecks the PR snapshot', (context) => {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-pr-pilot-'));
     context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
@@ -305,6 +381,10 @@ childProcess.execFileSync = (command, args, options) => {
     result = run('verify-current', '42', headSha, baseSha);
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /PR changed/);
+    env.GITHUB_EVENT_NAME = 'pull_request';
+    result = run('verify-current', '42', headSha, baseSha);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /PR changed after the validation was queued/);
 });
 
 test('accepts only the captured merge commit with the expected base and PR parents', () => {
