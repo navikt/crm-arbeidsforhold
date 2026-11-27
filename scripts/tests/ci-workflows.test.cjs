@@ -61,11 +61,9 @@ test('PR pilot starts from trusted main and validates a captured PR snapshot wit
     const pilot = readWorkflow('ci-reusable-pr-pilot.yml');
     const required = readWorkflow('pull_request-validation1.yml');
     const requiredName = required.match(/^name: '([^']+)'$/m);
-    const trigger = pilot.match(
-        /workflow_run:\s*\n\s+workflows:\s*\n\s+- '([^']+)'\s*\n\s+types:\s*\n\s+- in_progress/
-    );
+    const trigger = pilot.match(/workflow_run:\s*\n\s+workflows:\s*\n\s+- '([^']+)'\s*\n\s+types:\s*\n\s+- requested/);
     assert.ok(requiredName, 'The required validation workflow must have a name.');
-    assert.ok(trigger, 'The pilot must use an in-progress workflow trigger.');
+    assert.ok(trigger, 'The pilot must start once per validation run attempt.');
     const literalNamePattern = requiredName[1].replace(/[\\*?+\[\]!]/g, '\\$&');
     assert.equal(trigger[1], literalNamePattern, 'The pilot must match the exact validation workflow name.');
     assert.match(pilot, /pull-requests: read/);
