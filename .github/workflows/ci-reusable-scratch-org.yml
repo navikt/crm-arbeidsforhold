@@ -410,7 +410,7 @@ jobs:
 
             - name: Upload minimal PR evidence
               if: always() && inputs.pull_number != '' && steps.route.outputs.route == 'reuse'
-              uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
               with:
                   name: reusable-pr-validation-evidence-${{ github.run_attempt }}
                   path: ${{ runner.temp }}/pr-evidence/evidence.json
@@ -626,7 +626,7 @@ jobs:
 
             - name: Upload minimal PR evidence
               if: always() && inputs.pull_number != '' && steps.create-fresh.outputs.created == 'true'
-              uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
               with:
                   name: fresh-pr-validation-evidence-${{ github.run_attempt }}
                   path: ${{ runner.temp }}/pr-evidence/evidence.json
