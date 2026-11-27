@@ -208,7 +208,7 @@ frisk igjen.
 - **REQ-142:** Ny org blir teken i bruk berre etter at røyktesten mot `main` er grøn.
 - **REQ-143:** Avvik i pakkeversjonar blir retta i same org når det er mogleg. Elles blir orgen fornya.
 - **REQ-144:** Vedlikehaldet viser same type oppsummering: tilstand før og etter, pakkar endra og utløpsdato.
-- **REQ-145:** Ny org blir registrert manuelt etter ein grøn røyktest. Secreten og dei tre variablane blir oppdaterte samla, og oppsummeringa listar namna på dei fire som må endrast, utløpsdatoen og fingeravtrykket. Org-ID og auth-URL blir ikkje viste (REQ-123). Personen hentar dei sjølv frå Dev Hub ved å slå opp kandidaten som er merkt etter REQ-146, og oppsummeringa viser kommandoen for det. Den gamle orgen blir ikkje sletta før alle fire peikar på den nye. Automatisering med GitHub App er valfri og kan komme seinare.
+- **REQ-145:** Ny org blir registrert manuelt etter ein grøn røyktest. Secreten og dei tre variablane blir oppdaterte samla, og oppsummeringa listar namna på dei fire som må endrast, utløpsdatoen og fingeravtrykket. Org-ID og auth-URL blir ikkje viste (REQ-123). Korleis auth-URL-en blir overlevert til personen, er eit ope spørsmål (sjå nedanfor) og må avgjerast før [#1270](https://github.com/navikt/crm-arbeidsforhold/issues/1270) blir implementert. Den gamle orgen blir ikkje sletta før alle fire peikar på den nye. Automatisering med GitHub App er valfri og kan komme seinare.
 - **REQ-146:** Det finst høgst éin kandidat-org om gongen. Kandidaten blir merkt i Dev Hub, til dømes med `Description` på `ScratchOrgInfo`, slik at tilstanden «ventar på registrering» overlever mellom køyringar utan å skrive til repoet. Ein gyldig kandidat (røyktesta, går ut om meir enn sju døgn og fingeravtrykket stemmer med `main`) blir gjenbrukt. Ein ugyldig kandidat blir sletta før ein ny blir oppretta. Ein kandidat som feilar røyktesten, blir sletta med ein gong.
 
 ### Opprydding
@@ -271,3 +271,12 @@ Rute: gjenbruk – CI-org samsvarar med pakkeplanen (19/19), går ut 2026-12-07.
 
 1. GitHub App for automatisk oppdatering av secreten blir ikkje teken i bruk no. Det er eit valfritt steg seinare (REQ-145).
 2. Køyringa går til fallback når to eller fleire andre PR-ar ventar i kø for CI-orgen. Køyringa som er i gang, og fleire køyringar i same PR tel ikkje (REQ-105).
+
+## Opne spørsmål
+
+1. **Overlevering av auth-URL for kandidat-orgen (REQ-145).** `sf org auth show-sfdx-auth-url` krev at orgen er autorisert lokalt med refresh-token. Etter at vedlikehaldsrunneren er avslutta, kan personen difor ikkje hente auth-URL-en berre ved å slå opp kandidaten i Dev Hub. Alternativ som skal vurderast i [#1270](https://github.com/navikt/crm-arbeidsforhold/issues/1270):
+    - JWT-innlogging til kandidaten via den tilkopla appen til Dev Hub, med lokal autorisering hos personen.
+    - Auth-URL-en blir kryptert med ein offentleg nøkkel som berre operatøren har den private nøkkelen til, og blir lasta opp som kortliva artefakt.
+    - GitHub App som skriv secreten direkte (valfritt steg seinare).
+
+    Krav uansett val: ingen påloggingsopplysningar i klartekst i loggar, oppsummeringar eller artefakt.
