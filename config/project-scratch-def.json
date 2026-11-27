@@ -1,7 +1,7 @@
 {
     "orgName": "crm-arbeidsforhold",
-    "country": "NO",
     "language": "en_US",
+    "country": "NO",
     "edition": "Enterprise",
     "adminEmail": "fakeemail@nav.no.scratchorg",
     "description": "Dette er ein utviklings scratch-org brukt for å utvikle løsninger til Arbeidsforhold.",
