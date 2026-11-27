@@ -193,10 +193,21 @@ test('only the reusable org job is locked and protected; the new-org job runs wi
 test('PR checks run from trusted base scripts before any Salesforce credential is used', () => {
     const source = reusableWorkflow();
     const prepare = jobSection(source, 'prepare');
+    const caller = readWorkflow('pull_request-validation1.yml');
+    const verify = jobSection(caller, 'verify-pr');
+    const validationCall = jobSection(caller, 'run-pr-validation');
+    assert.match(verify, /github\.event\.pull_request\.draft == false/);
+    assert.match(verify, /github\.event\.pull_request\.base\.ref == 'main'/);
+    assert.match(verify, /github\.event\.pull_request\.head\.repo\.full_name == github\.repository/);
+    assert.match(verify, /ref: \$\{\{ github\.event\.pull_request\.base\.sha \}\}/);
+    assert.match(verify, /ci-pr-guard\.cjs" verify-required/);
+    assert.match(validationCall, /needs: verify-pr/);
+    assert.match(validationCall, /needs\.verify-pr\.result == 'success'/);
+    assert.match(validationCall, /needs\.verify-pr\.result == 'skipped'/);
+
     const order = [
         '- name: Reject unsupported PR source',
         '- name: Checkout trusted workflow scripts',
-        'ci-pr-guard.cjs" verify-required',
         'ci-pr-guard.cjs" verify-current',
         'ci-pr-guard.cjs" queue'
     ].map((marker) => prepare.indexOf(marker));
@@ -204,6 +215,7 @@ test('PR checks run from trusted base scripts before any Salesforce credential i
         order.every((index, position) => index >= 0 && (position === 0 || index > order[position - 1])),
         order.join()
     );
+    assert.doesNotMatch(prepare, /verify-required/);
     assert.match(prepare, /github\.event\.pull_request\.base\.ref != 'main'/);
     assert.match(prepare, /github\.event\.pull_request\.head\.repo\.full_name != github\.repository/);
     for (const job of ['prepare', 'reuse', 'fresh']) {

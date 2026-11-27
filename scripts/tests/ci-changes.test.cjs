@@ -23,6 +23,10 @@ for (const file of [
     '.github/workflows/pull_request-validation1.yml',
     '.github/workflows/salesforce-validation.yml',
     '.github/workflows/ci-reusable-scratch-org.yml',
+    'scripts/ci-pr-guard.cjs',
+    'scripts/ci-scratch-plan.cjs',
+    'scripts/ci-pr-evidence.cjs',
+    'bin/package-dependencies.js',
     'scripts/ci-changes.cjs',
     'scripts/tests/ci-changes.test.cjs'
 ]) {

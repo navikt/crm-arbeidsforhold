@@ -73,15 +73,6 @@ jobs:
               with:
                   node-version: '22'
 
-            - name: Verify the required PR invocation
-              if: github.event_name == 'pull_request'
-              env:
-                  PR_NUMBER: ${{ inputs.pull_number }}
-                  HEAD_SHA: ${{ inputs.head_sha }}
-                  BASE_SHA: ${{ inputs.base_sha }}
-                  MERGE_SHA: ${{ inputs.merge_sha }}
-              run: node "$GITHUB_WORKSPACE/trusted/scripts/ci-pr-guard.cjs" verify-required "$PR_NUMBER" "$HEAD_SHA" "$BASE_SHA" "$MERGE_SHA"
-
             - name: Check that the PR is still current
               if: github.event_name == 'pull_request'
               env:

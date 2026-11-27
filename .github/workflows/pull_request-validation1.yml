@@ -17,9 +17,37 @@ concurrency:
     group: pr-validation-${{ github.event.pull_request.number }}
     cancel-in-progress: false
 jobs:
+    verify-pr:
+        name: Verify required PR invocation
+        if: >-
+            github.event.pull_request.draft == false &&
+            github.event.pull_request.base.ref == 'main' &&
+            github.event.pull_request.head.repo.full_name == github.repository
+        runs-on: ubuntu-24.04
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout trusted workflow scripts
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  ref: ${{ github.event.pull_request.base.sha }}
+                  path: trusted
+                  persist-credentials: false
+
+            - name: Verify the required PR invocation
+              env:
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+                  BASE_SHA: ${{ github.event.pull_request.base.sha }}
+                  MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+              run: node "$GITHUB_WORKSPACE/trusted/scripts/ci-pr-guard.cjs" verify-required "$PR_NUMBER" "$HEAD_SHA" "$BASE_SHA" "$MERGE_SHA"
+
     run-pr-validation:
         name: Validate PR
-        if: github.event.pull_request.draft == false
+        needs: verify-pr
+        if: >-
+            github.event.pull_request.draft == false &&
+            (needs.verify-pr.result == 'success' || needs.verify-pr.result == 'skipped')
         uses: ./.github/workflows/salesforce-validation.yml
         permissions:
             contents: read
