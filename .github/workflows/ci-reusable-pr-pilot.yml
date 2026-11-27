@@ -144,6 +144,7 @@ jobs:
             pull-requests: read
         uses: ./.github/workflows/ci-reusable-scratch-org.yml
         with:
+            repo_only: true
             pull_number: ${{ needs.prepare.outputs.number }}
             head_sha: ${{ needs.prepare.outputs.head_sha }}
             base_sha: ${{ needs.prepare.outputs.base_sha }}

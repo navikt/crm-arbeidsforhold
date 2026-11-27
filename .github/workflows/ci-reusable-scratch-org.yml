@@ -8,9 +8,18 @@ on:
                 type: boolean
                 required: false
                 default: false
+            repo_only:
+                description: Run repository tests only (Salesforce may require 75% coverage per deployed class and trigger)
+                type: boolean
+                required: false
+                default: false
     workflow_call:
         inputs:
             force_fresh:
+                type: boolean
+                required: false
+                default: false
+            repo_only:
                 type: boolean
                 required: false
                 default: false
@@ -282,8 +291,35 @@ jobs:
 
             - name: Validate reusable org with tests and coverage
               if: env.CI_VALIDATION_ROUTE == 'reuse'
+              env:
+                  REPOSITORY_TESTS_ONLY: ${{ inputs.repo_only }}
               run: |
                   set -euo pipefail
+                  test_arguments=(--test-level RunLocalTests)
+                  if [[ "$REPOSITORY_TESTS_ONLY" == "true" ]]; then
+                    classes_file="$RUNNER_TEMP/apex-test-classes.json"
+                    classes_list="$RUNNER_TEMP/apex-test-classes.txt"
+                    node "$TRUSTED_ROOT/scripts/ci-scratch-plan.cjs" tests force-app > "$classes_file"
+                    jq -r '.[]' "$classes_file" > "$classes_list"
+                    test_arguments=(--test-level RunSpecifiedTests)
+                    test_count=0
+                    while IFS= read -r test_class; do
+                      if [[ ! "$test_class" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+                        echo "Invalid repository Apex test class name." >&2
+                        exit 1
+                      fi
+                      test_arguments+=(--tests "$test_class")
+                      test_count=$((test_count + 1))
+                    done < "$classes_list"
+                    if ((test_count == 0)); then
+                      echo "No repository Apex test classes found for the reusable-org pilot." >&2
+                      exit 1
+                    fi
+                    echo "Selected $test_count repository Apex test classes; Salesforce may require 75% coverage per deployed class and trigger."
+                  elif [[ "$REPOSITORY_TESTS_ONLY" != "false" ]]; then
+                    echo "Invalid repository Apex test selection." >&2
+                    exit 1
+                  fi
                   result_file="$RUNNER_TEMP/reuse-deploy.json"
                   command_token="$(node -e 'console.log(require("node:crypto").randomUUID())')"
                   echo "::stop-commands::$command_token"
@@ -292,7 +328,7 @@ jobs:
                     --source-dir force-app \
                     --target-org ci-reuse \
                     --dry-run \
-                    --test-level RunLocalTests \
+                    "${test_arguments[@]}" \
                     --coverage-formatters json \
                     --results-dir "$RUNNER_TEMP/reuse-results" \
                     --wait 60 \
@@ -304,7 +340,17 @@ jobs:
                           .message?,
                           .result.message?,
                           .result.details.componentFailures[]?.problem?,
-                          .result.details.runTestResult.failures[]?.message?
+                          .result.details.runTestResult.failures[]?.message?,
+                          (
+                            .result.details.runTestResult.codeCoverageWarnings? // [] |
+                            (if type == "array" then .[] elif type == "object" then . else empty end) |
+                            select((.message? | type) == "string" and (.message | length) > 0) |
+                            if ((.name? | type) == "string" and (.name | length) > 0) then
+                              "\(.name): \(.message)"
+                            else
+                              .message
+                            end
+                          )
                         ] | map(select(. != null and . != "")) | unique | join("\n")
                       ' "$result_file")"
                       if [[ -n "$diagnostics" ]]; then
@@ -336,12 +382,22 @@ jobs:
             - name: Run repository Apex tests in fresh org
               id: fresh-tests
               if: env.CI_VALIDATION_ROUTE == 'fresh'
+              env:
+                  REPOSITORY_TESTS_ONLY: ${{ inputs.repo_only }}
               run: |
                   set -euo pipefail
+                  if [[ "$REPOSITORY_TESTS_ONLY" != "true" && "$REPOSITORY_TESTS_ONLY" != "false" ]]; then
+                    echo "Invalid repository Apex test selection." >&2
+                    exit 1
+                  fi
                   classes_file="$RUNNER_TEMP/apex-test-classes.json"
                   node "$TRUSTED_ROOT/scripts/ci-scratch-plan.cjs" tests force-app > "$classes_file"
                   mapfile -t test_classes < <(jq -r '.[]' "$classes_file")
                   if ((${#test_classes[@]} == 0)); then
+                    if [[ "$REPOSITORY_TESTS_ONLY" == "true" ]]; then
+                      echo "No repository Apex test classes found for the reusable-org pilot." >&2
+                      exit 1
+                    fi
                     echo "No repository Apex test classes found; matching current CI behavior."
                     echo "has-tests=false" >> "$GITHUB_OUTPUT"
                     exit 0
