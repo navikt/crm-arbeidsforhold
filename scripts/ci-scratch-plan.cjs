@@ -190,9 +190,9 @@ function changedSourcesWithoutCoverage(changedFiles, records, root, ignorePatter
         if (covered.has(name) || isForceIgnored(file, ignorePatterns)) continue;
         const filename = path.join(root, file);
         if (!fs.existsSync(filename)) continue;
-        const raw = fs.readFileSync(filename, 'utf8');
-        if (/@IsTest\b/i.test(raw)) continue;
-        const source = stripApexComments(raw);
+        const source = stripApexComments(fs.readFileSync(filename, 'utf8'));
+        const declaration = source.replace(/'(?:\\.|[^'\\\n])*'/g, "''").split(/\bclass\b/i)[0];
+        if (extension === '.cls' && /@IsTest\b/i.test(declaration)) continue;
         if (/^\s*(?:@\w+(?:\([^)]*\))?\s*)*(?:(?:public|global|private)\s+)?interface\s/i.test(source)) continue;
         const lines = source.split(/\r?\n/).filter((line) => line.includes(';')).length;
         if (lines > 0) missing.push({ name, path: file, lines });

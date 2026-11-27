@@ -165,6 +165,7 @@ test('counts changed Apex sources without coverage data as uncovered', (context)
     write('Contract.cls', 'public interface Contract {\n    void run();\n}');
     write('Ignored.cls', 'public class Ignored { void a() { x = 1; } }');
     write('Empty.cls', 'public class Empty {}');
+    write('Disguised.cls', "// Covered by an @IsTest class\npublic class Disguised {\n    String s = '@IsTest';\n}");
     write(
         'UrlOnly.cls',
         "public class UrlOnly {\n    String u() { return 'https://example.invalid/*x'; } // trailing\n}"
@@ -178,12 +179,14 @@ test('counts changed Apex sources without coverage data as uncovered', (context)
         'force-app/main/classes/Ignored.cls',
         'force-app/main/classes/Empty.cls',
         'force-app/main/classes/UrlOnly.cls',
+        'force-app/main/classes/Disguised.cls',
         'force-app/main/classes/Deleted.cls',
         'force-app/main/lwc/example/example.js'
     ];
     const records = [{ name: 'Covered', totalCovered: 1, totalLines: 1 }];
     const missing = changedSourcesWithoutCoverage(changed, records, directory, ['**/classes/Ignored.cls']);
     assert.deepEqual(missing, [
+        { name: 'Disguised', path: 'force-app/main/classes/Disguised.cls', lines: 1 },
         { name: 'Uncovered', path: 'force-app/main/classes/Uncovered.cls', lines: 2 },
         { name: 'UncoveredTrigger', path: 'force-app/main/classes/UncoveredTrigger.trigger', lines: 1 },
         { name: 'UrlOnly', path: 'force-app/main/classes/UrlOnly.cls', lines: 1 }
@@ -195,7 +198,7 @@ test('counts changed Apex sources without coverage data as uncovered', (context)
         85,
         missing
     );
-    assert.equal(result.total, 104);
+    assert.equal(result.total, 105);
     assert.deepEqual(result.missing, missing);
     assert.throws(
         () =>
