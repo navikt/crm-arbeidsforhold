@@ -131,13 +131,17 @@ har fleire ventande commitar, og køyringar frå same PR tel ikkje.
 flowchart TD
     start["[CI] Maintain CI scratch org: dagleg kl. 05 og manuelt"] --> lock["Ta den felles låsen for CI-orgen"]
     lock --> fresh{"Finst orgen, varer han meir enn 7 døgn til og stemmer fingeravtrykket med main?"}
-    fresh -->|nei| create["Lag ny org"]
+    fresh -->|nei| pending{"Finst det ein kandidat som ventar på registrering?"}
+    pending -->|ja, gyldig| notify
+    pending -->|ja, ugyldig| discard["Slett den forkasta kandidaten"]
+    discard --> create
+    pending -->|nei| create["Lag ny kandidat-org"]
     create --> install["Installer pakkeplan"]
     install --> smoke["Røyktest: validering av main"]
     smoke -->|bestått| notify["Oppsummering og varsel: registrer ny org manuelt"]
     notify --> secret["Person oppdaterer secret og dei tre variablane samla"]
     secret --> remove["Neste vedlikehald slettar gammal org når alle fire peikar på den nye"]
-    smoke -->|feila| keep["Behald gammal org og vis feilen i oppsummeringa"]
+    smoke -->|feila| keep["Slett kandidaten, behald gammal org og vis feilen i oppsummeringa"]
     fresh -->|ja| plan{"Pakkeversjonar lik pakkeplan?"}
     plan -->|ja| unchanged["Ingen endring"]
     plan -->|nei| upgrade["Installer manglande eller nyare versjonar i same org"]
@@ -151,6 +155,11 @@ ho er halvferdig, går PR-ane til fallback. Ein GitHub App med skrivetilgang
 til miljø-secrets kan valfritt takast i bruk seinare for å automatisere dette
 steget. Fram til alle fire verdiane er oppdaterte, held PR-ane fram på den gamle orgen
 eller fallback.
+
+Medan ein røyktesta kandidat ventar på registrering, lagar vedlikehaldet ingen
+nye orgar. Det minner om registreringa i kvar køyring. Slik er det aldri meir
+enn éin kandidat i tillegg til den registrerte orgen, og kvoten for scratch-orgar
+blir verande ledig for fallback.
 
 Ein feil i vedlikehaldet stoppar ikkje PR-ar. Dei går til fallback til orgen er
 frisk igjen.
@@ -200,6 +209,7 @@ frisk igjen.
 - **REQ-143:** Avvik i pakkeversjonar blir retta i same org når det er mogleg. Elles blir orgen fornya.
 - **REQ-144:** Vedlikehaldet viser same type oppsummering: tilstand før og etter, pakkar endra og utløpsdato.
 - **REQ-145:** Ny org blir registrert manuelt etter ein grøn røyktest. Secreten og dei tre variablane blir oppdaterte samla, og oppsummeringa listar dei fire verdiane som må endrast, utan å vise sjølve secreten. Den gamle orgen blir ikkje sletta før alle fire peikar på den nye. Automatisering med GitHub App er valfri og kan komme seinare.
+- **REQ-146:** Det finst høgst éin kandidat-org om gongen. Kandidaten blir merkt i Dev Hub, til dømes med `Description` på `ScratchOrgInfo`, slik at tilstanden «ventar på registrering» overlever mellom køyringar utan å skrive til repoet. Ein gyldig kandidat (røyktesta, går ut om meir enn sju døgn og fingeravtrykket stemmer med `main`) blir gjenbrukt. Ein ugyldig kandidat blir sletta før ein ny blir oppretta. Ein kandidat som feilar røyktesten, blir sletta med ein gong.
 
 ### Opprydding
 
