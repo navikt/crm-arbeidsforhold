@@ -73,7 +73,9 @@ flowchart TD
     B4 -- nei --> F
     B4 -- ja --> B5{Scratch-definisjon uendra?}
     B5 -- nei --> F
-    B5 -- ja --> RU
+    B5 -- ja --> B6{"Færre enn 2 andre PR-ar i kø?"}
+    B6 -- nei --> F
+    B6 -- ja --> RU
 
     RU[3a. Gjenbruk: check-only deploy<br/>+ repo-testar + dekning] --> G
     F[3b. Fallback: ny org, installer pakkeplan,<br/>deploy, repo-testar, dekning, slett org] --> G
@@ -93,12 +95,17 @@ er feil i PR-en og ikkje i orgen.
 sequenceDiagram
     participant PR1 as PR A
     participant PR2 as PR B
+    participant PR3 as PR C
     participant Q as Kø (concurrency)
     participant ORG as CI-org
     PR1->>Q: Vel rute = reuse
     Q->>ORG: Validering A (check-only)
     PR2->>Q: Vel rute = reuse
     Note over PR2,Q: B ventar til A er ferdig
+    PR1->>Q: Ny commit i PR A
+    Note over PR1,Q: Tel ikkje som anna PR i køen
+    PR3->>Q: To andre PR-ar er framfor
+    Note over PR3: C går til fallback med ny org
     ORG-->>PR1: Resultat A
     Q->>ORG: Validering B
     ORG-->>PR2: Resultat B
@@ -106,6 +113,10 @@ sequenceDiagram
 
 Valideringa er check-only og endrar ikkje kjelda i orgen. Køen hindrar at to
 deployar konkurrerer i same org. Fallback-ruta brukar ikkje køen.
+
+Når to eller fleire køyringar frå **andre** PR-ar allereie køyrer eller ventar på
+CI-orgen, vel nye køyringar fallback. Elles ville ventetida i køen ete opp
+tidsvinsten. Fleire commitar i same PR tel ikkje mot grensa.
 
 ## Vedlikehald av CI-orgen
 
@@ -115,14 +126,20 @@ flowchart TD
     fresh -->|nei| create["Lag ny org"]
     create --> install["Installer pakkeplan"]
     install --> smoke["Røyktest: validering av main"]
-    smoke -->|bestått| secret["Oppdater secret i miljøet ci-scratch-org"]
-    secret --> remove["Slett gammal org"]
+    smoke -->|bestått| notify["Oppsummering og varsel: registrer ny secret manuelt"]
+    notify --> secret["Person oppdaterer secret i miljøet ci-scratch-org"]
+    secret --> remove["Neste vedlikehald slettar gammal org"]
     smoke -->|feila| keep["Behald gammal org og vis feilen i oppsummeringa"]
     fresh -->|ja| plan{"Pakkeversjonar lik pakkeplan?"}
     plan -->|ja| unchanged["Ingen endring"]
     plan -->|nei| upgrade["Installer manglande eller nyare versjonar i same org"]
     upgrade --> unchanged
 ```
+
+Secreten blir oppdatert manuelt inntil vidare. Ein GitHub App med skrivetilgang
+til miljø-secrets kan valfritt takast i bruk seinare for å automatisere dette
+steget. Fram til secreten er oppdatert, held PR-ane fram på den gamle orgen eller
+fallback.
 
 Ein feil i vedlikehaldet stoppar ikkje PR-ar. Dei går til fallback til orgen er
 frisk igjen.
@@ -136,12 +153,14 @@ frisk igjen.
 - **REQ-102:** Elles blir det laga ein eingongsorg som blir sletta etter køyringa, også ved feil.
 - **REQ-103:** Kompilerings-, test- og dekningsfeil gir aldri fallback.
 - **REQ-104:** Gjenbruksruta brukar check-only deploy og endrar ikkje kjelda i CI-orgen.
+- **REQ-105:** Når to eller fleire køyringar frå andre PR-ar køyrer eller ventar på CI-orgen, vel ei ny køyring fallback. Køyringar frå same PR tel ikkje mot grensa. Grunnen blir vist i oppsummeringa.
 
 ### Testpolicy
 
 - **REQ-110:** Begge rutene køyrer dei same repo-testklassane, funne med `ci-scratch-plan.cjs tests`.
 - **REQ-111:** Samla repo-dekning må vere minst 85 %.
 - **REQ-112:** Fordi gjenbruksruta brukar `RunSpecifiedTests`, krev Salesforce minst 75 % per deploya klasse og trigger. Brot blir vist som ein eigen tabell med klasse, dekning og manglande prosentpoeng.
+- **REQ-113:** Klassar og triggarar som er lagde til eller endra i PR-en og manglar dekningsdata, blir rekna som 0 % i grunnlaget for 85 %-kravet i staden for å bli utelatne. Testklassar (`@IsTest`), interface og filer i `.forceignore` blir hoppa over. Filene blir lista i oppsummeringa som «⚠️ ingen dekningsdata». Dei gir ikkje eigen stoppfeil. Åtferda blir stadfesta når workflowen blir teken i bruk; det trengst ikkje eiga verifisering i org på førehand.
 
 ### Godkjenning og tryggleik
 
@@ -167,6 +186,7 @@ frisk igjen.
 - **REQ-142:** Ny org blir teken i bruk berre etter at røyktesten mot `main` er grøn.
 - **REQ-143:** Avvik i pakkeversjonar blir retta i same org når det er mogleg. Elles blir orgen fornya.
 - **REQ-144:** Vedlikehaldet viser same type oppsummering: tilstand før og etter, pakkar endra og utløpsdato.
+- **REQ-145:** Ny secret blir registrert manuelt etter ein grøn røyktest. Oppsummeringa seier kva som må gjerast. Den gamle orgen blir ikkje sletta før secreten peikar på den nye. Automatisering med GitHub App er valfri og kan komme seinare.
 
 ### Opprydding
 
@@ -208,7 +228,9 @@ Rute: gjenbruk – CI-org samsvarar med pakkeplanen (19/19), går ut 2026-12-07.
 | Sjekknamn | Uendra | Branch protection treng ikkje endrast. |
 | Testnivå | Repo-testar (`RunSpecifiedTests`) | Pakketestar blir ikkje køyrde på nytt. 75 %-kravet per klasse er akseptert. |
 | Godkjenning | Ingen per PR | Dagens påkravde validering har allereie Dev Hub-secret utan godkjenning. Gjenbruks-secreten gir tilgang berre til ein scratch-org. |
-| Fornying av secret | GitHub App med `secrets: write` på miljøet | Krevst for full automatisering. Til appen finst, fornyar ein person med éin manuell køyring. |
+| Fornying av secret | Manuell registrering no; GitHub App valfritt seinare | Vi tek ikkje i bruk GitHub App no. Vedlikehaldet gjer resten automatisk og seier frå når secreten må oppdaterast. |
+| Kø-grense | Fallback ved 2 eller fleire andre PR-ar i kø | Lang kø et opp tidsvinsten. Commitar i same PR tel ikkje. |
+| Dekning for endra filer utan data | Tel som 0 %, ingen eigen stoppfeil | Tettar holet for utesta nye klassar utan falske positive for interface og liknande. |
 
 ## Tryggleik og data
 
@@ -222,7 +244,7 @@ Rute: gjenbruk – CI-org samsvarar med pakkeplanen (19/19), går ut 2026-12-07.
 - Endring av LWC-, dokumentasjons- og pakkeworkflowar.
 - Parallell bruk av fleire CI-orgar.
 
-## Opne spørsmål
+## Avklarte spørsmål
 
-1. Skal ein GitHub App opprettast for automatisk oppdatering av secreten (REQ-141), eller held det med varsel og manuell køyring?
-2. Skal køyringa gå til fallback når køen for CI-orgen er lengre enn ein grense, til dømes to ventande køyringar?
+1. GitHub App for automatisk oppdatering av secreten blir ikkje teken i bruk no. Det er eit valfritt steg seinare (REQ-145).
+2. Køyringa går til fallback når to eller fleire andre PR-ar er i kø for CI-orgen, men ikkje for fleire køyringar i same PR (REQ-105).
