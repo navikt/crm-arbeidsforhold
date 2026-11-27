@@ -200,6 +200,7 @@ test('PR checks run from trusted base scripts before any Salesforce credential i
     assert.match(verify, /github\.event\.pull_request\.base\.ref == 'main'/);
     assert.match(verify, /github\.event\.pull_request\.head\.repo\.full_name == github\.repository/);
     assert.match(verify, /ref: \$\{\{ github\.event\.pull_request\.base\.sha \}\}/);
+    assert.match(verify, /MERGE_SHA: \$\{\{ github\.sha \}\}/);
     assert.match(verify, /ci-pr-guard\.cjs" verify-required/);
     assert.match(validationCall, /needs: verify-pr/);
     assert.match(validationCall, /needs\.verify-pr\.result == 'success'/);

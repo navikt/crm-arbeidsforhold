@@ -39,7 +39,7 @@ jobs:
                   PR_NUMBER: ${{ github.event.pull_request.number }}
                   HEAD_SHA: ${{ github.event.pull_request.head.sha }}
                   BASE_SHA: ${{ github.event.pull_request.base.sha }}
-                  MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+                  MERGE_SHA: ${{ github.sha }}
               run: node "$GITHUB_WORKSPACE/trusted/scripts/ci-pr-guard.cjs" verify-required "$PR_NUMBER" "$HEAD_SHA" "$BASE_SHA" "$MERGE_SHA"
 
     run-pr-validation:
