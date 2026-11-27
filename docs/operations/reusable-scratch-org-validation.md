@@ -565,6 +565,41 @@ testfila eller rå loggar i chat. Dersom eit seinare forsøk har erstatta
 `apex-tests`-artefaktet, avviser skriptet samanlikninga i staden for å blande
 resultat frå ulike forsøk.
 
+### 10. Samanlikn begge rutene med eigne test-PR-ar
+
+**Stad: GitHub i nettlesaren, deretter terminalen frå steg 9.**
+
+Dette krev at pilotendringa er fletta til `main`, og at gjenbruksorgen er
+registrert og tilgjengeleg. Lag to PR-ar som berre er til testing. Dei skal
+ikkje flettast til `main`.
+
+1. Lag ein PR for gjenbruk:
+    - Opne fila `.forceignore` frå `main` på GitHub og vel blyanten for å
+      redigere. Legg inn ei tom linje mellom `# profiles` og skiljelinja under.
+      Ikkje endre nokon av reglane i fila.
+    - Vel **Commit changes**, opprett ei ny grein og start ein PR mot `main`.
+      PR-en må ikkje vere ein draft.
+    - Følg steg 8. Kontroller at rutingssteget viser
+      `reuse validation: CI scratch org matches the package plan.`. Viser det
+      `fresh`, har denne PR-en ikkje testa gjenbruk.
+2. Lag ein separat PR for fallback:
+    - Gå tilbake til `main` på GitHub. Opne
+      `config/project-scratch-def.json` og vel blyanten for å redigere.
+      Byt om rekkefølgja på linjene med `country` og `language`, utan å endre
+      verdiane eller komma. JSON-innhaldet er då det same, men fila får eit
+      anna fingeravtrykk.
+    - Vel **Commit changes**, opprett ei ny grein og start ein PR mot `main`.
+      PR-en må ikkje vere ein draft.
+    - Følg steg 8. Kontroller at rutingssteget viser
+      `fresh validation: Scratch configuration changed.`.
+3. Vent til begge køyringane for kvar PR er ferdige. Køyr samanlikninga i
+   steg 9 for kvar av dei to PR-ane, med run-ID-ane som høyrer saman.
+   Kontroller at `comparable`, `sameMethods` og `sameCoverageComponents` alle
+   er `true`, og samanlikn dekningstala. Undersøk eventuelle forskjellar før
+   vidare utrulling.
+4. Ta vare på samanlikningsresultata utan rå loggar eller testfiler. Lukk
+   test-PR-ane etter at alle køyringane er ferdige; ikkje flett dei.
+
 ## Avgrensing og kontroll
 
 Den manuelle workflowen og PR-piloten er tillegg til den vanlege valideringa.
