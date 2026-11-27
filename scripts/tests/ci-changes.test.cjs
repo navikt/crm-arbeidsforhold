@@ -22,6 +22,7 @@ for (const file of [
     'sfdx-project.json',
     '.github/workflows/pull_request-validation1.yml',
     '.github/workflows/salesforce-validation.yml',
+    '.github/workflows/ci-reusable-scratch-org.yml',
     'scripts/ci-changes.cjs',
     'scripts/tests/ci-changes.test.cjs'
 ]) {
@@ -230,8 +231,8 @@ test(
             ['success', 'false', 'skipped', 'main', 'example/repository', 0],
             ['success', 'false', 'failure', 'main', 'example/repository', 1],
             ['failure', 'false', 'skipped', 'main', 'example/repository', 1],
-            ['success', 'true', 'skipped', 'release', 'example/repository', 0],
-            ['success', 'true', 'skipped', 'main', 'contributor/repository', 0],
+            ['success', 'true', 'skipped', 'release', 'example/repository', 1],
+            ['success', 'true', 'skipped', 'main', 'contributor/repository', 1],
             ['success', 'true', 'skipped', 'main', 'example/repository', 1],
             ['success', 'true', 'success', 'main', 'example/repository', 0]
         ]) {

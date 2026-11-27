@@ -77,12 +77,18 @@ jobs:
                   REPOSITORY: ${{ github.repository }}
               run: |
                   test "$CHANGES_RESULT" = success
-                  if [ "$RELEVANT" != true ] || [ "$BASE_REF" != main ] || [ "$HEAD_REPOSITORY" != "$REPOSITORY" ]; then
+                  if [ "$RELEVANT" = false ]; then
                     test "$VALIDATION_RESULT" = skipped
-                    echo "Salesforce validation is not required for this change or PR source."
-                  else
-                    test "$RELEVANT" = true
+                    echo "No Salesforce changes; metadata compilation is not required."
+                  elif [ "$RELEVANT" = true ]; then
+                    if [ "$BASE_REF" != main ] || [ "$HEAD_REPOSITORY" != "$REPOSITORY" ]; then
+                      echo "::error::Salesforce changes require a same-repository PR targeting main for validation."
+                      exit 1
+                    fi
                     test "$VALIDATION_RESULT" = success
+                  else
+                    echo "::error::Salesforce change classification is invalid."
+                    exit 1
                   fi
 
     run-tests:

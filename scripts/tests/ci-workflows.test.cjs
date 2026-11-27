@@ -109,8 +109,10 @@ test('Salesforce validation calls the local workflow only for same-repository Sa
             }
         });
     assert.equal(runGate({ RELEVANT: 'false', VALIDATION_RESULT: 'skipped' }).status, 0);
-    assert.equal(runGate({ BASE_REF: 'release', VALIDATION_RESULT: 'skipped' }).status, 0);
-    assert.equal(runGate({ HEAD_REPOSITORY: 'contributor/repository', VALIDATION_RESULT: 'skipped' }).status, 0);
+    if (process.platform !== 'win32') {
+        assert.notEqual(runGate({ BASE_REF: 'release', VALIDATION_RESULT: 'skipped' }).status, 0);
+        assert.notEqual(runGate({ HEAD_REPOSITORY: 'contributor/repository', VALIDATION_RESULT: 'skipped' }).status, 0);
+    }
     assert.notEqual(runGate({ VALIDATION_RESULT: 'skipped' }).status, 0);
 });
 
