@@ -73,7 +73,7 @@ flowchart TD
     B4 -- nei --> F
     B4 -- ja --> B5{Scratch-definisjon uendra?}
     B5 -- nei --> F
-    B5 -- ja --> B6{"Færre enn 2 andre PR-ar i kø?"}
+    B5 -- ja --> B6{"Færre enn 2 andre PR-ar ventar i kø?"}
     B6 -- nei --> F
     B6 -- ja --> RU
 
@@ -93,30 +93,31 @@ er feil i PR-en og ikkje i orgen.
 
 ```mermaid
 sequenceDiagram
-    participant PR1 as PR A
-    participant PR2 as PR B
-    participant PR3 as PR C
+    participant A as PR A
+    participant B as PR B
+    participant C as PR C
+    participant D as PR D
     participant Q as Kø (concurrency)
     participant ORG as CI-org
-    PR1->>Q: Vel rute = reuse
-    Q->>ORG: Validering A (check-only)
-    PR2->>Q: Vel rute = reuse
-    Note over PR2,Q: B ventar til A er ferdig
-    PR1->>Q: Ny commit i PR A
-    Note over PR1,Q: Tel ikkje som anna PR i køen
-    PR3->>Q: To andre PR-ar er framfor
-    Note over PR3: C går til fallback med ny org
-    ORG-->>PR1: Resultat A
+    A->>Q: 0 andre PR-ar ventar, vel reuse
+    Q->>ORG: Validering A køyrer (tel ikkje som ventande)
+    B->>Q: 0 andre PR-ar ventar, vel reuse og ventar
+    B->>Q: Ny commit i PR B
+    Note over B,Q: Eigne køyringar tel ikkje, B ventar framleis
+    C->>Q: 1 annan PR ventar (B), vel reuse og ventar
+    D->>Q: 2 andre PR-ar ventar (B og C)
+    Note over D: D går til fallback med ny org
+    ORG-->>A: Resultat A
     Q->>ORG: Validering B
-    ORG-->>PR2: Resultat B
 ```
 
 Valideringa er check-only og endrar ikkje kjelda i orgen. Køen hindrar at to
 deployar konkurrerer i same org. Fallback-ruta brukar ikkje køen.
 
-Når to eller fleire køyringar frå **andre** PR-ar allereie køyrer eller ventar på
-CI-orgen, vel nye køyringar fallback. Elles ville ventetida i køen ete opp
-tidsvinsten. Fleire commitar i same PR tel ikkje mot grensa.
+Når to eller fleire **andre** PR-ar har ei køyring som **ventar** på CI-orgen,
+vel nye køyringar fallback. Elles ville ventetida i køen ete opp tidsvinsten.
+Køyringa som er i gang mot orgen, tel ikkje. Kvar PR tel éin gong, sjølv om han
+har fleire ventande commitar, og køyringar frå same PR tel ikkje.
 
 ## Vedlikehald av CI-orgen
 
@@ -153,7 +154,7 @@ frisk igjen.
 - **REQ-102:** Elles blir det laga ein eingongsorg som blir sletta etter køyringa, også ved feil.
 - **REQ-103:** Kompilerings-, test- og dekningsfeil gir aldri fallback.
 - **REQ-104:** Gjenbruksruta brukar check-only deploy og endrar ikkje kjelda i CI-orgen.
-- **REQ-105:** Når to eller fleire køyringar frå andre PR-ar køyrer eller ventar på CI-orgen, vel ei ny køyring fallback. Køyringar frå same PR tel ikkje mot grensa. Grunnen blir vist i oppsummeringa.
+- **REQ-105:** Når to eller fleire andre PR-ar har ei køyring som ventar på CI-orgen, vel ei ny køyring fallback. Køyringa som er i gang, tel ikkje. Kvar annan PR tel éin gong, og køyringar frå same PR tel ikkje mot grensa. Grunnen og talet på ventande PR-ar blir vist i oppsummeringa.
 
 ### Testpolicy
 
@@ -247,4 +248,4 @@ Rute: gjenbruk – CI-org samsvarar med pakkeplanen (19/19), går ut 2026-12-07.
 ## Avklarte spørsmål
 
 1. GitHub App for automatisk oppdatering av secreten blir ikkje teken i bruk no. Det er eit valfritt steg seinare (REQ-145).
-2. Køyringa går til fallback når to eller fleire andre PR-ar er i kø for CI-orgen, men ikkje for fleire køyringar i same PR (REQ-105).
+2. Køyringa går til fallback når to eller fleire andre PR-ar ventar i kø for CI-orgen. Køyringa som er i gang, og fleire køyringar i same PR tel ikkje (REQ-105).
