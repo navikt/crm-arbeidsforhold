@@ -142,6 +142,27 @@ test('writes a minimal evidence artifact from the actual deployment result', (co
     assert.equal(Object.hasOwn(evidence, 'baseline'), false);
     assert.doesNotMatch(raw, /do-not-copy/);
 
+    fs.writeFileSync(
+        path.join(source, 'NewService.cls'),
+        'public class NewService {\n' + '    x = 1;\n'.repeat(20) + '}'
+    );
+    const changed = path.join(directory, 'changed.txt');
+    fs.writeFileSync(changed, 'source/NewService.cls\n');
+    const adjustedOutput = path.join(directory, 'adjusted.json');
+    const adjusted = spawnSync(
+        process.execPath,
+        [script, 'create', project, plan, source, result, result, adjustedOutput, changed],
+        { ...options, cwd: directory }
+    );
+    assert.equal(adjusted.status, 0, adjusted.stderr);
+    assert.deepEqual(JSON.parse(fs.readFileSync(adjustedOutput, 'utf8')).coverage, {
+        covered: 85,
+        total: 120,
+        percentage: (85 / 120) * 100,
+        missing: [{ name: 'NewService', path: 'source/NewService.cls', lines: 20 }]
+    });
+    fs.unlinkSync(path.join(source, 'NewService.cls'));
+
     const invalid = spawnSync(
         process.execPath,
         [script, 'create', project, plan, source, result, result, path.join(directory, 'invalid.json')],

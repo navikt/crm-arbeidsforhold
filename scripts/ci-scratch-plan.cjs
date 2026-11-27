@@ -166,7 +166,16 @@ function isForceIgnored(file, patterns) {
 }
 
 function stripApexComments(source) {
-    return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+    return source.replace(/'(?:\\.|[^'\\\n])*'|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, (match) =>
+        match.startsWith("'") ? match : match.replace(/[^\n]/g, '')
+    );
+}
+
+function missingCoverageFromList(changedFile, records) {
+    if (!changedFile) return [];
+    const changed = fs.readFileSync(changedFile, 'utf8').split(/\r?\n/).filter(Boolean);
+    const ignore = fs.existsSync('.forceignore') ? fs.readFileSync('.forceignore', 'utf8').split(/\r?\n/) : [];
+    return changedSourcesWithoutCoverage(changed, records, '.', ignore);
 }
 
 function changedSourcesWithoutCoverage(changedFiles, records, root, ignorePatterns = []) {
@@ -400,16 +409,11 @@ async function main(args) {
     if (command === 'coverage' && (values.length === 2 || values.length === 3)) {
         const [coverageFile, sourceDirectory, changedFile] = values;
         const records = coverageRecords(readJson(coverageFile));
-        let missing = [];
-        if (changedFile) {
-            const changed = fs.readFileSync(changedFile, 'utf8').split(/\r?\n/).filter(Boolean);
-            const ignore = fs.existsSync('.forceignore') ? fs.readFileSync('.forceignore', 'utf8').split(/\r?\n/) : [];
-            missing = changedSourcesWithoutCoverage(changed, records, '.', ignore);
-            for (const entry of missing) {
-                process.stderr.write(
-                    `⚠️ ingen dekningsdata: ${entry.path} (counted as 0% of ${entry.lines} estimated lines)\n`
-                );
-            }
+        const missing = missingCoverageFromList(changedFile, records);
+        for (const entry of missing) {
+            process.stderr.write(
+                `⚠️ ingen dekningsdata: ${entry.path} (counted as 0% of ${entry.lines} estimated lines)\n`
+            );
         }
         const names = getApexCoverageNames(sourceDirectory);
         if (process.env.GITHUB_STEP_SUMMARY) {
@@ -441,6 +445,7 @@ module.exports = {
     changedSourcesWithoutCoverage,
     coverageMarkdown,
     coverageRecords,
+    missingCoverageFromList,
     getApexCoverageNames,
     getApexTestClassNames,
     installPlan,

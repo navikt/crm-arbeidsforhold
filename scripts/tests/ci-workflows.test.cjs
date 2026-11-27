@@ -102,7 +102,20 @@ test('only the reusable org job is locked and protected; the new-org job runs wi
     assert.match(reuse, /fallback: \$\{\{ steps\.route\.outputs\.fallback \}\}/);
     assert.doesNotMatch(fresh, /environment:|concurrency:|CI_SCRATCH_ORG_AUTH_URL/);
     assert.match(fresh, /needs: \[prepare, reuse\]/);
-    assert.match(fresh, /always\(\) &&\n\s+needs\.prepare\.result == 'success' &&/);
+    assert.match(fresh, /if: >-\n\s+!cancelled\(\) &&\n\s+needs\.prepare\.result == 'success' &&/);
+    for (const job of ['reuse', 'fresh']) {
+        assert.match(
+            stepScript(
+                jobSection(source, job),
+                job === 'reuse' ? 'List changed Apex sources' : 'Enforce repository Apex coverage in fresh org'
+            ),
+            /--diff-filter=AMR /
+        );
+        assert.match(
+            stepScript(jobSection(source, job), 'Save minimal PR test and package evidence'),
+            /evidence\.json" \$\{changed\[@\]\+"\$\{changed\[@\]\}"\}/
+        );
+    }
     assert.match(fresh, /needs\.prepare\.outputs\.route == 'fresh' \|\|/);
     assert.match(fresh, /needs\.reuse\.result == 'success' && needs\.reuse\.outputs\.fallback == 'true'/);
     assert.match(

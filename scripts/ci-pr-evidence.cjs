@@ -1,5 +1,11 @@
 const fs = require('node:fs');
-const { calculateCoverage, coverageRecords, getApexCoverageNames, readPlan } = require('./ci-scratch-plan.cjs');
+const {
+    calculateCoverage,
+    coverageRecords,
+    getApexCoverageNames,
+    missingCoverageFromList,
+    readPlan
+} = require('./ci-scratch-plan.cjs');
 
 const commitPattern = /^[a-f0-9]{40}$/;
 const identifierPattern = /^[A-Za-z_][A-Za-z0-9_]*$/;
@@ -117,7 +123,7 @@ function readJson(filename) {
     return JSON.parse(fs.readFileSync(filename, 'utf8'));
 }
 
-function createEvidence(projectFile, planFile, sourceDirectory, resultFile, coverageFile, outputFile) {
+function createEvidence(projectFile, planFile, sourceDirectory, resultFile, coverageFile, outputFile, changedFile) {
     const route = process.env.CI_VALIDATION_ROUTE;
     if (route !== 'reuse' && route !== 'fresh') throw new Error('The validation route is invalid.');
     const source = {
@@ -145,7 +151,9 @@ function createEvidence(projectFile, planFile, sourceDirectory, resultFile, cove
             : extractApexTests(result)
         : { methods: [], reportedTestsRun: 0 };
     const coverageData = coverageFile === '-' ? null : coverageRecords(readJson(coverageFile));
-    const coverage = coverageData ? calculateCoverage(coverageData, coverageNames, 0) : null;
+    const coverage = coverageData
+        ? calculateCoverage(coverageData, coverageNames, 0, missingCoverageFromList(changedFile, coverageData))
+        : null;
     const evidence = {
         schemaVersion: 1,
         repository,
@@ -163,7 +171,7 @@ function createEvidence(projectFile, planFile, sourceDirectory, resultFile, cove
 }
 
 function main(args) {
-    if (args.length === 7 && args[0] === 'create') {
+    if ((args.length === 7 || args.length === 8) && args[0] === 'create') {
         createEvidence(...args.slice(1));
         return;
     }
@@ -179,7 +187,7 @@ function main(args) {
         return;
     }
     throw new Error(
-        'Usage: ci-pr-evidence.cjs create <project> <plan> <source> <tests> <coverage> <output> | failure <response>'
+        'Usage: ci-pr-evidence.cjs create <project> <plan> <source> <tests> <coverage> <output> [changed-list] | failure <response>'
     );
 }
 

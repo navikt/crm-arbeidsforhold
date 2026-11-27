@@ -310,7 +310,7 @@ jobs:
                   changed="$RUNNER_TEMP/changed-apex.txt"
                   : > "$changed"
                   if [[ -n "$BASE_SHA" ]]; then
-                    git diff --name-only --diff-filter=AM "$BASE_SHA" HEAD -- 'force-app/*.cls' 'force-app/*.trigger' > "$changed"
+                    git diff --name-only --diff-filter=AMR "$BASE_SHA" HEAD -- 'force-app/*.cls' 'force-app/*.trigger' > "$changed"
                   fi
                   echo "Changed Apex classes and triggers: $(wc -l < "$changed" | tr -d ' ')"
 
@@ -402,9 +402,11 @@ jobs:
                     exit 0
                   fi
                   mkdir -p "$RUNNER_TEMP/pr-evidence"
+                  changed=()
+                  if [[ -s "$RUNNER_TEMP/changed-apex.txt" ]]; then changed=("$RUNNER_TEMP/changed-apex.txt"); fi
                   node "$TRUSTED_ROOT/scripts/ci-pr-evidence.cjs" create \
                     sfdx-project.json "$RUNNER_TEMP/package-plan.json" force-app "$result" "$result" \
-                    "$RUNNER_TEMP/pr-evidence/evidence.json"
+                    "$RUNNER_TEMP/pr-evidence/evidence.json" ${changed[@]+"${changed[@]}"}
 
             - name: Upload minimal PR evidence
               if: always() && inputs.pull_number != '' && steps.route.outputs.route == 'reuse'
@@ -419,7 +421,7 @@ jobs:
         name: Validate on new scratch org
         needs: [prepare, reuse]
         if: >-
-            always() &&
+            !cancelled() &&
             needs.prepare.result == 'success' &&
             (needs.prepare.outputs.route == 'fresh' ||
              (needs.reuse.result == 'success' && needs.reuse.outputs.fallback == 'true'))
@@ -590,7 +592,7 @@ jobs:
                   set -euo pipefail
                   changed=()
                   if [[ -n "$BASE_SHA" ]]; then
-                    git diff --name-only --diff-filter=AM "$BASE_SHA" HEAD -- 'force-app/*.cls' 'force-app/*.trigger' > "$RUNNER_TEMP/changed-apex.txt"
+                    git diff --name-only --diff-filter=AMR "$BASE_SHA" HEAD -- 'force-app/*.cls' 'force-app/*.trigger' > "$RUNNER_TEMP/changed-apex.txt"
                     if [[ -s "$RUNNER_TEMP/changed-apex.txt" ]]; then changed=("$RUNNER_TEMP/changed-apex.txt"); fi
                   fi
                   node "$TRUSTED_ROOT/scripts/ci-scratch-plan.cjs" coverage "$RUNNER_TEMP/fresh-apex-results/test-result-codecoverage.json" force-app ${changed[@]+"${changed[@]}"}
@@ -616,9 +618,11 @@ jobs:
                     exit 0
                   fi
                   mkdir -p "$RUNNER_TEMP/pr-evidence"
+                  changed=()
+                  if [[ -s "$RUNNER_TEMP/changed-apex.txt" ]]; then changed=("$RUNNER_TEMP/changed-apex.txt"); fi
                   node "$TRUSTED_ROOT/scripts/ci-pr-evidence.cjs" create \
                     sfdx-project.json "$RUNNER_TEMP/package-plan.json" force-app "${test_results[0]}" "$coverage" \
-                    "$RUNNER_TEMP/pr-evidence/evidence.json"
+                    "$RUNNER_TEMP/pr-evidence/evidence.json" ${changed[@]+"${changed[@]}"}
 
             - name: Upload minimal PR evidence
               if: always() && inputs.pull_number != '' && steps.create-fresh.outputs.created == 'true'
