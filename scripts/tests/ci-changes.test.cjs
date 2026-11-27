@@ -226,18 +226,32 @@ test(
         const match = source.slice(gate).match(/run: \|\n((?: {18}.*\n)+)/);
         assert.ok(match, 'Expected a Salesforce validation gate script');
         const script = match[1].replace(/^ {18}/gm, '');
-        for (const [changes, relevant, validation, expected] of [
-            ['success', 'false', 'skipped', 0],
-            ['success', 'false', 'failure', 1],
-            ['failure', 'false', 'skipped', 1],
-            ['success', 'true', 'skipped', 1],
-            ['success', 'true', 'success', 0]
+        for (const [changes, relevant, validation, base, head, expected] of [
+            ['success', 'false', 'skipped', 'main', 'example/repository', 0],
+            ['success', 'false', 'failure', 'main', 'example/repository', 1],
+            ['failure', 'false', 'skipped', 'main', 'example/repository', 1],
+            ['success', 'true', 'skipped', 'release', 'example/repository', 0],
+            ['success', 'true', 'skipped', 'main', 'contributor/repository', 0],
+            ['success', 'true', 'skipped', 'main', 'example/repository', 1],
+            ['success', 'true', 'success', 'main', 'example/repository', 0]
         ]) {
             const result = spawnSync('bash', ['-e', '-o', 'pipefail', '-c', script], {
                 encoding: 'utf8',
-                env: { ...process.env, CHANGES_RESULT: changes, RELEVANT: relevant, VALIDATION_RESULT: validation }
+                env: {
+                    ...process.env,
+                    CHANGES_RESULT: changes,
+                    RELEVANT: relevant,
+                    VALIDATION_RESULT: validation,
+                    BASE_REF: base,
+                    HEAD_REPOSITORY: head,
+                    REPOSITORY: 'example/repository'
+                }
             });
-            assert.equal(result.status, expected, `${changes}/${relevant}/${validation}: ${result.stderr}`);
+            assert.equal(
+                result.status,
+                expected,
+                `${changes}/${relevant}/${validation}/${base}/${head}: ${result.stderr}`
+            );
         }
     }
 );

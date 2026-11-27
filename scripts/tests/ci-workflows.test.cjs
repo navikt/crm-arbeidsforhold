@@ -50,6 +50,70 @@ for (const name of ['pull_request-validation1.yml', 'pull_request-lwc-validation
     });
 }
 
+test('PR validation serializes each PR without cancelling an active run and grants only read permissions', () => {
+    const source = readWorkflow('pull_request-validation1.yml');
+    assert.match(source, /^permissions:\n {4}contents: read\n {4}pull-requests: read\n {4}actions: read$/m);
+    assert.match(
+        source,
+        /^concurrency:\n {4}group: pr-validation-\$\{\{ github\.event\.pull_request\.number \}\}\n {4}cancel-in-progress: false$/m
+    );
+    assert.match(source, /uses: \.\/\.github\/workflows\/salesforce-validation\.yml/);
+    assert.match(source, /CRM_PROD_SFDX_URL: \$\{\{ secrets\.CRM_PROD_SFDX_URL \}\}/);
+    assert.match(source, /CRM_PACKAGE_KEY: \$\{\{ secrets\.CRM_PACKAGE_KEY \}\}/);
+    assert.doesNotMatch(source, /secrets: inherit/);
+});
+
+test('Salesforce validation calls the local workflow only for same-repository Salesforce PRs to main', () => {
+    const source = readWorkflow('salesforce-validation.yml');
+    assert.match(source, /^permissions:\n {4}contents: read\n {4}pull-requests: read\n {4}actions: read$/m);
+    assert.match(source, /workflow_call:\n {8}secrets:\n {12}CRM_PROD_SFDX_URL:\n {16}required: true/);
+    assert.match(source, /CRM_PACKAGE_KEY:\n {16}required: false/);
+    assert.match(source, /name: Compile Metadata/);
+    assert.match(source, /name: Run Apex Tests/);
+    assert.match(source, /name: Validate 85% Code Coverage/);
+    assert.doesNotMatch(source, /crm-workflows-base|secrets: inherit/);
+
+    const validation = jobSection(source, 'salesforce');
+    assert.match(validation, /needs\.changes\.outputs\.salesforce == 'true'/);
+    assert.match(validation, /github\.event\.pull_request\.base\.ref == 'main'/);
+    assert.match(validation, /github\.event\.pull_request\.head\.repo\.full_name == github\.repository/);
+    assert.match(validation, /uses: \.\/\.github\/workflows\/ci-reusable-scratch-org\.yml/);
+    assert.match(validation, /pull_number: \$\{\{ github\.event\.pull_request\.number \}\}/);
+    assert.match(validation, /head_sha: \$\{\{ github\.event\.pull_request\.head\.sha \}\}/);
+    assert.match(validation, /base_sha: \$\{\{ github\.event\.pull_request\.base\.sha \}\}/);
+    assert.match(validation, /merge_sha: \$\{\{ github\.event\.pull_request\.merge_commit_sha \}\}/);
+    assert.match(validation, /CRM_PROD_SFDX_URL: \$\{\{ secrets\.CRM_PROD_SFDX_URL \}\}/);
+    assert.match(validation, /CRM_PACKAGE_KEY: \$\{\{ secrets\.CRM_PACKAGE_KEY \}\}/);
+    assert.doesNotMatch(validation, /CI_SCRATCH_ORG_AUTH_URL|secrets: inherit/);
+
+    const compile = stepScript(
+        jobSection(source, 'compile'),
+        'Require successful or unnecessary Salesforce validation'
+    );
+    assert.match(compile, /BASE_REF/);
+    assert.match(compile, /HEAD_REPOSITORY/);
+    assert.match(compile, /BASE_REF.*main/);
+    assert.match(compile, /HEAD_REPOSITORY.*REPOSITORY/);
+    const runGate = (values) =>
+        spawnSync('/bin/bash', ['-c', compile], {
+            encoding: 'utf8',
+            env: {
+                ...process.env,
+                CHANGES_RESULT: 'success',
+                RELEVANT: 'true',
+                VALIDATION_RESULT: 'success',
+                BASE_REF: 'main',
+                HEAD_REPOSITORY: 'example/repository',
+                REPOSITORY: 'example/repository',
+                ...values
+            }
+        });
+    assert.equal(runGate({ RELEVANT: 'false', VALIDATION_RESULT: 'skipped' }).status, 0);
+    assert.equal(runGate({ BASE_REF: 'release', VALIDATION_RESULT: 'skipped' }).status, 0);
+    assert.equal(runGate({ HEAD_REPOSITORY: 'contributor/repository', VALIDATION_RESULT: 'skipped' }).status, 0);
+    assert.notEqual(runGate({ VALIDATION_RESULT: 'skipped' }).status, 0);
+});
+
 test('offline CI covers the workflow contracts and Node tooling on PRs and main', () => {
     const source = readWorkflow('scratch-org-offline.yml');
     for (const pattern of ['scripts/*.cjs', 'scripts/tests/**', '.github/workflows/**']) {

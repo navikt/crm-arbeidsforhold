@@ -11,6 +11,11 @@ on:
             - '**'
 permissions:
     contents: read
+    pull-requests: read
+    actions: read
+concurrency:
+    group: pr-validation-${{ github.event.pull_request.number }}
+    cancel-in-progress: false
 jobs:
     run-pr-validation:
         name: Validate PR
@@ -18,4 +23,8 @@ jobs:
         uses: ./.github/workflows/salesforce-validation.yml
         permissions:
             contents: read
-        secrets: inherit
+            pull-requests: read
+            actions: read
+        secrets:
+            CRM_PROD_SFDX_URL: ${{ secrets.CRM_PROD_SFDX_URL }}
+            CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
