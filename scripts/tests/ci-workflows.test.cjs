@@ -63,6 +63,20 @@ test('PR validation serializes each PR without cancelling an active run and gran
     assert.doesNotMatch(source, /secrets: inherit/);
 });
 
+test('passes the CI scratch-org auth secret through both reusable workflow boundaries', () => {
+    const prValidation = jobSection(readWorkflow('pull_request-validation1.yml'), 'run-pr-validation');
+    const salesforceWorkflow = readWorkflow('salesforce-validation.yml');
+    const salesforceDefinition = salesforceWorkflow.slice(0, salesforceWorkflow.indexOf('\njobs:'));
+    const salesforceCall = jobSection(salesforceWorkflow, 'salesforce');
+    const reusableWorkflow = readWorkflow('ci-reusable-scratch-org.yml');
+    const reusableDefinition = reusableWorkflow.slice(0, reusableWorkflow.indexOf('\njobs:'));
+
+    assert.match(prValidation, /CI_SCRATCH_ORG_AUTH_URL: \$\{\{ secrets\.CI_SCRATCH_ORG_AUTH_URL \}\}/);
+    assert.match(salesforceDefinition, /CI_SCRATCH_ORG_AUTH_URL:\n {16}required: false/);
+    assert.match(salesforceCall, /CI_SCRATCH_ORG_AUTH_URL: \$\{\{ secrets\.CI_SCRATCH_ORG_AUTH_URL \}\}/);
+    assert.match(reusableDefinition, /CI_SCRATCH_ORG_AUTH_URL:\n {16}required: false/);
+});
+
 test('Salesforce validation calls the local workflow only for same-repository Salesforce PRs to main', () => {
     const source = readWorkflow('salesforce-validation.yml');
     assert.match(source, /^permissions:\n {4}contents: read\n {4}pull-requests: read\n {4}actions: read$/m);
@@ -84,7 +98,7 @@ test('Salesforce validation calls the local workflow only for same-repository Sa
     assert.match(validation, /merge_sha: \$\{\{ github\.sha \}\}/);
     assert.match(validation, /CRM_PROD_SFDX_URL: \$\{\{ secrets\.CRM_PROD_SFDX_URL \}\}/);
     assert.match(validation, /CRM_PACKAGE_KEY: \$\{\{ secrets\.CRM_PACKAGE_KEY \}\}/);
-    assert.doesNotMatch(validation, /CI_SCRATCH_ORG_AUTH_URL|secrets: inherit/);
+    assert.doesNotMatch(validation, /secrets: inherit/);
 
     const compile = stepScript(
         jobSection(source, 'compile'),

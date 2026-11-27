@@ -7,6 +7,8 @@ on:
                 required: true
             CRM_PACKAGE_KEY:
                 required: false
+            CI_SCRATCH_ORG_AUTH_URL:
+                required: false
 
 permissions:
     contents: read
@@ -60,6 +62,7 @@ jobs:
         secrets:
             CRM_PROD_SFDX_URL: ${{ secrets.CRM_PROD_SFDX_URL }}
             CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
+            CI_SCRATCH_ORG_AUTH_URL: ${{ secrets.CI_SCRATCH_ORG_AUTH_URL }}
 
     compile:
         name: Compile Metadata
