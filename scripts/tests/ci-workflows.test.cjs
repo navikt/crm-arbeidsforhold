@@ -77,6 +77,7 @@ test('PR pilot starts from trusted main and validates a captured PR snapshot wit
     assert.match(pilot, /ci-changes\.cjs" "\$BASE_SHA" "\$HEAD_SHA"/);
     assert.match(pilot, /uses: \.\/\.github\/workflows\/ci-reusable-scratch-org\.yml/);
     assert.match(pilot, /if: needs\.prepare\.outputs\.salesforce == 'true'/);
+    assert.match(pilot, /repo_only: true/);
     assert.match(pilot, /CRM_PROD_SFDX_URL: \$\{\{ secrets\.CRM_PROD_SFDX_URL \}\}/);
     assert.match(pilot, /CRM_PACKAGE_KEY: \$\{\{ secrets\.CRM_PACKAGE_KEY \}\}/);
     assert.doesNotMatch(pilot, /secrets: inherit|pull-requests: write|contents: write|actions: write/);
@@ -276,11 +277,165 @@ test('PR-controlled Salesforce output cannot issue GitHub workflow commands', ()
 });
 
 test(
+    'the opt-in reusable-org pilot runs exactly the repository test classes',
+    { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
+    async (context) => {
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-repo-tests-'));
+        context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+        const classes = path.join(directory, 'force-app', 'classes');
+        fs.mkdirSync(classes, { recursive: true });
+        fs.writeFileSync(path.join(classes, 'Service.cls'), 'public class Service {}');
+        fs.writeFileSync(
+            path.join(classes, 'ServiceTrigger.trigger'),
+            'trigger ServiceTrigger on Account (after insert) {}'
+        );
+        fs.writeFileSync(path.join(classes, 'RepoAlphaTest.cls'), '@IsTest class RepoAlphaTest {}');
+        fs.writeFileSync(path.join(classes, 'RepoBetaTest.cls'), '@IsTest class RepoBetaTest {}');
+        const trace = path.join(directory, 'sf-args.txt');
+        fs.writeFileSync(
+            path.join(directory, 'sf'),
+            '#!/bin/sh\nprintf "%s\\n" "$@" > "$TEST_TRACE"\nprintf "%s" "$TEST_RESPONSE"\n',
+            { mode: 0o755 }
+        );
+        const workflow = readWorkflow('ci-reusable-scratch-org.yml');
+        const section = workflow.slice(
+            workflow.indexOf('- name: Validate reusable org with tests and coverage'),
+            workflow.indexOf('- name: Deploy source to fresh org')
+        );
+        const script = section.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
+        assert.ok(script);
+        const freshSection = workflow.slice(
+            workflow.indexOf('- name: Run repository Apex tests in fresh org'),
+            workflow.indexOf('- name: Enforce repository Apex coverage in fresh org')
+        );
+        const freshScript = freshSection.match(/\n {14}run: \|\n((?: {18}.*\n)+)/)?.[1].replace(/^ {18}/gm, '');
+        assert.ok(freshScript);
+        const freshBashAvailable = spawnSync('bash', ['-c', 'type mapfile >/dev/null 2>&1']).status === 0;
+        assert.match(
+            workflow,
+            /- name: Run repository Apex tests in fresh org[\s\S]*?ci-scratch-plan\.cjs" tests force-app/
+        );
+        assert.match(
+            workflow,
+            /- name: Enforce repository Apex coverage in fresh org[\s\S]*?ci-scratch-plan\.cjs" coverage/
+        );
+        assert.match(
+            workflow,
+            /workflow_dispatch:[\s\S]*?repo_only:[\s\S]*?default: false[\s\S]*?workflow_call:[\s\S]*?repo_only:[\s\S]*?default: false/
+        );
+
+        const run = (repoOnly, coverage = [{ name: 'Service', numLocations: 100, numLocationsNotCovered: 10 }]) => {
+            fs.writeFileSync(trace, '');
+            const result = spawnSync('/bin/bash', ['-c', script], {
+                cwd: directory,
+                encoding: 'utf8',
+                env: {
+                    ...process.env,
+                    PATH: directory + path.delimiter + process.env.PATH,
+                    RUNNER_TEMP: directory,
+                    TRUSTED_ROOT: path.resolve(__dirname, '../..'),
+                    REPOSITORY_TESTS_ONLY: String(repoOnly),
+                    TEST_TRACE: trace,
+                    TEST_RESPONSE: JSON.stringify({
+                        result: {
+                            details: {
+                                runTestResult: { codeCoverage: coverage }
+                            }
+                        }
+                    })
+                }
+            });
+            return { result, args: fs.readFileSync(trace, 'utf8').trim().split('\n') };
+        };
+        const runFresh = (repoOnly) => {
+            fs.writeFileSync(trace, '');
+            const result = spawnSync('bash', ['-c', freshScript], {
+                cwd: directory,
+                encoding: 'utf8',
+                env: {
+                    ...process.env,
+                    PATH: directory + path.delimiter + process.env.PATH,
+                    RUNNER_TEMP: directory,
+                    TRUSTED_ROOT: path.resolve(__dirname, '../..'),
+                    GITHUB_OUTPUT: path.join(directory, 'github-output'),
+                    REPOSITORY_TESTS_ONLY: String(repoOnly),
+                    TEST_TRACE: trace,
+                    TEST_RESPONSE: '{}'
+                }
+            });
+            return { result, args: fs.readFileSync(trace, 'utf8').trim().split('\n') };
+        };
+        const namesFromArgs = (args) =>
+            args.flatMap((argument, index) => (argument === '--tests' ? [args[index + 1]] : []));
+
+        const selected = run(true);
+        assert.equal(selected.result.status, 0, selected.result.stderr);
+        assert.equal(selected.args[selected.args.indexOf('--test-level') + 1], 'RunSpecifiedTests');
+        assert.deepEqual(namesFromArgs(selected.args), ['RepoAlphaTest', 'RepoBetaTest']);
+        assert.ok(selected.args.includes('--dry-run'));
+        await context.test(
+            'the fresh fallback receives the same repository classes',
+            { skip: freshBashAvailable ? false : 'The Ubuntu workflow requires Bash 4 or newer.' },
+            () => {
+                const fresh = runFresh(true);
+                assert.equal(fresh.result.status, 0, fresh.result.stderr);
+                assert.deepEqual(namesFromArgs(fresh.args), namesFromArgs(selected.args));
+            }
+        );
+
+        const existing = run(false);
+        assert.equal(existing.result.status, 0, existing.result.stderr);
+        assert.equal(existing.args[existing.args.indexOf('--test-level') + 1], 'RunLocalTests');
+        assert.equal(existing.args.includes('--tests'), false);
+
+        const minimum = run(true, [{ name: 'Service', numLocations: 100, numLocationsNotCovered: 15 }]);
+        assert.equal(minimum.result.status, 0, minimum.result.stderr);
+        const lowCoverage = run(true, [{ name: 'Service', numLocations: 100, numLocationsNotCovered: 16 }]);
+        assert.notEqual(lowCoverage.result.status, 0);
+        assert.match(lowCoverage.result.stderr, /84\.00% is below 85%/);
+        const lowTriggerCoverage = run(true, [
+            { name: 'Service', numLocations: 100, numLocationsNotCovered: 10 },
+            { name: 'ServiceTrigger', numLocations: 100, numLocationsNotCovered: 100 }
+        ]);
+        assert.notEqual(lowTriggerCoverage.result.status, 0);
+        assert.match(lowTriggerCoverage.result.stderr, /45\.00% is below 85%/);
+
+        const invalid = run('invalid');
+        assert.notEqual(invalid.result.status, 0);
+        assert.match(invalid.result.stderr, /invalid repository apex test selection/i);
+        assert.equal(fs.readFileSync(trace, 'utf8'), '');
+
+        fs.unlinkSync(path.join(classes, 'RepoAlphaTest.cls'));
+        fs.unlinkSync(path.join(classes, 'RepoBetaTest.cls'));
+        const empty = run(true);
+        assert.notEqual(empty.result.status, 0);
+        assert.match(empty.result.stderr, /no repository apex test classes/i);
+        assert.equal(fs.readFileSync(trace, 'utf8'), '');
+        await context.test(
+            'both opted-in routes fail closed when no repository tests are found',
+            { skip: freshBashAvailable ? false : 'The Ubuntu workflow requires Bash 4 or newer.' },
+            () => {
+                const emptyFresh = runFresh(true);
+                assert.notEqual(emptyFresh.result.status, 0);
+                assert.match(emptyFresh.result.stderr, /no repository apex test classes/i);
+                assert.equal(fs.readFileSync(trace, 'utf8'), '');
+                const existingFresh = runFresh(false);
+                assert.equal(existingFresh.result.status, 0, existingFresh.result.stderr);
+                assert.equal(fs.readFileSync(trace, 'utf8'), '');
+            }
+        );
+    }
+);
+
+test(
     'reuse validation failures remain failures and cannot trigger the fresh-org route',
     { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
     (context) => {
         const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-reuse-failure-'));
         context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+        const classes = path.join(directory, 'force-app', 'classes');
+        fs.mkdirSync(classes, { recursive: true });
+        fs.writeFileSync(path.join(classes, 'RepoTest.cls'), '@IsTest class RepoTest {}');
         const fakeSf = path.join(directory, 'sf');
         fs.writeFileSync(fakeSf, '#!/bin/sh\nprintf "%s" "$TEST_RESPONSE"\nexit 19\n', { mode: 0o755 });
         const workflow = readWorkflow('ci-reusable-scratch-org.yml');
@@ -296,27 +451,47 @@ test(
             /- name: Create one-time fallback scratch org[\s\S]*?if: env\.CI_VALIDATION_ROUTE == 'fresh'/
         );
 
-        for (const diagnostic of [
-            { componentFailures: [{ problem: 'Metadata compilation failed' }] },
-            { runTestResult: { failures: [{ message: '::error::Apex test failed' }] } }
+        for (const { diagnostic, expected } of [
+            {
+                diagnostic: { componentFailures: [{ problem: 'Metadata compilation failed' }] },
+                expected: 'Metadata compilation failed'
+            },
+            {
+                diagnostic: { runTestResult: { failures: [{ message: '::error::Apex test failed' }] } },
+                expected: '::error::Apex test failed'
+            },
+            {
+                diagnostic: {
+                    runTestResult: { codeCoverageWarnings: { name: 'Service', message: 'Coverage is 74%' } }
+                },
+                expected: 'Service: Coverage is 74%'
+            },
+            {
+                diagnostic: {
+                    runTestResult: { codeCoverageWarnings: [{ name: 'ServiceTrigger', message: 'Coverage is 50%' }] }
+                },
+                expected: 'ServiceTrigger: Coverage is 50%'
+            }
         ]) {
-            const result = spawnSync('/bin/bash', ['-c', script], {
-                cwd: directory,
-                encoding: 'utf8',
-                env: {
-                    ...process.env,
-                    PATH: directory + path.delimiter + process.env.PATH,
-                    RUNNER_TEMP: directory,
-                    TRUSTED_ROOT: path.resolve(__dirname, '../..'),
-                    TEST_RESPONSE: JSON.stringify({ result: { details: diagnostic } })
-                }
-            });
-            assert.equal(result.status, 19, result.stderr);
-            const token = result.stdout.match(/::stop-commands::([a-f0-9-]+)/)?.[1];
-            assert.ok(token);
-            const message = diagnostic.componentFailures?.[0].problem ?? diagnostic.runTestResult.failures[0].message;
-            assert.ok(result.stdout.indexOf(message) > result.stdout.indexOf(`::stop-commands::${token}`));
-            assert.ok(result.stdout.indexOf(`::${token}::`) > result.stdout.indexOf(message));
+            for (const repoOnly of ['true', 'false']) {
+                const result = spawnSync('/bin/bash', ['-c', script], {
+                    cwd: directory,
+                    encoding: 'utf8',
+                    env: {
+                        ...process.env,
+                        PATH: directory + path.delimiter + process.env.PATH,
+                        RUNNER_TEMP: directory,
+                        TRUSTED_ROOT: path.resolve(__dirname, '../..'),
+                        REPOSITORY_TESTS_ONLY: repoOnly,
+                        TEST_RESPONSE: JSON.stringify({ result: { details: diagnostic } })
+                    }
+                });
+                assert.equal(result.status, 19, result.stderr);
+                const token = result.stdout.match(/::stop-commands::([a-f0-9-]+)/)?.[1];
+                assert.ok(token);
+                assert.ok(result.stdout.indexOf(expected) > result.stdout.indexOf(`::stop-commands::${token}`));
+                assert.ok(result.stdout.indexOf(`::${token}::`) > result.stdout.indexOf(expected));
+            }
         }
     }
 );
@@ -338,7 +513,8 @@ test('reusable scratch validation is restricted, serialized, and retains its man
         source,
         /sf org login sfdx-url --sfdx-url-file "\$auth_file" --alias ci-devhub --set-default-dev-hub >"\$login_log" 2>&1/
     );
-    assert.match(source, /--target-org ci-reuse \\\s*--dry-run \\\s*--test-level RunLocalTests/);
+    assert.match(source, /test_arguments=\(--test-level RunLocalTests\)/);
+    assert.match(source, /--target-org ci-reuse \\\s*--dry-run \\\s*"\$\{test_arguments\[@\]\}"/);
     assert.match(source, /sf org create scratch \\\s*--definition-file config\/project-scratch-def\.json/);
     assert.match(source, /node "\$TRUSTED_ROOT\/scripts\/ci-scratch-plan\.cjs" install/);
     assert.match(source, /sf project deploy start --source-dir force-app --target-org ci-fresh/);

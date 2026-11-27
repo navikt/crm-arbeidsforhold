@@ -406,18 +406,31 @@ node scripts/ci-scratch-plan.cjs fingerprint sfdx-project.json config/project-sc
 **Stad: GitHub i nettlesaren.**
 
 1. Opne **Actions → [CI] Test reusable scratch org** i repoet.
-2. Vel **Run workflow**, vel `main`, slå på `force_fresh` og start køyringa.
-   Godkjenn miljøet via **Review deployments** dersom du blir bedt om det.
+2. Vel **Run workflow** og vel `main`. Slå på **Skip the registered org and
+   test the fresh-org fallback** (`force_fresh`). La **Run repository tests
+   only** (`repo_only`) vere avslått. Start køyringa og godkjenn miljøet via
+   **Review deployments** dersom du blir bedt om det.
 3. Opne jobben **Validate on reusable org or fresh fallback**. Under steget
    **Select reusable org or fresh fallback** skal meldinga innehalde
    `fresh validation: Fresh-org validation was requested.`. Vent til heile
    køyringa er ferdig, og kontroller at ho er grøn.
-4. Start same workflow på nytt frå `main`, denne gongen med `force_fresh`
-   avslått. Godkjenn miljøet om nødvendig.
+4. Start same workflow på nytt frå `main`, denne gongen med både `force_fresh`
+   og `repo_only` avslått. Godkjenn miljøet om nødvendig.
 5. I rutingssteget skal meldinga innehalde
    `reuse validation: CI scratch org matches the package plan.`. Kontroller òg
    at steget **Validate reusable org with tests and coverage** er køyrt og
    grønt.
+6. For å prøve same testutval som PR-piloten, start workflowen to gonger til:
+    - Vel **Run workflow** og `main`. Slå på **Run repository tests only**
+      (`repo_only`), men la `force_fresh` vere avslått. Godkjenn miljøet om
+      nødvendig. Kontroller at rutingssteget viser `reuse validation`, og at
+      steget **Validate reusable org with tests and coverage** er grønt.
+    - Start workflowen på nytt med både `repo_only` og `force_fresh` slått på.
+      Godkjenn miljøet om nødvendig. Kontroller at rutingssteget viser
+      `fresh validation`, og at test- og dekningsstega er grøne.
+
+Dei manuelle køyringane viser om kvar rute fullfører, men samanliknar ikkje
+testmetodane. Bruk steg 8–9 for å samanlikne PR-piloten med vanleg PR-CI.
 
 Er køyringa raud, opne steget som feila og les feilmeldinga. Er køyringa grøn,
 men viser `fresh` i staden for `reuse`, les grunnen i rutingssteget: då vart
@@ -447,6 +460,11 @@ Piloten startar automatisk når `[PR] Validate` startar for ein open PR som:
 Du treng ikkje starte piloten manuelt. Dersom PR-en ikkje oppfyller krava,
 hoppar piloten over Salesforce-jobben. Den vanlege PR-valideringa køyrer
 framleis som før.
+
+Piloten vel berre Apex-testklassar frå repoet. Gjenbruksruta bruker
+`RunSpecifiedTests` i deploy-valideringa; fallback deployer først og køyrer
+deretter dei same oppdaga klassane. Finst det ingen repo-testklassar, feilar
+begge rutene i piloten i staden for å rapportere ein grøn test.
 
 1. Opne repoet på GitHub. Vel **Actions → [CI] Reusable scratch org PR pilot**.
    Opne køyringa som starta etter at PR-en vart oppretta eller oppdatert.
@@ -547,6 +565,41 @@ testfila eller rå loggar i chat. Dersom eit seinare forsøk har erstatta
 `apex-tests`-artefaktet, avviser skriptet samanlikninga i staden for å blande
 resultat frå ulike forsøk.
 
+### 10. Samanlikn begge rutene med eigne test-PR-ar
+
+**Stad: GitHub i nettlesaren, deretter terminalen frå steg 9.**
+
+Dette krev at pilotendringa er fletta til `main`, og at gjenbruksorgen er
+registrert og tilgjengeleg. Lag to PR-ar som berre er til testing. Dei skal
+ikkje flettast til `main`.
+
+1. Lag ein PR for gjenbruk:
+    - Opne fila `.forceignore` frå `main` på GitHub og vel blyanten for å
+      redigere. Legg inn ei tom linje mellom `# profiles` og skiljelinja under.
+      Ikkje endre nokon av reglane i fila.
+    - Vel **Commit changes**, opprett ei ny grein og start ein PR mot `main`.
+      PR-en må ikkje vere ein draft.
+    - Følg steg 8. Kontroller at rutingssteget viser
+      `reuse validation: CI scratch org matches the package plan.`. Viser det
+      `fresh`, har denne PR-en ikkje testa gjenbruk.
+2. Lag ein separat PR for fallback:
+    - Gå tilbake til `main` på GitHub. Opne
+      `config/project-scratch-def.json` og vel blyanten for å redigere.
+      Byt om rekkefølgja på linjene med `country` og `language`, utan å endre
+      verdiane eller komma. JSON-innhaldet er då det same, men fila får eit
+      anna fingeravtrykk.
+    - Vel **Commit changes**, opprett ei ny grein og start ein PR mot `main`.
+      PR-en må ikkje vere ein draft.
+    - Følg steg 8. Kontroller at rutingssteget viser
+      `fresh validation: Scratch configuration changed.`.
+3. Vent til begge køyringane for kvar PR er ferdige. Køyr samanlikninga i
+   steg 9 for kvar av dei to PR-ane, med run-ID-ane som høyrer saman.
+   Kontroller at `comparable`, `sameMethods` og `sameCoverageComponents` alle
+   er `true`, og samanlikn dekningstala. Undersøk eventuelle forskjellar før
+   vidare utrulling.
+4. Ta vare på samanlikningsresultata utan rå loggar eller testfiler. Lukk
+   test-PR-ane etter at alle køyringane er ferdige; ikkje flett dei.
+
 ## Avgrensing og kontroll
 
 Den manuelle workflowen og PR-piloten er tillegg til den vanlege valideringa.
@@ -589,6 +642,18 @@ ein ny org og køyr steg 6 for å oppdatere alle fire GitHub-verdiane. Vel eit
 nytt lokalt alias dersom det gamle framleis er i bruk. Test først fallback og
 deretter gjenbruk som vist i steg 7.
 
-Gjenbruksruta brukar `RunLocalTests` i deploy-valideringa, medan fallback køyrer
-repoet sine oppdaga testklassar etter deploy. At Salesforce køyrer nøyaktig
-same testsett i dei to rutene, er ikkje verifisert utan ei faktisk org-køyring.
+Ved manuell køyring utan `repo_only` brukar gjenbruksruta framleis
+`RunLocalTests`. Med `repo_only` og i PR-piloten brukar ho
+`RunSpecifiedTests`, medan fallback køyrer dei oppdaga repo-testklassane etter
+deploy. Begge rutene kontrollerer minst 85 % samla repo-dekning.
+
+For `RunSpecifiedTests` dokumenterer Salesforce òg eit krav om minst 75 %
+dekning for kvar deploya Apex-klasse og trigger. Ei gjenbrukskøyring kan
+derfor feile sjølv om den samla dekninga er over 85 %. Fallbacken har ikkje
+dette tilleggskravet. Opne det raude valideringssteget for å sjå eventuelle
+dekningsmeldingar for dei aktuelle komponentane. Piloten endrar ikkje dei
+obligatoriske PR-krava.
+
+At Salesforce faktisk køyrer dei same testmetodane og rapporterer dekning for
+dei same klassane og triggerane, må kontrollerast med ei org-køyring og
+samanlikninga i steg 9.
