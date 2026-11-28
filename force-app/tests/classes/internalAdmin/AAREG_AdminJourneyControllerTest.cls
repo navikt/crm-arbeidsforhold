@@ -183,6 +183,71 @@ private with sharing class AAREG_AdminJourneyControllerTest {
     }
 
     @IsTest
+    static void journeyIncludesAgreementsLogsEmailsAndThreads() {
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
+        Application__c application = insertApplication(System.today());
+        insert as system new Agreement__c(Application__c = application.Id);
+        insert as system new Application_Log__c(
+            Application_Domain__c = 'AAREG',
+            Referrence_ID__c = application.Id,
+            Source_Class__c = 'AAREG_ApplicationController',
+            Log_Level__c = 'Error',
+            Log_Message__c = 'x'.repeat(300)
+        );
+        insert as system new EmailMessage(
+            RelatedToId = application.Id,
+            Subject = 'Svar på søknad',
+            Incoming = true,
+            Status = '0'
+        );
+        insert as system new Thread__c(CRM_Related_Object__c = application.Id);
+
+        AAREG_AdminJourneyController.Journey journey;
+        System.runAs(admin) {
+            System.Test.startTest();
+            journey = AAREG_AdminJourneyController.getJourney(application.Id);
+            System.Test.stopTest();
+        }
+
+        Set<String> found = sources(journey);
+        System.Assert.isTrue(found.contains('Agreement__c'), 'Agreements are included');
+        System.Assert.isTrue(found.contains('Application_Log__c'), 'Logs referring to the application are included');
+        System.Assert.isTrue(found.contains('EmailMessage'), 'Related email is included');
+        System.Assert.isTrue(found.contains('Thread__c'), 'Related dialogue is included');
+        for (AAREG_AdminJourneyController.Entry entry : journey.entries) {
+            if (entry.source == 'Application_Log__c') {
+                System.Assert.isTrue(entry.detail.length() <= 255, 'Long log messages are shortened');
+            }
+            if (entry.source == 'EmailMessage') {
+                System.Assert.areEqual('E-post motteken', entry.title, 'Incoming email is labelled as received');
+            }
+        }
+    }
+
+    @IsTest
+    static void unknownApplicationIsExplained() {
+        User admin = P360_TestDataFactory.grantPermissionSetToRunningUser('AAREG_Admin_Viewer');
+        Application__c application = insertApplication(System.today());
+        delete as system application;
+        String message;
+
+        System.runAs(admin) {
+            System.Test.startTest();
+            try {
+                AAREG_AdminJourneyController.getJourney(application.Id);
+            } catch (AuraHandledException error) {
+                message = error.getMessage();
+            }
+            System.Test.stopTest();
+        }
+
+        System.Assert.isTrue(
+            message != null && message.startsWith('Fann ikkje søknaden'),
+            'A missing application must be explained'
+        );
+    }
+
+    @IsTest
     static void userWithoutAccessGetsExplanation() {
         Application__c application = insertApplication(System.today());
         User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
