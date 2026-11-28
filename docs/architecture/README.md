@@ -86,3 +86,5 @@ Full oversikt og navngivingsregler: [docs/adr/README.md](../adr/README.md).
 | [ADR-0003](../adr/0003-e-post-for-personkonto-via-aareg-og-krr.md)       | Håndtering av e-postadresse for personkonto via AAREG og KRR                                       | Foreslått        | 2026-08-27 |
 | [ADR-0004](../adr/0004-p360-composition-root-og-kontraktsgrense.md)      | P360 composition root og kontraktsgrense                                                           | Foreslått        | 2026-09-10 |
 | [ADR-0005](../adr/0005-repositorystruktur-ny-kode-og-legacy.md)          | Avgrense repositorystrukturen til ny kode                                                          | Foreslått        | 2026-10-04 |
+| [ADR-0006](../adr/0006-kontaktmodell-ein-kontakt-acr-og-roller.md)       | Éin kontakt per person, ACR for organisasjonar og roller på RelatedContact                         | Foreslått        | 2026-11-23 |
+| [ADR-0007](../adr/0007-kontaktpunkt-i-eige-objekt.md)                    | Adresser i eige kontaktpunktobjekt, ikkje på ACR eller Contact                                     | Foreslått        | 2026-11-23 |

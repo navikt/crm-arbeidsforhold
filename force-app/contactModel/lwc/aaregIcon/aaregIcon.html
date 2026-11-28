@@ -1,0 +1,17 @@
+<template>
+    <svg
+        width="1em"
+        height="1em"
+        viewBox="0 0 24 24"
+        fill="none"
+        focusable="false"
+        role={svgRole}
+        aria-hidden={ariaHidden}
+        aria-label={title}
+        class="icon"
+    >
+        <template for:each={paths} for:item="path">
+            <path key={path.key} d={path.d} fill="currentColor" fill-rule={path.rule} clip-rule={path.rule}></path>
+        </template>
+    </svg>
+</template>

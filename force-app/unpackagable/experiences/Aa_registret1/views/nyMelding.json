@@ -65,6 +65,13 @@
       "regions" : [ {
         "components" : [ {
           "componentAttributes" : { },
+          "componentName" : "c:aaregPortalNav",
+          "id" : "2bb37d5e-d744-4155-9bd9-8f9e51c3ac58",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        }, {
+          "componentAttributes" : { },
           "componentName" : "c:aareg_contactSupportForm",
           "id" : "6a8d8d7e-184c-4dfa-9af1-aa133bdfd291",
           "renderPriority" : "NEUTRAL",

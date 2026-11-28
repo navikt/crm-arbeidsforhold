@@ -209,12 +209,161 @@ private class AAREG_ApplicationControllerTest {
     }
 
     /**
+     * Submitting an application queues exactly one P360 application document archive job when archiving is enabled.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    private static void submittedApplicationQueuesArchiveJobWhenArchivingIsEnabled() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(true);
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        User applicant = createApplicant();
+
+        Id applicationId;
+        System.Test.startTest();
+        System.runAs(applicant) {
+            applicationId = AAREG_ApplicationController.processApplication(
+                new Application__c(Account__c = account.Id, IsConfirmationEmailSent__c = true),
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>(),
+                null,
+                null
+            );
+        }
+        System.Test.stopTest();
+
+        List<P360_Archive_Job__c> jobs = [
+            SELECT Archive_Event_Type__c, Status__c, Idempotency_Key__c, Correlation_Id__c
+            FROM P360_Archive_Job__c
+            WHERE Application__c = :applicationId
+        ];
+        System.Assert.areEqual(1, jobs.size(), 'Submission must queue one archive job.');
+        System.Assert.areEqual('ApplicationDocument', jobs[0].Archive_Event_Type__c);
+        System.Assert.areEqual('Pending', jobs[0].Status__c);
+        System.Assert.areEqual('APPLICATION_DOCUMENT:' + applicationId, jobs[0].Idempotency_Key__c);
+        System.Assert.areEqual('ApplicationDocument:' + applicationId, jobs[0].Correlation_Id__c);
+    }
+
+    /**
+     * Submitting an application does not queue P360 archive work while archiving is disabled.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    private static void submittedApplicationIsNotQueuedWhileArchivingIsDisabled() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(false);
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        User applicant = createApplicant();
+
+        Id applicationId;
+        System.Test.startTest();
+        System.runAs(applicant) {
+            applicationId = AAREG_ApplicationController.processApplication(
+                new Application__c(Account__c = account.Id, IsConfirmationEmailSent__c = true),
+                new List<ApplicationBasisCode__c>(),
+                new List<RelatedContact__c>(),
+                null,
+                null
+            );
+        }
+        System.Test.stopTest();
+
+        System.Assert.areEqual(
+            0,
+            [SELECT COUNT() FROM P360_Archive_Job__c WHERE Application__c = :applicationId],
+            'Disabled archiving must not queue jobs.'
+        );
+    }
+
+    /**
+     * Resubmitting an application requiring additional information keeps it in progress.
+     *
+     * @since October 2026
+     */
+    @IsTest
+    private static void shouldKeepResubmittedApplicationInProgress() {
+        Account account = [SELECT Id FROM Account LIMIT 1];
+
+        User casehandler;
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            casehandler = Integration_TestDataFactory.createMinimumAccessUser();
+        }
+
+        Access_Request__c accessRequest = new Access_Request__c();
+        insert accessRequest;
+
+        Application__c application = new Application__c();
+        application.Account__c = account.Id;
+        application.Access_Request__c = accessRequest.Id;
+        application.CasehandlerOwner__c = casehandler.Id;
+        application.Status__c = 'Additional Information Required';
+        application.Casehandler_Status__c = 'Additional Information Required';
+        application.IsConfirmationEmailSent__c = true;
+        insert application;
+
+        application = [
+            SELECT Id, Account__c, Access_Request__c, Status__c, Casehandler_Status__c
+            FROM Application__c
+            WHERE Id = :application.Id
+        ];
+        System.Assert.areEqual(
+            'Additional Information Required',
+            application.Status__c,
+            'Application awaits information'
+        );
+        System.Assert.areEqual(
+            'Additional Information Required',
+            application.Casehandler_Status__c,
+            'Case handler awaits information'
+        );
+
+        List<RelatedContact__c> contacts = new List<RelatedContact__c>();
+        contacts.add(new RelatedContact__c(name = 'Test Contact 1'));
+        contacts.add(new RelatedContact__c(name = 'Test Contact 2'));
+
+        List<ApplicationBasisCode__c> basisCodes = new List<ApplicationBasisCode__c>();
+        basisCodes.add(new ApplicationBasisCode__c());
+        basisCodes.add(new ApplicationBasisCode__c());
+
+        String base64 = null;
+        String fileName = null;
+
+        User applicant = createApplicant();
+        Id appId;
+        System.Test.startTest();
+        System.runAs(applicant) {
+            appId = AAREG_ApplicationController.processApplication(application, basisCodes, contacts, base64, fileName);
+        }
+        System.Test.stopTest();
+
+        List<Application__c> result = [
+            SELECT Id, Access_Request__c, Status__c, Casehandler_Status__c
+            FROM Application__c
+            WHERE Id = :appId
+        ];
+
+        System.Assert.areEqual(1, result.size(), 'Application should remain available');
+        System.Assert.areEqual(application.Id, appId, 'Resubmission should reuse the application');
+        System.Assert.areEqual(
+            accessRequest.Id,
+            result[0].Access_Request__c,
+            'Resubmission should reuse the access request'
+        );
+        System.Assert.areEqual('In Progress', result[0].Status__c, 'Application should be in progress');
+        System.Assert.areEqual(
+            'In Progress',
+            result[0].Casehandler_Status__c,
+            'Case handler status should be in progress'
+        );
+    }
+
+    /**
      * Keeps a previously saved application in progress after additional information is submitted.
      *
      * @since 2026-11-15
      */
     @IsTest
-    private static void shouldKeepResubmittedApplicationInProgress() {
+    private static void shouldRetainOrganizationAndAccessRequestOnResubmission() {
         User applicant;
         System.runAs(new User(Id = UserInfo.getUserId())) {
             applicant = Integration_TestDataFactory.createMinimumAccessUser();
@@ -304,6 +453,7 @@ private class AAREG_ApplicationControllerTest {
      */
     @IsTest
     private static void shouldLinkApplicantContactWhenSubmittingDirectly() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(false);
         Account account = [SELECT Id FROM Account LIMIT 1];
         User applicant = createApplicant();
 
@@ -352,6 +502,7 @@ private class AAREG_ApplicationControllerTest {
      */
     @IsTest
     private static void shouldReuseExistingContactWhenSubmittingDirectly() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(false);
         Account account = [SELECT Id FROM Account LIMIT 1];
         Contact existingContact = new Contact(
             AccountId = account.Id,
@@ -390,6 +541,7 @@ private class AAREG_ApplicationControllerTest {
      */
     @IsTest
     private static void shouldUseChangedNotificationEmailWhenSubmittingDraft() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(false);
         Account account = [SELECT Id FROM Account LIMIT 1];
         User applicant = createApplicant();
 
@@ -446,6 +598,7 @@ private class AAREG_ApplicationControllerTest {
      */
     @IsTest
     private static void shouldUseChangedApplicantEmailWhenSubmittingDraft() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(false);
         Account account = [SELECT Id FROM Account LIMIT 1];
         User applicant = createApplicant();
 
@@ -488,6 +641,7 @@ private class AAREG_ApplicationControllerTest {
      */
     @IsTest
     private static void shouldNotQueueConfirmationAgainWhenResubmitting() {
+        P360_TestDataFactory.setArchiveProcessingEnabled(false);
         Account account = [SELECT Id FROM Account LIMIT 1];
         User applicant = createApplicant();
 
@@ -969,5 +1123,221 @@ private class AAREG_ApplicationControllerTest {
             sanitized.Status__c,
             'When forced branch is enabled, populated fields should be skipped.'
         );
+    }
+
+    /**
+     * Existing application attachments should be selected by default when no selection state exists.
+     *
+     * @since 2026-11-15
+     */
+    @IsTest
+    private static void shouldSelectAllLegacyAttachmentsByDefault() {
+        User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S01', 'subject-a');
+        grantCommunityPermissions(communityUser);
+        Application__c application = createAttachmentTestApplication(
+            communityUser,
+            communityUser.LastUsedOrganization__c
+        );
+
+        List<ContentVersion> versions = new List<ContentVersion>{
+            new ContentVersion(
+                Title = 'First attachment',
+                PathOnClient = 'first-attachment.txt',
+                VersionData = Blob.valueOf('first')
+            ),
+            new ContentVersion(
+                Title = 'Second attachment',
+                PathOnClient = 'second-attachment.txt',
+                VersionData = Blob.valueOf('second')
+            )
+        };
+        insert versions;
+
+        List<ContentVersion> insertedVersions = [
+            SELECT Id, ContentDocumentId, Title
+            FROM ContentVersion
+            WHERE Id IN :versions
+        ];
+        List<ContentDocumentLink> links = new List<ContentDocumentLink>();
+        Map<Id, String> expectedTitles = new Map<Id, String>();
+        for (ContentVersion version : insertedVersions) {
+            links.add(
+                new ContentDocumentLink(
+                    LinkedEntityId = application.Id,
+                    ContentDocumentId = version.ContentDocumentId,
+                    ShareType = 'I',
+                    Visibility = 'AllUsers'
+                )
+            );
+            expectedTitles.put(version.ContentDocumentId, version.Title);
+        }
+        insert links;
+
+        List<AAREG_ApplicationController.AttachmentSelection> attachments;
+        Integer callouts;
+        System.Test.startTest();
+        System.runAs(communityUser) {
+            attachments = AAREG_ApplicationController.getApplicationAttachments(application.Id);
+            callouts = Limits.getCallouts();
+        }
+        System.Test.stopTest();
+
+        System.Assert.areEqual(2, attachments.size(), 'All linked attachments should be returned.');
+        Map<Id, String> actualTitles = new Map<Id, String>();
+        for (AAREG_ApplicationController.AttachmentSelection attachment : attachments) {
+            System.Assert.isTrue(attachment.selected, 'Legacy attachments should be selected by default.');
+            actualTitles.put(attachment.contentDocumentId, attachment.title);
+        }
+        System.Assert.areEqual(expectedTitles, actualTitles, 'Each linked document and its title should be returned.');
+        System.Assert.areEqual(0, callouts, 'The assigned synthetic Altinn scenario must not call external services.');
+    }
+
+    /**
+     * Rejects attachment access when the application belongs to another organization.
+     *
+     * @since 2026-11-15
+     */
+    @IsTest
+    private static void shouldRejectAttachmentsForAnotherOrganization() {
+        User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S01', 'subject-a');
+        grantCommunityPermissions(communityUser);
+        Application__c application = createAttachmentTestApplication(communityUser, '929882989');
+
+        System.Test.startTest();
+        String error = readAttachmentAccessError(communityUser, application.Id);
+        System.Test.stopTest();
+
+        System.Assert.areEqual(
+            AAREG_ApplicationController.ATTACHMENT_ACCESS_DENIED,
+            error,
+            'A different organization must not be able to read attachments.'
+        );
+    }
+
+    /**
+     * Rejects attachment access when Altinn denies application rights.
+     *
+     * @since 2026-11-15
+     */
+    @IsTest
+    private static void shouldRejectAttachmentsWithoutApplicationRights() {
+        User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S03', 'subject-a');
+        grantCommunityPermissions(communityUser);
+        Application__c application = createAttachmentTestApplication(
+            communityUser,
+            communityUser.LastUsedOrganization__c
+        );
+
+        System.Test.startTest();
+        String error = readAttachmentAccessError(communityUser, application.Id);
+        System.Test.stopTest();
+
+        System.Assert.areEqual(
+            AAREG_ApplicationController.ATTACHMENT_ACCESS_DENIED,
+            error,
+            'Altinn denial must prevent access to attachments.'
+        );
+    }
+
+    /**
+     * Rejects attachment access when the Altinn decision cannot be verified.
+     *
+     * @since 2026-11-15
+     */
+    @IsTest
+    private static void shouldRejectAttachmentsWhenRightsCannotBeVerified() {
+        User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S07', 'subject-a');
+        grantCommunityPermissions(communityUser);
+        Application__c application = createAttachmentTestApplication(
+            communityUser,
+            communityUser.LastUsedOrganization__c
+        );
+
+        System.Test.startTest();
+        String error = readAttachmentAccessError(communityUser, application.Id);
+        System.Test.stopTest();
+
+        System.Assert.areEqual(
+            AAREG_ApplicationController.ATTACHMENT_ACCESS_UNVERIFIED,
+            error,
+            'An unverifiable Altinn decision must not grant access to attachments.'
+        );
+    }
+
+    /**
+     * Does not return files that are shared with internal users only.
+     *
+     * @since 2026-11-15
+     */
+    @IsTest
+    private static void shouldNotReturnInternalOnlyAttachments() {
+        User communityUser = AAREG_AltinnTestDataFactory.createCommunityAssignedUser('S01', 'subject-a');
+        grantCommunityPermissions(communityUser);
+        Application__c application = createAttachmentTestApplication(
+            communityUser,
+            communityUser.LastUsedOrganization__c
+        );
+        ContentVersion version = new ContentVersion(
+            Title = 'Internal note',
+            PathOnClient = 'internal-note.txt',
+            VersionData = Blob.valueOf('internal')
+        );
+        insert version;
+        version = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :version.Id];
+        insert new ContentDocumentLink(
+            LinkedEntityId = application.Id,
+            ContentDocumentId = version.ContentDocumentId,
+            ShareType = 'I',
+            Visibility = 'InternalUsers'
+        );
+
+        List<AAREG_ApplicationController.AttachmentSelection> attachments;
+        System.Test.startTest();
+        System.runAs(communityUser) {
+            attachments = AAREG_ApplicationController.getApplicationAttachments(application.Id);
+        }
+        System.Test.stopTest();
+
+        System.Assert.isTrue(attachments.isEmpty(), 'Internal-only files must not be exposed to portal users.');
+    }
+
+    private static String readAttachmentAccessError(User communityUser, Id applicationId) {
+        String message;
+        System.runAs(communityUser) {
+            try {
+                AAREG_ApplicationController.getApplicationAttachments(applicationId);
+            } catch (AuraHandledException error) {
+                message = error.getMessage();
+            }
+            System.Assert.areEqual(
+                0,
+                Limits.getCallouts(),
+                'Synthetic Altinn scenarios must not call external services.'
+            );
+        }
+        return message;
+    }
+
+    private static void grantCommunityPermissions(User communityUser) {
+        PermissionSet permissionSet = [SELECT Id FROM PermissionSet WHERE Name = 'AAREG_CommunityPermission' LIMIT 1];
+        System.runAs(new User(Id = UserInfo.getUserId())) {
+            insert new PermissionSetAssignment(AssigneeId = communityUser.Id, PermissionSetId = permissionSet.Id);
+        }
+    }
+
+    private static Application__c createAttachmentTestApplication(User communityUser, String organizationNumber) {
+        Account account = [
+            SELECT Id, Name, INT_OrganizationNumber__c, ShippingStreet, ShippingCity, ShippingPostalCode
+            FROM Account
+            WHERE INT_OrganizationNumber__c = '929882989'
+            LIMIT 1
+        ];
+        account.INT_OrganizationNumber__c = organizationNumber;
+        update account;
+
+        Application__c application = AAREG_TestDataFactory.getApplicationCounty(account);
+        application.OwnerId = communityUser.Id;
+        insert application;
+        return application;
     }
 }

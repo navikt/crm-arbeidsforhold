@@ -686,6 +686,25 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>aaregContactModelPanel</componentName>
+                <identifier>aaregContactModelPanel1</identifier>
+                <visibilityRule>
+                    <booleanFilter>1 OR 2</booleanFilter>
+                    <criteria>
+                        <leftValue>{!$Permission.CustomPermission.AAREG_ContactModelPilot}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>true</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!$Permission.CustomPermission.AAREG_ContactModelMigrate}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>true</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentInstanceProperties>
                     <name>accordionSections</name>
                     <value>Facet-6c262573-368d-49cb-8312-80275aca136d</value>

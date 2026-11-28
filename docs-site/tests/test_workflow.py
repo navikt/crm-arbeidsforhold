@@ -182,6 +182,16 @@ class PagesWorkflowTest(unittest.TestCase):
             {"contents": "read", "pages": "write", "id-token": "write"},
         )
 
+    def test_only_deploy_serializes_without_replacing_queued_jobs(self):
+        self.assertNotIn("concurrency", self.workflow)
+        self.assertNotIn("concurrency", self.workflow["jobs"]["build"])
+        deploy = self.workflow["jobs"]["deploy"]
+        self.assertIn("concurrency", deploy)
+        concurrency = deploy["concurrency"]
+        self.assertEqual(concurrency["group"], "crm-arbeidsforhold-docs-pages-deploy")
+        self.assertEqual(concurrency["queue"], "max")
+        self.assertEqual(concurrency["cancel-in-progress"], "false")
+
     def test_deploy_checks_latest_main_before_publishing(self):
         steps = self.workflow["jobs"]["deploy"]["steps"]
         guard = next(step for step in steps if "git/ref/heads/main" in step.get("run", ""))

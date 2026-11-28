@@ -9,6 +9,14 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>AAREG_AdminNavigationController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>AAREG_AdminPermissionController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>AAREG_AdminConfigurationController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -17,12 +25,36 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>AAREG_AdminJourneyController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>AAREG_AdminOverviewController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>AAREG_AdminMetadataCleanupController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <customMetadataTypeAccesses>
         <enabled>true</enabled>
+        <name>AAREG_Permission_Guide__mdt</name>
+    </customMetadataTypeAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
         <name>AAREG_Admin_Setting__mdt</name>
+    </customMetadataTypeAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
+        <name>AAREG_Cleanup_Environment__mdt</name>
+    </customMetadataTypeAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
+        <name>AAREG_Cleanup_Guide__mdt</name>
+    </customMetadataTypeAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
+        <name>AAREG_Cleanup_Verification__mdt</name>
     </customMetadataTypeAccesses>
     <description>Read-only access to the Arbeidsforhold Admin app. Grants no View All or Modify All; record visibility follows sharing.</description>
     <fieldPermissions>
@@ -253,6 +285,18 @@
     </tabSettings>
     <tabSettings>
         <tab>AAREG_Admin_Access</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AAREG_Admin_Journey</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AAREG_Admin_Permissions</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>AAREG_Admin_Metadata_Cleanup</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>

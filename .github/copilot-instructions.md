@@ -15,10 +15,10 @@ use `.github/skills/code-review-two-axis/SKILL.md`.
 
 - Do not invent Salesforce IDs, org URLs, package versions, permission-set assignments, or dependency APIs.
 - Do not expose credentials, package installation keys, personal data, or authentication details in code, logs, prompts, or test fixtures.
-- Before every command accessing an org, obtain fresh confirmation of the exact non-production target and action, including the default `crm-arbeidsforhold` scratch org, reads, previews, tests, retrievals, authentication and scripts. Explain the reason before using another non-production org.
-- Authentication, aliases, scripts and previous approvals are not permission for another operation.
+- Work in the existing `crm-arbeidsforhold` scratch org without renewed user approval, including reads, previews, tests/scripts, retrievals, package installation, deployments, publishing, and data or metadata changes/deletions. Verify the explicit target is the intended scratch org before acting; an alias alone is not proof. Respect native tool approvals.
+- Before each command accessing any other non-production org, obtain fresh confirmation of the exact target and action and explain the technical reason. Authentication, aliases, scripts and previous approvals do not authorize those operations.
 - Agents must never access production, including a production-backed Dev Hub, even on request or with approval. Arrange human execution; Team Platforce approval is required for human production metadata changes, and Team Platforce performs production verification and deletion.
-- Treat org creation, package installation, deployment, package creation, and package promotion as explicit user actions requiring approval. Follow the full org-safety rules in `AGENTS.md`.
+- Org creation/replacement, package creation/promotion, CI/auth changes, live external integrations, and operations outside the authorized scratch org still require explicit approval. Production remains prohibited. Follow the full org-safety rules in `AGENTS.md`.
 - Team Arbeidsforhold owns the product/repository; `@navikt/crm-arbeidsforhold` is the GitHub contributor/reviewer team. Require a runbook and SIT2 verification for metadata deletion or renaming; never claim verification without evidence.
 - Do not modify package-owned directories without explicit approval. The repository already contains `.copilot/reference-only.instructions.md` for this boundary.
 

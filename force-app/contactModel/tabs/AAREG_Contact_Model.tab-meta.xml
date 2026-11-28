@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Overview, feature flags and migration runs for the Aa-register contact model.</description>
+    <flexiPage>AAREG_Contact_Model</flexiPage>
+    <label>Kontaktmodell</label>
+    <motif>Custom57: Building Block</motif>
+</CustomTab>

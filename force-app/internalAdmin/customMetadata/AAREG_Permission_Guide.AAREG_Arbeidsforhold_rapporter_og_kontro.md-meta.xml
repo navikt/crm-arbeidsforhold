@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>AAREG Arbeidsforhold rapporter og kontro</label>
+    <protected>false</protected>
+    <values>
+        <field>Permission_Name__c</field>
+        <value xsi:type="xsd:string">AAREG_Arbeidsforhold_rapporter_og_kontrollpanel</value>
+    </values>
+    <values>
+        <field>Audience__c</field>
+        <value xsi:type="xsd:string">Support</value>
+    </values>
+    <values>
+        <field>Explanation__c</field>
+        <value xsi:type="xsd:string">Lage og endre rapportar og kontrollpanel for Aa-registeret.</value>
+    </values>
+    <values>
+        <field>Sort_Order__c</field>
+        <value xsi:type="xsd:double">70.0</value>
+    </values>
+</CustomMetadata>

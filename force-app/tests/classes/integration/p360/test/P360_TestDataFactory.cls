@@ -39,10 +39,14 @@ public with sharing class P360_TestDataFactory {
     }
 
     /**
-     * Grants a permission set to the running test user and returns a fresh runAs context.
+     * Assigns a permission set to the running user unless it is already assigned. API 67.0 code runs in user
+     * mode, so tests that exercise admin features need the same permission set an administrator would use.
      *
-     * @param permissionSetName Developer name of the permission set to assign.
-     * @return User Running test user for a new System.runAs block.
+     * Permission changes take effect in a new runAs context, so callers must run the code under test as the
+     * returned user.
+     *
+     * @param permissionSetName API name of the permission set to assign.
+     * @return User The running user, for use in System.runAs.
      * @since 2026-11
      */
     public static User grantPermissionSetToRunningUser(String permissionSetName) {

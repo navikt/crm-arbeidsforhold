@@ -29,11 +29,12 @@ describe('c-aareg-admin-help', () => {
         });
     });
 
-    it('does not advertise scratch runner commands that are unavailable on main', () => {
+    it('explains that the test lab is started from VS Code and only works in scratch', () => {
         const element = createElement('c-aareg-admin-help', { is: AaregAdminHelp });
         document.body.appendChild(element);
 
         const text = element.shadowRoot.textContent;
-        expect(text).not.toContain('npm run admin:scratch');
+        expect(text).toContain('npm run admin:scratch -- seed');
+        expect(text).toContain('scratch');
     });
 });

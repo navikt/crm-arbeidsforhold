@@ -59,17 +59,17 @@ pool, nøkler og feilsøking. Alle flagg og flere eksempler finnes i
 
 ## Finn frem
 
-| Jeg vil …                                                     | Start her                                                                                                                      |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Sette opp PC/Mac og gjøre min første endring                  | [Kom i gang](docs/kom-i-gang.md)                                                                                               |
-| Forstå løsningen og hvor koden ligger                         | [Handboka](docs/architecture/aaregisteret-handbok.md) og [arkitekturoversikten](docs/architecture/hele-loysinga.md)            |
-| Finne Flow-er, scenariotester og testdata                     | [Flow-katalog](docs/architecture/aareg-flow-katalog.md) og [scenario-testplan](docs/testing/aaregisteret-scenario-testplan.md) |
-| Sette opp scratch-org eller oppdatere pakker                  | [Skriptguide](bin/README.md), [kommandoer](bin/COMMANDS.md) og [plattformstøtte](bin/COMPATIBILITY.md)                         |
-| Følge utviklings- og teststandardene                          | [Utviklingsstandarder](docs/utviklingsstandarder.md)                                                                           |
-| Forstå PR-sjekker, pakkeoppretting og deploy                  | [Workflowoversikt og kjente begrensninger](docs/operations/workflows.md)                                                       |
-| Finne dokumentasjon om P360, Altinn eller andre integrasjoner | [Integrasjoner](docs/integrations/README.md)                                                                                   |
-| Finne domene, brukerflater og tekniske beslutninger           | [Dokumentasjonskart](docs/README.md) og [ADR-er](docs/adr/README.md)                                                           |
-| Finne eldre analyser og testresultater                        | [Dokumentasjonsarkivet](docs/archive/README.md)                                                                                |
+| Jeg vil …                                                     | Start her                                                                                                                                                                        |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sette opp PC/Mac og gjøre min første endring                  | [Kom i gang](docs/kom-i-gang.md)                                                                                                                                                 |
+| Forstå løsningen og hvor koden ligger                         | [Handboka](docs/architecture/aaregisteret-handbok.md), [arkitekturoversikt](docs/architecture/hele-loysinga.md) og [repositorystruktur](docs/architecture/repositorystruktur.md) |
+| Finne Flow-er, scenariotester og testdata                     | [Flow-katalog](docs/architecture/aareg-flow-katalog.md) og [scenario-testplan](docs/testing/aaregisteret-scenario-testplan.md)                                                   |
+| Sette opp scratch-org eller oppdatere pakker                  | [Skriptguide](bin/README.md), [kommandoer](bin/COMMANDS.md) og [plattformstøtte](bin/COMPATIBILITY.md)                                                                           |
+| Følge utviklings- og teststandardene                          | [Utviklingsstandarder](docs/utviklingsstandarder.md)                                                                                                                             |
+| Forstå PR-sjekker, pakkeoppretting og deploy                  | [Workflowoversikt og kjente begrensninger](docs/operations/workflows.md)                                                                                                         |
+| Finne dokumentasjon om P360, Altinn eller andre integrasjoner | [Integrasjoner](docs/integrations/README.md)                                                                                                                                     |
+| Finne domene, brukerflater og tekniske beslutninger           | [Dokumentasjonskart](docs/README.md) og [ADR-er](docs/adr/README.md)                                                                                                             |
+| Finne eldre analyser og testresultater                        | [Dokumentasjonsarkivet](docs/archive/README.md)                                                                                                                                  |
 
 ## Lokal validering
 
@@ -113,10 +113,13 @@ for triggere, ansvar og manglende godkjenningsvern.
 - [AGENTS.md](AGENTS.md) og [CONTEXT.md](CONTEXT.md) beskriver repoets grenser
   og kontekst for agentassistert arbeid.
 
-Org-oppretting, pakkeinstallasjon og deploy krever eksplisitt godkjenning.
-Autentisering eller et eksisterende alias er ikke i seg selv en tillatelse.
-Agentassistert org-tilgang krever ny bekreftelse av mål og handling før hver
-kommando. Agenter skal aldri aksessere produksjon, heller ikke via Dev Hub.
+Arbeid i eksisterende `crm-arbeidsforhold` scratch-org krever ikke ny
+brukergodkjenning, heller ikke for pakkeinstallasjon, deploy eller endring/sletting.
+Verifiser eksplisitt mål og scratch-type før handling; alias alene er ikke bevis.
+Org-oppretting/-erstatting, pakkeoppretting/-promotering og CI/auth-endringer
+krever fortsatt godkjenning. Andre ikke-produksjonsorg krever ny bekreftelse av
+mål og handling før hver kommando. Agenter skal aldri aksessere produksjon,
+heller ikke via Dev Hub. Native verktøygodkjenninger gjelder fortsatt.
 Se [miljøreglene](docs/utviklingsstandarder.md#org--og-miljøsikkerhet).
 Testtilgang, innloggingsdetaljer, nøkler og personopplysninger hører ikke hjemme i repoet.
 

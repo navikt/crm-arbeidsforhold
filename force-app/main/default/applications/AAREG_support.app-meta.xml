@@ -94,9 +94,13 @@
     <tabs>standard-Contact</tabs>
     <tabs>standard-report</tabs>
     <tabs>standard-Dashboard</tabs>
+    <tabs>AAREG_Contact_Model</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>Arbeidsforhold_henvendelse_UtilityBar</utilityBar>
     <workspaceConfig>
+        <mappings>
+            <tab>AAREG_Contact_Model</tab>
+        </mappings>
         <mappings>
             <tab>Access_Request__c</tab>
         </mappings>

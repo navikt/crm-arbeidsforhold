@@ -1,0 +1,22 @@
+<template>
+    <lightning-card title="Løyve og brukarar" icon-name="standard:user_role">
+        <p class="slds-p-horizontal_medium">
+            Oversikta blir lesen direkte frå orgen. Endringar i tildelingar gjer du i Setup.
+        </p>
+        <lightning-tabset>
+            <lightning-tab label="Løyve" value="catalog">
+                <c-aareg-admin-permission-catalog></c-aareg-admin-permission-catalog>
+            </lightning-tab>
+            <template lwc:if={showUsers}>
+                <lightning-tab label="Interne brukarar" value="users">
+                    <c-aareg-admin-user-access></c-aareg-admin-user-access>
+                </lightning-tab>
+            </template>
+        </lightning-tabset>
+        <template lwc:if={usersLocked}>
+            <p class="slds-p-horizontal_medium slds-m-top_small slds-text-color_weak" data-id="users-locked">
+                For å sjå interne brukarar og tilgangsproblem treng du løyvesettet «AAREG Admin Access Overview».
+            </p>
+        </template>
+    </lightning-card>
+</template>

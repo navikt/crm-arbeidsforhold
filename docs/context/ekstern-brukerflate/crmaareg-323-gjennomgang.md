@@ -270,7 +270,7 @@ Kvar story og task under epicane bør stemme med desse krava. Kjeldene er [`AGEN
 | Tilgang og personvern | Raud sone. Krev menneskeleg gjennomgang, negative testar og security review før PR.                                                                                                                                    |
 | Språk                 | Engelsk for API-namn og kode. Norsk tekst til brukarane skal ligge i Custom Labels og Translation Workbench.                                                                                                           |
 | UI                    | Bruk LWC i Experience Cloud. Bruk Aksel-styling der det er mogleg, og verifiser UU, WCAG 2.1 AA, for kvar leveranse.                                                                                                   |
-| Org-tryggleik         | Stadfest mål og handling før kvar org-kommando. Agentar skal aldri ha tilgang til produksjon.                                                                                                                          |
+| Org-tryggleik         | Verifiser eksplisitt mål og scratch-type; arbeid i eksisterande `crm-arbeidsforhold` krev ikkje ny brukargodkjenning. Andre ikkje-produksjonsorg krev fersk mål-/handlingsgodkjenning. Produksjon er forbode.          |
 | Verifisering          | Skil mellom lokal og org-avhengig kontroll. Ikkje rapporter ein org-test som grøn utan dokumentasjon.                                                                                                                  |
 | Jira-tekst            | Ikkje endre eksisterande beskrivingar utan godkjenning. Kopier alltid originalteksten før endring.                                                                                                                     |
 
@@ -310,6 +310,6 @@ Kvar story og task under epicane bør stemme med desse krava. Kjeldene er [`AGEN
 
 - **Arbeid i bolkar:** Gå gjennom éin epic om gongen dersom det finst mange saker. Be agenten skrive delresultat til fila undervegs.
 - **Kontroller kjeldene:** Opne nokre kode-lenkjer sjølv og kontroller at funna stemmer.
-- **Org-testar:** Kvar org-kommando krev at du stadfestar mål og handling. Bruk scratch-org, ikkje produksjon.
+- **Org-testar:** Arbeid i verifisert eksisterande `crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning. Andre ikkje-produksjonsorg krev fersk mål-/handlingsgodkjenning etter `AGENTS.md`. Bruk aldri produksjon.
 - **Raud sone:** Tilgang, personvern og autentisering krev menneskeleg gjennomgang og security review før PR.
 - **Jira-endringar:** Dersom noko skal endrast i Jira, skal agenten først vise originalteksten og forslaget side om side. Du kopierer originalen og gjer endringa sjølv, eller godkjenner endringa eksplisitt.

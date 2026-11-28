@@ -1,0 +1,39 @@
+:host {
+    display: block;
+    height: 100%;
+}
+.panel {
+    height: 100%;
+    box-sizing: border-box;
+    padding: var(--a-spacing-5);
+    background: var(--a-surface-default);
+}
+.panel-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--a-surface-action-subtle);
+    color: var(--a-icon-action);
+    font-size: 1.75rem;
+}
+.panel-content {
+    flex: 1;
+    min-width: 0;
+}
+.navds-link-panel__title {
+    display: flex;
+    align-items: center;
+    gap: var(--a-spacing-2);
+    color: var(--a-text-action);
+}
+.navds-link-panel__description {
+    color: var(--a-text-subtle);
+}
+.count {
+    min-width: 1.5rem;
+    justify-content: center;
+}

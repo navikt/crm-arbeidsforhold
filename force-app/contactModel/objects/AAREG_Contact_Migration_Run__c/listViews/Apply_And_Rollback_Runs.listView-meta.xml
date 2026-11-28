@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Apply_And_Rollback_Runs</fullName>
+    <columns>NAME</columns>
+    <columns>Mode__c</columns>
+    <columns>Status__c</columns>
+    <columns>Started_At__c</columns>
+    <columns>Completed_At__c</columns>
+    <columns>Total__c</columns>
+    <columns>Linked__c</columns>
+    <columns>Failed__c</columns>
+    <columns>Deviations__c</columns>
+    <columns>Rolled_Back__c</columns>
+    <columns>Source_Run__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Mode__c</field>
+        <operation>equals</operation>
+        <value>APPLY,ROLLBACK</value>
+    </filters>
+    <label>Apply and Rollback Runs</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

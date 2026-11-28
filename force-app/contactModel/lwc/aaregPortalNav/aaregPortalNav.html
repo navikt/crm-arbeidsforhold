@@ -1,0 +1,74 @@
+<template>
+    <template lwc:if={visible}>
+        <nav class="portal-nav" aria-label="Brødsmulesti">
+            <ol class="crumbs navds-body-short">
+                <template for:each={trail} for:item="item">
+                    <li key={item.key} class="crumb">
+                        <template lwc:if={item.current}>
+                            <span class="crumb-current" aria-current="page">{item.label}</span>
+                        </template>
+                        <template lwc:else>
+                            <a class="navds-link" href={item.href} data-key={item.key} onclick={handleClick}
+                                >{item.label}</a
+                            >
+                            <c-aareg-icon class="crumb-separator" name="ChevronRight"></c-aareg-icon>
+                        </template>
+                    </li>
+                </template>
+            </ol>
+            <a
+                class="navds-link back navds-body-short"
+                href={parent.href}
+                data-key={parent.key}
+                data-id="back"
+                onclick={handleClick}
+            >
+                <c-aareg-icon name="ArrowLeft"></c-aareg-icon>
+                <span>Tilbake til {parent.label}</span>
+            </a>
+        </nav>
+        <template lwc:if={showContext}>
+            <div class="context-wrap">
+                <section class="context navds-body-short" data-id="context" aria-label="Du bruker tjenesten som">
+                    <c-aareg-icon class="context-icon" name={contextIcon}></c-aareg-icon>
+                    <template lwc:if={isPrivate}>
+                        <span class="context-text">
+                            <strong>{role.label}</strong>
+                            <span class="context-detail">Du bruker tjenesten på egne vegne</span>
+                        </span>
+                        <a
+                            class="navds-link context-action"
+                            href={homeHref}
+                            onclick={handleChangeRole}
+                            data-id="change-role"
+                        >
+                            <c-aareg-icon name="ArrowsCirclepath"></c-aareg-icon>
+                            <span>Bytt rolle</span>
+                        </a>
+                    </template>
+                    <template lwc:else>
+                        <span class="context-text">
+                            <span class="context-detail">{role.label} for</span>
+                            <template lwc:if={organizationChosen}>
+                                <strong class="context-name">{organizationName}</strong>
+                                <span class="context-detail context-number">Org.nr. {organizationNumber}</span>
+                            </template>
+                            <template lwc:else>
+                                <strong class="context-name">ingen virksomhet valgt</strong>
+                            </template>
+                        </span>
+                        <a
+                            class="navds-link context-action"
+                            href={roleHref}
+                            onclick={handleChangeOrganization}
+                            data-id="change-organization"
+                        >
+                            <c-aareg-icon name="ArrowsCirclepath"></c-aareg-icon>
+                            <span>Bytt virksomhet</span>
+                        </a>
+                    </template>
+                </section>
+            </div>
+        </template>
+    </template>
+</template>

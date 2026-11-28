@@ -1,0 +1,19 @@
+:host {
+    display: block;
+}
+.navds-alert__icon {
+    font-size: 1.5rem;
+    align-self: flex-start;
+}
+.navds-alert--info .navds-alert__icon {
+    color: var(--a-icon-info, var(--a-surface-info));
+}
+.navds-alert--warning .navds-alert__icon {
+    color: var(--a-icon-warning, var(--a-surface-warning));
+}
+.navds-alert--error .navds-alert__icon {
+    color: var(--a-icon-danger, var(--a-surface-danger));
+}
+.navds-alert--success .navds-alert__icon {
+    color: var(--a-icon-success, var(--a-surface-success));
+}

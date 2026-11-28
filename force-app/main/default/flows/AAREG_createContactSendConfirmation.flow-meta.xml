@@ -237,8 +237,86 @@
         <nameSegment>LoggerUtility</nameSegment>
         <offset>0</offset>
     </actionCalls>
+    <actionCalls>
+        <description>Contact model (K8): chooses the domain contact and the context address when the flags are on. Returns the legacy behaviour otherwise.</description>
+        <name>Resolve_Contact_Model_Recipient</name>
+        <label>Resolve Contact Model Recipient</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>AAREG_ContactModelRecipient</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Use_Domain_Contact</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>checkContact</targetReference>
+        </faultConnector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>applicationId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>AAREG_ContactModelRecipient</nameSegment>
+        <offset>0</offset>
+        <outputParameters>
+            <assignToReference>varUseDomainContact</assignToReference>
+            <name>useDomainContact</name>
+        </outputParameters>
+        <outputParameters>
+            <assignToReference>varDomainContactId</assignToReference>
+            <name>contactId</name>
+        </outputParameters>
+        <outputParameters>
+            <assignToReference>varToAddress</assignToReference>
+            <name>toAddress</name>
+        </outputParameters>
+    </actionCalls>
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Assign_Domain_Contact</name>
+        <label>Assign Domain Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varContactID</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>varDomainContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>UpdateApplication</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <description>Contact model (K8): with LegacyMatchingOff the domain contact replaces matching or creating a contact per email.</description>
+        <name>Use_Domain_Contact</name>
+        <label>Use Domain Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>checkContact</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Legacy contact per email</defaultConnectorLabel>
+        <rules>
+            <name>Domain_Contact</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varUseDomainContact</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Domain_Contact</targetReference>
+            </connector>
+            <label>Domain Contact</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>IsContactNull</name>
         <label>IsContactNull</label>
@@ -409,6 +487,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>ToAddress__c</field>
+            <value>
+                <elementReference>varToAddress</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>WhatId__c</field>
             <value>
                 <elementReference>$Record.Id</elementReference>
@@ -540,7 +624,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>checkContact</targetReference>
+            <targetReference>Resolve_Contact_Model_Recipient</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -690,5 +774,29 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varDomainContactId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varToAddress</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varUseDomainContact</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
     </variables>
 </Flow>

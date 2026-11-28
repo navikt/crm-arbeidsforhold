@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AAREG_Contact_Migration_Item_Compact</fullName>
+    <fields>Name</fields>
+    <fields>Run__c</fields>
+    <fields>Class__c</fields>
+    <fields>Action__c</fields>
+    <fields>Application__c</fields>
+    <label>Contact Migration Item Compact</label>
+</CompactLayout>

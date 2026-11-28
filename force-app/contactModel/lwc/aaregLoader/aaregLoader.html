@@ -1,0 +1,17 @@
+<template>
+    <div class="loader" role="status">
+        <svg class="navds-loader navds-loader--large" viewBox="0 0 50 50" focusable="false" aria-hidden="true">
+            <circle class="navds-loader__background" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+            <circle
+                class="navds-loader__foreground"
+                cx="25"
+                cy="25"
+                r="20"
+                fill="none"
+                stroke-width="5"
+                stroke-dasharray="50 155"
+            ></circle>
+        </svg>
+        <span class="navds-body-short">{label}</span>
+    </div>
+</template>

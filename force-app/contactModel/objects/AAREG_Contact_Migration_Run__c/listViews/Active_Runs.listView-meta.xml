@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Active_Runs</fullName>
+    <columns>NAME</columns>
+    <columns>Mode__c</columns>
+    <columns>Status__c</columns>
+    <columns>Started_At__c</columns>
+    <columns>Completed_At__c</columns>
+    <columns>Total__c</columns>
+    <columns>Linked__c</columns>
+    <columns>Failed__c</columns>
+    <columns>Deviations__c</columns>
+    <columns>Rolled_Back__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>Queued,Running</value>
+    </filters>
+    <label>Queued and Running Migration Runs</label>
+    <sharedTo>
+        <allInternalUsers></allInternalUsers>
+    </sharedTo>
+</ListView>

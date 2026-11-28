@@ -32,6 +32,24 @@ nav:
           - Repositorystruktur: architecture/repositorystruktur.md
           - Arkitekturprinsipp og namnestandard: architecture/arkitekturprinsipp-lagdeling-og-namnestandard.md
           - Forbetringsforslag og målmodell: architecture/forbetringsforslag-og-malmodell.md
+          - Kontaktmodell:
+                - Oversikt: architecture/kontaktmodell/README.md
+                - Utrulling og tilbakerulling: architecture/kontaktmodell/utrulling.md
+                - Produksjonsisolering: architecture/kontaktmodell/produksjonsisolering.md
+                - Inngangsportal og rollesider: architecture/kontaktmodell/inngangsportal.md
+                - Claude-brief: architecture/kontaktmodell/claude-brief.md
+                - Testing:
+                      - Oversikt: architecture/kontaktmodell/testing/README.md
+                      - Operatørrettleiing: architecture/kontaktmodell/testing/operatorrettleiing.md
+                      - Manuelle testskript: architecture/kontaktmodell/testing/manuelle-testskript.md
+                - Arkiv:
+                      - Oversikt: architecture/kontaktmodell/arkiv/README.md
+                      - Samla vurdering: architecture/kontaktmodell/arkiv/samla-vurdering.md
+                      - Analyse og målmodell: architecture/kontaktmodell/arkiv/analyse-og-malmodell.md
+                      - Brukarflater og flyt: architecture/kontaktmodell/arkiv/brukarflater-og-flyt.md
+                      - Brukarstøtte og e-post: architecture/kontaktmodell/arkiv/brukarstoette-og-e-post-analyse.md
+                      - Brukarstøtte-wireframes: architecture/kontaktmodell/arkiv/wireframes-brukarstoette-og-kontakt.md
+                      - Migrering og verifikasjon: architecture/kontaktmodell/arkiv/migrering-og-verifikasjon.md
           - Domene: domain/README.md
           - ADR:
                 - Register: adr/README.md
@@ -40,6 +58,9 @@ nav:
                 - 'ADR-0003: E-post for personkonto via AAREG og KRR': adr/0003-e-post-for-personkonto-via-aareg-og-krr.md
                 - 'ADR-0004: P360 composition root og kontraktsgrense': adr/0004-p360-composition-root-og-kontraktsgrense.md
                 - 'ADR-0005: Repositorystruktur for ny kode': adr/0005-repositorystruktur-ny-kode-og-legacy.md
+                - 'ADR-0006: Éin kontakt, ACR og roller': adr/0006-kontaktmodell-ein-kontakt-acr-og-roller.md
+                - 'ADR-0007: Kontaktpunkt i eige objekt': adr/0007-kontaktpunkt-i-eige-objekt.md
+                - 'ADR-0008: Skjerming i kontaktmodellen': adr/0008-skjerming-i-kontaktmodellen.md
     - Integrasjonar:
           - Oversikt: integrations/README.md
           - P360:
@@ -146,6 +167,7 @@ not_in_nav: |
     /architecture/aaregisteret-pakkeavstemming-2026-11-14.md
     /operations/experience-cloud-console-2026-10-28.md
     /operations/p360-og-crm-arbeidsforhold-testgjennomgang.md
+    /operations/scratch-testlogg-2026-10-15.md
 hooks:
     - docs-site/hooks.py
 validation:

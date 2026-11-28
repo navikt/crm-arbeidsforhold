@@ -1,0 +1,181 @@
+{
+    "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+    "componentName": "siteforce:dynamicLayout",
+    "dataProviders": [],
+    "id": "bf88d188-93fd-4444-9ba3-9d18ed2c753c",
+    "label": "Min profil",
+    "regions": [
+        {
+            "components": [
+                {
+                    "componentAttributes": {
+                        "background": "background: rgba(0,0,0,0)",
+                        "backgroundOverlay": "rgba(0,0,0,0.5)",
+                        "contentAreaWidth": 100,
+                        "sectionConfig": {
+                            "UUID": "17fc1cf6-8c13-447a-a0cc-39e71af80e2d",
+                            "columns": [
+                                {
+                                    "UUID": "59f34283-7050-4d2b-86e3-a2c5980e6095",
+                                    "columnKey": "1",
+                                    "columnName": "Column 1",
+                                    "columnWidth": "12",
+                                    "seedComponents": []
+                                }
+                            ]
+                        },
+                        "sectionHeight": 32
+                    },
+                    "componentName": "forceCommunity:section",
+                    "id": "17fc1cf6-8c13-447a-a0cc-39e71af80e2d",
+                    "regions": [
+                        {
+                            "components": [
+                                {
+                                    "componentAttributes": {
+                                        "NAVarea": "Privatperson"
+                                    },
+                                    "componentName": "c:globalCommunityHeader",
+                                    "id": "11e969d9-ba95-44b2-bfae-915d31d3c661",
+                                    "renderPriority": "NEUTRAL",
+                                    "renditionMap": {},
+                                    "type": "component"
+                                }
+                            ],
+                            "id": "59f34283-7050-4d2b-86e3-a2c5980e6095",
+                            "regionLabel": "Column 1",
+                            "regionName": "1",
+                            "renditionMap": {},
+                            "type": "region"
+                        }
+                    ],
+                    "renderPriority": "NEUTRAL",
+                    "renditionMap": {},
+                    "type": "component"
+                },
+                {
+                    "componentAttributes": {
+                        "background": "background: rgba(0,0,0,0)",
+                        "backgroundOverlay": "rgba(0,0,0,0.5)",
+                        "contentAreaWidth": 100,
+                        "sectionConfig": {
+                            "UUID": "28a01fec-9a76-4266-9ed5-b4899114c437",
+                            "columns": [
+                                {
+                                    "UUID": "bd31a01c-c398-426b-8186-47a3cae7223c",
+                                    "columnKey": "1",
+                                    "columnName": "Column 1",
+                                    "columnWidth": "12",
+                                    "seedComponents": []
+                                }
+                            ]
+                        },
+                        "sectionHeight": 300
+                    },
+                    "componentName": "forceCommunity:section",
+                    "id": "28a01fec-9a76-4266-9ed5-b4899114c437",
+                    "regions": [
+                        {
+                            "components": [
+                                {
+                                    "componentAttributes": {},
+                                    "componentName": "c:aaregPortalNav",
+                                    "id": "2d42f092-8468-46cb-9a6c-55a74cad010d",
+                                    "renderPriority": "NEUTRAL",
+                                    "renditionMap": {},
+                                    "type": "component"
+                                },
+                                {
+                                    "componentAttributes": {},
+                                    "componentName": "c:aaregMyProfile",
+                                    "id": "2dca8aca-a486-4722-886b-5d37d6ac77e9",
+                                    "renderPriority": "NEUTRAL",
+                                    "renditionMap": {},
+                                    "type": "component"
+                                }
+                            ],
+                            "id": "bd31a01c-c398-426b-8186-47a3cae7223c",
+                            "regionLabel": "Column 1",
+                            "regionName": "1",
+                            "renditionMap": {},
+                            "type": "region"
+                        }
+                    ],
+                    "renderPriority": "NEUTRAL",
+                    "renditionMap": {},
+                    "type": "component"
+                },
+                {
+                    "componentAttributes": {
+                        "background": "background: rgba(0,0,0,0)",
+                        "backgroundOverlay": "rgba(0,0,0,0.5)",
+                        "contentAreaWidth": 100,
+                        "sectionConfig": {
+                            "UUID": "57b29955-64b1-41c6-afbe-089e29ba50bf",
+                            "columns": [
+                                {
+                                    "UUID": "4d296426-c50b-4d06-bce0-06006ef567c6",
+                                    "columnKey": "1",
+                                    "columnName": "Column 1",
+                                    "columnWidth": "12",
+                                    "seedComponents": []
+                                }
+                            ]
+                        },
+                        "sectionHeight": 32
+                    },
+                    "componentName": "forceCommunity:section",
+                    "id": "57b29955-64b1-41c6-afbe-089e29ba50bf",
+                    "regions": [
+                        {
+                            "components": [
+                                {
+                                    "componentAttributes": {
+                                        "NAVarea": "Privatperson"
+                                    },
+                                    "componentName": "c:globalCommunityFooter",
+                                    "id": "175b37de-96d6-49c3-9cef-6d337b3a54f0",
+                                    "renderPriority": "NEUTRAL",
+                                    "renditionMap": {},
+                                    "type": "component"
+                                }
+                            ],
+                            "id": "4d296426-c50b-4d06-bce0-06006ef567c6",
+                            "regionLabel": "Column 1",
+                            "regionName": "1",
+                            "renditionMap": {},
+                            "type": "region"
+                        }
+                    ],
+                    "renderPriority": "NEUTRAL",
+                    "renditionMap": {},
+                    "type": "component"
+                }
+            ],
+            "id": "a9413df1-ce72-4d86-9047-1e11eb847a27",
+            "regionName": "content",
+            "type": "region"
+        },
+        {
+            "components": [
+                {
+                    "componentAttributes": {
+                        "customHeadTags": "",
+                        "description": "",
+                        "title": "Min profil"
+                    },
+                    "componentName": "forceCommunity:seoAssistant",
+                    "id": "ae0eec05-be9d-48b2-b636-2dddf9767d9c",
+                    "renditionMap": {},
+                    "type": "component"
+                }
+            ],
+            "id": "07780624-cb19-4dfc-b30a-7272e9399f71",
+            "regionName": "sfdcHiddenRegion",
+            "type": "region"
+        }
+    ],
+    "themeLayoutType": "Inner",
+    "type": "view",
+    "viewType": "custom-min-profil"
+}

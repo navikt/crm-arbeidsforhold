@@ -1,0 +1,14 @@
+:host {
+    display: block;
+}
+.navds-form-field {
+    display: grid;
+    gap: var(--a-spacing-2);
+}
+.navds-text-field__input {
+    width: 100%;
+    box-sizing: border-box;
+}
+.navds-form-field__error:empty {
+    display: none;
+}

@@ -33,15 +33,6 @@
           "renderPriority" : "NEUTRAL",
           "renditionMap" : { },
           "type" : "component"
-        }, {
-          "componentAttributes" : {
-            "title" : "Aa-registeret - Ny Søknad"
-          },
-          "componentName" : "c:aareg_mainBanner",
-          "id" : "8d7b2ec5-1090-4215-a59e-ffb1e6a0bcaf",
-          "renderPriority" : "NEUTRAL",
-          "renditionMap" : { },
-          "type" : "component"
         } ],
         "id" : "16d25c46-41ee-4fb3-9eda-7fc8ecda26c5",
         "regionLabel" : "Column 1",
@@ -73,6 +64,22 @@
       "id" : "cead1eca-0914-422e-a052-cd62aceab5f6",
       "regions" : [ {
         "components" : [ {
+          "componentAttributes" : { },
+          "componentName" : "c:aaregPortalNav",
+          "id" : "b37ebbc9-6ec2-4f14-b775-00e0ed468dec",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        }, {
+          "componentAttributes" : {
+            "title" : "Aa-registeret - Ny Søknad"
+          },
+          "componentName" : "c:aareg_mainBanner",
+          "id" : "8d7b2ec5-1090-4215-a59e-ffb1e6a0bcaf",
+          "renderPriority" : "NEUTRAL",
+          "renditionMap" : { },
+          "type" : "component"
+        }, {
           "componentAttributes" : { },
           "componentName" : "c:aareg_application",
           "id" : "e4076aa4-763c-43bf-b7cb-3b4c37a900cb",

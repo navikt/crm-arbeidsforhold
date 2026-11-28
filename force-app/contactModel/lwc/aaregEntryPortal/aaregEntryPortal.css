@@ -1,0 +1,71 @@
+.portal {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: var(--a-spacing-10) var(--a-spacing-4) var(--a-spacing-16);
+}
+.intro {
+    margin-bottom: var(--a-spacing-8);
+}
+.intro .navds-heading {
+    margin: 0 0 var(--a-spacing-3);
+}
+.lead {
+    margin: 0;
+    font-size: var(--a-font-size-heading-small, 1.25rem);
+    color: var(--a-text-subtle);
+}
+.message {
+    margin-bottom: var(--a-spacing-6);
+}
+.roles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--a-spacing-4);
+}
+.role-link {
+    padding: var(--a-spacing-6);
+    background: var(--a-surface-default);
+}
+.role-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: var(--a-surface-action-subtle);
+    color: var(--a-icon-action);
+    font-size: 2rem;
+}
+.role-text {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+}
+.role-title {
+    color: var(--a-text-action);
+}
+.role-description {
+    color: var(--a-text-subtle);
+}
+.profile {
+    margin-top: var(--a-spacing-10);
+    padding-top: var(--a-spacing-6);
+    border-top: 1px solid var(--a-border-divider);
+}
+@media (max-width: 480px) {
+    .portal {
+        padding-top: var(--a-spacing-6);
+    }
+    .role-link {
+        padding: var(--a-spacing-4);
+    }
+    .role-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.5rem;
+    }
+}

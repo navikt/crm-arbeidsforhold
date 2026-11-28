@@ -72,6 +72,18 @@
                 </div>
             </section>
         </template>
+        <template if:true={showProfileLink}>
+            <div class="slds-grid inner-container">
+                <div class="slds-col">
+                    <c-link-panel
+                        title="Min profil"
+                        sub-title="Her ser og endrer du e-postadressene dine: den private og den du bruker for hver virksomhet."
+                        relative-path="Min_Profil__c"
+                        style="display: flex; width: 100%"
+                    ></c-link-panel>
+                </div>
+            </div>
+        </template>
         <template if:true={hasAccess}>
             <div class="slds-grid inner-container">
                 <div class="slds-col" style="flex: 50%">

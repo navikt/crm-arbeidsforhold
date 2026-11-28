@@ -1,0 +1,36 @@
+<template>
+    <lightning-card title="Kontaktmodell" icon-name="standard:contact_list">
+        <div class="slds-p-horizontal_medium">
+            <template lwc:if={error}>
+                <div class="slds-text-color_error" role="alert" data-id="error">{error}</div>
+            </template>
+            <template lwc:if={panel}>
+                <p class="slds-m-bottom_small" data-id="summary">{panel.summary}</p>
+                <template for:each={sections} for:item="section">
+                    <section
+                        key={section.key}
+                        class="slds-m-bottom_medium"
+                        aria-labelledby={section.headingId}
+                        data-section={section.key}
+                    >
+                        <h3 id={section.headingId} class="slds-text-heading_small slds-m-bottom_x-small">
+                            {section.title}
+                        </h3>
+                        <template lwc:if={section.hasRows}>
+                            <lightning-datatable
+                                key-field="id"
+                                data={section.rows}
+                                columns={section.columns}
+                                hide-checkbox-column
+                                column-widths-mode="auto"
+                            ></lightning-datatable>
+                        </template>
+                        <template lwc:else>
+                            <p class="slds-text-body_small slds-text-color_weak">{section.emptyText}</p>
+                        </template>
+                    </section>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,108 @@
+<template>
+    <main class="role-page" aria-labelledby="role-heading">
+        <h1 id="role-heading" class="navds-heading navds-heading--xlarge heading">
+            Min side – Brukerstøtte og søknad om tilgang til Aa-registeret
+        </h1>
+        <div class="role-bar" data-id="role-bar">
+            <span class="role-name navds-body-short">
+                <c-aareg-icon class="role-icon" name={roleIcon}></c-aareg-icon>
+                <span>Rolle: <strong>{roleTitle}</strong></span>
+            </span>
+            <a href={homeHref} class="navds-link navds-body-short" onclick={handleChangeRole} data-id="change-role">
+                <c-aareg-icon name="ArrowsCirclepath"></c-aareg-icon>
+                <span>Bytt rolle</span>
+            </a>
+        </div>
+
+        <template lwc:if={showSelector}>
+            <div class="navds-panel navds-panel--border selector" data-id="organization-selector">
+                <template lwc:if={loadingOrganizations}>
+                    <c-aareg-loader
+                        data-id="loading-organizations"
+                        label="Henter virksomhetene dine fra Altinn …"
+                    ></c-aareg-loader>
+                </template>
+                <template lwc:elseif={organizationsError}>
+                    <c-aareg-alert variant="warning" data-id="organizations-error">{organizationsError}</c-aareg-alert>
+                </template>
+                <template lwc:else>
+                    <c-aareg-org-selector
+                        label={selectorLabel}
+                        hint="Søk på navn eller organisasjonsnummer."
+                        organizations={organizations}
+                        selected={selectedOrganization}
+                        onselect={handleSelect}
+                    ></c-aareg-org-selector>
+                </template>
+                <button
+                    class="navds-button navds-button--tertiary navds-button--small refresh"
+                    type="button"
+                    onclick={handleRefresh}
+                    data-id="refresh"
+                >
+                    <c-aareg-icon class="navds-button__icon" name="ArrowsCirclepath"></c-aareg-icon>
+                    <span class="navds-label navds-label--small">Oppdater liste</span>
+                </button>
+            </div>
+            <template lwc:if={showSelectHint}>
+                <p class="navds-body-long lead" data-id="select-hint">
+                    Velg en virksomhet for å se hva du har tilgang til. Vi sjekker tilgangen din i Altinn.
+                </p>
+            </template>
+        </template>
+
+        <template lwc:if={isPrivate}>
+            <c-aareg-alert class="block" variant="info" data-id="private-info">
+                Du bruker tjenesten på egne vegne. Du trenger ikke velge virksomhet.
+            </c-aareg-alert>
+        </template>
+
+        <template lwc:if={message}>
+            <c-aareg-alert class="block" variant="warning" data-id="message">{message}</c-aareg-alert>
+        </template>
+
+        <template lwc:if={isLoading}>
+            <c-aareg-loader data-id="loading" label="Sjekker tilgangen din …"></c-aareg-loader>
+        </template>
+
+        <template lwc:if={isError}>
+            <c-aareg-alert class="block" variant="error" data-id="technical-error">
+                <p class="error-text">
+                    Vi får ikke kontakt med Altinn akkurat nå, så vi kan ikke sjekke tilgangen din. Prøv igjen om litt.
+                </p>
+                <button
+                    class="navds-button navds-button--secondary navds-button--small"
+                    type="button"
+                    onclick={handleRetry}
+                    data-id="retry"
+                >
+                    <span class="navds-label navds-label--small">Prøv igjen</span>
+                </button>
+            </c-aareg-alert>
+        </template>
+
+        <template lwc:if={isGranted}>
+            <div class="columns" data-id="panels">
+                <template for:each={panelColumns} for:item="column">
+                    <section key={column.key} class="column" aria-label={column.label}>
+                        <h2 class="navds-heading navds-heading--small column-heading">{column.label}</h2>
+                        <ul class="panels">
+                            <template for:each={column.panels} for:item="panel">
+                                <li key={panel.key} class="panel" data-panel={panel.key}>
+                                    <c-aareg-link-panel
+                                        title={panel.title}
+                                        description={panel.subTitle}
+                                        page={panel.page}
+                                    ></c-aareg-link-panel>
+                                </li>
+                            </template>
+                        </ul>
+                    </section>
+                </template>
+            </div>
+            <template lwc:if={showPrivateOutlook}>
+                <p class="navds-body-long lead" data-id="private-coming">Flere tjenester for privatpersoner kommer.</p>
+            </template>
+        </template>
+    </main>
+</template>

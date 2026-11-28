@@ -3,6 +3,12 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>aaregAdminLaunchpad</componentName>
+                <identifier>c_aaregAdminLaunchpad</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentName>aaregAdminOverview</componentName>
                 <identifier>c_aaregAdminOverview</identifier>
             </componentInstance>

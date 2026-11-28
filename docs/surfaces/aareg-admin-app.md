@@ -189,6 +189,10 @@ Testlaben skal kontrollere at målet er ein scratch-org (`Organization.IsSandbox
 
 #### Slik brukar du testlaben
 
+Før køyring må `AAREG_SCRATCH_ORG_ID` vere sett til den uavhengig stadfesta
+scratch-org-ID-en. Sjå [P360-brukarguiden](../integrations/p360/scratch-brukarguide.md)
+for oppsett og handtering av ID-en.
+
 Køyr kommandoane i ein terminal i VS Code, eller vel **Terminal → Run Task** og ei av oppgåvene som byrjar med «Admin test lab». Kommandoane er like på macOS, Linux og Windows.
 
 | Steg | Kommando                                   | Kva skjer                                                                                     |
@@ -217,6 +221,118 @@ Kvifor dette er trygt:
 ### 5.8 Hjelp
 
 Kvar side har ein kort tekst øvst om kva ho viser og kva som er normalt. Verktøylinja nedst i appen har knappen **Help**, som opnar komponenten `aaregAdminHelp`. Han har lenkjer til denne guiden, [heile løysinga](../architecture/hele-loysinga.md), [Flow-katalogen](../architecture/aareg-flow-katalog.md), [P360 scratch-guiden](../integrations/p360/scratch-brukarguide.md) og [testplanen](../testing/aaregisteret-scenario-testplan.md), og han viser testlab-kommandoane. Lenkjene peikar til `main` på GitHub og verkar først når dokumenta er merga.
+
+### 5.9 Snarvegar
+
+Øvst på startsida viser komponenten `aaregAdminLaunchpad` snarvegar i seks grupper: Aa-registeret, integrasjonar
+og drift, kontaktmodell, rapportar og dashboard, tilgang og løyve, og andre appar. Søkjefeltet filtrerer på namn
+og skildring.
+
+`AAREG_AdminNavigationController.getLaunchpad()` sjekkar tilgangen til den innlogga brukaren for kvar snarveg:
+
+| Type      | Sjekk                                                                                                                              |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Objekt    | Lesetilgang til objektet.                                                                                                          |
+| Fane      | Brukaren har eit løyvesett som gir fana, eller profilen viser henne. Kva løyvesett som gir kva fane, står i `TAB_PERMISSION_SETS`. |
+| App       | `AppMenuItem` er tilgjengeleg og synleg.                                                                                           |
+| Dashboard | Dashboardet finst og er delt med brukaren.                                                                                         |
+| Setup     | «View Setup».                                                                                                                      |
+
+Ein snarveg brukaren ikkje har tilgang til, er grå og forklarer kvifor. Lightning-førespurnader ser berre
+fane-innstillingane frå profilen, ikkje frå løyvesetta. Difor ligg koplinga mellom fane og løyvesett i koden. Ein
+Apex-test feilar dersom ho ikkje stemmer med metadataen.
+
+### 5.10 Løyve og brukarar
+
+Fana «Løyve og brukarar» (`AAREG_Admin_Permissions`) har to delar.
+
+**Løyve** viser alle løyvesett og løyvesettgrupper som byrjar på `AAREG_` eller `P360_`. Kvart løyve har
+målgruppe, forklaring og tilrådde kombinasjonar frå Custom Metadata `AAREG_Permission_Guide__mdt`. Objekttilgang,
+custom permissions og talet på tildelingar blir lesne direkte frå orgen. Eit løyve utan post i guiden blir merkt
+«Ikkje dokumentert».
+
+**Interne brukarar** viser alle som har eit Arbeidsforhold-løyve, med profil, løyve, siste innlogging og problem.
+Problem kan vere at brukaren er inaktiv, aldri har logga inn, har eit løyve som går ut, manglar eit tilrådd løyve
+eller har eit testløyve i produksjon. Vel ein brukar for å sjå effektiv tilgang til hovudobjekta, custom
+permissions og appar, og kva løyve som gir dei.
+
+Kapittel 5.6 seier at diagnose av andre brukarar krev eit eige tilgangsvedtak. Difor er brukarlista låst bak
+custom permission `AAREG_Admin_Access_Overview`, som blir gitt med løyvesettet med same namn. Utan det løyvet ser
+brukaren berre løyveoversikta. Tildel løyvesettet i produksjon først når tilgangsvedtaket er gjort.
+
+Flata endrar ingenting. Tildeling skjer framleis i Setup.
+
+### 5.11 Metadata og opprydding
+
+Fana «Metadata og opprydding» (`AAREG_Admin_Metadata_Cleanup`) viser metadata som er fjerna frå repoet eller
+merkt som utfasa, og om komponenten framleis finst i orgen der fana blir opna. Ho kan brukast som evidens for
+runbooken [Salesforce-metadataopprydding](../operations/salesforce-metadata-cleanup-runbook.md) i kvar org.
+
+| Del                 | Kjelde                                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Fjerna frå repoet   | Static Resource `AAREG_Metadata_Inventory`, generert frå git-historikken med `npm run metadata:inventory`. |
+| Utfasa og planlagt  | Custom Metadata `AAREG_Cleanup_Guide__mdt`: steg, erstatning, grunn, runbook og sak.                       |
+| Finst i orgen       | Les direkte frå orgen med SOQL og describe ved kvar opning.                                                |
+| Finst berre i orgen | Komponentar med prefiksa `AAREG` og `P360` som finst i orgen, men ikkje i repoet.                          |
+
+Statusane er:
+
+- **Finst – må ryddast:** komponenten er fjerna eller utfasa, men ligg framleis i orgen.
+- **Sjekk manuelt:** typen kan ikkje lesast med Apex, til dømes Layout, FlexiPage, LWC, QuickAction og
+  ReportType. Rada seier kvar i Setup du sjekkar.
+- **Finst ikkje:** komponenten er borte frå orgen.
+
+Slik held du oversikta oppdatert:
+
+1. Køyr `npm run metadata:inventory` før kvar pakkebygging og commit resultatet. Inventaret gjeld commiten det
+   blei laga frå, og fana viser commiten og datoen.
+2. Legg til ein post i `AAREG_Cleanup_Guide__mdt` når ein komponent skal fasast ut før han blir fjerna, eller for
+   å gi ein fjerna komponent erstatning, runbook og sak. Posten overstyrer steget frå git-historikken.
+3. Registrer verifisert sletting per miljø, sjå [Arkivering etter verifisert sletting](#arkivering-etter-verifisert-sletting).
+
+#### Arkivering etter verifisert sletting
+
+Miljøa er definerte i `AAREG_Cleanup_Environment__mdt`: SIT2, Preprod, UAT og Produksjon. Ein komponent blir
+**arkivert** og skjult frå lista når slettinga er verifisert i alle miljø med `Required_For_Archive__c`, i dag SIT2
+og Produksjon, i tråd med runbooken. Verifikasjonane ligg i `AAREG_Cleanup_Verification__mdt` i repoet. Kvar
+verifikasjon går difor gjennom pull request, har revisjonsspor i git og blir synleg i alle orgar etter neste deploy.
+
+| Felt                                 | Tyding                                                                              |
+| ------------------------------------ | ----------------------------------------------------------------------------------- |
+| `Org_Kind__c`                        | `Sandbox` eller `Production`. Produksjon blir kjend att på orgtypen åleine.         |
+| `Sandbox_Name__c`                    | Namnet på sandkassa. Fana viser namnet når orgen ikkje er kopla til eit miljø.      |
+| `Required_For_Archive__c`            | Miljøet må vere verifisert før komponenten blir arkivert.                           |
+| `Environment__c` (på verifikasjonen) | Miljøet som er sjekka, med `Verified_On__c`, `Verified_By__c` og `Evidence_Url__c`. |
+
+Flyten:
+
+1. Ein person med `AAREG_Admin_Viewer` opnar fana i miljøet, til dømes SIT2. Tilhøyrande miljø står under «Miljø».
+   Scratch-orgar blir aldri rekna som miljø.
+2. Knappen «Lag verifikasjon for SIT2 (n)» lagar ein JSON-eksport med alle komponentar som er fjerna, ikkje
+   finst i miljøet og manglar verifikasjon der. Eksporten inneheld berre miljø, dato og komponentnamn.
+3. Lagre eksporten som fil og køyr:
+
+    ```bash
+    npm run metadata:verify -- --from eksport.json --by <github-brukar> --evidence <lenkje til PR, issue eller køyring>
+    ```
+
+    Enkeltkomponentar kan registrerast med `--env SIT2 --type ApexClass --name <namn> [--date YYYY-MM-DD]`. Skriptet
+    avviser ukjende miljø, manglande evidens og ugyldige datoar, og hoppar over verifikasjonar som finst frå før.
+
+4. Commit dei nye filene i `force-app/internalAdmin/customMetadata/` i ein PR. Produksjonsverifikasjonen blir
+   registrert på same måte etter at Team Platforce har sjekka og gitt evidens. Agentar opnar ikkje produksjon.
+
+Kolonnen «Verifisert sletta» viser dato per påkravd miljø, med lenkje til evidensen. Brytaren «Vis arkiverte» viser
+arkiverte komponentar att. Dersom ein verifisert komponent dukkar opp att i orgen, blir han ikkje arkivert. Rada blir
+då merkt «Finst igjen – må ryddast» og lagd øvst.
+
+Før første bruk må `Sandbox_Name__c` fyllast inn for SIT2, Preprod og UAT. Namna er ikkje dokumenterte i repoet.
+
+Avgrensingar:
+
+- Rapportar, dashboard og e-postmalar er ikkje med i «Finst berre i orgen», fordi brukarar lagar dei sjølve.
+- Sjekken les metadatanamn i system mode. Namna er ikkje persondata, og fana krev `AAREG_Admin_Viewer`.
+- Fana slettar ingenting. Sletting skjer med destructive deployment etter runbooken.
 
 ## 6. Fasar
 

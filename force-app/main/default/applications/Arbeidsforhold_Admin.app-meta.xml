@@ -33,8 +33,11 @@
     <tabs>standard-Dashboard</tabs>
     <tabs>standard-report</tabs>
     <tabs>AAREG_Admin_Monitor</tabs>
+    <tabs>AAREG_Admin_Journey</tabs>
     <tabs>AAREG_Admin_Configuration</tabs>
     <tabs>AAREG_Admin_Access</tabs>
+    <tabs>AAREG_Admin_Permissions</tabs>
+    <tabs>AAREG_Admin_Metadata_Cleanup</tabs>
     <tabs>Application__c</tabs>
     <tabs>Access_Request__c</tabs>
     <tabs>Application_Decision__c</tabs>
@@ -42,6 +45,9 @@
     <tabs>Inquiry__c</tabs>
     <tabs>P360_Archive_Job__c</tabs>
     <tabs>Application_Log__c</tabs>
+    <tabs>AAREG_Contact_Model</tabs>
+    <tabs>AAREG_Contact_Point__c</tabs>
+    <tabs>AAREG_Contact_Migration_Run__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>Arbeidsforhold_Admin_UtilityBar</utilityBar>
 </CustomApplication>

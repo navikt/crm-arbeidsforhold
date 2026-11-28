@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Salesforce environment where metadata deletion is verified, such as SIT2 or Production. The cleanup overview matches the current org to an environment and archives a component when its deletion is verified in every environment marked Required For Archive.</description>
+    <label>AAREG Cleanup Environment</label>
+    <pluralLabel>AAREG Cleanup Environments</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

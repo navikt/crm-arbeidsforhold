@@ -4,17 +4,24 @@ if (!organization.IsSandbox) {
 }
 
 String organizationSuffix = UserInfo.getOrganizationId().right(8).toLowerCase();
-String ownerUsername = 'persaksbehandler1@nav.no';
-User accountOwner = [
-    SELECT Id, UserRoleId
+Set<String> ownerUsernames = new Set<String>{
+    'persaksbehandler1@nav.no',
+    'aareg.altinn.owner.' + UserInfo.getOrganizationId() + '@example.invalid'
+};
+List<User> accountOwners = [
+    SELECT Id, IsActive, Profile.Name, UserRoleId
     FROM User
-    WHERE Username = :ownerUsername
-        AND IsActive = true
-    LIMIT 1
+    WHERE Username IN :ownerUsernames
 ];
-if (accountOwner.UserRoleId == null) {
-    throw new IllegalArgumentException('The synthetic Altinn account owner must have a role before accounts are seeded.');
+if (
+    accountOwners.size() != 1 ||
+    !accountOwners[0].IsActive ||
+    accountOwners[0].Profile.Name != 'Standard User' ||
+    accountOwners[0].UserRoleId == null
+) {
+    throw new IllegalArgumentException('Exactly one active Standard User Altinn test-data owner with a role is required.');
 }
+User accountOwner = accountOwners[0];
 
 String identityAccountName = 'Synthetic Community Test ' + organizationSuffix;
 String identity = 'AP' + organizationSuffix;

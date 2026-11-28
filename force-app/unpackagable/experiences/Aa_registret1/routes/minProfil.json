@@ -1,0 +1,12 @@
+{
+    "activeViewId": "bf88d188-93fd-4444-9ba3-9d18ed2c753c",
+    "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+    "configurationTags": [],
+    "devName": "Min_Profil__c",
+    "id": "5e0abc92-2c83-44d0-a040-4067124c6454",
+    "label": "Min profil",
+    "pageAccess": "UseParent",
+    "routeType": "custom-min-profil",
+    "type": "route",
+    "urlPrefix": "min-profil"
+}

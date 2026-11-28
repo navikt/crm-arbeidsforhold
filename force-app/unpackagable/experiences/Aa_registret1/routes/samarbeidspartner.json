@@ -1,0 +1,12 @@
+{
+    "activeViewId": "88d1b1cc-da52-474d-b24d-9af8e6e4bc0c",
+    "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+    "configurationTags": [],
+    "devName": "Samarbeidspartner__c",
+    "id": "28489484-3d47-4cc3-94e2-e4dd269c6a70",
+    "label": "Samarbeidspartner",
+    "pageAccess": "UseParent",
+    "routeType": "custom-samarbeidspartner",
+    "type": "route",
+    "urlPrefix": "samarbeidspartner"
+}

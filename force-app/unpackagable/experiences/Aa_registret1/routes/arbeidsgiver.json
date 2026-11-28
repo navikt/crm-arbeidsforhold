@@ -1,0 +1,12 @@
+{
+    "activeViewId": "2e2dd1da-1be3-43c5-b0aa-202567af2511",
+    "appPageId": "243ab891-940a-4e29-8684-27d02286cee1",
+    "configurationTags": [],
+    "devName": "Arbeidsgiver__c",
+    "id": "fdbd92b1-d950-4d00-99a4-fe800b98cab7",
+    "label": "Arbeidsgiver",
+    "pageAccess": "UseParent",
+    "routeType": "custom-arbeidsgiver",
+    "type": "route",
+    "urlPrefix": "arbeidsgiver"
+}

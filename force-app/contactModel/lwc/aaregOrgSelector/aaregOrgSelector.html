@@ -1,0 +1,70 @@
+<template>
+    <div class="navds-form-field selector">
+        <label class="navds-form-field__label navds-label label" for={inputId}>{label}</label>
+        <p class="navds-form-field__description navds-body-short hint" id={hintId}>{hint}</p>
+        <template lwc:if={selectedOption}>
+            <div class="current current_selected" data-id="current" aria-live="polite">
+                <c-aareg-icon class="current-icon" name={selectedIcon}></c-aareg-icon>
+                <span class="current-text">
+                    <span class="navds-detail current-label">Valgt</span>
+                    <strong class="navds-body-short current-name">{selectedOption.name}</strong>
+                    <template lwc:if={selectedOption.number}>
+                        <span class="navds-body-short current-number">Org.nr. {selectedOption.number}</span>
+                    </template>
+                </span>
+            </div>
+        </template>
+        <template lwc:else>
+            <p class="navds-body-short current" data-id="current">Ingen valgt ennå</p>
+        </template>
+        <div class="combobox">
+            <c-aareg-icon class="search-icon" name="MagnifyingGlass"></c-aareg-icon>
+            <input
+                id={inputId}
+                class="navds-text-field__input navds-body-long input"
+                type="text"
+                role="combobox"
+                autocomplete="off"
+                aria-autocomplete="list"
+                aria-expanded={expanded}
+                aria-controls={listboxId}
+                aria-activedescendant={activeDescendant}
+                aria-describedby={describedBy}
+                placeholder={placeholder}
+                value={query}
+                onfocus={handleFocus}
+                oninput={handleInput}
+                onkeydown={handleKeyDown}
+                onblur={handleBlur}
+            />
+            <template lwc:if={open}>
+                <ul class="navds-body-short listbox" id={listboxId} role="listbox" aria-label={label}>
+                    <template for:each={filtered} for:item="option">
+                        <li
+                            key={option.id}
+                            id={option.id}
+                            class={option.className}
+                            role="option"
+                            aria-selected={option.selected}
+                            data-value={option.value}
+                            onmousedown={handleOptionMouseDown}
+                            onclick={handleOptionClick}
+                        >
+                            <span class="option-name">{option.name}</span>
+                            <span class="navds-detail option-number">{option.number}</span>
+                            <template lwc:if={option.hasParent}>
+                                <span class="navds-detail option-parent">Underenhet av {option.parentName}</span>
+                            </template>
+                        </li>
+                    </template>
+                    <template lwc:if={hasNoMatches}>
+                        <li class="empty" role="presentation">
+                            Ingen treff. Sjekk namnet eller nummeret, eller rolla di i Altinn.
+                        </li>
+                    </template>
+                </ul>
+            </template>
+        </div>
+        <p class="navds-sr-only" id={statusId} role="status" aria-live="polite">{statusText}</p>
+    </div>
+</template>

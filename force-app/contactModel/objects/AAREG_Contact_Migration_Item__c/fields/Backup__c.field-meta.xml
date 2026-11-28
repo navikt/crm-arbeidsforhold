@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Backup__c</fullName>
+    <description>JSON backup of the values APPLY changed. Can contain personal data; delete after the agreed retention.</description>
+    <externalId>false</externalId>
+    <label>Backup</label>
+    <complianceGroup>GDPR</complianceGroup>
+    <securityClassification>Confidential</securityClassification>
+    <length>131072</length>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>5</visibleLines>
+</CustomField>

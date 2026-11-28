@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Allows reading the internal users that hold Arbeidsforhold permissions, their access issues and effective access in the Arbeidsforhold Admin app. Read-only.</description>
+    <isLicensed>false</isLicensed>
+    <label>AAREG Admin Access Overview</label>
+</CustomPermission>

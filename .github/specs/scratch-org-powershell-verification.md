@@ -55,7 +55,7 @@ Om organisasjonen seinare nektar installasjon av 7, må kontrakten vurderast på
 - Faktisk scratch-org-oppretting/sletting, pooltilgang, pakkeinstallasjon, metadata-retrieval og deploy under offline-test.
 - Salesforce-auth, Dev Hub-konfigurasjon, secrets i CI eller endringar i pakkeversjonar.
 - Windows 5.1-støtte, Windows ARM64 og påstand om at alle Windows-utgåver er testa.
-- Ende-til-ende-verifikasjon mot Salesforce; dette krev eiga oppgåve og godkjenning av eksakt mål og handling.
+- Ende-til-ende-verifikasjon mot Salesforce; dette krev eiga oppgåve og verifisert eksplisitt mål etter `AGENTS.md`. Arbeid i eksisterande `crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning; org-oppretting/-erstatting og andre ikkje-produksjonsorg krev godkjenning. Produksjon er forbode.
 - Ny felles distribusjonspakke eller automatisk synkronisering mellom repo.
 
 ## User Scenarios & Testing

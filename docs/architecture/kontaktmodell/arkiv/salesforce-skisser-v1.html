@@ -1,0 +1,2645 @@
+<!doctype html>
+<html lang="nn">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Kontaktmodell i Salesforce – skisser, datamodell og flyt</title>
+        <style>
+            :root {
+                --ink: #202733;
+                --ink-soft: #49515e;
+                --line: #cfd3d8;
+                --line-strong: #6f7785;
+                --bg: #f5f6f7;
+                --white: #fff;
+                --nav-blue: #0067c5;
+                --nav-blue-dark: #002459;
+                --nav-blue-soft: #f1f7ff;
+                --ok: #06893a;
+                --ok-soft: #e2fde8;
+                --warn-soft: #fff5e4;
+                --warn: #c77300;
+                --danger: #c30000;
+                --danger-soft: #ffe6e6;
+                --sf-bg: #f3f3f3;
+                --sf-brand: #0176d3;
+                --sf-header: #032d60;
+                --sf-border: #dddbda;
+                --sf-text: #181818;
+                --sf-muted: #706e6b;
+                --sf-contact: #a094ed;
+                --sf-account: #7f8de1;
+                --sf-custom: #3ba755;
+                --sf-case: #f2cf5b;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                font-family: 'Source Sans 3', 'Segoe UI', Arial, sans-serif;
+                color: var(--ink);
+                background: var(--bg);
+                line-height: 1.45;
+            }
+            a {
+                color: var(--nav-blue);
+            }
+            :focus-visible {
+                outline: 3px solid var(--ink);
+                outline-offset: 2px;
+            }
+            .skip {
+                position: absolute;
+                left: -999px;
+            }
+            .skip:focus {
+                left: 1rem;
+                top: 1rem;
+                background: var(--white);
+                padding: 0.5rem;
+                z-index: 10;
+            }
+            header.doc {
+                background: var(--nav-blue-dark);
+                color: var(--white);
+                padding: 1.5rem clamp(1rem, 4vw, 3rem);
+            }
+            header.doc h1 {
+                margin: 0 0 0.25rem;
+                font-size: clamp(1.4rem, 3vw, 2rem);
+            }
+            header.doc p {
+                margin: 0;
+                max-width: 70ch;
+            }
+            .status {
+                display: inline-block;
+                margin-top: 0.75rem;
+                background: var(--warn-soft);
+                color: var(--ink);
+                padding: 0.25rem 0.6rem;
+                border-radius: 4px;
+                font-weight: 600;
+            }
+            nav.toc {
+                position: sticky;
+                top: 0;
+                z-index: 5;
+                background: var(--white);
+                border-bottom: 1px solid var(--line);
+                overflow-x: auto;
+            }
+            nav.toc ul {
+                display: flex;
+                gap: 0.25rem;
+                margin: 0;
+                padding: 0.5rem clamp(1rem, 4vw, 3rem);
+                list-style: none;
+                white-space: nowrap;
+            }
+            nav.toc a {
+                display: block;
+                padding: 0.4rem 0.7rem;
+                border-radius: 4px;
+                text-decoration: none;
+                font-weight: 600;
+            }
+            nav.toc a:hover {
+                background: var(--nav-blue-soft);
+            }
+            main {
+                padding: 1.5rem clamp(1rem, 4vw, 3rem) 4rem;
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+            section.chapter {
+                margin-bottom: 3.5rem;
+            }
+            h2.chapter-title {
+                font-size: 1.6rem;
+                border-bottom: 3px solid var(--nav-blue);
+                padding-bottom: 0.3rem;
+                margin: 2rem 0 1rem;
+            }
+            h3.sketch-title {
+                margin: 2rem 0 0.4rem;
+                font-size: 1.2rem;
+            }
+            .lead {
+                max-width: 80ch;
+                color: var(--ink-soft);
+            }
+            .notes {
+                background: var(--white);
+                border-left: 4px solid var(--nav-blue);
+                padding: 0.6rem 1rem;
+                margin: 0.75rem 0 0;
+                max-width: 90ch;
+            }
+            .notes ul {
+                margin: 0.3rem 0;
+                padding-left: 1.2rem;
+            }
+            .tag {
+                display: inline-block;
+                font-size: 0.75rem;
+                font-weight: 700;
+                padding: 0.05rem 0.45rem;
+                border-radius: 999px;
+                border: 1px solid currentColor;
+                vertical-align: middle;
+            }
+            .tag.new {
+                color: var(--ok);
+            }
+            .tag.std {
+                color: var(--nav-blue);
+            }
+            .tag.chg {
+                color: var(--warn);
+            }
+            .tag.later {
+                color: var(--ink-soft);
+                border-style: dashed;
+            }
+            code {
+                font-family: ui-monospace, Menlo, monospace;
+                font-size: 0.88em;
+                background: #eef0f2;
+                padding: 0 0.25rem;
+                border-radius: 3px;
+            }
+
+            /* ---------- Device frames ---------- */
+            .frame {
+                border: 1px solid var(--line-strong);
+                border-radius: 8px;
+                overflow: hidden;
+                background: var(--white);
+                box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
+            }
+            .frame-bar {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: #e6e8eb;
+                padding: 0.35rem 0.75rem;
+                font-size: 0.8rem;
+                color: var(--ink-soft);
+            }
+            .frame-bar .dots {
+                display: flex;
+                gap: 4px;
+            }
+            .frame-bar .dots i {
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                background: #b9bec5;
+                display: block;
+            }
+            .frame-bar .url {
+                flex: 1;
+                background: var(--white);
+                border-radius: 4px;
+                padding: 0.1rem 0.5rem;
+                font-family: ui-monospace, Menlo, monospace;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .frame-bar .kind {
+                font-weight: 700;
+            }
+
+            /* ---------- Experience Cloud (Nav/Aksel-stil) ---------- */
+            .xc-header {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.75rem 1.25rem;
+                border-bottom: 1px solid var(--line);
+            }
+            .xc-logo {
+                font-weight: 800;
+                color: var(--danger);
+                letter-spacing: 0.02em;
+            }
+            .xc-logo span {
+                color: var(--ink);
+                font-weight: 600;
+                margin-left: 0.4rem;
+            }
+            .xc-user {
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+                font-size: 0.9rem;
+            }
+            .ctx-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.35rem;
+                border: 1px solid var(--nav-blue);
+                color: var(--nav-blue-dark);
+                background: var(--nav-blue-soft);
+                border-radius: 999px;
+                padding: 0.15rem 0.7rem;
+                font-weight: 600;
+            }
+            .xc-body {
+                padding: 1.25rem;
+                max-width: 960px;
+                margin: 0 auto;
+            }
+            .xc-body h4 {
+                font-size: 1.5rem;
+                margin: 0 0 0.25rem;
+            }
+            .muted {
+                color: var(--ink-soft);
+            }
+            .xc-card {
+                border: 1px solid var(--line);
+                border-radius: 8px;
+                padding: 1rem;
+                margin: 0.75rem 0;
+                background: var(--white);
+            }
+            .xc-card h5 {
+                margin: 0 0 0.4rem;
+                font-size: 1.05rem;
+            }
+            .grid-2 {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 0.75rem;
+            }
+            .choice {
+                border: 2px solid var(--line);
+                border-radius: 8px;
+                padding: 0.8rem 1rem;
+                display: block;
+                background: var(--white);
+            }
+            .choice.selected {
+                border-color: var(--nav-blue);
+                background: var(--nav-blue-soft);
+            }
+            .choice strong {
+                display: block;
+            }
+            .field {
+                margin: 0.6rem 0;
+            }
+            .field label {
+                display: block;
+                font-weight: 600;
+            }
+            .field .desc {
+                display: block;
+                font-size: 0.88rem;
+                color: var(--ink-soft);
+            }
+            .input {
+                border: 1px solid var(--line-strong);
+                border-radius: 4px;
+                padding: 0.45rem 0.6rem;
+                min-height: 2.4rem;
+                margin-top: 0.25rem;
+                background: var(--white);
+                color: var(--ink-soft);
+            }
+            .input.error {
+                border: 2px solid var(--danger);
+            }
+            .err {
+                color: var(--danger);
+                font-weight: 600;
+                font-size: 0.9rem;
+                margin-top: 0.2rem;
+            }
+            .btn {
+                display: inline-block;
+                border-radius: 4px;
+                padding: 0.45rem 1rem;
+                font-weight: 600;
+                border: 2px solid var(--nav-blue);
+                color: var(--nav-blue);
+                background: var(--white);
+                margin: 0.25rem 0.4rem 0.25rem 0;
+            }
+            .btn.primary {
+                background: var(--nav-blue);
+                color: var(--white);
+            }
+            .btn.small {
+                padding: 0.15rem 0.6rem;
+                font-size: 0.85rem;
+            }
+            .alert {
+                border: 1px solid;
+                border-radius: 6px;
+                padding: 0.6rem 0.9rem;
+                margin: 0.6rem 0;
+            }
+            .alert.info {
+                border-color: #66a3e0;
+                background: var(--nav-blue-soft);
+            }
+            .alert.warn {
+                border-color: var(--warn);
+                background: var(--warn-soft);
+            }
+            .alert.error {
+                border-color: var(--danger);
+                background: var(--danger-soft);
+            }
+            .alert.ok {
+                border-color: var(--ok);
+                background: var(--ok-soft);
+            }
+            .stepper {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.4rem;
+                margin: 0.5rem 0 1rem;
+                padding: 0;
+                list-style: none;
+                font-size: 0.88rem;
+            }
+            .stepper li {
+                border-bottom: 3px solid var(--line);
+                padding: 0.2rem 0.4rem;
+            }
+            .stepper li.done {
+                border-color: var(--ok);
+            }
+            .stepper li.now {
+                border-color: var(--nav-blue);
+                font-weight: 700;
+            }
+            table.xc-table,
+            table.sf-table,
+            table.matrix {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.92rem;
+            }
+            table.xc-table th,
+            table.xc-table td {
+                text-align: left;
+                padding: 0.45rem 0.5rem;
+                border-bottom: 1px solid var(--line);
+                vertical-align: top;
+            }
+            .scroll {
+                overflow-x: auto;
+            }
+            .addr-row {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 0.5rem;
+                align-items: center;
+                border-top: 1px solid var(--line);
+                padding: 0.6rem 0;
+            }
+            .addr-row:first-of-type {
+                border-top: 0;
+            }
+            .pill {
+                font-size: 0.78rem;
+                font-weight: 700;
+                border-radius: 4px;
+                padding: 0.05rem 0.4rem;
+            }
+            .pill.ok {
+                background: var(--ok-soft);
+                color: #004d1a;
+            }
+            .pill.warn {
+                background: var(--warn-soft);
+                color: #6b3d00;
+            }
+            .pill.danger {
+                background: var(--danger-soft);
+                color: var(--danger);
+            }
+            .pill.neutral {
+                background: #eef0f2;
+                color: var(--ink-soft);
+            }
+
+            /* ---------- Lightning Experience (SLDS-stil) ---------- */
+            .sf {
+                background: var(--sf-bg);
+                color: var(--sf-text);
+                font-family: 'Salesforce Sans', 'Segoe UI', Arial, sans-serif;
+                font-size: 0.88rem;
+            }
+            .sf-global {
+                background: var(--white);
+                display: flex;
+                gap: 0.75rem;
+                align-items: center;
+                padding: 0.4rem 0.9rem;
+                border-bottom: 1px solid var(--sf-border);
+            }
+            .sf-global .search {
+                flex: 1;
+                max-width: 420px;
+                border: 1px solid var(--sf-border);
+                border-radius: 4px;
+                padding: 0.2rem 0.5rem;
+                color: var(--sf-muted);
+            }
+            .sf-app {
+                background: var(--white);
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 0.2rem 1rem;
+                padding: 0 0.9rem;
+                border-bottom: 3px solid var(--sf-brand);
+            }
+            .sf-app strong {
+                padding: 0.5rem 0.75rem 0.5rem 0;
+                border-right: 1px solid var(--sf-border);
+            }
+            .sf-app span {
+                padding: 0.5rem 0.25rem;
+            }
+            .sf-app span.active {
+                border-bottom: 3px solid var(--sf-brand);
+                margin-bottom: -3px;
+                font-weight: 700;
+            }
+            .sf-page {
+                padding: 0.75rem;
+            }
+            .sf-card {
+                background: var(--white);
+                border: 1px solid var(--sf-border);
+                border-radius: 4px;
+                margin-bottom: 0.75rem;
+            }
+            .sf-card-h {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.55rem 0.75rem;
+                font-weight: 700;
+                flex-wrap: wrap;
+            }
+            .sf-card-b {
+                padding: 0 0.75rem 0.75rem;
+            }
+            .sf-highlights {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 0.75rem;
+            }
+            .sf-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 4px;
+                display: inline-grid;
+                place-items: center;
+                color: var(--white);
+                font-weight: 800;
+                font-size: 0.8rem;
+                flex: none;
+            }
+            .sf-icon.contact {
+                background: var(--sf-contact);
+            }
+            .sf-icon.account {
+                background: var(--sf-account);
+            }
+            .sf-icon.custom {
+                background: var(--sf-custom);
+            }
+            .sf-icon.case {
+                background: var(--sf-case);
+                color: var(--sf-text);
+            }
+            .sf-icon.small {
+                width: 22px;
+                height: 22px;
+                font-size: 0.65rem;
+            }
+            .sf-title small {
+                display: block;
+                color: var(--sf-muted);
+            }
+            .sf-title b {
+                font-size: 1.1rem;
+            }
+            .sf-actions {
+                margin-left: auto;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0;
+            }
+            .sf-btn {
+                border: 1px solid var(--sf-border);
+                background: var(--white);
+                color: var(--sf-brand);
+                padding: 0.2rem 0.75rem;
+                font-weight: 600;
+                margin-left: -1px;
+            }
+            .sf-btn:first-child {
+                border-radius: 4px 0 0 4px;
+            }
+            .sf-btn:last-child {
+                border-radius: 0 4px 4px 0;
+            }
+            .sf-btn.brand {
+                background: var(--sf-brand);
+                color: var(--white);
+                border-color: var(--sf-brand);
+                border-radius: 4px;
+            }
+            .sf-fields {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.4rem 2rem;
+                padding: 0 0.75rem 0.75rem;
+            }
+            .sf-fields div small {
+                display: block;
+                color: var(--sf-muted);
+            }
+            .sf-layout > *,
+            .console > * {
+                min-width: 0;
+            }
+            .sf-layout {
+                display: grid;
+                grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+                gap: 0.75rem;
+            }
+            @media (max-width: 900px) {
+                .sf-layout {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+            }
+            .sf-tabs {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.25rem 1rem;
+                border-bottom: 1px solid var(--sf-border);
+                padding: 0 0.75rem;
+            }
+            .sf-tabs span {
+                padding: 0.5rem 0;
+            }
+            .sf-tabs span.active {
+                border-bottom: 2px solid var(--sf-brand);
+                font-weight: 700;
+            }
+            table.sf-table th {
+                background: #fafaf9;
+                color: var(--sf-muted);
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 0.72rem;
+            }
+            table.sf-table th,
+            table.sf-table td {
+                text-align: left;
+                padding: 0.4rem 0.5rem;
+                border-bottom: 1px solid var(--sf-border);
+                vertical-align: top;
+            }
+            .sf-link {
+                color: var(--sf-brand);
+            }
+            .sf-masked {
+                color: var(--sf-muted);
+                font-style: italic;
+            }
+            .sf-banner {
+                padding: 0.5rem 0.75rem;
+                border-radius: 4px;
+                margin-bottom: 0.75rem;
+                font-weight: 600;
+            }
+            .sf-banner.warn {
+                background: #fe9339;
+                color: #181818;
+            }
+            .sf-banner.info {
+                background: #706e6b;
+                color: var(--white);
+            }
+            .sf-banner.err {
+                background: #ba0517;
+                color: var(--white);
+            }
+            .sf-path {
+                display: flex;
+                margin: 0.25rem 0.75rem 0.75rem;
+                flex-wrap: wrap;
+                gap: 2px;
+            }
+            .sf-path span {
+                flex: 1;
+                min-width: 90px;
+                text-align: center;
+                padding: 0.3rem;
+                background: #ecebea;
+                font-weight: 600;
+            }
+            .sf-path span.done {
+                background: #45c65a;
+                color: var(--white);
+            }
+            .sf-path span.cur {
+                background: var(--sf-header);
+                color: var(--white);
+            }
+            .sf-form {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 0.5rem 1rem;
+            }
+            .sf-form label {
+                display: block;
+                color: var(--sf-muted);
+                font-size: 0.78rem;
+            }
+            .sf-form .input {
+                min-height: 2rem;
+                padding: 0.3rem 0.5rem;
+            }
+            .sf-modal {
+                max-width: 640px;
+                margin: 1rem auto;
+                background: var(--white);
+                border-radius: 4px;
+                box-shadow: 0 2px 10px rgb(0 0 0 / 25%);
+            }
+            .sf-modal h5 {
+                margin: 0;
+                padding: 0.9rem;
+                text-align: center;
+                font-size: 1.1rem;
+                border-bottom: 1px solid var(--sf-border);
+            }
+            .sf-modal .body {
+                padding: 0.9rem;
+            }
+            .sf-modal .foot {
+                background: #f3f3f3;
+                padding: 0.6rem 0.9rem;
+                text-align: right;
+                border-top: 1px solid var(--sf-border);
+            }
+            .console {
+                display: grid;
+                grid-template-columns: 220px minmax(0, 1fr) 260px;
+                gap: 0.75rem;
+            }
+            @media (max-width: 1000px) {
+                .console {
+                    grid-template-columns: minmax(0, 1fr);
+                }
+            }
+            .bubble {
+                border-radius: 8px;
+                padding: 0.5rem 0.7rem;
+                margin: 0.4rem 0;
+                max-width: 85%;
+            }
+            .bubble.in {
+                background: #eef4ff;
+            }
+            .bubble.out {
+                background: #f3f3f3;
+                margin-left: auto;
+            }
+            .bubble small {
+                display: block;
+                color: var(--sf-muted);
+            }
+
+            /* ---------- Diagram: lag ---------- */
+            .layers {
+                display: grid;
+                gap: 0.5rem;
+            }
+            .layer {
+                border: 2px solid var(--line-strong);
+                border-radius: 8px;
+                padding: 0.6rem;
+                background: var(--white);
+            }
+            .layer > strong {
+                display: block;
+                margin-bottom: 0.4rem;
+            }
+            .layer.ext {
+                border-color: var(--nav-blue);
+            }
+            .layer.int {
+                border-color: var(--sf-brand);
+                border-style: dashed;
+            }
+            .layer.svc {
+                border-color: var(--warn);
+            }
+            .layer.data {
+                border-color: var(--ok);
+            }
+            .layer.sec {
+                border-color: var(--danger);
+            }
+            .boxes {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.4rem;
+            }
+            .box {
+                border: 1px solid var(--line-strong);
+                border-radius: 6px;
+                padding: 0.35rem 0.6rem;
+                background: var(--bg);
+                font-size: 0.9rem;
+            }
+            .box small {
+                display: block;
+                color: var(--ink-soft);
+            }
+            .arrow-row {
+                text-align: center;
+                color: var(--ink-soft);
+                font-weight: 700;
+            }
+            .diagram {
+                background: var(--white);
+                border: 1px solid var(--line);
+                border-radius: 8px;
+                padding: 0.75rem;
+                overflow-x: auto;
+            }
+            .diagram svg {
+                display: block;
+                min-width: 900px;
+                width: 100%;
+                height: auto;
+            }
+
+            /* ---------- Flytskjema (swimlanes) ---------- */
+            .swim {
+                display: grid;
+                border: 1px solid var(--line-strong);
+                border-radius: 8px;
+                overflow: hidden;
+                background: var(--white);
+                min-width: 860px;
+            }
+            .swim .lane-h {
+                background: var(--nav-blue-dark);
+                color: var(--white);
+                font-weight: 700;
+                padding: 0.4rem 0.6rem;
+                font-size: 0.88rem;
+                border-right: 1px solid rgb(255 255 255 / 25%);
+            }
+            .swim .cell {
+                border-right: 1px dashed var(--line);
+                border-top: 1px solid #eceef0;
+                padding: 0.45rem;
+                min-height: 3rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .n {
+                border: 2px solid var(--ink);
+                border-radius: 6px;
+                padding: 0.35rem 0.55rem;
+                background: var(--white);
+                font-size: 0.85rem;
+                text-align: center;
+                width: 100%;
+                max-width: 240px;
+            }
+            .n.start {
+                border-radius: 999px;
+                background: var(--nav-blue-soft);
+            }
+            .n.dec {
+                border-color: var(--warn);
+                background: var(--warn-soft);
+                border-style: double;
+                border-width: 4px;
+            }
+            .n.stop {
+                border-color: var(--danger);
+                background: var(--danger-soft);
+            }
+            .n.ok {
+                border-color: var(--ok);
+                background: var(--ok-soft);
+            }
+            .n.data {
+                border-color: var(--ok);
+                border-radius: 14px / 30%;
+            }
+            .n b.step {
+                display: inline-block;
+                background: var(--ink);
+                color: var(--white);
+                border-radius: 999px;
+                min-width: 1.4em;
+                margin-right: 0.25rem;
+                font-size: 0.75rem;
+            }
+            .branch {
+                font-size: 0.78rem;
+                font-weight: 700;
+                display: block;
+                margin-top: 0.2rem;
+                color: var(--ink-soft);
+            }
+            .legend {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+                font-size: 0.85rem;
+                margin: 0.5rem 0;
+            }
+            .legend .n {
+                display: inline-block;
+                width: auto;
+                padding: 0.1rem 0.5rem;
+            }
+
+            /* ---------- Matrise ---------- */
+            table.matrix th,
+            table.matrix td {
+                border: 1px solid var(--line);
+                padding: 0.4rem 0.5rem;
+                text-align: left;
+                vertical-align: top;
+                background: var(--white);
+            }
+            table.matrix thead th {
+                background: var(--nav-blue-dark);
+                color: var(--white);
+            }
+            .y {
+                color: #004d1a;
+                font-weight: 700;
+            }
+            .no {
+                color: var(--danger);
+                font-weight: 700;
+            }
+            .part {
+                color: #6b3d00;
+                font-weight: 700;
+            }
+            @media print {
+                nav.toc {
+                    display: none;
+                }
+                .frame,
+                .swim,
+                .diagram {
+                    break-inside: avoid;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <a class="skip" href="#innhald">Hopp til innhaldet</a>
+        <header class="doc">
+            <h1>Kontaktmodell i Salesforce</h1>
+            <p>
+                Skisser av eksterne sider i Experience Cloud og interne sider i Lightning Experience, med datamodell og
+                flytskjema. Alle namn, organisasjonar og adresser er plasshaldarar.
+            </p>
+            <span class="status">Forslag til vurdering – ikkje vedteken arkitektur eller implementert løysing</span>
+        </header>
+        <nav class="toc" aria-label="Innhald">
+            <ul>
+                <li><a href="#prinsipp">Prinsipp</a></li>
+                <li><a href="#arkitektur">Arkitektur</a></li>
+                <li><a href="#datamodell">Datamodell</a></li>
+                <li><a href="#flyt">Flytskjema</a></li>
+                <li><a href="#eksternt">Eksternt (Experience Cloud)</a></li>
+                <li><a href="#internt">Internt (Lightning)</a></li>
+                <li><a href="#synlegheit">Synlegheit</a></li>
+                <li><a href="#avklaringar">Avklaringar</a></li>
+            </ul>
+        </nav>
+
+        <main id="innhald">
+            <!-- ================= PRINSIPP ================= -->
+            <section class="chapter" id="prinsipp" aria-labelledby="prinsipp-h">
+                <h2 class="chapter-title" id="prinsipp-h">Prinsippa skissene byggjer på</h2>
+                <div class="grid-2">
+                    <div class="xc-card">
+                        <h5>1. Éin kontakt per person</h5>
+                        Éin varig <code>Contact</code> i Aa-register-domenet. Ny e-post eller ny organisasjon gir ikkje
+                        ny kontakt.
+                    </div>
+                    <div class="xc-card">
+                        <h5>2. ACR for organisasjon</h5>
+                        <code>AccountContactRelation</code> held tilknytinga. ACR er relasjon, ikkje fullmakt eller
+                        tilgang.
+                    </div>
+                    <div class="xc-card">
+                        <h5>3. Deltaking for søknad</h5>
+                        Ein junction mellom kontakt og søknad med rolle. Forslaget er å vidareutvikle
+                        <code>RelatedContact__c</code>.
+                    </div>
+                    <div class="xc-card">
+                        <h5>4. Adresse per kontekst</h5>
+                        Éi privat adresse for eigen regi og éi adresse per organisasjonstilknyting, uavhengig av roller.
+                    </div>
+                    <div class="xc-card">
+                        <h5>5. Ingen fallback</h5>
+                        Konteksten vel adressa. Manglar ho, må personen oppgi ho. Privatadressa eller adressa hos ein
+                        annan organisasjon blir aldri brukt i staden.
+                    </div>
+                    <div class="xc-card">
+                        <h5>6. Isolerte endringar og innsyn</h5>
+                        Endring av éi adresse endrar ikkje dei andre eller innsendt historikk. Ein organisasjon ser
+                        berre si eiga adresse.
+                    </div>
+                </div>
+                <div class="legend" aria-label="Forklaring av merke">
+                    <span><span class="tag std">Standard</span> Salesforce-standardobjekt</span>
+                    <span><span class="tag chg">Endra</span> eksisterande objekt som må utvidast</span>
+                    <span><span class="tag new">Nytt</span> foreslått nytt felt, objekt eller komponent</span>
+                    <span><span class="tag later">Seinare</span> ikkje del av første fase</span>
+                </div>
+            </section>
+
+            <!-- ================= ARKITEKTUR ================= -->
+            <section class="chapter" id="arkitektur" aria-labelledby="ark-h">
+                <h2 class="chapter-title" id="ark-h">Arkitektur: kven brukar kva</h2>
+                <p class="lead">
+                    Eksterne og interne flater går mot same data, men gjennom ulike grenser. Eksterne brukarar får
+                    kontakt og kontekst berre frå innlogga brukar på serveren. Klienten bestemmer aldri kven du er eller
+                    kva organisasjon du representerer.
+                </p>
+                <div class="layers">
+                    <div class="layer ext">
+                        <strong>Experience Cloud – Aa-registeret (ekstern)</strong>
+                        <div class="boxes">
+                            <div class="box">Vel kontekst<small>LWC · ny</small></div>
+                            <div class="box">Min profil<small>LWC · ny</small></div>
+                            <div class="box">Søknad – kontaktsteg<small>LWC · endra</small></div>
+                            <div class="box">Brukarstøtte – ny melding<small>LWC · endra</small></div>
+                            <div class="box">Mine meldingar<small>LWC · endra</small></div>
+                        </div>
+                    </div>
+                    <div class="arrow-row" aria-hidden="true">
+                        ↓ Apex-kall utan klientoppgitt brukar-, kontakt- eller organisasjons-ID ↓
+                    </div>
+                    <div class="layer svc">
+                        <strong>Apex-grense (with sharing, user mode)</strong>
+                        <div class="boxes">
+                            <div class="box">
+                                Kontaktkontekst<small>finn eigen Contact frå <code>UserInfo.getUserId()</code></small>
+                            </div>
+                            <div class="box">Tilgang og rolle<small>Altinn-rettar + rollekatalog</small></div>
+                            <div class="box">Adresseval<small>kontekst → éi adresse, utan fallback</small></div>
+                            <div class="box">Deltaking<small>kontakt ↔ søknad med rolle</small></div>
+                            <div class="box">Mottakarkontroll<small>ved kølegging og utsending</small></div>
+                        </div>
+                    </div>
+                    <div class="layer sec">
+                        <strong>Skjerming og identitetsgrense (Platforce)</strong>
+                        <div class="boxes">
+                            <div class="box">Innlogging / <code>User.ContactId</code><small>uendra</small></div>
+                            <div class="box">
+                                Skjerming eigne tilsette<small>gjeld kontakt, ACR, søk, rapport</small>
+                            </div>
+                            <div class="box">Kode 6 / 7<small>maskering og avgrensa deling</small></div>
+                            <div class="box">
+                                Person Account-kopling<small><span class="tag later">Seinare</span></small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="arrow-row" aria-hidden="true">↓ ↑</div>
+                    <div class="layer data">
+                        <strong>Data</strong>
+                        <div class="boxes">
+                            <div class="box">
+                                Contact <span class="tag std">Standard</span><small>person, privat adresse</small>
+                            </div>
+                            <div class="box">
+                                AccountContactRelation <span class="tag std">Standard</span
+                                ><small>org-tilknyting + org-adresse</small>
+                            </div>
+                            <div class="box">
+                                Account <span class="tag std">Standard</span
+                                ><small>organisasjon + teknisk domenekonto</small>
+                            </div>
+                            <div class="box">
+                                RelatedContact__c <span class="tag chg">Endra</span
+                                ><small>deltaking: kontakt, søknad, rolle</small>
+                            </div>
+                            <div class="box">
+                                Application__c <span class="tag chg">Endra</span><small>innsendt snapshot</small>
+                            </div>
+                            <div class="box">
+                                Inquiry__c / Thread <span class="tag chg">Endra</span
+                                ><small>kontekst + sendt som</small>
+                            </div>
+                            <div class="box">EmailQueue__c<small>bunden mottakar</small></div>
+                        </div>
+                    </div>
+                    <div class="arrow-row" aria-hidden="true">↑ standard Lightning-sider, delingsreglar og FLS ↑</div>
+                    <div class="layer int">
+                        <strong>Lightning Experience – saksbehandlar og brukarstøtte (intern)</strong>
+                        <div class="boxes">
+                            <div class="box">Contact-side<small>alle kontekstar, maskert ved skjerming</small></div>
+                            <div class="box">Account-side<small>berre adresser for denne organisasjonen</small></div>
+                            <div class="box">ACR-side<small>rolle, org-adresse, gyldigheit</small></div>
+                            <div class="box">Søknadsside<small>deltakarar og innsendt grunnlag</small></div>
+                            <div class="box">Service Console<small>meldingar og mottakarkontroll</small></div>
+                            <div class="box">Uavklarte kontaktar<small>liste for manuell kopling</small></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= DATAMODELL ================= -->
+            <section class="chapter" id="datamodell" aria-labelledby="dm-h">
+                <h2 class="chapter-title" id="dm-h">Datamodell</h2>
+                <p class="lead">
+                    Organisasjonsadressa ligg på relasjonen, ikkje på kontakten. Då blir adressa følgd av same tilgang
+                    som tilknytinga, og éi endring rører berre éin relasjon. Alternativet er eit eige
+                    kontaktpunktobjekt; sjå avklaringar.
+                </p>
+                <div class="diagram">
+                    <svg viewBox="0 0 1200 640" role="img" aria-labelledby="erd-t erd-d">
+                        <title id="erd-t">Entitetsdiagram for kontaktmodellen</title>
+                        <desc id="erd-d">
+                            Contact er sentralt. Account knyter seg til Contact via AccountContactRelation med
+                            organisasjonsadresse. Application__c knyter seg til Contact via RelatedContact__c med rolle.
+                            User peikar til eksisterande innloggingskontakt. Inquiry__c og EmailQueue__c refererer
+                            kontakt og kontekst.
+                        </desc>
+                        <defs>
+                            <marker
+                                id="arr"
+                                viewBox="0 0 10 10"
+                                refX="9"
+                                refY="5"
+                                markerWidth="7"
+                                markerHeight="7"
+                                orient="auto-start-reverse"
+                            >
+                                <path d="M0,0 L10,5 L0,10 z" fill="#49515e" />
+                            </marker>
+                        </defs>
+                        <style>
+                            .e rect.h {
+                                fill: #002459;
+                            }
+                            .e rect.b {
+                                fill: #fff;
+                                stroke: #6f7785;
+                                stroke-width: 1.5;
+                            }
+                            .e text {
+                                font:
+                                    14px Arial,
+                                    sans-serif;
+                                fill: #202733;
+                            }
+                            .e text.t {
+                                fill: #fff;
+                                font-weight: 700;
+                            }
+                            .e text.n {
+                                fill: #0a6b2e;
+                                font-weight: 700;
+                            }
+                            .e text.s {
+                                fill: #49515e;
+                                font-size: 12px;
+                            }
+                            .l {
+                                stroke: #49515e;
+                                stroke-width: 2;
+                                fill: none;
+                            }
+                            .l.d {
+                                stroke-dasharray: 6 5;
+                            }
+                            .lbl {
+                                font:
+                                    12px Arial,
+                                    sans-serif;
+                                fill: #49515e;
+                            }
+                        </style>
+
+                        <!-- User -->
+                        <g class="e" transform="translate(460,10)">
+                            <rect class="b" width="280" height="88" rx="6" />
+                            <rect class="h" width="280" height="28" rx="6" />
+                            <text class="t" x="10" y="19">User (portalbrukar)</text>
+                            <text x="10" y="48">ContactId → innloggingskontakt</text>
+                            <text class="s" x="10" y="70">Uendra. Ikkje repoint.</text>
+                        </g>
+
+                        <!-- Contact -->
+                        <g class="e" transform="translate(440,200)">
+                            <rect class="b" width="320" height="190" rx="6" />
+                            <rect class="h" width="320" height="28" rx="6" />
+                            <text class="t" x="10" y="19">Contact (domenekontakt)</text>
+                            <text x="10" y="50">AccountId → teknisk domenekonto</text>
+                            <text x="10" y="72">Namn (frå verifisert identitet)</text>
+                            <text class="n" x="10" y="94">+ Privat e-post (eigen regi)</text>
+                            <text class="n" x="10" y="116">+ Privat telefon</text>
+                            <text class="n" x="10" y="138">+ Innloggingskontakt (kopling)</text>
+                            <text class="n" x="10" y="160">+ Skjermingsstatus</text>
+                            <text class="s" x="10" y="180">Feltnamn og lagring er forslag</text>
+                        </g>
+
+                        <!-- ACR -->
+                        <g class="e" transform="translate(40,200)">
+                            <rect class="b" width="330" height="190" rx="6" />
+                            <rect class="h" width="330" height="28" rx="6" />
+                            <text class="t" x="10" y="19">AccountContactRelation</text>
+                            <text x="10" y="50">AccountId, ContactId</text>
+                            <text x="10" y="72">IsActive, StartDate, EndDate</text>
+                            <text x="10" y="94">Roles (Aa-reg-verdiar)</text>
+                            <text class="n" x="10" y="116">+ E-post hos organisasjonen</text>
+                            <text class="n" x="10" y="138">+ Telefon hos organisasjonen</text>
+                            <text class="n" x="10" y="160">+ Domene = AAREG</text>
+                            <text class="s" x="10" y="180">Éi rad per person og organisasjon</text>
+                        </g>
+
+                        <!-- Account -->
+                        <g class="e" transform="translate(40,480)">
+                            <rect class="b" width="330" height="110" rx="6" />
+                            <rect class="h" width="330" height="28" rx="6" />
+                            <text class="t" x="10" y="19">Account (organisasjon)</text>
+                            <text x="10" y="50">Organisasjonsnummer</text>
+                            <text x="10" y="72">Avtalar, søknader</text>
+                            <text class="s" x="10" y="94">+ teknisk domenekonto (éi)</text>
+                        </g>
+
+                        <!-- RelatedContact -->
+                        <g class="e" transform="translate(830,200)">
+                            <rect class="b" width="330" height="210" rx="6" />
+                            <rect class="h" width="330" height="28" rx="6" />
+                            <text class="t" x="10" y="19">RelatedContact__c (deltaking)</text>
+                            <text x="10" y="50">Application__c, Agreement__c</text>
+                            <text class="n" x="10" y="72">+ Contact__c</text>
+                            <text class="n" x="10" y="94">+ Role__c (innsendar, fagleg …)</text>
+                            <text class="n" x="10" y="116">+ Organisasjonsrelasjon (ACR-id)</text>
+                            <text x="10" y="138">Varselval (fire flagg)</text>
+                            <text x="10" y="160">Namn/e-post/telefon = snapshot</text>
+                            <text class="n" x="10" y="182">+ Aktiv frå/til</text>
+                            <text class="s" x="10" y="200">Snapshot blir ikkje overskrive</text>
+                        </g>
+
+                        <!-- Application -->
+                        <g class="e" transform="translate(830,480)">
+                            <rect class="b" width="330" height="110" rx="6" />
+                            <rect class="h" width="330" height="28" rx="6" />
+                            <text class="t" x="10" y="19">Application__c (søknad)</text>
+                            <text x="10" y="50">Account__c, status</text>
+                            <text x="10" y="72">Email__c = innsendt adresse</text>
+                            <text class="s" x="10" y="94">Arkivert i P360 ved innsending</text>
+                        </g>
+
+                        <!-- Inquiry -->
+                        <g class="e" transform="translate(440,480)">
+                            <rect class="b" width="320" height="130" rx="6" />
+                            <rect class="h" width="320" height="28" rx="6" />
+                            <text class="t" x="10" y="19">Inquiry__c / Thread / EmailQueue__c</text>
+                            <text x="10" y="50">ContactId__c → domenekontakt</text>
+                            <text class="n" x="10" y="72">+ Kontekst (Person / Organisasjon)</text>
+                            <text class="n" x="10" y="94">+ Sendt som (rolle)</text>
+                            <text x="10" y="116">Email__c = brukt adresse</text>
+                        </g>
+
+                        <!-- Lines -->
+                        <path class="l" d="M600,98 L600,200" marker-end="url(#arr)" />
+                        <text class="lbl" x="610" y="128">kontrollert mapping</text>
+                        <path class="l" d="M440,295 L370,295" marker-end="url(#arr)" />
+                        <text class="lbl" x="378" y="285">1 : n</text>
+                        <path class="l" d="M205,390 L205,480" marker-end="url(#arr)" />
+                        <text class="lbl" x="215" y="440">n : 1</text>
+                        <path class="l" d="M760,295 L830,295" marker-end="url(#arr)" />
+                        <text class="lbl" x="772" y="285">1 : n</text>
+                        <path class="l" d="M995,410 L995,480" marker-end="url(#arr)" />
+                        <text class="lbl" x="1005" y="450">n : 1</text>
+                        <path class="l" d="M600,390 L600,480" marker-end="url(#arr)" />
+                        <text class="lbl" x="610" y="440">1 : n</text>
+                        <path class="l d" d="M995,200 L995,170 L205,170 L205,200" marker-end="url(#arr)" />
+                        <text class="lbl" x="700" y="162">deltaking peikar til tilknytinga (adresse)</text>
+                    </svg>
+                </div>
+                <div class="notes">
+                    <strong>Kvifor adressa ligg på ACR:</strong>
+                    <ul>
+                        <li>
+                            Éi rad per person og organisasjon gir automatisk «éi adresse per tilknyting, uavhengig av
+                            roller».
+                        </li>
+                        <li>Ein organisasjon som ser sin eigen ACR, ser ikkje ACR-radene til andre organisasjonar.</li>
+                        <li>Deltakinga lagrar kva tilknyting ho gjeld, og ein snapshot av adressa ved innsending.</li>
+                        <li>
+                            Risiko: ACR er delt med andre appar. Felt må vere domeneavgrensa, og FLS og delingsreglar må
+                            testast.
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ================= FLYTSKJEMA ================= -->
+            <section class="chapter" id="flyt" aria-labelledby="flyt-h">
+                <h2 class="chapter-title" id="flyt-h">Flytskjema</h2>
+                <div class="legend" aria-label="Forklaring av symbol">
+                    <span class="n start">Start/slutt</span>
+                    <span class="n">Handling</span>
+                    <span class="n dec">Avgjerd</span>
+                    <span class="n data">Lagring</span>
+                    <span class="n ok">Vellukka</span>
+                    <span class="n stop">Stopp/avslag</span>
+                </div>
+
+                <h3 class="sketch-title">F1. Innlogging og val av kontekst</h3>
+                <div class="scroll">
+                    <div class="swim" style="grid-template-columns: repeat(4, 1fr)" role="table" aria-label="Flyt F1">
+                        <div class="lane-h" role="columnheader">Person (Experience Cloud)</div>
+                        <div class="lane-h" role="columnheader">Apex-grense</div>
+                        <div class="lane-h" role="columnheader">Altinn / identitet</div>
+                        <div class="lane-h" role="columnheader">Data</div>
+
+                        <div class="cell">
+                            <div class="n start"><b class="step">1</b>Logg inn via ID-porten</div>
+                        </div>
+                        <div class="cell"></div>
+                        <div class="cell"></div>
+                        <div class="cell"></div>
+
+                        <div class="cell"></div>
+                        <div class="cell">
+                            <div class="n"><b class="step">2</b>Finn domenekontakt frå innlogga brukar</div>
+                        </div>
+                        <div class="cell"></div>
+                        <div class="cell"><div class="n data">Contact via kontrollert mapping</div></div>
+
+                        <div class="cell"></div>
+                        <div class="cell">
+                            <div class="n dec">
+                                <b class="step">3</b>Kontakt funnen?<span class="branch"
+                                    >Nei → opprett éin, aldri på e-post</span
+                                >
+                            </div>
+                        </div>
+                        <div class="cell"></div>
+                        <div class="cell"><div class="n data">Ny Contact under domenekonto</div></div>
+
+                        <div class="cell"></div>
+                        <div class="cell">
+                            <div class="n"><b class="step">4</b>Hent rettar</div>
+                        </div>
+                        <div class="cell"><div class="n">Altinn-rettar per organisasjon</div></div>
+                        <div class="cell"></div>
+
+                        <div class="cell">
+                            <div class="n"><b class="step">5</b>Vel «Meg sjølv» eller organisasjon</div>
+                        </div>
+                        <div class="cell">
+                            <div class="n dec">
+                                Har rett for valt organisasjon?<span class="branch">Nei → avslag</span>
+                            </div>
+                        </div>
+                        <div class="cell"></div>
+                        <div class="cell"></div>
+
+                        <div class="cell"></div>
+                        <div class="cell">
+                            <div class="n"><b class="step">6</b>Opprett/oppdater ACR om tilknyting manglar</div>
+                        </div>
+                        <div class="cell"></div>
+                        <div class="cell"><div class="n data">ACR (Domene = AAREG)</div></div>
+
+                        <div class="cell">
+                            <div class="n ok"><b class="step">7</b>Sida viser «Du opptrer som …»</div>
+                        </div>
+                        <div class="cell"><div class="n">Kontekst lagra på serveren, ikkje frå klient</div></div>
+                        <div class="cell"></div>
+                        <div class="cell"></div>
+                    </div>
+                </div>
+
+                <h3 class="sketch-title">F2. Adresseval ved innsending (søknad eller melding)</h3>
+                <div class="scroll">
+                    <div class="swim" style="grid-template-columns: repeat(3, 1fr)" role="table" aria-label="Flyt F2">
+                        <div class="lane-h" role="columnheader">Person</div>
+                        <div class="lane-h" role="columnheader">Apex: adresseval</div>
+                        <div class="lane-h" role="columnheader">Data</div>
+
+                        <div class="cell">
+                            <div class="n start"><b class="step">1</b>Opne skjema</div>
+                        </div>
+                        <div class="cell">
+                            <div class="n dec"><b class="step">2</b>Kontekst?</div>
+                        </div>
+                        <div class="cell"></div>
+
+                        <div class="cell"></div>
+                        <div class="cell">
+                            <div class="n">
+                                Person → les privat adresse<span class="branch"
+                                    >Organisasjon → les adresse på ACR for den organisasjonen</span
+                                >
+                            </div>
+                        </div>
+                        <div class="cell"><div class="n data">Contact eller éin ACR</div></div>
+
+                        <div class="cell"></div>
+                        <div class="cell">
+                            <div class="n dec"><b class="step">3</b>Adresse finst for konteksten?</div>
+                        </div>
+                        <div class="cell"></div>
+
+                        <div class="cell">
+                            <div class="n stop">Nei → feltet er tomt og påkravd. Inga anna adresse blir føreslått.</div>
+                        </div>
+                        <div class="cell"><div class="n">Ja → vis adressa med «Endre»</div></div>
+                        <div class="cell"></div>
+
+                        <div class="cell">
+                            <div class="n"><b class="step">4</b>Stadfest eller endre adresse</div>
+                        </div>
+                        <div class="cell">
+                            <div class="n dec">Endra? → spør: «Lagre for [kontekst]» eller «Berre denne gongen»</div>
+                        </div>
+                        <div class="cell"><div class="n data">Oppdater berre denne konteksten</div></div>
+
+                        <div class="cell">
+                            <div class="n"><b class="step">5</b>Send inn</div>
+                        </div>
+                        <div class="cell"><div class="n">Lagre snapshot av namn, adresse, kontekst og rolle</div></div>
+                        <div class="cell">
+                            <div class="n data">Application__c / Inquiry__c + RelatedContact__c</div>
+                        </div>
+
+                        <div class="cell">
+                            <div class="n ok"><b class="step">6</b>Kvittering viser brukt adresse</div>
+                        </div>
+                        <div class="cell"></div>
+                        <div class="cell"><div class="n data">EmailQueue__c med bunden mottakar</div></div>
+                    </div>
+                </div>
+
+                <h3 class="sketch-title">F3. Endre e-post i Min profil</h3>
+                <div class="scroll">
+                    <div class="swim" style="grid-template-columns: repeat(3, 1fr)" role="table" aria-label="Flyt F3">
+                        <div class="lane-h" role="columnheader">Person</div>
+                        <div class="lane-h" role="columnheader">Apex-grense</div>
+                        <div class="lane-h" role="columnheader">Data</div>
+
+                        <div class="cell">
+                            <div class="n start"><b class="step">1</b>Vel kva adresse: privat eller organisasjon X</div>
+                        </div>
+                        <div class="cell">
+                            <div class="n dec">
+                                Eig personen denne konteksten?<span class="branch">Nei → avslag utan detaljar</span>
+                            </div>
+                        </div>
+                        <div class="cell"></div>
+
+                        <div class="cell">
+                            <div class="n"><b class="step">2</b>Skriv ny adresse</div>
+                        </div>
+                        <div class="cell"><div class="n">Send stadfestingskode til ny adresse</div></div>
+                        <div class="cell"></div>
+
+                        <div class="cell">
+                            <div class="n"><b class="step">3</b>Oppgi kode</div>
+                        </div>
+                        <div class="cell">
+                            <div class="n dec">
+                                Kode rett og profilversjon uendra?<span class="branch">Nei → konflikt/feil</span>
+                            </div>
+                        </div>
+                        <div class="cell"></div>
+
+                        <div class="cell"></div>
+                        <div class="cell"><div class="n">Oppdater éi adresse + revisjonsspor</div></div>
+                        <div class="cell"><div class="n data">Contact (privat) eller éin ACR</div></div>
+
+                        <div class="cell">
+                            <div class="n ok"><b class="step">4</b>Vis kva som er endra og kva som ikkje er endra</div>
+                        </div>
+                        <div class="cell"><div class="n">Køa varsel blir revaliderte før utsending</div></div>
+                        <div class="cell"><div class="n data">Andre adresser og snapshot uendra</div></div>
+                    </div>
+                </div>
+
+                <h3 class="sketch-title">F4. Intern: saksbehandlar finn eller koplar kontakt</h3>
+                <div class="scroll">
+                    <div class="swim" style="grid-template-columns: repeat(3, 1fr)" role="table" aria-label="Flyt F4">
+                        <div class="lane-h" role="columnheader">Saksbehandlar (Lightning)</div>
+                        <div class="lane-h" role="columnheader">Kontroll</div>
+                        <div class="lane-h" role="columnheader">Data</div>
+
+                        <div class="cell">
+                            <div class="n start"><b class="step">1</b>Opne søknad eller melding</div>
+                        </div>
+                        <div class="cell">
+                            <div class="n dec">
+                                Skjerma kontakt?<span class="branch">Ja → masker og krev særskilt løyve</span>
+                            </div>
+                        </div>
+                        <div class="cell"></div>
+
+                        <div class="cell">
+                            <div class="n"><b class="step">2</b>Sjå deltakarar med rolle</div>
+                        </div>
+                        <div class="cell"></div>
+                        <div class="cell"><div class="n data">RelatedContact__c → Contact + ACR</div></div>
+
+                        <div class="cell">
+                            <div class="n"><b class="step">3</b>Uavklart deltakar (gammal rad)</div>
+                        </div>
+                        <div class="cell">
+                            <div class="n dec">
+                                Sikker identitet tilgjengeleg?<span class="branch">Nei → behald som uavklart</span>
+                            </div>
+                        </div>
+                        <div class="cell"></div>
+
+                        <div class="cell">
+                            <div class="n"><b class="step">4</b>Kople til eksisterande kontakt</div>
+                        </div>
+                        <div class="cell"><div class="n">Ingen automatisk samanslåing på e-post</div></div>
+                        <div class="cell"><div class="n data">Contact__c på deltakinga, snapshot uendra</div></div>
+
+                        <div class="cell">
+                            <div class="n ok"><b class="step">5</b>Endringslogg viser kven og kvifor</div>
+                        </div>
+                        <div class="cell"></div>
+                        <div class="cell"></div>
+                    </div>
+                </div>
+
+                <h3 class="sketch-title">F5. Utsending av varsel</h3>
+                <div class="scroll">
+                    <div class="swim" style="grid-template-columns: repeat(3, 1fr)" role="table" aria-label="Flyt F5">
+                        <div class="lane-h" role="columnheader">Hending</div>
+                        <div class="lane-h" role="columnheader">Mottakarkontroll</div>
+                        <div class="lane-h" role="columnheader">Resultat</div>
+
+                        <div class="cell">
+                            <div class="n start"><b class="step">1</b>Status endra på søknad/melding</div>
+                        </div>
+                        <div class="cell"><div class="n">Finn aktive deltakarar med varselval</div></div>
+                        <div class="cell"></div>
+
+                        <div class="cell"></div>
+                        <div class="cell"><div class="n">Vel adresse for deltakinga sin kontekst</div></div>
+                        <div class="cell"><div class="n data">EmailQueue__c: kontakt + kontekst + adresse</div></div>
+
+                        <div class="cell">
+                            <div class="n"><b class="step">2</b>Køjobb startar</div>
+                        </div>
+                        <div class="cell">
+                            <div class="n dec">Rett, skjerming og adresse uendra sidan kølegging?</div>
+                        </div>
+                        <div class="cell"></div>
+
+                        <div class="cell"></div>
+                        <div class="cell">
+                            <div class="n stop">
+                                Nei → stans og merk for kontroll. Ikkje send til gammal eller annan adresse.
+                            </div>
+                        </div>
+                        <div class="cell"><div class="n ok">Ja → send og logg faktisk mottakar</div></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= EKSTERNT ================= -->
+            <section class="chapter" id="eksternt" aria-labelledby="ext-h">
+                <h2 class="chapter-title" id="ext-h">Eksterne sider – Experience Cloud</h2>
+                <p class="lead">
+                    Sidene er LWC-komponentar på Aa-registeret-portalen, i Nav-stil. URL-ane er døme på sidenamn, ikkje
+                    eksisterande sider.
+                </p>
+
+                <!-- E1 -->
+                <h3 class="sketch-title" id="e1">E1. Vel kontekst etter innlogging</h3>
+                <div class="frame">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Experience Cloud</span><span class="url">/s/vel-rolle</span>
+                    </div>
+                    <div class="xc-header">
+                        <span class="xc-logo">NAV<span>Aa-registeret</span></span>
+                        <span class="xc-user">[Person A] · <a href="#e2">Min profil</a> · Logg ut</span>
+                    </div>
+                    <div class="xc-body">
+                        <h4>Kven opptrer du som i dag?</h4>
+                        <p class="muted">Valet styrer kva du ser, og kva e-postadresse vi brukar.</p>
+                        <div class="grid-2">
+                            <div class="choice">
+                                <strong>Meg sjølv</strong>
+                                Innsyn i eigne arbeidsforhold og eigne meldingar.<br />
+                                <span class="pill neutral">Privat adresse: [privat@…]</span>
+                            </div>
+                            <div class="choice selected">
+                                <strong>Organisasjon A</strong>
+                                Org.nr. [123 456 789] · Søknad og brukarstøtte<br />
+                                <span class="pill ok">Adresse hos A: [person@org-a…]</span>
+                            </div>
+                            <div class="choice">
+                                <strong>Organisasjon B</strong>
+                                Org.nr. [987 654 321] · Berre brukarstøtte<br />
+                                <span class="pill warn">Adresse hos B manglar</span>
+                            </div>
+                        </div>
+                        <div class="alert info">
+                            Ser du ikkje organisasjonen? Du må ha rett i Altinn. Ei tilknyting i Aa-registeret gir ikkje
+                            tilgang åleine.
+                        </div>
+                        <span class="btn primary">Hald fram som Organisasjon A</span>
+                    </div>
+                </div>
+                <div class="notes">
+                    <ul>
+                        <li>
+                            Lista kjem frå Altinn-rettar på serveren. ACR blir oppretta/oppdatert ved val, men styrer
+                            ikkje tilgang.
+                        </li>
+                        <li>
+                            Adressa som visast, er adressa for akkurat den konteksten. Ingen adresse blir lånt frå ein
+                            annan.
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- E2 -->
+                <h3 class="sketch-title" id="e2">E2. Min profil</h3>
+                <div class="frame">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Experience Cloud</span><span class="url">/s/min-profil</span>
+                    </div>
+                    <div class="xc-header">
+                        <span class="xc-logo">NAV<span>Aa-registeret</span></span>
+                        <span class="xc-user"><span class="ctx-chip">Du opptrer som: Meg sjølv ▾</span> Logg ut</span>
+                    </div>
+                    <div class="xc-body">
+                        <h4>Min profil</h4>
+                        <p class="muted">
+                            Namnet kjem frå innlogginga. Kontaktopplysningane gjeld berre Aa-registeret.
+                        </p>
+                        <div class="xc-card">
+                            <h5>Privat – når du opptrer som deg sjølv</h5>
+                            <div class="addr-row">
+                                <div>
+                                    <strong>E-post</strong><br />[privat@…] <span class="pill ok">Stadfesta</span>
+                                </div>
+                                <span class="btn small">Endre</span>
+                            </div>
+                            <div class="addr-row">
+                                <div><strong>Telefon</strong><br />[+47 …]</div>
+                                <span class="btn small">Endre</span>
+                            </div>
+                            <p class="muted">Organisasjonar du representerer, ser ikkje denne adressa.</p>
+                        </div>
+                        <div class="xc-card">
+                            <h5>Organisasjonar du er knytt til</h5>
+                            <div class="scroll">
+                                <table class="xc-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Organisasjon</th>
+                                            <th>E-post hos organisasjonen</th>
+                                            <th>Roller</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Organisasjon A<br /><span class="muted">[123 456 789]</span></td>
+                                            <td>[person@org-a…] <span class="pill ok">Stadfesta</span></td>
+                                            <td>Innsendar (2 søknader), fagleg kontakt (1 avtale)</td>
+                                            <td><span class="btn small">Endre</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Organisasjon B<br /><span class="muted">[987 654 321]</span></td>
+                                            <td><span class="pill warn">Manglar</span></td>
+                                            <td>Brukarstøtte</td>
+                                            <td><span class="btn small">Legg til</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Organisasjon C<br /><span class="muted">Avslutta tilknyting</span></td>
+                                            <td><span class="pill neutral">Ikkje i bruk</span></td>
+                                            <td>Tidlegare innsendar</td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="muted">
+                                Éi adresse per organisasjon, same kor mange roller du har der. Kvar organisasjon ser
+                                berre si eiga adresse.
+                            </p>
+                        </div>
+                        <div class="alert info">
+                            Endringar gjeld nye meldingar. Det du har sendt inn tidlegare, blir ikkje endra.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- E3 -->
+                <h3 class="sketch-title" id="e3">E3. Endre adresse – dialog</h3>
+                <div class="frame">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Experience Cloud</span><span class="url">/s/min-profil · modal</span>
+                    </div>
+                    <div class="xc-body" style="max-width: 560px">
+                        <div class="xc-card" role="dialog" aria-label="Endre e-post hos Organisasjon A">
+                            <h5>Endre e-post hos Organisasjon A</h5>
+                            <div class="field">
+                                <label>Noverande adresse</label>
+                                <div class="muted">[person@org-a…]</div>
+                            </div>
+                            <div class="field">
+                                <label>Ny e-postadresse</label>
+                                <div class="input">[ny@org-a…]</div>
+                            </div>
+                            <div class="alert warn">
+                                <strong>Dette blir endra:</strong> varsel om saker for Organisasjon A.<br />
+                                <strong>Dette blir ikkje endra:</strong> privatadressa di, adressa hos Organisasjon B og
+                                tidlegare innsendingar.
+                            </div>
+                            <p class="muted">Vi sender ein kode til den nye adressa før endringa gjeld.</p>
+                            <span class="btn primary">Send kode</span><span class="btn">Avbryt</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- E4 -->
+                <h3 class="sketch-title" id="e4">E4. Søknad – steg «Kontaktpersonar»</h3>
+                <div class="frame">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Experience Cloud</span><span class="url">/s/soknad?steg=kontaktar</span>
+                    </div>
+                    <div class="xc-header">
+                        <span class="xc-logo">NAV<span>Aa-registeret</span></span>
+                        <span class="xc-user"><span class="ctx-chip">Du opptrer som: Organisasjon A</span></span>
+                    </div>
+                    <div class="xc-body">
+                        <h4>Søknad om tilgang til Aa-registeret</h4>
+                        <ol class="stepper">
+                            <li class="done">1 Organisasjon</li>
+                            <li class="done">2 Formål</li>
+                            <li class="now">3 Kontaktpersonar</li>
+                            <li>4 Vedlegg</li>
+                            <li>5 Oppsummering</li>
+                        </ol>
+                        <div class="xc-card">
+                            <h5>Deg som innsendar</h5>
+                            <div class="addr-row">
+                                <div>
+                                    [Person A]<br /><span class="muted">E-post hos Organisasjon A:</span>
+                                    [person@org-a…]
+                                </div>
+                                <span class="btn small">Endre</span>
+                            </div>
+                        </div>
+                        <div class="xc-card">
+                            <h5>Andre kontaktpersonar</h5>
+                            <div class="scroll">
+                                <table class="xc-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Rolle</th>
+                                            <th>Person</th>
+                                            <th>E-post hos Organisasjon A</th>
+                                            <th>Varsel</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Fagleg kontakt</td>
+                                            <td>[Person B] <span class="pill ok">Kjent kontakt</span></td>
+                                            <td>[b@org-a…]</td>
+                                            <td>Vedtak, manglar</td>
+                                            <td><span class="btn small">Fjern</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Tryggleikskontakt</td>
+                                            <td>[Person C] <span class="pill warn">Invitert</span></td>
+                                            <td>[c@org-a…]</td>
+                                            <td>Vedtak</td>
+                                            <td><span class="btn small">Fjern</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Fagleg kontakt</td>
+                                            <td>[Person A] (deg)</td>
+                                            <td>[person@org-a…]</td>
+                                            <td>—</td>
+                                            <td><span class="btn small">Fjern</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <span class="btn">+ Legg til kontaktperson</span>
+                            <p class="muted">
+                                Same person kan ha fleire roller. Adressa er den same i alle roller hos Organisasjon A.
+                            </p>
+                        </div>
+                        <span class="btn">Tilbake</span><span class="btn primary">Neste</span>
+                    </div>
+                </div>
+                <div class="notes">
+                    <ul>
+                        <li>
+                            Kvar rad er ei deltaking (<code>RelatedContact__c</code>) med <code>Contact__c</code> og
+                            rolle.
+                        </li>
+                        <li>
+                            Søk etter andre kontaktpersonar er avgrensa til personar knytt til Organisasjon A, ikkje
+                            globalt søk.
+                        </li>
+                        <li>
+                            Søkjaren ser andre sine adresser hos Organisasjon A, men aldri deira privatadresse eller
+                            adresse hos andre organisasjonar.
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- E5 -->
+                <h3 class="sketch-title" id="e5">E5. Legg til kontaktperson</h3>
+                <div class="frame">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Experience Cloud</span><span class="url">/s/soknad · modal</span>
+                    </div>
+                    <div class="xc-body" style="max-width: 620px">
+                        <div class="xc-card" role="dialog" aria-label="Legg til kontaktperson">
+                            <h5>Legg til kontaktperson for Organisasjon A</h5>
+                            <div class="field">
+                                <label>Rolle</label>
+                                <div class="input">Fagleg kontakt ▾</div>
+                            </div>
+                            <div class="field">
+                                <label>Vel person knytt til Organisasjon A</label>
+                                <div class="input">Søk på namn …</div>
+                                <span class="desc">Viser berre personar med aktiv tilknyting til Organisasjon A.</span>
+                            </div>
+                            <p><strong>Finn du ikkje personen?</strong></p>
+                            <div class="field">
+                                <label>Namn</label>
+                                <div class="input">[Person D]</div>
+                            </div>
+                            <div class="field">
+                                <label>E-post hos Organisasjon A</label>
+                                <div class="input">[d@org-a…]</div>
+                            </div>
+                            <div class="alert info">
+                                Personen blir lagra som uavklart kontakt til han eller ho loggar inn sjølv. Vi slår
+                                ikkje saman personar på e-post.
+                            </div>
+                            <span class="btn primary">Legg til</span><span class="btn">Avbryt</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- E6 -->
+                <h3 class="sketch-title" id="e6">E6. Brukarstøtte – ny melding</h3>
+                <div class="frame">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Experience Cloud</span><span class="url">/s/brukarstotte/ny</span>
+                    </div>
+                    <div class="xc-header">
+                        <span class="xc-logo">NAV<span>Aa-registeret</span></span>
+                        <span class="xc-user"><span class="ctx-chip">Du opptrer som: Organisasjon B</span></span>
+                    </div>
+                    <div class="xc-body">
+                        <h4>Ny melding til brukarstøtte</h4>
+                        <div class="alert info">
+                            <strong>Du sender som:</strong> brukarstøtte for Organisasjon B ([987 654 321]).
+                        </div>
+                        <div class="field">
+                            <label>Tema</label>
+                            <div class="input">Tilgang ▾</div>
+                        </div>
+                        <div class="field">
+                            <label>Melding</label>
+                            <div class="input" style="min-height: 5rem">…</div>
+                        </div>
+                        <div class="field">
+                            <label>E-post for svar frå oss (Organisasjon B)</label>
+                            <span class="desc">Du har ikkje lagra adresse for Organisasjon B.</span>
+                            <div class="input error">&nbsp;</div>
+                            <div class="err">Skriv inn e-postadressa du brukar hos Organisasjon B.</div>
+                        </div>
+                        <div class="field">
+                            <label>Lagre adressa?</label>
+                            <div>◉ Lagre som mi adresse hos Organisasjon B<br />○ Bruk berre for denne meldinga</div>
+                        </div>
+                        <span class="btn primary">Send melding</span>
+                    </div>
+                </div>
+                <div class="notes">
+                    <ul>
+                        <li>
+                            Feltet er tomt fordi adressa manglar. Privatadressa og adressa hos Organisasjon A blir ikkje
+                            føreslått.
+                        </li>
+                        <li>Meldinga lagrar kontekst, «sendt som» og brukt adresse som snapshot.</li>
+                    </ul>
+                </div>
+
+                <!-- E7 -->
+                <h3 class="sketch-title" id="e7">E7. Mine meldingar</h3>
+                <div class="frame">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Experience Cloud</span><span class="url">/s/mine-meldingar</span>
+                    </div>
+                    <div class="xc-header">
+                        <span class="xc-logo">NAV<span>Aa-registeret</span></span>
+                        <span class="xc-user"><span class="ctx-chip">Du opptrer som: Organisasjon A ▾</span></span>
+                    </div>
+                    <div class="xc-body">
+                        <h4>Meldingar for Organisasjon A</h4>
+                        <p class="muted">
+                            Du ser berre meldingar du har sendt i denne konteksten. Byt kontekst for å sjå andre.
+                        </p>
+                        <div class="scroll">
+                            <table class="xc-table">
+                                <thead>
+                                    <tr>
+                                        <th>Emne</th>
+                                        <th>Sendt som</th>
+                                        <th>Svar går til</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Spørsmål om avtale</td>
+                                        <td>Innsendar</td>
+                                        <td>[person@org-a…]</td>
+                                        <td><span class="pill ok">Svar motteke</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Endre tryggleikskontakt</td>
+                                        <td>Brukarstøtte</td>
+                                        <td>
+                                            [gammal@org-a…] <span class="pill neutral">adresse ved innsending</span>
+                                        </td>
+                                        <td><span class="pill warn">Under arbeid</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="alert warn">
+                            Ei melding vart sendt til ei adresse du seinare har endra. Nye svar blir sende til
+                            [person@org-a…] etter kontroll.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- E8 -->
+                <h3 class="sketch-title" id="e8">E8. Mobil: Min profil (360 px)</h3>
+                <div class="frame" style="max-width: 360px">
+                    <div class="frame-bar"><span class="kind">Mobil</span><span class="url">/s/min-profil</span></div>
+                    <div class="xc-header">
+                        <span class="xc-logo">NAV</span><span class="ctx-chip">Meg sjølv ▾</span>
+                    </div>
+                    <div class="xc-body">
+                        <h4>Min profil</h4>
+                        <div class="xc-card">
+                            <h5>Privat</h5>
+                            [privat@…]<br /><span class="btn small">Endre</span>
+                        </div>
+                        <div class="xc-card">
+                            <h5>Organisasjon A</h5>
+                            [person@org-a…]<br /><span class="btn small">Endre</span>
+                        </div>
+                        <div class="xc-card">
+                            <h5>Organisasjon B</h5>
+                            <span class="pill warn">Manglar</span><br /><span class="btn small">Legg til</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= INTERNT ================= -->
+            <section class="chapter" id="internt" aria-labelledby="int-h">
+                <h2 class="chapter-title" id="int-h">Interne sider – Lightning Experience</h2>
+                <p class="lead">
+                    Record pages i Lightning App Builder med standardkomponentar der det går: highlights panel, related
+                    lists og path. Eigne LWC-ar berre der standard ikkje held, til dømes kontekstadresser og maskering.
+                </p>
+
+                <!-- I1 -->
+                <h3 class="sketch-title" id="i1">I1. Contact – domenekontakt</h3>
+                <div class="frame sf">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Lightning</span><span class="url">/lightning/r/Contact/[id]/view</span>
+                    </div>
+                    <div class="sf-global">
+                        <b>☁</b><span class="search">Søk i Salesforce …</span><span>[saksbehandlar]</span>
+                    </div>
+                    <div class="sf-app">
+                        <strong>AAREG – Arbeidsforhold</strong><span>Søknader</span><span>Avtalar</span
+                        ><span class="active">Kontaktar</span><span>Organisasjonar</span><span>Meldingar</span>
+                    </div>
+                    <div class="sf-page">
+                        <div class="sf-card">
+                            <div class="sf-highlights">
+                                <span class="sf-icon contact" aria-hidden="true">CT</span>
+                                <div class="sf-title"><small>Kontakt</small><b>[Person A]</b></div>
+                                <div class="sf-actions">
+                                    <span class="sf-btn">Legg til organisasjon</span
+                                    ><span class="sf-btn">Kople innlogging</span><span class="sf-btn">▾</span>
+                                </div>
+                            </div>
+                            <div class="sf-fields">
+                                <div><small>Domene</small>Aa-registeret</div>
+                                <div><small>Identitet</small>Verifisert via innlogging</div>
+                                <div><small>Primærkonto</small><span class="sf-link">[Teknisk domenekonto]</span></div>
+                                <div><small>Skjerming</small>Ingen</div>
+                            </div>
+                        </div>
+                        <div class="sf-layout">
+                            <div>
+                                <div class="sf-card">
+                                    <div class="sf-tabs">
+                                        <span class="active">Kontekstar og adresser</span><span>Søknadsroller</span
+                                        ><span>Meldingar</span><span>Historikk</span>
+                                    </div>
+                                    <div class="sf-card-b" style="padding-top: 0.75rem">
+                                        <div class="scroll">
+                                            <table class="sf-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Kontekst</th>
+                                                        <th>E-post</th>
+                                                        <th>Telefon</th>
+                                                        <th>Stadfesta</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Privat (eigen regi)</td>
+                                                        <td>[privat@…]</td>
+                                                        <td>[+47 …]</td>
+                                                        <td>[dato]</td>
+                                                        <td>Aktiv</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span class="sf-link">Organisasjon A</span> (ACR)</td>
+                                                        <td>[person@org-a…]</td>
+                                                        <td>—</td>
+                                                        <td>[dato]</td>
+                                                        <td>Aktiv</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span class="sf-link">Organisasjon B</span> (ACR)</td>
+                                                        <td>—</td>
+                                                        <td>—</td>
+                                                        <td>—</td>
+                                                        <td>Aktiv, manglar adresse</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span class="sf-link">Organisasjon C</span> (ACR)</td>
+                                                        <td>[gammal@org-c…]</td>
+                                                        <td>—</td>
+                                                        <td>[dato]</td>
+                                                        <td>Avslutta [dato]</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <p style="color: var(--sf-muted)">
+                                            LWC <span class="tag new">Nytt</span>: samlar privat adresse og
+                                            ACR-adresser. Endring opnar ACR-posten.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="sf-card">
+                                    <div class="sf-card-h">
+                                        <span
+                                            ><span class="sf-icon small account" aria-hidden="true">AC</span> Related
+                                            Accounts (3)</span
+                                        ><span class="sf-btn">Add Relationship</span>
+                                    </div>
+                                    <div class="sf-card-b">
+                                        <span class="sf-link">Organisasjon A</span> · Indirekte · Roller:
+                                        Kontaktperson<br />
+                                        <span class="sf-link">Organisasjon B</span> · Roller: Brukarstøtte<br />
+                                        <span class="sf-link">Organisasjon C</span> · Inaktiv
+                                    </div>
+                                </div>
+                                <div class="sf-card">
+                                    <div class="sf-card-h">
+                                        <span
+                                            ><span class="sf-icon small custom" aria-hidden="true">RC</span> Deltakingar
+                                            (3)</span
+                                        >
+                                    </div>
+                                    <div class="sf-card-b">
+                                        <span class="sf-link">[Søknad 1]</span> · Innsendar · Org A<br />
+                                        <span class="sf-link">[Søknad 2]</span> · Innsendar · Org A<br />
+                                        <span class="sf-link">[Avtale 1]</span> · Fagleg kontakt · Org A
+                                    </div>
+                                </div>
+                                <div class="sf-card">
+                                    <div class="sf-card-h"><span>Innlogging</span></div>
+                                    <div class="sf-card-b">
+                                        Portalbrukar kopla via kontrollert mapping. <code>User.ContactId</code> blir
+                                        ikkje endra.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- I2 -->
+                <h3 class="sketch-title" id="i2">I2. Contact – skjerma person (kode 6/7 eller eigen tilsett)</h3>
+                <div class="frame sf">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Lightning</span><span class="url">/lightning/r/Contact/[id]/view</span>
+                    </div>
+                    <div class="sf-page">
+                        <div class="sf-banner warn">
+                            Skjerma kontakt. Opplysningar er maskerte. Innsyn krev særskilt løyve og blir logga.
+                        </div>
+                        <div class="sf-card">
+                            <div class="sf-highlights">
+                                <span class="sf-icon contact" aria-hidden="true">CT</span>
+                                <div class="sf-title">
+                                    <small>Kontakt</small><b class="sf-masked">Skjerma person</b>
+                                </div>
+                                <div class="sf-actions"><span class="sf-btn">Be om innsyn</span></div>
+                            </div>
+                            <div class="sf-fields">
+                                <div><small>Privat e-post</small><span class="sf-masked">Skjult</span></div>
+                                <div><small>Telefon</small><span class="sf-masked">Skjult</span></div>
+                                <div><small>Organisasjonar</small><span class="sf-masked">2 (skjult)</span></div>
+                            </div>
+                        </div>
+                        <div class="sf-card">
+                            <div class="sf-card-h"><span>Kva er framleis mogleg</span></div>
+                            <div class="sf-card-b">
+                                Svare på meldingar via systemet. Mottakaradressa blir vald på serveren og visast
+                                ikkje.<br />
+                                Same maskering gjeld søk, lookup-namn, rapportar, filer, PDF og arkiv.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- I3 -->
+                <h3 class="sketch-title" id="i3">I3. Account – organisasjon</h3>
+                <div class="frame sf">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Lightning</span><span class="url">/lightning/r/Account/[id]/view</span>
+                    </div>
+                    <div class="sf-page">
+                        <div class="sf-card">
+                            <div class="sf-highlights">
+                                <span class="sf-icon account" aria-hidden="true">AC</span>
+                                <div class="sf-title"><small>Organisasjon</small><b>Organisasjon A</b></div>
+                                <div class="sf-actions">
+                                    <span class="sf-btn">Ny søknad</span><span class="sf-btn">▾</span>
+                                </div>
+                            </div>
+                            <div class="sf-fields">
+                                <div><small>Org.nr.</small>[123 456 789]</div>
+                                <div><small>Aktive avtalar</small>1</div>
+                                <div><small>Kontaktar i Aa-reg</small>4</div>
+                            </div>
+                        </div>
+                        <div class="sf-card">
+                            <div class="sf-card-h">
+                                <span
+                                    ><span class="sf-icon small contact" aria-hidden="true">CT</span> Related Contacts –
+                                    AAREG (4)</span
+                                ><span class="sf-btn">Add Relationship</span>
+                            </div>
+                            <div class="sf-card-b scroll">
+                                <table class="sf-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Kontakt</th>
+                                            <th>Roller</th>
+                                            <th>E-post hos Organisasjon A</th>
+                                            <th>Aktiv</th>
+                                            <th>Deltakingar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="sf-link">[Person A]</td>
+                                            <td>Kontaktperson</td>
+                                            <td>[person@org-a…]</td>
+                                            <td>✓</td>
+                                            <td>3</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="sf-link">[Person B]</td>
+                                            <td>Kontaktperson</td>
+                                            <td>[b@org-a…]</td>
+                                            <td>✓</td>
+                                            <td>1</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="sf-link">[Person C]</td>
+                                            <td>—</td>
+                                            <td>[c@org-a…] <span class="pill warn">ikkje stadfesta</span></td>
+                                            <td>✓</td>
+                                            <td>1</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="sf-masked">Skjerma person</td>
+                                            <td>—</td>
+                                            <td class="sf-masked">Skjult</td>
+                                            <td>✓</td>
+                                            <td>1</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p style="color: var(--sf-muted)">
+                                    Kolonna viser berre ACR-adressa for denne organisasjonen. Privat adresse og adresser
+                                    hos andre organisasjonar er ikkje med.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- I4 -->
+                <h3 class="sketch-title" id="i4">I4. AccountContactRelation – redigering</h3>
+                <div class="frame sf">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Lightning</span
+                        ><span class="url">/lightning/r/AccountContactRelation/[id]/edit</span>
+                    </div>
+                    <div class="sf-page">
+                        <div class="sf-modal" role="dialog" aria-label="Rediger tilknyting">
+                            <h5>Rediger tilknyting: [Person A] – Organisasjon A</h5>
+                            <div class="body">
+                                <div class="sf-form">
+                                    <div>
+                                        <label>Organisasjon</label>
+                                        <div class="input">Organisasjon A</div>
+                                    </div>
+                                    <div>
+                                        <label>Kontakt</label>
+                                        <div class="input">[Person A]</div>
+                                    </div>
+                                    <div>
+                                        <label>Domene <span class="tag new">Nytt</span></label>
+                                        <div class="input">AAREG (låst)</div>
+                                    </div>
+                                    <div>
+                                        <label>Roller</label>
+                                        <div class="input">Kontaktperson; Brukarstøtte</div>
+                                    </div>
+                                    <div>
+                                        <label>E-post hos organisasjonen <span class="tag new">Nytt</span></label>
+                                        <div class="input">[person@org-a…]</div>
+                                    </div>
+                                    <div>
+                                        <label>Telefon hos organisasjonen <span class="tag new">Nytt</span></label>
+                                        <div class="input"></div>
+                                    </div>
+                                    <div>
+                                        <label>Start</label>
+                                        <div class="input">[dato]</div>
+                                    </div>
+                                    <div>
+                                        <label>Slutt</label>
+                                        <div class="input"></div>
+                                    </div>
+                                    <div>
+                                        <label>Aktiv</label>
+                                        <div class="input">☑</div>
+                                    </div>
+                                </div>
+                                <div class="sf-banner info" style="margin-top: 0.75rem">
+                                    Endring her påverkar berre adressa hos Organisasjon A. Innsendte søknader og
+                                    meldingar blir ikkje endra.
+                                </div>
+                            </div>
+                            <div class="foot">
+                                <span class="sf-btn">Avbryt</span> <span class="sf-btn brand">Lagre</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- I5 -->
+                <h3 class="sketch-title" id="i5">I5. Søknad – deltakarar og innsendt grunnlag</h3>
+                <div class="frame sf">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Lightning</span
+                        ><span class="url">/lightning/r/Application__c/[id]/view</span>
+                    </div>
+                    <div class="sf-page">
+                        <div class="sf-card">
+                            <div class="sf-highlights">
+                                <span class="sf-icon custom" aria-hidden="true">SØ</span>
+                                <div class="sf-title"><small>Søknad</small><b>[Søknad 1] – Organisasjon A</b></div>
+                                <div class="sf-actions">
+                                    <span class="sf-btn">Be om meir informasjon</span><span class="sf-btn">Vedtak</span
+                                    ><span class="sf-btn">▾</span>
+                                </div>
+                            </div>
+                            <div class="sf-path">
+                                <span class="done">Utkast</span><span class="done">Ny</span
+                                ><span class="cur">Under arbeid</span><span>Vedtak</span><span>Avslutta</span>
+                            </div>
+                        </div>
+                        <div class="sf-layout">
+                            <div class="sf-card">
+                                <div class="sf-card-h">
+                                    <span
+                                        ><span class="sf-icon small custom" aria-hidden="true">RC</span> Deltakarar
+                                        (4)</span
+                                    ><span class="sf-btn">Ny deltaking</span>
+                                </div>
+                                <div class="sf-card-b scroll">
+                                    <table class="sf-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Rolle</th>
+                                                <th>Kontakt</th>
+                                                <th>Adresse ved innsending</th>
+                                                <th>Gjeldande adresse hos org</th>
+                                                <th>Varsel</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Innsendar</td>
+                                                <td class="sf-link">[Person A]</td>
+                                                <td>[person@org-a…]</td>
+                                                <td>[person@org-a…]</td>
+                                                <td>Alle</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Fagleg kontakt</td>
+                                                <td class="sf-link">[Person B]</td>
+                                                <td>[gammal-b@org-a…]</td>
+                                                <td>[b@org-a…] <span class="pill warn">endra</span></td>
+                                                <td>Vedtak</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Tryggleikskontakt</td>
+                                                <td class="sf-link">[Person C]</td>
+                                                <td>[c@org-a…]</td>
+                                                <td>[c@org-a…]</td>
+                                                <td>Vedtak</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Fagleg kontakt</td>
+                                                <td><span class="pill danger">Uavklart</span> [namn frå skjema]</td>
+                                                <td>[x@org-a…]</td>
+                                                <td>—</td>
+                                                <td>Ingen</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <p style="color: var(--sf-muted)">
+                                        «Adresse ved innsending» er snapshot og kan ikkje redigerast. Uavklarte rader
+                                        blir kopla manuelt (I7).
+                                    </p>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="sf-card">
+                                    <div class="sf-card-h"><span>Innsendt grunnlag</span></div>
+                                    <div class="sf-card-b">
+                                        Innsendt av [Person A] som Organisasjon A<br />
+                                        E-post ved innsending: [person@org-a…]<br />
+                                        Arkivert: P360 [saksnr]
+                                    </div>
+                                </div>
+                                <div class="sf-card">
+                                    <div class="sf-card-h"><span>Neste varsel går til</span></div>
+                                    <div class="sf-card-b">
+                                        3 mottakarar, vald frå gjeldande adresse hos Organisasjon A.<br />
+                                        1 uavklart deltakar får ikkje varsel.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- I6 -->
+                <h3 class="sketch-title" id="i6">I6. Service Console – brukarstøttemelding</h3>
+                <div class="frame sf">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Lightning Console</span
+                        ><span class="url">/lightning/r/Inquiry__c/[id]/view</span>
+                    </div>
+                    <div class="sf-page console">
+                        <div class="sf-card">
+                            <div class="sf-card-h"><span>Kø: Brukarstøtte</span></div>
+                            <div class="sf-card-b">
+                                <b>Tilgang</b> · Org B · ny<br />
+                                Avtale · Org A · svar motteke<br />
+                                Eige arbeidsforhold · Person · ny
+                            </div>
+                        </div>
+                        <div class="sf-card">
+                            <div class="sf-card-h">
+                                <span
+                                    ><span class="sf-icon small case" aria-hidden="true">IN</span> Tilgang –
+                                    Organisasjon B</span
+                                ><span class="sf-btn brand">Svar</span>
+                            </div>
+                            <div class="sf-card-b">
+                                <div class="bubble in">
+                                    <small>[Person A] · sendt som brukarstøtte for Organisasjon B · [dato]</small
+                                    >Spørsmål om tilgang …
+                                </div>
+                                <div class="bubble out"><small>Nav · [dato]</small>Svar …</div>
+                                <div class="sf-form" style="margin-top: 0.5rem">
+                                    <div>
+                                        <label>Svar blir sendt til</label>
+                                        <div class="input">[person@org-b…] (adresse hos Organisasjon B)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="sf-card">
+                                <div class="sf-card-h"><span>Avsendar</span></div>
+                                <div class="sf-card-b">
+                                    <span class="sf-link">[Person A]</span><br />
+                                    Kontekst: Organisasjon B<br />
+                                    Sendt som: Brukarstøtte<br />
+                                    Adresse ved innsending: [person@org-b…]
+                                </div>
+                            </div>
+                            <div class="sf-card">
+                                <div class="sf-card-h"><span>Mottakarkontroll</span></div>
+                                <div class="sf-card-b">
+                                    <span class="pill ok">Tilknyting aktiv</span><br />
+                                    <span class="pill ok">Adresse uendra</span><br />
+                                    <span class="pill ok">Ikkje skjerma</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="notes">
+                    <ul>
+                        <li>
+                            Saksbehandlar vel ikkje mottakaradresse fritt. Adressa følgjer konteksten meldinga vart
+                            sendt i.
+                        </li>
+                        <li>
+                            Er adressa endra sidan meldinga kom inn, viser kontrollen åtvaring og den nye adressa før
+                            sending.
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- I7 -->
+                <h3 class="sketch-title" id="i7">I7. Uavklarte kontaktar – manuell kopling</h3>
+                <div class="frame sf">
+                    <div class="frame-bar">
+                        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span class="kind">Lightning</span
+                        ><span class="url">/lightning/n/AAREG_Uavklarte_kontaktar</span>
+                    </div>
+                    <div class="sf-page">
+                        <div class="sf-card">
+                            <div class="sf-card-h">
+                                <span>Uavklarte deltakarar (12)</span
+                                ><span class="sf-btn">Filter: Organisasjon A ▾</span>
+                            </div>
+                            <div class="sf-card-b scroll">
+                                <table class="sf-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Namn frå skjema</th>
+                                            <th>Adresse frå skjema</th>
+                                            <th>Organisasjon</th>
+                                            <th>Søknad</th>
+                                            <th>Moglege treff</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>[namn]</td>
+                                            <td>[x@org-a…]</td>
+                                            <td>Org A</td>
+                                            <td class="sf-link">[Søknad 1]</td>
+                                            <td>1 på same org + adresse</td>
+                                            <td><span class="sf-btn">Vurder</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>[namn]</td>
+                                            <td>[postmottak@org-a…]</td>
+                                            <td>Org A</td>
+                                            <td class="sf-link">[Søknad 3]</td>
+                                            <td>Funksjonsadresse</td>
+                                            <td><span class="sf-btn">Vurder</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="sf-modal" role="dialog" aria-label="Kople deltakar">
+                            <h5>Kople deltakar til kontakt</h5>
+                            <div class="body">
+                                <p>Moglege treff er forslag. Lik e-post er ikkje bevis på same person.</p>
+                                <div class="sf-form">
+                                    <div>
+                                        <label>Vel kontakt</label>
+                                        <div class="input">[Person D] – Org A ▾</div>
+                                    </div>
+                                    <div>
+                                        <label>Grunngiving</label>
+                                        <div class="input">Stadfesta av personen [dato]</div>
+                                    </div>
+                                </div>
+                                <div class="sf-banner info" style="margin-top: 0.75rem">
+                                    Innsendt namn og adresse på søknaden blir ikkje endra.
+                                </div>
+                            </div>
+                            <div class="foot">
+                                <span class="sf-btn">Behald uavklart</span>
+                                <span class="sf-btn">Marker som funksjonsadresse</span>
+                                <span class="sf-btn brand">Kople</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SYNLEGHEIT ================= -->
+            <section class="chapter" id="synlegheit" aria-labelledby="syn-h">
+                <h2 class="chapter-title" id="syn-h">Synlegheitsmatrise for adresser</h2>
+                <p class="lead">
+                    Kven ser kva adresse for ein person med privat adresse, adresse hos A og adresse hos B.
+                </p>
+                <div class="scroll">
+                    <table class="matrix">
+                        <thead>
+                            <tr>
+                                <th>Kven</th>
+                                <th>Privat adresse</th>
+                                <th>Adresse hos A</th>
+                                <th>Adresse hos B</th>
+                                <th>Innsendt snapshot</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Personen sjølv (Min profil)</th>
+                                <td class="y">Ja, kan endre</td>
+                                <td class="y">Ja, kan endre</td>
+                                <td class="y">Ja, kan endre</td>
+                                <td class="part">Les</td>
+                            </tr>
+                            <tr>
+                                <th>Representant for A (portal)</th>
+                                <td class="no">Nei</td>
+                                <td class="part">Ja, i deltakingar for A</td>
+                                <td class="no">Nei</td>
+                                <td class="part">Søknader for A</td>
+                            </tr>
+                            <tr>
+                                <th>Representant for B (portal)</th>
+                                <td class="no">Nei</td>
+                                <td class="no">Nei</td>
+                                <td class="part">Ja, i deltakingar for B</td>
+                                <td class="part">Søknader for B</td>
+                            </tr>
+                            <tr>
+                                <th>Saksbehandlar Aa-reg (Lightning)</th>
+                                <td class="part">Ja, ved behov</td>
+                                <td class="y">Ja</td>
+                                <td class="y">Ja</td>
+                                <td class="y">Ja</td>
+                            </tr>
+                            <tr>
+                                <th>Saksbehandlar, skjerma kontakt</th>
+                                <td class="no">Maskert</td>
+                                <td class="no">Maskert</td>
+                                <td class="no">Maskert</td>
+                                <td class="part">Krev løyve</td>
+                            </tr>
+                            <tr>
+                                <th>Andre Salesforce-appar via ACR</th>
+                                <td class="no">Nei</td>
+                                <td class="no">Nei (domenefelt med FLS)</td>
+                                <td class="no">Nei</td>
+                                <td class="no">Nei</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="muted">
+                    Ingen representant kan endre adressa til ein annan person. Rolle kan endrast, profil kan ikkje.
+                </p>
+            </section>
+
+            <!-- ================= AVKLARINGAR ================= -->
+            <section class="chapter" id="avklaringar" aria-labelledby="avk-h">
+                <h2 class="chapter-title" id="avk-h">Avklaringar før skissene kan bli design</h2>
+                <div class="scroll">
+                    <table class="matrix">
+                        <thead>
+                            <tr>
+                                <th>Spørsmål</th>
+                                <th>Påverkar</th>
+                                <th>Eigar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Org-adresse som felt på ACR eller eige kontaktpunktobjekt?</td>
+                                <td>Datamodell, I1, I3, I4</td>
+                                <td>Produkteigar og Team Platforce</td>
+                            </tr>
+                            <tr>
+                                <td>Kan domenefelt på ACR skjulast for andre appar med FLS og delingsreglar?</td>
+                                <td>Synlegheit</td>
+                                <td>Team Platforce</td>
+                            </tr>
+                            <tr>
+                                <td>Teknisk domenekonto som primærkonto for kontakten</td>
+                                <td>Datamodell, I1</td>
+                                <td>Team Platforce</td>
+                            </tr>
+                            <tr>
+                                <td>Kontrollert mapping mellom innlogging og domenekontakt</td>
+                                <td>F1, I1</td>
+                                <td>Team Platforce</td>
+                            </tr>
+                            <tr>
+                                <td>Stadfesting av ny e-post: mekanisme og leverandør</td>
+                                <td>E3, F3</td>
+                                <td>Team Platforce</td>
+                            </tr>
+                            <tr>
+                                <td>Skal brukarstøtteløyvet kunne endre andre sine roller i avtalar?</td>
+                                <td>E4, E5</td>
+                                <td>Produkteigar</td>
+                            </tr>
+                            <tr>
+                                <td>Kan EmailQueue binde og revalidere mottakar ved utsending?</td>
+                                <td>F5, I6</td>
+                                <td>Eigar av e-postpakken</td>
+                            </tr>
+                            <tr>
+                                <td>Skjerming: maskering i søk, rapportar og lookup</td>
+                                <td>I2, I3</td>
+                                <td>Sikkerheitsansvarleg</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </body>
+</html>

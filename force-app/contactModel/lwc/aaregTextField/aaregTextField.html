@@ -1,0 +1,25 @@
+<template>
+    <div class={fieldClass}>
+        <label class="navds-form-field__label navds-label" for="input">{label}</label>
+        <template lwc:if={description}>
+            <div class="navds-form-field__description navds-body-short" id="description">{description}</div>
+        </template>
+        <input
+            id="input"
+            class="navds-text-field__input navds-body-short"
+            type={type}
+            value={value}
+            required={required}
+            autocomplete={autocomplete}
+            aria-invalid={ariaInvalid}
+            aria-describedby={describedBy}
+            onchange={handleChange}
+            oninput={handleInput}
+        />
+        <div class="navds-form-field__error" id="error" aria-live="polite" aria-relevant="additions removals">
+            <template lwc:if={error}>
+                <p class="navds-error-message navds-label">{error}</p>
+            </template>
+        </div>
+    </div>
+</template>

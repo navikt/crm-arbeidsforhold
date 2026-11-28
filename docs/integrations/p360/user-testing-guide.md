@@ -2,6 +2,24 @@
 
 Denne runbooken testar den interne P360-flyten utan live P360-kall. Han skal køyrast berre mot default scratch org `crm-arbeidsforhold`.
 
+> Arbeid i eksisterande `crm-arbeidsforhold` scratch-org krev ikkje ny brukargodkjenning etter `AGENTS.md`. Verifiser eksplisitt mål og scratch-type før handling og respekter native verktøygodkjenningar. Andre ikkje-produksjonsorg krev fersk mål-/handlingsgodkjenning; produksjon er alltid forbode. Guiden dokumenterer instruksjonar, ikkje gjennomførte testar.
+
+## Slik brukar vi guiden saman
+
+Guiden er referanse for føresetnader, forventningar og tekniske detaljar. Han er ikkje ein automatisk wizard eller ei full klikk-for-klikk-skildring av Salesforce UI.
+For ei forklaring av kallkjeda, metadata, testar og kjende kodegrenser, sjå [P360-kodegjennomgangen](kodegjennomgang.md).
+
+I ei menneskestyrt gjennomgang:
+
+1. Assistenten gir eitt avgrensa steg og seier kva du skal sjå etter.
+2. Du utfører steget i Salesforce UI eller lokalt og svarer med resultatet.
+3. Assistenten registrerer status og evidens i [P360 testlogg](test-log.md), forklarer avvik og gir først deretter neste steg.
+4. I denne menneskestyrte modusen utfører du stega sjølv. Ved agentstyrt køyring kan assistenten lese, teste, deploye og endre data/metadata i verifisert eksisterande `crm-arbeidsforhold` scratch-org utan ny brukargodkjenning; rapporter dette som agentutført, ikkje som eit manuelt UI-resultat.
+
+Svaralternativa for kvart steg skal vere: **Utført**, **Blokkert**, **Uventa resultat**, **Treng hjelp**, eller **Hopp over**. Eit steg utan stadfesta resultat er ikkje bestått.
+
+Testloggen skil mellom automatiserte testar og manuelle UI-scenario. Han skal føre dato, miljø, steg-ID, forventa og faktisk resultat, status, evidens, avvik og opprydding. Ikkje legg secrets, org-URL-ar eller ekte persondata i loggen.
+
 Mock-flyten verifiserer:
 
 - at `P360_AdapterFactory` vel `P360_StubArchiveAdapter`;
@@ -16,9 +34,21 @@ Han verifiserer ikkje P360 endpoint, OAuth, Named Credential, wire-format, ekte 
 
 - Målorg er `crm-arbeidsforhold`.
 - Koden og P360-metadata er deploya til scratch orgen.
-- Test-/integrasjonsbrukaren har `P360_Integration_User` eller minst `P360_Archive_Job_Processing`.
+- For UI-only statusinnsyn skal menneskeleg testoperatør ha `P360_Archive_Job_Viewer`.
+- For `npm run test:p360:mock` må køyrande teknisk brukar ha `P360_Integration_User` eller minst `P360_Archive_Job_Processing`. Ikkje tildel processing-set-et til ein menneskeleg UI-brukar berre for å vise fana; Salesforce-rettar er additive, så Create/Edit blir verande dersom brukaren også har det settet.
 - Det finst ikkje secrets, tokens, cookies eller ekte persondata i testen.
-- Bruk aldri `SIT2`, produksjon, DevHub eller annan org i denne runbooken utan eksplisitt godkjenning.
+- Bruk aldri produksjon, heller ikkje ein produksjonstilknytt Dev Hub. Denne runbooken gjeld berre `crm-arbeidsforhold`; bruk av `SIT2`, ein annan ikkje-produksjonsorg eller ein ikkje-produksjons-Dev Hub krev fersk mål-/handlingsgodkjenning og ei eiga tilpassa testprosedyre.
+
+### P360 Archive Jobs-listevisingar
+
+Metadataen definerer desse delte listevisingane:
+
+- **All Archive Jobs** – alle jobbar brukaren elles har tilgang til.
+- **Pending Archive Jobs** og **In Progress Archive Jobs** – aktive køstatusar.
+- **Needs Attention**, **Failed Archive Jobs** og **Manual Review Archive Jobs** – feil og jobbar som krev manuell oppfølging.
+- **Succeeded Archive Jobs** – fullførte jobbar.
+
+Visingane blir delte med interne brukarar, men gir ikkje i seg sjølve objekt- eller posttilgang og omgår ikkje delingsreglane. Dei må vere deploya til orgen før dei blir synlege. Testoperatøren treng `P360_Archive_Job_Viewer` for fana og lesetilgang; ei eventuell tildeling er ei eiga godkjend org-handling. `P360_Archive_Job_Processing` gir framleis Create/Edit dersom det også er tildelt.
 
 Kontroller målorg før kommandoar:
 
@@ -208,7 +238,7 @@ Forventa resultat er ingen rader.
 
 - Retrybar feil før maks forsøk: `Failed` med `Next_Attempt_Date__c` og backoff.
 - Ikkje-retrybar feil eller maks forsøk: `Manual Review` med feilkode og melding.
-- Ny claim etter forfallen lease: jobb kan takast opp att av claim-service.
+- Ein `In Progress`-jobb blir ikkje automatisk claima på nytt berre fordi lease går ut. Dagens claim-service vel `Pending` og tidsmodne `Failed`-jobbar; trygg automatisk recovery av utgått lease er ikkje implementert.
 
 Query feilstiar:
 
@@ -231,14 +261,26 @@ Ikkje legg secrets eller miljøspesifikke verdiar i scriptet eller Git.
 
 ## Feilsøking
 
-| Symptom                                   | Sjekk                                                                                                                                                |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `P360_Archive_Job__c` blir ikkje oppretta | Sjekk at Application har `Access_Request__c`, og at ContentVersion er publisert direkte på Application.                                              |
-| Jobb står `Pending`                       | Scheduler/claim er ikkje køyrd, eller brukaren manglar `P360_Archive_Job_Processing`.                                                                |
-| Jobb står `In Progress`                   | Worker køyrer asynkront, eller lease må bli forfallen før reclaim.                                                                                   |
-| Jobb blir `Manual Review`                 | Sjå `Last_Error_Code__c` og `Last_Error_Message__c`.                                                                                                 |
-| `P360_MissingCodeTableMappingException`   | Sjekk at P360-kodeverkmetadata er deploya og aktiv.                                                                                                  |
-| Ekte callout blir forsøkt                 | Kontroller `P360_Integration_Setting__c.Use_Mock_Transport__c = true` og at testen bruker factory/orchestrator, ikkje `P360_ArchiveAdapter` direkte. |
-| Testklassen blir ikkje funnen             | Koden/testen er ikkje deploya til `crm-arbeidsforhold` enno. Køyr deploy-preview først, og få eksplisitt godkjenning før faktisk deployment.         |
+| Symptom                                   | Sjekk                                                                                                                                                           |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `P360_Archive_Job__c` blir ikkje oppretta | Sjekk at Application har `Access_Request__c`, og at ContentVersion er publisert direkte på Application.                                                         |
+| Jobb står `Pending`                       | Scheduler/claim er ikkje køyrd, eller brukaren manglar `P360_Archive_Job_Processing`.                                                                           |
+| Jobb står `In Progress`                   | Worker kan framleis køyre. Utgått lease fører ikkje automatisk til ny claim i dagens kode; stopp og avklar recovery i staden for å vente på automatisk reclaim. |
+| Jobb blir `Manual Review`                 | Sjå `Last_Error_Code__c` og `Last_Error_Message__c`.                                                                                                            |
+| `P360_MissingCodeTableMappingException`   | Sjekk at P360-kodeverkmetadata er deploya og aktiv.                                                                                                             |
+| Ekte callout blir forsøkt                 | Kontroller `P360_Integration_Setting__c.Use_Mock_Transport__c = true` og at testen bruker factory/orchestrator, ikkje `P360_ArchiveAdapter` direkte.            |
+| Testklassen blir ikkje funnen             | Koden/testen er ikkje deploya til `crm-arbeidsforhold` enno. Verifiser scratch-målet og køyr deploy-preview før deploy; ny brukargodkjenning trengst ikkje der. |
 
 Denne runbooken beviser intern mock-flyt og jobbstatus. Han beviser ikkje ekte P360 endpoint, auth, wire-format, upload eller eksterne feilkodar.
+
+## Record-detaljar: Processing Timeline
+
+Etter deploy av `P360 Archive Job Layout` skal Details på ein arkivjobb vise seksjonen **Processing Timeline** med Queued Date, Started Date, Last Attempt Date, Lease Expires Date og Next Attempt Date. Felta er skriveverna i layoutet; eksisterande feltrettar gjeld framleis.
+
+Kontroller at alle fem feltnamna er synlege, også når verdiar er tomme. Tomme lease-/retryfelt kan vere normalt på fullførte jobbar; synlegheit og innhald er to ulike kontrollar. Created/Last Modified erstattar ikkje desse behandlingsfelta.
+
+### Last Attempt Date: kontrakt etter rettinga
+
+Worker-rettinga registrerer tidspunktet når eit faktisk adapterforsøk startar, og lagrar det med Succeeded-, Failed- eller Manual Review-utfallet. Feltet blir oppdatert ved nye forsøk, men ikkje ved claim åleine eller når feature-flagget avbryt worker før adapterkallet. Uventa feil som rullar tilbake worker-transaksjonen kan også rulle tilbake tidsstempelet; feltet er ikkje ei separat callout-auditløysing.
+
+Etter godkjend deploy skal ein ny mock-jobb som er ferdigbehandla ha Last Attempt Date. Dette må kontrollerast med ein ny jobb; rettinga fyller ikkje inn historiske verdiar. Sjå [testloggen](test-log.md) for gjeldande deploy- og verifikasjonsstatus.

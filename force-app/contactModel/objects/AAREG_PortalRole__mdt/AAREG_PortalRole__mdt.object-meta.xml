@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Roles offered in the Aa-register entry portal. Each role has its own Experience Cloud page, context type and feature flag. Spec: docs/architecture/kontaktmodell/inngangsportal.md.</description>
+    <label>AAREG Portal Role</label>
+    <pluralLabel>AAREG Portal Roles</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

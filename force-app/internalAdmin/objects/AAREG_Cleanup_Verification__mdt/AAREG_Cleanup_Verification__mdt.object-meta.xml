@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Evidence that a removed or deprecated component is deleted from one environment. Created with npm run metadata:verify from the export in the cleanup overview and reviewed in a pull request.</description>
+    <label>AAREG Cleanup Verification</label>
+    <pluralLabel>AAREG Cleanup Verifications</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

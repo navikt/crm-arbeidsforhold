@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>AAREG_CheckObjectTypeNamingTest</label>
+    <protected>false</protected>
+    <values>
+        <field>Metadata_Type__c</field>
+        <value xsi:type="xsd:string">ApexClass</value>
+    </values>
+    <values>
+        <field>Component_Name__c</field>
+        <value xsi:type="xsd:string">AAREG_CheckObjectTypeNamingTest</value>
+    </values>
+    <values>
+        <field>Status__c</field>
+        <value xsi:type="xsd:string">Scheduled_Deletion</value>
+    </values>
+    <values>
+        <field>Replacement__c</field>
+        <value xsi:type="xsd:string">AAREG_checkObjectTypeNamecheTest</value>
+    </values>
+    <values>
+        <field>Reason__c</field>
+        <value xsi:type="xsd:string">Duplicate test class removed from the repository. Package upgrades do not delete it from orgs; follow the runbook.</value>
+    </values>
+    <values>
+        <field>Issue_Url__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Runbook_Url__c</field>
+        <value xsi:type="xsd:string">https://github.com/navikt/crm-arbeidsforhold/blob/main/docs/operations/salesforce-metadata-cleanup-runbook.md</value>
+    </values>
+</CustomMetadata>

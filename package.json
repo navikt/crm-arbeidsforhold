@@ -4,7 +4,9 @@
     "version": "1.0.0",
     "scripts": {
         "test": "npm run test:node && npm run test:unit --",
-        "test:node": "node --test bin/tests/create-scratch-org-launcher.test.js bin/tests/check-sfdx-versions.test.js bin/tests/package-dependencies.test.js scripts/tests/pre-commit.test.cjs scripts/tests/ci-changes.test.cjs scripts/tests/ci-workflows.test.cjs scripts/tests/ci-scratch-plan.test.cjs scripts/tests/ci-scratch-org-maintenance.test.cjs scripts/tests/ci-scratch-org-replace.test.cjs scripts/tests/ci-pr-guard.test.cjs scripts/tests/ci-pr-evidence.test.cjs scripts/tests/post-merge-review-audit.test.cjs scripts/tests/prettier-staged.test.cjs",
+        "metadata:inventory": "node scripts/metadata-inventory.cjs",
+        "metadata:verify": "node scripts/metadata-cleanup-verify.cjs",
+        "test:node": "node --test bin/tests/create-scratch-org-launcher.test.js bin/tests/check-sfdx-versions.test.js bin/tests/package-dependencies.test.js scripts/tests/pre-commit.test.cjs scripts/tests/ci-changes.test.cjs scripts/tests/ci-workflows.test.cjs scripts/tests/ci-scratch-plan.test.cjs scripts/tests/ci-scratch-org-maintenance.test.cjs scripts/tests/ci-scratch-org-replace.test.cjs scripts/tests/ci-pr-guard.test.cjs scripts/tests/ci-pr-evidence.test.cjs scripts/tests/post-merge-review-audit.test.cjs scripts/tests/prettier-staged.test.cjs scripts/tests/p360-scratch-contract.test.cjs scripts/tests/aareg-admin-scratch.test.cjs scripts/tests/contact-model.test.cjs scripts/tests/metadata-inventory.test.cjs scripts/tests/metadata-cleanup-verify.test.cjs",
         "test:scratch-org:powershell": "pwsh -NoLogo -NoProfile -File bin/tests/create-scratch-org.Tests.ps1 && pwsh -NoLogo -NoProfile -File bin/tests/post-package-coverage-check.Tests.ps1",
         "test:dependency-report": "jest --config bin/tests/package-dependency-report.jest.config.cjs --runInBand",
         "test:unit": "sfdx-lwc-jest",
@@ -18,9 +20,14 @@
         "prettier:check": "prettier --check --no-error-on-unmatched-pattern \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
         "prepare": "husky",
         "precommit": "lint-staged",
-        "lint-staged": "lint-staged"
+        "lint-staged": "lint-staged",
+        "p360:scratch": "node scripts/p360-scratch-contract.cjs",
+        "admin:scratch": "node scripts/aareg-admin-scratch.cjs",
+        "contact-model": "node scripts/contact-model.cjs",
+        "e2e:contact-model": "playwright test --config e2e/contact-model/playwright.config.ts"
     },
     "devDependencies": {
+        "@playwright/test": "^1.65.1",
         "@prettier/plugin-xml": "^3.4.2",
         "@sa11y/jest": "^8.4.0",
         "@salesforce/sfdx-lwc-jest": "^8.0.0",

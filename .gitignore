@@ -246,3 +246,8 @@ crm-henvendelse-base/**
 !crm-henvendelse-base/README.md
 crm-henvendelse/**
 !crm-henvendelse/README.md
+
+# Playwright contact-model e2e
+e2e/contact-model/.auth/
+e2e/contact-model/test-results/
+e2e/contact-model/playwright-report/
