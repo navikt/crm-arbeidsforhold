@@ -66,6 +66,11 @@ README-struktur og dokumentasjonsstandarder håndheves gjennom repository-instru
 | [Arkitekturprinsipp, lagdeling og namnestandard](arkitekturprinsipp-lagdeling-og-namnestandard.md) | Normativ side for lagdeling, designprinsipp og navnestandard                                     | Speilkopi           |
 | [Repositorystruktur](repositorystruktur.md)                                                        | `domain/`, `integration/`, `surfaces/`, `tests/` under `force-app`                               | UTKAST              |
 | [P360 datamodell og asynkron arkiveringsjobb](p360-data-model-og-arkiveringsjob.md)                | `Access_Request__c`-hierarki og P360-jobbmodell                                                  | Delvis implementert |
+| [Handbok](aaregisteret-handbok.md)                                                                 | Startside for produktet, brukarvegane og korleis delane heng saman                               |                     |
+| [Kjeldekart og teststrategi](arbeidsforhold-kjeldekart-og-teststrategi.md)                         | Kjeldesporing og konkrete testscenario                                                           |                     |
+| [Flow-katalog](aareg-flow-katalog.md)                                                              | Kva kvar Flow gjer                                                                               |                     |
+| [Flow-diagram](aareg-flow-diagrammer.md)                                                           | Grupperte diagram for Flow-ane                                                                   |                     |
+| [Pakkekallstader](aaregisteret-pakkekallsite-matrise.md)                                           | Kvar pakkeavhengigheitene blir brukte i kjelda                                                   |                     |
 
 Integrasjonsspesifikk dokumentasjon ligger under [docs/integrations/](../integrations/README.md).
 Domenedokumentasjon ligger under [docs/domain/](../domain/README.md), brukerflater under [docs/surfaces/](../surfaces/README.md) og utviklingsstandarder i [docs/utviklingsstandarder.md](../utviklingsstandarder.md).

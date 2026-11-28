@@ -2,9 +2,18 @@ name: Salesforce validation
 
 on:
     workflow_call:
+        secrets:
+            CRM_PROD_SFDX_URL:
+                required: true
+            CRM_PACKAGE_KEY:
+                required: false
+            CI_SCRATCH_ORG_AUTH_URL:
+                required: false
 
 permissions:
     contents: read
+    pull-requests: read
+    actions: read
 
 jobs:
     changes:
@@ -36,9 +45,24 @@ jobs:
     salesforce:
         name: Salesforce validation
         needs: changes
-        if: needs.changes.outputs.salesforce == 'true'
-        uses: navikt/crm-workflows-base/.github/workflows/validate.yml@aad6b4f48e419d71490db436da697cd7581a2c6a
-        secrets: inherit
+        if: >-
+            needs.changes.outputs.salesforce == 'true' &&
+            github.event.pull_request.base.ref == 'main' &&
+            github.event.pull_request.head.repo.full_name == github.repository
+        uses: ./.github/workflows/ci-reusable-scratch-org.yml
+        permissions:
+            contents: read
+            pull-requests: read
+            actions: read
+        with:
+            pull_number: ${{ github.event.pull_request.number }}
+            head_sha: ${{ github.event.pull_request.head.sha }}
+            base_sha: ${{ github.event.pull_request.base.sha }}
+            merge_sha: ${{ github.sha }}
+        secrets:
+            CRM_PROD_SFDX_URL: ${{ secrets.CRM_PROD_SFDX_URL }}
+            CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
+            CI_SCRATCH_ORG_AUTH_URL: ${{ secrets.CI_SCRATCH_ORG_AUTH_URL }}
 
     compile:
         name: Compile Metadata
@@ -51,14 +75,23 @@ jobs:
                   CHANGES_RESULT: ${{ needs.changes.result }}
                   RELEVANT: ${{ needs.changes.outputs.salesforce }}
                   VALIDATION_RESULT: ${{ needs.salesforce.result }}
+                  BASE_REF: ${{ github.event.pull_request.base.ref }}
+                  HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+                  REPOSITORY: ${{ github.repository }}
               run: |
                   test "$CHANGES_RESULT" = success
                   if [ "$RELEVANT" = false ]; then
                     test "$VALIDATION_RESULT" = skipped
                     echo "No Salesforce changes; metadata compilation is not required."
-                  else
-                    test "$RELEVANT" = true
+                  elif [ "$RELEVANT" = true ]; then
+                    if [ "$BASE_REF" != main ] || [ "$HEAD_REPOSITORY" != "$REPOSITORY" ]; then
+                      echo "::error::Salesforce changes require a same-repository PR targeting main for validation."
+                      exit 1
+                    fi
                     test "$VALIDATION_RESULT" = success
+                  else
+                    echo "::error::Salesforce change classification is invalid."
+                    exit 1
                   fi
 
     run-tests:
