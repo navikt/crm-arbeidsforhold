@@ -90,13 +90,13 @@ function queueRoute(runs, listJobs, current, limit = 2) {
     return { route: 'reuse', waiting: count, reason: '' };
 }
 
-function verifyMergeCommit(commits, mergeSha, baseSha, headSha) {
+function verifyMergeCommit(commits, mergeSha, baseSha, headSha, isNewerMain = () => false) {
     if (
         !Array.isArray(commits) ||
         commits.length !== 3 ||
-        [mergeSha, baseSha, headSha].some((sha) => !commitPattern.test(sha ?? '')) ||
+        [mergeSha, baseSha, headSha, commits[1]].some((sha) => !commitPattern.test(sha ?? '')) ||
         commits[0] !== mergeSha ||
-        commits[1] !== baseSha ||
+        (commits[1] !== baseSha && !isNewerMain(commits[1])) ||
         commits[2] !== headSha
     ) {
         throw new Error('The checked-out PR merge commit does not match the captured base and head.');
@@ -200,7 +200,34 @@ function getCurrentPullRequest(args, repository) {
     }
     const expected = { number: Number(args[1]), headSha: args[2], baseSha: args[3] };
     const pull = githubApi(`repos/${repository}/pulls/${expected.number}`);
+    const currentBase = pull?.base?.sha;
+    if (
+        commitPattern.test(expected.baseSha ?? '') &&
+        commitPattern.test(currentBase ?? '') &&
+        currentBase !== expected.baseSha &&
+        mainMovedForward(repository, expected.baseSha, currentBase)
+    ) {
+        expected.baseSha = currentBase;
+    }
     return isCurrentPullRequest(pull, expected, repository);
+}
+
+function mainMovedForward(repository, capturedBase, currentBase) {
+    try {
+        const comparison = githubApi(`repos/${repository}/compare/${capturedBase}...${currentBase}`);
+        return comparison?.status === 'ahead' && comparison?.behind_by === 0;
+    } catch {
+        return false;
+    }
+}
+
+function isGitAncestor(ancestor, descendant) {
+    try {
+        execFileSync('git', ['merge-base', '--is-ancestor', ancestor, descendant], { stdio: 'ignore' });
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 async function main(args) {
@@ -267,7 +294,12 @@ async function main(args) {
         const commits = execFileSync('git', ['rev-list', '--parents', '-n', '1', 'HEAD'], { encoding: 'utf8' })
             .trim()
             .split(/\s+/);
-        verifyMergeCommit(commits, args[1], args[2], args[3]);
+        const capturedBase = args[2];
+        const isNewerMain = (parent) =>
+            commitPattern.test(capturedBase) &&
+            isGitAncestor(capturedBase, parent) &&
+            isGitAncestor(parent, 'refs/remotes/origin/main');
+        verifyMergeCommit(commits, args[1], capturedBase, args[3], isNewerMain);
         return;
     }
     throw new Error(

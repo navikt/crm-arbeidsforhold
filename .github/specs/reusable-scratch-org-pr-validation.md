@@ -195,6 +195,7 @@ fram.
 - **REQ-121:** Fork-PR-ar får ikkje tilgang til secrets og køyrer ikkje Salesforce-validering.
 - **REQ-122:** Skript som tek avgjerder blir henta frå base-commiten, ikkje frå PR-en.
 - **REQ-123:** Ingen secrets, auth-URL-ar, brukarnamn, org-ID-ar eller testdata med persondata blir skrivne til oppsummering, annotasjonar eller artefakt.
+- **REQ-124:** Valideringa held fram når `main` har fått nye commits etter at ho vart sett i kø, så lenge PR-head er uendra. Base-commiten i merge-commiten må då byggje vidare på den fanga base-commiten og liggje på `main`. Ny push til PR-en, ein base som ikkje byggjer vidare, eller ein annan target-branch stoppar framleis valideringa.
 
 ### Lesbar output
 
