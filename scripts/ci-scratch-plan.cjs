@@ -3,6 +3,8 @@ const { spawn } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const EXCLUDED_SOURCE_DIRECTORIES = new Set(['unpackagable', 'unpackagable-with-auto-deploy', 'scratch-org']);
+
 function verifyScratchOrg(orgId, expiration, records) {
     if (typeof orgId !== 'string' || typeof expiration !== 'string' || !Array.isArray(records)) {
         throw new Error('Cannot verify scratch org records.');
@@ -84,6 +86,10 @@ function readPlan(project, selectedVersions) {
                 plan.push({
                     name: dependency.package,
                     versionId: record.SubscriberPackageVersionId,
+                    ...(typeof record.Package2Id === 'string' ? { packageId: record.Package2Id } : {}),
+                    ...(typeof record.SubscriberPackageId === 'string'
+                        ? { subscriberPackageId: record.SubscriberPackageId }
+                        : {}),
                     requiresKey: project.packageKeyConfig?.[dependency.package] !== false
                 });
             }
@@ -91,6 +97,60 @@ function readPlan(project, selectedVersions) {
     }
     if (plan.length === 0) throw new Error('No package dependencies found.');
     return plan;
+}
+
+function addSubscriberPackageIds(selectedVersions, packageRecords) {
+    if (!selectedVersions || typeof selectedVersions !== 'object' || Array.isArray(selectedVersions)) {
+        throw new Error('Cannot map subscriber package IDs without a selected package plan.');
+    }
+    if (!Array.isArray(packageRecords)) throw new Error('Cannot read subscriber package IDs from Package2 records.');
+
+    const plannedIds = new Set(
+        Object.values(selectedVersions)
+            .map((record) => record?.Package2Id)
+            .filter((id) => typeof id === 'string')
+    );
+    const subscriberIds = new Map();
+    for (const record of packageRecords) {
+        if (!plannedIds.has(record?.Id)) continue;
+        if (
+            typeof record.SubscriberPackageId !== 'string' ||
+            !/^033[a-zA-Z0-9]{12}([a-zA-Z0-9]{3})?$/.test(record.SubscriberPackageId)
+        ) {
+            throw new Error(`Package2 record ${record.Id} has no valid SubscriberPackageId.`);
+        }
+        subscriberIds.set(record.Id, record.SubscriberPackageId);
+    }
+
+    return Object.fromEntries(
+        Object.entries(selectedVersions).map(([name, record]) => {
+            if (
+                typeof record?.Package2Id !== 'string' ||
+                !/^0Ho[a-zA-Z0-9]{12}([a-zA-Z0-9]{3})?$/.test(record.Package2Id)
+            ) {
+                throw new Error(`Package ${name} has no valid Package2Id.`);
+            }
+            const subscriberPackageId = subscriberIds.get(record.Package2Id);
+            if (!subscriberPackageId) {
+                throw new Error(`Missing SubscriberPackageId for planned package ${record.Package2Id}.`);
+            }
+            return [name, { ...record, SubscriberPackageId: subscriberPackageId }];
+        })
+    );
+}
+
+function stageDeployableSource(sourceDirectory, destinationDirectory) {
+    if (!fs.statSync(sourceDirectory).isDirectory()) throw new Error('Salesforce source path must be a directory.');
+    fs.mkdirSync(path.dirname(destinationDirectory), { recursive: true });
+    fs.cpSync(sourceDirectory, destinationDirectory, {
+        recursive: true,
+        filter(source) {
+            const relative = path.relative(sourceDirectory, source);
+            const firstSegment = relative.split(path.sep)[0];
+            return !EXCLUDED_SOURCE_DIRECTORIES.has(firstSegment);
+        }
+    });
+    return destinationDirectory;
 }
 
 function scratchFingerprint(projectFile, definitionFile) {
@@ -272,33 +332,37 @@ function coverageRecords(data) {
     return records;
 }
 
-async function installPlan(plan, targetOrg, packageKey, run) {
+function installArguments(entry, targetOrg, packageKey) {
+    if (!entry.name || !entry.versionId || typeof entry.requiresKey !== 'boolean') {
+        throw new Error('Invalid package installation plan.');
+    }
+    if (entry.requiresKey && !packageKey) {
+        throw new Error(`Package installation key is required for ${entry.name}.`);
+    }
+    const args = [
+        'package',
+        'install',
+        '--target-org',
+        targetOrg,
+        '--package',
+        entry.versionId,
+        '--no-prompt',
+        '--wait',
+        '15',
+        '--publish-wait',
+        '10'
+    ];
+    if (entry.requiresKey) args.push('--installation-key', packageKey);
+    return args;
+}
+
+async function installPackageVersions(plan, targetOrg, packageKey, run) {
     if (!Array.isArray(plan) || plan.length === 0 || !targetOrg || typeof run !== 'function') {
         throw new Error('A package plan, target org and command runner are required.');
     }
     for (const entry of plan) {
-        if (!entry.name || !entry.versionId || typeof entry.requiresKey !== 'boolean') {
-            throw new Error('Invalid package installation plan.');
-        }
-        if (entry.requiresKey && !packageKey) {
-            throw new Error(`Package installation key is required for ${entry.name}.`);
-        }
-        const args = [
-            'package',
-            'install',
-            '--target-org',
-            targetOrg,
-            '--package',
-            entry.versionId,
-            '--no-prompt',
-            '--wait',
-            '15',
-            '--publish-wait',
-            '10'
-        ];
-        if (entry.requiresKey) args.push('--installation-key', packageKey);
         try {
-            await run(args);
+            await run(installArguments(entry, targetOrg, packageKey));
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             throw new Error(
@@ -306,6 +370,9 @@ async function installPlan(plan, targetOrg, packageKey, run) {
             );
         }
     }
+}
+
+async function readInstalledPackages(targetOrg, packageKey, run) {
     let output;
     try {
         output = await run(['package', 'installed', 'list', '--target-org', targetOrg, '--json'], { quiet: true });
@@ -325,23 +392,141 @@ async function installPlan(plan, targetOrg, packageKey, run) {
     if (response?.status !== undefined && response.status !== 0) {
         throw new Error('Salesforce CLI returned a failed installed package list response.');
     }
-    const mismatch = compareInstalledVersions(plan, response?.result);
-    if (mismatch) {
-        const details = [];
-        if (mismatch.missing?.length) {
-            details.push(
-                `Missing: ${mismatch.missing.map((entry) => `${entry.name} (${entry.versionId})`).join(', ')}.`
-            );
-        }
-        if (mismatch.unexpected?.length) {
-            details.push(`Unexpected: ${mismatch.unexpected.join(', ')}.`);
-        }
-        throw new Error([mismatch.reason, ...details].join(' '));
+    return response?.result;
+}
+
+function packageMismatchMessage(mismatch) {
+    const details = [];
+    if (mismatch.missing?.length) {
+        details.push(`Missing: ${mismatch.missing.map((entry) => `${entry.name} (${entry.versionId})`).join(', ')}.`);
     }
+    if (mismatch.unexpected?.length) {
+        details.push(`Unexpected: ${mismatch.unexpected.join(', ')}.`);
+    }
+    return [mismatch.reason, ...details].join(' ');
+}
+
+async function installPlan(plan, targetOrg, packageKey, run) {
+    await installPackageVersions(plan, targetOrg, packageKey, run);
+    const installed = await readInstalledPackages(targetOrg, packageKey, run);
+    const mismatch = compareInstalledVersions(plan, installed);
+    if (mismatch) {
+        throw new Error(packageMismatchMessage(mismatch));
+    }
+}
+
+async function reconcileInstalledPackages(plan, installed, targetOrg, packageKey, run) {
+    if (!Array.isArray(plan) || plan.length === 0 || !targetOrg || typeof run !== 'function') {
+        throw new Error('A package plan, target org and command runner are required.');
+    }
+    const mismatch = compareInstalledVersions(plan, installed);
+    if (!mismatch) return { changed: [] };
+
+    if (plan.some((entry) => !entry.subscriberPackageId)) {
+        throw new Error('Package versions cannot be reconciled safely without SubscriberPackageId mappings.');
+    }
+    const plannedPackageIds = new Set(plan.map((entry) => entry.subscriberPackageId));
+    const expectedVersions = new Set(plan.map((entry) => entry.versionId));
+    const unexpectedPackages = installed.filter(
+        (entry) =>
+            !expectedVersions.has(entry.SubscriberPackageVersionId) &&
+            (!entry.SubscriberPackageId || !plannedPackageIds.has(entry.SubscriberPackageId))
+    );
+    if (unexpectedPackages.length) {
+        throw new Error('Package versions cannot be reconciled in place; a replacement org is required.');
+    }
+
+    const missingVersions = new Set(mismatch.missing.map((entry) => entry.versionId));
+    const updates = plan.filter((entry) => missingVersions.has(entry.versionId));
+    if (updates.length === 0) {
+        throw new Error('Package versions cannot be reconciled in place; a replacement org is required.');
+    }
+
+    await installPackageVersions(updates, targetOrg, packageKey, run);
+    const updated = await readInstalledPackages(targetOrg, packageKey, run);
+    const remaining = compareInstalledVersions(plan, updated);
+    if (remaining) {
+        throw new Error(`Package versions cannot be reconciled in place. ${packageMismatchMessage(remaining)}`);
+    }
+    return { changed: updates.map((entry) => entry.name) };
 }
 
 function readJson(filename) {
     return JSON.parse(fs.readFileSync(filename, 'utf8'));
+}
+
+function diagnosticSecrets(environment = process.env) {
+    return Object.entries(environment)
+        .filter(
+            ([name, value]) =>
+                /KEY|TOKEN|PASSWORD|SECRET|AUTH_URL/i.test(name) && typeof value === 'string' && value.length >= 4
+        )
+        .map(([, value]) => value);
+}
+
+function safeDiagnostics(messages, secrets) {
+    return [...new Set(messages.filter((message) => typeof message === 'string' && message.trim()))]
+        .slice(0, 30)
+        .map((message) => {
+            let safe = message;
+            for (const secret of secrets) {
+                if (secret) safe = safe.replaceAll(secret, '[REDACTED]');
+            }
+            return safe
+                .replace(/\b(?:force|https?):\/\/\S+/gi, '[URL REDACTED]')
+                .replace(
+                    /\b(access[_-]?token|refresh[_-]?token|client[_-]?secret|password|authorization)\s*[:=]\s*(?:bearer\s+)?(?:"[^"]*"|'[^']*'|\S+)/gi,
+                    '$1=[REDACTED]'
+                )
+                .replace(/\b\d{11}\b/g, '[REDACTED]')
+                .replace(/[\x00-\x1f\x7f]/g, ' ')
+                .replaceAll('::', ': :')
+                .slice(0, 1000);
+        })
+        .join('\n');
+}
+
+function deploymentDiagnostics(output, secrets = diagnosticSecrets()) {
+    let response;
+    try {
+        response = JSON.parse(output);
+    } catch (error) {
+        if (!(error instanceof SyntaxError)) throw error;
+        return 'Salesforce CLI failed without valid JSON deployment diagnostics.';
+    }
+    const asArray = (value) => (Array.isArray(value) ? value : value && typeof value === 'object' ? [value] : []);
+    const details = response?.result?.details;
+    const result = details?.runTestResult;
+    const messages = [
+        response?.message,
+        response?.result?.message,
+        ...asArray(details?.componentFailures).map((entry) => entry?.problem),
+        ...asArray(result?.failures).map((entry) => entry?.message),
+        ...asArray(result?.codeCoverageWarnings).map((entry) =>
+            entry?.name ? `${entry.name}: ${entry.message ?? ''}` : entry?.message
+        )
+    ];
+    return safeDiagnostics(messages, secrets) || 'Salesforce deployment failed without selected diagnostic messages.';
+}
+
+function packageDiagnostics(output, secrets = diagnosticSecrets()) {
+    const lines = output
+        .split(/\r?\n/)
+        .filter((line) =>
+            /^(Failed to install |Could not verify installed package versions:|Package versions cannot be reconciled|Missing:|Unexpected:)/.test(
+                line
+            )
+        );
+    return safeDiagnostics(lines, secrets) || 'Package reconciliation failed without selected diagnostic messages.';
+}
+
+function coverageDiagnostics(output, secrets = diagnosticSecrets()) {
+    const lines = output
+        .split(/\r?\n/)
+        .filter((line) =>
+            /^(Repository Apex coverage |Apex coverage data |Invalid coverage data |No Apex coverage )/.test(line)
+        );
+    return safeDiagnostics(lines, secrets) || 'Coverage validation failed without selected diagnostic messages.';
 }
 
 function commandRunner(args, packageKey = '', { quiet = false } = {}) {
@@ -405,6 +590,31 @@ async function main(args) {
         process.stdout.write('Installed package versions match the package plan.\n');
         return;
     }
+    if (command === 'reconcile' && values.length === 4) {
+        const [projectFile, planFile, installedFile, targetOrg] = values;
+        const plan = readPlan(readJson(projectFile), readJson(planFile));
+        const installed = readJson(installedFile).result;
+        const result = await reconcileInstalledPackages(
+            plan,
+            installed,
+            targetOrg,
+            process.env.CRM_PACKAGE_KEY ?? '',
+            (installArgs, options) => commandRunner(installArgs, process.env.CRM_PACKAGE_KEY ?? '', options)
+        );
+        process.stdout.write(
+            result.changed.length
+                ? `Updated package versions: ${result.changed.join(', ')}.\n`
+                : 'Installed package versions already match the package plan.\n'
+        );
+        return;
+    }
+    if (command === 'map-package-ids' && values.length === 2) {
+        const [planFile, packageRecordsFile] = values;
+        const plan = readJson(planFile);
+        const records = readJson(packageRecordsFile).result?.records;
+        fs.writeFileSync(planFile, JSON.stringify(addSubscriberPackageIds(plan, records)));
+        return;
+    }
     if (command === 'tests' && values.length === 1) {
         process.stdout.write(`${JSON.stringify(getApexTestClassNames(values[0]))}\n`);
         return;
@@ -429,11 +639,21 @@ async function main(args) {
         process.stdout.write(`${JSON.stringify(result)}\n`);
         return;
     }
+    if (command === 'diagnostics' && values.length === 2) {
+        const [kind, file] = values;
+        const output = fs.readFileSync(file, 'utf8');
+        if (kind === 'deployment') process.stdout.write(`${deploymentDiagnostics(output)}\n`);
+        else if (kind === 'package') process.stdout.write(`${packageDiagnostics(output)}\n`);
+        else throw new Error('Unsupported diagnostics type.');
+        return;
+    }
     if (command === 'fingerprint' && values.length === 2) {
         process.stdout.write(`${scratchFingerprint(values[0], values[1])}\n`);
         return;
     }
-    throw new Error('Usage: ci-scratch-plan.cjs verify-scratch|route|install|tests|coverage|fingerprint <arguments>');
+    throw new Error(
+        'Usage: ci-scratch-plan.cjs verify-scratch|route|install|reconcile|map-package-ids|tests|coverage|fingerprint <arguments>'
+    );
 }
 
 if (require.main === module) {
@@ -445,16 +665,23 @@ if (require.main === module) {
 
 module.exports = {
     calculateCoverage,
+    coverageDiagnostics,
+    deploymentDiagnostics,
+    diagnosticSecrets,
     changedSourcesWithoutCoverage,
     coverageMarkdown,
     coverageRecords,
+    addSubscriberPackageIds,
     missingCoverageFromList,
     getApexCoverageNames,
     getApexTestClassNames,
     installPlan,
+    packageDiagnostics,
+    reconcileInstalledPackages,
     isForceIgnored,
     readPlan,
     scratchFingerprint,
+    stageDeployableSource,
     selectRoute,
     verifyScratchOrg
 };

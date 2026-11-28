@@ -8,6 +8,7 @@ const { scratchFingerprint } = require('../ci-scratch-plan.cjs');
 
 const directory = path.resolve(__dirname, '../../.github/workflows');
 const readWorkflow = (name) => fs.readFileSync(path.join(directory, name), 'utf8').replace(/\r\n/g, '\n');
+const readScript = (name) => fs.readFileSync(path.resolve(__dirname, '..', name), 'utf8').replace(/\r\n/g, '\n');
 
 test('package creation runs on main for metadata and package configuration changes', () => {
     const source = readWorkflow('push_create-package1.yml');
@@ -204,6 +205,32 @@ test('only the reusable org job is locked and protected; the new-org job runs wi
     );
 });
 
+test('scheduled scratch-org maintenance keeps the validation lock and only notifies owners when replacement is needed', () => {
+    const source = readWorkflow('ci-maintain-scratch-org.yml');
+    assert.match(source, /schedule:\n {8}- cron: '0 5 \* \* \*'/);
+    assert.match(source, /workflow_dispatch:/);
+    assert.match(source, /github\.ref == 'refs\/heads\/main'/);
+    assert.match(source, /environment: ci-scratch-org/);
+    assert.match(
+        source,
+        /concurrency:\n {12}group: crm-arbeidsforhold-reusable-scratch-org\n {12}cancel-in-progress: false\n {12}queue: max/
+    );
+    assert.match(source, /^permissions:\n {4}contents: read\n {4}issues: write$/m);
+    assert.match(source, /ci-scratch-org-maintenance\.cjs/);
+    assert.match(source, /--dev-hub ci-devhub/);
+    assert.doesNotMatch(
+        source,
+        /target-dev-hub|sf org create scratch|sf org delete scratch|show-sfdx-auth-url|HANDOFF_PUBLIC_KEY/
+    );
+    assert.doesNotMatch(source, /actions: write|contents: write|pull-requests: write|secrets: inherit/);
+    assert.match(source, /GITHUB_STEP_SUMMARY/);
+    assert.match(source, /Action needed:.*\$reason/);
+
+    const notice = readScript('ci-scratch-org-maintenance.cjs');
+    assert.match(notice, /@navikt\/crm-arbeidsforhold-admin/);
+    assert.match(notice, /reusable-scratch-org-validation\.md/);
+});
+
 test('PR checks run from trusted base scripts before any Salesforce credential is used', () => {
     const source = reusableWorkflow();
     const prepare = jobSection(source, 'prepare');
@@ -354,6 +381,109 @@ test('both routes exclude the non-package sources before validation', () => {
         assert.ok(section.indexOf(`- name: ${exclude}`) < section.indexOf(`- name: ${validate}`), job);
     }
 });
+
+test('maintenance always validates recovered package plans without persisting metadata', () => {
+    const source = readWorkflow('ci-maintain-scratch-org.yml');
+    const smokeStart = source.indexOf('- name: Smoke-test updated registered org');
+    const smokeEnd = source.indexOf('- name: Notify repository owners', smokeStart);
+    assert.ok(smokeStart >= 0 && smokeEnd > smokeStart);
+    const smoke = source.slice(smokeStart, smokeEnd);
+    const mappingMarkers = [
+        'sf data query --target-org ci-devhub --use-tooling-api',
+        'ci-scratch-plan.cjs map-package-ids',
+        'sf package installed list --target-org ci-reuse'
+    ].map((marker) => source.indexOf(marker));
+    assert.ok(
+        mappingMarkers.every(
+            (index, position) => index >= 0 && (position === 0 || index > mappingMarkers[position - 1])
+        ),
+        mappingMarkers.join()
+    );
+    assert.match(source, /SELECT Id, SubscriberPackageId FROM Package2/);
+    assert.match(
+        source,
+        /if: steps\.plan\.outputs\.needs_replacement == 'false' && steps\.reconcile\.outcome == 'success' && steps\.reconcile\.outputs\.needs_replacement == 'false'/
+    );
+    assert.doesNotMatch(smoke, /packages_changed/);
+    assert.match(smoke, /sf project deploy start --dry-run/);
+    assert.match(smoke, /--test-level RunSpecifiedTests/);
+    assert.match(smoke, /test_arguments\+=\(--tests "\$test_class"\)/);
+    assert.match(smoke, /--coverage-formatters json/);
+    assert.match(smoke, /ci-scratch-plan\.cjs coverage/);
+    assert.doesNotMatch(smoke, /sf apex run test/);
+    assert.match(source, /SMOKE_OUTCOME.*steps\.smoke\.outcome/);
+});
+
+test('maintenance exposes scratch credentials only to the authentication step', () => {
+    const source = readWorkflow('ci-maintain-scratch-org.yml');
+    const planStart = source.indexOf('- name: Resolve current package plan');
+    const planEnd = source.indexOf('- name: Reconcile installed package versions', planStart);
+    assert.ok(planStart >= 0 && planEnd > planStart);
+    const secretAssignment = 'CI_SCRATCH_ORG_AUTH_URL: ${{ secrets.CI_SCRATCH_ORG_AUTH_URL }}';
+    assert.equal(source.split(secretAssignment).length - 1, 1);
+    assert.ok(source.slice(planStart, planEnd).includes(secretAssignment));
+});
+
+test(
+    'maintenance closes an existing notice only after explicit successful checks',
+    { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
+    (context) => {
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-maintenance-notice-'));
+        context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+        const node = path.join(directory, 'node');
+        fs.writeFileSync(node, '#!/bin/sh\nprintf "%s\\n" "$2" > "$NOTICE_ACTION"\n', { mode: 0o755 });
+        const script = stepScript(readWorkflow('ci-maintain-scratch-org.yml'), 'Notify repository owners');
+        const normal = {
+            INSPECT_OUTCOME: 'success',
+            INSPECT_NEEDS_REPLACEMENT: 'false',
+            RECONCILE_OUTCOME: 'success',
+            RECONCILE_NEEDS_REPLACEMENT: 'false',
+            SMOKE_OUTCOME: 'success',
+            SMOKE_NEEDS_REPLACEMENT: 'false'
+        };
+        const cases = [
+            [{}, 'resolve'],
+            [{ SMOKE_OUTCOME: 'cancelled', SMOKE_NEEDS_REPLACEMENT: '' }, 'ensure'],
+            [{ SMOKE_OUTCOME: 'skipped', SMOKE_NEEDS_REPLACEMENT: '' }, 'ensure'],
+            [{ RECONCILE_OUTCOME: 'skipped', RECONCILE_NEEDS_REPLACEMENT: '' }, 'ensure'],
+            [{ INSPECT_NEEDS_REPLACEMENT: '' }, 'ensure'],
+            [{ SMOKE_NEEDS_REPLACEMENT: '' }, 'ensure']
+        ];
+        for (const [changes, expected] of cases) {
+            const actionFile = path.join(directory, 'action');
+            const summaryFile = path.join(directory, 'summary');
+            fs.writeFileSync(summaryFile, '');
+            const result = spawnSync('/bin/bash', ['-c', script], {
+                encoding: 'utf8',
+                env: {
+                    ...process.env,
+                    ...normal,
+                    ...changes,
+                    PATH: `${directory}:${process.env.PATH}`,
+                    NOTICE_ACTION: actionFile,
+                    GITHUB_STEP_SUMMARY: summaryFile,
+                    INSPECT_REASON: '',
+                    RECONCILE_REASON: '',
+                    SMOKE_REASON: 'Smoke check needs attention.',
+                    GITHUB_SERVER_URL: 'https://github.com',
+                    GITHUB_REPOSITORY: 'example/repo',
+                    GITHUB_RUN_ID: '1'
+                }
+            });
+            assert.equal(result.status, 0, result.stderr);
+            assert.equal(fs.readFileSync(actionFile, 'utf8').trim(), expected, JSON.stringify(changes));
+            const summary = fs.readFileSync(summaryFile, 'utf8');
+            if (expected === 'ensure') {
+                assert.match(summary, /\*\*Action needed:\*\*/);
+                if (changes.SMOKE_OUTCOME === 'cancelled') {
+                    assert.match(summary, /Smoke check needs attention\./);
+                }
+            } else {
+                assert.match(summary, /inspection, package reconciliation and smoke test passed/i);
+            }
+        }
+    }
+);
 
 test(
     'both routes run exactly the repository test classes and enforce 85% coverage',
