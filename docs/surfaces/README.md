@@ -49,6 +49,12 @@ Eksempel:
 - Ekstern API-kontrakt
 - Domeneregler som bør ligge under [Domene](../domain/README.md)
 
+## Sider i repoet
+
+- [Aa-register Admin: plan](aareg-admin-app.md)
+- [Gjennomgang av CRMAAREG-323 mot crm-arbeidsforhold](../context/ekstern-brukerflate/crmaareg-323-gjennomgang.md)
+- [Prompt: harmoniser Jira-saker under CRMAAREG-323](../context/ekstern-brukerflate/prompt-harmoniser-jira.md)
+
 ## Merknader ved speiling
 
 - Kilden har «LWC-komponenterLightning pages» som ett punkt. Dette er tolket som to punkter, «LWC-komponenter» og «Lightning pages», og delt opp her. Verifiser mot Confluence.

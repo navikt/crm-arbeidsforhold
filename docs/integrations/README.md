@@ -33,7 +33,7 @@ Felles byggesteiner som correlation context, felles loggkontekst og generelle ex
 Konkrete integrasjoner dokumenteres på egne undersider, for eksempel:
 
 - [P360](p360/README.md)
-- Altinn
+- [Altinn](altinn/README.md)
 - Brreg
 
 ## Viktig prinsipp

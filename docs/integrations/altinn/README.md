@@ -13,6 +13,7 @@ og testscenarioa; dei er ikkje bevis på at eit live Altinn-kall har lykkast.
 | Sjå forventa brukarvegar og negative testar       | [Scenario-testplan](../../testing/aaregisteret-scenario-testplan.md)                                                          |
 | Sjå tidlegare gjennomgangar og testresultat       | [Arkivert scenariogjennomgang](../../archive/altinn/altinn-scenario-gjennomgang-2026-10.md) og [testlogg](altinn-test-log.md) |
 | Sjå tidlegare plan og designavklaringar           | [Gjennomføringsplan](implementation-plan.md) og [avklaringar](grill.md)                                                       |
+| Sjå bestillinga til crm-platform-integration      | [Overlevering til integrasjonspakka](package-agent-handoff.md)                                                                |
 
 ## Korleis grensene heng saman
 
