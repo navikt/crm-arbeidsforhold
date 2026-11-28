@@ -18,7 +18,9 @@ når du har eit konkret spørsmål.
 | Finne interne og eksterne flater         | [Brukarflater](surfaces/README.md) og [Admin-app: plan og status](surfaces/aareg-admin-app.md)                                                         |
 | Setje opp utviklingsmiljø                | [Utviklarguide](kom-i-gang.md), [skriptguide](../bin/README.md) og [kommandoreferanse](../bin/COMMANDS.md)                                             |
 | Finne drift og leveranse                 | [Metadataopprydding](operations/salesforce-metadata-cleanup-runbook.md), [workflowar](operations/workflows.md) og [støtteskript](../scripts/README.md) |
+| Drifte CI-orgen for PR-validering        | [Gjenbrukbar scratch-org i CI](operations/reusable-scratch-org-validation.md)                                                                          |
 | Lese tekniske val og forslag             | [ADR-register](adr/README.md) og [forbetringsforslag](architecture/forbetringsforslag-og-malmodell.md)                                                 |
+| Sjå alle arkitekturdokument              | [Arkitektur og design](architecture/README.md)                                                                                                         |
 | Finne eldre analysar og testresultat     | [Dokumentasjonsarkivet](archive/README.md)                                                                                                             |
 | Finne standardar og dokumentasjonsansvar | [Utviklingsstandardar](utviklingsstandarder.md) og [arbeidsflyt](arbeidsflyt-og-dokumentasjon.md)                                                      |
 
