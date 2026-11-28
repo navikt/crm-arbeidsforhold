@@ -242,7 +242,7 @@ async function confirmTarget(targetDevHub) {
     const terminal = createInterface({ input: process.stdin, output: process.stdout });
     try {
         const answer = await terminal.question(
-            `This will create and register a replacement CI scratch org using Dev Hub "${targetDevHub}". Type "yes" to continue: `
+            `This will create and register a replacement CI scratch org using Dev Hub ${JSON.stringify(targetDevHub)}. Type "yes" to continue: `
         );
         if (answer.trim() !== 'yes') throw new Error('CI scratch-org replacement cancelled.');
     } finally {
@@ -366,7 +366,11 @@ async function replaceScratchOrg({
     confirm = confirmTarget,
     environment = process.env
 }) {
-    if (typeof targetDevHub !== 'string' || !/^[a-zA-Z0-9._-]+$/.test(targetDevHub)) {
+    if (
+        typeof targetDevHub !== 'string' ||
+        targetDevHub.trim() !== targetDevHub ||
+        !/^[^\s-][^\p{Cc}]*$/u.test(targetDevHub)
+    ) {
         throw new Error('Pass an explicit Salesforce Dev Hub alias with --target-dev-hub.');
     }
     if (!environment.CRM_PACKAGE_KEY) throw new Error('CRM_PACKAGE_KEY must be available in the local environment.');
@@ -402,7 +406,7 @@ async function replaceScratchOrg({
         );
 
         process.stdout.write(
-            `Creating the replacement scratch org with request name ${alias} in Dev Hub ${targetDevHub}.\n`
+            `Creating the replacement scratch org with request name ${alias} in Dev Hub "${targetDevHub}".\n`
         );
         let creationOutput;
         try {
@@ -432,12 +436,12 @@ async function replaceScratchOrg({
                 cleanupFailedCreation(run, targetDevHub, alias, repositoryPath);
             } catch (cleanupError) {
                 throw new Error(
-                    `${error.message} Automatic cleanup could not be confirmed: ${cleanupError.message} Check the Dev Hub ${targetDevHub} for scratch-org creation request ${alias}, including delayed creation, before retrying.`,
+                    `${error.message} Automatic cleanup could not be confirmed: ${cleanupError.message} Check the Dev Hub "${targetDevHub}" for scratch-org creation request ${alias}, including delayed creation, before retrying.`,
                     { cause: error }
                 );
             }
             throw new Error(
-                `${error.message} Cleanup was requested for creation request ${alias}. Check the Dev Hub ${targetDevHub} for delayed creation before retrying.`,
+                `${error.message} Cleanup was requested for creation request ${alias}. Check the Dev Hub "${targetDevHub}" for delayed creation before retrying.`,
                 { cause: error }
             );
         }

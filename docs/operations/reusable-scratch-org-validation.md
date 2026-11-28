@@ -104,6 +104,9 @@ eksisterande Dev Hub-aliasen som du kontrollerte lokalt:
 npm run ci-org:replace -- --target-dev-hub <existing-dev-hub-alias>
 ```
 
+Aliasar med mellomrom må stå i hermeteikn, til dømes
+`--target-dev-hub "NAV DevHub"`.
+
 Kommandoen:
 
 1. hentar `origin/main`, kontrollerer `main` og kjeldeendringar, og verifiserer

@@ -228,6 +228,62 @@ test('deletes a newly created org when its creation response cannot be parsed', 
     assert.ok(calls.some(({ command, args }) => command === 'sf' && args[1] === 'delete'));
 });
 
+test('accepts an existing Dev Hub alias with spaces and passes it as one argument', async () => {
+    const devHubTargets = [];
+    let confirmedTarget;
+    const run = (command, args) => {
+        if (command === 'git' && args[0] === 'remote') return 'https://github.com/navikt/crm-arbeidsforhold.git';
+        if (command === 'git' && args[0] === 'branch') return 'main';
+        if (command === 'git' && args[0] === 'rev-parse') return 'same-commit';
+        if (command === 'git') return '';
+        if (command === 'gh' && args[1] === 'user') return 'repo-owner';
+        if (command === 'gh' && args[1].startsWith('orgs/navikt/teams/')) return 'active';
+        if (command === 'gh' && args[1].includes('/collaborators/')) return 'admin';
+        if (command === process.execPath && args[0] === 'bin/package-dependencies.js') {
+            devHubTargets.push(args[args.indexOf('--dev-hub') + 1]);
+            return '';
+        }
+        if (command === process.execPath && args[0] === 'scripts/ci-scratch-plan.cjs') return 'a'.repeat(64);
+        if (command === 'sf' && args[0] === 'org' && args[1] === 'create') {
+            devHubTargets.push(args[args.indexOf('--target-dev-hub') + 1]);
+            return '{invalid json';
+        }
+        if (command === 'sf' && args[0] === 'org' && args[1] === 'delete') return '';
+        throw new Error(`Unexpected command: ${command} ${args.join(' ')}`);
+    };
+
+    await assert.rejects(
+        replaceScratchOrg({
+            targetDevHub: 'NAV DevHub',
+            repositoryPath: '/repo',
+            run,
+            confirm: async (target) => {
+                confirmedTarget = target;
+            },
+            environment: { CRM_PACKAGE_KEY: 'test-key' }
+        }),
+        /could not parse scratch-org creation/i
+    );
+    assert.equal(confirmedTarget, 'NAV DevHub');
+    assert.deepEqual(devHubTargets, ['NAV DevHub', 'NAV DevHub']);
+});
+
+test('rejects Dev Hub aliases that could be read as options or hide control characters', async () => {
+    for (const targetDevHub of ['', '   ', '-o', '--target-org', 'NAV\nDevHub', ' NAV DevHub']) {
+        await assert.rejects(
+            replaceScratchOrg({
+                targetDevHub,
+                run: () => {
+                    throw new Error('Contacted an external command for an invalid alias.');
+                },
+                confirm: async () => {},
+                environment: { CRM_PACKAGE_KEY: 'test-key' }
+            }),
+            /explicit Salesforce Dev Hub alias/
+        );
+    }
+});
+
 test('cleans up an identifiable creation request after an ambiguous creation failure', async () => {
     const calls = [];
     let candidateName;
