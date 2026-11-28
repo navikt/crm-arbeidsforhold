@@ -14,6 +14,40 @@ Han opprettar, byter eller slettar aldri scratch-orgar. Når org eller pakkeplan
 krev manuell oppfølging, opprettar eller oppdaterer han éi GitHub-issue og
 nemner repo-eigarteamet. Issue blir lukka når kontrollen er grøn igjen.
 
+## Oversikt
+
+```mermaid
+flowchart LR
+    PR[PR opna eller oppdatert] --> V["[PR] Validate"]
+    V --> C{Salesforce-endringar?}
+    C -- nei --> SKIP[Sjekkane blir grøne utan org]
+    C -- ja --> R{Vel rute}
+    R -- CI-org klar --> REUSE[Gjenbruk CI-org]
+    R -- ikkje klar --> FRESH[Ny eingongsorg]
+    REUSE --> RES[Resultat: kompilering, testar, dekning]
+    FRESH --> RES
+    RES --> SUM[Oppsummering i PR og Actions]
+    N["[CI] Maintain CI scratch org"] -.-> ORG[(CI scratch-org)]
+    REUSE -.-> ORG
+```
+
+```mermaid
+flowchart TD
+    start[Dagleg eller manuell kontroll] --> lock[Ta felles org-lås]
+    lock --> inspect[Kontroller registrering, org og pakkeplan]
+    inspect -->|klar| reconcile[Avstem pakkeversjonar]
+    reconcile -->|vellukka| smoke[Check-only deploy, repo-testar og dekning]
+    smoke -->|bestått| close[Lukk eventuell varslingssak]
+    inspect -->|treng oppfølging| issue[Varsle repo-eigarteamet]
+    reconcile -->|feila| issue
+    smoke -->|feila| issue
+    issue --> owner[Repo-admin vurderer og erstattar orgen ved behov]
+    owner --> register[Registrer den nye orgen i GitHub]
+```
+
+PR-valideringa vel fallback dersom orgen ikkje oppfyller rutekrava.
+Kompilerings- og testfeil i sjølve valideringa gir ikkje automatisk fallback.
+
 ## Når må orgen bytast?
 
 Vedlikehaldet varslar når registreringa manglar eller er ufullstendig, orgen
@@ -184,3 +218,6 @@ Dei verifiserer ikkje tilgang til GitHub Environment, Dev Hub, pakkeinstallering
 eller faktisk org-deploy. Første ende-til-ende-verifisering skjer ved at ein
 repo-admin køyrer erstatningskommandoen og kontrollerer at neste PR-validering
 brukar gjenbruksorgen.
+
+Steg 8–10 frå den avslutta piloten er tekne vare på i
+[pilotarkivet](../archive/operations/reusable-scratch-org-pilot-steg-8-10.md).
