@@ -2,6 +2,11 @@ name: Salesforce validation
 
 on:
     workflow_call:
+        inputs:
+            force_fresh:
+                type: boolean
+                required: false
+                default: false
         secrets:
             CRM_PROD_SFDX_URL:
                 required: true
@@ -55,6 +60,7 @@ jobs:
             pull-requests: read
             actions: read
         with:
+            force_fresh: ${{ inputs.force_fresh }}
             pull_number: ${{ github.event.pull_request.number }}
             head_sha: ${{ github.event.pull_request.head.sha }}
             base_sha: ${{ github.event.pull_request.base.sha }}

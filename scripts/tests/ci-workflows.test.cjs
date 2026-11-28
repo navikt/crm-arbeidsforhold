@@ -64,6 +64,27 @@ test('PR validation serializes each PR without cancelling an active run and gran
     assert.doesNotMatch(source, /secrets: inherit/);
 });
 
+test('the ci:fresh-org label validates the PR on a new scratch org without unverified runs', () => {
+    const caller = readWorkflow('pull_request-validation1.yml');
+    assert.match(caller, /types:[\s\S]*?- labeled\n/);
+    const labelGate = "(github.event.action != 'labeled' || github.event.label.name == 'ci:fresh-org')";
+    for (const job of ['verify-pr', 'run-pr-validation']) {
+        assert.ok(jobSection(caller, job).includes(labelGate), job);
+    }
+    assert.match(
+        jobSection(caller, 'run-pr-validation'),
+        /with:\n {12}force_fresh: \$\{\{ contains\(github\.event\.pull_request\.labels\.\*\.name, 'ci:fresh-org'\) \}\}/
+    );
+
+    const salesforceWorkflow = readWorkflow('salesforce-validation.yml');
+    const definition = salesforceWorkflow.slice(0, salesforceWorkflow.indexOf('\njobs:'));
+    assert.match(
+        definition,
+        /inputs:\n {12}force_fresh:\n {16}type: boolean\n {16}required: false\n {16}default: false/
+    );
+    assert.match(jobSection(salesforceWorkflow, 'salesforce'), /force_fresh: \$\{\{ inputs\.force_fresh \}\}/);
+});
+
 test('passes the CI scratch-org auth secret through both reusable workflow boundaries', () => {
     const prValidation = jobSection(readWorkflow('pull_request-validation1.yml'), 'run-pr-validation');
     const salesforceWorkflow = readWorkflow('salesforce-validation.yml');
@@ -81,7 +102,7 @@ test('passes the CI scratch-org auth secret through both reusable workflow bound
 test('Salesforce validation calls the local workflow only for same-repository Salesforce PRs to main', () => {
     const source = readWorkflow('salesforce-validation.yml');
     assert.match(source, /^permissions:\n {4}contents: read\n {4}pull-requests: read\n {4}actions: read$/m);
-    assert.match(source, /workflow_call:\n {8}secrets:\n {12}CRM_PROD_SFDX_URL:\n {16}required: true/);
+    assert.match(source, /workflow_call:\n[\s\S]*?\n {8}secrets:\n {12}CRM_PROD_SFDX_URL:\n {16}required: true/);
     assert.match(source, /CRM_PACKAGE_KEY:\n {16}required: false/);
     assert.match(source, /name: Compile Metadata/);
     assert.match(source, /name: Run Apex Tests/);

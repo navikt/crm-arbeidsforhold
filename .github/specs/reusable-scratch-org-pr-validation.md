@@ -181,6 +181,7 @@ fram.
 - **REQ-106:** Gjenbruksvalideringa og muterande vedlikehald (pakkeoppgradering, sletting og byte av org) brukar den same eksklusive låsen. Etter at låsen er teken, blir tilstanden i REQ-101 kontrollert på nytt før deploy. Avvik gir fallback.
 - **REQ-107:** Når secreten og dei tre variablane ikkje peikar på same org, vel ruta fallback med grunnen «registreringa er ikkje komplett». Valideringa blir ikkje avbroten.
 - **REQ-105:** Når to eller fleire andre PR-ar har ei køyring som ventar på CI-orgen, vel ei ny køyring fallback. Køyringa som er i gang, tel ikkje. Kvar annan PR tel éin gong, og køyringar frå same PR tel ikkje mot grensa. Grunnen og talet på ventande PR-ar blir vist i oppsummeringa.
+- **REQ-108:** Labelen `ci:fresh-org` på ein PR sender valideringa til ny scratch-org (`force_fresh`). Å setje labelen startar `[PR] Validate`; andre labelar startar ikkje Salesforce-validering. Labelen gjeld for alle køyringar så lenge han står på PR-en. Dei same PR-vaktene som i REQ-121 og REQ-122 gjeld.
 
 ### Testpolicy
 

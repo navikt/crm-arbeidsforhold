@@ -223,6 +223,27 @@ på `main`. Ho har berre `issues: write` for varselet; ho får ikkje rett til å
 endre GitHub secrets eller variablar. Ho autentiserer mot Dev Hub for
 pakkeplan-oppslaget, men opprettar eller slettar ikkje orgar.
 
+## Valider ein PR på ny scratch-org
+
+Set labelen `ci:fresh-org` på PR-en for å validere han på ein ny scratch-org i
+staden for CI-orgen. Når labelen blir sett, startar `[PR] Validate` på nytt.
+Så lenge labelen står på PR-en, går òg nye push til ny scratch-org. Fjern
+labelen for å gå tilbake til gjenbruk.
+
+Bruk labelen når du vil kontrollere at valideringa fungerer utan den
+registrerte orgen, eller når du mistenkjer at tilstand i CI-orgen påverkar
+resultatet. Køyringa tek like lang tid som før gjenbruk vart innført.
+
+- Det er å setje labelen som startar valideringa. **Re-run** av ei eldre
+  køyring ser labelane slik dei var då den køyringa starta.
+- Andre labelar startar ikkje Salesforce-validering og endrar ikkje
+  resultatet av påkravde sjekkar.
+- Labelen gir same tryggleikskontrollar som vanleg PR-validering: berre
+  PR-ar frå dette repoet mot `main`, og skript frå base-commiten.
+
+Manuell start av **[CI] Reusable scratch org validation** med `force_fresh`
+er berre tillaten frå `main` og validerer `main`, ikkje ein PR.
+
 ## Lokal validering
 
 Dei lokale testane køyrer utan Salesforce-org:
