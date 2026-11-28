@@ -7,6 +7,7 @@ on:
             - reopened
             - ready_for_review
             - converted_to_draft
+            - labeled
         branches:
             - '**'
 permissions:
@@ -20,6 +21,7 @@ jobs:
     verify-pr:
         name: Verify required PR invocation
         if: >-
+            (github.event.action != 'labeled' || github.event.label.name == 'ci:fresh-org') &&
             github.event.pull_request.draft == false &&
             github.event.pull_request.base.ref == 'main' &&
             github.event.pull_request.head.repo.full_name == github.repository
@@ -47,9 +49,12 @@ jobs:
         needs: verify-pr
         if: >-
             !cancelled() &&
+            (github.event.action != 'labeled' || github.event.label.name == 'ci:fresh-org') &&
             github.event.pull_request.draft == false &&
             (needs.verify-pr.result == 'success' || needs.verify-pr.result == 'skipped')
         uses: ./.github/workflows/salesforce-validation.yml
+        with:
+            force_fresh: ${{ contains(github.event.pull_request.labels.*.name, 'ci:fresh-org') }}
         permissions:
             contents: read
             pull-requests: read
