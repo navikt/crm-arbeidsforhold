@@ -223,6 +223,8 @@ test('scheduled scratch-org maintenance keeps the validation lock and only notif
         /target-dev-hub|sf org create scratch|sf org delete scratch|show-sfdx-auth-url|HANDOFF_PUBLIC_KEY/
     );
     assert.doesNotMatch(source, /actions: write|contents: write|pull-requests: write|secrets: inherit/);
+    assert.match(source, /GITHUB_STEP_SUMMARY/);
+    assert.match(source, /Action needed:.*\$reason/);
 
     const notice = readScript('ci-scratch-org-maintenance.cjs');
     assert.match(notice, /@navikt\/crm-arbeidsforhold-admin/);
@@ -449,6 +451,8 @@ test(
         ];
         for (const [changes, expected] of cases) {
             const actionFile = path.join(directory, 'action');
+            const summaryFile = path.join(directory, 'summary');
+            fs.writeFileSync(summaryFile, '');
             const result = spawnSync('/bin/bash', ['-c', script], {
                 encoding: 'utf8',
                 env: {
@@ -457,9 +461,10 @@ test(
                     ...changes,
                     PATH: `${directory}:${process.env.PATH}`,
                     NOTICE_ACTION: actionFile,
+                    GITHUB_STEP_SUMMARY: summaryFile,
                     INSPECT_REASON: '',
                     RECONCILE_REASON: '',
-                    SMOKE_REASON: '',
+                    SMOKE_REASON: 'Smoke check needs attention.',
                     GITHUB_SERVER_URL: 'https://github.com',
                     GITHUB_REPOSITORY: 'example/repo',
                     GITHUB_RUN_ID: '1'
@@ -467,6 +472,15 @@ test(
             });
             assert.equal(result.status, 0, result.stderr);
             assert.equal(fs.readFileSync(actionFile, 'utf8').trim(), expected, JSON.stringify(changes));
+            const summary = fs.readFileSync(summaryFile, 'utf8');
+            if (expected === 'ensure') {
+                assert.match(summary, /\*\*Action needed:\*\*/);
+                if (changes.SMOKE_OUTCOME === 'cancelled') {
+                    assert.match(summary, /Smoke check needs attention\./);
+                }
+            } else {
+                assert.match(summary, /inspection, package reconciliation and smoke test passed/i);
+            }
         }
     }
 );

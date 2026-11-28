@@ -95,13 +95,15 @@ Kommandoen:
 Auth-URL-en blir sendt direkte til `gh secret set` via standard input. Han
 blir ikkje vist i terminalen eller lagra i repoet. Variablane blir skrivne
 før secreten; ved feil prøver kommandoen å rulle variablane tilbake. Dersom
-GitHub-registreringa feilar, blir den nye orgen teken vare på for inspeksjon:
-GitHub kan ha akseptert ei secret-endring sjølv om `gh` rapporterer feil.
-Kontroller Environment-verdiane og PR-valideringsruta før orgen eventuelt blir
-sletta manuelt. Feil før registreringssteget fører framleis til at den
-uverifiserte orgen blir sletta. Den tidlegare registrerte orgen blir ikkje
-sletta av kommandoen; han går ut etter Salesforce sin utløpsdato. Det hindrar
-at ei mislukka registrering fjernar den siste orgen PR-valideringa kan bruke.
+låsen ikkje kan takast, eller Environment-verdiane ikkje kan lesast før første
+skriving, blir kandidaten sletta. Dersom sletting feilar, viser feilmeldinga
+Salesforce-aliasen som må ryddast opp manuelt. Etter at første Environment-
+skriving er forsøkt, blir kandidaten teken vare på ved feil fordi GitHub kan
+ha akseptert ei endring sjølv om `gh` rapporterer feil. Kontroller
+Environment-verdiane og PR-valideringsruta før orgen eventuelt blir sletta
+manuelt. Den tidlegare registrerte orgen blir ikkje sletta av kommandoen; han
+går ut etter Salesforce sin utløpsdato. Det hindrar at ei mislukka registrering
+fjernar den siste orgen PR-valideringa kan bruke.
 
 ### Opprydding etter avbroten registrering
 
@@ -113,8 +115,10 @@ av låsen feilar, kan han bli ståande. Nye registreringar stoppar då trygt.
 1. Avklar med dei andre repo-administratorane at **ingen** registrering eller
    tilbakerulling er aktiv. Ikkje fjern låsen medan ein operatør arbeider.
 2. Kontroller registreringa i GitHub-miljøet `ci-scratch-org` og meldinga frå
-   kommandoen. Ved uavklart oppdatering, undersøk den bevarte scratch-orgen
-   før du eventuelt slettar han eller registrerer på nytt.
+   kommandoen. Ved uavklart Environment-oppdatering, undersøk den bevarte
+   scratch-orgen før du eventuelt slettar han eller registrerer på nytt.
+   Dersom låsopprettinga feila uklart før Environment-skriving, blir
+   kandidaten sletta; feilmeldinga viser aliasen dersom oppryddinga feila.
 3. Ein repo-admin kan kontrollere låsen med:
 
     ```sh
@@ -145,7 +149,8 @@ GitHub App kan vurderast seinare, men er ikkje ein del av denne løysninga.
 3. Dersom orgen må bytast eller oppgraderinga/røyketesten ikkje lukkast,
    opprettar eller oppdaterer workflowen issue-en
    `[CI] Reusable scratch org needs attention`. Ho nemner
-   `@navikt/crm-arbeidsforhold-admin` og lenkjer til denne guiden.
+   `@navikt/crm-arbeidsforhold-admin` og lenkjer til denne guiden. Actions-
+   oppsummeringa viser òg den konkrete årsaka frå kontrollen.
 4. Når orgen er frisk og pakkeplanen stemmer igjen, lukkar workflowen issue-en.
 
 Workflowen kan manuelt startast frå **Actions → [CI] Maintain CI scratch org**

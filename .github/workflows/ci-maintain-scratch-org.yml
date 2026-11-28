@@ -235,8 +235,11 @@ jobs:
                     reason="${SMOKE_REASON:-The smoke test did not complete successfully; see this Actions run.}"
                   fi
                   if [[ -n "$reason" ]]; then
+                    printf '### CI scratch-org maintenance\n\n**Action needed:** %s\n\n' "$reason" >> "$GITHUB_STEP_SUMMARY"
                     node scripts/ci-scratch-org-maintenance.cjs ensure "$reason" \
                       "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
                   else
+                    printf '### CI scratch-org maintenance\n\nOrg inspection, package reconciliation and smoke test passed.\n' \
+                      >> "$GITHUB_STEP_SUMMARY"
                     node scripts/ci-scratch-org-maintenance.cjs resolve
                   fi
