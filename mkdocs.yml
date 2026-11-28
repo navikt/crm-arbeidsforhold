@@ -20,6 +20,7 @@ theme:
 nav:
     - Start: README.md
     - Produkt og arkitektur:
+          - Oversikt: architecture/README.md
           - Handbok: architecture/aaregisteret-handbok.md
           - Heile løysinga: architecture/hele-loysinga.md
           - Kjeldekart og teststrategi: architecture/arbeidsforhold-kjeldekart-og-teststrategi.md
@@ -27,28 +28,129 @@ nav:
           - Flow-diagram: architecture/aareg-flow-diagrammer.md
           - Datamodell og arkiveringsjobbar: architecture/p360-data-model-og-arkiveringsjob.md
           - Pakkar og avhengnader: architecture/pakkeavhengigheiter.md
+          - Pakkekallstader: architecture/aaregisteret-pakkekallsite-matrise.md
+          - Repositorystruktur: architecture/repositorystruktur.md
+          - Arkitekturprinsipp og namnestandard: architecture/arkitekturprinsipp-lagdeling-og-namnestandard.md
+          - Forbetringsforslag og målmodell: architecture/forbetringsforslag-og-malmodell.md
           - Domene: domain/README.md
+          - ADR:
+                - Register: adr/README.md
+                - 'ADR-0001: Arkitekturprinsipp og namnestandard': adr/0001-arkitekturprinsipp-lagdeling-og-namnestandard.md
+                - 'ADR-0002: AccountContactRelation for personkontoar': adr/0002-accountcontactrelation-for-personkontoer.md
+                - 'ADR-0003: E-post for personkonto via AAREG og KRR': adr/0003-e-post-for-personkonto-via-aareg-og-krr.md
+                - 'ADR-0004: P360 composition root og kontraktsgrense': adr/0004-p360-composition-root-og-kontraktsgrense.md
+                - 'ADR-0005: Repositorystruktur for ny kode': adr/0005-repositorystruktur-ny-kode-og-legacy.md
     - Integrasjonar:
           - Oversikt: integrations/README.md
-          - P360: integrations/p360/README.md
-          - Altinn: integrations/altinn/README.md
-    - Brukarflater: surfaces/README.md
+          - P360:
+                - Oversikt: integrations/p360/README.md
+                - Teknisk oversikt: integrations/p360/teknisk-oversikt.md
+                - Overordna rammeverk: integrations/p360/overordnet-rammeverk.md
+                - Steg for steg: integrations/p360/steg-for-steg-gjennomgang.md
+                - Frå innsending til arkivjobb: integrations/p360/kodegjennomgang.md
+                - Inngangar og sideeffektar: integrations/p360/kartlegging-av-dagens-flytar.md
+                - Verifikasjonsplan: integrations/p360/inngangar-og-verifikasjonsplan.md
+                - Lagdelt struktur og namnestandard: integrations/p360/lagdelt-struktur-og-namnestandard.md
+                - Dependency injection og adapterval: integrations/p360/di-og-adapterval.md
+                - Vedleggsutval og innsendingsidentitet: integrations/p360/vedleggsutval-og-innsendingsidentitet-design.md
+                - SIF API-kontraktar: integrations/p360/sif-api-kontrakter.md
+                - SIF RPC-forståing: integrations/p360/sif-rpc-forstaelse.md
+                - SIF RPC-operasjonar: integrations/p360/sif-rpc-operasjonar.md
+                - SIF RPC-kontraktsoppslag: integrations/p360/sif-rpc-kontrakt-oppslag.md
+                - Scratch-org brukarguide: integrations/p360/scratch-brukarguide.md
+                - Scratch-kontrakttest og interne val: integrations/p360/scratch-kontrakttest-og-interne-val.md
+                - Mock-flyt for brukartest: integrations/p360/user-testing-guide.md
+                - Scenariodekning: integrations/p360/scenario-testdekning.md
+                - Testlogg: integrations/p360/test-log.md
+          - P360 Jira og status:
+                - Jira-oversikt: context/p360/jira-oversikt.md
+                - Deloppgåver: context/p360/jira-deloppgaver.md
+                - Oppdateringsoversikt: context/p360/jira-oppdateringsoversikt.md
+                - Lokal implementasjonsstatus: context/p360/lokal-implementasjonsstatus.md
+                - GitHub issue-triage: context/p360/github-issue-triage.md
+                - Jira-status 2026-11-05: context/p360/jira-status-2026-11-05.md
+                - Jira-saker:
+                      - Oversikt: context/p360/jira/README.md
+                      - CRMAAREG-83 Teknisk grunnmur: context/p360/jira/crmaareg-83-teknisk-grunnmur.md
+                      - CRMAAREG-142 Kodeverk: context/p360/jira/crmaareg-142-kodeverk.md
+                      - CRMAAREG-180 Sikkerheit: context/p360/jira/crmaareg-180-sikkerheit.md
+                      - CRMAAREG-194 Sakssynk: context/p360/jira/crmaareg-194-sakssynk.md
+                      - CRMAAREG-215 Journalpost: context/p360/jira/crmaareg-215-journalpost.md
+                      - CRMAAREG-236 Filhandtering: context/p360/jira/crmaareg-236-filhandtering.md
+                      - CRMAAREG-254 External ID: context/p360/jira/crmaareg-254-external-id.md
+                      - CRMAAREG-267 Feilhandtering: context/p360/jira/crmaareg-267-feilhandtering.md
+                      - CRMAAREG-283 Logging: context/p360/jira/crmaareg-283-logging.md
+                      - CRMAAREG-295 Test: context/p360/jira/crmaareg-295-test.md
+                      - CRMAAREG-309 Dokumentasjon: context/p360/jira/crmaareg-309-dokumentasjon.md
+          - Altinn:
+                - Oversikt: integrations/altinn/README.md
+                - Ressursavgjerd og brukarflate: integrations/altinn/tilgangskjede-og-scenario.md
+                - Implementasjonsplan: integrations/altinn/implementation-plan.md
+                - Kritisk avklaringsrunde: integrations/altinn/grill.md
+                - Testguide: integrations/altinn/test-guide.md
+                - Testlogg: integrations/altinn/altinn-test-log.md
+                - Overlevering til crm-platform-integration: integrations/altinn/package-agent-handoff.md
+    - Brukarflater:
+          - Oversikt: surfaces/README.md
+          - 'Admin-app: plan': surfaces/aareg-admin-app.md
+          - CRMAAREG-323 gjennomgang: context/ekstern-brukerflate/crmaareg-323-gjennomgang.md
+          - 'Prompt: harmoniser Jira': context/ekstern-brukerflate/prompt-harmoniser-jira.md
     - Testing:
           - Scenario og testplan: testing/aaregisteret-scenario-testplan.md
           - Testdata: testing/aaregisteret-testdata-strategi.md
           - Kontaktkopling i SIT og PROD: testing/kontaktkopling-verifisering-sit-prod.md
     - Utvikling og drift:
           - Kom i gang: kom-i-gang.md
+          - Arbeidsflyt og dokumentasjon: arbeidsflyt-og-dokumentasjon.md
           - Utviklingsstandardar: utviklingsstandarder.md
           - Workflowar: operations/workflows.md
+          - Gjenbrukbar scratch-org i CI: operations/reusable-scratch-org-validation.md
           - Metadataopprydding: operations/salesforce-metadata-cleanup-runbook.md
           - Feilrapport kontaktkopling: operations/feilrapport-kontaktkopling-ved-innsending.md
-    - Arkiv: archive/README.md
+    - Arkiv:
+          - Oversikt: archive/README.md
+          - Arkitektur:
+                - 'Flow org observation — 2026-11-15': archive/architecture/aareg-flow-org-observation-2026-11-15.md
+                - 'Flow-kjelder mot scratch-org — teljingsavstemming': archive/architecture/aareg-flow-org-source-reconciliation-2026-11-14.md
+                - 'Funn og tiltak for Arbeidsforhold / Aa-registeret': archive/architecture/aaregisteret-funn-og-tiltak-2026-11-14.md
+                - 'Arbeidsforhold / Aa-registeret: start her': archive/architecture/aaregisteret-handbok-2026-11-14.md
+                - 'Kjeldeinventar for Arbeidsforhold / Aa-registeret': archive/architecture/aaregisteret-kjeldeinventar-2026-11-14.md
+                - 'Aa-registeret: oppfølging av pakkeavstemming': archive/architecture/aaregisteret-pakkeavstemming-2026-11-14.md
+                - 'Pakkekallsite-matrise for Arbeidsforhold / Aa-registeret': archive/architecture/aaregisteret-pakkekallsite-matrise-2026-11-14.md
+                - 'Aa-registeret: tillegg til pakkekallsite-matrisa': archive/architecture/aaregisteret-pakkekallsite-tillegg-2026-11-15.md
+                - 'Aa-registeret scratch-org snapshot — 2026-11-14': archive/architecture/aaregisteret-scratch-org-snapshot-2026-11-14.md
+                - 'Aa-registeret scratch-org snapshot — 2026-11-15': archive/architecture/aaregisteret-scratch-org-snapshot-2026-11-15.md
+                - 'Aa-registeret: tilgangskart frå lokal kjelde': archive/architecture/aaregisteret-tilgangskart-kjelde-2026-11-14.md
+                - 'Helhetleg analyse av Arbeidsforhold og Aa-registeret': archive/architecture/helhetleg-analyse-og-teststrategi-2026-11-13.md
+                - 'Plan: heilskapleg gjennomgang av Arbeidsforhold / Aa-registeret': archive/architecture/helhetleg-gjennomgang-plan.md
+          - Altinn:
+                - 'Altinn-resultat som testscenario i Arbeidsforhold': archive/altinn/altinn-scenario-gjennomgang-2026-10.md
+                - 'Testlogg for Altinn-scenario': archive/altinn/altinn-test-log-2026-10.md
+                - 'Testguide: Altinn-scenario med éin Community Plus-brukar': archive/altinn/test-guide-community-plus-2026-10.md
+          - Drift:
+                - 'Experience Cloud: console-feil og oppfølging': archive/operations/experience-cloud-console-2026-10-28.md
+                - 'Testgjennomgang: P360 og crm-arbeidsforhold med mock': archive/operations/p360-og-crm-arbeidsforhold-testgjennomgang-2026-10-14.md
+                - 'Arkiv: pilot for gjenbrukbar scratch-org': archive/operations/reusable-scratch-org-pilot-steg-8-10.md
+                - 'Scratch-testlogg: crm-arbeidsforhold': archive/operations/scratch-testlogg-2026-10-15.md
+          - P360:
+                - 'P360: frå brukarhandling til etterprøvbart arkivresultat': archive/p360/inngangar-og-verifikasjonsplan-2026-11-14.md
+                - 'P360: kartlegging av dagens flytar': archive/p360/kartlegging-av-flytar-2026-11-13.md
+                - 'P360 kode- og testguide: frå Salesforce-hending til arkiveringsjobb': archive/p360/kodegjennomgang-tidlegare.md
+                - 'P360: scratch-kontrakttest og interne val': archive/p360/scratch-kontrakttest-og-interne-val-2026-11-15.md
+                - 'P360-integrasjonen steg for steg': archive/p360/steg-for-steg-gjennomgang-tidlegare.md
+                - 'P360 teknisk oversikt': archive/p360/teknisk-oversikt-2026-11-05.md
+                - 'P360 testlogg': archive/p360/test-logg-2026-11.md
+not_in_nav: |
+    *.mmd.md
+    /integrations/context/
+    /architecture/aaregisteret-pakkeavstemming-2026-11-14.md
+    /operations/experience-cloud-console-2026-10-28.md
+    /operations/p360-og-crm-arbeidsforhold-testgjennomgang.md
 hooks:
     - docs-site/hooks.py
 validation:
     nav:
-        omitted_files: ignore
+        omitted_files: warn
     links:
         unrecognized_links: warn
         anchors: warn
