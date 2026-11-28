@@ -69,8 +69,9 @@ jobs:
                   plan_file="$RUNNER_TEMP/package-plan.json"
                   org_file="$RUNNER_TEMP/registered-org.json"
                   installed_file="$RUNNER_TEMP/installed-packages.json"
+                  package_ids_file="$RUNNER_TEMP/package2-ids.json"
                   umask 077
-                  trap 'rm -f "$auth_file" "$login_log" "$org_file"' EXIT
+                  trap 'rm -f "$auth_file" "$login_log" "$org_file" "$package_ids_file"' EXIT
 
                   fingerprint="$(node scripts/ci-scratch-plan.cjs fingerprint sfdx-project.json config/project-scratch-def.json)"
                   echo "fingerprint=$fingerprint" >> "$GITHUB_OUTPUT"
@@ -130,6 +131,17 @@ jobs:
                     echo "reason=The current daily package plan could not be resolved." >> "$GITHUB_OUTPUT"
                     exit 0
                   fi
+                  if ! sf data query --target-org ci-devhub --use-tooling-api \
+                    --query "SELECT Id, SubscriberPackageId FROM Package2" --json > "$package_ids_file" 2>/dev/null; then
+                    echo "needs_replacement=true" >> "$GITHUB_OUTPUT"
+                    echo "reason=Subscriber package IDs could not be resolved from the package-plan Dev Hub." >> "$GITHUB_OUTPUT"
+                    exit 0
+                  fi
+                  if ! node scripts/ci-scratch-plan.cjs map-package-ids "$plan_file" "$package_ids_file"; then
+                    echo "needs_replacement=true" >> "$GITHUB_OUTPUT"
+                    echo "reason=The selected package IDs could not be mapped safely." >> "$GITHUB_OUTPUT"
+                    exit 0
+                  fi
                   if ! sf package installed list --target-org ci-reuse --json > "$installed_file" 2>/dev/null; then
                     echo "needs_replacement=true" >> "$GITHUB_OUTPUT"
                     echo "reason=Installed package versions could not be read." >> "$GITHUB_OUTPUT"
@@ -163,22 +175,11 @@ jobs:
 
             - name: Smoke-test updated registered org
               id: smoke
-              if: steps.reconcile.outputs.packages_changed == 'true'
+              if: steps.plan.outputs.needs_replacement != 'true' && steps.reconcile.outcome == 'success' && steps.reconcile.outputs.needs_replacement != 'true'
               continue-on-error: true
               run: |
                   set -euo pipefail
                   rm -rf ./force-app/unpackagable ./force-app/unpackagable-with-auto-deploy ./force-app/scratch-org
-                  command_token="$(node -e 'console.log(require("node:crypto").randomUUID())')"
-                  echo "::stop-commands::$command_token"
-                  status=0
-                  sf project deploy start --source-dir force-app --target-org ci-reuse --wait 60 \
-                    >"$RUNNER_TEMP/reuse-deploy.log" 2>&1 || status=$?
-                  echo "::$command_token::"
-                  if ((status != 0)); then
-                    echo "needs_replacement=true" >> "$GITHUB_OUTPUT"
-                    echo "reason=Main metadata failed to deploy after package reconciliation." >> "$GITHUB_OUTPUT"
-                    exit 0
-                  fi
                   node scripts/ci-scratch-plan.cjs tests force-app > "$RUNNER_TEMP/reuse-test-classes.json"
                   mapfile -t test_classes < <(jq -r '.[]' "$RUNNER_TEMP/reuse-test-classes.json")
                   if ((${#test_classes[@]} == 0)); then
@@ -188,21 +189,21 @@ jobs:
                   fi
                   test_arguments=()
                   for test_class in "${test_classes[@]}"; do test_arguments+=(--tests "$test_class"); done
-                  if ! sf apex run test --target-org ci-reuse "${test_arguments[@]}" --code-coverage --result-format json \
-                    --output-dir "$RUNNER_TEMP/reuse-apex-results" --wait 30 --json \
-                    >"$RUNNER_TEMP/reuse-test-response.json" 2>"$RUNNER_TEMP/reuse-test-errors.log"; then
+                  if ! sf project deploy start --dry-run --source-dir force-app --target-org ci-reuse \
+                    --test-level RunSpecifiedTests "${test_arguments[@]}" --coverage-formatters json --wait 60 --json \
+                    >"$RUNNER_TEMP/reuse-deploy-response.json" 2>"$RUNNER_TEMP/reuse-deploy-errors.log"; then
                     echo "needs_replacement=true" >> "$GITHUB_OUTPUT"
-                    echo "reason=Repository Apex tests failed after package reconciliation." >> "$GITHUB_OUTPUT"
+                    echo "reason=Check-only metadata validation or repository Apex tests failed after package reconciliation." >> "$GITHUB_OUTPUT"
                     exit 0
                   fi
                   if ! node scripts/ci-scratch-plan.cjs coverage \
-                    "$RUNNER_TEMP/reuse-apex-results/test-result-codecoverage.json" force-app; then
+                    "$RUNNER_TEMP/reuse-deploy-response.json" force-app; then
                     echo "needs_replacement=true" >> "$GITHUB_OUTPUT"
                     echo "reason=The updated org failed the 85 percent repository coverage threshold." >> "$GITHUB_OUTPUT"
                     exit 0
                   fi
                   echo "needs_replacement=false" >> "$GITHUB_OUTPUT"
-                  echo "✅ Updated registered org passed deploy, repository Apex tests, and 85% coverage." >> "$GITHUB_STEP_SUMMARY"
+                  echo "✅ Registered org passed check-only deploy, repository Apex tests, and 85% coverage." >> "$GITHUB_STEP_SUMMARY"
 
             - name: Notify repository owners
               if: always()

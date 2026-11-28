@@ -1,8 +1,12 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 const { test } = require('node:test');
 const {
     replaceScratchOrg,
     setEnvironmentRegistration,
+    validationArguments,
     verifyRepositoryOwner
 } = require('../ci-scratch-org-replace.cjs');
 
@@ -102,6 +106,49 @@ test('rejects local changes to the replacement command before contacting Salesfo
     );
 });
 
+test('rejects changes to deploy filters and package-plan helpers before contacting Salesforce', async () => {
+    for (const changedPath of ['.forceignore', 'bin/package-dependency-report.js']) {
+        const calls = [];
+        const run = (command, args) => {
+            calls.push({ command, args });
+            if (command === 'git' && args[0] === 'remote') return 'https://github.com/navikt/crm-arbeidsforhold.git';
+            if (command === 'git' && args[0] === 'fetch') return '';
+            if (command === 'git' && args[0] === 'branch') return 'main';
+            if (command === 'git' && args[0] === 'rev-parse') return 'same-commit';
+            if (command === 'git' && args[0] === 'status') return args.includes(changedPath) ? ` M ${changedPath}` : '';
+            if (command === 'sf') throw new Error('Contacted Salesforce despite local changes.');
+            return '';
+        };
+
+        await assert.rejects(
+            replaceScratchOrg({
+                targetDevHub: 'existing-dev-hub',
+                repositoryPath: '/repo',
+                run,
+                confirm: async () => {},
+                environment: { CRM_PACKAGE_KEY: 'test-key' }
+            }),
+            /local changes/i
+        );
+        assert.equal(
+            calls.some(({ command }) => command === 'sf'),
+            false,
+            changedPath
+        );
+    }
+});
+
+test('validates repository tests and coverage in a check-only deployment', () => {
+    const args = validationArguments('/tmp/force-app', ['ExampleTest', 'AnotherTest'], 'ci-org');
+    assert.ok(args.includes('--dry-run'));
+    assert.ok(args.includes('--test-level') && args.includes('RunSpecifiedTests'));
+    assert.deepEqual(args.filter((argument) => argument === '--tests').length, 2);
+    assert.ok(args.includes('--coverage-formatters') && args.includes('json'));
+    assert.ok(args.includes('--source-dir') && args.includes('/tmp/force-app'));
+    assert.ok(args.includes('--target-org') && args.includes('ci-org'));
+    assert.equal(args.includes('apex'), false);
+});
+
 test('deletes a newly created org when its creation response cannot be parsed', async () => {
     const calls = [];
     const run = (command, args) => {
@@ -134,7 +181,14 @@ test('deletes a newly created org when its creation response cannot be parsed', 
     assert.ok(calls.some(({ command, args }) => command === 'sf' && args[1] === 'delete'));
 });
 
-test('preserves the new org when GitHub registration reports an ambiguous secret-write failure', async () => {
+test('preserves the new org when GitHub registration reports an ambiguous secret-write failure', async (context) => {
+    const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-scratch-replace-test-'));
+    context.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+    fs.mkdirSync(path.join(repositoryPath, 'force-app/main/default/classes'), { recursive: true });
+    fs.writeFileSync(
+        path.join(repositoryPath, 'force-app/main/default/classes/Example.cls'),
+        'public class Example {}'
+    );
     const calls = [];
     const orgId = '00D000000000003AAA';
     const run = (command, args) => {
@@ -171,13 +225,27 @@ test('preserves the new org when GitHub registration reports an ambiguous secret
     await assert.rejects(
         replaceScratchOrg({
             targetDevHub: 'existing-dev-hub',
-            repositoryPath: '/repo',
+            repositoryPath,
             run,
             confirm: async () => {},
             environment: { CRM_PACKAGE_KEY: 'test-key' }
         }),
         /environment update failed.*org was kept/is
     );
+    const testDiscovery = calls.find(
+        ({ command, args }) =>
+            command === process.execPath && args[0] === 'scripts/ci-scratch-plan.cjs' && args[1] === 'tests'
+    );
+    const deploy = calls.find(({ command, args }) => command === 'sf' && args[0] === 'project' && args[1] === 'deploy');
+    const coverage = calls.find(
+        ({ command, args }) =>
+            command === process.execPath && args[0] === 'scripts/ci-scratch-plan.cjs' && args[1] === 'coverage'
+    );
+    assert.ok(testDiscovery && deploy && coverage);
+    assert.ok(deploy.args.includes('--dry-run'));
+    const stagedSource = testDiscovery.args[2];
+    assert.equal(deploy.args[deploy.args.indexOf('--source-dir') + 1], stagedSource);
+    assert.equal(coverage.args[3], stagedSource);
     assert.equal(
         calls.some(({ command, args }) => command === 'sf' && args[1] === 'delete'),
         false

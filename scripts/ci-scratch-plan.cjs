@@ -3,6 +3,8 @@ const { spawn } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const EXCLUDED_SOURCE_DIRECTORIES = new Set(['unpackagable', 'unpackagable-with-auto-deploy', 'scratch-org']);
+
 function verifyScratchOrg(orgId, expiration, records) {
     if (typeof orgId !== 'string' || typeof expiration !== 'string' || !Array.isArray(records)) {
         throw new Error('Cannot verify scratch org records.');
@@ -85,6 +87,9 @@ function readPlan(project, selectedVersions) {
                     name: dependency.package,
                     versionId: record.SubscriberPackageVersionId,
                     ...(typeof record.Package2Id === 'string' ? { packageId: record.Package2Id } : {}),
+                    ...(typeof record.SubscriberPackageId === 'string'
+                        ? { subscriberPackageId: record.SubscriberPackageId }
+                        : {}),
                     requiresKey: project.packageKeyConfig?.[dependency.package] !== false
                 });
             }
@@ -92,6 +97,60 @@ function readPlan(project, selectedVersions) {
     }
     if (plan.length === 0) throw new Error('No package dependencies found.');
     return plan;
+}
+
+function addSubscriberPackageIds(selectedVersions, packageRecords) {
+    if (!selectedVersions || typeof selectedVersions !== 'object' || Array.isArray(selectedVersions)) {
+        throw new Error('Cannot map subscriber package IDs without a selected package plan.');
+    }
+    if (!Array.isArray(packageRecords)) throw new Error('Cannot read subscriber package IDs from Package2 records.');
+
+    const plannedIds = new Set(
+        Object.values(selectedVersions)
+            .map((record) => record?.Package2Id)
+            .filter((id) => typeof id === 'string')
+    );
+    const subscriberIds = new Map();
+    for (const record of packageRecords) {
+        if (!plannedIds.has(record?.Id)) continue;
+        if (
+            typeof record.SubscriberPackageId !== 'string' ||
+            !/^033[a-zA-Z0-9]{12}([a-zA-Z0-9]{3})?$/.test(record.SubscriberPackageId)
+        ) {
+            throw new Error(`Package2 record ${record.Id} has no valid SubscriberPackageId.`);
+        }
+        subscriberIds.set(record.Id, record.SubscriberPackageId);
+    }
+
+    return Object.fromEntries(
+        Object.entries(selectedVersions).map(([name, record]) => {
+            if (
+                typeof record?.Package2Id !== 'string' ||
+                !/^0Ho[a-zA-Z0-9]{12}([a-zA-Z0-9]{3})?$/.test(record.Package2Id)
+            ) {
+                throw new Error(`Package ${name} has no valid Package2Id.`);
+            }
+            const subscriberPackageId = subscriberIds.get(record.Package2Id);
+            if (!subscriberPackageId) {
+                throw new Error(`Missing SubscriberPackageId for planned package ${record.Package2Id}.`);
+            }
+            return [name, { ...record, SubscriberPackageId: subscriberPackageId }];
+        })
+    );
+}
+
+function stageDeployableSource(sourceDirectory, destinationDirectory) {
+    if (!fs.statSync(sourceDirectory).isDirectory()) throw new Error('Salesforce source path must be a directory.');
+    fs.mkdirSync(path.dirname(destinationDirectory), { recursive: true });
+    fs.cpSync(sourceDirectory, destinationDirectory, {
+        recursive: true,
+        filter(source) {
+            const relative = path.relative(sourceDirectory, source);
+            const firstSegment = relative.split(path.sep)[0];
+            return !EXCLUDED_SOURCE_DIRECTORIES.has(firstSegment);
+        }
+    });
+    return destinationDirectory;
 }
 
 function scratchFingerprint(projectFile, definitionFile) {
@@ -363,7 +422,10 @@ async function reconcileInstalledPackages(plan, installed, targetOrg, packageKey
     const mismatch = compareInstalledVersions(plan, installed);
     if (!mismatch) return { changed: [] };
 
-    const plannedPackageIds = new Set(plan.map((entry) => entry.packageId).filter(Boolean));
+    if (plan.some((entry) => !entry.subscriberPackageId)) {
+        throw new Error('Package versions cannot be reconciled safely without SubscriberPackageId mappings.');
+    }
+    const plannedPackageIds = new Set(plan.map((entry) => entry.subscriberPackageId));
     const expectedVersions = new Set(plan.map((entry) => entry.versionId));
     const unexpectedPackages = installed.filter(
         (entry) =>
@@ -472,6 +534,13 @@ async function main(args) {
         );
         return;
     }
+    if (command === 'map-package-ids' && values.length === 2) {
+        const [planFile, packageRecordsFile] = values;
+        const plan = readJson(planFile);
+        const records = readJson(packageRecordsFile).result?.records;
+        fs.writeFileSync(planFile, JSON.stringify(addSubscriberPackageIds(plan, records)));
+        return;
+    }
     if (command === 'tests' && values.length === 1) {
         process.stdout.write(`${JSON.stringify(getApexTestClassNames(values[0]))}\n`);
         return;
@@ -501,7 +570,7 @@ async function main(args) {
         return;
     }
     throw new Error(
-        'Usage: ci-scratch-plan.cjs verify-scratch|route|install|reconcile|tests|coverage|fingerprint <arguments>'
+        'Usage: ci-scratch-plan.cjs verify-scratch|route|install|reconcile|map-package-ids|tests|coverage|fingerprint <arguments>'
     );
 }
 
@@ -517,6 +586,7 @@ module.exports = {
     changedSourcesWithoutCoverage,
     coverageMarkdown,
     coverageRecords,
+    addSubscriberPackageIds,
     missingCoverageFromList,
     getApexCoverageNames,
     getApexTestClassNames,
@@ -525,6 +595,7 @@ module.exports = {
     isForceIgnored,
     readPlan,
     scratchFingerprint,
+    stageDeployableSource,
     selectRoute,
     verifyScratchOrg
 };

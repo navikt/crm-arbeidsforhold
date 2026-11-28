@@ -8,10 +8,11 @@ eller treng utskifting.
 `[CI] Maintain CI scratch org` køyrer dagleg og kan startast manuelt frå
 `main`. Han held same concurrency-lås som PR-valideringa, kontrollerer orgen,
 oppgraderer planlagde pakkar når det kan gjerast trygt, og røyketestar
-oppgraderingar. Han opprettar, byter eller slettar aldri scratch-orgar. Når
-org eller pakkeplan krev manuell oppfølging, opprettar eller oppdaterer han éi
-GitHub-issue og nemner repo-eigarteamet. Issue blir lukka når kontrollen er
-grøn igjen.
+deployerbar metadata, repoets Apex-testklassar og dekning med ein check-only
+deploy etter kvar vellukka reconcile, også når ingen pakkeversjon blei endra.
+Han opprettar, byter eller slettar aldri scratch-orgar. Når org eller pakkeplan
+krev manuell oppfølging, opprettar eller oppdaterer han éi GitHub-issue og
+nemner repo-eigarteamet. Issue blir lukka når kontrollen er grøn igjen.
 
 ## Når må orgen bytast?
 
@@ -36,7 +37,8 @@ push-tilgang, men kan ikkje køyre erstatningsflyten utan admin-permission.
 
 - Rein `main`-checkout av repoet. Kommandoen hentar `origin/main` før han
   kontrollerer at checkouten er oppdatert, og avviser lokale endringar i
-  prosjektdefinisjon, pakkeplan eller deployerbar kjelde.
+  prosjektdefinisjon, pakkeplan, `.forceignore`, pakkeplan-hjelparar eller
+  deployerbar kjelde.
 - Node.js 22, Salesforce CLI 2.158.7 og GitHub CLI (`gh`).
 - Salesforce CLI er innlogga mot den autoriserte Dev Hub-en. Bruk den
   eksplisitte eksisterande aliasen til Dev Hub; ikkje bruk standardalias utan
@@ -75,10 +77,12 @@ Kommandoen:
    kontakta;
 3. løyser same pakkeplan som dagleg CI, inkludert tilgjengelege
    `LATEST`-versjonar;
-4. opprettar ein scratch-org som varer i 30 dagar, installerer alle
-   planlagde pakkeversjonar, deployer `force-app`, køyrer repoet sine
-   Apex-testklassar og handhevar 85 % samla dekning;
-5. etter bestått røyketest oppdaterer han variablane
+4. opprettar ein scratch-org som varer i 30 dagar og installerer alle
+   planlagde pakkeversjonar;
+5. kopierer deployerbar `force-app` til eit mellombels område utan å endre
+   checkouten, og køyrer check-only deploy med repoet sine Apex-testklassar og
+   handhevar 85 % samla dekning. Metadata blir ikkje lagra i scratch-orgen;
+6. etter bestått røyketest oppdaterer han variablane
    `CI_SCRATCH_ORG_ID`, `CI_SCRATCH_ORG_EXPIRATION` og
    `CI_SCRATCH_ORG_CONFIG_SHA256`, og set `CI_SCRATCH_ORG_AUTH_URL` som secret
    i GitHub-miljøet med di eiga `gh`-innlogging.
@@ -101,7 +105,10 @@ GitHub App kan vurderast seinare, men er ikkje ein del av denne løysninga.
 
 1. Den planlagde køyringa kontrollerer registrert org og pakkeplan.
 2. Dersom planlagde pakkar kan oppgraderast trygt, oppdaterer han dei i same
-   org og røyketestar deploy, repo-testar og dekning.
+   org. Etter kvar vellukka reconcile køyrer han check-only deploy av
+   deployerbar metadata, repo-testane og 85 % samla dekning. Dette stadfestar
+   at orgen er frisk før ei open varslingssak blir lukka, også når pakkane
+   allereie var oppdaterte.
 3. Dersom orgen må bytast eller oppgraderinga/røyketesten ikkje lukkast,
    opprettar eller oppdaterer workflowen issue-en
    `[CI] Reusable scratch org needs attention`. Ho nemner

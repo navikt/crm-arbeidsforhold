@@ -9,6 +9,7 @@ const {
     changedSourcesWithoutCoverage,
     coverageMarkdown,
     coverageRecords,
+    addSubscriberPackageIds,
     isForceIgnored,
     getApexCoverageNames,
     getApexTestClassNames,
@@ -16,6 +17,7 @@ const {
     reconcileInstalledPackages,
     readPlan,
     scratchFingerprint,
+    stageDeployableSource,
     selectRoute,
     verifyScratchOrg
 } = require('../ci-scratch-plan.cjs');
@@ -38,14 +40,78 @@ test('preserves selected package IDs and key policy in manifest order', () => {
             packageKeyConfig: { base: false, parent: true }
         },
         {
-            base: { SubscriberPackageVersionId: 'base-version', Package2Id: 'base-package' },
-            parent: { SubscriberPackageVersionId: 'parent-version', Package2Id: 'parent-package' }
+            base: {
+                SubscriberPackageVersionId: 'base-version',
+                Package2Id: '0Ho000000000001AAA',
+                SubscriberPackageId: '033000000000001AAA'
+            },
+            parent: {
+                SubscriberPackageVersionId: 'parent-version',
+                Package2Id: '0Ho000000000002AAA',
+                SubscriberPackageId: '033000000000002AAA'
+            }
         }
     );
     assert.deepEqual(plan, [
-        { name: 'base', versionId: 'base-version', packageId: 'base-package', requiresKey: false },
-        { name: 'parent', versionId: 'parent-version', packageId: 'parent-package', requiresKey: true }
+        {
+            name: 'base',
+            versionId: 'base-version',
+            packageId: '0Ho000000000001AAA',
+            subscriberPackageId: '033000000000001AAA',
+            requiresKey: false
+        },
+        {
+            name: 'parent',
+            versionId: 'parent-version',
+            packageId: '0Ho000000000002AAA',
+            subscriberPackageId: '033000000000002AAA',
+            requiresKey: true
+        }
     ]);
+});
+
+test('maps each planned Package2 ID to its distinct subscriber package ID', () => {
+    const selected = {
+        base: { SubscriberPackageVersionId: 'base-version', Package2Id: '0Ho000000000001AAA' }
+    };
+    const mapped = addSubscriberPackageIds(selected, [
+        { Id: '0Ho000000000001AAA', SubscriberPackageId: '033000000000001AAA' }
+    ]);
+
+    assert.deepEqual(mapped.base, {
+        ...selected.base,
+        SubscriberPackageId: '033000000000001AAA'
+    });
+    assert.equal(selected.base.SubscriberPackageId, undefined);
+    assert.throws(() => addSubscriberPackageIds(selected, []), /Missing SubscriberPackageId.*0Ho000000000001AAA/i);
+});
+
+test('map-package-ids command enriches the selected package plan from Tooling API records', (context) => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-package-id-map-'));
+    context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+    const planFile = path.join(directory, 'plan.json');
+    const recordsFile = path.join(directory, 'package2.json');
+    fs.writeFileSync(
+        planFile,
+        JSON.stringify({ base: { SubscriberPackageVersionId: 'base-version', Package2Id: '0Ho000000000001AAA' } })
+    );
+    fs.writeFileSync(
+        recordsFile,
+        JSON.stringify({
+            result: { records: [{ Id: '0Ho000000000001AAA', SubscriberPackageId: '033000000000001AAA' }] }
+        })
+    );
+
+    const result = spawnSync(
+        process.execPath,
+        [path.resolve(__dirname, '../ci-scratch-plan.cjs'), 'map-package-ids', planFile, recordsFile],
+        {
+            encoding: 'utf8'
+        }
+    );
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(fs.readFileSync(planFile, 'utf8')).base.SubscriberPackageId, '033000000000001AAA');
 });
 
 const ready = {
@@ -281,6 +347,34 @@ test('finds Apex test classes and fingerprints the checked scratch definition', 
     assert.notEqual(scratchFingerprint(projectFile, definitionFile), first);
 });
 
+test('stages deployable Salesforce source without non-package directories or source mutations', (context) => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-source-stage-'));
+    context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+    const source = path.join(directory, 'force-app');
+    const staged = path.join(directory, 'temporary', 'force-app');
+    for (const relative of [
+        'main/default/classes/Service.cls',
+        'unpackagable/sites/Aa_registret.site-meta.xml',
+        'unpackagable-with-auto-deploy/classes/Other.cls',
+        'scratch-org/classes/Temporary.cls'
+    ]) {
+        const filename = path.join(source, relative);
+        fs.mkdirSync(path.dirname(filename), { recursive: true });
+        fs.writeFileSync(filename, relative);
+    }
+
+    stageDeployableSource(source, staged);
+
+    assert.equal(
+        fs.readFileSync(path.join(staged, 'main/default/classes/Service.cls'), 'utf8'),
+        'main/default/classes/Service.cls'
+    );
+    assert.equal(fs.existsSync(path.join(staged, 'unpackagable')), false);
+    assert.equal(fs.existsSync(path.join(staged, 'unpackagable-with-auto-deploy')), false);
+    assert.equal(fs.existsSync(path.join(staged, 'scratch-org')), false);
+    assert.equal(fs.existsSync(path.join(source, 'unpackagable/sites/Aa_registret.site-meta.xml')), true);
+});
+
 test('installs the validated exact versions in order without exposing keys in output', async () => {
     const calls = [];
     await installPlan(
@@ -377,12 +471,24 @@ test('rejects installed packages that do not exactly match the installation plan
 
 test('upgrades planned package versions in place and verifies the resulting package set', async () => {
     const plan = [
-        { name: 'base', versionId: 'base-new', packageId: 'base-package', requiresKey: false },
-        { name: 'parent', versionId: 'parent-same', packageId: 'parent-package', requiresKey: false }
+        {
+            name: 'base',
+            versionId: 'base-new',
+            packageId: '0Ho000000000001AAA',
+            subscriberPackageId: '033000000000001AAA',
+            requiresKey: false
+        },
+        {
+            name: 'parent',
+            versionId: 'parent-same',
+            packageId: '0Ho000000000002AAA',
+            subscriberPackageId: '033000000000002AAA',
+            requiresKey: false
+        }
     ];
     let installed = [
-        { SubscriberPackageVersionId: 'base-old', SubscriberPackageId: 'base-package' },
-        { SubscriberPackageVersionId: 'parent-same', SubscriberPackageId: 'parent-package' }
+        { SubscriberPackageVersionId: 'base-old', SubscriberPackageId: '033000000000001AAA' },
+        { SubscriberPackageVersionId: 'parent-same', SubscriberPackageId: '033000000000002AAA' }
     ];
     const calls = [];
 
@@ -391,7 +497,7 @@ test('upgrades planned package versions in place and verifies the resulting pack
         if (args[1] === 'install') {
             installed = plan.map(({ versionId, packageId }) => ({
                 SubscriberPackageVersionId: versionId,
-                SubscriberPackageId: packageId
+                SubscriberPackageId: plan.find((entry) => entry.packageId === packageId).subscriberPackageId
             }));
             return '';
         }
@@ -420,10 +526,18 @@ test('does not mutate the registered org when installed packages cannot be recon
     await assert.rejects(
         () =>
             reconcileInstalledPackages(
-                [{ name: 'base', versionId: 'base-current', packageId: 'base-package', requiresKey: false }],
                 [
-                    { SubscriberPackageVersionId: 'base-current', SubscriberPackageId: 'base-package' },
-                    { SubscriberPackageVersionId: 'unexpected-version', SubscriberPackageId: 'unexpected-package' }
+                    {
+                        name: 'base',
+                        versionId: 'base-current',
+                        packageId: '0Ho000000000001AAA',
+                        subscriberPackageId: '033000000000001AAA',
+                        requiresKey: false
+                    }
+                ],
+                [
+                    { SubscriberPackageVersionId: 'base-current', SubscriberPackageId: '033000000000001AAA' },
+                    { SubscriberPackageVersionId: 'unexpected-version', SubscriberPackageId: '033000000000003AAA' }
                 ],
                 'ci-maintenance',
                 '',
@@ -560,12 +674,18 @@ test(
         );
         fs.writeFileSync(
             planFile,
-            JSON.stringify({ base: { SubscriberPackageVersionId: 'base-new', Package2Id: 'base-package' } })
+            JSON.stringify({
+                base: {
+                    SubscriberPackageVersionId: 'base-new',
+                    Package2Id: '0Ho000000000001AAA',
+                    SubscriberPackageId: '033000000000001AAA'
+                }
+            })
         );
         fs.writeFileSync(
             installedFile,
             JSON.stringify({
-                result: [{ SubscriberPackageVersionId: 'base-old', SubscriberPackageId: 'base-package' }]
+                result: [{ SubscriberPackageVersionId: 'base-old', SubscriberPackageId: '033000000000001AAA' }]
             })
         );
         fs.writeFileSync(
@@ -577,7 +697,7 @@ if (args[0] === 'package' && args[1] === 'install') {
     fs.writeFileSync(process.env.MARKER_FILE, 'updated');
 } else if (args[0] === 'package' && args[1] === 'installed' && args[2] === 'list') {
     const version = fs.existsSync(process.env.MARKER_FILE) ? 'base-new' : 'base-old';
-    console.log(JSON.stringify({ result: [{ SubscriberPackageVersionId: version, SubscriberPackageId: 'base-package' }] }));
+    console.log(JSON.stringify({ result: [{ SubscriberPackageVersionId: version, SubscriberPackageId: '033000000000001AAA' }] }));
 } else {
     process.exitCode = 1;
 }

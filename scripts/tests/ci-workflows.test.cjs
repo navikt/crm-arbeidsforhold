@@ -380,6 +380,38 @@ test('both routes exclude the non-package sources before validation', () => {
     }
 });
 
+test('maintenance always validates recovered package plans without persisting metadata', () => {
+    const source = readWorkflow('ci-maintain-scratch-org.yml');
+    const smokeStart = source.indexOf('- name: Smoke-test updated registered org');
+    const smokeEnd = source.indexOf('- name: Notify repository owners', smokeStart);
+    assert.ok(smokeStart >= 0 && smokeEnd > smokeStart);
+    const smoke = source.slice(smokeStart, smokeEnd);
+    const mappingMarkers = [
+        'sf data query --target-org ci-devhub --use-tooling-api',
+        'ci-scratch-plan.cjs map-package-ids',
+        'sf package installed list --target-org ci-reuse'
+    ].map((marker) => source.indexOf(marker));
+    assert.ok(
+        mappingMarkers.every(
+            (index, position) => index >= 0 && (position === 0 || index > mappingMarkers[position - 1])
+        ),
+        mappingMarkers.join()
+    );
+    assert.match(source, /SELECT Id, SubscriberPackageId FROM Package2/);
+    assert.match(
+        source,
+        /if: steps\.plan\.outputs\.needs_replacement != 'true' && steps\.reconcile\.outcome == 'success' && steps\.reconcile\.outputs\.needs_replacement != 'true'/
+    );
+    assert.doesNotMatch(smoke, /packages_changed/);
+    assert.match(smoke, /sf project deploy start --dry-run/);
+    assert.match(smoke, /--test-level RunSpecifiedTests/);
+    assert.match(smoke, /test_arguments\+=\(--tests "\$test_class"\)/);
+    assert.match(smoke, /--coverage-formatters json/);
+    assert.match(smoke, /ci-scratch-plan\.cjs coverage/);
+    assert.doesNotMatch(smoke, /sf apex run test/);
+    assert.match(source, /SMOKE_OUTCOME.*steps\.smoke\.outcome/);
+});
+
 test(
     'both routes run exactly the repository test classes and enforce 85% coverage',
     { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },

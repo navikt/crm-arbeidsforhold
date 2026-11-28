@@ -4,6 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { createInterface } = require('node:readline/promises');
+const { stageDeployableSource } = require('./ci-scratch-plan.cjs');
 
 const REPOSITORY = 'navikt/crm-arbeidsforhold';
 const ENVIRONMENT = 'ci-scratch-org';
@@ -192,7 +193,9 @@ function verifyLocalSource(run, repositoryPath) {
             'sfdx-project.json',
             'config/project-scratch-def.json',
             'force-app',
+            '.forceignore',
             'bin/package-dependencies.js',
+            'bin/package-dependency-report.js',
             'scripts/ci-scratch-plan.cjs',
             'scripts/ci-scratch-org-replace.cjs'
         ],
@@ -204,24 +207,26 @@ function verifyLocalSource(run, repositoryPath) {
         );
 }
 
-function testArguments(testClasses, targetOrg, outputDirectory) {
+function validationArguments(sourceDirectory, testClasses, targetOrg) {
     if (!Array.isArray(testClasses) || testClasses.length === 0) {
         throw new Error('No repository Apex test classes were found.');
     }
     return [
-        'apex',
-        'run',
-        'test',
+        'project',
+        'deploy',
+        'start',
+        '--dry-run',
+        '--source-dir',
+        sourceDirectory,
         '--target-org',
         targetOrg,
+        '--test-level',
+        'RunSpecifiedTests',
         ...testClasses.flatMap((name) => ['--tests', name]),
-        '--code-coverage',
-        '--result-format',
+        '--coverage-formatters',
         'json',
-        '--output-dir',
-        outputDirectory,
         '--wait',
-        '30',
+        '60',
         '--json'
     ];
 }
@@ -300,26 +305,22 @@ async function replaceScratchOrg({
             cwd: repositoryPath,
             env: commandEnvironment
         });
-        process.stdout.write('Deploying main metadata and running repository Apex tests.\n');
-        run('sf', ['project', 'deploy', 'start', '--source-dir', 'force-app', '--target-org', alias, '--wait', '60'], {
-            cwd: repositoryPath
-        });
+        process.stdout.write('Staging deployable metadata and discovering repository Apex tests.\n');
+        const stagedSource = path.join(temporaryDirectory, 'force-app');
+        stageDeployableSource(path.join(repositoryPath, 'force-app'), stagedSource);
         const testClasses = parseJson(
-            run(process.execPath, ['scripts/ci-scratch-plan.cjs', 'tests', 'force-app'], { cwd: repositoryPath }),
+            run(process.execPath, ['scripts/ci-scratch-plan.cjs', 'tests', stagedSource], { cwd: repositoryPath }),
             'repository Apex test classes'
         );
-        const testOutput = path.join(temporaryDirectory, 'apex-results');
-        run('sf', testArguments(testClasses, alias, testOutput), { cwd: repositoryPath });
-        run(
-            process.execPath,
-            [
-                'scripts/ci-scratch-plan.cjs',
-                'coverage',
-                path.join(testOutput, 'test-result-codecoverage.json'),
-                'force-app'
-            ],
-            { cwd: repositoryPath }
+        process.stdout.write('Validating staged metadata and tests without persisting metadata in the CI org.\n');
+        const deployResult = path.join(temporaryDirectory, 'deploy-result.json');
+        fs.writeFileSync(
+            deployResult,
+            run('sf', validationArguments(stagedSource, testClasses, alias), { cwd: repositoryPath })
         );
+        run(process.execPath, ['scripts/ci-scratch-plan.cjs', 'coverage', deployResult, stagedSource], {
+            cwd: repositoryPath
+        });
 
         const org = parseJson(
             run('sf', ['org', 'display', '--target-org', alias, '--json'], { cwd: repositoryPath }),
@@ -389,7 +390,7 @@ if (require.main === module) {
 module.exports = {
     replaceScratchOrg,
     setEnvironmentRegistration,
-    testArguments,
+    validationArguments,
     validateRegistration,
     verifyRepositoryOwner
 };
