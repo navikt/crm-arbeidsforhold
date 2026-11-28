@@ -162,12 +162,12 @@ function releaseRegistrationLock(run, lockCommit) {
     run('gh', ['api', `${root}/refs/heads/${REGISTRATION_LOCK}`, '--method', 'DELETE']);
 }
 
-function setEnvironmentRegistration(registration, run = commandRunner) {
+function setEnvironmentRegistration(registration, run = commandRunner, onEnvironmentWriteStarted = () => {}) {
     validateRegistration(registration);
     const lockCommit = acquireRegistrationLock(run);
     let updateError;
     try {
-        writeEnvironmentRegistration(registration, run);
+        writeEnvironmentRegistration(registration, run, onEnvironmentWriteStarted);
     } catch (error) {
         updateError = error;
     }
@@ -182,7 +182,7 @@ function setEnvironmentRegistration(registration, run = commandRunner) {
     if (updateError) throw updateError;
 }
 
-function writeEnvironmentRegistration(registration, run) {
+function writeEnvironmentRegistration(registration, run, onEnvironmentWriteStarted) {
     const previous = readEnvironmentVariables(run);
     const values = [
         ['CI_SCRATCH_ORG_ID', registration.orgId],
@@ -191,6 +191,7 @@ function writeEnvironmentRegistration(registration, run) {
     ];
     const changed = [];
     try {
+        onEnvironmentWriteStarted();
         for (const [name, value] of values) {
             changed.push(name);
             run('gh', ['variable', 'set', name, '--repo', REPOSITORY, '--env', ENVIRONMENT, '--body', value]);
@@ -390,6 +391,7 @@ async function replaceScratchOrg({
         });
         process.stdout.write('Staging deployable metadata and discovering repository Apex tests.\n');
         const stagedSource = path.join(temporaryDirectory, 'force-app');
+        fs.copyFileSync(path.join(repositoryPath, '.forceignore'), path.join(temporaryDirectory, '.forceignore'));
         stageDeployableSource(path.join(repositoryPath, 'force-app'), stagedSource);
         const testClasses = parseJson(
             run(process.execPath, ['scripts/ci-scratch-plan.cjs', 'tests', stagedSource], { cwd: repositoryPath }),
@@ -433,8 +435,9 @@ async function replaceScratchOrg({
         validateRegistration(registration);
 
         process.stdout.write('Registering the verified org in the ci-scratch-org GitHub Environment.\n');
-        registrationStarted = true;
-        setEnvironmentRegistration(registration, run);
+        setEnvironmentRegistration(registration, run, () => {
+            registrationStarted = true;
+        });
         registered = true;
         process.stdout.write(
             `CI scratch org registered through your GitHub account. The previous org remains until it expires; see the guide for cleanup if needed.\n`

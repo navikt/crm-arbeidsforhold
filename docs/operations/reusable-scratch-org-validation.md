@@ -80,9 +80,11 @@ Kommandoen:
    `LATEST`-versjonar;
 4. opprettar ein scratch-org som varer i 30 dagar og installerer alle
    planlagde pakkeversjonar;
-5. kopierer deployerbar `force-app` til eit mellombels område utan å endre
-   checkouten, og køyrer check-only deploy med repoet sine Apex-testklassar og
-   handhevar 85 % samla dekning. Metadata blir ikkje lagra i scratch-orgen;
+5. kopierer deployerbar `force-app` og `.forceignore` til eit mellombels
+   område utan å endre checkouten, slik at Salesforce held fram med å ignorere
+   testfiler og anna kjelde som ikkje skal deployerast. Han køyrer check-only
+   deploy med repoet sine Apex-testklassar og handhevar 85 % samla dekning.
+   Metadata blir ikkje lagra i scratch-orgen;
 6. etter bestått røyketest tek han ein felles GitHub-lås, og oppdaterer variablane
    `CI_SCRATCH_ORG_ID`, `CI_SCRATCH_ORG_EXPIRATION` og
    `CI_SCRATCH_ORG_CONFIG_SHA256`, og set `CI_SCRATCH_ORG_AUTH_URL` som secret

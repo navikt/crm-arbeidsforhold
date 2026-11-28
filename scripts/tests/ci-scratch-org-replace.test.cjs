@@ -236,10 +236,16 @@ test('preserves the new org when GitHub registration reports an ambiguous secret
         path.join(repositoryPath, 'force-app/main/default/classes/Example.cls'),
         'public class Example {}'
     );
+    fs.writeFileSync(path.join(repositoryPath, '.forceignore'), '**/__tests__/**\n');
     const calls = [];
+    let stagedForceIgnore;
     const orgId = '00D000000000003AAA';
     const run = (command, args) => {
         calls.push({ command, args });
+        if (command === 'sf' && args[0] === 'project' && args[1] === 'deploy') {
+            const sourceDirectory = args[args.indexOf('--source-dir') + 1];
+            stagedForceIgnore = fs.readFileSync(path.join(path.dirname(sourceDirectory), '.forceignore'), 'utf8');
+        }
         if (command === 'git' && args[0] === 'remote') return 'https://github.com/navikt/crm-arbeidsforhold.git';
         if (command === 'git' && args[0] === 'fetch') return '';
         if (command === 'git' && args[0] === 'branch') return 'main';
@@ -298,9 +304,67 @@ test('preserves the new org when GitHub registration reports an ambiguous secret
     assert.ok(deploy.args.includes('--dry-run'));
     const stagedSource = testDiscovery.args[2];
     assert.equal(deploy.args[deploy.args.indexOf('--source-dir') + 1], stagedSource);
+    assert.equal(stagedForceIgnore, '**/__tests__/**\n');
     assert.equal(coverage.args[3], stagedSource);
     assert.equal(
         calls.some(({ command, args }) => command === 'sf' && args[1] === 'delete'),
+        false
+    );
+});
+
+test('deletes the candidate org when registration is rejected by an existing lock', async (context) => {
+    const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-scratch-lock-test-'));
+    context.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+    fs.mkdirSync(path.join(repositoryPath, 'force-app/main/default/classes'), { recursive: true });
+    fs.writeFileSync(
+        path.join(repositoryPath, 'force-app/main/default/classes/Example.cls'),
+        'public class Example {}'
+    );
+    fs.writeFileSync(path.join(repositoryPath, '.forceignore'), '**/__tests__/**\n');
+    const calls = [];
+    const orgId = '00D000000000004AAA';
+    const run = (command, args) => {
+        calls.push({ command, args });
+        if (command === 'git' && args[0] === 'remote') return 'https://github.com/navikt/crm-arbeidsforhold.git';
+        if (command === 'git' && args[0] === 'fetch') return '';
+        if (command === 'git' && args[0] === 'branch') return 'main';
+        if (command === 'git' && args[0] === 'rev-parse') return 'same-commit';
+        if (command === 'git' && args[0] === 'status') return '';
+        if (command === 'gh' && args[0] === 'api' && args[1] === 'user') return 'repo-owner';
+        if (command === 'gh' && args[0] === 'api' && args[1].startsWith('orgs/navikt/teams/')) return 'active';
+        if (command === 'gh' && args[0] === 'api' && args[1].includes('/collaborators/')) return 'admin';
+        if (command === process.execPath && args[0] === 'bin/package-dependencies.js') return '';
+        if (command === process.execPath && args[0] === 'scripts/ci-scratch-plan.cjs') {
+            if (args[1] === 'fingerprint') return 'a'.repeat(64);
+            if (args[1] === 'tests') return '["ExampleTest"]';
+            return '';
+        }
+        if (command === 'sf' && args[0] === 'org' && args[1] === 'create') {
+            return JSON.stringify({ result: { orgId } });
+        }
+        if (command === 'sf' && args[0] === 'org' && args[1] === 'display') {
+            return JSON.stringify({ result: { id: orgId, expirationDate: '2026-12-28T00:00:00Z' } });
+        }
+        if (command === 'sf' && args[0] === 'org' && args[1] === 'auth') {
+            return JSON.stringify({ result: { sfdxAuthUrl: registration.authUrl } });
+        }
+        if (command === 'sf' && args[0] === 'org' && args[1] === 'delete') return '';
+        return '';
+    };
+
+    await assert.rejects(
+        replaceScratchOrg({
+            targetDevHub: 'existing-dev-hub',
+            repositoryPath,
+            run: withFakeRegistrationLock(run, { sha: 'another-operator-lock' }),
+            confirm: async () => {},
+            environment: { CRM_PACKAGE_KEY: 'test-key' }
+        }),
+        /could not acquire the shared registration lock/i
+    );
+    assert.ok(calls.some(({ command, args }) => command === 'sf' && args[1] === 'delete'));
+    assert.equal(
+        calls.some(({ args }) => args[0] === 'variable' || args[0] === 'secret'),
         false
     );
 });
