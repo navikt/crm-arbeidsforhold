@@ -97,6 +97,21 @@ plan og opprette den nye scratch-orgen.
 
 ## Erstatt CI scratch-org
 
+Set først pakkenøkkelen i same terminal som du køyrer kommandoen i. Hent
+verdien frå teamet si godkjende secret-lagring, og lim han inn når du blir
+spurd. Inndata blir ikkje viste og havnar ikkje i terminalhistorikken.
+Kommandoen fungerer i både zsh og bash:
+
+```sh
+printf 'CRM_PACKAGE_KEY: '; read -rs CRM_PACKAGE_KEY; echo; export CRM_PACKAGE_KEY
+```
+
+Utan dette steget stoppar kommandoen med
+`CRM_PACKAGE_KEY must be available in the local environment.` Verdien i
+GitHub-miljøet `ci-scratch-org` kan ikkje lesast tilbake, så han må hentast frå
+secret-lagringa. Fjern verdien frå terminalen når du er ferdig:
+`unset CRM_PACKAGE_KEY`.
+
 Køyr frå repo-rota etter at `main` er oppdatert. Byt ut plasshaldaren med den
 eksisterande Dev Hub-aliasen som du kontrollerte lokalt:
 
