@@ -1,8 +1,8 @@
 ---
 tittel: Brukerflater (SF)
-kilde: Confluence — Brukerflater (SF) (PDF-eksport)
-hentet: 2026-09-08
-speilkopi: ja
+kilde: Repoet — crm-arbeidsforhold
+oppdatert: 2026-11-28
+speilkopi: nei
 ---
 
 # Brukerflater (SF)
@@ -55,6 +55,14 @@ Eksempel:
 - [Gjennomgang av CRMAAREG-323 mot crm-arbeidsforhold](../context/ekstern-brukerflate/crmaareg-323-gjennomgang.md)
 - [Prompt: harmoniser Jira-saker under CRMAAREG-323](../context/ekstern-brukerflate/prompt-harmoniser-jira.md)
 
-## Merknader ved speiling
+## Eierskap til denne siden
+
+Siden er repo-eid fra 2026-11-28, ikke en speilkopi fra Confluence.
+Den ble opprinnelig hentet fra Confluence-siden «Brukerflater (SF)» 2026-09-08.
+Confluence må lenke hit og beskrive kildeansvaret. Inntil oppfølgingen i
+[#1289](https://github.com/navikt/crm-arbeidsforhold/issues/1289) er utført,
+kan Confluence ha en eldre beskrivelse.
+
+## Merknader fra speilingen 2026-09-08
 
 - Kilden har «LWC-komponenterLightning pages» som ett punkt. Dette er tolket som to punkter, «LWC-komponenter» og «Lightning pages», og delt opp her. Verifiser mot Confluence.

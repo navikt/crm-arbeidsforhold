@@ -1,8 +1,8 @@
 ---
 tittel: Integrasjoner (SF)
-kilde: Confluence — Integrasjoner (SF) (PDF-eksport)
-hentet: 2026-09-08
-speilkopi: ja
+kilde: Repoet — crm-arbeidsforhold
+oppdatert: 2026-11-28
+speilkopi: nei
 ---
 
 # Integrasjoner (SF)
@@ -41,3 +41,11 @@ Konkrete integrasjoner dokumenteres på egne undersider, for eksempel:
 Integrasjoner skal ikke eie Aa-registeret sitt domene.
 
 Integrasjoner skal oversette mellom interne modeller og eksterne kontrakter på en kontrollert og testbar måte.
+
+## Eierskap til denne siden
+
+Siden er repo-eid fra 2026-11-28, ikke en speilkopi fra Confluence.
+Den ble opprinnelig hentet fra Confluence-siden «Integrasjoner (SF)» 2026-09-08.
+Confluence må lenke hit og beskrive kildeansvaret. Inntil oppfølgingen i
+[#1289](https://github.com/navikt/crm-arbeidsforhold/issues/1289) er utført,
+kan Confluence ha en eldre beskrivelse.
