@@ -13,6 +13,7 @@ const {
     getApexCoverageNames,
     getApexTestClassNames,
     installPlan,
+    reconcileInstalledPackages,
     readPlan,
     scratchFingerprint,
     selectRoute,
@@ -37,13 +38,13 @@ test('preserves selected package IDs and key policy in manifest order', () => {
             packageKeyConfig: { base: false, parent: true }
         },
         {
-            base: { SubscriberPackageVersionId: 'base-version' },
-            parent: { SubscriberPackageVersionId: 'parent-version' }
+            base: { SubscriberPackageVersionId: 'base-version', Package2Id: 'base-package' },
+            parent: { SubscriberPackageVersionId: 'parent-version', Package2Id: 'parent-package' }
         }
     );
     assert.deepEqual(plan, [
-        { name: 'base', versionId: 'base-version', requiresKey: false },
-        { name: 'parent', versionId: 'parent-version', requiresKey: true }
+        { name: 'base', versionId: 'base-version', packageId: 'base-package', requiresKey: false },
+        { name: 'parent', versionId: 'parent-version', packageId: 'parent-package', requiresKey: true }
     ]);
 });
 
@@ -374,6 +375,65 @@ test('rejects installed packages that do not exactly match the installation plan
     }
 });
 
+test('upgrades planned package versions in place and verifies the resulting package set', async () => {
+    const plan = [
+        { name: 'base', versionId: 'base-new', packageId: 'base-package', requiresKey: false },
+        { name: 'parent', versionId: 'parent-same', packageId: 'parent-package', requiresKey: false }
+    ];
+    let installed = [
+        { SubscriberPackageVersionId: 'base-old', SubscriberPackageId: 'base-package' },
+        { SubscriberPackageVersionId: 'parent-same', SubscriberPackageId: 'parent-package' }
+    ];
+    const calls = [];
+
+    const result = await reconcileInstalledPackages(plan, installed, 'ci-maintenance', '', async (args) => {
+        calls.push(args);
+        if (args[1] === 'install') {
+            installed = plan.map(({ versionId, packageId }) => ({
+                SubscriberPackageVersionId: versionId,
+                SubscriberPackageId: packageId
+            }));
+            return '';
+        }
+        return JSON.stringify({ result: installed });
+    });
+
+    assert.deepEqual(result, { changed: ['base'] });
+    assert.deepEqual(calls[0], [
+        'package',
+        'install',
+        '--target-org',
+        'ci-maintenance',
+        '--package',
+        'base-new',
+        '--no-prompt',
+        '--wait',
+        '15',
+        '--publish-wait',
+        '10'
+    ]);
+    assert.deepEqual(calls[1], ['package', 'installed', 'list', '--target-org', 'ci-maintenance', '--json']);
+});
+
+test('does not mutate the registered org when installed packages cannot be reconciled in place', async () => {
+    const calls = [];
+    await assert.rejects(
+        () =>
+            reconcileInstalledPackages(
+                [{ name: 'base', versionId: 'base-current', packageId: 'base-package', requiresKey: false }],
+                [
+                    { SubscriberPackageVersionId: 'base-current', SubscriberPackageId: 'base-package' },
+                    { SubscriberPackageVersionId: 'unexpected-version', SubscriberPackageId: 'unexpected-package' }
+                ],
+                'ci-maintenance',
+                '',
+                async (args) => calls.push(args)
+            ),
+        /cannot be reconciled/
+    );
+    assert.deepEqual(calls, []);
+});
+
 test('reports package-list failures and invalid responses without exposing the installation key', async () => {
     const plan = [{ name: 'base', versionId: 'base-version', requiresKey: false }];
     await assert.rejects(
@@ -462,6 +522,7 @@ if (args[0] === 'package' && args[1] === 'install') {
                     }
                 }
             );
+
         const success = runInstall('matching');
         assert.equal(success.status, 0, success.stderr);
         assert.match(success.stdout, /installed package versions match/i);
@@ -476,5 +537,75 @@ if (args[0] === 'package' && args[1] === 'install') {
         assert.match(unavailable.stderr, /list unavailable: \[REDACTED\]/i);
         assert.match(unavailable.stderr, /could not verify installed package versions/i);
         assert.doesNotMatch(unavailable.stdout + unavailable.stderr, /test-key/);
+    }
+);
+
+test(
+    'reconcile command upgrades the registered package set through Salesforce CLI',
+    { skip: process.platform === 'win32' ? 'The simulated Salesforce CLI uses a Unix executable.' : false },
+    (context) => {
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-scratch-reconcile-'));
+        context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+        const projectFile = path.join(directory, 'project.json');
+        const planFile = path.join(directory, 'plan.json');
+        const installedFile = path.join(directory, 'installed.json');
+        const markerFile = path.join(directory, 'updated');
+        const cliFile = path.join(directory, 'sf');
+        fs.writeFileSync(
+            projectFile,
+            JSON.stringify({
+                packageDirectories: [{ dependencies: [{ package: 'base' }] }],
+                packageKeyConfig: { base: false }
+            })
+        );
+        fs.writeFileSync(
+            planFile,
+            JSON.stringify({ base: { SubscriberPackageVersionId: 'base-new', Package2Id: 'base-package' } })
+        );
+        fs.writeFileSync(
+            installedFile,
+            JSON.stringify({
+                result: [{ SubscriberPackageVersionId: 'base-old', SubscriberPackageId: 'base-package' }]
+            })
+        );
+        fs.writeFileSync(
+            cliFile,
+            `#!/usr/bin/env node
+const fs = require('node:fs');
+const args = process.argv.slice(2);
+if (args[0] === 'package' && args[1] === 'install') {
+    fs.writeFileSync(process.env.MARKER_FILE, 'updated');
+} else if (args[0] === 'package' && args[1] === 'installed' && args[2] === 'list') {
+    const version = fs.existsSync(process.env.MARKER_FILE) ? 'base-new' : 'base-old';
+    console.log(JSON.stringify({ result: [{ SubscriberPackageVersionId: version, SubscriberPackageId: 'base-package' }] }));
+} else {
+    process.exitCode = 1;
+}
+`,
+            { mode: 0o755 }
+        );
+        const result = spawnSync(
+            process.execPath,
+            [
+                path.resolve(__dirname, '../ci-scratch-plan.cjs'),
+                'reconcile',
+                projectFile,
+                planFile,
+                installedFile,
+                'ci-maintenance'
+            ],
+            {
+                encoding: 'utf8',
+                env: {
+                    ...process.env,
+                    PATH: directory + path.delimiter + process.env.PATH,
+                    MARKER_FILE: markerFile
+                }
+            }
+        );
+
+        assert.equal(result.status, 0, result.stderr);
+        assert.match(result.stdout, /updated package versions: base/i);
+        assert.equal(fs.readFileSync(markerFile, 'utf8'), 'updated');
     }
 );

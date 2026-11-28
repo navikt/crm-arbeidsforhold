@@ -36,8 +36,10 @@ Ein utviklar opnar ein PR og får **éin** Salesforce-validering som:
    og kva som eventuelt feila, utan at nokon må lese rå CLI-loggar;
 4. beheld dei tre påkravde sjekknamna, slik at branch protection ikkje må endrast.
 
-Ingen må manuelt opprette eller oppdatere CI-orgen. Ein planlagd workflow held
-han frisk og på rett pakkeversjon.
+Ein repo-admin må opprette og registrere ein ny CI-org når vedlikehaldet varslar
+at det trengst. Vedlikehaldsworkflowen oppgraderer pakkar når det er trygt, og
+varslar eigarteamet når manuell utskifting er nødvendig. PR-valideringa fell
+alltid tilbake til eingongsorg medan gjenbruksorgen manglar eller er ufrisk.
 
 ## Oversikt
 
@@ -130,39 +132,41 @@ har fleire ventande commitar, og køyringar frå same PR tel ikkje.
 ```mermaid
 flowchart TD
     start["[CI] Maintain CI scratch org: dagleg kl. 05 og manuelt"] --> lock["Ta den felles låsen for CI-orgen"]
-    lock --> fresh{"Finst orgen, varer han meir enn 7 døgn til og stemmer fingeravtrykket med main?"}
-    fresh -->|nei| pending{"Finst det ein kandidat som ventar på registrering?"}
-    pending -->|ja, gyldig| notify
-    pending -->|ja, ugyldig| discard["Slett den forkasta kandidaten"]
-    discard --> create
-    pending -->|nei| create["Lag ny kandidat-org"]
-    create --> install["Installer pakkeplan"]
-    install --> smoke["Røyktest: validering av main"]
-    smoke -->|bestått| notify["Oppsummering og varsel: registrer ny org manuelt"]
-    notify --> secret["Person køyrer éin kommando: dekrypter artefakt og registrer alle fire samla"]
-    secret --> remove["Neste vedlikehald slettar gammal org når alle fire peikar på den nye"]
-    smoke -->|feila| keep["Slett kandidaten, behald gammal org og vis feilen i oppsummeringa"]
-    fresh -->|ja| plan{"Pakkeversjonar lik pakkeplan?"}
-    plan -->|ja| unchanged["Ingen endring"]
-    plan -->|nei| upgrade["Installer manglande eller nyare versjonar i same org"]
-    upgrade --> unchanged
+    lock --> inspect["Kontroller registrering, utløp, scratch-definisjon og pakkeplan"]
+    inspect -->|frisk| upgrade["Oppgrader planlagde pakkar trygt i eksisterande org"]
+    upgrade -->|endra| smoke["Røyktest deploy, repo-testar og dekning"]
+    upgrade -->|frisk| close["Lukk eventuell open vedlikehalds-issue"]
+    smoke -->|bestått| close
+    inspect -->|treng utskifting eller feil| issue["Opprett/oppdater éi issue og nemn repo-eigarteamet"]
+    upgrade -->|kan ikkje oppgraderast| issue
+    smoke -->|feila| issue
+    issue --> fallback["PR-validering brukar eingongsorg-fallback"]
+    issue --> owner["Repo-admin køyrer lokal erstatningskommando"]
+    owner --> create["Opprett org frå gjeldande pakkeplan, deploy og røyketest"]
+    create --> register["Oppdater Environment-secret og variablar med eiga gh-innlogging"]
+    register --> inspect
 ```
+
+Vedlikehaldsworkflowen opprettar, byter eller slettar aldri scratch-orgar. Ho
+brukar Dev Hub-en for å slå opp den same daglege pakkeplanen som PR-valideringa,
+men bruker han ikkje til orgoppretting eller sletting. Ein lokal kommando
+opprettar og røyketestar ein ny org, og oppdaterer registreringa gjennom
+operatøren sin eigen GitHub CLI-token. Kommandoen kan berre køyrast av ein
+aktiv medlem av `@navikt/crm-arbeidsforhold-admin` med admin-permission på
+repoet. GitHub kontrollerer tilgangen på nytt når miljøverdiane blir endra.
 
 Registreringa består av secreten `CI_SCRATCH_ORG_AUTH_URL` og variablane
 `CI_SCRATCH_ORG_ID`, `CI_SCRATCH_ORG_EXPIRATION` og
-`CI_SCRATCH_ORG_CONFIG_SHA256`. Ho blir oppdatert manuelt inntil vidare. Medan
-ho er halvferdig, går PR-ane til fallback. Ein GitHub App med skrivetilgang
-til miljø-secrets kan valfritt takast i bruk seinare for å automatisere dette
-steget. Fram til alle fire verdiane er oppdaterte, held PR-ane fram på den gamle orgen
-eller fallback.
+`CI_SCRATCH_ORG_CONFIG_SHA256`. Variablane blir skrivne før secreten. Ved
+delvis feil rullar kommandoen variablane tilbake der det er mogleg, slettar
+den nye uregistrerte orgen og viser tydeleg om oppryddinga feila. PR-valideringa
+brukar fallback dersom verdiane ikkje peikar på same org.
 
-Medan ein røyktesta kandidat ventar på registrering, lagar vedlikehaldet ingen
-nye orgar. Det minner om registreringa i kvar køyring. Slik er det aldri meir
-enn éin kandidat i tillegg til den registrerte orgen, og kvoten for scratch-orgar
-blir verande ledig for fallback.
-
-Ein feil i vedlikehaldet stoppar ikkje PR-ar. Dei går til fallback til orgen er
-frisk igjen.
+Vedlikehaldet held éi issue open medan orgen manglar, er utdatert eller ikkje
+kan oppgraderast/røyketestast. Issue-en nemner repo-eigarteamet og lenkjer til
+driftsguiden. Han blir lukka når vedlikehaldskontrollen er grøn. Dersom
+vedlikehaldsworkflowen feilar, stoppar han ikkje PR-valideringa; fallback held
+fram.
 
 ## Krav
 
@@ -203,14 +207,16 @@ frisk igjen.
 
 ### Vedlikehald
 
-- **REQ-140:** `[CI] Maintain CI scratch org` køyrer dagleg og manuelt.
-- **REQ-141:** Orgen blir fornya når han manglar, går ut om sju døgn eller mindre, eller når fingeravtrykket for scratch-definisjonen og `sourceApiVersion` på `main` ikkje stemmer med registreringa.
-- **REQ-142:** Ny org blir teken i bruk berre etter at røyktesten mot `main` er grøn.
-- **REQ-143:** Avvik i pakkeversjonar blir retta i same org når det er mogleg. Elles blir orgen fornya.
-- **REQ-144:** Vedlikehaldet viser same type oppsummering: tilstand før og etter, pakkar endra og utløpsdato.
-- **REQ-145:** Ny org blir registrert manuelt etter ein grøn røyktest. Secreten og dei tre variablane blir oppdaterte samla, og oppsummeringa listar namna på dei fire som må endrast, utløpsdatoen og fingeravtrykket. Org-ID og auth-URL blir ikkje viste (REQ-123). Auth-URL-en blir overlevert som kryptert artefakt etter REQ-147. Den gamle orgen blir ikkje sletta før alle fire peikar på den nye. Automatisering med GitHub App er valfri og kan komme seinare.
-- **REQ-146:** Det finst høgst éin kandidat-org om gongen. Kandidaten blir merkt i Dev Hub, til dømes med `Description` på `ScratchOrgInfo`, slik at tilstanden «ventar på registrering» overlever mellom køyringar utan å skrive til repoet. Ein gyldig kandidat (røyktesta, går ut om meir enn sju døgn og fingeravtrykket stemmer med `main`) blir gjenbrukt. Ein ugyldig kandidat blir sletta før ein ny blir oppretta. Ein kandidat som feilar røyktesten, blir sletta med ein gong.
-- **REQ-147:** Etter grøn røyktest krypterer vedlikehaldet auth-URL-en til kandidaten med ein offentleg nøkkel lagra som repo-variabel (`CI_SCRATCH_ORG_HANDOFF_PUBLIC_KEY`), og lastar han opp som artefakt med tre dagars levetid. Klartekst blir aldri skriven til logg, oppsummering eller artefakt. Den private nøkkelen finst berre hos operatøren. Ein lokal kommando lastar ned artefaktet, dekrypterer, set secreten og dei tre variablane samla med `gh`, og slettar artefaktet. Auth-URL-en blir ikkje lagra nokon annan stad, så artefaktet er einaste kjelde. Er kandidaten ikkje registrert når artefaktet går ut, slettar neste vedlikehald kandidaten og lagar ein ny (REQ-146).
+- **REQ-140:** `[CI] Maintain CI scratch org` køyrer dagleg og manuelt frå `main`, og deler eksklusiv concurrency-lås med PR-gjenbruksvalideringa.
+- **REQ-141:** Vedlikehaldet kontrollerer komplett registrering, autentisering, org-identitet, utløp, scratch-konfigurasjonsfingeravtrykk og installerte pakkar. Manglande/ugyldig registrering, utløp innan sju døgn, endra scratch-konfigurasjon eller uverifiserbar org krev eigaroppfølging.
+- **REQ-142:** Vedlikehaldsworkflowen opprettar, registrerer, byter eller slettar ikkje scratch-orgar. Vedlikehaldsfeil stoppar ikkje PR-valideringa.
+- **REQ-143:** Vedlikehaldet slår opp same pakkeplan som dagleg CI. Planlagde pakkeversjonar blir oppgraderte i eksisterande org når det er trygt. Uventa pakkar, mislukka oppgradering eller mislukka røyketest krev manuell utskifting.
+- **REQ-144:** Vedlikehaldet viser kontrollresultat, årsak til eventuell utskifting og pakkeendringar i Actions-oppsummeringa.
+- **REQ-145:** Når orgen krev eigaroppfølging eller vedlikehaldet ikkje kan verifisere orgtilstanden, opprettar eller oppdaterer vedlikehaldet éi open issue med årsak, lenke til driftsguiden og mention av `@navikt/crm-arbeidsforhold-admin`. Issue-en blir lukka når kontrollane er grøne og orgen samsvarar med pakkeplanen.
+- **REQ-146:** Lokal erstatningskommando krev aktivt medlemskap i `@navikt/crm-arbeidsforhold-admin`, repo-admin-permission, eksplisitt Dev Hub-alias og interaktiv stadfesting før Salesforce blir kontakta. Han opprettar 30-dagars org, installerer gjeldande pakkeplan, deployer `force-app`, køyrer repo-testar og handhevar 85 % dekning før registrering.
+- **REQ-147:** Etter grøn røyketest oppdaterer kommandoen `CI_SCRATCH_ORG_ID`, `CI_SCRATCH_ORG_EXPIRATION`, `CI_SCRATCH_ORG_CONFIG_SHA256` og `CI_SCRATCH_ORG_AUTH_URL` i `ci-scratch-org` med operatøren sin `gh`-innlogging. Auth-URL blir send via stdin og aldri vist eller lagra i repo/artifact. Variablane blir skrivne før secreten; ved feil blir tidlegare variabelverdiar gjenoppretta der det er mogleg. Dersom Environment-oppdateringa startar men feilar, blir den nye orgen verande for inspeksjon fordi GitHub kan ha akseptert ei secret-endring sjølv om CLI-en rapporterer feil. Feil før registreringssteget slettar kandidaten.
+- **REQ-148:** GitHub App for Environment-secret-skriving blir ikkje teken i bruk no. Ho kan vurderast som valfri automatisering seinare.
+- **REQ-149:** Eksisterande org blir ikkje sletta før ny org er verifisert og registrert. PR-valideringa fell tilbake til eingongsorg når registreringa er ufullstendig.
 
 ### Opprydding
 
@@ -252,13 +258,13 @@ Rute: gjenbruk – CI-org samsvarar med pakkeplanen (19/19), går ut 2026-12-07.
 | Sjekknamn | Uendra | Branch protection treng ikkje endrast. |
 | Testnivå | Repo-testar (`RunSpecifiedTests`) | Pakketestar blir ikkje køyrde på nytt. 75 %-kravet per klasse er akseptert. |
 | Godkjenning | Ingen per PR | Dagens påkravde validering har allereie Dev Hub-secret utan godkjenning. Gjenbruks-secreten gir tilgang berre til ein scratch-org. |
-| Fornying av secret | Manuell registrering no; GitHub App valfritt seinare | Vi tek ikkje i bruk GitHub App no. Vedlikehaldet gjer resten automatisk og seier frå når secreten må oppdaterast. |
+| Vedlikehald av CI-org | Varsel og lokal erstatning av repo-admin | Orgoppretting og Environment-skriving blir utført med eigen Salesforce- og GitHub-innlogging av eigarteamet, ikkje av Actions-tokenet. |
 | Kø-grense | Fallback ved 2 eller fleire andre PR-ar i kø | Lang kø et opp tidsvinsten. Commitar i same PR tel ikkje. |
 | Dekning for endra filer utan data | Tel som 0 %, ingen eigen stoppfeil | Tettar holet for utesta nye klassar utan falske positive for interface og liknande. |
 
 ## Tryggleik og data
 
-- Dev Hub-secreten `CRM_PROD_SFDX_URL` gir tilgang til ein produksjonstilknytt Dev Hub. Han blir brukt berre til å lage og slette scratch-orgar, slik som i dag. Agentar køyrer ikkje desse stega.
+- Dev Hub-secreten `CRM_PROD_SFDX_URL` gir tilgang til ein produksjonstilknytt Dev Hub. Vedlikehaldet nyttar han for pakkeplan-oppslag; det opprettar eller slettar ikkje orgar. Lokal eigarhandling opprettar ny scratch-org frå eksplisitt Dev Hub-alias. Agentar autentiserer ikkje mot Dev Hub.
 - CI-orgen inneheld berre syntetiske testdata.
 - Endringa rører CI og auth og krev menneskeleg review og security-review før merge.
 
@@ -270,6 +276,6 @@ Rute: gjenbruk – CI-org samsvarar med pakkeplanen (19/19), går ut 2026-12-07.
 
 ## Avklarte spørsmål
 
-1. GitHub App for automatisk oppdatering av secreten blir ikkje teken i bruk no. Det er eit valfritt steg seinare (REQ-145).
+1. GitHub App for automatisk oppdatering av secreten blir ikkje teken i bruk no. Det er eit valfritt steg seinare (REQ-148).
 2. Køyringa går til fallback når to eller fleire andre PR-ar ventar i kø for CI-orgen. Køyringa som er i gang, og fleire køyringar i same PR tel ikkje (REQ-105).
-3. Auth-URL-en til ein ny kandidat blir overlevert som kryptert artefakt som operatøren dekrypterer og registrerer med éin lokal kommando (REQ-147). JWT-innlogging er forkasta fordi det krev Dev Hub-sertifikatet lokalt.
+3. Eigarteamet opprettar og registrerer ny org lokalt med eige `sf`/`gh`-oppsett; CI opprettar ikkje kandidatar eller skriv Environment-secrets (REQ-142, REQ-146, REQ-147).

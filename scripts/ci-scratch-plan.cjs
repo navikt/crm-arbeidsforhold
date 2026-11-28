@@ -84,6 +84,7 @@ function readPlan(project, selectedVersions) {
                 plan.push({
                     name: dependency.package,
                     versionId: record.SubscriberPackageVersionId,
+                    ...(typeof record.Package2Id === 'string' ? { packageId: record.Package2Id } : {}),
                     requiresKey: project.packageKeyConfig?.[dependency.package] !== false
                 });
             }
@@ -272,33 +273,37 @@ function coverageRecords(data) {
     return records;
 }
 
-async function installPlan(plan, targetOrg, packageKey, run) {
+function installArguments(entry, targetOrg, packageKey) {
+    if (!entry.name || !entry.versionId || typeof entry.requiresKey !== 'boolean') {
+        throw new Error('Invalid package installation plan.');
+    }
+    if (entry.requiresKey && !packageKey) {
+        throw new Error(`Package installation key is required for ${entry.name}.`);
+    }
+    const args = [
+        'package',
+        'install',
+        '--target-org',
+        targetOrg,
+        '--package',
+        entry.versionId,
+        '--no-prompt',
+        '--wait',
+        '15',
+        '--publish-wait',
+        '10'
+    ];
+    if (entry.requiresKey) args.push('--installation-key', packageKey);
+    return args;
+}
+
+async function installPackageVersions(plan, targetOrg, packageKey, run) {
     if (!Array.isArray(plan) || plan.length === 0 || !targetOrg || typeof run !== 'function') {
         throw new Error('A package plan, target org and command runner are required.');
     }
     for (const entry of plan) {
-        if (!entry.name || !entry.versionId || typeof entry.requiresKey !== 'boolean') {
-            throw new Error('Invalid package installation plan.');
-        }
-        if (entry.requiresKey && !packageKey) {
-            throw new Error(`Package installation key is required for ${entry.name}.`);
-        }
-        const args = [
-            'package',
-            'install',
-            '--target-org',
-            targetOrg,
-            '--package',
-            entry.versionId,
-            '--no-prompt',
-            '--wait',
-            '15',
-            '--publish-wait',
-            '10'
-        ];
-        if (entry.requiresKey) args.push('--installation-key', packageKey);
         try {
-            await run(args);
+            await run(installArguments(entry, targetOrg, packageKey));
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             throw new Error(
@@ -306,6 +311,9 @@ async function installPlan(plan, targetOrg, packageKey, run) {
             );
         }
     }
+}
+
+async function readInstalledPackages(targetOrg, packageKey, run) {
     let output;
     try {
         output = await run(['package', 'installed', 'list', '--target-org', targetOrg, '--json'], { quiet: true });
@@ -325,19 +333,60 @@ async function installPlan(plan, targetOrg, packageKey, run) {
     if (response?.status !== undefined && response.status !== 0) {
         throw new Error('Salesforce CLI returned a failed installed package list response.');
     }
-    const mismatch = compareInstalledVersions(plan, response?.result);
-    if (mismatch) {
-        const details = [];
-        if (mismatch.missing?.length) {
-            details.push(
-                `Missing: ${mismatch.missing.map((entry) => `${entry.name} (${entry.versionId})`).join(', ')}.`
-            );
-        }
-        if (mismatch.unexpected?.length) {
-            details.push(`Unexpected: ${mismatch.unexpected.join(', ')}.`);
-        }
-        throw new Error([mismatch.reason, ...details].join(' '));
+    return response?.result;
+}
+
+function packageMismatchMessage(mismatch) {
+    const details = [];
+    if (mismatch.missing?.length) {
+        details.push(`Missing: ${mismatch.missing.map((entry) => `${entry.name} (${entry.versionId})`).join(', ')}.`);
     }
+    if (mismatch.unexpected?.length) {
+        details.push(`Unexpected: ${mismatch.unexpected.join(', ')}.`);
+    }
+    return [mismatch.reason, ...details].join(' ');
+}
+
+async function installPlan(plan, targetOrg, packageKey, run) {
+    await installPackageVersions(plan, targetOrg, packageKey, run);
+    const installed = await readInstalledPackages(targetOrg, packageKey, run);
+    const mismatch = compareInstalledVersions(plan, installed);
+    if (mismatch) {
+        throw new Error(packageMismatchMessage(mismatch));
+    }
+}
+
+async function reconcileInstalledPackages(plan, installed, targetOrg, packageKey, run) {
+    if (!Array.isArray(plan) || plan.length === 0 || !targetOrg || typeof run !== 'function') {
+        throw new Error('A package plan, target org and command runner are required.');
+    }
+    const mismatch = compareInstalledVersions(plan, installed);
+    if (!mismatch) return { changed: [] };
+
+    const plannedPackageIds = new Set(plan.map((entry) => entry.packageId).filter(Boolean));
+    const expectedVersions = new Set(plan.map((entry) => entry.versionId));
+    const unexpectedPackages = installed.filter(
+        (entry) =>
+            !expectedVersions.has(entry.SubscriberPackageVersionId) &&
+            (!entry.SubscriberPackageId || !plannedPackageIds.has(entry.SubscriberPackageId))
+    );
+    if (unexpectedPackages.length) {
+        throw new Error('Package versions cannot be reconciled in place; a replacement org is required.');
+    }
+
+    const missingVersions = new Set(mismatch.missing.map((entry) => entry.versionId));
+    const updates = plan.filter((entry) => missingVersions.has(entry.versionId));
+    if (updates.length === 0) {
+        throw new Error('Package versions cannot be reconciled in place; a replacement org is required.');
+    }
+
+    await installPackageVersions(updates, targetOrg, packageKey, run);
+    const updated = await readInstalledPackages(targetOrg, packageKey, run);
+    const remaining = compareInstalledVersions(plan, updated);
+    if (remaining) {
+        throw new Error(`Package versions cannot be reconciled in place. ${packageMismatchMessage(remaining)}`);
+    }
+    return { changed: updates.map((entry) => entry.name) };
 }
 
 function readJson(filename) {
@@ -405,6 +454,24 @@ async function main(args) {
         process.stdout.write('Installed package versions match the package plan.\n');
         return;
     }
+    if (command === 'reconcile' && values.length === 4) {
+        const [projectFile, planFile, installedFile, targetOrg] = values;
+        const plan = readPlan(readJson(projectFile), readJson(planFile));
+        const installed = readJson(installedFile).result;
+        const result = await reconcileInstalledPackages(
+            plan,
+            installed,
+            targetOrg,
+            process.env.CRM_PACKAGE_KEY ?? '',
+            (installArgs, options) => commandRunner(installArgs, process.env.CRM_PACKAGE_KEY ?? '', options)
+        );
+        process.stdout.write(
+            result.changed.length
+                ? `Updated package versions: ${result.changed.join(', ')}.\n`
+                : 'Installed package versions already match the package plan.\n'
+        );
+        return;
+    }
     if (command === 'tests' && values.length === 1) {
         process.stdout.write(`${JSON.stringify(getApexTestClassNames(values[0]))}\n`);
         return;
@@ -433,7 +500,9 @@ async function main(args) {
         process.stdout.write(`${scratchFingerprint(values[0], values[1])}\n`);
         return;
     }
-    throw new Error('Usage: ci-scratch-plan.cjs verify-scratch|route|install|tests|coverage|fingerprint <arguments>');
+    throw new Error(
+        'Usage: ci-scratch-plan.cjs verify-scratch|route|install|reconcile|tests|coverage|fingerprint <arguments>'
+    );
 }
 
 if (require.main === module) {
@@ -452,6 +521,7 @@ module.exports = {
     getApexCoverageNames,
     getApexTestClassNames,
     installPlan,
+    reconcileInstalledPackages,
     isForceIgnored,
     readPlan,
     scratchFingerprint,

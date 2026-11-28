@@ -8,6 +8,7 @@ const { scratchFingerprint } = require('../ci-scratch-plan.cjs');
 
 const directory = path.resolve(__dirname, '../../.github/workflows');
 const readWorkflow = (name) => fs.readFileSync(path.join(directory, name), 'utf8').replace(/\r\n/g, '\n');
+const readScript = (name) => fs.readFileSync(path.resolve(__dirname, '..', name), 'utf8').replace(/\r\n/g, '\n');
 
 test('package creation runs on main for metadata and package configuration changes', () => {
     const source = readWorkflow('push_create-package1.yml');
@@ -202,6 +203,30 @@ test('only the reusable org job is locked and protected; the new-org job runs wi
         fresh,
         /- name: Delete one-time scratch org\n {14}if: always\(\) && steps\.create-fresh\.outputs\.created == 'true'/
     );
+});
+
+test('scheduled scratch-org maintenance keeps the validation lock and only notifies owners when replacement is needed', () => {
+    const source = readWorkflow('ci-maintain-scratch-org.yml');
+    assert.match(source, /schedule:\n {8}- cron: '0 5 \* \* \*'/);
+    assert.match(source, /workflow_dispatch:/);
+    assert.match(source, /github\.ref == 'refs\/heads\/main'/);
+    assert.match(source, /environment: ci-scratch-org/);
+    assert.match(
+        source,
+        /concurrency:\n {12}group: crm-arbeidsforhold-reusable-scratch-org\n {12}cancel-in-progress: false\n {12}queue: max/
+    );
+    assert.match(source, /^permissions:\n {4}contents: read\n {4}issues: write$/m);
+    assert.match(source, /ci-scratch-org-maintenance\.cjs/);
+    assert.match(source, /--dev-hub ci-devhub/);
+    assert.doesNotMatch(
+        source,
+        /target-dev-hub|sf org create scratch|sf org delete scratch|show-sfdx-auth-url|HANDOFF_PUBLIC_KEY/
+    );
+    assert.doesNotMatch(source, /actions: write|contents: write|pull-requests: write|secrets: inherit/);
+
+    const notice = readScript('ci-scratch-org-maintenance.cjs');
+    assert.match(notice, /@navikt\/crm-arbeidsforhold-admin/);
+    assert.match(notice, /reusable-scratch-org-validation\.md/);
 });
 
 test('PR checks run from trusted base scripts before any Salesforce credential is used', () => {
