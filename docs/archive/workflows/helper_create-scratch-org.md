@@ -1,9 +1,13 @@
 # [HELPER] Create Scratch Org
 
-|               |                        |
-| ------------- | ---------------------- |
-| **Initiator** | Manual                 | 
-| **Type**      | Scratch Org Creation   |
+> **Arkivert workflowdokumentasjon:** Workflowen `[HELPER] Create Scratch Org` er fjerna. Bruk den
+> [lokale scratch-org-flyten](../../../bin/README.md) eller den
+> [gjenbrukbare CI-orgen](../../operations/reusable-scratch-org-validation.md).
+
+|               |                      |
+| ------------- | -------------------- |
+| **Initiator** | Manual               |
+| **Type**      | Scratch Org Creation |
 
 # Intro
 
@@ -12,10 +16,10 @@ and writes a branch output to `GITHUB_OUTPUT` instead of `$GITHUB_OUTPUT`.
 The shared owner must repair it before use. Use the documented
 [local scratch-org setup](../../../bin/README.md) with explicit approval instead.
 The description below documents the legacy flow, not verified working behaviour.
-See the [workflow overview](../../../docs/operations/workflows.md) for shared ownership
+See the [workflow overview](../../operations/workflows.md) for shared ownership
 and approval limitations.
 
-This workflows does the following: 
+This workflows does the following:
 
 - Create a scratch org directly from Github
     - Installs dependant packages

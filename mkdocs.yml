@@ -103,7 +103,13 @@ nav:
           - Kom i gang: kom-i-gang.md
           - Arbeidsflyt og dokumentasjon: arbeidsflyt-og-dokumentasjon.md
           - Utviklingsstandardar: utviklingsstandarder.md
-          - Workflowar: operations/workflows.md
+          - Workflowar:
+                - Oversikt: operations/workflows.md
+                - PR-validering: operations/workflows/pull_request-validation.md
+                - Pakkeoppretting: operations/workflows/push_create-package.md
+                - Dev-deploy: operations/workflows/push_deploy-to-dev.md
+                - Deployment: operations/workflows/helper_deployment.md
+                - Promotering: operations/workflows/helper_promotion.md
           - Gjenbrukbar scratch-org i CI: operations/reusable-scratch-org-validation.md
           - Metadataopprydding: operations/salesforce-metadata-cleanup-runbook.md
           - Feilrapport kontaktkopling: operations/feilrapport-kontaktkopling-ved-innsending.md
@@ -131,6 +137,7 @@ nav:
                 - 'Experience Cloud: console-feil og oppfølging': archive/operations/experience-cloud-console-2026-10-28.md
                 - 'Testgjennomgang: P360 og crm-arbeidsforhold med mock': archive/operations/p360-og-crm-arbeidsforhold-testgjennomgang-2026-10-14.md
                 - 'Arkiv: pilot for gjenbrukbar scratch-org': archive/operations/reusable-scratch-org-pilot-steg-8-10.md
+                - '[HELPER] Create Scratch Org (fjerna)': archive/workflows/helper_create-scratch-org.md
                 - 'Scratch-testlogg: crm-arbeidsforhold': archive/operations/scratch-testlogg-2026-10-15.md
           - P360:
                 - 'P360: frå brukarhandling til etterprøvbart arkivresultat': archive/p360/inngangar-og-verifikasjonsplan-2026-11-14.md

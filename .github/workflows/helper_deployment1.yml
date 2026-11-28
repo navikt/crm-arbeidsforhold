@@ -19,20 +19,6 @@ on:
 permissions:
   contents: read
 jobs:
-  debug:
-    name: Debug Information
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print input values
-        env:
-          TARGET_ORG: ${{ inputs.org }}
-          PACKAGE_ID: ${{ inputs.packageId }}
-          INITIATOR: ${{ github.actor }}
-        run: |
-          echo "Org: $TARGET_ORG"
-          echo "Package ID: $PACKAGE_ID"
-          echo "Initiator: $INITIATOR"
-
   deploy-package:
     name: Deploy Package
     uses: navikt/crm-workflows-base/.github/workflows/deployPackage.yml@aad6b4f48e419d71490db436da697cd7581a2c6a

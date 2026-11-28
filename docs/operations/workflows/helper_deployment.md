@@ -1,9 +1,9 @@
 # [HELPER] Deployment
 
-|               |                       |
-| ------------- | --------------------- |
-| **Initiator** | Manual                | 
-| **Type**      | Package Install       |
+|               |                 |
+| ------------- | --------------- |
+| **Initiator** | Manual          |
+| **Type**      | Package Install |
 
 # Intro
 
@@ -24,8 +24,6 @@ After the deployment, the package submitted will be installed if the workflow su
 
 ## Jobs
 
-- Debug Information (`debug`)
-    - Prints the input information (in case you forgot).
 - Deploy Package (`deploy-package`)
     - Basic `sfdx force:package:install`
     - Will also deploy metadata as source (`sfdx force:source:deploy`) from folder `./force-app/unpackagable-with-auto-deploy` (if it exists)
