@@ -131,10 +131,54 @@ test('Salesforce validation calls the local workflow only for same-repository Sa
     assert.notEqual(runGate({ VALIDATION_RESULT: 'skipped' }).status, 0);
 });
 
-test('offline CI covers the workflow contracts and Node tooling on PRs and main', () => {
+test('offline CI runs cross-platform for script changes while every PR runs the workflow contracts', () => {
     const source = readWorkflow('scratch-org-offline.yml');
-    for (const pattern of ['scripts/*.cjs', 'scripts/tests/**', '.github/workflows/**']) {
+    for (const pattern of ['scripts/*.cjs', 'scripts/tests/**', '.github/workflows/scratch-org-offline.yml']) {
         assert.equal(source.split(`'${pattern}'`).length - 1, 2, pattern);
+    }
+    assert.doesNotMatch(source, /'\.github\/workflows\/\*\*'/);
+    assert.match(readWorkflow('pull_request-lwc-validation.yml'), /run: npm run test:node/);
+});
+
+const workflowNames = () => fs.readdirSync(directory).filter((name) => name.endsWith('.yml'));
+const runnerJobs = (source) => {
+    const jobs = source.slice(source.indexOf('\njobs:\n') + '\njobs:\n'.length);
+    const indent = jobs.match(/^( +)[a-z]/m)[1];
+    return jobs
+        .split(new RegExp(`\\n(?=${indent}[a-z][a-z0-9_-]*:\\n)`))
+        .filter((section) => /\n\s+runs-on:/.test(section));
+};
+
+test('every runner job has a timeout so a hung job cannot hold a runner for six hours', () => {
+    for (const name of workflowNames()) {
+        for (const section of runnerJobs(readWorkflow(name))) {
+            assert.match(section, /\n\s+timeout-minutes: \d+\n/, `${name}: ${section.trim().split('\n')[0]}`);
+        }
+    }
+});
+
+test('workflows do not start runners only to print inputs', () => {
+    for (const name of workflowNames()) {
+        assert.doesNotMatch(readWorkflow(name), /name: Debug Information/, name);
+    }
+});
+
+test('the broken shared scratch-org helper is removed in favour of the local and CI org flows', () => {
+    assert.equal(fs.existsSync(path.join(directory, 'helper_create-scratch-org1.yml')), false);
+    assert.equal(fs.existsSync(path.join(directory, 'documentation')), false);
+    for (const name of workflowNames()) {
+        assert.doesNotMatch(readWorkflow(name), /createScratchOrg\.yml/, name);
+    }
+});
+
+test('cheap PR checks cancel superseded PR runs but never main or Salesforce validation runs', () => {
+    const prOnly =
+        /^concurrency:\n {2,4}group: \S+-\$\{\{ github\.event\.pull_request\.number \|\| github\.run_id \}\}\n {2,4}cancel-in-progress: \$\{\{ github\.event_name == 'pull_request' \}\}$/m;
+    for (const name of ['pull_request-lwc-validation.yml', 'docs-pages.yml', 'scratch-org-offline.yml']) {
+        assert.match(readWorkflow(name), prOnly, name);
+    }
+    for (const name of ['pull_request-validation1.yml', 'salesforce-validation.yml', 'ci-reusable-scratch-org.yml']) {
+        assert.doesNotMatch(readWorkflow(name), /cancel-in-progress: (true|\$\{\{)/, name);
     }
 });
 

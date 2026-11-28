@@ -9,7 +9,7 @@ on:
             - 'package.json'
             - 'sfdx-project.json'
             - 'sf-project.config.json'
-            - '.github/workflows/**'
+            - '.github/workflows/scratch-org-offline.yml'
     push:
         branches: [main]
         paths:
@@ -19,11 +19,15 @@ on:
             - 'package.json'
             - 'sfdx-project.json'
             - 'sf-project.config.json'
-            - '.github/workflows/**'
+            - '.github/workflows/scratch-org-offline.yml'
     workflow_dispatch:
 
 permissions:
     contents: read
+
+concurrency:
+    group: scratch-org-offline-${{ github.event.pull_request.number || github.run_id }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
     windows:

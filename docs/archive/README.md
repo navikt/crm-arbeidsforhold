@@ -46,6 +46,7 @@ Jira-oppdateringar i same kontekstmappe er også historiske og er merkte slik.
 | [Altinn-testguide](altinn/test-guide-community-plus-2026-10.md) og [testlogg](altinn/altinn-test-log-2026-10.md) | Historiske føresetnader, scenario og resultat |
 | [Scratch-testlogg, 2026-10-15](operations/scratch-testlogg-2026-10-15.md)                                        | Tidlegare testdata, tilstand og oppfølging    |
 | [Experience Cloud-diagnose, 2026-10-28](operations/experience-cloud-console-2026-10-28.md)                       | Daterte konsollfunn                           |
+| [`[HELPER] Create Scratch Org`](workflows/helper_create-scratch-org.md)                                          | Fjerna workflow og den gamle skildringa       |
 
 Gamle lenkjer kan peike til ei kort vidarevising. For ei ny observasjon må
 resultat, dato, mål, versjon, trygg evidens og eventuelt oppryddingsbehov

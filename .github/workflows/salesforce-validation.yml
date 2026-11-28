@@ -19,6 +19,7 @@ jobs:
     changes:
         name: Detect relevant changes
         runs-on: ubuntu-latest
+        timeout-minutes: 10
         outputs:
             salesforce: ${{ steps.changes.outputs.salesforce }}
         steps:
@@ -69,6 +70,7 @@ jobs:
         needs: [changes, salesforce]
         if: always()
         runs-on: ubuntu-latest
+        timeout-minutes: 5
         steps:
             - name: Require successful or unnecessary Salesforce validation
               env:
@@ -99,6 +101,7 @@ jobs:
         needs: compile
         if: always()
         runs-on: ubuntu-latest
+        timeout-minutes: 5
         steps:
             - name: Require successful Salesforce validation gate
               env:
@@ -110,6 +113,7 @@ jobs:
         needs: compile
         if: always()
         runs-on: ubuntu-latest
+        timeout-minutes: 5
         steps:
             - name: Require successful Salesforce validation gate
               env:

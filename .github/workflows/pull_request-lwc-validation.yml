@@ -7,10 +7,15 @@ on:
 permissions:
     contents: read
 
+concurrency:
+    group: pr-lwc-validation-${{ github.event.pull_request.number || github.run_id }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
     lwc-validation:
         name: Jest tests and Prettier check
         runs-on: ubuntu-latest
+        timeout-minutes: 20
         permissions:
             contents: read
         steps:

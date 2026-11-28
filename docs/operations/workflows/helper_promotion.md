@@ -24,8 +24,6 @@ This workflows does the following:
 
 ## Jobs
 
-- Debug Information (`debug`)
-    - Prints the input information (in case you forgot).
 - Promote Package (`promote-package`)
     - Promotes the package in production after the PREPROD installation succeeds.
 - Install Package in Preprod (`install-package-preprod`)
@@ -50,7 +48,7 @@ This workflows does the following:
     - `secrets.CRM_PACKAGE_KEY`
         - Needed to install dependant packages
 
-The local [package-promotion.yml](../package-promotion.yml) owns the promotion
+The local [package-promotion.yml](../../../.github/workflows/package-promotion.yml) owns the promotion
 sequence and PR auto-merge. The caller only runs it when manually dispatched
 from `main`. It continues to call the pinned shared
 `deployPackage.yml` workflow for PREPROD and UAT installation and the shared

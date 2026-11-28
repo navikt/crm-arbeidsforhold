@@ -28,6 +28,7 @@ jobs:
     validate-inputs:
         name: Validate promotion inputs
         runs-on: ubuntu-latest
+        timeout-minutes: 5
         permissions:
             contents: read
         steps:
@@ -39,19 +40,6 @@ jobs:
                     echo "Package ID must be a 15- or 18-character Salesforce ID." >&2
                     exit 1
                   fi
-
-    debug:
-        name: Debug Information
-        needs: [validate-inputs]
-        runs-on: ubuntu-latest
-        steps:
-            - name: Print promotion inputs
-              env:
-                  PACKAGE_ID: ${{ inputs.packageId }}
-                  INITIATOR: ${{ github.actor }}
-              run: |
-                  echo "Promoting Package ID: $PACKAGE_ID"
-                  echo "Initiator: $INITIATOR"
 
     install-package-preprod:
         name: Validate install in PREPROD
@@ -80,6 +68,7 @@ jobs:
         environment: production
         needs: [validate-inputs, install-package-preprod]
         runs-on: ubuntu-latest
+        timeout-minutes: 30
         permissions:
             contents: read
         steps:
@@ -219,6 +208,7 @@ jobs:
         environment: production
         needs: [validate-inputs, promote-package]
         runs-on: ubuntu-latest
+        timeout-minutes: 15
         permissions:
             contents: write
         steps:
