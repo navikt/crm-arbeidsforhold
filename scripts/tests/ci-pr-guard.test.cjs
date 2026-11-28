@@ -129,6 +129,7 @@ childProcess.execFileSync = (command, args, options) => {
     if (process.env.MOCK_FAIL) throw new Error('HTTP 502');
     let response;
     if (endpoint.endsWith('/pulls/42')) response = JSON.parse(process.env.MOCK_PULL);
+    else if (endpoint.includes('/compare/')) response = JSON.parse(process.env.MOCK_COMPARE);
     else if (endpoint.includes('/actions/workflows/pull_request-validation1.yml/runs?status=')) {
         const status = new URL('https://x/' + endpoint).searchParams.get('status');
         response = [{ workflow_runs: JSON.parse(process.env.MOCK_RUNS).filter((run) => run.status === status) }];
@@ -258,16 +259,122 @@ test('guard CLI rechecks the PR snapshot', (context) => {
     assert.match(result.stderr, /PR changed after the validation was queued/);
 });
 
+test('guard CLI keeps a queued PR current when only main has moved forward', (context) => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-pr-guard-base-'));
+    context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+    const env = {
+        ...process.env,
+        GITHUB_REPOSITORY: repository,
+        MOCK_PULL: JSON.stringify({ ...pullRequest, base: { ...pullRequest.base, sha: changedSha } }),
+        MOCK_COMPARE: JSON.stringify({ status: 'ahead', behind_by: 0 })
+    };
+    const run = () =>
+        spawnSync(
+            process.execPath,
+            [
+                '--require',
+                mockGh(directory),
+                path.resolve(__dirname, '../ci-pr-guard.cjs'),
+                'verify-current',
+                '42',
+                headSha,
+                baseSha
+            ],
+            { env, encoding: 'utf8' }
+        );
+    assert.equal(run().status, 0);
+    for (const compare of [
+        { status: 'diverged', behind_by: 1 },
+        { status: 'behind', behind_by: 2 }
+    ]) {
+        env.MOCK_COMPARE = JSON.stringify(compare);
+        const result = run();
+        assert.notEqual(result.status, 0);
+        assert.match(result.stderr, /PR changed after the validation was queued/);
+    }
+    env.MOCK_COMPARE = JSON.stringify({ status: 'ahead', behind_by: 0 });
+    env.MOCK_PULL = JSON.stringify({
+        ...pullRequest,
+        head: { ...pullRequest.head, sha: changedSha },
+        base: { ...pullRequest.base, sha: changedSha }
+    });
+    assert.notEqual(run().status, 0);
+});
+
 test('accepts only the captured merge commit with the expected base and PR parents', () => {
     assert.doesNotThrow(() => verifyMergeCommit([mergeSha, baseSha, headSha], mergeSha, baseSha, headSha));
+    assert.throws(
+        () => verifyMergeCommit([mergeSha, changedSha, headSha], mergeSha, baseSha, headSha, () => false),
+        /merge.*commit/i
+    );
     for (const commits of [
         ['e'.repeat(40), baseSha, headSha],
         [mergeSha, headSha, baseSha],
         [mergeSha, baseSha],
         [mergeSha, baseSha, 'd'.repeat(40)]
     ]) {
-        assert.throws(() => verifyMergeCommit(commits, mergeSha, baseSha, headSha), /merge.*commit/i);
+        assert.throws(() => verifyMergeCommit(commits, mergeSha, baseSha, headSha, () => true), /merge.*commit/i);
     }
+});
+
+test('accepts a merge commit built on a newer main commit when the PR head is unchanged', () => {
+    const checked = [];
+    const isNewerMain = (sha) => {
+        checked.push(sha);
+        return sha === changedSha;
+    };
+    assert.doesNotThrow(() =>
+        verifyMergeCommit([mergeSha, changedSha, headSha], mergeSha, baseSha, headSha, isNewerMain)
+    );
+    assert.deepEqual(checked, [changedSha]);
+    assert.throws(
+        () => verifyMergeCommit([mergeSha, changedSha, 'e'.repeat(40)], mergeSha, baseSha, headSha, () => true),
+        /merge.*commit/i
+    );
+});
+
+test('snapshot CLI accepts a newer main parent only when it descends from the captured base on main', (context) => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-pr-snapshot-'));
+    context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+    const git = (...args) =>
+        spawnSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@example.com', ...args], {
+            cwd: directory,
+            encoding: 'utf8'
+        }).stdout.trim();
+    const commit = (name) => {
+        fs.writeFileSync(path.join(directory, name), name);
+        git('add', name);
+        git('commit', '-q', '-m', name);
+        return git('rev-parse', 'HEAD');
+    };
+    git('init', '-q', '-b', 'main');
+    const capturedBase = commit('base');
+    const newerMain = commit('newer');
+    git('checkout', '-q', '-b', 'feature', capturedBase);
+    const prHead = commit('feature');
+    git('checkout', '-q', '-b', 'unrelated', capturedBase);
+    const unrelated = commit('unrelated');
+    git('update-ref', 'refs/remotes/origin/main', newerMain);
+    const mergeOn = (parent) => {
+        git('checkout', '-q', '--detach', parent);
+        git('merge', '-q', '--no-ff', '-m', 'merge', prHead);
+        return git('rev-parse', 'HEAD');
+    };
+    const run = (merge, base) =>
+        spawnSync(
+            process.execPath,
+            [path.resolve(__dirname, '../ci-pr-guard.cjs'), 'verify-snapshot', merge, base, prHead],
+            { cwd: directory, encoding: 'utf8' }
+        );
+
+    const newerMerge = mergeOn(newerMain);
+    assert.equal(run(newerMerge, capturedBase).status, 0);
+    const notOnMain = mergeOn(unrelated);
+    const rejected = run(notOnMain, capturedBase);
+    assert.notEqual(rejected.status, 0);
+    assert.match(rejected.stderr, /merge commit/);
+    const olderBase = mergeOn(capturedBase);
+    assert.notEqual(run(olderBase, newerMain).status, 0);
 });
 
 const trustedProject = {
