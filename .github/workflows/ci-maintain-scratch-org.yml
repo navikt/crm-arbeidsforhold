@@ -21,7 +21,6 @@ jobs:
             cancel-in-progress: false
             queue: max
         env:
-            CI_SCRATCH_ORG_AUTH_URL: ${{ secrets.CI_SCRATCH_ORG_AUTH_URL }}
             CI_SCRATCH_ORG_ID: ${{ vars.CI_SCRATCH_ORG_ID }}
             CI_SCRATCH_ORG_EXPIRATION: ${{ vars.CI_SCRATCH_ORG_EXPIRATION }}
             CI_SCRATCH_ORG_CONFIG_SHA256: ${{ vars.CI_SCRATCH_ORG_CONFIG_SHA256 }}
@@ -62,6 +61,8 @@ jobs:
 
             - name: Resolve current package plan
               id: plan
+              env:
+                  CI_SCRATCH_ORG_AUTH_URL: ${{ secrets.CI_SCRATCH_ORG_AUTH_URL }}
               run: |
                   set -euo pipefail
                   auth_file="$RUNNER_TEMP/registered-org-auth.txt"
@@ -110,6 +111,7 @@ jobs:
                     echo "reason=The registered CI scratch org could not be authenticated." >> "$GITHUB_OUTPUT"
                     exit 0
                   fi
+                  unset CI_SCRATCH_ORG_AUTH_URL
                   if ! sf org display --target-org ci-reuse --json > "$org_file" 2>/dev/null ||
                      ! jq -e --arg expected "$CI_SCRATCH_ORG_ID" \
                        --arg expiration "$CI_SCRATCH_ORG_EXPIRATION" \
@@ -151,7 +153,7 @@ jobs:
 
             - name: Reconcile installed package versions
               id: reconcile
-              if: steps.plan.outputs.needs_replacement != 'true'
+              if: steps.plan.outputs.needs_replacement == 'false'
               continue-on-error: true
               env:
                   CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
@@ -160,6 +162,7 @@ jobs:
                   output_file="$RUNNER_TEMP/reconcile-output.txt"
                   if ! node scripts/ci-scratch-plan.cjs reconcile sfdx-project.json "$RUNNER_TEMP/package-plan.json" \
                     "$RUNNER_TEMP/installed-packages.json" ci-reuse >"$output_file" 2>&1; then
+                    node scripts/ci-scratch-plan.cjs diagnostics package "$output_file"
                     echo "needs_replacement=true" >> "$GITHUB_OUTPUT"
                     echo "reason=Package versions could not be reconciled safely in the registered org." >> "$GITHUB_OUTPUT"
                     exit 0
@@ -175,7 +178,7 @@ jobs:
 
             - name: Smoke-test updated registered org
               id: smoke
-              if: steps.plan.outputs.needs_replacement != 'true' && steps.reconcile.outcome == 'success' && steps.reconcile.outputs.needs_replacement != 'true'
+              if: steps.plan.outputs.needs_replacement == 'false' && steps.reconcile.outcome == 'success' && steps.reconcile.outputs.needs_replacement == 'false'
               continue-on-error: true
               run: |
                   set -euo pipefail
@@ -192,6 +195,7 @@ jobs:
                   if ! sf project deploy start --dry-run --source-dir force-app --target-org ci-reuse \
                     --test-level RunSpecifiedTests "${test_arguments[@]}" --coverage-formatters json --wait 60 --json \
                     >"$RUNNER_TEMP/reuse-deploy-response.json" 2>"$RUNNER_TEMP/reuse-deploy-errors.log"; then
+                    node scripts/ci-scratch-plan.cjs diagnostics deployment "$RUNNER_TEMP/reuse-deploy-response.json"
                     echo "needs_replacement=true" >> "$GITHUB_OUTPUT"
                     echo "reason=Check-only metadata validation or repository Apex tests failed after package reconciliation." >> "$GITHUB_OUTPUT"
                     exit 0
@@ -223,12 +227,12 @@ jobs:
                   reason=""
                   if [[ "$INSPECT_OUTCOME" != "success" ]]; then
                     reason="The scheduled maintenance check failed before org health could be verified; see this Actions run."
-                  elif [[ "$INSPECT_NEEDS_REPLACEMENT" == "true" ]]; then
-                    reason="$INSPECT_REASON"
-                  elif [[ "$RECONCILE_OUTCOME" == "failure" || "$RECONCILE_NEEDS_REPLACEMENT" == "true" ]]; then
-                    reason="${RECONCILE_REASON:-Package reconciliation failed; see this Actions run.}"
-                  elif [[ "$SMOKE_OUTCOME" == "failure" || "$SMOKE_NEEDS_REPLACEMENT" == "true" ]]; then
-                    reason="${SMOKE_REASON:-The package-upgrade smoke test failed; see this Actions run.}"
+                  elif [[ "$INSPECT_NEEDS_REPLACEMENT" != "false" ]]; then
+                    reason="${INSPECT_REASON:-The org inspection did not confirm a healthy registration; see this Actions run.}"
+                  elif [[ "$RECONCILE_OUTCOME" != "success" || "$RECONCILE_NEEDS_REPLACEMENT" != "false" ]]; then
+                    reason="${RECONCILE_REASON:-Package reconciliation did not complete successfully; see this Actions run.}"
+                  elif [[ "$SMOKE_OUTCOME" != "success" || "$SMOKE_NEEDS_REPLACEMENT" != "false" ]]; then
+                    reason="${SMOKE_REASON:-The smoke test did not complete successfully; see this Actions run.}"
                   fi
                   if [[ -n "$reason" ]]; then
                     node scripts/ci-scratch-org-maintenance.cjs ensure "$reason" \

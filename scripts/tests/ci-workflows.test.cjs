@@ -400,7 +400,7 @@ test('maintenance always validates recovered package plans without persisting me
     assert.match(source, /SELECT Id, SubscriberPackageId FROM Package2/);
     assert.match(
         source,
-        /if: steps\.plan\.outputs\.needs_replacement != 'true' && steps\.reconcile\.outcome == 'success' && steps\.reconcile\.outputs\.needs_replacement != 'true'/
+        /if: steps\.plan\.outputs\.needs_replacement == 'false' && steps\.reconcile\.outcome == 'success' && steps\.reconcile\.outputs\.needs_replacement == 'false'/
     );
     assert.doesNotMatch(smoke, /packages_changed/);
     assert.match(smoke, /sf project deploy start --dry-run/);
@@ -411,6 +411,65 @@ test('maintenance always validates recovered package plans without persisting me
     assert.doesNotMatch(smoke, /sf apex run test/);
     assert.match(source, /SMOKE_OUTCOME.*steps\.smoke\.outcome/);
 });
+
+test('maintenance exposes scratch credentials only to the authentication step', () => {
+    const source = readWorkflow('ci-maintain-scratch-org.yml');
+    const planStart = source.indexOf('- name: Resolve current package plan');
+    const planEnd = source.indexOf('- name: Reconcile installed package versions', planStart);
+    assert.ok(planStart >= 0 && planEnd > planStart);
+    const secretAssignment = 'CI_SCRATCH_ORG_AUTH_URL: ${{ secrets.CI_SCRATCH_ORG_AUTH_URL }}';
+    assert.equal(source.split(secretAssignment).length - 1, 1);
+    assert.ok(source.slice(planStart, planEnd).includes(secretAssignment));
+});
+
+test(
+    'maintenance closes an existing notice only after explicit successful checks',
+    { skip: process.platform === 'win32' ? 'The workflow runs on Ubuntu with Bash.' : false },
+    (context) => {
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-maintenance-notice-'));
+        context.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+        const node = path.join(directory, 'node');
+        fs.writeFileSync(node, '#!/bin/sh\nprintf "%s\\n" "$2" > "$NOTICE_ACTION"\n', { mode: 0o755 });
+        const script = stepScript(readWorkflow('ci-maintain-scratch-org.yml'), 'Notify repository owners');
+        const normal = {
+            INSPECT_OUTCOME: 'success',
+            INSPECT_NEEDS_REPLACEMENT: 'false',
+            RECONCILE_OUTCOME: 'success',
+            RECONCILE_NEEDS_REPLACEMENT: 'false',
+            SMOKE_OUTCOME: 'success',
+            SMOKE_NEEDS_REPLACEMENT: 'false'
+        };
+        const cases = [
+            [{}, 'resolve'],
+            [{ SMOKE_OUTCOME: 'cancelled', SMOKE_NEEDS_REPLACEMENT: '' }, 'ensure'],
+            [{ SMOKE_OUTCOME: 'skipped', SMOKE_NEEDS_REPLACEMENT: '' }, 'ensure'],
+            [{ RECONCILE_OUTCOME: 'skipped', RECONCILE_NEEDS_REPLACEMENT: '' }, 'ensure'],
+            [{ INSPECT_NEEDS_REPLACEMENT: '' }, 'ensure'],
+            [{ SMOKE_NEEDS_REPLACEMENT: '' }, 'ensure']
+        ];
+        for (const [changes, expected] of cases) {
+            const actionFile = path.join(directory, 'action');
+            const result = spawnSync('/bin/bash', ['-c', script], {
+                encoding: 'utf8',
+                env: {
+                    ...process.env,
+                    ...normal,
+                    ...changes,
+                    PATH: `${directory}:${process.env.PATH}`,
+                    NOTICE_ACTION: actionFile,
+                    INSPECT_REASON: '',
+                    RECONCILE_REASON: '',
+                    SMOKE_REASON: '',
+                    GITHUB_SERVER_URL: 'https://github.com',
+                    GITHUB_REPOSITORY: 'example/repo',
+                    GITHUB_RUN_ID: '1'
+                }
+            });
+            assert.equal(result.status, 0, result.stderr);
+            assert.equal(fs.readFileSync(actionFile, 'utf8').trim(), expected, JSON.stringify(changes));
+        }
+    }
+);
 
 test(
     'both routes run exactly the repository test classes and enforce 85% coverage',

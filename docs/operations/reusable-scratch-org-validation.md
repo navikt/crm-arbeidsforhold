@@ -46,7 +46,8 @@ push-tilgang, men kan ikkje køyre erstatningsflyten utan admin-permission.
 - `gh` er innlogga mot GitHub med `read:org`-tilgang og admin-permission på
   `navikt/crm-arbeidsforhold`. Kontroller med `gh auth status`. Dersom
   `read:org` manglar, oppdater GitHub CLI-innlogginga etter teamet sine
-  tilgangsreglar.
+  tilgangsreglar. Innlogginga må òg kunne opprette og slette Git-referansar
+  i repoet; branch-reglar kan avvise dette.
 - `CRM_PACKAGE_KEY` er tilgjengeleg i terminalmiljøet frå teamet si godkjende
   secret-lagring. Ikkje legg nøkkelen i repoet, kommandolinjeargument,
   terminalhistorikk eller issue.
@@ -82,10 +83,12 @@ Kommandoen:
 5. kopierer deployerbar `force-app` til eit mellombels område utan å endre
    checkouten, og køyrer check-only deploy med repoet sine Apex-testklassar og
    handhevar 85 % samla dekning. Metadata blir ikkje lagra i scratch-orgen;
-6. etter bestått røyketest oppdaterer han variablane
+6. etter bestått røyketest tek han ein felles GitHub-lås, og oppdaterer variablane
    `CI_SCRATCH_ORG_ID`, `CI_SCRATCH_ORG_EXPIRATION` og
    `CI_SCRATCH_ORG_CONFIG_SHA256`, og set `CI_SCRATCH_ORG_AUTH_URL` som secret
-   i GitHub-miljøet med di eiga `gh`-innlogging.
+   i GitHub-miljøet med di eiga `gh`-innlogging. Låsen hindrar at to
+   operatørar skriv registreringa samtidig og blir fjerna etter oppdatering
+   eller tilbakerulling.
 
 Auth-URL-en blir sendt direkte til `gh secret set` via standard input. Han
 blir ikkje vist i terminalen eller lagra i repoet. Variablane blir skrivne
@@ -97,6 +100,34 @@ sletta manuelt. Feil før registreringssteget fører framleis til at den
 uverifiserte orgen blir sletta. Den tidlegare registrerte orgen blir ikkje
 sletta av kommandoen; han går ut etter Salesforce sin utløpsdato. Det hindrar
 at ei mislukka registrering fjernar den siste orgen PR-valideringa kan bruke.
+
+### Opprydding etter avbroten registrering
+
+Låsen er Git-referansen `refs/heads/ci-scratch-org-registration-lock`. Han
+peikar på ein eigen mellombels commit utan secrets eller filendringar. Om
+kommandoen blir avbroten, GitHub svarar med ein uavklart feil, eller sletting
+av låsen feilar, kan han bli ståande. Nye registreringar stoppar då trygt.
+
+1. Avklar med dei andre repo-administratorane at **ingen** registrering eller
+   tilbakerulling er aktiv. Ikkje fjern låsen medan ein operatør arbeider.
+2. Kontroller registreringa i GitHub-miljøet `ci-scratch-org` og meldinga frå
+   kommandoen. Ved uavklart oppdatering, undersøk den bevarte scratch-orgen
+   før du eventuelt slettar han eller registrerer på nytt.
+3. Ein repo-admin kan kontrollere låsen med:
+
+    ```sh
+    gh api repos/navikt/crm-arbeidsforhold/git/ref/heads/ci-scratch-org-registration-lock --jq '.object.sha'
+    ```
+
+4. Først når det er stadfesta at ingen operasjon er aktiv, kan repo-adminen
+   fjerne den gamle låsen:
+
+    ```sh
+    gh api --method DELETE repos/navikt/crm-arbeidsforhold/git/refs/heads/ci-scratch-org-registration-lock
+    ```
+
+Er låsen borte, eller hindrar branch-reglar eller tokenet skriving av
+referansar, må ein repo-admin avklare tilgang og tilstand før nytt forsøk.
 
 Det krevst ingen kryptert artifact, privat handoff-nøkkel eller GitHub App.
 GitHub App kan vurderast seinare, men er ikkje ein del av denne løysninga.

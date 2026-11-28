@@ -115,7 +115,7 @@ sequenceDiagram
 
 Valideringa er check-only og endrar ikkje kjelda i orgen. Køen er ein felles
 lås for CI-orgen. Han hindrar at to deployar konkurrerer i same org, og at
-vedlikehaldet oppgraderer pakkar eller slettar orgen medan ein PR validerer.
+vedlikehaldet oppgraderer pakkar medan ein PR validerer.
 Fallback-ruta brukar ikkje låsen.
 
 Når ei gjenbruksvalidering har fått låsen, kontrollerer ho tilstanden til orgen
@@ -134,13 +134,11 @@ flowchart TD
     start["[CI] Maintain CI scratch org: dagleg kl. 05 og manuelt"] --> lock["Ta den felles låsen for CI-orgen"]
     lock --> inspect["Kontroller registrering, utløp, scratch-definisjon og pakkeplan"]
     inspect -->|frisk| upgrade["Oppgrader planlagde pakkar trygt i eksisterande org"]
-    upgrade -->|endra| smoke["Røyktest deploy, repo-testar og dekning"]
-    upgrade -->|frisk| close["Lukk eventuell open vedlikehalds-issue"]
-    smoke -->|bestått| close
+    upgrade -->|vellukka| smoke["Check-only røyketest deploy, repo-testar og dekning"]
+    smoke -->|bestått| close["Lukk eventuell open vedlikehalds-issue"]
     inspect -->|treng utskifting eller feil| issue["Opprett/oppdater éi issue og nemn repo-eigarteamet"]
     upgrade -->|kan ikkje oppgraderast| issue
     smoke -->|feila| issue
-    issue --> fallback["PR-validering brukar eingongsorg-fallback"]
     issue --> owner["Repo-admin køyrer lokal erstatningskommando"]
     owner --> create["Opprett org frå gjeldande pakkeplan, deploy og røyketest"]
     create --> register["Oppdater Environment-secret og variablar med eiga gh-innlogging"]
@@ -214,7 +212,7 @@ fram.
 - **REQ-144:** Vedlikehaldet viser kontrollresultat, årsak til eventuell utskifting og pakkeendringar i Actions-oppsummeringa.
 - **REQ-145:** Når orgen krev eigaroppfølging eller vedlikehaldet ikkje kan verifisere orgtilstanden, opprettar eller oppdaterer vedlikehaldet éi open issue med årsak, lenke til driftsguiden og mention av `@navikt/crm-arbeidsforhold-admin`. Issue-en blir lukka når kontrollane er grøne og orgen samsvarar med pakkeplanen.
 - **REQ-146:** Lokal erstatningskommando krev aktivt medlemskap i `@navikt/crm-arbeidsforhold-admin`, repo-admin-permission, eksplisitt Dev Hub-alias og interaktiv stadfesting før Salesforce blir kontakta. Han opprettar 30-dagars org, installerer gjeldande pakkeplan, deployer `force-app`, køyrer repo-testar og handhevar 85 % dekning før registrering.
-- **REQ-147:** Etter grøn røyketest oppdaterer kommandoen `CI_SCRATCH_ORG_ID`, `CI_SCRATCH_ORG_EXPIRATION`, `CI_SCRATCH_ORG_CONFIG_SHA256` og `CI_SCRATCH_ORG_AUTH_URL` i `ci-scratch-org` med operatøren sin `gh`-innlogging. Auth-URL blir send via stdin og aldri vist eller lagra i repo/artifact. Variablane blir skrivne før secreten; ved feil blir tidlegare variabelverdiar gjenoppretta der det er mogleg. Dersom Environment-oppdateringa startar men feilar, blir den nye orgen verande for inspeksjon fordi GitHub kan ha akseptert ei secret-endring sjølv om CLI-en rapporterer feil. Feil før registreringssteget slettar kandidaten.
+- **REQ-147:** Etter grøn røyketest tek kommandoen ein felles GitHub-ref-lås og oppdaterer `CI_SCRATCH_ORG_ID`, `CI_SCRATCH_ORG_EXPIRATION`, `CI_SCRATCH_ORG_CONFIG_SHA256` og `CI_SCRATCH_ORG_AUTH_URL` i `ci-scratch-org` med operatøren sin `gh`-innlogging. Låsen dekkjer lesing, skriving og tilbakerulling, og ein avbroten lås krev manuell kontroll før han kan fjernast. Auth-URL blir send via stdin og aldri vist eller lagra i repo/artifact. Variablane blir skrivne før secreten; ved feil blir tidlegare variabelverdiar gjenoppretta der det er mogleg, også for skrivingar med uavklart resultat. Dersom Environment-oppdateringa startar men feilar, blir den nye orgen verande for inspeksjon fordi GitHub kan ha akseptert ei secret-endring sjølv om CLI-en rapporterer feil. Feil før registreringssteget slettar kandidaten.
 - **REQ-148:** GitHub App for Environment-secret-skriving blir ikkje teken i bruk no. Ho kan vurderast som valfri automatisering seinare.
 - **REQ-149:** Eksisterande org blir ikkje sletta før ny org er verifisert og registrert. PR-valideringa fell tilbake til eingongsorg når registreringa er ufullstendig.
 

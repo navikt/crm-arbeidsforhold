@@ -6,6 +6,8 @@ const path = require('node:path');
 const { test } = require('node:test');
 const {
     calculateCoverage,
+    deploymentDiagnostics,
+    packageDiagnostics,
     changedSourcesWithoutCoverage,
     coverageMarkdown,
     coverageRecords,
@@ -32,6 +34,41 @@ const project = {
         }
     ]
 };
+
+test('deployment diagnostics include selected failures but redact credentials and ignore raw response fields', () => {
+    const output = deploymentDiagnostics(
+        JSON.stringify({
+            message: 'Deployment failed',
+            unrelated: 'do-not-print',
+            result: {
+                details: {
+                    componentFailures: [
+                        null,
+                        {
+                            problem:
+                                'Class failed with test-key, force://secret-credential, access_token=another-secret and authorization: Bearer opaque-token'
+                        }
+                    ],
+                    runTestResult: { failures: [{ message: 'Assertion failed on line 12' }] }
+                }
+            }
+        }),
+        ['test-key']
+    );
+    assert.match(output, /Deployment failed/);
+    assert.match(output, /Assertion failed on line 12/);
+    assert.doesNotMatch(output, /test-key|force:\/\/|secret-credential|another-secret|opaque-token|do-not-print/);
+    assert.match(deploymentDiagnostics('{invalid', []), /without valid JSON/i);
+});
+
+test('package diagnostics report relevant failure lines without revealing credentials or unrelated output', () => {
+    const output = packageDiagnostics(
+        'ignored output\nFailed to install Example 04t000000000001: test-key force://secret-credential\n',
+        ['test-key']
+    );
+    assert.match(output, /Failed to install Example/);
+    assert.doesNotMatch(output, /test-key|force:\/\/|secret-credential|ignored output/);
+});
 
 test('preserves selected package IDs and key policy in manifest order', () => {
     const plan = readPlan(

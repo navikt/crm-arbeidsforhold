@@ -4,12 +4,19 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { createInterface } = require('node:readline/promises');
-const { stageDeployableSource } = require('./ci-scratch-plan.cjs');
+const {
+    coverageDiagnostics,
+    deploymentDiagnostics,
+    diagnosticSecrets,
+    packageDiagnostics,
+    stageDeployableSource
+} = require('./ci-scratch-plan.cjs');
 
 const REPOSITORY = 'navikt/crm-arbeidsforhold';
 const ENVIRONMENT = 'ci-scratch-org';
 const OWNER_TEAM = 'crm-arbeidsforhold-admin';
 const VARIABLE_NAMES = ['CI_SCRATCH_ORG_ID', 'CI_SCRATCH_ORG_EXPIRATION', 'CI_SCRATCH_ORG_CONFIG_SHA256'];
+const REGISTRATION_LOCK = 'ci-scratch-org-registration-lock';
 
 function commandRunner(command, args, options = {}) {
     const result = spawnSync(command, args, {
@@ -21,7 +28,15 @@ function commandRunner(command, args, options = {}) {
     });
     if (result.error) throw new Error(`Could not run ${command}: ${result.error.message}`);
     if (result.status !== 0) {
-        throw new Error(`${command} ${args[0] ?? ''} failed with exit code ${result.status}.`);
+        const secrets = diagnosticSecrets({ ...process.env, ...options.env });
+        const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
+        let details = '';
+        if (options.diagnostics === 'deployment') details = deploymentDiagnostics(result.stdout, secrets);
+        if (options.diagnostics === 'package') details = packageDiagnostics(output, secrets);
+        if (options.diagnostics === 'coverage') details = coverageDiagnostics(output, secrets);
+        throw new Error(
+            `${command} ${args[0] ?? ''} failed with exit code ${result.status}.${details ? `\n${details}` : ''}`
+        );
     }
     return result.stdout.trim();
 }
@@ -99,8 +114,75 @@ function readEnvironmentVariables(run = commandRunner) {
     );
 }
 
+function acquireRegistrationLock(run) {
+    const root = `repos/${REPOSITORY}/git`;
+    const head = run('gh', ['api', `${root}/ref/heads/main`, '--jq', '.object.sha']);
+    if (!/^[a-f0-9]{40}$/.test(head)) throw new Error('Could not read the main commit for the registration lock.');
+    const tree = run('gh', ['api', `${root}/commits/${head}`, '--jq', '.tree.sha']);
+    if (!/^[a-f0-9]{40}$/.test(tree)) throw new Error('Could not read the main tree for the registration lock.');
+    const lockCommit = run('gh', [
+        'api',
+        `${root}/commits`,
+        '--method',
+        'POST',
+        '-f',
+        `message=CI scratch-org registration lock ${crypto.randomUUID()}`,
+        '-f',
+        `tree=${tree}`,
+        '-f',
+        `parents[]=${head}`,
+        '--jq',
+        '.sha'
+    ]);
+    if (!/^[a-f0-9]{40}$/.test(lockCommit)) throw new Error('Could not create the registration lock commit.');
+    try {
+        run('gh', [
+            'api',
+            `${root}/refs`,
+            '--method',
+            'POST',
+            '-f',
+            `ref=refs/heads/${REGISTRATION_LOCK}`,
+            '-f',
+            `sha=${lockCommit}`
+        ]);
+    } catch (error) {
+        throw new Error(
+            `Could not acquire the shared registration lock ${REGISTRATION_LOCK}; another operator may hold it or GitHub may have accepted the request. Check the lock and follow the recovery guide before retrying.`,
+            { cause: error }
+        );
+    }
+    return lockCommit;
+}
+
+function releaseRegistrationLock(run, lockCommit) {
+    const root = `repos/${REPOSITORY}/git`;
+    const current = run('gh', ['api', `${root}/ref/heads/${REGISTRATION_LOCK}`, '--jq', '.object.sha']);
+    if (current !== lockCommit) throw new Error('The registration lock no longer belongs to this operation.');
+    run('gh', ['api', `${root}/refs/heads/${REGISTRATION_LOCK}`, '--method', 'DELETE']);
+}
+
 function setEnvironmentRegistration(registration, run = commandRunner) {
     validateRegistration(registration);
+    const lockCommit = acquireRegistrationLock(run);
+    let updateError;
+    try {
+        writeEnvironmentRegistration(registration, run);
+    } catch (error) {
+        updateError = error;
+    }
+    try {
+        releaseRegistrationLock(run, lockCommit);
+    } catch (error) {
+        throw new Error(
+            `${updateError ? `${updateError.message} ` : ''}Could not release the shared registration lock ${REGISTRATION_LOCK}; follow the recovery guide before another replacement.`,
+            { cause: updateError ?? error }
+        );
+    }
+    if (updateError) throw updateError;
+}
+
+function writeEnvironmentRegistration(registration, run) {
     const previous = readEnvironmentVariables(run);
     const values = [
         ['CI_SCRATCH_ORG_ID', registration.orgId],
@@ -110,8 +192,8 @@ function setEnvironmentRegistration(registration, run = commandRunner) {
     const changed = [];
     try {
         for (const [name, value] of values) {
-            run('gh', ['variable', 'set', name, '--repo', REPOSITORY, '--env', ENVIRONMENT, '--body', value]);
             changed.push(name);
+            run('gh', ['variable', 'set', name, '--repo', REPOSITORY, '--env', ENVIRONMENT, '--body', value]);
         }
         run('gh', ['secret', 'set', 'CI_SCRATCH_ORG_AUTH_URL', '--repo', REPOSITORY, '--env', ENVIRONMENT], {
             input: registration.authUrl
@@ -146,7 +228,7 @@ function setEnvironmentRegistration(registration, run = commandRunner) {
             );
         }
         throw new Error(
-            `GitHub Environment update failed. Previous variables were restored; PR validation will fall back until the replacement is registered. ${error.message}`,
+            `GitHub Environment update failed. Previous variables were restored; verify the registration because PR validation may fall back. ${error.message}`,
             { cause: error }
         );
     }
@@ -303,7 +385,8 @@ async function replaceScratchOrg({
         process.stdout.write('Installing the package versions selected by the current main package plan.\n');
         run(process.execPath, ['scripts/ci-scratch-plan.cjs', 'install', 'sfdx-project.json', packagePlan, alias], {
             cwd: repositoryPath,
-            env: commandEnvironment
+            env: commandEnvironment,
+            diagnostics: 'package'
         });
         process.stdout.write('Staging deployable metadata and discovering repository Apex tests.\n');
         const stagedSource = path.join(temporaryDirectory, 'force-app');
@@ -316,10 +399,16 @@ async function replaceScratchOrg({
         const deployResult = path.join(temporaryDirectory, 'deploy-result.json');
         fs.writeFileSync(
             deployResult,
-            run('sf', validationArguments(stagedSource, testClasses, alias), { cwd: repositoryPath })
+            run('sf', validationArguments(stagedSource, testClasses, alias), {
+                cwd: repositoryPath,
+                diagnostics: 'deployment',
+                env: commandEnvironment
+            })
         );
         run(process.execPath, ['scripts/ci-scratch-plan.cjs', 'coverage', deployResult, stagedSource], {
-            cwd: repositoryPath
+            cwd: repositoryPath,
+            diagnostics: 'coverage',
+            env: commandEnvironment
         });
 
         const org = parseJson(
@@ -354,7 +443,7 @@ async function replaceScratchOrg({
         if (created && !registered) {
             if (registrationStarted) {
                 throw new Error(
-                    `${error.message} The replacement org was kept because GitHub may have partially accepted the Environment update. Verify the registration before deleting it.`,
+                    `${error.message} The replacement org was kept as Salesforce alias ${alias} because GitHub may have partially accepted the Environment update. Verify the registration before deleting it.`,
                     { cause: error }
                 );
             }
@@ -388,6 +477,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+    commandRunner,
     replaceScratchOrg,
     setEnvironmentRegistration,
     validationArguments,

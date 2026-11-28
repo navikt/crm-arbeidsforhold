@@ -4,6 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { test } = require('node:test');
 const {
+    commandRunner,
     replaceScratchOrg,
     setEnvironmentRegistration,
     validationArguments,
@@ -16,6 +17,52 @@ const registration = {
     expiration: '2030-01-15',
     fingerprint: 'a'.repeat(64)
 };
+
+test('reports selected deployment failures without exposing unrelated response fields or credentials', () => {
+    const response = JSON.stringify({
+        message: 'Deployment failed for test-key',
+        unrelated: 'do-not-print',
+        result: { details: { componentFailures: [{ problem: 'Example.cls: missing field' }] } }
+    });
+    assert.throws(
+        () =>
+            commandRunner(
+                process.execPath,
+                ['-e', `process.stdout.write(${JSON.stringify(response)}); process.exit(1)`],
+                {
+                    diagnostics: 'deployment',
+                    env: { CRM_PACKAGE_KEY: 'test-key' }
+                }
+            ),
+        (error) => /missing field/.test(error.message) && !/test-key|do-not-print/.test(error.message)
+    );
+});
+
+function withFakeRegistrationLock(run, state = {}) {
+    let counter = 0;
+    return (command, args, options) => {
+        if (command === 'gh' && args[0] === 'api') {
+            const endpoint = args[1];
+            if (endpoint.endsWith('/git/ref/heads/main')) return 'a'.repeat(40);
+            if (endpoint.endsWith('/git/commits/' + 'a'.repeat(40))) return 'b'.repeat(40);
+            if (endpoint.endsWith('/git/commits')) return (++counter).toString(16).padStart(40, '0');
+            if (endpoint.endsWith('/git/refs')) {
+                if (state.sha) throw new Error('reference already exists');
+                state.sha = args.find((argument) => argument.startsWith('sha=')).slice(4);
+                return '';
+            }
+            if (endpoint.endsWith('/git/refs/heads/ci-scratch-org-registration-lock') && args.includes('DELETE')) {
+                delete state.sha;
+                return '';
+            }
+            if (endpoint.endsWith('/git/ref/heads/ci-scratch-org-registration-lock')) {
+                if (!state.sha) throw new Error('reference missing');
+                return state.sha;
+            }
+        }
+        return run(command, args, options);
+    };
+}
 
 function ownerRunner({ permission = 'admin', membership = 'active' } = {}) {
     const calls = [];
@@ -222,16 +269,22 @@ test('preserves the new org when GitHub registration reports an ambiguous secret
         return '';
     };
 
+    let registrationError;
     await assert.rejects(
         replaceScratchOrg({
             targetDevHub: 'existing-dev-hub',
             repositoryPath,
-            run,
+            run: withFakeRegistrationLock(run),
             confirm: async () => {},
             environment: { CRM_PACKAGE_KEY: 'test-key' }
         }),
-        /environment update failed.*org was kept/is
+        (error) => {
+            registrationError = error;
+            return /environment update failed.*org was kept/is.test(error.message);
+        }
     );
+    const creation = calls.find(({ command, args }) => command === 'sf' && args[1] === 'create');
+    assert.ok(registrationError.message.includes(creation.args[creation.args.indexOf('--alias') + 1]));
     const testDiscovery = calls.find(
         ({ command, args }) =>
             command === process.execPath && args[0] === 'scripts/ci-scratch-plan.cjs' && args[1] === 'tests'
@@ -260,7 +313,7 @@ test('sets environment variables before sending the auth URL through gh stdin', 
         return '';
     };
 
-    setEnvironmentRegistration(registration, run);
+    setEnvironmentRegistration(registration, withFakeRegistrationLock(run));
 
     const secretIndex = calls.findIndex(({ args }) => args[0] === 'secret' && args[1] === 'set');
     const variableIndices = calls
@@ -288,9 +341,117 @@ test('restores previous variables when the auth URL secret update fails', () => 
         return '';
     };
 
-    assert.throws(() => setEnvironmentRegistration(registration, run), /previous variables were restored/i);
+    assert.throws(
+        () => setEnvironmentRegistration(registration, withFakeRegistrationLock(run)),
+        /previous variables were restored/i
+    );
     assert.ok(calls.some(({ args }) => args[0] === 'variable' && args.includes('00D000000000002AAA')));
     assert.ok(calls.every(({ args }) => !args.includes(registration.authUrl)));
+});
+
+test('restores a variable whose write succeeded remotely but reported a network error', () => {
+    const values = {
+        CI_SCRATCH_ORG_ID: '00D000000000002AAA',
+        CI_SCRATCH_ORG_EXPIRATION: '2030-02-15',
+        CI_SCRATCH_ORG_CONFIG_SHA256: 'b'.repeat(64)
+    };
+    const run = (command, args) => {
+        if (args[0] === 'variable' && args[1] === 'list') {
+            return JSON.stringify(Object.entries(values).map(([name, value]) => ({ name, value })));
+        }
+        if (args[0] === 'variable' && args[1] === 'set') {
+            const name = args[2];
+            const value = args[args.indexOf('--body') + 1];
+            values[name] = value;
+            if (name === 'CI_SCRATCH_ORG_EXPIRATION' && value === registration.expiration) {
+                throw new Error('network timeout');
+            }
+        }
+        return '';
+    };
+
+    assert.throws(
+        () => setEnvironmentRegistration(registration, withFakeRegistrationLock(run)),
+        /previous variables were restored/i
+    );
+    assert.deepEqual(values, {
+        CI_SCRATCH_ORG_ID: '00D000000000002AAA',
+        CI_SCRATCH_ORG_EXPIRATION: '2030-02-15',
+        CI_SCRATCH_ORG_CONFIG_SHA256: 'b'.repeat(64)
+    });
+});
+
+test('only one operator can read or write registration until the shared lock is released', () => {
+    const state = {};
+    const operations = [];
+    let secondAttempted = false;
+    let secondError;
+    const run = withFakeRegistrationLock((command, args) => {
+        operations.push(args.slice(0, 3));
+        if (args[0] === 'variable' && args[1] === 'list') {
+            if (!secondAttempted) {
+                secondAttempted = true;
+                try {
+                    setEnvironmentRegistration(registration, run);
+                } catch (error) {
+                    secondError = error;
+                }
+            }
+            return '[]';
+        }
+        return '';
+    }, state);
+
+    setEnvironmentRegistration(registration, run);
+
+    assert.match(secondError?.message ?? '', /lock/i);
+    assert.equal(operations.filter((args) => args[0] === 'variable' && args[1] === 'list').length, 1);
+    assert.equal(operations.filter((args) => args[0] === 'secret' && args[1] === 'set').length, 1);
+    assert.equal(state.sha, undefined);
+});
+
+test('releases the shared registration lock after a rollback', () => {
+    const state = {};
+    const run = withFakeRegistrationLock((command, args) => {
+        if (args[0] === 'variable' && args[1] === 'list') return '[]';
+        if (args[0] === 'secret') throw new Error('network timeout');
+        return '';
+    }, state);
+
+    assert.throws(() => setEnvironmentRegistration(registration, run), /environment update failed/i);
+    assert.equal(state.sha, undefined);
+});
+
+test('does not alter registration when lock creation has an ambiguous failure', () => {
+    const state = {};
+    const calls = [];
+    const normal = withFakeRegistrationLock((command, args) => {
+        calls.push(args);
+        return '';
+    }, state);
+    const run = (command, args, options) => {
+        if (command === 'gh' && args[1]?.endsWith('/git/refs')) {
+            normal(command, args, options);
+            throw new Error('network timeout');
+        }
+        return normal(command, args, options);
+    };
+
+    assert.throws(() => setEnvironmentRegistration(registration, run), /shared registration lock/i);
+    assert.ok(state.sha);
+    assert.equal(calls.length, 0);
+});
+
+test('never deletes a registration lock that changed ownership', () => {
+    const state = {};
+    const normal = withFakeRegistrationLock((command, args) => {
+        if (args[0] === 'variable' && args[1] === 'list') return '[]';
+        if (args[0] === 'secret' && args[1] === 'set') state.sha = 'f'.repeat(40);
+        return '';
+    }, state);
+
+    assert.throws(() => setEnvironmentRegistration(registration, normal), /could not release.*lock/i);
+    assert.equal(state.sha, 'f'.repeat(40));
 });
 
 test('rejects malformed registration before calling GitHub', () => {

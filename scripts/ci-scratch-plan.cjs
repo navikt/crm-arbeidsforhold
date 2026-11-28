@@ -455,6 +455,80 @@ function readJson(filename) {
     return JSON.parse(fs.readFileSync(filename, 'utf8'));
 }
 
+function diagnosticSecrets(environment = process.env) {
+    return Object.entries(environment)
+        .filter(
+            ([name, value]) =>
+                /KEY|TOKEN|PASSWORD|SECRET|AUTH_URL/i.test(name) && typeof value === 'string' && value.length >= 4
+        )
+        .map(([, value]) => value);
+}
+
+function safeDiagnostics(messages, secrets) {
+    return [...new Set(messages.filter((message) => typeof message === 'string' && message.trim()))]
+        .slice(0, 30)
+        .map((message) => {
+            let safe = message;
+            for (const secret of secrets) {
+                if (secret) safe = safe.replaceAll(secret, '[REDACTED]');
+            }
+            return safe
+                .replace(/\b(?:force|https?):\/\/\S+/gi, '[URL REDACTED]')
+                .replace(
+                    /\b(access[_-]?token|refresh[_-]?token|client[_-]?secret|password|authorization)\s*[:=]\s*(?:bearer\s+)?(?:"[^"]*"|'[^']*'|\S+)/gi,
+                    '$1=[REDACTED]'
+                )
+                .replace(/\b\d{11}\b/g, '[REDACTED]')
+                .replace(/[\x00-\x1f\x7f]/g, ' ')
+                .replaceAll('::', ': :')
+                .slice(0, 1000);
+        })
+        .join('\n');
+}
+
+function deploymentDiagnostics(output, secrets = diagnosticSecrets()) {
+    let response;
+    try {
+        response = JSON.parse(output);
+    } catch (error) {
+        if (!(error instanceof SyntaxError)) throw error;
+        return 'Salesforce CLI failed without valid JSON deployment diagnostics.';
+    }
+    const asArray = (value) => (Array.isArray(value) ? value : value && typeof value === 'object' ? [value] : []);
+    const details = response?.result?.details;
+    const result = details?.runTestResult;
+    const messages = [
+        response?.message,
+        response?.result?.message,
+        ...asArray(details?.componentFailures).map((entry) => entry?.problem),
+        ...asArray(result?.failures).map((entry) => entry?.message),
+        ...asArray(result?.codeCoverageWarnings).map((entry) =>
+            entry?.name ? `${entry.name}: ${entry.message ?? ''}` : entry?.message
+        )
+    ];
+    return safeDiagnostics(messages, secrets) || 'Salesforce deployment failed without selected diagnostic messages.';
+}
+
+function packageDiagnostics(output, secrets = diagnosticSecrets()) {
+    const lines = output
+        .split(/\r?\n/)
+        .filter((line) =>
+            /^(Failed to install |Could not verify installed package versions:|Package versions cannot be reconciled|Missing:|Unexpected:)/.test(
+                line
+            )
+        );
+    return safeDiagnostics(lines, secrets) || 'Package reconciliation failed without selected diagnostic messages.';
+}
+
+function coverageDiagnostics(output, secrets = diagnosticSecrets()) {
+    const lines = output
+        .split(/\r?\n/)
+        .filter((line) =>
+            /^(Repository Apex coverage |Apex coverage data |Invalid coverage data |No Apex coverage )/.test(line)
+        );
+    return safeDiagnostics(lines, secrets) || 'Coverage validation failed without selected diagnostic messages.';
+}
+
 function commandRunner(args, packageKey = '', { quiet = false } = {}) {
     return new Promise((resolve, reject) => {
         const child = spawn('sf', args, { stdio: ['ignore', 'pipe', 'pipe'] });
@@ -565,6 +639,14 @@ async function main(args) {
         process.stdout.write(`${JSON.stringify(result)}\n`);
         return;
     }
+    if (command === 'diagnostics' && values.length === 2) {
+        const [kind, file] = values;
+        const output = fs.readFileSync(file, 'utf8');
+        if (kind === 'deployment') process.stdout.write(`${deploymentDiagnostics(output)}\n`);
+        else if (kind === 'package') process.stdout.write(`${packageDiagnostics(output)}\n`);
+        else throw new Error('Unsupported diagnostics type.');
+        return;
+    }
     if (command === 'fingerprint' && values.length === 2) {
         process.stdout.write(`${scratchFingerprint(values[0], values[1])}\n`);
         return;
@@ -583,6 +665,9 @@ if (require.main === module) {
 
 module.exports = {
     calculateCoverage,
+    coverageDiagnostics,
+    deploymentDiagnostics,
+    diagnosticSecrets,
     changedSourcesWithoutCoverage,
     coverageMarkdown,
     coverageRecords,
@@ -591,6 +676,7 @@ module.exports = {
     getApexCoverageNames,
     getApexTestClassNames,
     installPlan,
+    packageDiagnostics,
     reconcileInstalledPackages,
     isForceIgnored,
     readPlan,
