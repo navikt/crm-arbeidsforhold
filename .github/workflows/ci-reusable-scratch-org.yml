@@ -1,0 +1,636 @@
+name: '[CI] Reusable scratch org validation'
+
+on:
+    workflow_dispatch:
+        inputs:
+            force_fresh:
+                description: Skip the registered CI org and validate on a new scratch org
+                type: boolean
+                required: false
+                default: false
+    workflow_call:
+        inputs:
+            force_fresh:
+                type: boolean
+                required: false
+                default: false
+            pull_number:
+                type: string
+                required: true
+            head_sha:
+                type: string
+                required: true
+            base_sha:
+                type: string
+                required: true
+            merge_sha:
+                type: string
+                required: true
+        secrets:
+            CRM_PROD_SFDX_URL:
+                required: true
+            CRM_PACKAGE_KEY:
+                required: false
+            CI_SCRATCH_ORG_AUTH_URL:
+                required: false
+
+permissions:
+    contents: read
+    pull-requests: read
+    actions: read
+
+jobs:
+    prepare:
+        name: Prepare validation
+        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+        runs-on: ubuntu-24.04
+        outputs:
+            route: ${{ steps.route.outputs.route }}
+            reason: ${{ steps.route.outputs.reason }}
+            waiting: ${{ steps.route.outputs.waiting }}
+        steps:
+            - name: Reject unsupported PR source
+              if: >-
+                  github.event_name == 'pull_request' &&
+                  (github.workflow != '[PR] Validate' ||
+                   github.event.pull_request.base.ref != 'main' ||
+                   github.event.pull_request.base.repo.full_name != github.repository ||
+                   github.event.pull_request.head.repo.full_name != github.repository ||
+                   github.event.pull_request.state != 'open' ||
+                   github.event.pull_request.draft != false)
+              run: |
+                  echo "::error title=Unsupported PR::Salesforce validation runs only for open, non-draft PRs from this repository to main."
+                  exit 1
+
+            - name: Checkout trusted workflow scripts
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.sha }}
+                  path: trusted
+                  persist-credentials: false
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+              with:
+                  node-version: '22'
+
+            - name: Check that the PR is still current
+              if: github.event_name == 'pull_request'
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  PR_NUMBER: ${{ inputs.pull_number }}
+                  HEAD_SHA: ${{ inputs.head_sha }}
+                  BASE_SHA: ${{ inputs.base_sha }}
+              run: node "$GITHUB_WORKSPACE/trusted/scripts/ci-pr-guard.cjs" verify-current "$PR_NUMBER" "$HEAD_SHA" "$BASE_SHA"
+
+            - name: Choose reusable org or fresh scratch org
+              id: route
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  EVENT_NAME: ${{ github.event_name }}
+                  FORCE_FRESH: ${{ inputs.force_fresh }}
+                  PR_NUMBER: ${{ inputs.pull_number }}
+                  HEAD_REF: ${{ github.event.pull_request.head.ref }}
+              run: |
+                  set -euo pipefail
+                  if [[ "$FORCE_FRESH" == "true" ]]; then
+                    decision='{"route":"fresh","waiting":0,"reason":"Fresh-org validation was requested."}'
+                  elif [[ "$EVENT_NAME" == "pull_request" ]]; then
+                    decision="$(node "$GITHUB_WORKSPACE/trusted/scripts/ci-pr-guard.cjs" queue "$PR_NUMBER" "$HEAD_REF")"
+                  else
+                    decision='{"route":"reuse","waiting":0,"reason":""}'
+                  fi
+                  route="$(jq -er '.route | select(. == "reuse" or . == "fresh")' <<< "$decision")"
+                  reason="$(jq -er '.reason | select(type == "string")' <<< "$decision")"
+                  waiting="$(jq -er '.waiting | select(type == "number")' <<< "$decision")"
+                  {
+                    echo "route=$route"
+                    echo "reason=$reason"
+                    echo "waiting=$waiting"
+                  } >> "$GITHUB_OUTPUT"
+                  {
+                    echo "## Salesforce validation: route"
+                    echo
+                    echo "| Check | Result |"
+                    echo "| --- | --- |"
+                    echo "| Other PRs waiting for the CI org | $waiting |"
+                    if [[ "$route" == "reuse" ]]; then
+                      echo "| Planned route | ♻️ Reusable CI org (checked again after the lock is taken) |"
+                    else
+                      echo "| Planned route | 🆕 New scratch org |"
+                      echo "| Reason | $reason |"
+                    fi
+                  } >> "$GITHUB_STEP_SUMMARY"
+                  echo "::notice title=Validation route::$route${reason:+ – $reason}"
+
+    reuse:
+        name: Validate on reusable org
+        needs: prepare
+        if: needs.prepare.outputs.route == 'reuse'
+        runs-on: ubuntu-24.04
+        timeout-minutes: 120
+        environment: ci-scratch-org
+        concurrency:
+            group: crm-arbeidsforhold-reusable-scratch-org
+            cancel-in-progress: false
+            queue: max
+        outputs:
+            fallback: ${{ steps.route.outputs.fallback }}
+            reason: ${{ steps.route.outputs.reason }}
+        env:
+            TRUSTED_ROOT: ${{ github.workspace }}/trusted
+        defaults:
+            run:
+                working-directory: candidate
+        steps:
+            - name: Checkout trusted workflow scripts
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.sha }}
+                  path: trusted
+                  persist-credentials: false
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+              with:
+                  node-version: '22'
+
+            - name: Check that the PR is still current after waiting for the CI org
+              if: inputs.pull_number != ''
+              working-directory: trusted
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  PR_NUMBER: ${{ inputs.pull_number }}
+                  HEAD_SHA: ${{ inputs.head_sha }}
+                  BASE_SHA: ${{ inputs.base_sha }}
+              run: node "$TRUSTED_ROOT/scripts/ci-pr-guard.cjs" verify-current "$PR_NUMBER" "$HEAD_SHA" "$BASE_SHA"
+
+            - name: Install Salesforce CLI
+              working-directory: trusted
+              run: npm install --global @salesforce/cli@2.158.7
+
+            - name: Checkout validation source
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  ref: ${{ inputs.merge_sha || github.sha }}
+                  path: candidate
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            - name: Verify the captured PR source
+              if: inputs.pull_number != ''
+              env:
+                  MERGE_SHA: ${{ inputs.merge_sha }}
+                  BASE_SHA: ${{ inputs.base_sha }}
+                  HEAD_SHA: ${{ inputs.head_sha }}
+              run: |
+                  set -euo pipefail
+                  node "$TRUSTED_ROOT/scripts/ci-pr-guard.cjs" verify-snapshot "$MERGE_SHA" "$BASE_SHA" "$HEAD_SHA"
+                  node "$TRUSTED_ROOT/scripts/ci-pr-guard.cjs" verify-source "$TRUSTED_ROOT/sfdx-project.json"
+
+            - name: Authenticate scratch-org Dev Hub
+              env:
+                  DEVHUB_AUTH_URL: ${{ secrets.CRM_PROD_SFDX_URL }}
+              run: |
+                  set -euo pipefail
+                  if [[ -z "$DEVHUB_AUTH_URL" ]]; then
+                    echo "::error title=Dev Hub::The existing Dev Hub credential is not configured."
+                    exit 1
+                  fi
+                  auth_file="$RUNNER_TEMP/devhub-auth.txt"
+                  login_log="$RUNNER_TEMP/devhub-login.log"
+                  umask 077
+                  printf '%s' "$DEVHUB_AUTH_URL" > "$auth_file"
+                  trap 'rm -f "$auth_file" "$login_log"' EXIT
+                  if ! sf org login sfdx-url --sfdx-url-file "$auth_file" --alias ci-devhub --set-default-dev-hub >"$login_log" 2>&1; then
+                    echo "::error title=Dev Hub::Could not authenticate the Dev Hub."
+                    exit 1
+                  fi
+
+            - name: Resolve and validate exact package versions
+              run: |
+                  set -euo pipefail
+                  command_token="$(node -e 'console.log(require("node:crypto").randomUUID())')"
+                  echo "::stop-commands::$command_token"
+                  status=0
+                  node "$TRUSTED_ROOT/bin/package-dependencies.js" --include-unreleased --plan-file "$RUNNER_TEMP/package-plan.json" --no-color || status=$?
+                  echo "::$command_token::"
+                  exit "$status"
+
+            - name: Check the registered CI org
+              id: route
+              env:
+                  CI_SCRATCH_ORG_AUTH_URL: ${{ secrets.CI_SCRATCH_ORG_AUTH_URL }}
+                  CI_SCRATCH_ORG_ID: ${{ vars.CI_SCRATCH_ORG_ID }}
+                  CI_SCRATCH_ORG_EXPIRATION: ${{ vars.CI_SCRATCH_ORG_EXPIRATION }}
+                  CI_SCRATCH_ORG_CONFIG_SHA256: ${{ vars.CI_SCRATCH_ORG_CONFIG_SHA256 }}
+              run: |
+                  set -euo pipefail
+                  incomplete='{"route":"fresh","reason":"The CI scratch org registration is incomplete: the secret and variables do not point at the same org."}'
+                  route_json=""
+                  if [[ -z "$CI_SCRATCH_ORG_AUTH_URL" || -z "$CI_SCRATCH_ORG_ID" ||
+                        -z "$CI_SCRATCH_ORG_EXPIRATION" || -z "$CI_SCRATCH_ORG_CONFIG_SHA256" ]]; then
+                    route_json='{"route":"fresh","reason":"No CI scratch org is registered."}'
+                  elif [[ ! "$CI_SCRATCH_ORG_ID" =~ ^[a-zA-Z0-9]{15}([a-zA-Z0-9]{3})?$ ]]; then
+                    route_json="$incomplete"
+                  else
+                    auth_file="$RUNNER_TEMP/reuse-auth.txt"
+                    login_log="$RUNNER_TEMP/reuse-login.log"
+                    org_file="$RUNNER_TEMP/reuse-org.json"
+                    installed_file="$RUNNER_TEMP/reuse-packages.json"
+                    scratch_file="$RUNNER_TEMP/reuse-scratch.json"
+                    trap 'rm -f "$auth_file" "$login_log" "$org_file" "$installed_file" "$scratch_file"' EXIT
+                    umask 077
+                    scratch_query="SELECT ScratchOrg, Status, ExpirationDate FROM ScratchOrgInfo WHERE ScratchOrg = '${CI_SCRATCH_ORG_ID:0:15}' AND Status = 'Active'"
+                    if ! sf data query --target-org ci-devhub --query "$scratch_query" --json >"$scratch_file" 2>/dev/null; then
+                      route_json='{"route":"fresh","reason":"Could not verify the registered org in the Dev Hub."}'
+                    elif ! node "$TRUSTED_ROOT/scripts/ci-scratch-plan.cjs" verify-scratch "$scratch_file"; then
+                      route_json='{"route":"fresh","reason":"The registered org is no longer an active scratch org with the registered expiration date."}'
+                    else
+                      printf '%s' "$CI_SCRATCH_ORG_AUTH_URL" > "$auth_file"
+                      if ! sf org login sfdx-url --sfdx-url-file "$auth_file" --alias ci-reuse >"$login_log" 2>&1; then
+                        route_json='{"route":"fresh","reason":"Could not log in to the registered scratch org."}'
+                      elif ! sf org display --target-org ci-reuse --json >"$org_file" 2>/dev/null; then
+                        route_json='{"route":"fresh","reason":"Could not verify the registered scratch org identity."}'
+                      elif ! jq -e --arg expected "$CI_SCRATCH_ORG_ID" '.result.id == $expected' "$org_file" >/dev/null; then
+                        route_json="$incomplete"
+                      elif ! sf package installed list --target-org ci-reuse --json >"$installed_file" 2>/dev/null; then
+                        route_json='{"route":"fresh","reason":"Could not read the installed package versions."}'
+                      else
+                        route_json="$(node "$TRUSTED_ROOT/scripts/ci-scratch-plan.cjs" route \
+                          sfdx-project.json \
+                          "$RUNNER_TEMP/package-plan.json" \
+                          "$org_file" \
+                          "$installed_file" \
+                          config/project-scratch-def.json)"
+                      fi
+                    fi
+                    rm -f "$auth_file" "$login_log" "$org_file" "$installed_file" "$scratch_file"
+                    trap - EXIT
+                  fi
+                  selected_route="$(jq -er '.route | select(. == "reuse" or . == "fresh")' <<< "$route_json")"
+                  reason="$(jq -er '.reason' <<< "$route_json")"
+                  echo "CI_VALIDATION_ROUTE=$selected_route" >> "$GITHUB_ENV"
+                  {
+                    echo "route=$selected_route"
+                    echo "reason=$reason"
+                    if [[ "$selected_route" == "fresh" ]]; then echo "fallback=true"; else echo "fallback=false"; fi
+                  } >> "$GITHUB_OUTPUT"
+                  if [[ "$selected_route" == "fresh" ]]; then
+                    echo "::warning title=Fallback to new scratch org::$reason"
+                    {
+                      echo "### ↪️ Reusable CI org not used"
+                      echo
+                      echo "$reason The validation continues on a new scratch org."
+                    } >> "$GITHUB_STEP_SUMMARY"
+                  else
+                    echo "::notice title=Reusable CI org::$reason"
+                  fi
+
+            - name: Exclude non-package sources from validation
+              if: steps.route.outputs.route == 'reuse'
+              run: |
+                  rm -rf ./force-app/unpackagable
+                  rm -rf ./force-app/unpackagable-with-auto-deploy
+                  rm -rf ./force-app/scratch-org
+
+            - name: List changed Apex sources
+              if: steps.route.outputs.route == 'reuse'
+              env:
+                  BASE_SHA: ${{ inputs.base_sha }}
+              run: |
+                  set -euo pipefail
+                  changed="$RUNNER_TEMP/changed-apex.txt"
+                  : > "$changed"
+                  if [[ -n "$BASE_SHA" ]]; then
+                    git diff --name-only --diff-filter=AMR "$BASE_SHA" HEAD -- 'force-app/*.cls' 'force-app/*.trigger' > "$changed"
+                  fi
+                  echo "Changed Apex classes and triggers: $(wc -l < "$changed" | tr -d ' ')"
+
+            - name: Validate reusable org with tests and coverage
+              if: steps.route.outputs.route == 'reuse'
+              run: |
+                  set -euo pipefail
+                  classes_file="$RUNNER_TEMP/apex-test-classes.json"
+                  classes_list="$RUNNER_TEMP/apex-test-classes.txt"
+                  node "$TRUSTED_ROOT/scripts/ci-scratch-plan.cjs" tests force-app > "$classes_file"
+                  jq -r '.[]' "$classes_file" > "$classes_list"
+                  test_arguments=(--test-level RunSpecifiedTests)
+                  test_count=0
+                  while IFS= read -r test_class; do
+                    if [[ ! "$test_class" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+                      echo "Invalid repository Apex test class name." >&2
+                      exit 1
+                    fi
+                    test_arguments+=(--tests "$test_class")
+                    test_count=$((test_count + 1))
+                  done < "$classes_list"
+                  if ((test_count == 0)); then
+                    echo "No repository Apex test classes were found." >&2
+                    exit 1
+                  fi
+                  echo "Running $test_count repository Apex test classes in a check-only deploy."
+                  result_file="$RUNNER_TEMP/reuse-deploy.json"
+                  command_token="$(node -e 'console.log(require("node:crypto").randomUUID())')"
+                  echo "::stop-commands::$command_token"
+                  status=0
+                  sf project deploy start \
+                    --source-dir force-app \
+                    --target-org ci-reuse \
+                    --dry-run \
+                    "${test_arguments[@]}" \
+                    --coverage-formatters json \
+                    --results-dir "$RUNNER_TEMP/reuse-results" \
+                    --wait 60 \
+                    --json > "$result_file" || status=$?
+                  if ((status != 0)); then
+                    if jq -e . "$result_file" >/dev/null 2>&1; then
+                      diagnostics="$(jq -r '
+                        [
+                          .message?,
+                          .result.message?,
+                          .result.details.componentFailures[]?.problem?,
+                          .result.details.runTestResult.failures[]?.message?,
+                          (
+                            .result.details.runTestResult.codeCoverageWarnings? // [] |
+                            (if type == "array" then .[] elif type == "object" then . else empty end) |
+                            select((.message? | type) == "string" and (.message | length) > 0) |
+                            if ((.name? | type) == "string" and (.name | length) > 0) then
+                              "\(.name): \(.message)"
+                            else
+                              .message
+                            end
+                          )
+                        ] | map(select(. != null and . != "")) | unique | join("\n")
+                      ' "$result_file")"
+                      if [[ -n "$diagnostics" ]]; then
+                        printf '%s\n' "$diagnostics"
+                      else
+                        echo "Salesforce dry-run validation failed without diagnostic messages."
+                      fi
+                    else
+                      echo "Salesforce CLI failed without returning valid JSON."
+                    fi
+                  fi
+                  echo "::$command_token::"
+                  if ((status != 0)); then
+                    exit "$status"
+                  fi
+                  changed=()
+                  if [[ -s "$RUNNER_TEMP/changed-apex.txt" ]]; then changed=("$RUNNER_TEMP/changed-apex.txt"); fi
+                  node "$TRUSTED_ROOT/scripts/ci-scratch-plan.cjs" coverage "$result_file" force-app ${changed[@]+"${changed[@]}"}
+
+            - name: Save minimal PR test and package evidence
+              if: always() && inputs.pull_number != '' && steps.route.outputs.route == 'reuse'
+              env:
+                  PR_NUMBER: ${{ inputs.pull_number }}
+                  PR_HEAD_SHA: ${{ inputs.head_sha }}
+                  PR_BASE_SHA: ${{ inputs.base_sha }}
+                  PR_MERGE_SHA: ${{ inputs.merge_sha }}
+              run: |
+                  set -euo pipefail
+                  result="$RUNNER_TEMP/reuse-deploy.json"
+                  if ! jq -e '.result.details.runTestResult' "$result" >/dev/null 2>&1; then
+                    echo "No test result to record."
+                    exit 0
+                  fi
+                  mkdir -p "$RUNNER_TEMP/pr-evidence"
+                  changed=()
+                  if [[ -s "$RUNNER_TEMP/changed-apex.txt" ]]; then changed=("$RUNNER_TEMP/changed-apex.txt"); fi
+                  node "$TRUSTED_ROOT/scripts/ci-pr-evidence.cjs" create \
+                    sfdx-project.json "$RUNNER_TEMP/package-plan.json" force-app "$result" "$result" \
+                    "$RUNNER_TEMP/pr-evidence/evidence.json" ${changed[@]+"${changed[@]}"}
+
+            - name: Upload minimal PR evidence
+              if: always() && inputs.pull_number != '' && steps.route.outputs.route == 'reuse'
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+              with:
+                  name: reusable-pr-validation-evidence-${{ github.run_attempt }}
+                  path: ${{ runner.temp }}/pr-evidence/evidence.json
+                  retention-days: 7
+                  if-no-files-found: ignore
+
+    fresh:
+        name: Validate on new scratch org
+        needs: [prepare, reuse]
+        if: >-
+            !cancelled() &&
+            needs.prepare.result == 'success' &&
+            (needs.prepare.outputs.route == 'fresh' ||
+             (needs.reuse.result == 'success' && needs.reuse.outputs.fallback == 'true'))
+        runs-on: ubuntu-24.04
+        timeout-minutes: 180
+        env:
+            TRUSTED_ROOT: ${{ github.workspace }}/trusted
+        defaults:
+            run:
+                working-directory: candidate
+        steps:
+            - name: Checkout trusted workflow scripts
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.sha }}
+                  path: trusted
+                  persist-credentials: false
+
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+              with:
+                  node-version: '22'
+
+            - name: Check that the PR is still current before creating an org
+              if: inputs.pull_number != ''
+              working-directory: trusted
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  PR_NUMBER: ${{ inputs.pull_number }}
+                  HEAD_SHA: ${{ inputs.head_sha }}
+                  BASE_SHA: ${{ inputs.base_sha }}
+              run: node "$TRUSTED_ROOT/scripts/ci-pr-guard.cjs" verify-current "$PR_NUMBER" "$HEAD_SHA" "$BASE_SHA"
+
+            - name: Install Salesforce CLI
+              working-directory: trusted
+              run: npm install --global @salesforce/cli@2.158.7
+
+            - name: Checkout validation source
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+              with:
+                  ref: ${{ inputs.merge_sha || github.sha }}
+                  path: candidate
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            - name: Verify the captured PR source
+              if: inputs.pull_number != ''
+              env:
+                  MERGE_SHA: ${{ inputs.merge_sha }}
+                  BASE_SHA: ${{ inputs.base_sha }}
+                  HEAD_SHA: ${{ inputs.head_sha }}
+              run: |
+                  set -euo pipefail
+                  node "$TRUSTED_ROOT/scripts/ci-pr-guard.cjs" verify-snapshot "$MERGE_SHA" "$BASE_SHA" "$HEAD_SHA"
+                  node "$TRUSTED_ROOT/scripts/ci-pr-guard.cjs" verify-source "$TRUSTED_ROOT/sfdx-project.json"
+
+            - name: Authenticate scratch-org Dev Hub
+              env:
+                  DEVHUB_AUTH_URL: ${{ secrets.CRM_PROD_SFDX_URL }}
+              run: |
+                  set -euo pipefail
+                  if [[ -z "$DEVHUB_AUTH_URL" ]]; then
+                    echo "::error title=Dev Hub::The existing Dev Hub credential is not configured."
+                    exit 1
+                  fi
+                  auth_file="$RUNNER_TEMP/devhub-auth.txt"
+                  login_log="$RUNNER_TEMP/devhub-login.log"
+                  umask 077
+                  printf '%s' "$DEVHUB_AUTH_URL" > "$auth_file"
+                  trap 'rm -f "$auth_file" "$login_log"' EXIT
+                  if ! sf org login sfdx-url --sfdx-url-file "$auth_file" --alias ci-devhub --set-default-dev-hub >"$login_log" 2>&1; then
+                    echo "::error title=Dev Hub::Could not authenticate the Dev Hub."
+                    exit 1
+                  fi
+
+            - name: Resolve and validate exact package versions for the new org
+              run: |
+                  set -euo pipefail
+                  command_token="$(node -e 'console.log(require("node:crypto").randomUUID())')"
+                  echo "::stop-commands::$command_token"
+                  status=0
+                  node "$TRUSTED_ROOT/bin/package-dependencies.js" --include-unreleased --plan-file "$RUNNER_TEMP/package-plan.json" --no-color || status=$?
+                  echo "::$command_token::"
+                  exit "$status"
+
+            - name: Exclude non-package sources from the new org
+              run: |
+                  rm -rf ./force-app/unpackagable
+                  rm -rf ./force-app/unpackagable-with-auto-deploy
+                  rm -rf ./force-app/scratch-org
+
+            - name: Create one-time scratch org
+              id: create-fresh
+              run: |
+                  set -euo pipefail
+                  command_token="$(node -e 'console.log(require("node:crypto").randomUUID())')"
+                  echo "::stop-commands::$command_token"
+                  status=0
+                  sf org create scratch \
+                    --definition-file config/project-scratch-def.json \
+                    --alias ci-fresh \
+                    --target-dev-hub ci-devhub \
+                    --duration-days 1 || status=$?
+                  echo "::$command_token::"
+                  if ((status != 0)); then
+                    exit "$status"
+                  fi
+                  echo "created=true" >> "$GITHUB_OUTPUT"
+
+            - name: Install the exact validated package plan
+              env:
+                  CRM_PACKAGE_KEY: ${{ secrets.CRM_PACKAGE_KEY }}
+              run: |
+                  set -euo pipefail
+                  command_token="$(node -e 'console.log(require("node:crypto").randomUUID())')"
+                  echo "::stop-commands::$command_token"
+                  status=0
+                  node "$TRUSTED_ROOT/scripts/ci-scratch-plan.cjs" install sfdx-project.json "$RUNNER_TEMP/package-plan.json" ci-fresh || status=$?
+                  echo "::$command_token::"
+                  exit "$status"
+
+            - name: Deploy source to fresh org
+              run: |
+                  set -euo pipefail
+                  command_token="$(node -e 'console.log(require("node:crypto").randomUUID())')"
+                  echo "::stop-commands::$command_token"
+                  status=0
+                  sf project deploy start --source-dir force-app --target-org ci-fresh --wait 60 || status=$?
+                  echo "::$command_token::"
+                  exit "$status"
+
+            - name: Run repository Apex tests in fresh org
+              run: |
+                  set -euo pipefail
+                  classes_file="$RUNNER_TEMP/apex-test-classes.json"
+                  node "$TRUSTED_ROOT/scripts/ci-scratch-plan.cjs" tests force-app > "$classes_file"
+                  mapfile -t test_classes < <(jq -r '.[]' "$classes_file")
+                  if ((${#test_classes[@]} == 0)); then
+                    echo "No repository Apex test classes were found." >&2
+                    exit 1
+                  fi
+                  test_arguments=()
+                  for test_class in "${test_classes[@]}"; do
+                    test_arguments+=(--tests "$test_class")
+                  done
+                  response="$RUNNER_TEMP/fresh-apex-response.json"
+                  errors="$RUNNER_TEMP/fresh-apex-errors.txt"
+                  trap 'rm -f "$response" "$errors"' EXIT
+                  if sf apex run test \
+                      --target-org ci-fresh \
+                      "${test_arguments[@]}" \
+                      --code-coverage \
+                      --result-format json \
+                      --output-dir "$RUNNER_TEMP/fresh-apex-results" \
+                      --wait 30 \
+                      --json > "$response" 2> "$errors"; then
+                    echo "Salesforce Apex test command completed."
+                  else
+                    status=$?
+                    echo "Salesforce Apex test command failed with exit code $status." >&2
+                    node "$TRUSTED_ROOT/scripts/ci-pr-evidence.cjs" failure "$response" >&2
+                    exit "$status"
+                  fi
+
+            - name: Enforce repository Apex coverage in fresh org
+              env:
+                  BASE_SHA: ${{ inputs.base_sha }}
+              run: |
+                  set -euo pipefail
+                  changed=()
+                  if [[ -n "$BASE_SHA" ]]; then
+                    git diff --name-only --diff-filter=AMR "$BASE_SHA" HEAD -- 'force-app/*.cls' 'force-app/*.trigger' > "$RUNNER_TEMP/changed-apex.txt"
+                    if [[ -s "$RUNNER_TEMP/changed-apex.txt" ]]; then changed=("$RUNNER_TEMP/changed-apex.txt"); fi
+                  fi
+                  node "$TRUSTED_ROOT/scripts/ci-scratch-plan.cjs" coverage "$RUNNER_TEMP/fresh-apex-results/test-result-codecoverage.json" force-app ${changed[@]+"${changed[@]}"}
+
+            - name: Save minimal PR test and package evidence
+              if: always() && inputs.pull_number != '' && steps.create-fresh.outputs.created == 'true'
+              env:
+                  CI_VALIDATION_ROUTE: fresh
+                  PR_NUMBER: ${{ inputs.pull_number }}
+                  PR_HEAD_SHA: ${{ inputs.head_sha }}
+                  PR_BASE_SHA: ${{ inputs.base_sha }}
+                  PR_MERGE_SHA: ${{ inputs.merge_sha }}
+              run: |
+                  set -euo pipefail
+                  shopt -s nullglob
+                  test_results=()
+                  for file in "$RUNNER_TEMP"/fresh-apex-results/test-result-*.json; do
+                    [[ "$file" == *coverage* ]] || test_results+=("$file")
+                  done
+                  coverage="$RUNNER_TEMP/fresh-apex-results/test-result-codecoverage.json"
+                  if ((${#test_results[@]} != 1)) || [[ ! -f "$coverage" ]]; then
+                    echo "No complete test result to record."
+                    exit 0
+                  fi
+                  mkdir -p "$RUNNER_TEMP/pr-evidence"
+                  changed=()
+                  if [[ -s "$RUNNER_TEMP/changed-apex.txt" ]]; then changed=("$RUNNER_TEMP/changed-apex.txt"); fi
+                  node "$TRUSTED_ROOT/scripts/ci-pr-evidence.cjs" create \
+                    sfdx-project.json "$RUNNER_TEMP/package-plan.json" force-app "${test_results[0]}" "$coverage" \
+                    "$RUNNER_TEMP/pr-evidence/evidence.json" ${changed[@]+"${changed[@]}"}
+
+            - name: Upload minimal PR evidence
+              if: always() && inputs.pull_number != '' && steps.create-fresh.outputs.created == 'true'
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+              with:
+                  name: fresh-pr-validation-evidence-${{ github.run_attempt }}
+                  path: ${{ runner.temp }}/pr-evidence/evidence.json
+                  retention-days: 7
+                  if-no-files-found: ignore
+
+            - name: Delete one-time scratch org
+              if: always() && steps.create-fresh.outputs.created == 'true'
+              run: |
+                  set -euo pipefail
+                  command_token="$(node -e 'console.log(require("node:crypto").randomUUID())')"
+                  echo "::stop-commands::$command_token"
+                  status=0
+                  sf org delete scratch --target-org ci-fresh --no-prompt || status=$?
+                  echo "::$command_token::"
+                  exit "$status"

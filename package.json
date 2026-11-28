@@ -4,13 +4,14 @@
     "version": "1.0.0",
     "scripts": {
         "test": "npm run test:node && npm run test:unit --",
-        "test:node": "node --test bin/tests/create-scratch-org-launcher.test.js bin/tests/check-sfdx-versions.test.js bin/tests/package-dependencies.test.js scripts/tests/pre-commit.test.cjs scripts/tests/ci-changes.test.cjs scripts/tests/ci-workflows.test.cjs scripts/tests/post-merge-review-audit.test.cjs scripts/tests/prettier-staged.test.cjs scripts/tests/p360-scratch-contract.test.cjs scripts/tests/aareg-admin-scratch.test.cjs",
+        "test:node": "node --test bin/tests/create-scratch-org-launcher.test.js bin/tests/check-sfdx-versions.test.js bin/tests/package-dependencies.test.js scripts/tests/pre-commit.test.cjs scripts/tests/ci-changes.test.cjs scripts/tests/ci-workflows.test.cjs scripts/tests/ci-scratch-plan.test.cjs scripts/tests/ci-scratch-org-maintenance.test.cjs scripts/tests/ci-scratch-org-replace.test.cjs scripts/tests/ci-pr-guard.test.cjs scripts/tests/ci-pr-evidence.test.cjs scripts/tests/post-merge-review-audit.test.cjs scripts/tests/prettier-staged.test.cjs scripts/tests/p360-scratch-contract.test.cjs scripts/tests/aareg-admin-scratch.test.cjs",
         "test:scratch-org:powershell": "pwsh -NoLogo -NoProfile -File bin/tests/create-scratch-org.Tests.ps1 && pwsh -NoLogo -NoProfile -File bin/tests/post-package-coverage-check.Tests.ps1",
         "test:dependency-report": "jest --config bin/tests/package-dependency-report.jest.config.cjs --runInBand",
         "test:unit": "sfdx-lwc-jest",
         "test:unit:watch": "sfdx-lwc-jest --watch",
         "test:unit:debug": "sfdx-lwc-jest --debug",
         "test:unit:coverage": "sfdx-lwc-jest --coverage",
+        "ci-org:replace": "node scripts/ci-scratch-org-replace.cjs",
         "test:p360:mock": "scripts/p360-mock-smoke.sh",
         "prettier:write": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
         "scratch-org": "node ./bin/create-scratch-org.js",
@@ -23,13 +24,13 @@
     },
     "devDependencies": {
         "@prettier/plugin-xml": "^3.4.2",
-        "@sa11y/jest": "^8.2.1",
+        "@sa11y/jest": "^8.4.0",
         "@salesforce/sfdx-lwc-jest": "^8.0.0",
         "husky": "^9.1.7",
         "jest-canvas-mock": "^2.5.8",
-        "lint-staged": "^17.6.0",
-        "prettier": "^3.9.10",
-        "prettier-plugin-apex": "^2.3.0"
+        "lint-staged": "^17.6.1",
+        "prettier": "^3.10.1",
+        "prettier-plugin-apex": "^2.4.0"
     },
     "lint-staged": {
         "**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}": [

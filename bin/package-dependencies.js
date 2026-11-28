@@ -237,7 +237,7 @@ async function fixDependencies(project, result, provider, progress) {
     return checked;
 }
 
-function createProvider(project, run, latest) {
+function createProvider(project, run, latest, { includeUnreleased = false } = {}) {
     const aliases = project.packageAliases ?? {};
     const names = new Map(
         Object.entries(aliases)
@@ -257,7 +257,7 @@ function createProvider(project, run, latest) {
                 'list',
                 '--packages',
                 dependency.package,
-                '--released',
+                ...(includeUnreleased ? [] : ['--released']),
                 '--order-by',
                 'CreatedDate'
             ]);
@@ -283,6 +283,8 @@ function createProvider(project, run, latest) {
                 );
             });
             const id = candidates.at(-1)?.SubscriberPackageVersionId;
+            if (!id && includeUnreleased)
+                throw new Error(`Cannot resolve version for ${dependency.package} ${requested ?? ''}.`);
             if (!id) throw new Error(`Cannot resolve released version for ${dependency.package} ${requested ?? ''}.`);
             const newest = sorted.at(-1);
             latestVersions.set(id, { ...newest, VersionNumber: versionNumber(newest) });
@@ -576,7 +578,8 @@ async function runCli(args, { interactive = Boolean(process.stdin.isTTY), ask } 
     const options = {};
     for (let index = 0; index < args.length; index++) {
         const argument = args[index];
-        if (['--apply', '--latest', '--dry-run', '--color', '--no-color'].includes(argument)) options[argument] = true;
+        if (['--apply', '--latest', '--include-unreleased', '--dry-run', '--color', '--no-color'].includes(argument))
+            options[argument] = true;
         else if (
             ['--project-file', '--dev-hub', '--plan-file', '--report'].includes(argument) &&
             args[index + 1] &&
@@ -635,7 +638,7 @@ async function runCli(args, { interactive = Boolean(process.stdin.isTTY), ask } 
         const label =
             command[1] === 'version'
                 ? command[2] === 'list'
-                    ? `Reading released versions: ${command[4]}`
+                    ? `Reading ${options['--include-unreleased'] ? 'available' : 'released'} versions: ${command[4]}`
                     : `Reading dependency metadata: ${command[4]}`
                 : 'Reading package names';
         write(`  ${label} ...`, 'info');
@@ -701,7 +704,9 @@ async function runCli(args, { interactive = Boolean(process.stdin.isTTY), ask } 
     write(`Dev Hub: ${hub ?? 'Salesforce CLI packaging default'}`);
     write('Read-only metadata checks. No org mutations.');
     write('Progress counts declared packages; recursive metadata reads may add work.\n');
-    const provider = createProvider(project, run, options['--latest']);
+    const provider = createProvider(project, run, options['--latest'], {
+        includeUnreleased: options['--include-unreleased']
+    });
     const result = await checkDependencies(project, provider, (text) => write(text, 'info'));
     write(
         `\nResult: ${result.valid ? 'PASSED' : 'ACTION REQUIRED'} | ${reads} metadata reads | ${((Date.now() - started) / 1000).toFixed(1)}s`,

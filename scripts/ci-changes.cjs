@@ -46,17 +46,20 @@ function classifyChanges(files, packageDirectories) {
     });
     const sharedFiles = new Set([
         'sfdx-project.json',
-        'package.json',
-        'package-lock.json',
         'scripts/ci-changes.cjs',
-        'scripts/tests/ci-changes.test.cjs'
+        'scripts/tests/ci-changes.test.cjs',
+        'scripts/ci-pr-guard.cjs',
+        'scripts/ci-scratch-plan.cjs',
+        'scripts/ci-pr-evidence.cjs',
+        'bin/package-dependencies.js',
+        '.github/workflows/pull_request-validation1.yml',
+        '.github/workflows/salesforce-validation.yml',
+        '.github/workflows/ci-reusable-scratch-org.yml'
     ]);
     const shared = files.some(
-        (file) =>
-            sharedFiles.has(file) ||
-            file.startsWith('.github/workflows/') ||
-            packagePaths.some((directory) => file.startsWith(directory))
+        (file) => sharedFiles.has(file) || packagePaths.some((directory) => file.startsWith(directory))
     );
+    const lwcFiles = new Set(['package.json', 'package-lock.json', 'jest.config.js', 'jest-sa11y-setup.js']);
     return {
         salesforce:
             shared ||
@@ -67,7 +70,7 @@ function classifyChanges(files, packageDirectories) {
                     file.startsWith('manifest/') ||
                     file.startsWith('scripts/apex/')
             ),
-        lwc: shared || files.some((file) => file === 'jest.config.js' || file === 'jest-sa11y-setup.js')
+        lwc: shared || files.some((file) => lwcFiles.has(file) || file.startsWith('.github/workflows/'))
     };
 }
 

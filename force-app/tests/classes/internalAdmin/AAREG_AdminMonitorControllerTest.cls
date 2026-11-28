@@ -135,4 +135,51 @@ private with sharing class AAREG_AdminMonitorControllerTest {
         System.Assert.isNotNull(monitor.jobsMessage, 'The user gets an explanation');
         System.Assert.isTrue(monitor.jobs.isEmpty(), 'No job data leaks');
     }
+
+    /**
+     * A user who can read the monitored objects but not their optional fields gets an explanation
+     * for each data source instead of an unhandled query error.
+     *
+     * @since 2026-11
+     */
+    @IsTest
+    static void userWithoutFieldAccessGetsExplanationInsteadOfQueryError() {
+        PermissionSet objectReadOnly = new PermissionSet(
+            Name = 'AAREG_Monitor_Object_Read_Only_Test',
+            Label = 'AAREG Monitor Object Read Only Test'
+        );
+        insert objectReadOnly;
+        insert new List<ObjectPermissions>{
+            new ObjectPermissions(
+                ParentId = objectReadOnly.Id,
+                SobjectType = 'P360_Archive_Job__c',
+                PermissionsRead = true
+            ),
+            new ObjectPermissions(
+                ParentId = objectReadOnly.Id,
+                SobjectType = 'Application_Log__c',
+                PermissionsRead = true
+            )
+        };
+        User minimumAccessUser = P360_TestDataFactory.createMinimumAccessUser();
+        insert new PermissionSetAssignment(AssigneeId = minimumAccessUser.Id, PermissionSetId = objectReadOnly.Id);
+        AAREG_AdminMonitorController.Monitor monitor;
+
+        System.runAs(minimumAccessUser) {
+            System.Test.startTest();
+            monitor = AAREG_AdminMonitorController.getMonitor();
+            System.Test.stopTest();
+        }
+
+        System.Assert.isFalse(monitor.jobsAvailable, 'Jobs are unavailable without field access');
+        System.Assert.isTrue(
+            monitor.jobsMessage.startsWith('Kunne ikkje lese P360-jobbar'),
+            'The user is told that jobs could not be read'
+        );
+        System.Assert.isFalse(monitor.logsAvailable, 'Logs are unavailable without field access');
+        System.Assert.isTrue(
+            monitor.logsMessage.startsWith('Kunne ikkje lese loggar'),
+            'The user is told that logs could not be read'
+        );
+    }
 }
