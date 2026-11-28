@@ -314,6 +314,51 @@ function validationArguments(sourceDirectory, testClasses, targetOrg) {
     ];
 }
 
+function cleanupFailedCreation(run, targetDevHub, candidateName, repositoryPath) {
+    const response = parseJson(
+        run(
+            'sf',
+            [
+                'data',
+                'query',
+                '--target-org',
+                targetDevHub,
+                '--query',
+                `SELECT Id, OrgName FROM ScratchOrgInfo WHERE OrgName = '${candidateName}'`,
+                '--json'
+            ],
+            { cwd: repositoryPath }
+        ),
+        'scratch-org creation request lookup'
+    ).result;
+    if (
+        response?.done !== true ||
+        response?.totalSize !== 1 ||
+        !Array.isArray(response.records) ||
+        response.records.length !== 1 ||
+        response.records[0]?.OrgName !== candidateName ||
+        !/^2SR[a-zA-Z0-9]{12}([a-zA-Z0-9]{3})?$/.test(response.records[0]?.Id ?? '')
+    ) {
+        throw new Error('Exactly one matching scratch-org creation request could not be verified.');
+    }
+    run(
+        'sf',
+        [
+            'data',
+            'delete',
+            'record',
+            '--target-org',
+            targetDevHub,
+            '--sobject',
+            'ScratchOrgInfo',
+            '--record-id',
+            response.records[0].Id,
+            '--json'
+        ],
+        { cwd: repositoryPath }
+    );
+}
+
 async function replaceScratchOrg({
     targetDevHub,
     repositoryPath = process.cwd(),
@@ -331,7 +376,7 @@ async function replaceScratchOrg({
 
     const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-scratch-org-replace-'));
     const packagePlan = path.join(temporaryDirectory, 'package-plan.json');
-    const alias = `ci-scratch-${crypto.randomUUID().slice(0, 8)}`;
+    const alias = `ci-scratch-${crypto.randomUUID()}`;
     const commandEnvironment = { CRM_PACKAGE_KEY: environment.CRM_PACKAGE_KEY };
     let created = false;
     let registered = false;
@@ -356,26 +401,46 @@ async function replaceScratchOrg({
             { cwd: repositoryPath }
         );
 
-        process.stdout.write('Creating the replacement scratch org.\n');
-        const creationOutput = run(
-            'sf',
-            [
-                'org',
-                'create',
-                'scratch',
-                '--definition-file',
-                'config/project-scratch-def.json',
-                '--alias',
-                alias,
-                '--target-dev-hub',
-                targetDevHub,
-                '--duration-days',
-                '30',
-                '--no-track-source',
-                '--json'
-            ],
-            { cwd: repositoryPath }
+        process.stdout.write(
+            `Creating the replacement scratch org with request name ${alias} in Dev Hub ${targetDevHub}.\n`
         );
+        let creationOutput;
+        try {
+            creationOutput = run(
+                'sf',
+                [
+                    'org',
+                    'create',
+                    'scratch',
+                    '--definition-file',
+                    'config/project-scratch-def.json',
+                    '--alias',
+                    alias,
+                    '--name',
+                    alias,
+                    '--target-dev-hub',
+                    targetDevHub,
+                    '--duration-days',
+                    '30',
+                    '--no-track-source',
+                    '--json'
+                ],
+                { cwd: repositoryPath }
+            );
+        } catch (error) {
+            try {
+                cleanupFailedCreation(run, targetDevHub, alias, repositoryPath);
+            } catch (cleanupError) {
+                throw new Error(
+                    `${error.message} Automatic cleanup could not be confirmed: ${cleanupError.message} Check the Dev Hub ${targetDevHub} for scratch-org creation request ${alias}, including delayed creation, before retrying.`,
+                    { cause: error }
+                );
+            }
+            throw new Error(
+                `${error.message} Cleanup was requested for creation request ${alias}. Check the Dev Hub ${targetDevHub} for delayed creation before retrying.`,
+                { cause: error }
+            );
+        }
         created = true;
         const createdOrg = parseJson(creationOutput, 'scratch-org creation');
         const createdOrgId = createdOrg.result?.orgId ?? createdOrg.result?.id;

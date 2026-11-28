@@ -228,6 +228,128 @@ test('deletes a newly created org when its creation response cannot be parsed', 
     assert.ok(calls.some(({ command, args }) => command === 'sf' && args[1] === 'delete'));
 });
 
+test('cleans up an identifiable creation request after an ambiguous creation failure', async () => {
+    const calls = [];
+    let candidateName;
+    const run = (command, args) => {
+        calls.push({ command, args });
+        if (command === 'git' && args[0] === 'remote') return 'https://github.com/navikt/crm-arbeidsforhold.git';
+        if (command === 'git' && args[0] === 'branch') return 'main';
+        if (command === 'git' && args[0] === 'rev-parse') return 'same-commit';
+        if (command === 'git') return '';
+        if (command === 'gh' && args[1] === 'user') return 'repo-owner';
+        if (command === 'gh' && args[1].startsWith('orgs/navikt/teams/')) return 'active';
+        if (command === 'gh' && args[1].includes('/collaborators/')) return 'admin';
+        if (command === process.execPath && args[0] === 'bin/package-dependencies.js') return '';
+        if (command === process.execPath && args[0] === 'scripts/ci-scratch-plan.cjs') return 'a'.repeat(64);
+        if (command === 'sf' && args[0] === 'org' && args[1] === 'create') {
+            candidateName = args[args.indexOf('--name') + 1];
+            assert.match(candidateName, /^ci-scratch-[a-f0-9-]{36}$/);
+            throw new Error('creation request timed out');
+        }
+        if (command === 'sf' && args[0] === 'data' && args[1] === 'query') {
+            assert.equal(args[args.indexOf('--target-org') + 1], 'existing-dev-hub');
+            assert.equal(
+                args[args.indexOf('--query') + 1],
+                `SELECT Id, OrgName FROM ScratchOrgInfo WHERE OrgName = '${candidateName}'`
+            );
+            return JSON.stringify({
+                result: { totalSize: 1, done: true, records: [{ Id: '2SR000000000001AAA', OrgName: candidateName }] }
+            });
+        }
+        if (command === 'sf' && args[0] === 'data' && args[1] === 'delete') return '';
+        throw new Error(`Unexpected command: ${command} ${args.join(' ')}`);
+    };
+
+    await assert.rejects(
+        replaceScratchOrg({
+            targetDevHub: 'existing-dev-hub',
+            repositoryPath: '/repo',
+            run,
+            confirm: async () => {},
+            environment: { CRM_PACKAGE_KEY: 'test-key' }
+        }),
+        (error) => /creation request timed out/.test(error.message) && error.message.includes(candidateName)
+    );
+    const deletion = calls.find(({ command, args }) => command === 'sf' && args[0] === 'data' && args[1] === 'delete');
+    assert.ok(deletion);
+    assert.equal(deletion.args[deletion.args.indexOf('--target-org') + 1], 'existing-dev-hub');
+    assert.equal(deletion.args[deletion.args.indexOf('--sobject') + 1], 'ScratchOrgInfo');
+    assert.equal(deletion.args[deletion.args.indexOf('--record-id') + 1], '2SR000000000001AAA');
+    assert.equal(
+        calls.some(({ command, args }) => command === 'gh' && args[0] === 'variable'),
+        false
+    );
+});
+
+test('reports unresolved creation requests without deleting unrelated or unverified records', async () => {
+    for (const scenario of [
+        'missing',
+        'multiple',
+        'mismatch',
+        'invalid-id',
+        'incomplete',
+        'query-failed',
+        'delete-failed'
+    ]) {
+        const calls = [];
+        let candidateName;
+        const run = (command, args) => {
+            calls.push({ command, args });
+            if (command === 'git' && args[0] === 'remote') return 'https://github.com/navikt/crm-arbeidsforhold.git';
+            if (command === 'git' && args[0] === 'branch') return 'main';
+            if (command === 'git' && args[0] === 'rev-parse') return 'same-commit';
+            if (command === 'git') return '';
+            if (command === 'gh' && args[1] === 'user') return 'repo-owner';
+            if (command === 'gh' && args[1].startsWith('orgs/navikt/teams/')) return 'active';
+            if (command === 'gh' && args[1].includes('/collaborators/')) return 'admin';
+            if (command === process.execPath && args[0] === 'bin/package-dependencies.js') return '';
+            if (command === process.execPath && args[0] === 'scripts/ci-scratch-plan.cjs') return 'a'.repeat(64);
+            if (command === 'sf' && args[0] === 'org' && args[1] === 'create') {
+                candidateName = args[args.indexOf('--name') + 1];
+                throw new Error('creation request timed out');
+            }
+            if (command === 'sf' && args[0] === 'data' && args[1] === 'query') {
+                if (scenario === 'query-failed') throw new Error('query failed');
+                const record = {
+                    Id: scenario === 'invalid-id' ? 'not-a-scratch-request' : '2SR000000000001AAA',
+                    OrgName: candidateName
+                };
+                const records =
+                    scenario === 'missing'
+                        ? []
+                        : scenario === 'multiple'
+                          ? [record, record]
+                          : [{ ...record, OrgName: scenario === 'mismatch' ? 'another-org' : candidateName }];
+                return JSON.stringify({
+                    result: { totalSize: records.length, done: scenario !== 'incomplete', records }
+                });
+            }
+            if (command === 'sf' && args[0] === 'data' && args[1] === 'delete') throw new Error('deletion failed');
+            throw new Error(`Unexpected command: ${command} ${args.join(' ')}`);
+        };
+        await assert.rejects(
+            replaceScratchOrg({
+                targetDevHub: 'existing-dev-hub',
+                repositoryPath: '/repo',
+                run,
+                confirm: async () => {},
+                environment: { CRM_PACKAGE_KEY: 'test-key' }
+            }),
+            (error) =>
+                /creation request timed out/i.test(error.message) &&
+                /inspect|check/i.test(error.message) &&
+                error.message.includes(candidateName) &&
+                error.message.includes('existing-dev-hub'),
+            scenario
+        );
+        const deletions = calls.filter(
+            ({ command, args }) => command === 'sf' && args[0] === 'data' && args[1] === 'delete'
+        );
+        assert.equal(deletions.length, scenario === 'delete-failed' ? 1 : 0, scenario);
+    }
+});
+
 test('preserves the new org when GitHub registration reports an ambiguous secret-write failure', async (context) => {
     const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-scratch-replace-test-'));
     context.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));

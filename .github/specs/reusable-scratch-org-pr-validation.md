@@ -156,9 +156,12 @@ repoet. GitHub kontrollerer tilgangen på nytt når miljøverdiane blir endra.
 Registreringa består av secreten `CI_SCRATCH_ORG_AUTH_URL` og variablane
 `CI_SCRATCH_ORG_ID`, `CI_SCRATCH_ORG_EXPIRATION` og
 `CI_SCRATCH_ORG_CONFIG_SHA256`. Variablane blir skrivne før secreten. Ved
-delvis feil rullar kommandoen variablane tilbake der det er mogleg, slettar
-den nye uregistrerte orgen og viser tydeleg om oppryddinga feila. PR-valideringa
-brukar fallback dersom verdiane ikkje peikar på same org.
+delvis feil rullar kommandoen variablane tilbake der det er mogleg. Kandidaten
+blir teken vare på dersom ei Environment-skriving er forsøkt, sidan resultatet
+kan vere uavklart. Før dette blir ein stadfesta kandidat sletta ved feil. Ved
+uavklart orgoppretting prøver kommandoen å rydde opp via ei eintydig merkt
+opprettingsførespurnad i Dev Hub og ber operatøren kontrollere resultatet.
+PR-valideringa brukar fallback dersom verdiane ikkje peikar på same org.
 
 Vedlikehaldet held éi issue open medan orgen manglar, er utdatert eller ikkje
 kan oppgraderast/røyketestast. Issue-en nemner repo-eigarteamet og lenkjer til
@@ -212,7 +215,7 @@ fram.
 - **REQ-144:** Vedlikehaldet viser kontrollresultat, årsak til eventuell utskifting og pakkeendringar i Actions-oppsummeringa.
 - **REQ-145:** Når orgen krev eigaroppfølging eller vedlikehaldet ikkje kan verifisere orgtilstanden, opprettar eller oppdaterer vedlikehaldet éi open issue med årsak, lenke til driftsguiden og mention av `@navikt/crm-arbeidsforhold-admin`. Issue-en blir lukka når kontrollane er grøne og orgen samsvarar med pakkeplanen.
 - **REQ-146:** Lokal erstatningskommando krev aktivt medlemskap i `@navikt/crm-arbeidsforhold-admin`, repo-admin-permission, eksplisitt Dev Hub-alias og interaktiv stadfesting før Salesforce blir kontakta. Han opprettar 30-dagars org, installerer gjeldande pakkeplan, deployer `force-app`, køyrer repo-testar og handhevar 85 % dekning før registrering.
-- **REQ-147:** Etter grøn røyketest tek kommandoen ein felles GitHub-ref-lås og oppdaterer `CI_SCRATCH_ORG_ID`, `CI_SCRATCH_ORG_EXPIRATION`, `CI_SCRATCH_ORG_CONFIG_SHA256` og `CI_SCRATCH_ORG_AUTH_URL` i `ci-scratch-org` med operatøren sin `gh`-innlogging. Låsen dekkjer lesing, skriving og tilbakerulling, og ein avbroten lås krev manuell kontroll før han kan fjernast. Auth-URL blir send via stdin og aldri vist eller lagra i repo/artifact. Variablane blir skrivne før secreten; ved feil blir tidlegare variabelverdiar gjenoppretta der det er mogleg, også for skrivingar med uavklart resultat. Dersom Environment-oppdateringa startar men feilar, blir den nye orgen verande for inspeksjon fordi GitHub kan ha akseptert ei secret-endring sjølv om CLI-en rapporterer feil. Feil før registreringssteget slettar kandidaten.
+- **REQ-147:** Etter grøn røyketest tek kommandoen ein felles GitHub-ref-lås og oppdaterer `CI_SCRATCH_ORG_ID`, `CI_SCRATCH_ORG_EXPIRATION`, `CI_SCRATCH_ORG_CONFIG_SHA256` og `CI_SCRATCH_ORG_AUTH_URL` i `ci-scratch-org` med operatøren sin `gh`-innlogging. Låsen dekkjer lesing, skriving og tilbakerulling, og ein avbroten lås krev manuell kontroll før han kan fjernast. Auth-URL blir send via stdin og aldri vist eller lagra i repo/artifact. Variablane blir skrivne før secreten; ved feil blir tidlegare variabelverdiar gjenoppretta der det er mogleg, også for skrivingar med uavklart resultat. Dersom Environment-oppdateringa startar men feilar, blir den nye orgen verande for inspeksjon fordi GitHub kan ha akseptert ei secret-endring sjølv om CLI-en rapporterer feil. Ved feil før første Environment-skriving blir ein stadfesta kandidat sletta. Ved uavklart oppretting prøver kommandoen å slette berre ei eintydig merkt opprettingsførespurnad og ber om manuell kontroll av resultatet.
 - **REQ-148:** GitHub App for Environment-secret-skriving blir ikkje teken i bruk no. Ho kan vurderast som valfri automatisering seinare.
 - **REQ-149:** Eksisterande org blir ikkje sletta før ny org er verifisert og registrert. PR-valideringa fell tilbake til eingongsorg når registreringa er ufullstendig.
 

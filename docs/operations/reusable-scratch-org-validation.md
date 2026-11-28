@@ -78,8 +78,8 @@ Kommandoen:
    kontakta;
 3. løyser same pakkeplan som dagleg CI, inkludert tilgjengelege
    `LATEST`-versjonar;
-4. opprettar ein scratch-org som varer i 30 dagar og installerer alle
-   planlagde pakkeversjonar;
+4. opprettar ein scratch-org som varer i 30 dagar, med eit unikt namn som blir
+   vist før opprettinga, og installerer alle planlagde pakkeversjonar;
 5. kopierer deployerbar `force-app` og `.forceignore` til eit mellombels
    område utan å endre checkouten, slik at Salesforce held fram med å ignorere
    testfiler og anna kjelde som ikkje skal deployerast. Han køyrer check-only
@@ -104,6 +104,19 @@ Environment-verdiane og PR-valideringsruta før orgen eventuelt blir sletta
 manuelt. Den tidlegare registrerte orgen blir ikkje sletta av kommandoen; han
 går ut etter Salesforce sin utløpsdato. Det hindrar at ei mislukka registrering
 fjernar den siste orgen PR-valideringa kan bruke.
+
+### Opprydding etter uavklart orgoppretting
+
+Dersom Salesforce-kommandoen feilar under opprettinga, søkjer skriptet etter
+det unike namnet i `ScratchOrgInfo` i den valde Dev Hub-en. Finst nøyaktig éi
+verifisert førespurnad, prøver skriptet å slette henne. Salesforce opplyser at
+sletting av førespurnaden også slettar ein aktiv scratch-org.
+
+Kontroller alltid namnet og Dev Hub-en frå feilmeldinga før du prøver på nytt.
+Ei forseinka oppretting kan bli synleg etter kontrollen, og sletting kan
+feile eller ha eit uavklart resultat. Søk etter namnet i **Scratch Org Infos**
+i Dev Hub-en, stadfest at førespurnaden tilhøyrer det feila forsøket, og rydd
+eventuelt opp der. Ved avbrot blir namnet vist i terminalen før opprettinga.
 
 ### Opprydding etter avbroten registrering
 
